@@ -1,6 +1,6 @@
 @extends('layouts.app')
 @section('title')
-    Unit
+    Store
 @endsection
 @section('content')
     <!-- Content Header (Page header) -->
@@ -8,10 +8,10 @@
         @php
             $links = [
             'Home'=>route('dashboard'),
-            'Unit Create'=>''
+            'Store Edit'=>''
             ]
         @endphp
-        <x-bread-crumb-component title='Unit' :links="$links"/>
+        <x-bread-crumb-component title='Store' :links="$links"/>
     </section>
     <!-- Main content -->
     <section class="content">
@@ -19,22 +19,22 @@
             <div class="row">
                 <div class="col-12">
                     <!-- Horizontal Form -->
-                    <form action="{{route('units.store')}}" method="POST" class=""
+                    <form action="{{route('stores.store')}}" method="POST" class=""
                           enctype="multipart/form-data">
                         @csrf
                         <div class="card">
                             <div class="card-header">
-                                <h4 class="card-title">Unit Create</h4>
+                                <h4 class="card-title">Store Edit</h4>
                             </div>
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-xl-4 col-md-4 col-12 mb-1">
                                         <div class="form-group">
-                                            <label for="unit_no">Unit No</label>
-                                            <input type="text" class="form-control" id="unit_no" name="unit_no"
-                                                   placeholder="" value="{{old('unit_no',$unit_no)}}" readonly>
-                                            @if($errors->has('unit_no'))
-                                                <small class="text-danger">{{$errors->first('unit_no')}}</small>
+                                            <label for="serial_no">Store No</label>
+                                            <input type="text" class="form-control" id="serial_no" name="serial_no"
+                                                   placeholder="" value="{{old('serial_no',$store->id)}}" readonly>
+                                            @if($errors->has('serial_no'))
+                                                <small class="text-danger">{{$errors->first('serial_no')}}</small>
                                             @endif
                                         </div>
                                     </div>
@@ -42,7 +42,8 @@
                                         <div class="form-group">
                                             <label for="name">Name</label>
                                             <input type="text" class="form-control" id="name" name="name"
-                                                   placeholder="Ex: Kilogram, Piece, Liter, Box" value="{{old('name')}}">
+                                                   placeholder="Enter Name"
+                                                   value="{{old('name',$store->name)}}">
                                             @if($errors->has('name'))
                                                 <small class="text-danger">{{$errors->first('name')}}</small>
                                             @endif
@@ -50,11 +51,17 @@
                                     </div>
                                     <div class="col-xl-4 col-md-4 col-12 mb-1">
                                         <div class="form-group">
-                                            <label for="short_name">Short Name</label>
-                                            <input type="text" class="form-control" id="short_name" name="short_name"
-                                                   placeholder="Ex: Kg, Pcs, L, Box" value="{{old('short_name')}}">
-                                            @if($errors->has('short_name'))
-                                                <small class="text-danger">{{$errors->first('short_name')}}</small>
+                                            <label for="type" class="control-label">Type</label>
+                                            <select class="form-control" name="type">
+                                                <option value=" ">Select One</option>
+                                                <option value="fg">FG</option>
+                                                <option value="bp">BP</option>
+                                                <option value="rm">RM</option>
+                                                <option value="wip">WIP</option>
+                                            </select>
+                                            @if ($errors->has('type'))
+                                                <small
+                                                    class="text-danger">{{ $errors->first('type') }}</small>
                                             @endif
                                         </div>
                                     </div>

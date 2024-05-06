@@ -41,13 +41,15 @@ class UnitController extends Controller
      */
     public function create()
     {
-        return view('unit.create');
+        $unit_count = Unit::latest()->first() ? Unit::latest()->first()->id : 0 ;
+        $unit_no = $unit_count+1 ;
+        return view('unit.create', compact('unit_no'));
     }
 
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \App\Http\Requests\StoreUnitRequest  $request
+     * @param \App\Http\Requests\StoreUnitRequest $request
      * @return \Illuminate\Http\Response
      */
     public function store(StoreUnitRequest $request)
@@ -70,7 +72,7 @@ class UnitController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\Unit  $unit
+     * @param \App\Models\Unit $unit
      * @return \Illuminate\Http\Response
      */
     public function show(Unit $unit)
@@ -81,20 +83,20 @@ class UnitController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Models\Unit  $unit
+     * @param \App\Models\Unit $unit
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
     {
         $unit = Unit::findOrFail(decrypt($id));
-        return view('unit.edit',compact('unit'));
+        return view('unit.edit', compact('unit'));
     }
 
     /**
      * Update the specified resource in storage.
      *
-     * @param  \App\Http\Requests\UpdateUnitRequest  $request
-     * @param  \App\Models\Unit  $unit
+     * @param \App\Http\Requests\UpdateUnitRequest $request
+     * @param \App\Models\Unit $unit
      * @return \Illuminate\Http\Response
      */
     public function update(UpdateUnitRequest $request, $id)
@@ -116,7 +118,7 @@ class UnitController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\Unit  $unit
+     * @param \App\Models\Unit $unit
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
@@ -133,31 +135,37 @@ class UnitController extends Controller
         Toastr::success('Unit Deleted Successfully!.', '', ["progressBar" => true]);
         return redirect()->route('units.index');
     }
-    public function trashList(){
+
+    public function trashList()
+    {
 
         if (\request()->ajax()) {
             $units = Unit::onlyTrashed()->latest();
             return DataTables::of($units)
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
-                    return view('user.unit.trash-action-button',compact('row'));
+                    return view('user.unit.trash-action-button', compact('row'));
                 })
                 ->addColumn('created_at', function ($row) {
-                    return view('user.common.created_at',compact('row'));
+                    return view('user.common.created_at', compact('row'));
                 })
-                ->rawColumns(['action','created_at'])
+                ->rawColumns(['action', 'created_at'])
                 ->make(true);
         }
         return view('unit.trash-list');
     }
-    public function restore($id){
-        $unit = Unit::withTrashed()->where('id',decrypt($id))->first();
+
+    public function restore($id)
+    {
+        $unit = Unit::withTrashed()->where('id', decrypt($id))->first();
         $unit->restore();
         Toastr::success('Unit has been Restored Successfully!.', '', ["progressBar" => true]);
         return redirect()->route('units.index');
     }
-    public function permanentDelete($id){
-        $unit = Unit::onlyTrashed()->where('id',decrypt($id))->first();
+
+    public function permanentDelete($id)
+    {
+        $unit = Unit::onlyTrashed()->where('id', decrypt($id))->first();
         $unit->forceDelete();
         Toastr::success('Unit has been Permanent Deleted Successfully!.', '', ["progressBar" => true]);
         return redirect()->route('units.index');
