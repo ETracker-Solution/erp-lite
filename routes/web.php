@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AttributeController;
 use App\Http\Controllers\ChartOfAccountController;
+use App\Http\Controllers\ChartOfInventoryController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\SaleController;
@@ -33,7 +34,8 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('chart-of-accounts', ChartOfAccountController::class);
     Route::resource('stores', \App\Http\Controllers\StoreController::class);
-    Route::get('/chart-of-inventory', [\App\Http\Controllers\ChartOfInventoryController::class, 'index'])->name('chart-of-inventory');
+    Route::resource('chart-of-inventories', ChartOfInventoryController::class);
+
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');

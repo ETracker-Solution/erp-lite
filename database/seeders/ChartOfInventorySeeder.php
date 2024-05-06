@@ -16,7 +16,7 @@ class ChartOfInventorySeeder extends Seeder
         ChartOfInventory::create( [
             'id'=>1,
             'name'=>'Raw Material',
-            'type'=>'f',
+            'type'=>'group',
             'rootAccountType'=>'RM',
             'photo_url'=>'/20230607010602eHkSHV.webp',
             'status'=>'active',
@@ -26,7 +26,7 @@ class ChartOfInventorySeeder extends Seeder
         ChartOfInventory::create( [
             'id'=>2,
             'name'=>'Work In Process',
-            'type'=>'f',
+            'type'=>'group',
             'rootAccountType'=>'WIP',
             'photo_url'=>'/20230607010602eHkSHV.webp',
             'status'=>'active',
@@ -36,7 +36,7 @@ class ChartOfInventorySeeder extends Seeder
         ChartOfInventory::create( [
             'id'=>3,
             'name'=>'Finish Goods',
-            'type'=>'f',
+            'type'=>'group',
             'rootAccountType'=>'FG',
             'photo_url'=>'/20230607010602eHkSHV.webp',
             'status'=>'active',
@@ -46,7 +46,7 @@ class ChartOfInventorySeeder extends Seeder
         ChartOfInventory::create( [
             'id'=>4,
             'name'=>'By Product',
-            'type'=>'f',
+            'type'=>'item',
             'rootAccountType'=>'FG',
             'photo_url'=>'/20230607010602eHkSHV.webp',
             'status'=>'active',
