@@ -55,7 +55,7 @@ Sale
                 </div>
             </div>
             <div class="col-lg-8 col-md-8">
-                <form action="#" method="POST" class="" enctype="multipart/form-data">
+                <form action="{{ route('chart-of-inventories.store') }}" method="POST" class="" enctype="multipart/form-data">
                     @csrf
                     <div class="card card-info">
                         <div class="card-header">
@@ -63,41 +63,16 @@ Sale
                         </div>
                         <hr style="margin: 0;">
                         <div class="card-body">
-
                             <div class="row">
-                                <div class="col-xl-4 col-md-4 col-12">
-                                    <div class="form-group">
-                                        <label for="parent_id">Inventory Parent Name</label>
-                                        <select class="form-control select2" name="parent_id" id="parent_id">
-                                            <option value="">Select One</option>
-                                            @foreach ($groups as $row)
-                                            <option value="{{ $row->id }}" {{ old('parent_id')==$row->id ? 'selected' :
-                                                '' }}>
-                                                {{ $row->name }}
-                                            </option>
-                                            @endforeach
-                                        </select>
-                                    </div>
+                                <div class="col-xl-12 col-md-12 col-12">
+                                    <x-forms.select label="Inventory Parent Name" inputName="parent_id" placeholder="Select One" :isRequired='true'  :isReadonly='false' defaultValue="" :options="$groups" optionId='id' optionValue='name'/>
                                 </div>
 
-                                <div class="col-xl-4 col-md-4 col-12">
-                                    <div class="form-group">
-                                        <label for="type">Group/Item</label>
-                                        <select class="form-control select2" name="type" id="type">
-                                            <option value="group">Group</option>
-                                            <option value="item">Item</option>
-                                        </select>
-                                    </div>
+                                <div class="col-xl-12 col-md-12 col-12">
+                                    <x-forms.static-select label="Group/Item" inputName="type" placeholder="Select One" :isRequired='true'  :isReadonly='false' defaultValue="" :options="['group','item']"/>
                                 </div>
-                                <div class="col-xl-4 col-md-4 col-12">
-                                    <div class="form-group">
-                                        <label for="name">Inventory Name</label>
-                                        <input type="text" class="form-control" id="name" name="name"
-                                            placeholder="Enter Name" value="{{ old('name') }}">
-                                        @if ($errors->has('name'))
-                                        <small class="text-danger">{{ $errors->first('name') }}</small>
-                                        @endif
-                                    </div>
+                                <div class="col-xl-12 col-md-12 col-12">
+                                    <x-forms.text label="Group Name" inputName="name" placeholder="Enter Name" :isRequired='true'  :isReadonly='false' defaultValue=""/>
                                 </div>
                             </div>
                         </div>
