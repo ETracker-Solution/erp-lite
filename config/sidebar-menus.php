@@ -66,6 +66,24 @@ return [
                             'active_condition' => '',
                         ]
                     ],
+                ],
+                [
+                    'name' => 'Procurement Settings',
+                    'url' => '#',
+                    'has_child' => true,
+                    'active_condition' => false,
+                    'child' => [
+                        [
+                            'name' => 'Supplier Group List',
+                            'url' => '/supplier-groups',
+                            'active_condition' => '',
+                        ],
+                        [
+                            'name' => 'Supplier List',
+                            'url' => '/suppliers',
+                            'active_condition' => '',
+                        ]
+                    ],
                 ]
             ],
         ],
