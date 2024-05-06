@@ -59,6 +59,11 @@ return [
                             'name' => 'Inventory Item List',
                             'url' => '/chart-of-inventory',
                             'active_condition' => '',
+                        ],
+                        [
+                            'name' => 'Unit List',
+                            'url' => '/units',
+                            'active_condition' => '',
                         ]
                     ],
                 ]
