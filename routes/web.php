@@ -32,6 +32,7 @@ Route::middleware('auth')->group(function () {
     //lock Screen Start
 
     Route::resource('chart-of-accounts', ChartOfAccountController::class);
+    Route::resource('stores', \App\Http\Controllers\StoreController::class);
     Route::get('/chart-of-inventory', [\App\Http\Controllers\ChartOfInventoryController::class, 'index'])->name('chart-of-inventory');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
