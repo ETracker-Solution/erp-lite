@@ -23,8 +23,8 @@ return [
                     'child' => [
                         [
                             'name' => 'Inventory Item List',
-                            'url' => '#',
-                            'active_condition' => false,
+                            'url' => '/chart-of-inventory',
+                            'active_condition' => '',
                         ]
                     ],
                 ]
