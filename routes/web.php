@@ -28,7 +28,7 @@ Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'ind
 Route::middleware('auth')->group(function () {
 
     //lock Screen Start
-    Route::get('lock-screen',  [App\Http\Controllers\LockScreenController::class, 'lockScreen']);
+    Route::get('lock-screen', [App\Http\Controllers\LockScreenController::class, 'lockScreen']);
 
     //lock Screen Start
 
@@ -45,6 +45,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('brands', App\Http\Controllers\BrandController::class);
     Route::resource('units', App\Http\Controllers\UnitController::class);
     Route::resource('products', App\Http\Controllers\ProductController::class);
+    Route::resource('supplier-groups', App\Http\Controllers\SupplierGroupController::class);
     Route::resource('suppliers', App\Http\Controllers\SupplierController::class);
     Route::resource('customers', App\Http\Controllers\CustomerController::class);
     Route::resource('purchases', PurchaseController::class);
@@ -66,8 +67,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/fetch-product-info-for-sale/{id}', [App\Http\Controllers\ApiController::class, 'fetch_product_sale'])->name('fetch-product-info-for-sale');
     Route::resource('stocks', App\Http\Controllers\StockController::class);
     Route::resource('label', App\Http\Controllers\LabelController::class);
-    Route::get('vuejs/autocomplete/search',  [App\Http\Controllers\LabelController::class, 'autocompleteSearch'])->name('vuejs.autocomplete.search');
-    Route::get('fetch-product-info-for-gatepass/{id}',  [App\Http\Controllers\LabelController::class, 'fetch_product_info']);
+    Route::get('vuejs/autocomplete/search', [App\Http\Controllers\LabelController::class, 'autocompleteSearch'])->name('vuejs.autocomplete.search');
+    Route::get('fetch-product-info-for-gatepass/{id}', [App\Http\Controllers\LabelController::class, 'fetch_product_info']);
 
 
     Route::get('sale-pdf/{id}', [App\Http\Controllers\SaleController::class, 'pdf'])->name('sale.pdf');
@@ -101,4 +102,4 @@ Route::group(['prefix' => 'reports', 'middleware' => 'auth'], function () {
 });
 
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
