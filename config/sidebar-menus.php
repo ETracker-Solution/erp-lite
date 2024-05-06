@@ -11,7 +11,7 @@ return [
         ],
         [
             'name' => 'Sales Module',
-            'icon' => 'fas fa-wrench',
+            'icon' => 'fas fa-shopping-cart',
             'active_condition' => false,
             'has_child' => true,
             'child' => [
