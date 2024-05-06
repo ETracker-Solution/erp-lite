@@ -7,7 +7,6 @@
                     @if ($row->type != 'item') onclick="changeChart()" @endif
                     class="{{ $row->type == 'item' ? 'text-danger' : '' }}"> <span>{{ $row->name }}</span></a>
             </span>
-
             @if (count($row->subChartOfInventories))
                 @include('chart_of_inventory.sub-group-list', ['subcharts' => $row->subChartOfInventories])
             @endif
