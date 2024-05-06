@@ -1,6 +1,6 @@
 @extends('layouts.app')
 @section('title')
-    Suplliers
+    Supllier Group
 @endsection
 @section('style')
     <!-- Select2 -->
@@ -24,13 +24,13 @@
         <div class="container-fluid">
             <div class="row">
                 <div class="col-12">
-                    <form action="{{route('suppliers.store')}}" method="POST" class=""
+                    <form action="{{route('supplier-groups.store')}}" method="POST" class=""
                           enctype="multipart/form-data">
                         @csrf
                         <!-- Horizontal Form -->
                         <div class="card card-primary">
                             <div class="card-header bg-light">
-                                <h3 class="card-title" style="color:#115548;">Supplier</h3>
+                                <h3 class="card-title" style="color:#115548;">Supplier Group</h3>
                                 <div class="card-tools">
                                     <a href="{{route('suppliers.index')}}" class="btn btn-sm btn-primary">
                                         <i class="fa fa-list"
@@ -48,6 +48,16 @@
                                 <div class="row">
                                     <div class="col-xl-4 col-md-4 col-12 mb-1">
                                         <div class="form-group">
+                                            <label for="serial_no">Store No</label>
+                                            <input type="text" class="form-control" id="serial_no" name="serial_no"
+                                                   placeholder="" value="{{old('serial_no',$serial_no)}}" readonly>
+                                            @if($errors->has('serial_no'))
+                                                <small class="text-danger">{{$errors->first('serial_no')}}</small>
+                                            @endif
+                                        </div>
+                                    </div>
+                                    <div class="col-xl-4 col-md-4 col-12 mb-1">
+                                        <div class="form-group">
                                             <label for="name">Name</label>
                                             <input type="text" class="form-control" id="name" name="name"
                                                    placeholder="Enter Name"
@@ -60,33 +70,12 @@
 
                                     <div class="col-xl-4 col-md-4 col-12 mb-1">
                                         <div class="form-group">
-                                            <label for="mobile">Mobile</label>
-                                            <input type="text" class="form-control" id="mobile" name="mobile"
-                                                   placeholder="Enter Mobile"
-                                                   value="{{old('mobile')}}">
-                                            @if($errors->has('mobile'))
-                                                <small class="text-danger">{{$errors->first('mobile')}}</small>
-                                            @endif
-                                        </div>
-                                    </div>
-                                    <div class="col-xl-4 col-md-4 col-12 mb-1">
-                                        <div class="form-group">
-                                            <label for="email">Email Address</label>
-                                            <input type="text" class="form-control" id="email" name="email"
-                                                   placeholder="Enter Email Address"
-                                                   value="{{old('email')}}">
-                                            @if($errors->has('email'))
-                                                <small class="text-danger">{{$errors->first('email')}}</small>
-                                            @endif
-                                        </div>
-                                    </div>
-                                    <div class="col-xl-4 col-md-4 col-12 mb-1">
-                                        <div class="form-group">
-                                            <label for="address">Address</label>
-                                            <textarea class="form-control" id="address" name="address"
-                                                      placeholder="Enter Email Address">{{old('address')}}</textarea>
-                                            @if($errors->has('address'))
-                                                <small class="text-danger">{{$errors->first('address')}}</small>
+                                            <label for="code">Code</label>
+                                            <input type="text" class="form-control" id="code" name="code"
+                                                   placeholder="Enter Code"
+                                                   value="{{old('code')}}">
+                                            @if($errors->has('code'))
+                                                <small class="text-danger">{{$errors->first('code')}}</small>
                                             @endif
                                         </div>
                                     </div>

@@ -51,7 +51,7 @@ Sale
                 <div class="row">
                   <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
                     <div class="form-group">
-                      <label for="category_id" class="control-label">Category</label>
+                      <label for="category_id" class="control-label">Group</label>
                       <select class="form-control bSelect" name="category_id" v-model="category_id" @change="fetch_product">
                         <option value="">Select One</option>
                         @foreach ($categories as $category)
@@ -62,7 +62,7 @@ Sale
                   </div>
                   <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
                     <div class="form-group">
-                      <label for="product_id">Product</label>
+                      <label for="product_id">Item</label>
                       <select name="product_id" id="product_id" class="form-control bSelect" v-model="product_id">
                         <option value="">Select one</option>
 

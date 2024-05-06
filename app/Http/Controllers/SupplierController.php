@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Supplier;
+use App\Models\SupplierGroup;
 use Yajra\DataTables\Facades\DataTables;
 use App\Http\Requests\StoreSupplierRequest;
 use App\Http\Requests\UpdateSupplierRequest;
@@ -41,7 +42,9 @@ class SupplierController extends Controller
      */
     public function create()
     {
-        return view('supplier.create');
+        $serial_count = Supplier::latest()->first() ? Supplier::latest()->first()->id : 0;
+        $serial_no = $serial_count + 1;
+        return view('supplier.create', compact('serial_no'));
     }
 
     /**
@@ -64,7 +67,7 @@ class SupplierController extends Controller
             return back();
         }
         Toastr::success('Supplier Created Successfully!.', '', ["progressBar" => true]);
-        return redirect()->route('user.suppliers.index');
+        return redirect()->route('suppliers.index');
     }
 
     /**

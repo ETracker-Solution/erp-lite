@@ -1,6 +1,6 @@
 @extends('layouts.app')
 @section('title')
-    Supplier List
+    Supplier Group List
 @endsection
 @section('content')
     <!-- Content Header (Page header) -->
@@ -8,10 +8,10 @@
         @php
             $links = [
             'Home'=>route('dashboard'),
-            'Supplier list'=>''
+            'Supplier Group list'=>''
             ]
         @endphp
-        <x-bread-crumb-component title='Supplier' :links="$links"/>
+        <x-bread-crumb-component title='Supplier Group' :links="$links"/>
     </section>
 
     <!-- Main content -->
@@ -22,12 +22,12 @@
                 <div class="col-12">
                     <div class="card">
                         <div class="card-header">
-                            <h3 class="card-title" style="color:#115548;">Supplier List</h3>
+                            <h3 class="card-title" style="color:#115548;">Supplier Group List</h3>
                             <div class="card-tools">
-                                <a href="{{route('suppliers.create')}}">
-                                    <button class="btn btn-sm btn-primary"><i class="fa fa-plus-circle"
-                                                                              aria-hidden="true"></i> &nbsp;Add Supplier
-                                    </button>
+                                <a href="{{route('supplier-groups.create')}}" class="btn btn-sm btn-primary">
+                                    <i class="fa fa-plus-circle"
+                                       aria-hidden="true"></i> &nbsp;Add Supplier
+
                                 </a>
                             </div>
                         </div>
@@ -74,7 +74,7 @@
                 serverSide: true,
                 processing: true,
                 ajax: {
-                    url: "{{ route('suppliers.index') }}",
+                    url: "{{ route('supplier-groups.index') }}",
                 },
                 columns: [{
                     data: "DT_RowIndex",
@@ -89,18 +89,8 @@
                         searchable: true
                     },
                     {
-                        data: "mobile",
-                        title: "mobile",
-                        searchable: true
-                    },
-                    {
-                        data: "address",
-                        title: "Address",
-                        searchable: true
-                    },
-                    {
-                        data: "email",
-                        title: "email",
+                        data: "code",
+                        title: "code",
                         searchable: true
                     },
                     {
