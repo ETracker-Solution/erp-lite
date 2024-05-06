@@ -10,6 +10,27 @@ return [
             'has_child' => false,
         ],
         [
+            'name' => 'Procurement Module',
+            'icon' => 'fas fa-shopping-cart',
+            'active_condition' => false,
+            'has_child' => true,
+            'child' => [
+                [
+                    'name' => 'Procurement Entry',
+                    'url' => '#',
+                    'has_child' => true,
+                    'active_condition' => false,
+                    'child' => [
+                        [
+                            'name' => 'Goods Purchase Bill',
+                            'url' => '/purchases/create',
+                            'active_condition' => '',
+                        ]
+                    ],
+                ]
+            ],
+        ],
+        [
             'name' => 'Sales Module',
             'icon' => 'fas fa-shopping-cart',
             'active_condition' => false,
