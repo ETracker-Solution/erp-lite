@@ -31,6 +31,8 @@ class ChartOfInventoryController extends Controller
             'name' => $request->input('name'),
             'parent_id' => $request->input('parent_id'),
             'type' => $request->input('type'),
+            'price' => $request->input('price'),
+            'rootAccountType' => $chartOfAccount->rootAccountType,
         ]);
         Toastr::success('Chart of Account Created Successfully!.', '', ["progressBar" => true]);
         return redirect()->route('chart-of-inventories.index');
