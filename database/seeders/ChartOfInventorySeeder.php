@@ -16,8 +16,8 @@ class ChartOfInventorySeeder extends Seeder
         ChartOfInventory::create( [
             'id'=>1,
             'name'=>'Raw Material',
-            'type'=>'f',
-            'rootAccountType'=>'RM',
+            'type' => 'group',
+            'rootAccountType'=>'',
             'photo_url'=>'/20230607010602eHkSHV.webp',
             'status'=>'active',
             'created_at'=>'2023-06-07 13:04:02',
@@ -26,8 +26,8 @@ class ChartOfInventorySeeder extends Seeder
         ChartOfInventory::create( [
             'id'=>2,
             'name'=>'Work In Process',
-            'type'=>'f',
-            'rootAccountType'=>'WIP',
+            'type' => 'group',
+            'rootAccountType'=>'',
             'photo_url'=>'/20230607010602eHkSHV.webp',
             'status'=>'active',
             'created_at'=>'2023-06-07 13:04:02',
@@ -36,8 +36,8 @@ class ChartOfInventorySeeder extends Seeder
         ChartOfInventory::create( [
             'id'=>3,
             'name'=>'Finish Goods',
-            'type'=>'f',
-            'rootAccountType'=>'FG',
+            'type' => 'group',
+            'rootAccountType'=>'',
             'photo_url'=>'/20230607010602eHkSHV.webp',
             'status'=>'active',
             'created_at'=>'2023-06-07 13:04:02',
@@ -46,8 +46,8 @@ class ChartOfInventorySeeder extends Seeder
         ChartOfInventory::create( [
             'id'=>4,
             'name'=>'By Product',
-            'type'=>'f',
-            'rootAccountType'=>'FG',
+            'type' => 'item',
+            'rootAccountType'=>'',
             'photo_url'=>'/20230607010602eHkSHV.webp',
             'status'=>'active',
             'created_at'=>'2023-06-07 13:04:02',

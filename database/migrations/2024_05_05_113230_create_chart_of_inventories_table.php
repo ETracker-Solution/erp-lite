@@ -13,7 +13,7 @@ return new class extends Migration {
         Schema::create('chart_of_inventories', function (Blueprint $table) {
             $table->id();
             $table->string('name', 100);
-            $table->string('type', 100);
+            $table->enum('type',['group','item'])->nullable();
             $table->string('rootAccountType', 100);
             $table->double('price', 8, 2);
             $table->text('photo_url')->nullable();
