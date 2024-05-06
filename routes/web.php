@@ -73,6 +73,8 @@ Route::middleware('auth')->group(function () {
 
     Route::get('purchase-pdf/{id}', [App\Http\Controllers\PurchaseController::class, 'pdf'])->name('purchase.pdf');
     Route::get('purchase-pdf-download/{id}', [App\Http\Controllers\PurchaseController::class, 'pdfDownload'])->name('purchase.pdf-download');
+
+    Route::resource('users', \App\Http\Controllers\UserController::class);
 });
 Route::group(['prefix' => 'reports', 'middleware' => 'auth'], function () {
     //Report Route
@@ -90,5 +92,6 @@ Route::group(['prefix' => 'reports', 'middleware' => 'auth'], function () {
 
     Route::get('daterangesummary-report', [App\Http\Controllers\ReportController::class, 'daterangeSummery'])->name('daterangesummery.report');
     Route::get('daterangesummary-data', [App\Http\Controllers\ReportController::class, 'fetchDaterangeSummary'])->name('fetchdaterangesummary.report');
+
 });
 require __DIR__.'/auth.php';
