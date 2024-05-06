@@ -23,6 +23,7 @@
                             <!-- THE CALENDAR -->
                             <div class="row">
                                 <div class="col-sm-12 col-12">
+
                                     <div class="text-right mb-2">
                                         <div class="btn-group">
                                             <button class="btn btn-info active" type="button" @click="fetch_today($event)">Today</button>
@@ -35,6 +36,7 @@
                             <div class="row">
                                 <div class="col-12 col-sm-6 col-md-3">
                                     <div class="info-box">
+                                        <x-buttons.update-icon/>
                                     <span class="info-box-icon bg-info elevation-1">
                                         <i class="fas fa-shopping-cart"></i>
                                     </span>
