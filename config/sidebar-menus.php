@@ -57,7 +57,7 @@ return [
                     'child' => [
                         [
                             'name' => 'Inventory Item List',
-                            'url' => '/chart-of-inventory',
+                            'url' => '/chart-of-inventories',
                             'active_condition' => '',
                         ],
                         [
