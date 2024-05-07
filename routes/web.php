@@ -56,6 +56,7 @@ Route::middleware('auth')->group(function () {
 
     Route::get('fetch-sub-category-product-info/{id}', [App\Http\Controllers\POSController::class, 'fetchSubCategoryProductInfo']);
     Route::get('fetch-sub-category-wise-product-info/{catId}/{subCatId}', [App\Http\Controllers\POSController::class, 'fetch_sub_category_wise_product_info']);
+    Route::get('fetch-item-info/{id}', [App\Http\Controllers\ApiController::class, 'fetchItemById']);
     Route::get('fetch-product-info/{id}', [App\Http\Controllers\POSController::class, 'fetch_product_info']);
     Route::get('fetch-all-product', [App\Http\Controllers\POSController::class, 'fetch_all_product']);
 
@@ -63,6 +64,7 @@ Route::middleware('auth')->group(function () {
     //--------------
 
     Route::resource('attributes', AttributeController::class);
+    Route::get('/fetch-items-by-group-id/{id}', [App\Http\Controllers\ApiController::class, 'fetch_products_by_cat_id']);
     Route::get('/fetch-product-by-category-id/{id}', [App\Http\Controllers\ProductController::class, 'fetch_products_by_cat_id']);
     Route::get('/fetch-product-info-for-sale/{id}', [App\Http\Controllers\ApiController::class, 'fetch_product_sale'])->name('fetch-product-info-for-sale');
     Route::resource('stocks', App\Http\Controllers\StockController::class);

@@ -1,161 +1,254 @@
 @extends('layouts.app')
 @section('title')
-Purchase
+    Purchase
 @endsection
 
 
 @section('content')
-<!-- Content Header (Page header) -->
-<section class="content-header">
-  <div class="container-fluid">
-    <div class="row mb-1">
+    <!-- Content Header (Page header) -->
+    <section class="content-header">
+        @php
+            $links = [
+            'Home'=>route('dashboard'),
+            'Purchase Create'=>''
+            ]
+        @endphp
+        <x-bread-crumb-component title='Purchase' :links="$links"/>
+    </section>
 
-    </div>
-  </div><!-- /.container-fluid -->
-</section>
 
 
+    <!-- Main content -->
+    <section class="content">
+        <div class="container-fluid">
+            <div class="row" id="vue_app">
+                <div class="col-lg-12 col-md-12">
+                    <form action="{{ route('purchases.store') }}" method="POST" class="">
+                        @csrf
+                        <div class="card">
+                            <div class="card-header bg-info">
+                                <h3 class="card-title">Goods Purchase Bill (GPB) Entry</h3>
+                                <div class="card-tools">
+                                    <a href="{{route('purchases.index')}}">
+                                        <button class="btn btn-sm btn-primary"><i class="fa fa-plus-circle"
+                                                                                  aria-hidden="true"></i> &nbsp;
+                                            Purchase
+                                            List
+                                        </button>
+                                    </a>
+                                </div>
+                            </div>
 
-<!-- Main content -->
-<section class="content">
-  <div class="container-fluid">
-    <div class="row" id="vue_app">
-      <div class="col-lg-12 col-md-12">
+                            <div class="card-body">
 
-        <div class="card">
-          <div class="card-header">
-            <h3 class="card-title" style="color:#115548;">New Purchase</h3>
-            <div class="card-tools">
-              <a href="{{route('purchases.index')}}"><button class="btn btn-sm btn-primary"><i class="fa fa-plus-circle" aria-hidden="true"></i> &nbsp; Purchase List</button></a>
+                                <div class="card-box">
+                                    <hr>
+                                    <div id="">
+                                        <div class="row">
+                                            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                                <div class="row">
+                                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                                        <div class="form-group">
+                                                            <label for="purchase_id">Purchase No</label>
+                                                            <input type="text" class="form-control input-sm"
+                                                                   value="{{$serial_no}}" readonly>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                                        <div class="form-group">
+                                                            <label for="supplier_id">Supplier</label>
+                                                            <select name="supplier_id" id="supplier_id"
+                                                                    class="form-control bSelect" v-model="supplier_id">
+                                                                <option value="0">Walking Supplier</option>
+                                                                @foreach($suppliers as $supplier)
+                                                                    <option
+                                                                        value="{{ $supplier->id }}">{{ $supplier->name }}</option>
+                                                                @endforeach
+                                                            </select>
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                                <div class="row">
+                                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                                        <div class="form-group">
+                                                            <label for="remark">Remark</label>
+                                                            <textarea class="form-control" name="remark" rows="5"
+                                                                      placeholder="Enter Remark"></textarea>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                        </div>
+                        <div class="card">
+                            <div class="card-header bg-info">
+                                <h3 class="card-title">Goods Purchase Line Item</h3>
+                            </div>
+                            <div class="card-body">
+
+                                <div class="card-box">
+                                    <div id="">
+                                        <div class="row">
+                                            <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
+                                                <div class="form-group">
+                                                    <label for="group_id" class="control-label">Group</label>
+                                                    <select class="form-control" name="group_id" v-model="group_id"
+                                                            @change="fetch_product">
+                                                        <option value="">Select One</option>
+                                                        @foreach ($groups as $row)
+                                                            <option value="{{ $row->id }}">{{ $row->name }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
+                                                <div class="form-group">
+                                                    <label for="item_id">Item</label>
+                                                    <select name="item_id" id="item_id"
+                                                            class="form-control bSelect" v-model="item_id">
+                                                        <option value="">Select one</option>
+
+                                                        <option :value="row.id" v-for="row in items"
+                                                                v-html="row.name">
+                                                        </option>
+
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12" style="margin-top: 30px;">
+                                                <button type="button" class="btn btn-info btn-block"
+                                                        @click="data_input">Add
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12"
+                                                 v-if="selected_items.length>0">
+
+                                                <hr>
+                                                <div class="table-responsive">
+                                                    <table class="table table-bordered">
+                                                        <thead class="bg-secondary">
+                                                        <tr>
+                                                            <th>Group</th>
+                                                            <th>Item</th>
+                                                            <th>Qty</th>
+                                                            <th>Rate</th>
+                                                            <th>Value</th>
+                                                            <th></th>
+                                                        </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                        <tr v-for="(row, index) in selected_items">
+
+                                                            <td>
+                                                                @{{ row.group }}
+                                                            </td>
+                                                            <td>
+                                                                @{{ row.name }}
+                                                                <input type="hidden"
+                                                                       :name="'products['+index+'][coi_id]'"
+                                                                       class="form-control input-sm"
+                                                                       v-bind:value="row.id">
+
+                                                            </td>
+                                                            <td>
+                                                                <input type="number" v-model="row.quantity"
+                                                                       :name="'products['+index+'][quantity]'"
+                                                                       class="form-control input-sm"
+                                                                       @change="itemtotal(row)" required>
+                                                            </td>
+                                                            <td>
+                                                                <input type="number" v-model="row.rate"
+                                                                       :name="'products['+index+'][rate]'"
+                                                                       class="form-control input-sm"
+                                                                       @change="itemtotal(row)" required>
+                                                            </td>
+                                                            <td>
+                                                                <input type="text" class="form-control input-sm"
+                                                                       v-bind:value="itemtotal(row)" readonly>
+                                                            </td>
+                                                            <td>
+                                                                <button type="button" class="btn btn-sm btn-danger"
+                                                                        @click="delete_row(row)"><i
+                                                                        class="fa fa-trash"></i></button>
+                                                            </td>
+                                                        </tr>
+                                                        </tbody>
+                                                        <tfoot>
+                                                        <tr>
+                                                            <td colspan="3">
+
+                                                            </td>
+                                                            <td>
+                                                                Subtotal
+                                                            </td>
+                                                            <td>
+                                                                <input type="text" class="form-control input-sm"
+                                                                       name="subtotal" v-bind:value="subtotal" readonly>
+                                                            </td>
+                                                            <td></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td colspan="3">
+
+                                                            </td>
+                                                            <td>
+                                                                Vat
+                                                            </td>
+                                                            <td>
+                                                                <input type="text" name="vat" class="form-control input-sm" v-model="vat">
+                                                            </td>
+                                                            <td></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td colspan="3">
+
+                                                            </td>
+                                                            <td>
+                                                                Net Payable
+                                                            </td>
+                                                            <td>
+                                                                <input type="text" class="form-control input-sm"
+                                                                       name="net_payable" v-bind:value="net_payable"
+                                                                       readonly>
+                                                            </td>
+                                                            <td></td>
+                                                        </tr>
+                                                        <tfoot>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="card-footer" v-if="selected_items.length > 0">
+                                <button class="float-right btn btn-primary" type="submit"><i
+                                        class="fa fa-fw fa-lg fa-check-circle"></i>Submit
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div> <!-- end col -->
             </div>
-          </div>
-            <form action="{{ route('purchases.store') }}" method="POST" class="">
-                @csrf
-          <div class="card-body">
+            <!-- /.row -->
 
-            <div class="card-box">
-              <hr>
-              <div id="">
-                <div class="row">
-                  <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                    <div class="form-group">
-                      <label for="supplier_id">Supplier</label>
-                      <select name="supplier_id" id="supplier_id" class="form-control bSelect" v-model="supplier_id">
-                        <option value="0">Walking Supplier</option>
-                        @foreach($suppliers as $supplier)
-                        <option value="{{ $supplier->id }}">{{ $supplier->name }}</option>
-                        @endforeach
-                      </select>
-                    </div>
-                  </div>
-                </div>
-                <div class="row">
-                  <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
-                    <div class="form-group">
-                      <label for="category_id" class="control-label">Category</label>
-                      <select class="form-control" name="category_id" v-model="category_id" @change="fetch_product">
-                        <option value="">Select One</option>
-                        @foreach ($categories as $category)
-                        <option value="{{ $category->id }}">{{ $category->name }}</option>
-                        @endforeach
-                      </select>
-                    </div>
-                  </div>
-                  <br>
-                  <br>
-                  <br>
-                  <br>
-
-                  <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12" v-if="items.length>0">
-
-                    <hr>
-                    <div class="table-responsive">
-                      <table class="table table-bordered">
-                        <thead>
-                          <tr>
-                            <th>Action</th>
-                            <th>Item</th>
-                            <th>Stock</th>
-                            <th>Hawa</th>
-                            <th>Qty</th>
-                            <th>Buying Price</th>
-                            <th>Selling Price</th>
-                            <th>Subtotal</th>
-
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr v-for="(row, index) in items">
-                            <td>
-                              <button type="button" class="btn btn-danger" @click="delete_row(row)"><i class="fa fa-trash"></i></button>
-                            </td>
-                            <td>
-                              <input type="hidden" :name="'products['+index+'][product_id]'" class="form-control input-sm" v-bind:value="row.id">
-                              <input type="text" class="form-control input-sm" v-bind:value="row.name" readonly>
-                            </td>
-                            <td>
-                              <input type="text" class="form-control input-sm" v-bind:value="row.stock" readonly>
-                            </td>
-                            <td>
-                              <input type="text" class="form-control input-sm" v-bind:value="row.pre_order" readonly>
-                            </td>
-                            <td>
-                              <input type="number" v-model="row.quantity" :name="'products['+index+'][quantity]'" class="form-control input-sm" @change="itemtotal(row)">
-                            </td>
-                            <td>
-                              <input type="number" v-model="row.price" :name="'products['+index+'][buying_price]'" class="form-control input-sm" @change="itemtotal(row)">
-                            </td>
-                            <td>
-                              <input type="number" v-model="row.selling_price" :name="'products['+index+'][selling_price]'" class="form-control input-sm">
-                            </td>
-                            <td>
-                              <input type="text" class="form-control input-sm" v-bind:value="itemtotal(row)" readonly>
-                            </td>
-                          </tr>
-                        </tbody>
-                        <tfoot>
-                          <tr>
-                            <td colspan="6">
-
-                            </td>
-                            <td>
-                              Total
-                            </td>
-                            <td>
-                              <input type="text" class="form-control input-sm" name="subtotal" v-bind:value="subtotal" readonly>
-                            </td>
-                          </tr>
-                          <tfoot>
-                      </table>
-                    </div>
-                  </div>
-                  <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12" v-if="items.length > 0">
-                      <div class="text-right col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                          <textarea class="form-control" name="description" rows="5" placeholder="Enter Comments"></textarea>
-                      </div>
-                  </div>
-                </div>
-
-
-
-              </div>
-            </div>
-
-          </div>
-                <div class="card-footer" v-if="items.length > 0">
-                    <button class="float-right btn btn-primary" type="submit"><i
-                            class="fa fa-fw fa-lg fa-check-circle"></i>Submit</button>
-                </div>
-            </form></div>
-
-
-      </div> <!-- end col -->
-    </div>
-    <!-- /.row -->
-
-  </div><!-- /.container-fluid -->
-</section>
-<!-- /.content -->
+        </div><!-- /.container-fluid -->
+    </section>
+    <!-- /.content -->
 @endsection
 @section('css')
 
@@ -167,92 +260,139 @@ Purchase
 
 @endsection
 @push('script')
-<script src="{{ asset('vue-js/vue/dist/vue.js') }}"></script>
-<script src="{{ asset('vue-js/axios/dist/axios.min.js') }}"></script>
-<script src="{{ asset('vue-js/bootstrap-select/dist/js/bootstrap-select.min.js') }}"></script>
+    <script src="{{ asset('vue-js/vue/dist/vue.js') }}"></script>
+    <script src="{{ asset('vue-js/axios/dist/axios.min.js') }}"></script>
+    <script src="{{ asset('vue-js/bootstrap-select/dist/js/bootstrap-select.min.js') }}"></script>
 
-<script>
-  $(document).ready(function() {
+    <script>
+        $(document).ready(function () {
 
-    var vue = new Vue({
-      el: '#vue_app',
-      data: {
-        config: {
+            var vue = new Vue({
+                el: '#vue_app',
+                data: {
+                    config: {
 
-          get_product_info_by_category_id_url: "{{ url('fetch-product-by-category-id') }}",
-          // get_product_info_url: "{{ url('admin/fetch-product-info') }}",
-        },
-        supplier_id: 0,
-        category_id: '',
-        items: [],
-        quantity: 0,
-        buying_price: 0,
-        price: 0,
-        selling_price: 0,
+                        get_items_info_by_group_id_url: "{{ url('fetch-items-by-group-id') }}",
+                        get_item_info_url: "{{ url('fetch-item-info') }}",
+                    },
+                    vat:0,
+                    supplier_id: 0,
+                    group_id: '',
+                    item_id: '',
+                    items: [],
+                    selected_items: [],
+                },
+                computed: {
 
-      },
-      computed: {
+                    subtotal: function () {
+                        return this.selected_items.reduce((total, item) => {
+                            return total + item.quantity * item.rate
+                        }, 0)
+                    },
+                    net_payable: function() {
+                        return this.subtotal + parseFloat(this.vat)
+                    },
+                },
+                methods: {
 
-        subtotal: function() {
-          return this.items.reduce((total, item) => {
-            return total + item.quantity * item.price
-          }, 0)
-        }
-      },
-      methods: {
+                    fetch_product() {
 
-        fetch_product() {
+                        var vm = this;
 
-          var vm = this;
+                        var slug = vm.group_id;
 
-          var slug = vm.category_id;
+                        if (slug) {
+                            axios.get(this.config.get_items_info_by_group_id_url + '/' + slug).then(function (response) {
 
-          if (slug) {
-            axios.get(this.config.get_product_info_by_category_id_url + '/' + slug).then(function(response) {
+                                // vm.selected_items = response.data.products;
+                                vm.items = response.data.products;
+                            }).catch(function (error) {
 
-              vm.items = response.data.products;
-              vm.category_id = '';
-            }).catch(function(error) {
+                                toastr.error('Something went to wrong', {
+                                    closeButton: true,
+                                    progressBar: true,
+                                });
 
-              toastr.error('Something went to wrong', {
-                closeButton: true,
-                progressBar: true,
-              });
+                                return false;
 
-              return false;
+                            });
+                        }
+
+                    },
+
+                    data_input() {
+
+                        var vm = this;
+                        if (!vm.item_id) {
+
+                            toastr.error('Please Select Item', {
+                                closeButton: true,
+                                progressBar: true,
+                            });
+
+                            return false;
+
+                        } else {
+
+                            var slug = vm.item_id;
+
+                            if (slug) {
+                                axios.get(this.config.get_item_info_url + '/' + slug).then(function (response) {
+
+                                    let item_info = response.data;
+                                    console.log(item_info);
+                                    vm.selected_items.push({
+                                        id: item_info.id,
+                                        group: item_info.name,
+                                        name: item_info.name,
+                                        rate: '',
+                                        quantity: '',
+                                    });
+                                    console.log(vm.selected_items);
+                                    vm.item_id = '';
+                                    vm.group_id = '';
+
+                                }).catch(function (error) {
+
+                                    toastr.error('Something went to wrong', {
+                                        closeButton: true,
+                                        progressBar: true,
+                                    });
+
+                                    return false;
+
+                                });
+                            }
+
+                        }
+
+                    },
+                    delete_row: function (row) {
+                        this.selected_items.splice(this.selected_items.indexOf(row), 1);
+                    },
+                    itemtotal: function (index) {
+
+                        console.log(index.quantity * index.rate);
+                        return index.quantity * index.rate;
+
+
+                        //   alert(quantity);
+                        //  var total= row.quantity);
+                        //  row.itemtotal=total;
+                    },
+
+                },
+
+                updated() {
+                    $('.bSelect').selectpicker('refresh');
+                }
 
             });
-          }
 
-        },
-
-
-        delete_row: function(row) {
-          this.items.splice(this.items.indexOf(row), 1);
-        },
-        itemtotal: function(index) {
-
-          console.log(index.quantity * index.price);
-          return index.quantity * index.price;
-
-
-          //   alert(quantity);
-          //  var total= row.quantity);
-          //  row.itemtotal=total;
-        },
-
-      },
-
-      updated() {
-        $('.bSelect').selectpicker('refresh');
-      }
-
-    });
-
-    $('.bSelect').selectpicker({
-      liveSearch: true,
-      size: 5
-    });
-  });
-</script>
+            $('.bSelect').selectpicker({
+                liveSearch: true,
+                size: 5
+            });
+        });
+    </script>
 @endpush
