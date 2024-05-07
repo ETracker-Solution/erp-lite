@@ -8,6 +8,7 @@ use App\Models\Purchase;
 use App\Http\Requests\StorePurchaseRequest;
 use App\Http\Requests\UpdatePurchaseRequest;
 use App\Models\Supplier;
+use App\Models\SupplierGroup;
 use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -52,6 +53,7 @@ class PurchaseController extends Controller
         $serial_no = $serial_count + 1;
         $data = [
             'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'RM'])->get(),
+            'supplier_groups' => SupplierGroup::all(),
             'suppliers' => Supplier::all(),
             'serial_no' => $serial_no,
 

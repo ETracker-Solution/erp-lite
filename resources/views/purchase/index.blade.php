@@ -10,7 +10,7 @@
             'Purchase list'=>''
             ]
         @endphp
-        <x-bread-crumb-component title='Purchase' :links="$links"/>
+        <x-bread-crumb-component title='Goods Purchase' :links="$links"/>
     </section>
 
     <!-- Main content -->
@@ -20,8 +20,8 @@
             <div class="row">
                 <div class="col-12">
                     <div class="card">
-                        <div class="card-header">
-                            <h3 class="card-title" style="color:#115548;">Purchase List</h3>
+                        <div class="card-header bg-info">
+                            <h3 class="card-title">Goods Purchase List</h3>
                             <div class="card-tools">
                                 <a href="{{route('purchases.create')}}">
                                     <button class="btn btn-sm btn-primary"><i class="fa fa-plus-circle"
@@ -91,13 +91,13 @@
                         searchable: true
                     },
                     {
-                        data: "discount",
-                        title: "Discount",
+                        data: "vat",
+                        title: "Vat Amount",
                         searchable: true
                     },
                     {
-                        data: "grand_total",
-                        title: "Total",
+                        data: "net_payable",
+                        title: "Net Payable",
                         searchable: true
                     },
                     {

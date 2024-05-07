@@ -22,6 +22,9 @@
     <section class="content">
         <div class="container-fluid">
             <div class="row" id="vue_app">
+                   <span v-if="categoryLoading" class="categoryLoader">
+                            <img src="{{ asset('loading.gif') }}" alt="loading">
+                        </span>
                 <div class="col-lg-12 col-md-12">
                     <form action="{{ route('purchases.store') }}" method="POST" class="">
                         @csrf
@@ -29,12 +32,12 @@
                             <div class="card-header bg-info">
                                 <h3 class="card-title">Goods Purchase Bill (GPB) Entry</h3>
                                 <div class="card-tools">
-                                    <a href="{{route('purchases.index')}}">
-                                        <button class="btn btn-sm btn-primary"><i class="fa fa-plus-circle"
-                                                                                  aria-hidden="true"></i> &nbsp;
-                                            Purchase
-                                            List
-                                        </button>
+                                    <a href="{{route('purchases.index')}}" class="btn btn-sm btn-primary">
+                                        <i class="fa fa-plus-circle"
+                                           aria-hidden="true"></i> &nbsp;
+                                        Purchase
+                                        List
+
                                     </a>
                                 </div>
                             </div>
@@ -45,7 +48,7 @@
                                     <hr>
                                     <div id="">
                                         <div class="row">
-                                            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                                                 <div class="row">
                                                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                         <div class="form-group">
@@ -56,13 +59,41 @@
                                                     </div>
                                                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                         <div class="form-group">
+                                                            <label for="reference_no">Reference No</label>
+                                                            <input type="text" class="form-control input-sm"
+                                                                   value="{{old('reference_no')}}" name="reference_no">
+                                                        </div>
+                                                    </div>
+
+
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                                                <div class="row">
+                                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                                        <div class="form-group">
+                                                            <label for="supplier_id">Supplier Group</label>
+                                                            <select name="supplier_group_id" id="supplier_group_id"
+                                                                    class="form-control bSelect"
+                                                                    v-model="supplier_group_id" required>
+                                                                <option value="">Select Supplier Group</option>
+                                                                @foreach($supplier_groups as $row)
+                                                                    <option
+                                                                            value="{{ $row->id }}">{{ $row->name }}</option>
+                                                                @endforeach
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                                        <div class="form-group">
                                                             <label for="supplier_id">Supplier</label>
                                                             <select name="supplier_id" id="supplier_id"
-                                                                    class="form-control bSelect" v-model="supplier_id">
-                                                                <option value="0">Walking Supplier</option>
+                                                                    class="form-control bSelect" v-model="supplier_id"
+                                                                    required>
+                                                                <option value="">Select Supplier</option>
                                                                 @foreach($suppliers as $supplier)
                                                                     <option
-                                                                        value="{{ $supplier->id }}">{{ $supplier->name }}</option>
+                                                                            value="{{ $supplier->id }}">{{ $supplier->name }}</option>
                                                                 @endforeach
                                                             </select>
                                                         </div>
@@ -70,7 +101,7 @@
 
                                                 </div>
                                             </div>
-                                            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                                                 <div class="row">
                                                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                         <div class="form-group">
@@ -182,7 +213,7 @@
                                                             <td>
                                                                 <button type="button" class="btn btn-sm btn-danger"
                                                                         @click="delete_row(row)"><i
-                                                                        class="fa fa-trash"></i></button>
+                                                                            class="fa fa-trash"></i></button>
                                                             </td>
                                                         </tr>
                                                         </tbody>
@@ -208,7 +239,8 @@
                                                                 Vat
                                                             </td>
                                                             <td>
-                                                                <input type="text" name="vat" class="form-control input-sm" v-model="vat">
+                                                                <input type="text" name="vat"
+                                                                       class="form-control input-sm" v-model="vat">
                                                             </td>
                                                             <td></td>
                                                         </tr>
@@ -237,7 +269,7 @@
                             </div>
                             <div class="card-footer" v-if="selected_items.length > 0">
                                 <button class="float-right btn btn-primary" type="submit"><i
-                                        class="fa fa-fw fa-lg fa-check-circle"></i>Submit
+                                            class="fa fa-fw fa-lg fa-check-circle"></i>Submit
                                 </button>
                             </div>
                         </div>
@@ -254,6 +286,17 @@
 
 @endsection
 @push('style')
+        <style>
+            .categoryLoader {
+                position: absolute;
+                top: 50%;
+                right: 40%;
+                transform: translate(-50%, -50%);
+                color: red;
+                z-index: 999;
+            }
+        </style>
+
     <link rel="stylesheet" href="{{ asset('vue-js/bootstrap-select/dist/css/bootstrap-select.min.css') }}">
 @endpush
 @section('js')
@@ -276,11 +319,13 @@
                         get_item_info_url: "{{ url('fetch-item-info') }}",
                     },
                     vat:0,
-                    supplier_id: 0,
+                    supplier_group_id: '',
+                    supplier_id: '',
                     group_id: '',
                     item_id: '',
                     items: [],
                     selected_items: [],
+                    categoryLoading: false
                 },
                 computed: {
 
@@ -302,10 +347,12 @@
                         var slug = vm.group_id;
 
                         if (slug) {
+                            vm.categoryLoading = true;
                             axios.get(this.config.get_items_info_by_group_id_url + '/' + slug).then(function (response) {
 
                                 // vm.selected_items = response.data.products;
                                 vm.items = response.data.products;
+                                vm.categoryLoading = false;
                             }).catch(function (error) {
 
                                 toastr.error('Something went to wrong', {
@@ -337,8 +384,8 @@
                             var slug = vm.item_id;
 
                             if (slug) {
+                                vm.categoryLoading = true;
                                 axios.get(this.config.get_item_info_url + '/' + slug).then(function (response) {
-
                                     let item_info = response.data;
                                     console.log(item_info);
                                     vm.selected_items.push({
@@ -351,6 +398,7 @@
                                     console.log(vm.selected_items);
                                     vm.item_id = '';
                                     vm.group_id = '';
+                                    vm.categoryLoading = false;
 
                                 }).catch(function (error) {
 
