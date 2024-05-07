@@ -36,13 +36,13 @@
 
 <script src="{{ asset('assets/plugins/bootstrap-switch/js/bootstrap-switch.min.js') }}"></script>
 
-<script src="{{ asset('assets/plugins/bs-stepper/js/bs-stepper.min.js') }}"></script>
+{{-- <script src="{{ asset('assets/plugins/bs-stepper/js/bs-stepper.min.js') }}"></script> --}}
 
-<script src="{{ asset('assets/plugins/dropzone/min/dropzone.min.js') }}"></script>
+{{-- <script src="{{ asset('assets/plugins/dropzone/min/dropzone.min.js') }}"></script> --}}
 
 {{-- <script src="{{ asset('assets/dist/js/adminlte.min.js?v=3.2.0') }}"></script> --}}
 
-<script src="{{ asset('assets/dist/js/demo.js') }}"></script>
+{{-- <script src="{{ asset('assets/dist/js/demo.js') }}"></script> --}}
 
 <script>
   $(function () {
