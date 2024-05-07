@@ -1,9 +1,9 @@
 <ul class="tree">
     @foreach ($subcharts as $row)
         <li>
-            <span class="{{ count($row->childrens) > 0 ? 'branch' : 'Leaf' }}"
+            <span class="{{ $row->type == 'group' ? 'branch' : 'Leaf' }}"
                 onclick="changeChart({{ $row->id }})" class="{{ $row->type == 'item' ? 'text-danger' : '' }}"><i
-                    class="fa {{ count($row->childrens) > 0 ? 'fa-folder' : 'fa-italic' }} "></i>
+                    class="fa {{ $row->type == 'group' ? 'fa-folder' : 'fa-italic' }} "></i>
                 {{ $row->name }}
             </span>
             @if (count($row->childrens))
