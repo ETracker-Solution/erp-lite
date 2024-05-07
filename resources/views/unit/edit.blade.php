@@ -1,6 +1,6 @@
-@extends('admin.layouts.master')
+@extends('layouts.app')
 @section('title')
-Category
+Unit
 @endsection
 @section('content')
 <!-- Content Header (Page header) -->
@@ -23,31 +23,43 @@ Category
                 <div class="card card-primary">
                     <div class="card-header bg-light">
 
-                        <h3 class="card-title" style="color:#115548;">Add Category</h3>
+                        <h3 class="card-title" style="color:#115548;">Add Unit</h3>
                         <div class="card-tools">
-                            <a href="{{route('category.index')}}"><button class="btn btn-sm btn-primary"><i class="fa fa-list" aria-hidden="true"></i> &nbsp;See List</button></a>
+                            <a href="{{route('units.index')}}"><button class="btn btn-sm btn-primary"><i class="fa fa-list" aria-hidden="true"></i> &nbsp;See List</button></a>
                         </div>
                     </div>
                     <!-- /.card-header -->
                     <!-- form start -->
-                    <form method="POST" action="{{ route('category.update',$model->id)}}" class="form form-horizontal" enctype="multipart/form-data">
+                    <form method="POST" action="{{ route('units.update',$unit->id)}}" class="form form-horizontal" enctype="multipart/form-data">
                         @csrf
                         @method('put')
 
                         <div class="card-body">
                             <div class="row">
-                                <input type="hidden" class="form-control" name="id" id="name" value="{{$model->id}}">
+                                {{-- <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                    <div class="form-group">
+                                        <label for="unit_no">Unit No</label>
+                                        <input type="text" class="form-control" name="unit_no" id="unit_no" value="{{$unit->unit_no}}">
+                                    </div>
+                                </div> --}}
                                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                                    {!! BootForm::text('name', 'Category Name (Must be unique)',$model->name,
-                                    ['placeholder'=>'Enter name','required'=>'required'] ) !!}
+                                    <div class="form-group">
+                                        <label for="name">Name</label>
+                                        <input type="text" class="form-control" name="name" id="name" value="{{$unit->name}}">
+                                    </div>
                                 </div>
-                                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12" style="margin-top:20px;">
-                                    {!! BootForm::submit('Submit',['class'=>'btn btn-primary']); !!}
+                                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                    <div class="form-group">
+                                        <label for="short_name">Short Name</label>
+                                        <input type="text" class="form-control" name="short_name" id="short_name" value="{{$unit->short_name}}">
+                                    </div>
                                 </div>
+                                
                             </div>
+                            <button class="btn btn-primary waves-effect waves-float waves-light float-right"
+                                        type="submit">Submit
+                            </button>
                         </div>
-                        {!! Bootform::close() !!}
-
                 </div>
                 <!-- /.card -->
             </div>
@@ -59,7 +71,3 @@ Category
 </section>
 <!-- /.content -->
 @endsection
-@push('script-bottom')
-
-
-@endpush

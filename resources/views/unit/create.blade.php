@@ -29,6 +29,10 @@
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-xl-4 col-md-4 col-12 mb-1">
+                                    {{-- <x-forms.text label="Unit No" inputName="unit_no" placeholder="Enter Unit No" :isRequired='true' value="{{old('unit_no',$unit_no)}}" :isReadonly='true' defaultValue=""/> --}}
+
+
+
                                         <div class="form-group">
                                             <label for="unit_no">Unit No</label>
                                             <input type="text" class="form-control" id="unit_no" name="unit_no"
@@ -39,24 +43,10 @@
                                         </div>
                                     </div>
                                     <div class="col-xl-4 col-md-4 col-12 mb-1">
-                                        <div class="form-group">
-                                            <label for="name">Name</label>
-                                            <input type="text" class="form-control" id="name" name="name"
-                                                   placeholder="Ex: Kilogram, Piece, Liter, Box" value="{{old('name')}}">
-                                            @if($errors->has('name'))
-                                                <small class="text-danger">{{$errors->first('name')}}</small>
-                                            @endif
-                                        </div>
+                                    <x-forms.text label="Name" inputName="name" placeholder="Enter Name" :isRequired='true'  :isReadonly='false' defaultValue=""/>
                                     </div>
                                     <div class="col-xl-4 col-md-4 col-12 mb-1">
-                                        <div class="form-group">
-                                            <label for="short_name">Short Name</label>
-                                            <input type="text" class="form-control" id="short_name" name="short_name"
-                                                   placeholder="Ex: Kg, Pcs, L, Box" value="{{old('short_name')}}">
-                                            @if($errors->has('short_name'))
-                                                <small class="text-danger">{{$errors->first('short_name')}}</small>
-                                            @endif
-                                        </div>
+                                    <x-forms.text label="Short Name" inputName="short_name" placeholder="Enter Short Name" :isRequired='true'  :isReadonly='false' defaultValue=""/>
                                     </div>
 
                                 </div>

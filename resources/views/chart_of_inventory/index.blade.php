@@ -75,6 +75,9 @@ Sale
                                     <x-forms.text label="Group Name" inputName="name" placeholder="Enter Name" :isRequired='true'  :isReadonly='false' defaultValue=""/>
                                 </div>
                                 <div class="col-xl-12 col-md-12 col-12">
+                                    <x-forms.select label="Unit Name" inputName="unit_id" placeholder="Select One" :isRequired='true'  :isReadonly='false' defaultValue="" :options="$units" optionId='id' optionValue='name'/>
+                                </div>
+                                <div class="col-xl-12 col-md-12 col-12">
                                     <x-forms.text label="Price" inputName="price" placeholder="Enter Price" :isRequired='true'  :isReadonly='false' defaultValue=""/>
                                 </div>
                             </div>
