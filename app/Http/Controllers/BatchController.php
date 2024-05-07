@@ -2,31 +2,28 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreStoreRequest;
-use App\Http\Requests\UpdateStoreRequest;
-use App\Models\Store;
+use App\Http\Requests\StoreBatchRequest;
+use App\Http\Requests\UpdateBatchRequest;
+use App\Models\Batch;
 use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Facades\DataTables;
 
-class StoreController extends Controller
+class BatchController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $serial_count = Store::latest()->first() ? Store::latest()->first()->id : 0;
+        $serial_count = Batch::latest()->first() ? Batch::latest()->first()->id : 0;
         $serial_no = $serial_count + 1;
-        $stores = Store::all();
+        $batches = Batch::all();
         if (\request()->ajax()) {
-            return DataTables::of($stores)
+            return DataTables::of($batches)
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
-                    return view('store.action', compact('row'));
-                })
-                ->editColumn('type', function ($row) {
-                    return strtoupper($row->type);
+                    return view('batch.action', compact('row'));
                 })
                 ->addColumn('created_at', function ($row) {
                     return view('common.created_at', compact('row'));
@@ -34,7 +31,7 @@ class StoreController extends Controller
                 ->rawColumns(['action'])
                 ->make(true);
         }
-        return view('store.index',compact('serial_no'));
+        return view('batch.index',compact('serial_no'));
     }
 
     /**
@@ -48,27 +45,27 @@ class StoreController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreStoreRequest $request)
+    public function store(StoreBatchRequest $request)
     {
-        $validated = $request->validated();
+         $validated = $request->validated();
 
         DB::beginTransaction();
         try {
-            Store::create($validated);
+            Batch::create($validated);
             DB::commit();
         } catch (\Exception $error) {
             DB::rollBack();
             Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
             return back();
         }
-        Toastr::success('Store Created Successfully!.', '', ["progressBar" => true]);
-        return redirect()->route('stores.index');
+        Toastr::success('Batch Created Successfully!.', '', ["progressBar" => true]);
+        return redirect()->route('batches.index');
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Store $store)
+    public function show(Batch $batch)
     {
         //
     }
@@ -78,27 +75,27 @@ class StoreController extends Controller
      */
     public function edit($id)
     {
-        $store = Store::findOrFail(decrypt($id));
-        return view('store.index', compact('store'));
+        $batch = Batch::findOrFail(decrypt($id));
+        return view('batch.index', compact('batch'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateStoreRequest $request, $id)
+    public function update(UpdateBatchRequest $request, $id)
     {
         $validated = $request->validated();
         DB::beginTransaction();
         try {
-            Store::findOrFail($id)->update($validated);
+            Batch::findOrFail($id)->update($validated);
             DB::commit();
         } catch (\Exception $error) {
             DB::rollBack();
             Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
             return back();
         }
-        Toastr::success('Store Updated Successfully!.', '', ["progressBar" => true]);
-        return redirect()->route('stores.index');
+        Toastr::success('Batch Updated Successfully!.', '', ["progressBar" => true]);
+        return redirect()->route('batches.index');
     }
 
     /**
@@ -108,14 +105,14 @@ class StoreController extends Controller
     {
         DB::beginTransaction();
         try {
-            Store::findOrFail(decrypt($id))->delete();
+            Batch::findOrFail(decrypt($id))->delete();
             DB::commit();
         } catch (\Exception $error) {
             DB::rollBack();
             Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
             return back();
         }
-        Toastr::success('Store Deleted Successfully!.', '', ["progressBar" => true]);
-        return redirect()->route('stores.index');
+        Toastr::success('Batch Deleted Successfully!.', '', ["progressBar" => true]);
+        return redirect()->route('batches.index');
     }
 }

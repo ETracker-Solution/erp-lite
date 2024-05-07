@@ -19,6 +19,8 @@ class UnitController extends Controller
     public function index()
     {
         $units = Unit::all();
+        $unit_count = Unit::latest()->first() ? Unit::latest()->first()->id : 0 ;
+        $unit_no = $unit_count+1 ;
         if (\request()->ajax()) {
             return DataTables::of($units)
                 ->addIndexColumn()
@@ -31,7 +33,7 @@ class UnitController extends Controller
                 ->rawColumns(['action'])
                 ->make(true);
         }
-        return view('unit.index');
+        return view('unit.index',compact('unit_no'));
     }
 
     /**
@@ -41,9 +43,7 @@ class UnitController extends Controller
      */
     public function create()
     {
-        $unit_count = Unit::latest()->first() ? Unit::latest()->first()->id : 0 ;
-        $unit_no = $unit_count+1 ;
-        return view('unit.create', compact('unit_no'));
+        //
     }
 
     /**
@@ -88,8 +88,8 @@ class UnitController extends Controller
      */
     public function edit($id)
     {
-        $unit = Unit::findOrFail($id);
-        return view('unit.edit', compact('unit'));
+        $unit = Unit::findOrFail(decrypt($id));
+        return view('unit.index', compact('unit'));
     }
 
     /**
