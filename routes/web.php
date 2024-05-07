@@ -81,6 +81,9 @@ Route::middleware('auth')->group(function () {
     Route::get('purchase-pdf-download/{id}', [App\Http\Controllers\PurchaseController::class, 'pdfDownload'])->name('purchase.pdf-download');
 
     Route::resource('users', \App\Http\Controllers\UserController::class);
+
+    Route::resource('batches', \App\Http\Controllers\BatchController::class);
+
 });
 Route::group(['prefix' => 'reports', 'middleware' => 'auth'], function () {
     //Report Route
