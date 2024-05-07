@@ -13,7 +13,7 @@
                 @foreach(config('sidebar-menus.menus') as $mainMenu)
                     <li class="nav-item">
                         <a href="{{ !$mainMenu['has_child'] ? $mainMenu['url'] : '#'}}"
-                           class="nav-link {{ $mainMenu['active_condition']  }}">
+                           class="nav-link {{ $mainMenu['active_condition'] ? 'active' : '' }}">
                             <i class="nav-icon {{ $mainMenu['icon'] }}"></i>
                             <p>
                                 {{ $mainMenu['name'] }}
@@ -27,7 +27,7 @@
                                 @foreach($mainMenu['child'] as $level2Menu)
                                     <li class="nav-item">
                                         <a href="{{ !$level2Menu['has_child'] ? $level2Menu['url'] : '#'}}"
-                                           class="nav-link">
+                                           class="nav-link  {{ $level2Menu['active_condition'] ? 'active' : '' }}">
                                             <i class="nav-icon {{ $level2Menu['has_child']? config('sidebar-menus.second_level_icon') :  config('sidebar-menus.third_level_icon')  }} "></i>
                                             <p>
                                                 {{$level2Menu['name']}}
@@ -40,7 +40,7 @@
                                             <ul class="nav nav-treeview">
                                                 @foreach($level2Menu['child'] as $level3Menu)
                                                     <li class="nav-item">
-                                                        <a href="{{ $level3Menu['url']}}" class="nav-link">
+                                                        <a href="{{ $level3Menu['url']}}" class="nav-link {{ $level3Menu['active_condition'] ? 'active' : ''  }}">
                                                             <i class="nav-icon  {{config('sidebar-menus.third_level_icon')}}"></i>
                                                             <p>
                                                                 {{$level3Menu['name']}}
