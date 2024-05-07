@@ -2,9 +2,11 @@
 
 namespace App\Http\Requests;
 
+use Carbon\Carbon;
+use DateTime;
 use Illuminate\Foundation\Http\FormRequest;
 
-class UpdateStoreRequest extends FormRequest
+class StoreBatchRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,16 +24,17 @@ class UpdateStoreRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required',
-            'type' => 'required',
-            'updated_by' => 'required'
+            'batch_no' => 'required',
+            'date' => 'required',
+            'p_manager' => 'required',
+            'description' => 'nullable',
         ];
     }
-    public function prepareForValidation(): void
+    public function prepareForValidation()
     {
 
         $this->merge([
-            'updated_by' => auth()->user()->id,
+            'date' => Carbon::parse($this->date)->format('Y-m-d'),
         ]);
 
     }

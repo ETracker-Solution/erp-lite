@@ -8,7 +8,7 @@
         @php
             $links = [
             'Home'=>route('dashboard'),
-            'Store Create'=>''
+            'Store Edit'=>''
             ]
         @endphp
         <x-bread-crumb-component title='Store' :links="$links"/>
@@ -19,12 +19,12 @@
             <div class="row">
                 <div class="col-12">
                     <!-- Horizontal Form -->
-                    <form action="{{route('stores.store')}}" method="POST" class=""
+                    <form action="{{route('batches.store')}}" method="POST" class=""
                           enctype="multipart/form-data">
                         @csrf
                         <div class="card">
                             <div class="card-header">
-                                <h4 class="card-title">Store Create</h4>
+                                <h4 class="card-title">Store Edit</h4>
                             </div>
                             <div class="card-body">
                                 <div class="row">
@@ -32,7 +32,7 @@
                                         <div class="form-group">
                                             <label for="serial_no">Store No</label>
                                             <input type="text" class="form-control" id="serial_no" name="serial_no"
-                                                   placeholder="" value="{{old('serial_no',$serial_no)}}" readonly>
+                                                   placeholder="" value="{{old('serial_no',$store->id)}}" readonly>
                                             @if($errors->has('serial_no'))
                                                 <small class="text-danger">{{$errors->first('serial_no')}}</small>
                                             @endif
@@ -43,7 +43,7 @@
                                             <label for="name">Name</label>
                                             <input type="text" class="form-control" id="name" name="name"
                                                    placeholder="Enter Name"
-                                                   value="{{old('name')}}">
+                                                   value="{{old('name',$store->name)}}">
                                             @if($errors->has('name'))
                                                 <small class="text-danger">{{$errors->first('name')}}</small>
                                             @endif

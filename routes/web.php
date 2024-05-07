@@ -84,6 +84,8 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('users', \App\Http\Controllers\UserController::class);
 
+    Route::resource('batches', \App\Http\Controllers\BatchController::class);
+
     /*=========== Chart Of Inventory Api Starts ===========*/
     Route::get('inventory-items',[\App\Http\Controllers\Api\Web\InventoryController::class, 'inventoryItems']);
     Route::get('inventory-details/{id}',[\App\Http\Controllers\Api\Web\InventoryController::class, 'inventoryDetails']);
