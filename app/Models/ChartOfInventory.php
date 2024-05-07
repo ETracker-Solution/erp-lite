@@ -15,7 +15,9 @@ class ChartOfInventory extends Model
     {
         return $this->hasMany(self::class, 'parent_id');
     }
-    public function unit(){
-        return $this->belongsTo(Unit::class);
+
+    public function parent()
+    {
+        return $this->belongsTo(self::class, 'parent_id');
     }
 }

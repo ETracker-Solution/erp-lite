@@ -26,9 +26,6 @@ class ChartOfInventoryController extends Controller
             'name' => 'required',
             'parent_id' => 'required',
             'unit_id' => 'required',
-
-
-
         ]);
         $chartOfAccount = ChartOfInventory::find($request->input('parent_id'));
         ChartOfInventory::create([
