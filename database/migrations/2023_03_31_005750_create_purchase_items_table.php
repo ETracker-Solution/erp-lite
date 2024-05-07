@@ -15,14 +15,10 @@ class CreatePurchaseItemsTable extends Migration
     {
         Schema::create('purchase_items', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('product_id')->references('id')->on('products')->onDelete('cascade');
-            $table->double('buying_price', 15, 2);
-            $table->double('selling_price', 15, 2);
+            $table->foreignId('coi_id')->references('id')->on('chart_of_inventories')->onDelete('cascade');
+            $table->double('rate', 15, 2);
             $table->double('quantity', 8, 2);
-            $table->double('discount', 8, 2)->nullable();
             $table->string('batch_number', 50)->nullable();
-            $table->date('manufactured_date')->nullable();
-            $table->date('expiry_date')->nullable();
             $table->foreignId('purchase_id')->references('id')->on('purchases')->onDelete('cascade');
             $table->timestamps();
         });

@@ -20,8 +20,8 @@ return new class extends Migration {
             $table->double('amount', 8, 2);
             $table->string('store_id')->nullable();
             $table->string('doc_type')->nullable();
-            $table->string('doc_id')->nullable();
-            $table->foreignId('ci_id')->comment('Chart Of Inventory Id')->nullable()->constrained('chart_of_inventories')->onDelete('cascade');
+            $table->integer('doc_id')->nullable();
+            $table->foreignId('coi_id')->comment('Chart Of Inventory Id')->nullable()->constrained('chart_of_inventories')->onDelete('cascade');
             $table->timestamps();
         });
     }

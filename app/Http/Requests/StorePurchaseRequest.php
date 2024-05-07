@@ -22,7 +22,11 @@ class StorePurchaseRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'supplier_id' => 'required',
+            'products' => 'array',
+            'subtotal' => 'required',
+            'vat' => 'required',
+            'remark' => 'nullable',
         ];
     }
 }
