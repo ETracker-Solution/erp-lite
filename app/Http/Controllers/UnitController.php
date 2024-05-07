@@ -88,7 +88,7 @@ class UnitController extends Controller
      */
     public function edit($id)
     {
-        $unit = Unit::findOrFail(decrypt($id));
+        $unit = Unit::findOrFail($id);
         return view('unit.edit', compact('unit'));
     }
 
@@ -104,7 +104,7 @@ class UnitController extends Controller
         $validated = $request->validated();
         DB::beginTransaction();
         try {
-            Unit::findOrFail(decrypt($id))->update($validated);
+            Unit::findOrFail($id)->update($validated);
             DB::commit();
         } catch (\Exception $error) {
             DB::rollBack();
@@ -125,7 +125,7 @@ class UnitController extends Controller
     {
         DB::beginTransaction();
         try {
-            Unit::findOrFail(decrypt($id))->delete();
+            Unit::findOrFail($id)->delete();
             DB::commit();
         } catch (\Exception $error) {
             DB::rollBack();
