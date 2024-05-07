@@ -16,7 +16,7 @@ class ChartOfInventoryController extends Controller
     {
         $units = Unit::all();
         $allChartOfInventories = ChartOfInventory::whereNull('parent_id')->get();
-        $groups = ChartOfInventory::where('type','group')->get();
+        $groups = ChartOfInventory::whereIn('type',['group','fixed'])->get();
         return view('chart_of_inventory.index', compact('allChartOfInventories','groups','units'));
     }
 
