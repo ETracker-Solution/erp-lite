@@ -10,6 +10,27 @@ return [
             'has_child' => false,
         ],
         [
+            'name' => 'Procurement Module',
+            'icon' => 'fas fa-shopping-cart',
+            'active_condition' => false,
+            'has_child' => true,
+            'child' => [
+                [
+                    'name' => 'Procurement Entry',
+                    'url' => '#',
+                    'has_child' => true,
+                    'active_condition' => false,
+                    'child' => [
+                        [
+                            'name' => 'Goods Purchase Bill',
+                            'url' => '/purchases/create',
+                            'active_condition' => '',
+                        ]
+                    ],
+                ]
+            ],
+        ],
+        [
             'name' => 'Sales Module',
             'icon' => 'fas fa-shopping-cart',
             'active_condition' => false,
@@ -63,6 +84,24 @@ return [
                         [
                             'name' => 'Unit List',
                             'url' => '/units',
+                            'active_condition' => '',
+                        ]
+                    ],
+                ],
+                [
+                    'name' => 'Procurement Settings',
+                    'url' => '#',
+                    'has_child' => true,
+                    'active_condition' => false,
+                    'child' => [
+                        [
+                            'name' => 'Supplier Group List',
+                            'url' => '/supplier-groups',
+                            'active_condition' => '',
+                        ],
+                        [
+                            'name' => 'Supplier List',
+                            'url' => '/suppliers',
                             'active_condition' => '',
                         ]
                     ],
