@@ -81,6 +81,22 @@ Route::middleware('auth')->group(function () {
     Route::get('purchase-pdf-download/{id}', [App\Http\Controllers\PurchaseController::class, 'pdfDownload'])->name('purchase.pdf-download');
 
     Route::resource('users', \App\Http\Controllers\UserController::class);
+
+    /*=========== Chart Of Inventory Api Starts ===========*/
+    Route::get('inventory-items',[\App\Http\Controllers\Api\Web\InventoryController::class, 'inventoryItems']);
+    Route::get('inventory-details/{id}',[\App\Http\Controllers\Api\Web\InventoryController::class, 'inventoryDetails']);
+    Route::post('inventory-update/{id}',[\App\Http\Controllers\Api\Web\InventoryController::class, 'inventoryUpdate']);
+    Route::post('inventory-store/{id}',[\App\Http\Controllers\Api\Web\InventoryController::class, 'inventoryStore']);
+    Route::delete('inventory-delete/{id}',[\App\Http\Controllers\Api\Web\InventoryController::class, 'inventoryDelete']);
+    /*=========== Chart Of Inventory Api Ends ===========*/
+
+    /*=========== Chart Of Account Api Starts ===========*/
+    Route::get('coa-items',[\App\Http\Controllers\Api\Web\COAccountController::class, 'items']);
+    Route::get('coa-details/{id}',[\App\Http\Controllers\Api\Web\COAccountController::class, 'details']);
+    Route::post('coa-update/{id}',[\App\Http\Controllers\Api\Web\COAccountController::class, 'update']);
+    Route::post('coa-store/{id}',[\App\Http\Controllers\Api\Web\COAccountController::class, 'store']);
+    Route::delete('coa-delete/{id}',[\App\Http\Controllers\Api\Web\COAccountController::class, 'delete']);
+    /*=========== Chart Of Inventory Api Ends ===========*/
 });
 Route::group(['prefix' => 'reports', 'middleware' => 'auth'], function () {
     //Report Route

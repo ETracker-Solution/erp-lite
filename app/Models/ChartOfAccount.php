@@ -71,4 +71,9 @@ class ChartOfAccount extends Model
         return $this->transactions()->where('type', 'credit')->sum('amount');
     }
 
+    public function parent()
+    {
+        return $this->belongsTo(self::class, 'parent_id');
+    }
+
 }
