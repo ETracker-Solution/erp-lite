@@ -20,6 +20,8 @@ class SupplierSeeder extends Seeder
             'mobile'=>"01710355789",
             'email'=>'supplier@gmail.com',
             'address'=>'Dhaka',
+            'supplier_group_id'=>1,
+            'status'=>'active',
             'created_at'=>'2023-06-07 13:01:13',
             'updated_at'=>'2023-06-07 13:01:13'
         ] );
