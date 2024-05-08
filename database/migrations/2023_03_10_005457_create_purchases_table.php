@@ -17,7 +17,7 @@ class CreatePurchasesTable extends Migration
             $table->id();
             $table->string('batch_number')->nullable();
             $table->string('reference_no')->nullable();
-            $table->string('purchase_number')->nullable();
+            $table->integer('serial_no')->unique();
             $table->enum('status', ['pending', 'received','ordered'])->default('received');
             $table->date('date')->nullable();
             $table->double('subtotal', 15, 2);
