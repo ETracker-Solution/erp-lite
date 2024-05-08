@@ -42,7 +42,7 @@
                                     <hr>
                                     <div id="">
                                         <div class="row">
-                                            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                                            <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                                 <div class="row">
                                                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                         <div class="form-group">
@@ -58,19 +58,32 @@
                                                                    value="{{old('reference_no')}}" name="reference_no">
                                                         </div>
                                                     </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+                                                <div class="row">
+
+                                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                                        <div class="form-group">
+                                                            <label for="date">Date</label>
+                                                            <vuejs-datepicker v-model="date" name="date"
+                                                                              placeholder="Select date"></vuejs-datepicker>
+                                                        </div>
+                                                    </div>
 
 
                                                 </div>
                                             </div>
-                                            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                                            <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                                 <div class="row">
                                                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                         <div class="form-group">
-                                                            <label for="supplier_id">Supplier Group</label>
+                                                            <label for="supplier_id">Group</label>
                                                             <select name="supplier_group_id" id="supplier_group_id"
                                                                     class="form-control bSelect"
-                                                                    v-model="supplier_group_id" required>
-                                                                <option value="">Select Supplier Group</option>
+                                                                    v-model="supplier_group_id"
+                                                                    @change="fetch_supplier">
+                                                                <option value="">Select Group</option>
                                                                 @foreach($supplier_groups as $row)
                                                                     <option
                                                                         value="{{ $row->id }}">{{ $row->name }}</option>
@@ -85,17 +98,18 @@
                                                                     class="form-control bSelect" v-model="supplier_id"
                                                                     required>
                                                                 <option value="">Select Supplier</option>
-                                                                @foreach($suppliers as $supplier)
-                                                                    <option
-                                                                        value="{{ $supplier->id }}">{{ $supplier->name }}</option>
-                                                                @endforeach
+                                                                <option :value="row.id" v-for="row in suppliers"
+                                                                        v-html="row.name">
+                                                                </option>
+
+                                                            </select>
                                                             </select>
                                                         </div>
                                                     </div>
 
                                                 </div>
                                             </div>
-                                            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                                            <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                                 <div class="row">
                                                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                         <div class="form-group">
@@ -289,6 +303,23 @@
             color: red;
             z-index: 999;
         }
+
+        input[placeholder="Select date"] {
+            display: block;
+            width: 100%;
+            height: calc(2.25rem + 2px);
+            padding: .375rem .75rem;
+            font-size: 1rem;
+            font-weight: 400;
+            line-height: 1.5;
+            color: #495057;
+            background-color: #fff;
+            background-clip: padding-box;
+            border: 1px solid #ced4da;
+            border-radius: .25rem;
+            box-shadow: inset 0 0 0 transparent;
+            transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+        }
     </style>
 
     <link rel="stylesheet" href="{{ asset('vue-js/bootstrap-select/dist/css/bootstrap-select.min.css') }}">
@@ -300,7 +331,7 @@
     <script src="{{ asset('vue-js/vue/dist/vue.js') }}"></script>
     <script src="{{ asset('vue-js/axios/dist/axios.min.js') }}"></script>
     <script src="{{ asset('vue-js/bootstrap-select/dist/js/bootstrap-select.min.js') }}"></script>
-
+    <script src="https://cms.diu.ac/vue/vuejs-datepicker.min.js"></script>
     <script>
         $(document).ready(function () {
 
@@ -309,17 +340,23 @@
                 data: {
                     config: {
 
+                        get_suppliers_info_by_group_id_url: "{{ url('fetch-suppliers-by-group-id') }}",
                         get_items_info_by_group_id_url: "{{ url('fetch-items-by-group-id') }}",
                         get_item_info_url: "{{ url('fetch-item-info') }}",
                     },
+                    date: new Date(),
                     vat: 0,
                     supplier_group_id: '',
                     supplier_id: '',
                     group_id: '',
                     item_id: '',
                     items: [],
+                    suppliers: [],
                     selected_items: [],
                     pageLoading: false
+                },
+                components: {
+                    vuejsDatepicker
                 },
                 computed: {
 
@@ -333,6 +370,33 @@
                     },
                 },
                 methods: {
+
+                    fetch_supplier() {
+
+                        var vm = this;
+
+                        var slug = vm.supplier_group_id;
+
+                        if (slug) {
+                            vm.pageLoading = true;
+                            axios.get(this.config.get_suppliers_info_by_group_id_url + '/' + slug).then(function (response) {
+
+                                // vm.selected_items = response.data.products;
+                                vm.suppliers = response.data.suppliers;
+                                vm.pageLoading = false;
+                            }).catch(function (error) {
+
+                                toastr.error('Something went to wrong', {
+                                    closeButton: true,
+                                    progressBar: true,
+                                });
+
+                                return false;
+
+                            });
+                        }
+
+                    },
 
                     fetch_product() {
 
@@ -381,7 +445,7 @@
                                     console.log(item_info);
                                     vm.selected_items.push({
                                         id: item_info.id,
-                                        group: item_info.name,
+                                        group: item_info.parent.name,
                                         name: item_info.name,
                                         rate: '',
                                         quantity: '',
