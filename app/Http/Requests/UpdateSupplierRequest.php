@@ -28,6 +28,7 @@ class UpdateSupplierRequest extends FormRequest
             'mobile' => 'required',
             'address' => 'required',
             'email' => 'required',
+            'supplier_group_id' => 'required',
             'website' => 'nullable',
             'updated_by' => 'required',
         ];
