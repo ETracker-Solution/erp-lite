@@ -51,7 +51,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('purchases', PurchaseController::class);
     Route::resource('sales', SaleController::class);
     Route::resource('productions', \App\Http\Controllers\ProductionController::class);
-
+    Route::resource('consumptions', \App\Http\Controllers\ConsumptionController::class);
     //-----start Pos---------
     Route::resource('pos', App\Http\Controllers\POSController::class);
 
