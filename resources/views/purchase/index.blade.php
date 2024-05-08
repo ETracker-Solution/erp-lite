@@ -22,7 +22,7 @@
                             <div class="card-tools">
                                 <a href="{{route('purchases.create')}}">
                                     <button class="btn btn-sm btn-primary"><i class="fa fa-plus-circle"
-                                                                              aria-hidden="true"></i> &nbsp;Add Purchase
+                                                                              aria-hidden="true"></i> &nbsp;Add Goods Purchase Bill
                                     </button>
                                 </a>
                             </div>
@@ -78,7 +78,7 @@
                     orderable: false
                 },
                     {
-                        data: "purchase_number",
+                        data: "serial_no",
                         title: "Purchase No",
                         searchable: true
                     },

@@ -27,11 +27,9 @@
                                 <h3 class="card-title">Goods Purchase Bill (GPB) Entry</h3>
                                 <div class="card-tools">
                                     <a href="{{route('purchases.index')}}" class="btn btn-sm btn-primary">
-                                        <i class="fa fa-plus-circle"
+                                        <i class="fas fa-bars"
                                            aria-hidden="true"></i> &nbsp;
-                                        Purchase
-                                        List
-
+                                        Goods Purchase Bill List
                                     </a>
                                 </div>
                             </div>
@@ -46,9 +44,9 @@
                                                 <div class="row">
                                                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                         <div class="form-group">
-                                                            <label for="purchase_id">Purchase No</label>
+                                                            <label for="serial_no">Purchase No</label>
                                                             <input type="text" class="form-control input-sm"
-                                                                   value="{{$serial_no}}" readonly>
+                                                                   value="{{$serial_no}}" name="serial_no" id="serial_no" readonly>
                                                         </div>
                                                     </div>
                                                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
