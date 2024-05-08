@@ -54,7 +54,7 @@ class ConsumptionController extends Controller
         $serial_no = $serial_count + 1;
         $data = [
             'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'RM'])->get(),
-            'stores' => Store::all(),
+            'stores' => Store::where(['type' => 'RM'])->get(),
             'batches' => Batch::all(),
             'serial_no' => $serial_no,
 

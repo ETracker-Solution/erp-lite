@@ -59,9 +59,9 @@
                                                     </div>
                                                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                         <div class="form-group">
-                                                            <label for="reference_no">Reference No</label>
-                                                            <input type="text" class="form-control input-sm"
-                                                                   value="{{old('reference_no')}}" name="reference_no">
+                                                            <label for="date">Date</label>
+                                                            <input type="text" class="form-control input-sm" id="date"
+                                                                   value="{{date('Y-m-d')}}">
                                                         </div>
                                                     </div>
                                                 </div>
@@ -102,9 +102,9 @@
                                                 <div class="row">
                                                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                         <div class="form-group">
-                                                            <label for="date">Date</label>
-                                                            <input type="text" class="form-control input-sm" id="date"
-                                                                   value="{{date('Y-m-d')}}">
+                                                            <label for="reference_no">Reference No</label>
+                                                            <input type="text" class="form-control input-sm"
+                                                                   value="{{old('reference_no')}}" name="reference_no">
                                                         </div>
                                                     </div>
                                                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
@@ -146,14 +146,12 @@
                                             <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
                                                 <div class="form-group">
                                                     <label for="item_id">Item</label>
-                                                    <select name="item_id" id="item_id"
-                                                            class="form-control bSelect" v-model="item_id">
+                                                    <select name="item_id" id="item_id" class="form-control bSelect"
+                                                            v-model="item_id">
                                                         <option value="">Select one</option>
-
                                                         <option :value="row.id" v-for="row in items"
                                                                 v-html="row.name">
                                                         </option>
-
                                                     </select>
                                                 </div>
                                             </div>
