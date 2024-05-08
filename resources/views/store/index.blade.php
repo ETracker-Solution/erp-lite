@@ -65,7 +65,7 @@ Store List
                                         :isRequired='true' :isReadonly='false' :defaultValue="isset($store) ? $store->name : ''" />
                                 </div>
                                 <div class="col-xl-12 col-md-12 col-12 mb-1">
-                                    <x-forms.static-select label="Type" inputName="type" placeholder="Select One" :isRequired='true'  :isReadonly='false' :defaultValue="isset($store) ? $store->type : ''" :options="['fg','bp','rm','wip']"/>
+                                    <x-forms.static-select label="Type" inputName="type" placeholder="Select One" :isRequired='true'  :isReadonly='false' :defaultValue="isset($store) ? $store->type : ''" :options="['FG','BP','RM','WIP']"/>
                                 </div>
 
                             </div>
@@ -145,6 +145,6 @@ Store List
     //    $('#formSubmit').attr('action', '"'+updateUrl+'"');
     //    $('#formSubmit').append('@method("PUT")');
     // }
-    
+
 </script>
 @endpush
