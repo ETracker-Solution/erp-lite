@@ -97,6 +97,11 @@ return [
                             'name' => 'Unit List',
                             'url' => '/units',
                             'active_condition' => '',
+                        ],
+                        [
+                            'name' => 'Store List',
+                            'url' => '/stores',
+                            'active_condition' => '',
                         ]
                     ],
                 ],
@@ -114,6 +119,29 @@ return [
                         [
                             'name' => 'Supplier List',
                             'url' => '/suppliers',
+                            'active_condition' => '',
+                        ]
+                    ],
+                ],
+                [
+                    'name' => 'Opening Balance',
+                    'url' => '#',
+                    'has_child' => true,
+                    'active_condition' => false,
+                    'child' => [
+                        [
+                            'name' => 'GL Account',
+                            'url' => '#',
+                            'active_condition' => '',
+                        ],
+                        [
+                            'name' => 'Raw Materials',
+                            'url' => '#',
+                            'active_condition' => '',
+                        ],
+                        [
+                            'name' => 'Finish Goods',
+                            'url' => '#',
                             'active_condition' => '',
                         ]
                     ],
