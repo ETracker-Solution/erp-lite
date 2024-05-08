@@ -65,7 +65,10 @@ Route::middleware('auth')->group(function () {
     //--------------
 
     Route::resource('attributes', AttributeController::class);
+
     Route::get('/fetch-items-by-group-id/{id}', [App\Http\Controllers\ApiController::class, 'fetch_products_by_cat_id']);
+    Route::get('/fetch-suppliers-by-group-id/{id}', [App\Http\Controllers\ApiController::class, 'fetchSuppliersByGroupId']);
+
     Route::get('/fetch-product-by-category-id/{id}', [App\Http\Controllers\ProductController::class, 'fetch_products_by_cat_id']);
     Route::get('/fetch-product-info-for-sale/{id}', [App\Http\Controllers\ApiController::class, 'fetch_product_sale'])->name('fetch-product-info-for-sale');
     Route::resource('stocks', App\Http\Controllers\StockController::class);

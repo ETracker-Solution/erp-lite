@@ -5,15 +5,13 @@ Customer List
 @section('content')
 <!-- Content Header (Page header) -->
 
-<section class="content-header">
-    @php
-        $links = [
-        'Home'=>route('dashboard'),
-        'Customer list'=>''
-        ]
-    @endphp
-    <x-bread-crumb-component title='Customer' :links="$links"/>
-</section>
+@php
+    $links = [
+    'Home'=>route('dashboard'),
+    'Customer list'=>''
+    ]
+@endphp
+<x-breadcrumb title='Customer' :links="$links"/>
 
 <!-- Main content -->
 <section class="content">
@@ -21,16 +19,16 @@ Customer List
 
         <div class="row">
             <div class="col-12">
-                <div class="card">
+                <div class="card card-info">
                     <div class="card-header">
-                        <h3 class="card-title" style="color:#115548;">Customer List</h3>
+                        <h3 class="card-title">Customer List</h3>
                         <div class="card-tools">
                             <a href="{{route('customers.create')}}"><button class="btn btn-sm btn-primary"><i class="fa fa-plus-circle" aria-hidden="true"></i> &nbsp;Add customer</button></a>
                         </div>
                     </div>
                     <!-- /.card-header -->
                     <div class="card-body table-responsive">
-                        <table id="dataTable" class="datatables-basic table table-bordered table-secondary table-striped">
+                        <table id="dataTable" class="table table-bordered table-hover">
                             {{-- show from datatable--}}
                         </table>
                     </div>
@@ -96,11 +94,11 @@ Customer List
                     title: "email",
                     searchable: true
                 },
-                {
-                    data: "website",
-                    title: "website",
-                    searchable: true
-                },
+                // {
+                //     data: "website",
+                //     title: "website",
+                //     searchable: true
+                // },
                 {
                     data: "created_at",
                     title: "created at",

@@ -28,6 +28,7 @@ class DatabaseSeeder extends Seeder
         $this->call(ChartOfInventorySeeder::class);
         $this->call(ChartOfAccountSeeder::class);
         $this->call(ProductSeeder::class);
+        $this->call(SupplierGroupSeeder::class);
         $this->call(SupplierSeeder::class);
         $this->call(CustomerSeeder::class);
     }

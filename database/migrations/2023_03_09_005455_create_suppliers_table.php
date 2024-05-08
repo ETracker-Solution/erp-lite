@@ -21,7 +21,7 @@ class CreateSuppliersTable extends Migration
             $table->string('email', 100)->nullable();
             $table->string('website', 100)->nullable();
             $table->enum('status', ['pending', 'inactive', 'active'])->default('pending');
-            $table->foreignId('business_id')->nullable()->constrained('businesses')->onDelete('cascade');
+            $table->foreignId('supplier_group_id')->nullable()->constrained('supplier_groups')->onDelete('cascade');
             $table->foreignId('created_by')->nullable()->constrained('users')->onDelete('cascade');
             $table->foreignId('updated_by')->nullable()->constrained('users')->onDelete('cascade');
             $table->softDeletes();

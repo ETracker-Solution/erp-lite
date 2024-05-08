@@ -64,7 +64,7 @@ class CustomerController extends Controller
             return back();
         }
         Toastr::success('Customer Created Successfully!.', '', ["progressBar" => true]);
-        return redirect()->route('user.customers.index');
+        return redirect()->route('customers.index');
     }
 
     /**
@@ -73,9 +73,10 @@ class CustomerController extends Controller
      * @param  \App\Models\Customer  $customer
      * @return \Illuminate\Http\Response
      */
-    public function show(Customer $customer)
+    public function show($id)
     {
-        //
+        $customer = Customer::findOrFail(decrypt($id));
+        return view('customer.show',compact('customer'));
     }
 
     /**
@@ -87,7 +88,7 @@ class CustomerController extends Controller
     public function edit($id)
     {
         $customer = Customer::findOrFail(decrypt($id));
-        return view('user.customer.edit',compact('customer'));
+        return view('customer.edit',compact('customer'));
     }
 
     /**
@@ -102,7 +103,7 @@ class CustomerController extends Controller
         $validated = $request->validated();
         DB::beginTransaction();
         try {
-            Customer::findOrFail(decrypt($id))->update($validated);
+            Customer::findOrFail($id)->update($validated);
             DB::commit();
         } catch (\Exception $error) {
             DB::rollBack();
@@ -110,7 +111,7 @@ class CustomerController extends Controller
             return back();
         }
         Toastr::success('Customer Updated Successfully!.', '', ["progressBar" => true]);
-        return redirect()->route('user.customers.index');
+        return redirect()->route('customers.index');
     }
 
     /**
@@ -131,7 +132,7 @@ class CustomerController extends Controller
             return back();
         }
         Toastr::success('Customer Deleted Successfully!.', '', ["progressBar" => true]);
-        return redirect()->route('user.customers.index');
+        return redirect()->route('customers.index');
     }
 
     public function trashList(){
@@ -152,18 +153,18 @@ class CustomerController extends Controller
                 ->rawColumns(['action','created_at'])
                 ->make(true);
         }
-        return view('user.customer.trash-list');
+        return view('customer.trash-list');
     }
     public function restore($id){
         $customer = Customer::withTrashed()->where('id',decrypt($id))->first();
         $customer->restore();
         Toastr::success('Customer has been Restored Successfully!.', '', ["progressBar" => true]);
-        return redirect()->route('user.customers.index');
+        return redirect()->route('customers.index');
     }
     public function permanentDelete($id){
         $customer = Customer::onlyTrashed()->where('id',decrypt($id))->first();
         $customer->forceDelete();
         Toastr::success('Customer has been Permanent Deleted Successfully!.', '', ["progressBar" => true]);
-        return redirect()->route('user.customers.index');
+        return redirect()->route('customers.index');
     }
 }

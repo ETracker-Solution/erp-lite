@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StorePurchaseRequest extends FormRequest
@@ -24,9 +25,18 @@ class StorePurchaseRequest extends FormRequest
         return [
             'supplier_id' => 'required',
             'products' => 'array',
+            'date' => 'required',
             'subtotal' => 'required',
             'vat' => 'required',
             'remark' => 'nullable',
         ];
+    }
+    public function prepareForValidation()
+    {
+
+        $this->merge([
+            'date' =>Carbon::parse($this->date)->format('Y-m-d'),
+        ]);
+
     }
 }

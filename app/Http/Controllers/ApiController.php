@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ChartOfInventory;
 use App\Models\Product;
+use App\Models\Supplier;
 use Illuminate\Http\Request;
 
 class ApiController extends Controller
@@ -11,7 +12,7 @@ class ApiController extends Controller
 
     public function fetchItemById($id)
     {
-        return ChartOfInventory::with('unit')->findOrFail($id);
+        return ChartOfInventory::with('unit','parent')->findOrFail($id);
     }
     public function fetch_product_sale($id)
     {
@@ -44,6 +45,19 @@ class ApiController extends Controller
         $data = [
 
             'products' => $products,
+        ];
+
+        return $data;
+    }
+    public function fetchSuppliersByGroupId($id)
+    {
+
+        $suppliers = Supplier::where(['status' => 'active', 'supplier_group_id' => $id])->get();
+
+
+        $data = [
+
+            'suppliers' => $suppliers,
         ];
 
         return $data;
