@@ -3,24 +3,23 @@
     Sale List
 @endsection
 @section('content')
-    <section class="content-header">
-        @php
-            $links = [
-            'Home'=>route('dashboard'),
-            'Sale list'=>''
-            ]
-        @endphp
-        <x-bread-crumb-component title='Sale' :links="$links"/>
-    </section>
+    @php
+        $links = [
+        'Home'=>route('dashboard'),
+        'Sale list'=>''
+        ]
+    @endphp
+    <x-breadcrumb title='Sale' :links="$links"/>
+
     <!-- Main content -->
     <section class="content">
         <div class="container-fluid">
 
             <div class="row">
                 <div class="col-12">
-                    <div class="card">
+                    <div class="card card-info">
                         <div class="card-header">
-                            <h3 class="card-title" style="color:#115548;">Sale List</h3>
+                            <h3 class="card-title">Sale List</h3>
                             <div class="card-tools">
                                 <a href="{{route('sales.create')}}">
                                     <button class="btn btn-sm btn-primary"><i class="fa fa-plus-circle"

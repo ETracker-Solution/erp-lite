@@ -5,3 +5,7 @@
     color: white;
     border-radius: 5px;
 }
+
+#dataTable{
+    width: 100% !important;
+}
