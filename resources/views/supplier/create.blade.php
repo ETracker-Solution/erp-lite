@@ -1,6 +1,6 @@
 @extends('layouts.app')
 @section('title')
-    Suplliers
+    Supllier Create
 @endsection
 @section('style')
     <!-- Select2 -->
@@ -8,14 +8,13 @@
     <link rel="stylesheet" href="{{ asset('assets/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css')}}">
 @endsection
 @section('content')
-    <!-- Content Header (Page header) -->
-    <section class="content-header">
-        <div class="container-fluid">
-            <div class="row mb-1">
-
-            </div>
-        </div><!-- /.container-fluid -->
-    </section>
+@php
+$links = [
+'Home'=>route('dashboard'),
+'Supllier Create'=>''
+]
+@endphp
+<x-breadcrumb title='Supllier Create' :links="$links"/>
 
 
 
@@ -28,9 +27,9 @@
                           enctype="multipart/form-data">
                         @csrf
                         <!-- Horizontal Form -->
-                        <div class="card card-primary">
-                            <div class="card-header bg-light">
-                                <h3 class="card-title" style="color:#115548;">Supplier</h3>
+                        <div class="card card-info">
+                            <div class="card-header">
+                                <h3 class="card-title">Supplier Create</h3>
                                 <div class="card-tools">
                                     <a href="{{route('suppliers.index')}}" class="btn btn-sm btn-primary">
                                         <i class="fa fa-list"
@@ -97,8 +96,7 @@
                             </div>
 
                             <div class="card-footer">
-                                <button class="btn btn-primary float-right"><i class="fa fa-check"
-                                                                          aria-hidden="true"></i>
+                                <button class="btn btn-primary float-right"><i class="fa fa-check" aria-hidden="true"></i>
                                     Submit
                                 </button>
                             </div>
