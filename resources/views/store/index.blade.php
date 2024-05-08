@@ -4,15 +4,13 @@ Store List
 @endsection
 @section('content')
 <!-- Content Header (Page header) -->
-<section class="content-header">
     @php
     $links = [
     'Home'=>route('dashboard'),
     'Store list'=>''
     ]
     @endphp
-    <x-bread-crumb-component title='Store' :links="$links" />
-</section>
+    <x-breadcrumb title='Store' :links="$links"/>
 <!-- Main content -->
 <section class="content">
     <div class="container-fluid">

@@ -1,28 +1,30 @@
 @extends('layouts.app')
-@section('title')
-    Purchase List
-@endsection
+@section('title','FG Production List')
+
 @section('content')
-    @php
-        $links = [
-        'Home'=>route('dashboard'),
-        'Purchase list'=>''
-        ]
-    @endphp
-    <x-breadcrumb title='Goods Purchase' :links="$links"/>
+    <section class="content-header">
+        @php
+            $links = [
+            'Home'=>route('dashboard'),
+            'FG Production list'=>''
+            ]
+        @endphp
+        <x-bread-crumb-component title='FG Production' :links="$links"/>
+    </section>
+
     <!-- Main content -->
     <section class="content">
         <div class="container-fluid">
-
             <div class="row">
                 <div class="col-12">
                     <div class="card">
                         <div class="card-header bg-info">
-                            <h3 class="card-title">Goods Purchase List</h3>
+                            <h3 class="card-title">FG Production List</h3>
                             <div class="card-tools">
-                                <a href="{{route('purchases.create')}}">
+                                <a href="{{route('productions.create')}}">
                                     <button class="btn btn-sm btn-primary"><i class="fa fa-plus-circle"
-                                                                              aria-hidden="true"></i> &nbsp;Add Purchase
+                                                                              aria-hidden="true"></i> &nbsp;Add FG
+                                        Production
                                     </button>
                                 </a>
                             </div>
@@ -40,7 +42,6 @@
                 </div>
             </div>
             <!-- /.row -->
-
         </div><!-- /.container-fluid -->
     </section>
     <!-- /.content -->
@@ -68,7 +69,7 @@
                 serverSide: true,
                 processing: true,
                 ajax: {
-                    url: "{{ route('purchases.index') }}",
+                    url: "{{ route('productions.index') }}",
                 },
                 columns: [{
                     data: "DT_RowIndex",

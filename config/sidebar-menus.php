@@ -33,20 +33,30 @@ return [
             ],
         ],
         [
-            'name' => 'Sales Module',
-            'icon' => 'fas fa-shopping-cart',
+            'name' => 'Production Module',
+            'icon' => 'fas fa-tag',
             'active_condition' => false,
             'has_child' => true,
             'child' => [
                 [
-                    'name' => 'Sales Entry',
+                    'name' => 'Production Entry',
                     'url' => '#',
                     'has_child' => true,
                     'active_condition' => false,
                     'child' => [
                         [
-                            'name' => 'Sales Order',
-                            'url' => '/sales/create',
+                            'name' => 'Create Batch',
+                            'url' => '/batches',
+                            'active_condition' => '',
+                        ],
+                        [
+                            'name' => 'RM Consumption',
+                            'url' => '/batches',
+                            'active_condition' => '',
+                        ],
+                        [
+                            'name' => 'FG Production',
+                            'url' => '/batches',
                             'active_condition' => '',
                         ]
                     ],
