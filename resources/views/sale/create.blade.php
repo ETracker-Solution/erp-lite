@@ -4,13 +4,13 @@ Sale
 @endsection
 @section('content')
 <!-- Content Header (Page header) -->
-<section class="content-header">
-  <div class="container-fluid">
-    <div class="row mb-1">
-
-    </div>
-  </div><!-- /.container-fluid -->
-</section>
+  @php
+      $links = [
+      'Home'=>route('dashboard'),
+      'Sale list'=>''
+      ]
+  @endphp
+  <x-breadcrumb title='Sale Create' :links="$links"/>
 
 
 
@@ -20,9 +20,9 @@ Sale
     <div class="row" id="vue_app">
       <div class="col-lg-12 col-md-12">
 
-        <div class="card">
+        <div class="card card-info">
           <div class="card-header">
-            <h3 class="card-title" style="color:#115548;">Sale List</h3>
+            <h3 class="card-title">Sale Create</h3>
             <div class="card-tools">
               <a href="{{route('sales.index')}}"><button class="btn btn-sm btn-primary">
                   <i class="fa fa-list" aria-hidden="true"></i> &nbsp;Sale List</button></a>

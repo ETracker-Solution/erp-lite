@@ -30,7 +30,7 @@ Batch List
                             </div>
                             <!-- /.card-header -->
                             <div class="card-body">
-                                <table id="dataTable" class="datatables-basic table">
+                                <table id="dataTable" class="table table-bordered table-hover">
                                     {{-- show from datatable--}}
                                 </table>
                             </div>
