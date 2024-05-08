@@ -30,13 +30,10 @@
                                         <i class="fas fa-bars"
                                            aria-hidden="true"></i> &nbsp;
                                         FG Production List
-
                                     </a>
                                 </div>
                             </div>
-
                             <div class="card-body">
-
                                 <div class="card-box">
                                     <hr>
                                     <div id="">
@@ -46,8 +43,14 @@
                                                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                         <div class="form-group">
                                                             <label for="purchase_id">FGP No</label>
-                                                            <input type="text" class="form-control input-sm"
-                                                                   value="{{$serial_no}}" readonly>
+                                                            <div class="input-group">
+                                                                <input type="text" class="form-control input-sm"
+                                                                       value="{{$serial_no}}" name="serial_no"
+                                                                       id="serial_no">
+                                                                <span class="input-group-append">
+                                                                    <button type="button" class="btn btn-info btn-flat">Search</button>
+                                                                </span>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">

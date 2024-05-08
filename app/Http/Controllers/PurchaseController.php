@@ -7,6 +7,7 @@ use App\Models\Product;
 use App\Models\Purchase;
 use App\Http\Requests\StorePurchaseRequest;
 use App\Http\Requests\UpdatePurchaseRequest;
+use App\Models\Store;
 use App\Models\Supplier;
 use App\Models\SupplierGroup;
 use Brian2694\Toastr\Facades\Toastr;
@@ -55,6 +56,7 @@ class PurchaseController extends Controller
             'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'RM'])->get(),
             'supplier_groups' => SupplierGroup::all(),
             'suppliers' => Supplier::all(),
+            'stores' => Store::where(['type' => 'RM'])->get(),
             'serial_no' => $serial_no,
 
         ];

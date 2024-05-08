@@ -45,8 +45,12 @@
                                                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                         <div class="form-group">
                                                             <label for="serial_no">Purchase No</label>
-                                                            <input type="text" class="form-control input-sm"
-                                                                   value="{{$serial_no}}" name="serial_no" id="serial_no" readonly>
+                                                            <div class="input-group">
+                                                                <input type="text" class="form-control input-sm"  value="{{$serial_no}}" name="serial_no" id="serial_no">
+                                                                <span class="input-group-append">
+                                                                    <button type="button" class="btn btn-secondary btn-flat">Search</button>
+                                                                </span>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
@@ -68,7 +72,19 @@
                                                                               placeholder="Select date"></vuejs-datepicker>
                                                         </div>
                                                     </div>
-
+                                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                                        <div class="form-group">
+                                                            <label for="store_id">Store</label>
+                                                            <select name="store_id" id="store_id"
+                                                                    class="form-control bSelect" required>
+                                                                <option value="">Select Store</option>
+                                                                @foreach($stores as $row)
+                                                                    <option
+                                                                        value="{{ $row->id }}">{{ $row->name }}</option>
+                                                                @endforeach
+                                                            </select>
+                                                        </div>
+                                                    </div>
 
                                                 </div>
                                             </div>
@@ -139,7 +155,7 @@
                                             <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
                                                 <div class="form-group">
                                                     <label for="group_id" class="control-label">Group</label>
-                                                    <select class="form-control" name="group_id" v-model="group_id"
+                                                    <select class="form-control bSelect" name="group_id" v-model="group_id"
                                                             @change="fetch_product">
                                                         <option value="">Select One</option>
                                                         @foreach ($groups as $row)
