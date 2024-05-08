@@ -24,11 +24,6 @@
 
     <link rel="stylesheet" href="{{ asset('assets/plugins/bootstrap4-duallistbox/bootstrap-duallistbox.min.css') }}">
 
-    {{-- <link rel="stylesheet" href="{{ asset('assets/plugins/bs-stepper/css/bs-stepper.min.css') }}"> --}}
-
-    {{-- <link rel="stylesheet" href="{{ asset('assets/plugins/dropzone/min/dropzone.min.css') }}"> --}}
-
-
 
   <style>
       .active-color {
