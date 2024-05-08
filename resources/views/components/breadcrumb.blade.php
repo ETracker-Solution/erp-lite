@@ -4,7 +4,7 @@
             <div class="col-sm-6">
                 <h1>{{__($title)}}</h1>
             </div>
-            <div class="col-sm-6">
+            <div class="col-sm-6" style="align-self: center">
                 <ol class="breadcrumb float-sm-right">
                     @foreach($links as $linkName=>$route)
                         @if($route== null)

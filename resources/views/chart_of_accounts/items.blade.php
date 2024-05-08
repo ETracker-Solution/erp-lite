@@ -11,6 +11,11 @@
         margin-bottom: 50px;
     }
 
+    #inventoryItems{
+        max-height: 70vh;
+        overflow-y: auto;
+    }
+
     .tree {
         list-style: none;
         padding-left: 20px;

@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\ChartOfInventory;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class ChartOfInventorySeeder extends Seeder
 {
@@ -13,6 +14,8 @@ class ChartOfInventorySeeder extends Seeder
      */
     public function run(): void
     {
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        ChartOfInventory::truncate();
         ChartOfInventory::create( [
             'id'=>1,
             'name'=>'Raw Material',
@@ -53,93 +56,101 @@ class ChartOfInventorySeeder extends Seeder
             'created_at'=>'2023-06-07 13:04:02',
             'updated_at'=>'2023-11-08 13:40:55'
         ] );
-        ChartOfInventory::create( [
-            'id'=>5,
-            'parent_id'=>1,
-            'name'=>'Prime Raw Material',
-            'type'=>'group',
-            'rootAccountType'=>'RM',
-            'photo_url'=>'/20230607010602eHkSHV.webp',
-            'status'=>'active',
-            'created_at'=>'2023-06-07 13:04:02',
-            'updated_at'=>'2023-11-08 13:40:55'
-        ] );
-        ChartOfInventory::create( [
-            'id'=>6,
-            'parent_id'=>5,
-            'name'=>'Flour',
-            'type'=>'item',
-            'rootAccountType'=>'RM',
-            'photo_url'=>'/20230607010602eHkSHV.webp',
-            'status'=>'active',
-            'created_at'=>'2023-06-07 13:04:02',
-            'updated_at'=>'2023-11-08 13:40:55'
-        ] );
-        ChartOfInventory::create( [
-            'id'=>7,
-            'parent_id'=>5,
-            'name'=>'Color Rice',
-            'type'=>'item',
-            'rootAccountType'=>'RM',
-            'photo_url'=>'/20230607010602eHkSHV.webp',
-            'status'=>'active',
-            'created_at'=>'2023-06-07 13:04:02',
-            'updated_at'=>'2023-11-08 13:40:55'
-        ] );
-        ChartOfInventory::create( [
-            'id'=>8,
-            'parent_id'=>5,
-            'name'=>'Chicken',
-            'type'=>'item',
-            'rootAccountType'=>'RM',
-            'photo_url'=>'/20230607010602eHkSHV.webp',
-            'status'=>'active',
-            'created_at'=>'2023-06-07 13:04:02',
-            'updated_at'=>'2023-11-08 13:40:55'
-        ] );
-        ChartOfInventory::create( [
-            'id'=>9,
-            'parent_id'=>5,
-            'name'=>'Powder Milk',
-            'type'=>'item',
-            'rootAccountType'=>'RM',
-            'photo_url'=>'/20230607010602eHkSHV.webp',
-            'status'=>'active',
-            'created_at'=>'2023-06-07 13:04:02',
-            'updated_at'=>'2023-11-08 13:40:55'
-        ] );
-        ChartOfInventory::create( [
-            'id'=>10,
-            'parent_id'=>1,
-            'name'=>'Packing Raw Material',
-            'type'=>'group',
-            'rootAccountType'=>'RM',
-            'photo_url'=>'/20230607010602eHkSHV.webp',
-            'status'=>'active',
-            'created_at'=>'2023-06-07 13:04:02',
-            'updated_at'=>'2023-11-08 13:40:55'
-        ] );
-        ChartOfInventory::create( [
-            'id'=>11,
-            'parent_id'=>10,
-            'name'=>'Pastry Raper poly',
-            'type'=>'item',
-            'rootAccountType'=>'RM',
-            'photo_url'=>'/20230607010602eHkSHV.webp',
-            'status'=>'active',
-            'created_at'=>'2023-06-07 13:04:02',
-            'updated_at'=>'2023-11-08 13:40:55'
-        ] );
-        ChartOfInventory::create( [
-            'id'=>12,
-            'parent_id'=>10,
-            'name'=>'A4 Paper',
-            'type'=>'item',
-            'rootAccountType'=>'RM',
-            'photo_url'=>'/20230607010602eHkSHV.webp',
-            'status'=>'active',
-            'created_at'=>'2023-06-07 13:04:02',
-            'updated_at'=>'2023-11-08 13:40:55'
-        ] );
+//        ChartOfInventory::create( [
+//            'id'=>5,
+//            'parent_id'=>1,
+//            'name'=>'Prime Raw Material',
+//            'type'=>'group',
+//            'rootAccountType'=>'RM',
+//            'photo_url'=>'/20230607010602eHkSHV.webp',
+//            'status'=>'active',
+//            'created_at'=>'2023-06-07 13:04:02',
+//            'updated_at'=>'2023-11-08 13:40:55'
+//        ] );
+//        ChartOfInventory::create( [
+//            'id'=>6,
+//            'parent_id'=>5,
+//            'name'=>'Flour',
+//            'type'=>'item',
+//            'rootAccountType'=>'RM',
+//            'photo_url'=>'/20230607010602eHkSHV.webp',
+//            'status'=>'active',
+//            'created_at'=>'2023-06-07 13:04:02',
+//            'updated_at'=>'2023-11-08 13:40:55'
+//        ] );
+//        ChartOfInventory::create( [
+//            'id'=>7,
+//            'parent_id'=>5,
+//            'name'=>'Color Rice',
+//            'type'=>'item',
+//            'rootAccountType'=>'RM',
+//            'photo_url'=>'/20230607010602eHkSHV.webp',
+//            'status'=>'active',
+//            'created_at'=>'2023-06-07 13:04:02',
+//            'updated_at'=>'2023-11-08 13:40:55'
+//        ] );
+//        ChartOfInventory::create( [
+//            'id'=>8,
+//            'parent_id'=>5,
+//            'name'=>'Chicken',
+//            'type'=>'item',
+//            'rootAccountType'=>'RM',
+//            'photo_url'=>'/20230607010602eHkSHV.webp',
+//            'status'=>'active',
+//            'created_at'=>'2023-06-07 13:04:02',
+//            'updated_at'=>'2023-11-08 13:40:55'
+//        ] );
+//        ChartOfInventory::create( [
+//            'id'=>9,
+//            'parent_id'=>5,
+//            'name'=>'Powder Milk',
+//            'type'=>'item',
+//            'rootAccountType'=>'RM',
+//            'photo_url'=>'/20230607010602eHkSHV.webp',
+//            'status'=>'active',
+//            'created_at'=>'2023-06-07 13:04:02',
+//            'updated_at'=>'2023-11-08 13:40:55'
+//        ] );
+//        ChartOfInventory::create( [
+//            'id'=>10,
+//            'parent_id'=>1,
+//            'name'=>'Packing Raw Material',
+//            'type'=>'group',
+//            'rootAccountType'=>'RM',
+//            'photo_url'=>'/20230607010602eHkSHV.webp',
+//            'status'=>'active',
+//            'created_at'=>'2023-06-07 13:04:02',
+//            'updated_at'=>'2023-11-08 13:40:55'
+//        ] );
+//        ChartOfInventory::create( [
+//            'id'=>11,
+//            'parent_id'=>10,
+//            'name'=>'Pastry Raper poly',
+//            'type'=>'item',
+//            'rootAccountType'=>'RM',
+//            'photo_url'=>'/20230607010602eHkSHV.webp',
+//            'status'=>'active',
+//            'created_at'=>'2023-06-07 13:04:02',
+//            'updated_at'=>'2023-11-08 13:40:55'
+//        ] );
+//        ChartOfInventory::create( [
+//            'id'=>12,
+//            'parent_id'=>10,
+//            'name'=>'A4 Paper',
+//            'type'=>'item',
+//            'rootAccountType'=>'RM',
+//            'photo_url'=>'/20230607010602eHkSHV.webp',
+//            'status'=>'active',
+//            'created_at'=>'2023-06-07 13:04:02',
+//            'updated_at'=>'2023-11-08 13:40:55'
+//        ] );
+
+        foreach (config('cake-town-inventory.RM') as $rawMaterial){
+            ChartOfInventory::create($rawMaterial);
+        }
+
+        foreach (config('cake-town-inventory.FG') as $rawMaterial){
+            ChartOfInventory::create($rawMaterial);
+        }
     }
 }
