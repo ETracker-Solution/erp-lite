@@ -1,36 +1,35 @@
 @extends('layouts.app')
-@section('title', 'Goods Purchase')
-
+@section('title', 'FG Production')
 @section('content')
-    <!-- Content Header (Page header) -->
-    @php
-        $links = [
-        'Home'=>route('dashboard'),
-        'Purchase Create'=>''
-        ]
-    @endphp
-    <x-breadcrumb title='Purchase' :links="$links"/>
-
+    <section class="content-header">
+        @php
+            $links = [
+            'Home' => route('dashboard'),
+            'FG Production' => route('productions.index'),
+            'FG Production create' => '',
+            ];
+        @endphp
+        <x-bread-crumb-component title='FG Production' :links="$links"/>
+    </section>
 
     <!-- Main content -->
     <section class="content">
         <div class="container-fluid">
             <div class="row" id="vue_app">
-                   <span v-if="pageLoading" class="categoryLoader">
+                   <span v-if="pageLoading" class="pageLoader">
                             <img src="{{ asset('loading.gif') }}" alt="loading">
                         </span>
                 <div class="col-lg-12 col-md-12">
-                    <form action="{{ route('purchases.store') }}" method="POST" class="">
+                    <form action="{{ route('productions.store') }}" method="POST" class="">
                         @csrf
                         <div class="card">
                             <div class="card-header bg-info">
-                                <h3 class="card-title">Goods Purchase Bill (GPB) Entry</h3>
+                                <h3 class="card-title">FG Production (FGP) Entry</h3>
                                 <div class="card-tools">
-                                    <a href="{{route('purchases.index')}}" class="btn btn-sm btn-primary">
-                                        <i class="fa fa-plus-circle"
+                                    <a href="{{route('productions.index')}}" class="btn btn-sm btn-primary">
+                                        <i class="fas fa-bars"
                                            aria-hidden="true"></i> &nbsp;
-                                        Purchase
-                                        List
+                                        FG Production List
 
                                     </a>
                                 </div>
@@ -46,7 +45,7 @@
                                                 <div class="row">
                                                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                         <div class="form-group">
-                                                            <label for="purchase_id">Purchase No</label>
+                                                            <label for="purchase_id">FGP No</label>
                                                             <input type="text" class="form-control input-sm"
                                                                    value="{{$serial_no}}" readonly>
                                                         </div>
@@ -58,38 +57,29 @@
                                                                    value="{{old('reference_no')}}" name="reference_no">
                                                         </div>
                                                     </div>
-
-
                                                 </div>
                                             </div>
                                             <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                                                 <div class="row">
                                                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                         <div class="form-group">
-                                                            <label for="supplier_id">Supplier Group</label>
-                                                            <select name="supplier_group_id" id="supplier_group_id"
+                                                            <label for="batch_id">Batch</label>
+                                                            <select name="batch_id" id="batch_id"
                                                                     class="form-control bSelect"
-                                                                    v-model="supplier_group_id" required>
-                                                                <option value="">Select Supplier Group</option>
-                                                                @foreach($supplier_groups as $row)
+                                                                    v-model="batch_id" required>
+                                                                <option value="">Select Batch</option>
+                                                                @foreach($batches as $row)
                                                                     <option
-                                                                        value="{{ $row->id }}">{{ $row->name }}</option>
+                                                                        value="{{ $row->id }}">{{ $row->batch_no }}</option>
                                                                 @endforeach
                                                             </select>
                                                         </div>
                                                     </div>
                                                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                         <div class="form-group">
-                                                            <label for="supplier_id">Supplier</label>
-                                                            <select name="supplier_id" id="supplier_id"
-                                                                    class="form-control bSelect" v-model="supplier_id"
-                                                                    required>
-                                                                <option value="">Select Supplier</option>
-                                                                @foreach($suppliers as $supplier)
-                                                                    <option
-                                                                        value="{{ $supplier->id }}">{{ $supplier->name }}</option>
-                                                                @endforeach
-                                                            </select>
+                                                            <label for="date">Date</label>
+                                                            <input type="text" class="form-control input-sm" id="date"
+                                                                   value="{{date('Y-m-d')}}">
                                                         </div>
                                                     </div>
 
@@ -117,7 +107,7 @@
                         </div>
                         <div class="card">
                             <div class="card-header bg-info">
-                                <h3 class="card-title">Goods Purchase Line Item</h3>
+                                <h3 class="card-title">FG Production (FGP) Line Item</h3>
                             </div>
                             <div class="card-body">
 
@@ -281,7 +271,7 @@
 @endsection
 @push('style')
     <style>
-        .categoryLoader {
+        .pageLoader {
             position: absolute;
             top: 50%;
             right: 40%;
@@ -300,7 +290,6 @@
     <script src="{{ asset('vue-js/vue/dist/vue.js') }}"></script>
     <script src="{{ asset('vue-js/axios/dist/axios.min.js') }}"></script>
     <script src="{{ asset('vue-js/bootstrap-select/dist/js/bootstrap-select.min.js') }}"></script>
-
     <script>
         $(document).ready(function () {
 
@@ -312,9 +301,7 @@
                         get_items_info_by_group_id_url: "{{ url('fetch-items-by-group-id') }}",
                         get_item_info_url: "{{ url('fetch-item-info') }}",
                     },
-                    vat: 0,
-                    supplier_group_id: '',
-                    supplier_id: '',
+                    batch_id: '',
                     group_id: '',
                     item_id: '',
                     items: [],

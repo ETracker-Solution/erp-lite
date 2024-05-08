@@ -50,6 +50,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('customers', App\Http\Controllers\CustomerController::class);
     Route::resource('purchases', PurchaseController::class);
     Route::resource('sales', SaleController::class);
+    Route::resource('productions', \App\Http\Controllers\ProductionController::class);
 
     //-----start Pos---------
     Route::resource('pos', App\Http\Controllers\POSController::class);
