@@ -14,7 +14,7 @@ $links = [
 'Customer Edit'=>''
 ]
 @endphp
-<x-breadcrumb title='Customer Edit' :links="$links" />
+<x-breadcrumb title='Customer' :links="$links" />
 
 
 

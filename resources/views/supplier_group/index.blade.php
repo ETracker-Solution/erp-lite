@@ -4,15 +4,13 @@
 @endsection
 @section('content')
     <!-- Content Header (Page header) -->
-    <section class="content-header">
-        @php
-            $links = [
-            'Home'=>route('dashboard'),
-            'Supplier Group list'=>''
-            ]
-        @endphp
-        <x-bread-crumb-component title='Supplier Group' :links="$links"/>
-    </section>
+    @php
+    $links = [
+    'Home'=>route('dashboard'),
+    'Supplier Group List'=>''
+    ]
+    @endphp
+    <x-breadcrumb title='Supplier Group' :links="$links" />
 
     <!-- Main content -->
     <section class="content">
@@ -20,9 +18,9 @@
 
             <div class="row">
                 <div class="col-12">
-                    <div class="card">
+                    <div class="card card-info">
                         <div class="card-header">
-                            <h3 class="card-title" style="color:#115548;">Supplier Group List</h3>
+                            <h3 class="card-title">Supplier Group List</h3>
                             <div class="card-tools">
                                 <a href="{{route('supplier-groups.create')}}" class="btn btn-sm btn-primary">
                                     <i class="fa fa-plus-circle"
@@ -34,7 +32,7 @@
                         <!-- /.card-header -->
                         <div class="card-body table-responsive">
                             <table id="dataTable"
-                                   class="datatables-basic table table-bordered table-secondary table-striped">
+                                   class="table table-bordered table-hover">
                                 {{-- show from datatable--}}
                             </table>
                         </div>

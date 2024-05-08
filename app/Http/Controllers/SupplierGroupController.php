@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreSupplierGroupRequest;
 use App\Http\Requests\UpdateSupplierGroupRequest;
 use App\Models\SupplierGroup;
+use Brian2694\Toastr\Facades\Toastr;
+use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Facades\DataTables;
 
 class SupplierGroupController extends Controller
@@ -19,7 +21,7 @@ class SupplierGroupController extends Controller
             return DataTables::of($suppliers)
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
-                    return view('supplier.action', compact('row'));
+                    return view('supplier_group.action', compact('row'));
                 })
                 ->addColumn('created_at', function ($row) {
                     return view('common.created_at', compact('row'));
@@ -46,7 +48,19 @@ class SupplierGroupController extends Controller
      */
     public function store(StoreSupplierGroupRequest $request)
     {
-        //
+        $validated = $request->validated();
+
+        DB::beginTransaction();
+        try {
+            SupplierGroup::create($validated);
+            DB::commit();
+        } catch (\Exception $error) {
+            DB::rollBack();
+            Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
+            return back();
+        }
+        Toastr::success('Supplier Group Created Successfully!.', '', ["progressBar" => true]);
+        return redirect()->route('supplier-groups.index');
     }
 
     /**
@@ -60,24 +74,46 @@ class SupplierGroupController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(SupplierGroup $supplierGroup)
+    public function edit($id)
     {
-        //
+        $supplierGroup = SupplierGroup::findOrFail(decrypt($id));
+        return view('supplier_group.create',compact('supplierGroup'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateSupplierGroupRequest $request, SupplierGroup $supplierGroup)
+    public function update(UpdateSupplierGroupRequest $request, $id)
     {
-        //
+        $validated = $request->validated();
+        DB::beginTransaction();
+        try {
+            SupplierGroup::findOrFail($id)->update($validated);
+            DB::commit();
+        } catch (\Exception $error) {
+            DB::rollBack();
+            Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
+            return back();
+        }
+        Toastr::success('Supplier Group Updated Successfully!.', '', ["progressBar" => true]);
+        return redirect()->route('supplier-groups.index');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(SupplierGroup $supplierGroup)
+    public function destroy($id)
     {
-        //
+        DB::beginTransaction();
+        try {
+            SupplierGroup::findOrFail(decrypt($id))->delete();
+            DB::commit();
+        } catch (\Exception $error) {
+            DB::rollBack();
+            Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
+            return back();
+        }
+        Toastr::success('Supplier Group Deleted Successfully!.', '', ["progressBar" => true]);
+        return redirect()->route('supplier-groups.index');
     }
 }

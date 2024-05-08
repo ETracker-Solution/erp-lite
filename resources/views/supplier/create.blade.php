@@ -14,7 +14,7 @@ $links = [
 'Supllier Create'=>''
 ]
 @endphp
-<x-breadcrumb title='Supllier Create' :links="$links"/>
+<x-breadcrumb title='Supllier' :links="$links"/>
 
 
 

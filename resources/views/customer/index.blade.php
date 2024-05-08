@@ -11,7 +11,7 @@ Customer List
     'Customer list'=>''
     ]
 @endphp
-<x-breadcrumb title='Customer list' :links="$links"/>
+<x-breadcrumb title='Customer' :links="$links"/>
 
 <!-- Main content -->
 <section class="content">
