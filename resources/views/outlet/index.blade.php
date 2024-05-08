@@ -93,7 +93,7 @@
                     },
                     {
                         data: "created_at",
-                        title: "created at",
+                        title: "Created at",
                         searchable: true
                     },
                     {

@@ -88,12 +88,12 @@
                     },
                     {
                         data: "code",
-                        title: "code",
+                        title: "Code",
                         searchable: true
                     },
                     {
                         data: "created_at",
-                        title: "created at",
+                        title: "Created at",
                         searchable: true
                     },
                     {
