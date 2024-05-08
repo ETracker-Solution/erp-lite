@@ -3,16 +3,13 @@
 
 @section('content')
     <!-- Content Header (Page header) -->
-    <section class="content-header">
-        @php
-            $links = [
-            'Home'=>route('dashboard'),
-            'Purchase Create'=>''
-            ]
-        @endphp
-        <x-bread-crumb-component title='Purchase' :links="$links"/>
-    </section>
-
+    @php
+        $links = [
+        'Home'=>route('dashboard'),
+        'Purchase Create'=>''
+        ]
+    @endphp
+    <x-breadcrumb title='Purchase' :links="$links"/>
 
 
     <!-- Main content -->

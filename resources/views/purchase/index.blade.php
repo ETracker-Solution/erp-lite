@@ -3,16 +3,13 @@
     Purchase List
 @endsection
 @section('content')
-    <section class="content-header">
-        @php
-            $links = [
-            'Home'=>route('dashboard'),
-            'Purchase list'=>''
-            ]
-        @endphp
-        <x-bread-crumb-component title='Goods Purchase' :links="$links"/>
-    </section>
-
+    @php
+        $links = [
+        'Home'=>route('dashboard'),
+        'Purchase list'=>''
+        ]
+    @endphp
+    <x-breadcrumb title='Goods Purchase' :links="$links"/>
     <!-- Main content -->
     <section class="content">
         <div class="container-fluid">

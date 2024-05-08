@@ -4,15 +4,13 @@ Batch List
 @endsection
 @section('content')
 <!-- Content Header (Page header) -->
-<section class="content-header">
     @php
     $links = [
     'Home'=>route('dashboard'),
     'Batch list'=>''
     ]
     @endphp
-    <x-bread-crumb-component title='Batch' :links="$links" />
-</section>
+    <x-breadcrumb title='Batch' :links="$links"/>
 <!-- Main content -->
 <section class="content">
     <div class="container-fluid">
