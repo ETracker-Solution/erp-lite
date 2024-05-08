@@ -1,16 +1,16 @@
 @extends('layouts.app')
 @section('title')
-    Supplier Group List
+    Outlet List
 @endsection
 @section('content')
     <!-- Content Header (Page header) -->
     @php
     $links = [
     'Home'=>route('dashboard'),
-    'Supplier Group List'=>''
+    'Outlet List'=>''
     ]
     @endphp
-    <x-breadcrumb title='Supplier Group' :links="$links" />
+    <x-breadcrumb title='Outlet' :links="$links" />
 
     <!-- Main content -->
     <section class="content">
@@ -20,9 +20,9 @@
                 <div class="col-12">
                     <div class="card card-info">
                         <div class="card-header">
-                            <h3 class="card-title">Supplier Group List</h3>
+                            <h3 class="card-title">Outlet List</h3>
                             <div class="card-tools">
-                                <a href="{{route('supplier-groups.create')}}" class="btn btn-sm btn-primary">
+                                <a href="{{route('outlets.create')}}" class="btn btn-sm btn-primary">
                                     <i class="fa fa-plus-circle"
                                        aria-hidden="true"></i> &nbsp;Add Supplier
 
@@ -72,7 +72,7 @@
                 serverSide: true,
                 processing: true,
                 ajax: {
-                    url: "{{ route('supplier-groups.index') }}",
+                    url: "{{ route('outlets.index') }}",
                 },
                 columns: [{
                     data: "DT_RowIndex",
@@ -87,8 +87,8 @@
                         searchable: true
                     },
                     {
-                        data: "code",
-                        title: "Code",
+                        data: "address",
+                        title: "Address",
                         searchable: true
                     },
                     {

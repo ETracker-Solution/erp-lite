@@ -132,7 +132,7 @@ Unit List
                 },
                 {
                     data: "action",
-                    title: "",
+                    title: "Action",
                     orderable: false,
                     searchable: false
                 },

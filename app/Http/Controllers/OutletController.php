@@ -2,26 +2,29 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreSupplierGroupRequest;
-use App\Http\Requests\UpdateSupplierGroupRequest;
-use App\Models\SupplierGroup;
+use App\Http\Requests\StoreOutletRequest;
+use App\Http\Requests\UpdateOutletRequest;
+use App\Models\Outlet;
 use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Facades\DataTables;
 
-class SupplierGroupController extends Controller
+class OutletController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $suppliers = SupplierGroup::all();
+        $outlets = Outlet::all();
         if (\request()->ajax()) {
-            return DataTables::of($suppliers)
+            return DataTables::of($outlets)
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
-                    return view('supplier_group.action', compact('row'));
+                    return view('outlet.action', compact('row'));
+                })
+                ->editColumn('type', function ($row) {
+                    return strtoupper($row->type);
                 })
                 ->addColumn('created_at', function ($row) {
                     return view('common.created_at', compact('row'));
@@ -29,8 +32,7 @@ class SupplierGroupController extends Controller
                 ->rawColumns(['action'])
                 ->make(true);
         }
-        return view('supplier_group.index');
-
+        return view('outlet.index');
     }
 
     /**
@@ -38,35 +40,35 @@ class SupplierGroupController extends Controller
      */
     public function create()
     {
-        $serial_count = SupplierGroup::latest()->first() ? SupplierGroup::latest()->first()->id : 0;
+        $serial_count = Outlet::latest()->first() ? Outlet::latest()->first()->id : 0;
         $serial_no = $serial_count + 1;
-        return view('supplier_group.create', compact('serial_no'));
+        return view('outlet.create',compact('serial_no'));
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreSupplierGroupRequest $request)
+    public function store(StoreOutletRequest $request)
     {
         $validated = $request->validated();
 
         DB::beginTransaction();
         try {
-            SupplierGroup::create($validated);
+            Outlet::create($validated);
             DB::commit();
         } catch (\Exception $error) {
             DB::rollBack();
             Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
             return back();
         }
-        Toastr::success('Supplier Group Created Successfully!.', '', ["progressBar" => true]);
-        return redirect()->route('supplier-groups.index');
+        Toastr::success('Store Created Successfully!.', '', ["progressBar" => true]);
+        return redirect()->route('outlets.index');
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(SupplierGroup $supplierGroup)
+    public function show(Outlet $outlet)
     {
         //
     }
@@ -76,27 +78,27 @@ class SupplierGroupController extends Controller
      */
     public function edit($id)
     {
-        $supplierGroup = SupplierGroup::findOrFail(decrypt($id));
-        return view('supplier_group.create',compact('supplierGroup'));
+        $outlet = Outlet::findOrFail(decrypt($id));
+        return view('outlet.create', compact('outlet'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateSupplierGroupRequest $request, $id)
+    public function update(UpdateOutletRequest $request, $id)
     {
         $validated = $request->validated();
         DB::beginTransaction();
         try {
-            SupplierGroup::findOrFail($id)->update($validated);
+            Outlet::findOrFail($id)->update($validated);
             DB::commit();
         } catch (\Exception $error) {
             DB::rollBack();
             Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
             return back();
         }
-        Toastr::success('Supplier Group Updated Successfully!.', '', ["progressBar" => true]);
-        return redirect()->route('supplier-groups.index');
+        Toastr::success('Outlet Updated Successfully!.', '', ["progressBar" => true]);
+        return redirect()->route('outlets.index');
     }
 
     /**
@@ -106,14 +108,14 @@ class SupplierGroupController extends Controller
     {
         DB::beginTransaction();
         try {
-            SupplierGroup::findOrFail(decrypt($id))->delete();
+            Outlet::findOrFail(decrypt($id))->delete();
             DB::commit();
         } catch (\Exception $error) {
             DB::rollBack();
             Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
             return back();
         }
-        Toastr::success('Supplier Group Deleted Successfully!.', '', ["progressBar" => true]);
-        return redirect()->route('supplier-groups.index');
+        Toastr::success('Outlet Deleted Successfully!.', '', ["progressBar" => true]);
+        return redirect()->route('outlets.index');
     }
 }

@@ -1,6 +1,6 @@
 @extends('layouts.app')
 @section('title')
-    Supllier Group
+    Outlet
 @endsection
 @section('style')
     <!-- Select2 -->
@@ -11,10 +11,10 @@
     @php
         $links = [
             'Home' => route('dashboard'),
-            'Supllier Group' . (isset($supplierGroup) ? ' Edit' : ' Create') => '',
+            'Outlet' . (isset($outlet) ? ' Edit' : ' Create') => '',
         ];
     @endphp
-    <x-breadcrumb title='Supllier Group' :links="$links" />
+    <x-breadcrumb title='Outlet' :links="$links" />
 
     <!-- Main content -->
     <section class="content">
@@ -22,18 +22,18 @@
             <div class="row">
                 <div class="col-12">
                     <form
-                        @if (isset($supplierGroup)) action="{{ route('supplier-groups.update', $supplierGroup->id) }}" @else action="{{ route('supplier-groups.store') }}" @endif
+                        @if (isset($outlet)) action="{{ route('outlets.update', $outlet->id) }}" @else action="{{ route('outlets.store') }}" @endif
                         method="POST" class="" enctype="multipart/form-data">
                         @csrf
-                        @if (isset($supplierGroup))
+                        @if (isset($outlet))
                             @method('PUT')
                         @endif
                         <!-- Horizontal Form -->
                         <div class="card card-info">
                             <div class="card-header">
-                                <h3 class="card-title">Supplier Group</h3>
+                                <h3 class="card-title">Outlet</h3>
                                 <div class="card-tools">
-                                    <a href="{{ route('suppliers.index') }}" class="btn btn-sm btn-primary">
+                                    <a href="{{ route('outlets.index') }}" class="btn btn-sm btn-primary">
                                         <i class="fa fa-list" aria-hidden="true"></i>
                                         &nbsp;See List
 
@@ -46,10 +46,10 @@
                                 <div class="row">
                                     <div class="col-xl-4 col-md-4 col-12 mb-1">
                                         <div class="form-group">
-                                            <label for="serial_no">Supplier Group No</label>
+                                            <label for="serial_no">Outlet No</label>
                                             <input type="text" class="form-control" id="serial_no" name="serial_no"
                                                 placeholder=""
-                                                value="{{ old('serial_no', isset($supplierGroup) ? $supplierGroup->id : $serial_no) }}"
+                                                value="{{ old('serial_no', isset($outlet) ? $outlet->id : $serial_no) }}"
                                                 readonly>
                                             @if ($errors->has('serial_no'))
                                                 <small class="text-danger">{{ $errors->first('serial_no') }}</small>
@@ -58,12 +58,12 @@
                                     </div>
                                     <div class="col-xl-4 col-md-4 col-12 mb-1">
                                         <x-forms.text label="Name" inputName="name" placeholder="Enter Name"
-                                            :isRequired='true' :isReadonly='false' :defaultValue="isset($supplierGroup) ? $supplierGroup->name : ''" />
+                                            :isRequired='true' :isReadonly='false' :defaultValue="isset($outlet) ? $outlet->name : ''" />
                                     </div>
 
                                     <div class="col-xl-4 col-md-4 col-12 mb-1">
-                                        <x-forms.text label="Code" inputName="code" placeholder="Enter Code"
-                                            :isRequired='true' :isReadonly='false' :defaultValue="isset($supplierGroup) ? $supplierGroup->code : ''" />
+                                        <x-forms.text label="Address" inputName="address" placeholder="Enter Address"
+                                            :isRequired='true' :isReadonly='false' :defaultValue="isset($outlet) ? $outlet->address : ''" />
                                     </div>
                                 </div>
                             </div>
@@ -87,6 +87,5 @@
 @endsection
 
 @push('js')
-    <!-- Select2 -->
-    <script src="{{ asset('assets/plugins/select2/js/select2.full.min.js') }}"></script>
+
 @endpush

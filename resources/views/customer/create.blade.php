@@ -15,7 +15,7 @@ Customer
     'Customer Create'=>''
     ]
 @endphp
-<x-breadcrumb title='Customer Create' :links="$links"/>
+<x-breadcrumb title='Customer' :links="$links"/>
 
 
 

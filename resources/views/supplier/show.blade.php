@@ -15,7 +15,7 @@ $links = [
 'Supplier Details'=>''
 ]
 @endphp
-<x-breadcrumb title='Supplier Details' :links="$links" />
+<x-breadcrumb title='Supplier' :links="$links" />
 
 
 
