@@ -24,6 +24,7 @@ class StorePurchaseRequest extends FormRequest
     {
         return [
             'supplier_id' => 'required',
+            'serial_no' => 'required',
             'products' => 'array',
             'date' => 'required',
             'subtotal' => 'required',
@@ -35,6 +36,7 @@ class StorePurchaseRequest extends FormRequest
     {
 
         $this->merge([
+            'created_by' => auth()->user()->id,
             'date' =>Carbon::parse($this->date)->format('Y-m-d'),
         ]);
 
