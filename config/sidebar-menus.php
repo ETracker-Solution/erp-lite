@@ -54,7 +54,7 @@ return [
         [
             'name' => 'Data Admin Module',
             'icon' => 'fas fa-wrench',
-            'active_condition' => request()->segment(1) == 'chart-of-inventories',
+            'active_condition' => false,
             'has_child' => true,
             'child' => [
                 [
@@ -74,12 +74,12 @@ return [
                     'name' => 'Inventory Settings',
                     'url' => '#',
                     'has_child' => true,
-                    'active_condition' => request()->segment(1) == 'chart-of-inventories',
+                    'active_condition' => false,
                     'child' => [
                         [
                             'name' => 'Inventory Item List',
                             'url' => '/chart-of-inventories',
-                            'active_condition' => request()->segment(1) == 'chart-of-inventories',
+                            'active_condition' => false,
                         ],
                         [
                             'name' => 'Unit List',
