@@ -7,10 +7,10 @@
             </i>
             Edit
         </a>
-        <a href="{{ route('batches.show', encrypt($row->id)) }}" class="btn btn-xs btn-primary">
+        {{-- <a href="{{ route('batches.show', encrypt($row->id)) }}" class="btn btn-xs btn-primary">
             <i class="fas fa-folder">
             </i> Show
-        </a>
+        </a> --}}
         <button id="btnDelete" class="btn btn-danger btn-xs"> <i class="fas fa-trash">
             </i> Delete</button>
     </form>
