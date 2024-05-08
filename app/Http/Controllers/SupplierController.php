@@ -77,9 +77,10 @@ class SupplierController extends Controller
      * @param  \App\Models\Supplier  $supplier
      * @return \Illuminate\Http\Response
      */
-    public function show(Supplier $supplier)
+    public function show($id)
     {
-        //
+        $supplier = Supplier::findOrFail(decrypt($id));
+        return view('supplier.show',compact('supplier'));
     }
 
     /**
@@ -90,8 +91,9 @@ class SupplierController extends Controller
      */
     public function edit($id)
     {
+        $supplier_groups = SupplierGroup::all();
         $supplier = Supplier::findOrFail(decrypt($id));
-        return view('supplier.edit',compact('supplier'));
+        return view('supplier.edit',compact('supplier','supplier_groups'));
     }
 
     /**
@@ -106,7 +108,7 @@ class SupplierController extends Controller
         $validated = $request->validated();
         DB::beginTransaction();
         try {
-            Supplier::findOrFail(decrypt($id))->update($validated);
+            Supplier::findOrFail($id)->update($validated);
             DB::commit();
         } catch (\Exception $error) {
             DB::rollBack();
