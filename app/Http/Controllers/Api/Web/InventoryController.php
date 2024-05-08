@@ -3,21 +3,28 @@
 namespace App\Http\Controllers\Api\Web;
 
 use App\Http\Controllers\Controller;
+use App\Models\ChartOfAccount;
 use App\Models\ChartOfInventory;
 use Illuminate\Http\Request;
 
 class InventoryController extends Controller
 {
+    protected $base_model;
+
+    public function __construct()
+    {
+        $this->base_model = ChartOfInventory::query();
+    }
 
     public function inventoryItems()
     {
-        $allChartOfInventories = ChartOfInventory::whereNull('parent_id')->get();
+        $allChartOfInventories = $this->base_model->whereNull('parent_id')->get();
         return view('chart_of_inventory.items', compact('allChartOfInventories',));
     }
 
     public function inventoryDetails($id)
     {
-        $inventory = ChartOfInventory::with('parent')->find($id);
+        $inventory = $this->base_model->with('parent')->find($id);
         $data = [
             'item_id' => $inventory->id,
             'item_name' => $inventory->name,
@@ -33,7 +40,7 @@ class InventoryController extends Controller
     public function inventoryUpdate($id)
     {
         try {
-            $inventory = ChartOfInventory::find($id);
+            $inventory = $this->base_model->find($id);
             if (\request()->filled('item_name')) {
                 $inventory->name = \request()->item_name;
             }
@@ -58,7 +65,7 @@ class InventoryController extends Controller
     public function inventoryStore($id)
     {
         try {
-            $inventory = ChartOfInventory::find($id);
+            $inventory = $this->base_model->find($id);
             $inventory->subChartOfInventories()->create([
                 'name' => \request()->item_name,
                 'type' => \request()->item_type,
@@ -82,7 +89,7 @@ class InventoryController extends Controller
     public function inventoryDelete($id)
     {
         try {
-            $inventory = ChartOfInventory::find($id);
+            $inventory = $this->base_model->find($id);
             $inventory->delete();
         } catch (\Exception $exception) {
             return response()->json([

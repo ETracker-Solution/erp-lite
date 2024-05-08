@@ -209,8 +209,12 @@
                             'X-CSRF-TOKEN': csrfToken
                         },
                         success: function (result) {
-                            toastr.success(result.message)
-                            getAccounts()
+                            if(result.success){
+                                toastr.success(result.message)
+                                getAccounts()
+                            }else{
+                                toastr.error(result.message)
+                            }
                         }
                     });
                 }
@@ -257,8 +261,13 @@
                     'X-CSRF-TOKEN': csrfToken
                 },
                 success: function (result) {
-                    toastr.success(result.message)
-                    getAccounts()
+                    if(result.success){
+                        toastr.success(result.message)
+                        getAccounts()
+                    }else{
+                        toastr.error(result.message)
+                    }
+
                 }
             });
         }
@@ -315,6 +324,11 @@
 
                     makeHidden(addNewDiv)
                     makeHidden(additionalInfoDiv)
+
+                    makeHidden(addButton)
+                    makeHidden(updateButton)
+                    makeHidden(saveButton)
+                    makeHidden(deleteButton)
                 }
             });
         }
