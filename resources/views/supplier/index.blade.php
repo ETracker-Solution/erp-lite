@@ -3,16 +3,13 @@
     Supplier List
 @endsection
 @section('content')
-    <!-- Content Header (Page header) -->
-    <section class="content-header">
-        @php
-            $links = [
-            'Home'=>route('dashboard'),
-            'Supplier list'=>''
-            ]
-        @endphp
-        <x-bread-crumb-component title='Supplier' :links="$links"/>
-    </section>
+@php
+$links = [
+'Home'=>route('dashboard'),
+'Supllier list'=>''
+]
+@endphp
+<x-breadcrumb title='Supllier List' :links="$links"/>
 
     <!-- Main content -->
     <section class="content">
@@ -20,9 +17,9 @@
 
             <div class="row">
                 <div class="col-12">
-                    <div class="card">
+                    <div class="card card-info">
                         <div class="card-header">
-                            <h3 class="card-title" style="color:#115548;">Supplier List</h3>
+                            <h3 class="card-title">Supplier List</h3>
                             <div class="card-tools">
                                 <a href="{{route('suppliers.create')}}">
                                     <button class="btn btn-sm btn-primary"><i class="fa fa-plus-circle"
@@ -34,7 +31,7 @@
                         <!-- /.card-header -->
                         <div class="card-body table-responsive">
                             <table id="dataTable"
-                                   class="datatables-basic table table-bordered table-secondary table-striped">
+                                   class="table table-bordered table-hover">
                                 {{-- show from datatable--}}
                             </table>
                         </div>
