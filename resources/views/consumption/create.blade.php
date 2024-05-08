@@ -110,8 +110,6 @@
                                                     </div>
                                                 </div>
                                             </div>
-
-
                                         </div>
                                     </div>
                                 </div>
@@ -124,7 +122,6 @@
                                 <h3 class="card-title">Raw Material Consumption (RMC) Line Item</h3>
                             </div>
                             <div class="card-body">
-
                                 <div class="card-box">
                                     <div id="">
                                         <div class="row">
@@ -315,6 +312,7 @@
                         get_items_info_by_group_id_url: "{{ url('fetch-items-by-group-id') }}",
                         get_item_info_url: "{{ url('fetch-item-info') }}",
                     },
+                    store_id: '',
                     batch_id: '',
                     group_id: '',
                     item_id: '',
