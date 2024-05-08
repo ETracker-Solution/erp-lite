@@ -9,15 +9,21 @@ use Illuminate\Http\Request;
 
 class COAccountController extends Controller
 {
+    protected $base_model;
+    public function __construct()
+    {
+        $this->base_model = ChartOfAccount::query();
+    }
+
     public function items()
     {
-        $allChartOfAccounts = ChartOfAccount::whereNull('parent_id')->get();
+        $allChartOfAccounts = $this->base_model->whereNull('parent_id')->get();
         return view('chart_of_accounts.items', compact('allChartOfAccounts',));
     }
 
     public function details($id)
     {
-        $account = ChartOfAccount::with('parent')->find($id);
+        $account = $this->base_model->with('parent')->find($id);
         $data = [
             'item_id' => $account->id,
             'item_name' => $account->name,
@@ -31,7 +37,7 @@ class COAccountController extends Controller
     public function update($id)
     {
         try {
-            $account = ChartOfAccount::find($id);
+            $account = $this->base_model->find($id);
             if (\request()->filled('item_name')) {
                 $account->name = \request()->item_name;
             }
@@ -52,8 +58,8 @@ class COAccountController extends Controller
     public function store($id)
     {
         try {
-            $account = ChartOfAccount::find($id);
-            $account->subChartOfInventories()->create([
+            $account = $this->base_model->find($id);
+            $account->subChartOfAccounts()->create([
                 'name' => \request()->item_name,
                 'type' => \request()->item_type,
                 'account_type' => $account->account_type,
@@ -74,8 +80,8 @@ class COAccountController extends Controller
     public function delete($id)
     {
         try {
-            $inventory = ChartOfInventory::find($id);
-            $inventory->delete();
+            $account = $this->base_model->find($id);
+            $account->delete();
         } catch (\Exception $exception) {
             return response()->json([
                 'message' => $exception->getMessage(),

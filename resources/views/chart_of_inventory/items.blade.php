@@ -9,6 +9,12 @@
         width: 300px;
         margin: auto;
         margin-bottom: 50px;
+
+    }
+
+    #inventoryItems{
+        max-height: 70vh;
+        overflow-y: auto;
     }
 
     .tree {

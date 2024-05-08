@@ -1,5 +1,7 @@
 <?php
 
+use Illuminate\Support\Facades\Request;
+
 return [
     'menus' => [
         [
@@ -76,7 +78,7 @@ return [
                         [
                             'name' => 'Chart Of Accounts',
                             'url' => '/chart-of-accounts',
-                            'active_condition' => '',
+                            'active_condition' => "Request::segment(1) == 'chart-of-accounts'",
                         ]
                     ],
                 ],
