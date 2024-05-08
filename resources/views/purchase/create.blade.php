@@ -76,7 +76,7 @@
                                                                 <option value="">Select Supplier Group</option>
                                                                 @foreach($supplier_groups as $row)
                                                                     <option
-                                                                            value="{{ $row->id }}">{{ $row->name }}</option>
+                                                                        value="{{ $row->id }}">{{ $row->name }}</option>
                                                                 @endforeach
                                                             </select>
                                                         </div>
@@ -90,7 +90,7 @@
                                                                 <option value="">Select Supplier</option>
                                                                 @foreach($suppliers as $supplier)
                                                                     <option
-                                                                            value="{{ $supplier->id }}">{{ $supplier->name }}</option>
+                                                                        value="{{ $supplier->id }}">{{ $supplier->name }}</option>
                                                                 @endforeach
                                                             </select>
                                                         </div>
@@ -210,7 +210,7 @@
                                                             <td>
                                                                 <button type="button" class="btn btn-sm btn-danger"
                                                                         @click="delete_row(row)"><i
-                                                                            class="fa fa-trash"></i></button>
+                                                                        class="fa fa-trash"></i></button>
                                                             </td>
                                                         </tr>
                                                         </tbody>
@@ -266,7 +266,7 @@
                             </div>
                             <div class="card-footer" v-if="selected_items.length > 0">
                                 <button class="float-right btn btn-primary" type="submit"><i
-                                            class="fa fa-fw fa-lg fa-check-circle"></i>Submit
+                                        class="fa fa-fw fa-lg fa-check-circle"></i>Submit
                                 </button>
                             </div>
                         </div>
@@ -283,16 +283,16 @@
 
 @endsection
 @push('style')
-        <style>
-            .categoryLoader {
-                position: absolute;
-                top: 50%;
-                right: 40%;
-                transform: translate(-50%, -50%);
-                color: red;
-                z-index: 999;
-            }
-        </style>
+    <style>
+        .categoryLoader {
+            position: absolute;
+            top: 50%;
+            right: 40%;
+            transform: translate(-50%, -50%);
+            color: red;
+            z-index: 999;
+        }
+    </style>
 
     <link rel="stylesheet" href="{{ asset('vue-js/bootstrap-select/dist/css/bootstrap-select.min.css') }}">
 @endpush
@@ -315,7 +315,7 @@
                         get_items_info_by_group_id_url: "{{ url('fetch-items-by-group-id') }}",
                         get_item_info_url: "{{ url('fetch-item-info') }}",
                     },
-                    vat:0,
+                    vat: 0,
                     supplier_group_id: '',
                     supplier_id: '',
                     group_id: '',
@@ -331,7 +331,7 @@
                             return total + item.quantity * item.rate
                         }, 0)
                     },
-                    net_payable: function() {
+                    net_payable: function () {
                         return this.subtotal + parseFloat(this.vat)
                     },
                 },
@@ -368,14 +368,11 @@
 
                         var vm = this;
                         if (!vm.item_id) {
-
                             toastr.error('Please Select Item', {
                                 closeButton: true,
                                 progressBar: true,
                             });
-
                             return false;
-
                         } else {
 
                             var slug = vm.item_id;
