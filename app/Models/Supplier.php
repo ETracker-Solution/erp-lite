@@ -9,4 +9,8 @@ class Supplier extends Model
 {
     use HasFactory;
     protected $guarded = ['id'];
+
+    public function group(){
+        return $this->belongsTo(SupplierGroup::class,'supplier_group_id');
+    }
 }

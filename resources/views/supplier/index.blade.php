@@ -84,13 +84,18 @@
                     orderable: false
                 },
                     {
+                        data: "group.name",
+                        title: "Group",
+                        searchable: true
+                    },
+                    {
                         data: "name",
                         title: "Name",
                         searchable: true
                     },
                     {
                         data: "mobile",
-                        title: "mobile",
+                        title: "Mobile",
                         searchable: true
                     },
                     {
@@ -100,7 +105,7 @@
                     },
                     {
                         data: "email",
-                        title: "email",
+                        title: "Email",
                         searchable: true
                     },
                     {
