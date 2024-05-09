@@ -1,41 +1,37 @@
 <?php
 
 
-use App\Models\ChartOfAccount;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
 
 //accounting integration
-function accountsTransaction($doc_type, $doc_id,$amount, $debit_account_id, $credit_account_id,$payee_name=null,$narration=null,$reference_no=null)
+function accountsTransaction($doc_type, $doc, $debit_account_id, $credit_account_id)
 {
-    $date=date('Y-m-d');
     $data = [
         [
-            'date' => $date,
+            'date' => $doc->date,
             'type' => 'debit',
-            'amount' => $amount,
-            'transaction_id' => $transaction_id ?? '000',
-            'payee_name' => $payee_name??'',
-            'narration' => $narration,
-            'reference_no' => $reference_no,
+            'amount' => $doc->amount,
+            'transaction_id' => $doc->transaction_id ?? '000',
+            'payee_name' => $doc->payee_name,
+            'narration' => $doc->note,
+            'reference_no' => $doc->reference_no,
             'chart_of_account_id' => $debit_account_id,
-            'doc_id' => $doc_id,
+            'doc_id' => $doc->id,
             'doc_type' => $doc_type,
         ],
         [
-            'date' => $date,
+            'date' => $doc->date,
             'type' => 'credit',
-            'amount' => $amount,
-            'transaction_id' => $object->transaction_id ?? '000',
-            'payee_name' => $payee_name,
-            'narration' => $narration,
-            'reference_no' => $reference_no,
+            'amount' => $doc->amount,
+            'transaction_id' => $doc->transaction_id ?? '000',
+            'payee_name' => $doc->payee_name,
+            'narration' => $doc->note,
+            'reference_no' => $doc->reference_no,
             'chart_of_account_id' => $credit_account_id,
-            'doc_id' => $doc_id,
+            'doc_id' => $doc->id,
             'doc_type' => $doc_type,
         ]
-
     ];
 
     DB::table('transactions')->insert($data);

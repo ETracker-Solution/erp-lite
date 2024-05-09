@@ -72,8 +72,8 @@ class PurchaseController extends Controller
     public function store(StorePurchaseRequest $request)
     {
         $validated = $request->validated();
-        DB::beginTransaction();
-        try {
+//        DB::beginTransaction();
+//        try {
         if (count($validated['products']) < 1) {
             Toastr::info('At Least One Product Required.', '', ["progressBar" => true]);
             return back();
@@ -87,28 +87,29 @@ class PurchaseController extends Controller
 
 
         // Accounts Transaction Effect
-
+            $purchase->amount=$purchase->net_payable;
+            accountsTransaction('GPB', $purchase, 13, 12);
 
         // Supplier Transaction Effect
         $supplierTransaction = [
             'supplier_id' => $purchase->supplier_id,
-            'doc_type' => 'gp',
+            'doc_type' => 'GPB',
             'doc_id' => $purchase->id,
             'amount' => $purchase->net_payable,
             'date' => $purchase->date,
             'transaction_type' => 1,
-            'chart_of_account_id' => 1,
+            'chart_of_account_id' => 12,
             'description' => 'Purchase of goods',
         ];
         SupplierTransaction::create($supplierTransaction);
 
 
-            DB::commit();
-        } catch (\Exception $exception) {
-            DB::rollBack();
-            Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
-            return back();
-        }
+//            DB::commit();
+//        } catch (\Exception $exception) {
+//            DB::rollBack();
+//            Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
+//            return back();
+//        }
         Toastr::success('Purchase Created Successfully!.', '', ["progressBar" => true]);
         return redirect()->route('purchases.create');
 
