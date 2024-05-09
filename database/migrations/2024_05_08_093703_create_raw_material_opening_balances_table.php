@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::create('raw_material_opening_balances', function (Blueprint $table) {
             $table->id();
-            $table->integer('serial_no')->unique();
             $table->date('date');
             $table->double('qty', 8, 2);
             $table->double('rate', 8, 2);

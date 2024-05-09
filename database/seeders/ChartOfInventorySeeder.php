@@ -146,6 +146,8 @@ class ChartOfInventorySeeder extends Seeder
 //        ] );
 
         foreach (config('cake-town-inventory.RM') as $rawMaterial){
+            $rawMaterial['unit_id']=3;
+            $rawMaterial['price']=rand(20, 2000);
             ChartOfInventory::create($rawMaterial);
         }
 

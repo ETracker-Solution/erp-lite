@@ -17,10 +17,11 @@ class CreateSupplierTransactionsTable extends Migration
             $table->id();
             $table->date('date');
             $table->double('amount', 15, 2);
-            $table->enum('transaction_type', ['purchase', 'payment']);
+            $table->integer('transaction_type')->comment('-1 = payment,1 = purchase');
             $table->text('description')->nullable();
             $table->string('doc_type')->nullable();
             $table->integer('doc_id')->nullable();
+            $table->foreignId('chart_of_account_id')->references('id')->on('chart_of_accounts')->onDelete('cascade');
             $table->foreignId('supplier_id')->references('id')->on('suppliers')->onDelete('cascade');
             $table->timestamps();
         });

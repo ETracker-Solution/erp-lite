@@ -56,21 +56,29 @@ function showStatus($status)
             return '<div class="badge badge-pill badge-glow badge-warning">Wait for Pickup</div>';
     }
 }
+
 function totalPreOrder($product_id)
 {
 
-    $totalQty=DB::table('pre_order_items')
+    $totalQty = DB::table('pre_order_items')
         ->where('product_id', $product_id)
         ->groupBy('product_id')
         ->sum('quantity');
-         return $totalQty;
+    return $totalQty;
 }
 
 function getDue($merchant_id)
 {
-    $dueList=DB::table('collections')
+    $dueList = DB::table('collections')
         ->where('merchant_id', $merchant_id)
         ->orderBy('id', 'desc')
         ->sum('net_payable');
-         return $dueList;
+    return $dueList;
+}
+
+
+function getNextId($model)
+{
+    $id = DB::select("SHOW TABLE STATUS LIKE '" . app($model)->getTable() . "'");
+    return $id[0]->Auto_increment;
 }
