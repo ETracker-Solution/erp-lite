@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\ChartOfInventory;
 use App\Models\Product;
 use App\Models\Supplier;
+use App\Models\PurchaseItem;
 use Illuminate\Http\Request;
 
 class ApiController extends Controller
@@ -61,5 +62,21 @@ class ApiController extends Controller
         ];
 
         return $data;
+    }
+    public function fetchPurchaseProductInfo($id)
+    {
+        $products = PurchaseItem::with('coi')->where('purchase_id', $id)->get();
+        $items = [];
+        foreach ($products as $row) {
+            $items[] = [
+                'purchase_id' => $id,
+                'id' => $row->coi_id,
+                'name' => $row->coi->name ?? '',
+                'group' => $row->coi->parent->name ?? '',
+                'quantity' => $row->quantity,
+                'rate' => $row->rate
+            ];
+        }
+        return response()->json($items);
     }
 }

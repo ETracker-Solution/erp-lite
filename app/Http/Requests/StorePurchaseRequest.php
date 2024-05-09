@@ -23,21 +23,25 @@ class StorePurchaseRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'store_id' => 'required',
             'supplier_id' => 'required',
-            'serial_no' => 'required',
             'products' => 'array',
             'date' => 'required',
+            'reference_no' => 'nullable',
             'subtotal' => 'required',
             'vat' => 'required',
             'remark' => 'nullable',
+            'net_payable' => 'required',
+            'created_by' => 'required',
         ];
     }
+
     public function prepareForValidation()
     {
 
         $this->merge([
             'created_by' => auth()->user()->id,
-            'date' =>Carbon::parse($this->date)->format('Y-m-d'),
+            'date' => Carbon::parse($this->date)->format('Y-m-d'),
         ]);
 
     }

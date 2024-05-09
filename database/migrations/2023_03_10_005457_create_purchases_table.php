@@ -15,9 +15,7 @@ class CreatePurchasesTable extends Migration
     {
         Schema::create('purchases', function (Blueprint $table) {
             $table->id();
-            $table->string('batch_number')->nullable();
             $table->string('reference_no')->nullable();
-            $table->integer('serial_no')->unique();
             $table->enum('status', ['pending', 'received','ordered'])->default('received');
             $table->date('date')->nullable();
             $table->double('subtotal', 15, 2);
@@ -25,6 +23,7 @@ class CreatePurchasesTable extends Migration
             $table->double('grand_total', 15, 2);
             $table->double('net_payable', 15, 2);
             $table->text('remark')->nullable();
+            $table->foreignId('store_id')->references('id')->on('stores')->onDelete('cascade');
             $table->foreignId('supplier_id')->references('id')->on('suppliers')->onDelete('cascade');
             $table->foreignId('created_by')->nullable()->constrained('users')->onDelete('cascade');
             $table->foreignId('updated_by')->nullable()->constrained('users')->onDelete('cascade');
