@@ -19,4 +19,9 @@ class RawMaterialOpeningBalance extends Model
     {
         return $this->belongsTo(Store::class, 'store_id');
     }
+
+    public function inventoryTransaction()
+    {
+        return $this->hasOne(InventoryTransaction::class, 'doc_id')->where('doc_type','=', 'rmob');
+    }
 }
