@@ -46,7 +46,7 @@
                                                   :isReadonly='false' defaultValue=""/>
                                 </div>
                                 <div class="col-xl-12 col-md-12 col-12">
-                                    <x-forms.text label="Account Type" inputName="item_type" placeholder="Enter Name"
+                                    <x-forms.text label="Group / Ledger" inputName="item_type" placeholder="Enter Name"
                                                   :isRequired='false' :isReadonly='true' defaultValue=""/>
                                 </div>
                                 <div class="col-xl-12 col-md-12 col-12">

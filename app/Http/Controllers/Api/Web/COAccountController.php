@@ -17,7 +17,9 @@ class COAccountController extends Controller
 
     public function items()
     {
-        $allChartOfAccounts = $this->base_model->whereNull('parent_id')->get();
+        $allChartOfAccounts = $this->base_model->with('subChartOfAccounts', function($q){
+            return $q->orderBy('type');
+        })->whereNull('parent_id')->get();
         return view('chart_of_accounts.items', compact('allChartOfAccounts',));
     }
 
