@@ -42,6 +42,15 @@ class LoginRequest extends FormRequest
         $this->ensureIsNotRateLimited();
 
         if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
+
+            if($this->boolean('remember')){
+                setcookie("email","email",time()+3600);
+                setcookie("password","password",time()+3600);
+            }else{
+                setcookie("email", "");
+                setcookie("password", "");
+            }
+            
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
