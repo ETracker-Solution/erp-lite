@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\ChartOfInventory;
+use App\Models\InventoryTransaction;
 use App\Models\Product;
 use App\Models\Purchase;
 use App\Http\Requests\StorePurchaseRequest;
@@ -78,20 +79,30 @@ class PurchaseController extends Controller
             Toastr::info('At Least One Product Required.', '', ["progressBar" => true]);
             return back();
         }
-        $purchase = Purchase::create($validated);
+        $purchase = Purchase::query()->create($validated);
+        $purchase->amount = $purchase->net_payable;
         foreach ($validated['products'] as $product) {
             $purchase->items()->create($product);
+            // Inventory Transaction Effect
+            InventoryTransaction::query()->create([
+                'supplier_id' => $purchase->supplier_id,
+                'doc_type' => 'GPB',
+                'doc_id' => $purchase->id,
+                'amount' => $purchase->net_payable,
+                'date' => $purchase->date,
+                'transaction_type' => 1,
+                'chart_of_account_id' => 12,
+                'description' => 'Purchase of goods',
+            ]);
         }
-
-        // Inventory Transaction Effect
 
 
         // Accounts Transaction Effect
-            $purchase->amount=$purchase->net_payable;
-            accountsTransaction('GPB', $purchase, 13, 12);
+
+        addAccountsTransaction('GPB', $purchase, 13, 12);
 
         // Supplier Transaction Effect
-        $supplierTransaction = [
+        SupplierTransaction::query()->create([
             'supplier_id' => $purchase->supplier_id,
             'doc_type' => 'GPB',
             'doc_id' => $purchase->id,
@@ -100,8 +111,7 @@ class PurchaseController extends Controller
             'transaction_type' => 1,
             'chart_of_account_id' => 12,
             'description' => 'Purchase of goods',
-        ];
-        SupplierTransaction::create($supplierTransaction);
+        ]);
 
 
 //            DB::commit();

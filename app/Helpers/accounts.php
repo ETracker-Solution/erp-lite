@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\DB;
 
 
 //accounting integration
-function accountsTransaction($doc_type, $doc, $debit_account_id, $credit_account_id)
+function addAccountsTransaction($doc_type, $doc, $debit_account_id, $credit_account_id): void
 {
     $data = [
         [
