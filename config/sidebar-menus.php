@@ -162,7 +162,7 @@ return [
                     'child' => [
                         [
                             'name' => 'Create New User',
-                            'url' => '#',
+                            'url' => '/users',
                             'active_condition' => false,
                         ]
                     ],

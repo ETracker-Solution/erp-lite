@@ -3,24 +3,23 @@
     Product
 @endsection
 @section('content')
-    <!-- Content Header (Page header) -->
-    <section class="content-header">
-        <div class="container-fluid">
-            <div class="row mb-1">
-
-            </div>
-        </div><!-- /.container-fluid -->
-    </section>
+@php
+$links = [
+'Home'=>route('dashboard'),
+'Product Create'=>''
+]
+@endphp
+<x-breadcrumb title='Product' :links="$links"/>
     <!-- Main content -->
     <section class="content">
         <div class="container-fluid">
             <div class="row">
                 <div class="col-12">
                     <!-- Horizontal Form -->
-                    <div class="card card-primary">
-                        <div class="card-header bg-light">
+                    <div class="card card-info">
+                        <div class="card-header">
 
-                            <h3 class="card-title" style="color:#115548;">Add Product</h3>
+                            <h3 class="card-title">Add Product</h3>
                             <div class="card-tools">
                                 <a href="{{route('products.index')}}">
                                     <button class="btn btn-sm btn-primary"><i class="fa fa-list" aria-hidden="true"></i>

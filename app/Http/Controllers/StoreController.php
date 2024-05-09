@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreStoreRequest;
 use App\Http\Requests\UpdateStoreRequest;
+use App\Models\Outlet;
 use App\Models\Store;
 use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Support\Facades\DB;
@@ -16,6 +17,7 @@ class StoreController extends Controller
      */
     public function index()
     {
+        $outlets = Outlet::all();
         $serial_count = Store::latest()->first() ? Store::latest()->first()->id : 0;
         $serial_no = $serial_count + 1;
         $stores = Store::all();
@@ -34,7 +36,7 @@ class StoreController extends Controller
                 ->rawColumns(['action'])
                 ->make(true);
         }
-        return view('store.index',compact('serial_no'));
+        return view('store.index',compact('serial_no','outlets'));
     }
 
     /**
@@ -78,8 +80,9 @@ class StoreController extends Controller
      */
     public function edit($id)
     {
+        $outlets = Outlet::all();
         $store = Store::findOrFail(decrypt($id));
-        return view('store.index', compact('store'));
+        return view('store.index', compact('store','outlets'));
     }
 
     /**
