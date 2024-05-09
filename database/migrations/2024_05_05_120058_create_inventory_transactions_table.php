@@ -13,7 +13,7 @@ return new class extends Migration {
         Schema::create('inventory_transactions', function (Blueprint $table) {
             $table->id();
             $table->date('date')->comment('transaction date');
-            $table->integer('type')->comment('( -1=out, 1=in ) transaction type');
+            $table->integer('type')->comment('( -1 = out, 1 = in ) transaction type');
             $table->double('quantity', 8, 2);
             $table->double('rate', 8, 2);
             $table->double('amount', 8, 2);
