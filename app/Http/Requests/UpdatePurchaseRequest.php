@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdatePurchaseRequest extends FormRequest
@@ -32,6 +33,17 @@ class UpdatePurchaseRequest extends FormRequest
             'reference_no' => ['nullable'],
             'vat' => ['nullable'],
             'net_payable' => ['required'],
+            'updated_by' => ['required'],
         ];
+    }
+
+    public function prepareForValidation()
+    {
+
+        $this->merge([
+            'updated_by' => auth()->user()->id,
+            'date' => Carbon::parse($this->date)->format('Y-m-d'),
+        ]);
+
     }
 }

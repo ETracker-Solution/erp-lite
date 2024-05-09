@@ -25,14 +25,14 @@ class StorePurchaseRequest extends FormRequest
         return [
             'store_id' => 'required',
             'supplier_id' => 'required',
-            'serial_no' => 'required',
             'products' => 'array',
             'date' => 'required',
+            'reference_no' => 'nullable',
             'subtotal' => 'required',
             'vat' => 'required',
-            'store_id' => 'nullable',
             'remark' => 'nullable',
             'net_payable' => 'required',
+            'created_by' => 'required',
         ];
     }
 
