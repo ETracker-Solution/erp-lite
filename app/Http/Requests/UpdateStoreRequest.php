@@ -24,6 +24,7 @@ class UpdateStoreRequest extends FormRequest
         return [
             'name' => 'required',
             'type' => 'required',
+            'outlet_id' => 'required',
             'updated_by' => 'required'
         ];
     }

@@ -3,24 +3,22 @@
     Product List
 @endsection
 @section('content')
-    <section class="content-header">
-        @php
-            $links = [
-            'Home'=>route('dashboard'),
-            'Product list'=>''
-            ]
-        @endphp
-        <x-bread-crumb-component title='Product' :links="$links"/>
-    </section>
+    @php
+        $links = [
+        'Home'=>route('dashboard'),
+        'Product list'=>''
+        ]
+    @endphp
+    <x-breadcrumb title='Product' :links="$links"/>
     <!-- Main content -->
     <section class="content">
         <div class="container-fluid">
 
             <div class="row">
                 <div class="col-12">
-                    <div class="card">
+                    <div class="card card-info">
                         <div class="card-header">
-                            <h3 class="card-title" style="color:#115548;">Product List</h3>
+                            <h3 class="card-title">Product List</h3>
                             <div class="card-tools">
                                 <a href="{{route('products.create')}}">
                                     <button class="btn btn-xs btn-primary"><i class="fa fa-plus-circle"
@@ -32,7 +30,7 @@
                         <!-- /.card-header -->
                         <div class="card-body table-responsive">
                             <table id="dataTable"
-                                   class="datatables-basic table table-bordered table-secondary table-striped">
+                                   class="table table-bordered table-hover">
                                 {{-- show from datatable--}}
                             </table>
                         </div>
