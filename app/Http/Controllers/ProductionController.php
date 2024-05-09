@@ -10,6 +10,7 @@ use App\Models\Product;
 use App\Models\Production;
 
 use App\Models\Purchase;
+use App\Models\Store;
 use App\Models\Supplier;
 use App\Models\SupplierGroup;
 use Brian2694\Toastr\Facades\Toastr;
@@ -80,6 +81,7 @@ class ProductionController extends Controller
         $data = [
             'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'FG'])->get(),
             'batches' => Batch::all(),
+            'stores' => Store::where(['type' => 'FG'])->get(),
             'serial_no' => $serial_no,
 
         ];

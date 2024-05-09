@@ -51,12 +51,12 @@ return [
                         ],
                         [
                             'name' => 'RM Consumption',
-                            'url' => '/batches',
+                            'url' => '/consumptions/create',
                             'active_condition' => '',
                         ],
                         [
                             'name' => 'FG Production',
-                            'url' => '/batches',
+                            'url' => '/productions/create',
                             'active_condition' => '',
                         ]
                     ],

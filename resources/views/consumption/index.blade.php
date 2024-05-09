@@ -1,38 +1,36 @@
 @extends('layouts.app')
-@section('title')
-    Supplier Group List
-@endsection
+@section('title','RM Consumption List')
+
 @section('content')
-    <!-- Content Header (Page header) -->
-    @php
-    $links = [
-    'Home'=>route('dashboard'),
-    'Supplier Group List'=>''
-    ]
-    @endphp
-    <x-breadcrumb title='Supplier Group' :links="$links" />
+    <section class="content-header">
+        @php
+            $links = [
+            'Home'=>route('dashboard'),
+            'RM Consumption list'=>''
+            ]
+        @endphp
+        <x-bread-crumb-component title='RM Consumption' :links="$links"/>
+    </section>
 
     <!-- Main content -->
     <section class="content">
         <div class="container-fluid">
-
             <div class="row">
                 <div class="col-12">
-                    <div class="card card-info">
-                        <div class="card-header">
-                            <h3 class="card-title">Supplier Group List</h3>
+                    <div class="card">
+                        <div class="card-header bg-info">
+                            <h3 class="card-title">RM Consumption List</h3>
                             <div class="card-tools">
-                                <a href="{{route('supplier-groups.create')}}" class="btn btn-sm btn-primary">
-                                    <i class="fa fa-plus-circle"
-                                       aria-hidden="true"></i> &nbsp;Add Supplier
-
+                                <a href="{{route('productions.create')}}">
+                                    <button class="btn btn-sm btn-primary"><i class="fa fa-plus-circle"
+                                                                              aria-hidden="true"></i> &nbsp;Add RM Consumption
+                                    </button>
                                 </a>
                             </div>
                         </div>
                         <!-- /.card-header -->
                         <div class="card-body table-responsive">
-                            <table id="dataTable"
-                                   class="table table-bordered table-hover">
+                            <table id="dataTable" class="table table-bordered">
                                 {{-- show from datatable--}}
                             </table>
                         </div>
@@ -43,7 +41,6 @@
                 </div>
             </div>
             <!-- /.row -->
-
         </div><!-- /.container-fluid -->
     </section>
     <!-- /.content -->
@@ -53,7 +50,6 @@
     <link rel="stylesheet" href="{{ asset('assets/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css')}}">
 @endsection
 @push('style')
-
 @endpush
 @section('js')
     <!-- DataTables -->
@@ -72,7 +68,7 @@
                 serverSide: true,
                 processing: true,
                 ajax: {
-                    url: "{{ route('supplier-groups.index') }}",
+                    url: "{{ route('consumptions.index') }}",
                 },
                 columns: [{
                     data: "DT_RowIndex",
@@ -82,18 +78,33 @@
                     orderable: false
                 },
                     {
-                        data: "name",
-                        title: "Name",
+                        data: "purchase_number",
+                        title: "RMC No",
                         searchable: true
                     },
                     {
-                        data: "code",
-                        title: "Code",
+                        data: "subtotal",
+                        title: "Sub Total",
                         searchable: true
+                    },
+                    {
+                        data: "vat",
+                        title: "Vat Amount",
+                        searchable: true
+                    },
+                    {
+                        data: "net_payable",
+                        title: "Net Payable",
+                        searchable: true
+                    },
+                    {
+                        data: "status",
+                        title: "Status",
+                        searchable: false
                     },
                     {
                         data: "created_at",
-                        title: "Created at",
+                        title: "Date",
                         searchable: true
                     },
                     {

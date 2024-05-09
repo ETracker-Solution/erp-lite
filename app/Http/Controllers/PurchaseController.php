@@ -7,6 +7,8 @@ use App\Models\Product;
 use App\Models\Purchase;
 use App\Http\Requests\StorePurchaseRequest;
 use App\Http\Requests\UpdatePurchaseRequest;
+use App\Models\PurchaseItem;
+use App\Models\Store;
 use App\Models\Supplier;
 use App\Models\SupplierGroup;
 use Brian2694\Toastr\Facades\Toastr;
@@ -55,6 +57,7 @@ class PurchaseController extends Controller
             'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'RM'])->get(),
             'supplier_groups' => SupplierGroup::all(),
             'suppliers' => Supplier::all(),
+            'stores' => Store::where(['type' => 'RM'])->get(),
             'serial_no' => $serial_no,
 
         ];
@@ -151,9 +154,16 @@ class PurchaseController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Purchase $purchase)
+    public function edit($purchase)
     {
-        //
+        $data = [
+            'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'RM'])->get(),
+            'supplier_groups' => SupplierGroup::all(),
+            'suppliers' => Supplier::all(),
+            'stores' => Store::where(['type' => 'RM'])->get(),
+            'purchase' => Purchase::with('supplier')->find(decrypt($purchase))
+        ];
+        return view('purchase.edit',$data);
     }
 
     /**
@@ -161,15 +171,41 @@ class PurchaseController extends Controller
      */
     public function update(UpdatePurchaseRequest $request, Purchase $purchase)
     {
-        //
+//        dd( $request->all());
+        $purchase->subtotal = $request->subtotal;
+        $purchase->net_payable = $request->net_payable;
+        $purchase->supplier_id = $request->supplier_id;
+        $purchase->vat = $request->vat;
+        $purchase->remark = $request->remark;
+        $purchase->updated_by = Auth::guard('web')->id();
+        $purchase->save();
+        PurchaseItem::where('purchase_id', $purchase->id)->delete();
+        $products = $request->get('products');
+        foreach ($products as $row) {
+            $purchase->items()->create($row);
+        }
+
+
+        Toastr::success('Goods Purchase Updated Successful!.', '', ["progressbar" => true]);
+        return redirect()->route('purchases.index');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Purchase $purchase)
+    public function destroy($id)
     {
-        //
+        DB::beginTransaction();
+        try {
+            Purchase::findOrFail(decrypt($id))->delete();
+            DB::commit();
+        } catch (\Exception $error) {
+            DB::rollBack();
+            Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
+            return back();
+        }
+        Toastr::success('Purchase Deleted Successfully!.', '', ["progressBar" => true]);
+        return redirect()->route('purchases.index');
     }
 
     public function print($id)

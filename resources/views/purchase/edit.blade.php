@@ -20,8 +20,10 @@
                             <img src="{{ asset('loading.gif') }}" alt="loading">
                         </span>
                 <div class="col-lg-12 col-md-12">
-                    <form action="{{ route('purchases.store') }}" method="POST" class="">
-                        @csrf
+                        <form action="{{route('purchases.update',$purchase->id)}}" method="POST" class=""
+                              enctype="multipart/form-data">
+                            @csrf
+                            @method('put')
                         <div class="card">
                             <div class="card-header bg-info">
                                 <h3 class="card-title">Goods Purchase Bill (GPB) Entry</h3>
@@ -46,7 +48,7 @@
                                                         <div class="form-group">
                                                             <label for="serial_no">Purchase No</label>
                                                             <div class="input-group">
-                                                                <input type="text" class="form-control input-sm"  value="{{$serial_no}}" name="serial_no" id="serial_no">
+                                                                <input type="text" class="form-control input-sm"  value="{{$purchase->serial_no}}" name="serial_no" id="serial_no">
                                                                 <span class="input-group-append">
                                                                     <button type="button" class="btn btn-secondary btn-flat">Search</button>
                                                                 </span>
@@ -57,7 +59,7 @@
                                                         <div class="form-group">
                                                             <label for="reference_no">Reference No</label>
                                                             <input type="text" class="form-control input-sm"
-                                                                   value="{{old('reference_no')}}" name="reference_no">
+                                                                   value="{{old('reference_no',$purchase->reference_no)}}" name="reference_no">
                                                         </div>
                                                     </div>
                                                 </div>
@@ -80,7 +82,7 @@
                                                                 <option value="">Select Store</option>
                                                                 @foreach($stores as $row)
                                                                     <option
-                                                                        value="{{ $row->id }}">{{ $row->name }}</option>
+                                                                        value="{{ $row->id }}"   {{ old('store_id',$purchase->store_id) == $row->id ? 'selected' : '' }}>{{ $row->name }}</option>
                                                                 @endforeach
                                                             </select>
                                                         </div>
@@ -129,7 +131,7 @@
                                                         <div class="form-group">
                                                             <label for="remark">Remark</label>
                                                             <textarea class="form-control" name="remark" rows="5"
-                                                                      placeholder="Enter Remark"></textarea>
+                                                                      placeholder="Enter Remark">{{$purchase->remark}}</textarea>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -357,11 +359,15 @@
                         get_suppliers_info_by_group_id_url: "{{ url('fetch-suppliers-by-group-id') }}",
                         get_items_info_by_group_id_url: "{{ url('fetch-items-by-group-id') }}",
                         get_item_info_url: "{{ url('fetch-item-info') }}",
+
+                        get_old_items_data: "{{ url('fetch-purchase-products-info') }}",
                     },
-                    date: new Date(),
+
+                    purchase_id: '{{ $purchase->id }}',
+                    date: {{$purchase->date}},
                     vat: 0,
-                    supplier_group_id: '',
-                    supplier_id: '',
+                    supplier_group_id: {{$purchase->supplier->group->id}},
+                    supplier_id: {{$purchase->supplier_id}},
                     group_id: '',
                     item_id: '',
                     items: [],
@@ -487,6 +493,17 @@
                     delete_row: function (row) {
                         this.selected_items.splice(this.selected_items.indexOf(row), 1);
                     },
+                    load_old() {
+                        var vm = this;
+                        var slug = vm.purchase_id;
+                        //  alert(slug);
+                        axios.get(this.config.get_old_items_data + '/' + slug).then(function (response) {
+                            var item = response.data;
+                            for (key in item) {
+                                vm.selected_items.push(item[key]);
+                            }
+                        })
+                    },
                     itemtotal: function (index) {
 
                         console.log(index.quantity * index.rate);
@@ -499,7 +516,10 @@
                     },
 
                 },
-
+                beforeMount() {
+                    this.load_old();
+                    this.fetch_supplier();
+                },
                 updated() {
                     $('.bSelect').selectpicker('refresh');
                 }

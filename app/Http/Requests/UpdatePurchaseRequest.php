@@ -11,7 +11,7 @@ class UpdatePurchaseRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +22,16 @@ class UpdatePurchaseRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'store_id' => ['required'],
+            'supplier_id' => ['required'],
+            'date' => ['required'],
+            'status' => ['nullable'],
+            'products' => ['required', 'array'],
+            'remark' => ['nullable'],
+            'subtotal' => ['required'],
+            'reference_no' => ['nullable'],
+            'vat' => ['nullable'],
+            'net_payable' => ['required'],
         ];
     }
 }

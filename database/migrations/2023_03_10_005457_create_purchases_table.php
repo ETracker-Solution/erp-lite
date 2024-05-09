@@ -25,6 +25,7 @@ class CreatePurchasesTable extends Migration
             $table->double('grand_total', 15, 2);
             $table->double('net_payable', 15, 2);
             $table->text('remark')->nullable();
+            $table->foreignId('store_id')->references('id')->on('stores')->onDelete('cascade');
             $table->foreignId('supplier_id')->references('id')->on('suppliers')->onDelete('cascade');
             $table->foreignId('created_by')->nullable()->constrained('users')->onDelete('cascade');
             $table->foreignId('updated_by')->nullable()->constrained('users')->onDelete('cascade');

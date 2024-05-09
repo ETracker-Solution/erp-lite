@@ -9,7 +9,7 @@ $links = [
 'Supllier list'=>''
 ]
 @endphp
-<x-breadcrumb title='Supllier List' :links="$links"/>
+<x-breadcrumb title='Supllier' :links="$links"/>
 
     <!-- Main content -->
     <section class="content">
@@ -107,7 +107,7 @@ $links = [
                     },
                     {
                         data: "created_at",
-                        title: "created at",
+                        title: "Created at",
                         searchable: true
                     },
                     {

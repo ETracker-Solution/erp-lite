@@ -30,13 +30,10 @@
                                         <i class="fas fa-bars"
                                            aria-hidden="true"></i> &nbsp;
                                         FG Production List
-
                                     </a>
                                 </div>
                             </div>
-
                             <div class="card-body">
-
                                 <div class="card-box">
                                     <hr>
                                     <div id="">
@@ -46,21 +43,29 @@
                                                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                         <div class="form-group">
                                                             <label for="purchase_id">FGP No</label>
-                                                            <input type="text" class="form-control input-sm"
-                                                                   value="{{$serial_no}}" readonly>
+                                                            <div class="input-group">
+                                                                <input type="text" class="form-control input-sm"
+                                                                       value="{{$serial_no}}" name="serial_no"
+                                                                       id="serial_no"  v-model="serial_no">
+                                                                <span class="input-group-append">
+                                                                    <button type="button" class="btn btn-info btn-flat"  @click="data_edit">Search</button>
+                                                                </span>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                         <div class="form-group">
-                                                            <label for="reference_no">Reference No</label>
-                                                            <input type="text" class="form-control input-sm"
-                                                                   value="{{old('reference_no')}}" name="reference_no">
+                                                            <label for="date">Date</label>
+                                                            <input type="text" class="form-control input-sm" id="date"
+                                                                   value="{{date('Y-m-d')}}">
                                                         </div>
                                                     </div>
+
                                                 </div>
                                             </div>
                                             <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                                                 <div class="row">
+
                                                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                         <div class="form-group">
                                                             <label for="batch_id">Batch</label>
@@ -77,20 +82,33 @@
                                                     </div>
                                                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                         <div class="form-group">
-                                                            <label for="date">Date</label>
-                                                            <input type="text" class="form-control input-sm" id="date"
-                                                                   value="{{date('Y-m-d')}}">
+                                                            <label for="store_id">Store</label>
+                                                            <select name="store_id" id="store_id"
+                                                                    class="form-control bSelect"
+                                                                    v-model="store_id" required>
+                                                                <option value="">Select Batch</option>
+                                                                @foreach($stores as $row)
+                                                                    <option
+                                                                        value="{{ $row->id }}">{{ $row->name }}</option>
+                                                                @endforeach
+                                                            </select>
                                                         </div>
                                                     </div>
-
                                                 </div>
                                             </div>
                                             <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                                                 <div class="row">
                                                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                         <div class="form-group">
+                                                            <label for="reference_no">Reference No</label>
+                                                            <input type="text" class="form-control input-sm"
+                                                                   value="{{old('reference_no')}}" name="reference_no">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                                        <div class="form-group">
                                                             <label for="remark">Remark</label>
-                                                            <textarea class="form-control" name="remark" rows="5"
+                                                            <textarea class="form-control" name="remark" rows="2"
                                                                       placeholder="Enter Remark"></textarea>
                                                         </div>
                                                     </div>
@@ -203,42 +221,20 @@
                                                         </tbody>
                                                         <tfoot>
                                                         <tr>
-                                                            <td colspan="3">
+                                                            <td colspan="2">
+                                                                Total
+                                                            </td>
 
-                                                            </td>
                                                             <td>
-                                                                Subtotal
+                                                                @{{ total_quantity }}
+                                                                <input type="hidden" class="form-control input-sm"
+                                                                       name="total_quantity" v-bind:value="total_quantity" readonly>
                                                             </td>
+                                                            <td></td>
                                                             <td>
-                                                                <input type="text" class="form-control input-sm"
+                                                                @{{ subtotal }}
+                                                                <input type="hidden" class="form-control input-sm"
                                                                        name="subtotal" v-bind:value="subtotal" readonly>
-                                                            </td>
-                                                            <td></td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td colspan="3">
-
-                                                            </td>
-                                                            <td>
-                                                                Vat
-                                                            </td>
-                                                            <td>
-                                                                <input type="text" name="vat"
-                                                                       class="form-control input-sm" v-model="vat">
-                                                            </td>
-                                                            <td></td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td colspan="3">
-
-                                                            </td>
-                                                            <td>
-                                                                Net Payable
-                                                            </td>
-                                                            <td>
-                                                                <input type="text" class="form-control input-sm"
-                                                                       name="net_payable" v-bind:value="net_payable"
-                                                                       readonly>
                                                             </td>
                                                             <td></td>
                                                         </tr>
@@ -301,6 +297,9 @@
                         get_items_info_by_group_id_url: "{{ url('fetch-items-by-group-id') }}",
                         get_item_info_url: "{{ url('fetch-item-info') }}",
                     },
+
+                    serial_no: {{$serial_no}},
+                    store_id: '',
                     batch_id: '',
                     group_id: '',
                     item_id: '',
@@ -309,15 +308,18 @@
                     pageLoading: false
                 },
                 computed: {
-
+                    total_quantity: function () {
+                        return this.selected_items.reduce((total, item) => {
+                            return total+ parseFloat(item.quantity)
+                        }, 0)
+                    },
                     subtotal: function () {
                         return this.selected_items.reduce((total, item) => {
                             return total + item.quantity * item.rate
                         }, 0)
                     },
-                    net_payable: function () {
-                        return this.subtotal + parseFloat(this.vat)
-                    },
+
+
                 },
                 methods: {
 
@@ -368,10 +370,57 @@
                                     console.log(item_info);
                                     vm.selected_items.push({
                                         id: item_info.id,
-                                        group: item_info.name,
+                                        group: item_info.parent.name,
                                         name: item_info.name,
                                         rate: '',
-                                        quantity: '',
+                                        quantity: 1,
+                                    });
+                                    console.log(vm.selected_items);
+                                    vm.item_id = '';
+                                    vm.group_id = '';
+                                    vm.pageLoading = false;
+
+                                }).catch(function (error) {
+
+                                    toastr.error('Something went to wrong', {
+                                        closeButton: true,
+                                        progressBar: true,
+                                    });
+
+                                    return false;
+
+                                });
+                            }
+
+                        }
+
+                    },
+
+                    data_edit() {
+                        var vm = this;
+
+                        alert(vm.serial_no);
+                        if (!vm.item_id) {
+                            toastr.error('Please Select Item', {
+                                closeButton: true,
+                                progressBar: true,
+                            });
+                            return false;
+                        } else {
+
+                            var slug = vm.item_id;
+
+                            if (slug) {
+                                vm.pageLoading = true;
+                                axios.get(this.config.get_item_info_url + '/' + slug).then(function (response) {
+                                    let item_info = response.data;
+                                    console.log(item_info);
+                                    vm.selected_items.push({
+                                        id: item_info.id,
+                                        group: item_info.parent.name,
+                                        name: item_info.name,
+                                        rate: '',
+                                        quantity: 1,
                                     });
                                     console.log(vm.selected_items);
                                     vm.item_id = '';
