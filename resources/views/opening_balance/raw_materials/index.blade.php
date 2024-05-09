@@ -28,7 +28,7 @@
                             <div class="row">
                                 <div class="col-3">
                                     <label for="item_id">RMOB ID</label>
-                                    <input type="text" name="" id="" v-model="serial_id" disabled class="form-control">
+                                    <input type="text" name="" id="" v-model="next_id" disabled class="form-control">
                                 </div>
                                 <div class="col-3">
                                     <div class="form-group">
@@ -43,9 +43,9 @@
                                         <select name="group_id" id="group_id" @change="fetch_product"
                                                 class="form-control" v-model="group_id">
                                             <option value="">Select a Group</option>
-                                            @foreach($groups as $group)
-                                                <option value="{{$group->id}}">{{ $group->name }}</option>
-                                            @endforeach
+                                            <option :value="row.id" v-for="row in groups"
+                                            >@{{ row.id + ' - ' + row.name }}
+                                            </option>
                                         </select>
                                     </div>
                                 </div>
@@ -93,9 +93,9 @@
                                         <label for="store_id">Storage Location</label>
                                         <select name="store_id" id="store_id" class="form-control" v-model="store_id">
                                             <option value="">Select a Store</option>
-                                            @foreach($stores as $store)
-                                                <option value="{{$store->id}}">{{ $store->name }}</option>
-                                            @endforeach
+                                            <option :value="row.id" v-for="row in stores"
+                                            >@{{ row.id + ' - ' + row.name }}
+                                            </option>
                                         </select>
                                     </div>
                                 </div>
@@ -110,8 +110,17 @@
                         </div>
                         <div class="card-footer" v-if="item_id && quantity && rate && store_id">
                             <div class="text-center">
-                                <button class="btn btn-primary" type="button" @click="store_balance"><i
-                                        class="fa fa-fw fa-lg fa-check-circle"></i>Submit
+                                <button class="btn btn-sm btn-secondary" type="button" @click="update_balance"
+                                        v-if="isEditMode"><i
+                                        class="fa fa-save"></i>Update
+                                </button>
+                                <button class="btn btn-sm btn-danger" type="button" @click="delete_balance" v-if="isEditMode">
+                                    <i
+                                        class="fa fa-trash"></i>Delete
+                                </button>
+                                <button class="btn btn-sm btn-primary" type="button" @click="store_balance" v-if="!isEditMode">
+                                    <i
+                                        class="fa fa-check-circle"></i>Submit
                                 </button>
                             </div>
                         </div>
@@ -155,6 +164,21 @@
                                         </tr>
                                         </tbody>
                                     </table>
+                                    <nav aria-label="...">
+                                        <ul class="pagination">
+                                            <li :class="!previousPageUrl ? 'page-item disabled' : 'page-item'">
+                                                <span class="page-link" @click="handlePageChange(--currentPage)">Previous</span>
+                                            </li>
+{{--                                            <li class="page-item"><a class="page-link" href="#">1</a></li>--}}
+{{--                                            <li class="page-item active" aria-current="page">--}}
+{{--                                                <a class="page-link" href="#">2</a>--}}
+{{--                                            </li>--}}
+{{--                                            <li class="page-item"><a class="page-link" href="#">3</a></li>--}}
+                                            <li :class="!nextPageUrl ? 'page-item disabled' : 'page-item'">
+                                                <span class="page-link"  @click="handlePageChange(++currentPage)">Next</span>
+                                            </li>
+                                        </ul>
+                                    </nav>
                                 </div>
                             </div>
                         </div>
@@ -202,17 +226,18 @@
     <script src="https://cms.diu.ac/vue/vuejs-datepicker.min.js"></script>
     <script>
         $(document).ready(function () {
+
             var vue = new Vue({
                 el: '#vue_app',
                 data: {
                     config: {
-                        addRMOBUrl: "{{ url('raw-materials-opening-balances') }}",
-                        updateRMOBUrl: "{{ url('raw-materials-opening-balances') }}",
+                        RMOBUrl: "{{ url('raw-materials-opening-balances') }}",
+                        initial_info_url: "{{ url('raw-materials-opening-balances-initial-info') }}",
                         get_items_info_by_group_id_url: "{{ url('fetch-items-by-group-id') }}",
                         get_item_info_url: "{{ url('fetch-item-info') }}",
                         get_balances_url: "{{ url('raw-materials-opening-balances-list') }}",
                     },
-                    serial_id: "{{ $serial_no }}",
+                    next_id: "",
                     date: new Date(),
                     group_id: '',
                     item_id: '',
@@ -228,10 +253,16 @@
                     previousPageUrl: '',
                     lastPage: 1,
                     currentPage: 1,
+                    perPage: 10,
                     total: '',
+                    isEditMode: false,
+                    editableItem: '',
+                    groups: [],
+                    stores:[]
+
                 },
                 components: {
-                    vuejsDatepicker
+                    vuejsDatepicker,
                 },
                 computed: {
                     amount: function () {
@@ -296,7 +327,7 @@
                             const slug = vm.item_id;
                             if (slug) {
                                 vm.pageLoading = true;
-                                axios.post(this.config.addRMOBUrl, {
+                                axios.post(this.config.RMOBUrl, {
                                     date: vm.date,
                                     qty: vm.quantity,
                                     rate: vm.rate,
@@ -305,23 +336,20 @@
                                     remarks: vm.remarks,
                                 })
                                     .then(function (response) {
-                                        vm.date = new Date()
-                                        vm.group_id = ''
-                                        vm.item_id = ''
-                                        vm.unit = ''
-                                        vm.store_id = ''
-                                        vm.items = []
-                                        vm.quantity = ''
-                                        vm.rate = ''
-                                        vm.pageLoading = false
-                                        vm.remarks = ''
+                                        if(response.data.success){
+                                            vm.get_initial_data()
+                                            toastr.success(response.data.message, {
+                                                closeButton: true,
+                                                progressBar: true,
+                                            });
+                                        }else{
+                                            toastr.error(response.data.message, {
+                                                closeButton: true,
+                                                progressBar: true,
+                                            });
+                                            vm.pageLoading = false;
+                                        }
 
-                                        toastr.success(response.message, {
-                                            closeButton: true,
-                                            progressBar: true,
-                                        });
-
-                                        window.location.reload()
                                     }).catch(function (error) {
                                     toastr.error('Something went to wrong', {
                                         closeButton: true,
@@ -334,16 +362,165 @@
 
                         }
                     },
-                    get_balances(){
+                    get_balances() {
                         var vm = this;
                         vm.pageLoading = true;
-                        axios.get(this.config.get_balances_url).then(function (response) {
+                        axios.get(this.config.get_balances_url,{
+                            params: {
+                                page: vm.currentPage,
+                            },
+                        }).then(function (response) {
                             vm.balances = response.data.items.data;
                             vm.nextPageUrl = response.data.items.links.next
                             vm.previousPageUrl = response.data.items.links.prev
                             vm.lastPage = response.data.items.meta.last_page_number
                             vm.currentPage = response.data.items.meta.current_page
                             vm.total = response.data.items.meta.total
+                            vm.pageLoading = false;
+                            vm.backAsStarting()
+                        }).catch(function (error) {
+                            toastr.error('Something went to wrong', {
+                                closeButton: true,
+                                progressBar: true,
+                            });
+                            return false;
+                        });
+                    },
+                    makeEditable(row) {
+                        var vm = this;
+                        vm.isEditMode = true
+                        vm.editableItem = row.id
+                        vm.date = row.date
+                        vm.group_id = row.group_id
+                        vm.item_id = row.item_id
+                        vm.unit = row.unit
+                        vm.store_id = row.store_id
+                        vm.quantity = row.qty
+                        vm.rate = row.rate
+                        vm.remarks = row.remarks
+                    },
+                    backAsStarting() {
+                        var vm = this;
+                        vm.isEditMode = false
+                        vm.date = new Date()
+                        vm.group_id = ''
+                        vm.item_id = ''
+                        vm.unit = ''
+                        vm.store_id = ''
+                        vm.items = []
+                        vm.quantity = ''
+                        vm.rate = ''
+                        vm.pageLoading = false
+                        vm.remarks = ''
+                        vm.editableItem = ''
+                    },
+                    update_balance() {
+                        const vm = this;
+                        if (!vm.editableItem) {
+                            toastr.error('Please Select Item', {
+                                closeButton: true,
+                                progressBar: true,
+                            });
+                            return false;
+                        } else {
+                            const slug = vm.editableItem;
+                            if (slug) {
+                                vm.pageLoading = true;
+                                axios.put(this.config.RMOBUrl + '/' + slug, {
+                                    date: vm.date,
+                                    qty: vm.quantity,
+                                    rate: vm.rate,
+                                    store_id: vm.store_id,
+                                    item_id: vm.item_id,
+                                    remarks: vm.remarks,
+                                })
+                                    .then(function (response) {
+                                        if(response.data.success){
+                                            vm.get_initial_data()
+                                            toastr.success(response.data.message, {
+                                                closeButton: true,
+                                                progressBar: true,
+                                            });
+                                        }else{
+                                            toastr.error(response.data.message, {
+                                                closeButton: true,
+                                                progressBar: true,
+                                            });
+                                            vm.pageLoading = false;
+                                        }
+                                    }).catch(function (error) {
+                                    toastr.error('Something went to wrong', {
+                                        closeButton: true,
+                                        progressBar: true,
+                                    });
+                                    return false;
+
+                                });
+                            }
+
+                        }
+                    },
+                    delete_balance() {
+                        const vm = this;
+                        if (!vm.editableItem) {
+                            toastr.error('Please Select Item', {
+                                closeButton: true,
+                                progressBar: true,
+                            });
+                            return false;
+                        } else {
+                            Swal.fire({
+                                title: "Are You Sure!",
+                                text: "Update this Item!",
+                                icon: "question",
+                                showCancelButton: true,
+                                confirmButtonColor: "#3085d6",
+                                cancelButtonColor: "#d33",
+                                confirmButtonText: "Yes, update it!"
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    const slug = vm.editableItem;
+                                    if (slug) {
+                                        vm.pageLoading = true;
+                                        axios.delete(this.config.RMOBUrl + '/' + slug)
+                                            .then(function (response) {
+                                                if(response.data.success){
+                                                    vm.get_initial_data()
+                                                    toastr.success(response.data.message, {
+                                                        closeButton: true,
+                                                        progressBar: true,
+                                                    });
+                                                }else{
+                                                    toastr.error(response.data.message, {
+                                                        closeButton: true,
+                                                        progressBar: true,
+                                                    });
+                                                    vm.pageLoading = false;
+                                                }
+                                            }).catch(function (error) {
+                                            console.log(error)
+                                            toastr.error('Something went to wrong', {
+                                                closeButton: true,
+                                                progressBar: true,
+                                            });
+                                            return false;
+
+                                        });
+                                    }
+                                }
+                            });
+
+
+                        }
+                    },
+                    get_initial_data() {
+                        this.get_balances()
+                        var vm = this;
+                        vm.pageLoading = true;
+                        axios.get(this.config.initial_info_url).then(function (response) {
+                            vm.groups = response.data.groups;
+                            vm.stores = response.data.stores;
+                            vm.next_id = response.data.next_id;
                             vm.pageLoading = false;
                         }).catch(function (error) {
                             toastr.error('Something went to wrong', {
@@ -353,26 +530,17 @@
                             return false;
                         });
                     },
-                    makeEditable(row){
-                        console.log(row)
-                        var vm = this;
-                        vm.serial_id = row.serial_no
-                        vm.date = row.date
-                        vm.group_id = row.group_id
-                        vm.item_id = row.item_id
-                        vm.unit = row.unit
-                        vm.store_id = row.store_id,
-                        vm.quantity = row.qty
-                        vm.rate = row.rate
-                        vm.remarks = row.remarks
+                    handlePageChange(){
+                        const vm= this
+                        vm.get_balances()
                     }
                 },
 
                 updated() {
                     $('.bSelect').selectpicker('refresh');
                 },
-                mounted(){
-                    this.get_balances()
+                mounted() {
+                    this.get_initial_data()
                 }
             });
             $('.bSelect').selectpicker({

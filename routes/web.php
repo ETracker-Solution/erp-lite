@@ -110,11 +110,9 @@ Route::middleware('auth')->group(function () {
     /*=========== Chart Of Account Api Ends ===========*/
 
     /*=========== Raw Materials Opening Balance Api Starts ===========*/
-    Route::resource('raw-materials-opening-balances',\App\Http\Controllers\Api\Web\RMOpeningBalanceController::class);
     Route::get('raw-materials-opening-balances-list',[\App\Http\Controllers\Api\Web\RMOpeningBalanceController::class, 'list']);
-//    Route::post('coa-update/{id}',[\App\Http\Controllers\Api\Web\COAccountController::class, 'update']);
-//    Route::post('coa-store/{id}',[\App\Http\Controllers\Api\Web\COAccountController::class, 'store']);
-//    Route::delete('coa-delete/{id}',[\App\Http\Controllers\Api\Web\COAccountController::class, 'delete']);
+    Route::get('raw-materials-opening-balances-initial-info',[\App\Http\Controllers\Api\Web\RMOpeningBalanceController::class, 'initialInfo']);
+    Route::resource('raw-materials-opening-balances',\App\Http\Controllers\Api\Web\RMOpeningBalanceController::class);
     /*=========== Raw Materials Opening Balance Api Ends ===========*/
 });
 Route::group(['prefix' => 'reports', 'middleware' => 'auth'], function () {
