@@ -365,7 +365,7 @@
 
                     purchase_id: '{{ $purchase->id }}',
                     date: {{$purchase->date}},
-                    vat: 0,
+                    vat: {{$purchase->vat}},
                     supplier_group_id: {{$purchase->supplier->group->id}},
                     supplier_id: {{$purchase->supplier_id}},
                     group_id: '',

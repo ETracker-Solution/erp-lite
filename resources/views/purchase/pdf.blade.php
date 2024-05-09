@@ -100,7 +100,7 @@
     <table style="border: 2px solid #fff;">
         <tr>
             <td class="tc bb-none">
-               <p style="font-size: 10px;" class="tc">INVOICE NO# {{ $model->invoice_number }}</p>
+               <p style="font-size: 10px;" class="tc">INVOICE NO# {{ $model->id }}</p>
             </td>
         </tr>
     </table>
@@ -128,10 +128,10 @@
         @foreach ($model->items as $row)
         <tr>
             <td class="tc bb">{{$loop->iteration }}</td>
-            <td class="tc bb">{{ $row->product->name ?? '' }}</td>
-            <td class="tc bb">{{ $row->quantity ?? '' }} {{ $row->product->unit_of_measurement->name ?? '' }}</td>
-            <td class="tc bb">{{ $row->buying_price ?? '' }} TK</td>
-            <td class="tr bb">{{ $row->buying_price * $row->quantity ?? '' }} TK</td>
+            <td class="tc bb">{{ $row->coi->name ?? '' }}</td>
+            <td class="tc bb">{{ $row->quantity ?? '' }} {{ $row->coi->unit->name ?? '' }}</td>
+            <td class="tc bb">{{ $row->rate ?? '' }} TK</td>
+            <td class="tr bb">{{ $row->rate * $row->quantity ?? '' }} TK</td>
         </tr>
         @endforeach
 

@@ -57,7 +57,6 @@ class ConsumptionController extends Controller
             'stores' => Store::where(['type' => 'RM'])->get(),
             'batches' => Batch::all(),
             'serial_no' => $serial_no,
-
         ];
 
         return view('consumption.create', $data);
