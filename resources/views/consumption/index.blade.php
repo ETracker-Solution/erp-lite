@@ -2,15 +2,13 @@
 @section('title','RM Consumption List')
 
 @section('content')
-    <section class="content-header">
-        @php
-            $links = [
-            'Home'=>route('dashboard'),
-            'RM Consumption list'=>''
-            ]
-        @endphp
-        <x-bread-crumb-component title='RM Consumption' :links="$links"/>
-    </section>
+    @php
+    $links = [
+    'Home'=>route('dashboard'),
+    'RM Consumption list'=>''
+    ]
+    @endphp
+    <x-breadcrumb title='RM Consumption' :links="$links"/>
 
     <!-- Main content -->
     <section class="content">
