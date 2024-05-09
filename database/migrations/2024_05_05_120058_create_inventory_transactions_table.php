@@ -12,15 +12,14 @@ return new class extends Migration {
     {
         Schema::create('inventory_transactions', function (Blueprint $table) {
             $table->id();
-            $table->string('name', 100);
-            $table->date('tr_date')->comment('transaction date');
-            $table->integer('tr_type')->comment('-1=out, 1=in');
-            $table->double('qty', 8, 2);
+            $table->date('date')->comment('transaction date');
+            $table->integer('type')->comment('( -1=out, 1=in ) transaction type');
+            $table->double('quantity', 8, 2);
             $table->double('rate', 8, 2);
             $table->double('amount', 8, 2);
-            $table->string('store_id')->nullable();
-            $table->string('doc_type')->nullable();
-            $table->integer('doc_id')->nullable();
+            $table->string('store_id');
+            $table->string('doc_type');
+            $table->integer('doc_id');
             $table->foreignId('coi_id')->comment('Chart Of Inventory Id')->nullable()->constrained('chart_of_inventories')->onDelete('cascade');
             $table->timestamps();
         });
