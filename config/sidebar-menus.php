@@ -136,7 +136,7 @@ return [
                         ],
                         [
                             'name' => 'Raw Materials',
-                            'url' => '#',
+                            'url' => '/raw-materials-opening-balances',
                             'active_condition' => '',
                         ],
                         [
