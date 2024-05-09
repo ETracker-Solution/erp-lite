@@ -16,25 +16,7 @@ Store List
     <div class="container-fluid">
 
         <div class="row">
-            <div class="col-lg-8 col-md-8">
-                <div class="card card-info">
-                    <div class="card-header">
-                        <h3 class="card-title">Store List</h3>
-                        {{-- <div class="card-tools">
-                            <a href="{{route('stores.create')}}"><button class="btn btn-sm btn-primary"><i class="fa fa-plus-circle" aria-hidden="true"></i> &nbsp;Add Store</button></a>
-                        </div> --}}
-                    </div>
-                    <!-- /.card-header -->
-                    <div class="card-body">
-                        <table id="dataTable" class="table table-bordered table-hover">
-                            {{-- show from datatable--}}
-                        </table>
-                    </div>
-                    <!-- /.card-body -->
-                </div>
-                <!-- /.card -->
-
-            </div>
+            
             <div class="col-lg-4 col-md-4">
                 <form @if(isset($store)) action="{{route('stores.update', $store->id)}}" @else  action="{{route('stores.store')}}" @endif method="POST" class="" enctype="multipart/form-data">
                     @csrf
@@ -78,6 +60,25 @@ Store List
                         </div>
                     </div>
                 </form>
+            </div>
+            <div class="col-lg-8 col-md-8">
+                <div class="card card-info">
+                    <div class="card-header">
+                        <h3 class="card-title">Store List</h3>
+                        {{-- <div class="card-tools">
+                            <a href="{{route('stores.create')}}"><button class="btn btn-sm btn-primary"><i class="fa fa-plus-circle" aria-hidden="true"></i> &nbsp;Add Store</button></a>
+                        </div> --}}
+                    </div>
+                    <!-- /.card-header -->
+                    <div class="card-body">
+                        <table id="dataTable" class="table table-bordered table-hover">
+                            {{-- show from datatable--}}
+                        </table>
+                    </div>
+                    <!-- /.card-body -->
+                </div>
+                <!-- /.card -->
+
             </div>
         </div>
         <!-- /.row -->

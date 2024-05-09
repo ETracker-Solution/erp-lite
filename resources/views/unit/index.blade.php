@@ -14,28 +14,7 @@ Unit List
 <!-- Main content -->
 <section class="content">
     <div class="container-fluid">
-
         <div class="row">
-            <div class="col-lg-8 col-md-8">
-                <div class="card card-info">
-                    <div class="card-header">
-                        <h3 class="card-title">Unit List</h3>
-                        {{-- <div class="card-tools">
-                            <a href="{{route('units.create')}}"><button class="btn btn-sm btn-primary"><i
-                                        class="fa fa-plus-circle" aria-hidden="true"></i> &nbsp;Add Unit</button></a>
-                        </div> --}}
-                    </div>
-                    <!-- /.card-header -->
-                    <div class="card-body">
-                        <table id="dataTable" class="table table-bordered table-hover">
-                            {{-- show from datatable--}}
-                        </table>
-                    </div>
-                    <!-- /.card-body -->
-                </div>
-                <!-- /.card -->
-
-            </div>
             <div class="col-lg-4 col-md-4">
                 <form @if(isset($unit)) action="{{route('units.update', $unit->id)}}" @else action="{{route('units.store')}}" @endif method="POST" class="" enctype="multipart/form-data">
                     @csrf
@@ -82,6 +61,26 @@ Unit List
                         </div>
                     </div>
                 </form>
+            </div>
+            <div class="col-lg-8 col-md-8">
+                <div class="card card-info">
+                    <div class="card-header">
+                        <h3 class="card-title">Unit List</h3>
+                        {{-- <div class="card-tools">
+                            <a href="{{route('units.create')}}"><button class="btn btn-sm btn-primary"><i
+                                        class="fa fa-plus-circle" aria-hidden="true"></i> &nbsp;Add Unit</button></a>
+                        </div> --}}
+                    </div>
+                    <!-- /.card-header -->
+                    <div class="card-body">
+                        <table id="dataTable" class="table table-bordered table-hover">
+                            {{-- show from datatable--}}
+                        </table>
+                    </div>
+                    <!-- /.card-body -->
+                </div>
+                <!-- /.card -->
+
             </div>
         </div>
         <!-- /.row -->
