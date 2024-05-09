@@ -18,27 +18,6 @@ Batch List
         <div class="row">
             <div class="col-12">
                 <div class="row">
-                    <div class="col-lg-8 col-md-8">
-                        <div class="card card-info">
-                            <div class="card-header">
-                                <h3 class="card-title">Batch List</h3>
-                                {{-- <div class="card-tools">
-                                    <a href="{{route('stores.create')}}"><button class="btn btn-sm btn-primary"><i
-                                                class="fa fa-plus-circle" aria-hidden="true"></i> &nbsp;Add
-                                            Store</button></a>
-                                </div> --}}
-                            </div>
-                            <!-- /.card-header -->
-                            <div class="card-body">
-                                <table id="dataTable" class="table table-bordered table-hover">
-                                    {{-- show from datatable--}}
-                                </table>
-                            </div>
-                            <!-- /.card-body -->
-                        </div>
-                        <!-- /.card -->
-
-                    </div>
                     <div class="col-lg-4 col-md-4">
                         <form @if(isset($batch)) action="{{route('batches.update', $batch->id)}}" @else action="{{route('batches.store')}}" @endif method="POST" class="" enctype="multipart/form-data">
                             @csrf
@@ -107,6 +86,27 @@ Batch List
                                 </div>
                             </div>
                         </form>
+                    </div>
+                    <div class="col-lg-8 col-md-8">
+                        <div class="card card-info">
+                            <div class="card-header">
+                                <h3 class="card-title">Batch List</h3>
+                                {{-- <div class="card-tools">
+                                    <a href="{{route('stores.create')}}"><button class="btn btn-sm btn-primary"><i
+                                                class="fa fa-plus-circle" aria-hidden="true"></i> &nbsp;Add
+                                            Store</button></a>
+                                </div> --}}
+                            </div>
+                            <!-- /.card-header -->
+                            <div class="card-body">
+                                <table id="dataTable" class="table table-bordered table-hover">
+                                    {{-- show from datatable--}}
+                                </table>
+                            </div>
+                            <!-- /.card-body -->
+                        </div>
+                        <!-- /.card -->
+
                     </div>
                 </div>
             </div>
