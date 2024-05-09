@@ -50,9 +50,9 @@
                                                             <div class="input-group">
                                                                 <input type="text" class="form-control input-sm"
                                                                        value="{{$serial_no}}" name="serial_no"
-                                                                       id="serial_no">
+                                                                       id="serial_no" v-model="serial_no">
                                                                 <span class="input-group-append">
-                    <button type="button" class="btn btn-info btn-flat">Search</button>
+                    <button type="button" class="btn btn-info btn-flat" @click="data_edit">Search</button>
                   </span>
                                                             </div>
                                                         </div>
@@ -60,8 +60,8 @@
                                                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                         <div class="form-group">
                                                             <label for="date">Date</label>
-                                                            <input type="text" class="form-control input-sm" id="date"
-                                                                   value="{{date('Y-m-d')}}">
+                                                            <vuejs-datepicker v-model="date" name="date"
+                                                                              placeholder="Select date" format="YY-MM-d"></vuejs-datepicker>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -110,7 +110,7 @@
                                                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                         <div class="form-group">
                                                             <label for="remark">Remark</label>
-                                                            <textarea class="form-control" name="remark" rows="2"
+                                                            <textarea class="form-control" name="remark" rows="1"
                                                                       placeholder="Enter Remark"></textarea>
                                                         </div>
                                                     </div>
@@ -294,6 +294,22 @@
             color: red;
             z-index: 999;
         }
+        input[placeholder="Select date"] {
+            display: block;
+            width: 100%;
+            height: calc(2.25rem + 2px);
+            padding: .375rem .75rem;
+            font-size: 1rem;
+            font-weight: 400;
+            line-height: 1.5;
+            color: #495057;
+            background-color: #fff;
+            background-clip: padding-box;
+            border: 1px solid #ced4da;
+            border-radius: .25rem;
+            box-shadow: inset 0 0 0 transparent;
+            transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+        }
     </style>
 
     <link rel="stylesheet" href="{{ asset('vue-js/bootstrap-select/dist/css/bootstrap-select.min.css') }}">
@@ -305,6 +321,7 @@
     <script src="{{ asset('vue-js/vue/dist/vue.js') }}"></script>
     <script src="{{ asset('vue-js/axios/dist/axios.min.js') }}"></script>
     <script src="{{ asset('vue-js/bootstrap-select/dist/js/bootstrap-select.min.js') }}"></script>
+    <script src="https://cms.diu.ac/vue/vuejs-datepicker.min.js"></script>
     <script>
         $(document).ready(function () {
 
@@ -316,6 +333,7 @@
                         get_items_info_by_group_id_url: "{{ url('fetch-items-by-group-id') }}",
                         get_item_info_url: "{{ url('fetch-item-info') }}",
                     },
+                    serial_no: {{$serial_no}},
                     store_id: '',
                     batch_id: '',
                     group_id: '',
@@ -323,6 +341,9 @@
                     items: [],
                     selected_items: [],
                     pageLoading: false
+                },
+                components: {
+                    vuejsDatepicker
                 },
                 computed: {
 
@@ -407,6 +428,15 @@
                             }
 
                         }
+
+                    },
+                    data_edit() {
+                        var vm = this;
+
+                        alert(vm.serial_no);
+
+
+
 
                     },
                     delete_row: function (row) {
