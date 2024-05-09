@@ -67,6 +67,9 @@ Store List
                                 <div class="col-xl-12 col-md-12 col-12 mb-1">
                                     <x-forms.static-select label="Type" inputName="type" placeholder="Select One" :isRequired='true'  :isReadonly='false' :defaultValue="isset($store) ? $store->type : ''" :options="['FG','BP','RM','WIP']"/>
                                 </div>
+                                <div class="col-xl-12 col-md-12 col-12 mb-1">
+                                    <x-forms.select label="Outlet" inputName="outlet_id" placeholder="Select One" :isRequired='true'  :isReadonly='false' :defaultValue="isset($store) ? $store->outlet_id : ''" :options="$outlets" optionId="id" optionValue="name"/>
+                                </div>
 
                             </div>
                             <button class="btn btn-primary waves-effect waves-float waves-light float-right"
