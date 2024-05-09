@@ -1,16 +1,14 @@
 @extends('layouts.app')
 @section('title', 'Raw Material Consumption')
 @section('content')
-    <section class="content-header">
-        @php
-            $links = [
-            'Home' => route('dashboard'),
-            'Raw Material Consumption' => route('consumptions.index'),
-            'Raw Material Consumption create' => '',
-            ];
-        @endphp
-        <x-bread-crumb-component title='Raw Material Consumption' :links="$links"/>
-    </section>
+    @php
+    $links = [
+        'Home' => route('dashboard'),
+        'Raw Material Consumption' => route('consumptions.index'),
+        'Raw Material Consumption create' => '',
+    ]
+    @endphp
+    <x-breadcrumb title='Raw Material Consumption' :links="$links"/>
 
     <!-- Main content -->
     <section class="content">
