@@ -33,7 +33,8 @@
         },
         "files": [
             "app/Helpers/functions.php",
-            "app/Helpers/inventory.php"
+            "app/Helpers/inventory.php",
+            "app/Helpers/accounts.php"
         ]
     },
     "autoload-dev": {

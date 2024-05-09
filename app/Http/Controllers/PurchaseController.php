@@ -11,6 +11,7 @@ use App\Models\PurchaseItem;
 use App\Models\Store;
 use App\Models\Supplier;
 use App\Models\SupplierGroup;
+use App\Models\SupplierTransaction;
 use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -51,7 +52,7 @@ class PurchaseController extends Controller
      */
     public function create()
     {
-        $serial_count = Purchase::latest()->first() ? Purchase::latest()->first()->serial_no : 0;
+        $serial_count = Purchase::latest()->first() ? Purchase::latest()->first()->id : 0;
         $serial_no = $serial_count + 1;
         $data = [
             'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'RM'])->get(),
@@ -71,71 +72,46 @@ class PurchaseController extends Controller
     public function store(StorePurchaseRequest $request)
     {
         $validated = $request->validated();
-//        DB::beginTransaction();
-//        try {
-            if (count($validated['products']) < 1) {
-                Toastr::info('At Least One Product Required.', '', ["progressBar" => true]);
-                return back();
-            }
-            $purchase = Purchase::create($validated);
-            foreach ($validated['products'] as $product) {
-                $purchase->items()->create($product);
-            }
+        DB::beginTransaction();
+        try {
+        if (count($validated['products']) < 1) {
+            Toastr::info('At Least One Product Required.', '', ["progressBar" => true]);
+            return back();
+        }
+        $purchase = Purchase::create($validated);
+        foreach ($validated['products'] as $product) {
+            $purchase->items()->create($product);
+        }
 
-//            $purchase->supplierTransactions()->create(
-//                [
-//                    'supplier_id' => $purchase->supplier_id,
-//                    'doc_type' => 'gp',
-//                    'doc_id' => $purchase->id,
-//                    'amount' => $purchase->grand_total,
-//                    'date' => $purchase->date,
-//                    'transaction_type' => 'purchase',
-//                    'description' => 'Purchase of goods',
-//                ]
-//            );
-//            DB::commit();
-//        } catch (\Exception $exception) {
-//            DB::rollBack();
-//            Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
-//            return back();
-//        }
+        // Inventory Transaction Effect
+
+
+        // Accounts Transaction Effect
+
+
+        // Supplier Transaction Effect
+        $supplierTransaction = [
+            'supplier_id' => $purchase->supplier_id,
+            'doc_type' => 'gp',
+            'doc_id' => $purchase->id,
+            'amount' => $purchase->net_payable,
+            'date' => $purchase->date,
+            'transaction_type' => 1,
+            'chart_of_account_id' => 1,
+            'description' => 'Purchase of goods',
+        ];
+        SupplierTransaction::create($supplierTransaction);
+
+
+            DB::commit();
+        } catch (\Exception $exception) {
+            DB::rollBack();
+            Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
+            return back();
+        }
         Toastr::success('Purchase Created Successfully!.', '', ["progressBar" => true]);
         return redirect()->route('purchases.create');
-//        -------------------
 
-        $validated = $request->validated();
-
-        dd($validated);
-//        try {
-//            DB::beginTransaction();
-        $purchase = new Purchase();
-        $purchase->purchase_number = \App\Classes\PurchaseNumber::serial_number();
-        $purchase->subtotal = $request->subtotal;
-        $purchase->grand_total = $request->subtotal;
-        $purchase->date = Carbon::now()->format('Y-m-d');
-        $purchase->description = $request->description;
-        $purchase->supplier_id = $request->supplier_id;
-        $purchase->created_by = Auth::id();
-        $purchase->save();
-
-        $products = $request->get('products');
-        foreach ($products as $row) {
-            //Set as batch number
-            $row['batch_number'] = \App\Classes\BatchNumber::serial_number();
-
-            $purchase->items()->create($row);
-            $purchase->stock_items()->create($row);
-//            Product::where('id', $row['product_id'])->update(['selling_price' => $row['selling_price'], 'buying_price' => $row['buying_price']]);
-        }
-        //DB::commit();
-        Toastr::success('Messages in here', 'Title', ["positionClass" => "toast-top-center"]);
-        return back();
-//        } catch (\Exception $e) {
-//            DB::rollBack();
-//            Log::emergency("File:" . $e->getFile() . "Line:" . $e->getLine() . "Message:" . $e->getMessage());
-//            Toastr::info('Something went wrong!.', '', ["progressbar" => true]);
-//            return back();
-//        }
     }
 
     /**
@@ -163,7 +139,7 @@ class PurchaseController extends Controller
             'stores' => Store::where(['type' => 'RM'])->get(),
             'purchase' => Purchase::with('supplier')->find(decrypt($purchase))
         ];
-        return view('purchase.edit',$data);
+        return view('purchase.edit', $data);
     }
 
     /**

@@ -50,7 +50,7 @@ class ConsumptionController extends Controller
      */
     public function create()
     {
-        $serial_count = Production::latest()->first() ? Production::latest()->first()->id : 0;
+        $serial_count = Consumption::latest()->first() ? Consumption::latest()->first()->id : 0;
         $serial_no = $serial_count + 1;
         $data = [
             'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'RM'])->get(),

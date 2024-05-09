@@ -15,9 +15,7 @@ class CreatePurchasesTable extends Migration
     {
         Schema::create('purchases', function (Blueprint $table) {
             $table->id();
-            $table->string('batch_number')->nullable();
             $table->string('reference_no')->nullable();
-            $table->integer('serial_no')->unique();
             $table->enum('status', ['pending', 'received','ordered'])->default('received');
             $table->date('date')->nullable();
             $table->double('subtotal', 15, 2);

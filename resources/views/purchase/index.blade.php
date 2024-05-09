@@ -78,7 +78,7 @@
                     orderable: false
                 },
                     {
-                        data: "serial_no",
+                        data: "id",
                         title: "Purchase No",
                         searchable: true
                     },
