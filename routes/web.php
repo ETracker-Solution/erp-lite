@@ -55,6 +55,7 @@ Route::middleware('auth')->group(function () {
 
 
     Route::resource('consumptions', \App\Http\Controllers\ConsumptionController::class);
+    Route::get('consumption-pdf/{id}', [App\Http\Controllers\ConsumptionController::class, 'consumptionPdf'])->name('consumptions.pdf');
     //-----start Pos---------
     Route::resource('pos', App\Http\Controllers\POSController::class);
 

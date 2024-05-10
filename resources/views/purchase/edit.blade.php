@@ -48,7 +48,7 @@
                                                         <div class="form-group">
                                                             <label for="serial_no">Purchase No</label>
                                                             <div class="input-group">
-                                                                <input type="text" class="form-control input-sm"  value="{{$purchase->serial_no}}" name="serial_no" id="serial_no">
+                                                                <input type="text" class="form-control input-sm"  value="{{$purchase->id}}" name="serial_no" id="serial_no">
                                                                 <span class="input-group-append">
                                                                     <button type="button" class="btn btn-secondary btn-flat">Search</button>
                                                                 </span>
@@ -71,7 +71,7 @@
                                                         <div class="form-group">
                                                             <label for="date">Date</label>
                                                             <vuejs-datepicker v-model="date" name="date"
-                                                                              placeholder="Select date"></vuejs-datepicker>
+                                                                              placeholder="Select date" format="yyyy-MM-dd"></vuejs-datepicker>
                                                         </div>
                                                     </div>
                                                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
@@ -364,7 +364,7 @@
                     },
 
                     purchase_id: '{{ $purchase->id }}',
-                    date: {{$purchase->date}},
+                    date: '{{$purchase->date}}',
                     vat: {{$purchase->vat}},
                     supplier_group_id: {{$purchase->supplier->group->id}},
                     supplier_id: {{$purchase->supplier_id}},

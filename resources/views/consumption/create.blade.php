@@ -59,7 +59,7 @@
                                                         <div class="form-group">
                                                             <label for="date">Date</label>
                                                             <vuejs-datepicker v-model="date" name="date"
-                                                                              placeholder="Select date" format="YY-MM-d"></vuejs-datepicker>
+                                                                              placeholder="Select date" format="yyyy-MM-dd"></vuejs-datepicker>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -129,7 +129,7 @@
                                 <div class="card-box">
                                     <div id="">
                                         <div class="row">
-                                            <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
+                                            <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
                                                 <div class="form-group">
                                                     <label for="group_id" class="control-label">Group</label>
                                                     <select class="form-control" name="group_id" v-model="group_id"
@@ -141,7 +141,7 @@
                                                     </select>
                                                 </div>
                                             </div>
-                                            <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
+                                            <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
                                                 <div class="form-group">
                                                     <label for="item_id">Item</label>
                                                     <select name="item_id" id="item_id" class="form-control bSelect"
@@ -153,7 +153,14 @@
                                                     </select>
                                                 </div>
                                             </div>
-                                            <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12" style="margin-top: 30px;">
+                                            <div class="col-lg-3 col-md-4 col-sm-3 col-xs-12">
+                                                <div class="form-group">
+                                                    <label for="stock">Stock</label>
+                                                    <input type="text" class="form-control input-sm"
+                                                           value="" name="stock">
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-2 col-md-2 col-sm-6 col-xs-12" style="margin-top: 30px;">
                                                 <button type="button" class="btn btn-info btn-block"
                                                         @click="data_input">Add
                                                 </button>
@@ -169,8 +176,10 @@
                                                     <table class="table table-bordered">
                                                         <thead class="bg-secondary">
                                                         <tr>
+                                                            <th>#</th>
                                                             <th>Group</th>
                                                             <th>Item</th>
+                                                            <th>Stock</th>
                                                             <th>Qty</th>
                                                             <th>Rate</th>
                                                             <th>Value</th>
@@ -180,7 +189,10 @@
                                                         <tbody>
                                                         <tr v-for="(row, index) in selected_items">
 
-                                                            <td>
+                                                            <td style="width: 10px">
+                                                                @{{ ++index }}
+                                                            </td>
+                                                            <td style="width: 200px">
                                                                 @{{ row.group }}
                                                             </td>
                                                             <td>
@@ -191,23 +203,29 @@
                                                                        v-bind:value="row.id">
 
                                                             </td>
-                                                            <td>
+                                                            <td style="width: 180px">
                                                                 <input type="number" v-model="row.quantity"
                                                                        :name="'products['+index+'][quantity]'"
                                                                        class="form-control input-sm"
                                                                        @change="itemtotal(row)" required>
                                                             </td>
-                                                            <td>
+                                                            <td style="width: 180px">
+                                                                <input type="number" v-model="row.quantity"
+                                                                       :name="'products['+index+'][quantity]'"
+                                                                       class="form-control input-sm"
+                                                                       @change="itemtotal(row)" required>
+                                                            </td>
+                                                            <td style="width: 180px">
                                                                 <input type="number" v-model="row.rate"
                                                                        :name="'products['+index+'][rate]'"
                                                                        class="form-control input-sm"
                                                                        @change="itemtotal(row)" required>
                                                             </td>
-                                                            <td>
+                                                            <td style="width: 180px">
                                                                 <input type="text" class="form-control input-sm"
                                                                        v-bind:value="itemtotal(row)" readonly>
                                                             </td>
-                                                            <td>
+                                                            <td style="width: 10px">
                                                                 <button type="button" class="btn btn-sm btn-danger"
                                                                         @click="delete_row(row)"><i
                                                                         class="fa fa-trash"></i></button>
@@ -225,33 +243,6 @@
                                                             <td>
                                                                 <input type="text" class="form-control input-sm"
                                                                        name="subtotal" v-bind:value="subtotal" readonly>
-                                                            </td>
-                                                            <td></td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td colspan="3">
-
-                                                            </td>
-                                                            <td>
-                                                                Vat
-                                                            </td>
-                                                            <td>
-                                                                <input type="text" name="vat"
-                                                                       class="form-control input-sm" v-model="vat">
-                                                            </td>
-                                                            <td></td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td colspan="3">
-
-                                                            </td>
-                                                            <td>
-                                                                Net Payable
-                                                            </td>
-                                                            <td>
-                                                                <input type="text" class="form-control input-sm"
-                                                                       name="net_payable" v-bind:value="net_payable"
-                                                                       readonly>
                                                             </td>
                                                             <td></td>
                                                         </tr>
@@ -332,6 +323,7 @@
                         get_item_info_url: "{{ url('fetch-item-info') }}",
                     },
                     serial_no: {{$serial_no}},
+                    date: new Date(),
                     store_id: '',
                     batch_id: '',
                     group_id: '',
@@ -349,10 +341,7 @@
                         return this.selected_items.reduce((total, item) => {
                             return total + item.quantity * item.rate
                         }, 0)
-                    },
-                    net_payable: function () {
-                        return this.subtotal + parseFloat(this.vat)
-                    },
+                    }
                 },
                 methods: {
 
@@ -403,7 +392,7 @@
                                     console.log(item_info);
                                     vm.selected_items.push({
                                         id: item_info.id,
-                                        group: item_info.name,
+                                        group: item_info.parent.name,
                                         name: item_info.name,
                                         rate: '',
                                         quantity: '',

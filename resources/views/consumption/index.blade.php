@@ -19,7 +19,7 @@
                         <div class="card-header bg-info">
                             <h3 class="card-title">RM Consumption List</h3>
                             <div class="card-tools">
-                                <a href="{{route('productions.create')}}">
+                                <a href="{{route('consumptions.create')}}">
                                     <button class="btn btn-sm btn-primary"><i class="fa fa-plus-circle"
                                                                               aria-hidden="true"></i> &nbsp;Add RM Consumption
                                     </button>
@@ -76,23 +76,13 @@
                     orderable: false
                 },
                     {
-                        data: "purchase_number",
+                        data: "id",
                         title: "RMC No",
                         searchable: true
                     },
                     {
                         data: "subtotal",
-                        title: "Sub Total",
-                        searchable: true
-                    },
-                    {
-                        data: "vat",
-                        title: "Vat Amount",
-                        searchable: true
-                    },
-                    {
-                        data: "net_payable",
-                        title: "Net Payable",
+                        title: "Subtotal",
                         searchable: true
                     },
                     {
