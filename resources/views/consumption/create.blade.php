@@ -2,11 +2,11 @@
 @section('title', 'Raw Material Consumption')
 @section('content')
     @php
-    $links = [
-        'Home' => route('dashboard'),
-        'Raw Material Consumption' => route('consumptions.index'),
-        'Raw Material Consumption create' => '',
-    ]
+        $links = [
+            'Home' => route('dashboard'),
+            'Raw Material Consumption' => route('consumptions.index'),
+            'Raw Material Consumption create' => '',
+        ]
     @endphp
     <x-breadcrumb title='Raw Material Consumption' :links="$links"/>
 
@@ -59,7 +59,8 @@
                                                         <div class="form-group">
                                                             <label for="date">Date</label>
                                                             <vuejs-datepicker v-model="date" name="date"
-                                                                              placeholder="Select date" format="yyyy-MM-dd"></vuejs-datepicker>
+                                                                              placeholder="Select date"
+                                                                              format="yyyy-MM-dd"></vuejs-datepicker>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -102,14 +103,14 @@
                                                         <div class="form-group">
                                                             <label for="reference_no">Reference No</label>
                                                             <input type="text" class="form-control input-sm"
-                                                                   value="{{old('reference_no')}}" name="reference_no">
+                                                                   value="{{old('reference_no')}}" name="reference_no" v-model="reference_no">
                                                         </div>
                                                     </div>
                                                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                         <div class="form-group">
                                                             <label for="remark">Remark</label>
                                                             <textarea class="form-control" name="remark" rows="1"
-                                                                      placeholder="Enter Remark"></textarea>
+                                                                      placeholder="Enter Remark" v-model="remark"></textarea>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -234,7 +235,7 @@
                                                         </tbody>
                                                         <tfoot>
                                                         <tr>
-                                                            <td colspan="3">
+                                                            <td colspan="5">
 
                                                             </td>
                                                             <td>
@@ -283,6 +284,7 @@
             color: red;
             z-index: 999;
         }
+
         input[placeholder="Select date"] {
             display: block;
             width: 100%;
@@ -321,6 +323,7 @@
 
                         get_items_info_by_group_id_url: "{{ url('fetch-items-by-group-id') }}",
                         get_item_info_url: "{{ url('fetch-item-info') }}",
+                        get_edit_data_url: "{{ url('fetch-consumption-by-id') }}",
                     },
                     serial_no: {{$serial_no}},
                     date: new Date(),
@@ -420,9 +423,34 @@
                     data_edit() {
                         var vm = this;
 
+                        var slug = vm.serial_no;
+
+                        if (slug) {
+                            vm.pageLoading = true;
+                            axios.get(this.config.get_edit_data_url + '/' + slug).then(function (response) {
+
+                                // vm.selected_items = response.data.products;
+                                vm.selected_items = response.data.items;
+                                vm.pageLoading = false;
+                            }).catch(function (error) {
+
+                                toastr.error('Something went to wrong', {
+                                    closeButton: true,
+                                    progressBar: true,
+                                });
+
+                                return false;
+
+                            });
+                        }
                         alert(vm.serial_no);
 
-
+                        vm.serial_no = 1;
+                        vm.date = '2024-04-23';
+                        vm.store_id = 1;
+                        vm.batch_id = 1;
+                        vm.reference_no = 1;
+                        vm.remark = 1;
 
 
                     },
