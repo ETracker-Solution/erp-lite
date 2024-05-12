@@ -1,6 +1,6 @@
 @extends('layouts.app')
 @section('title')
-Customer List
+Employee List
 @endsection
 @section('content')
 <!-- Content Header (Page header) -->
@@ -8,10 +8,10 @@ Customer List
 @php
     $links = [
     'Home'=>route('dashboard'),
-    'Customer list'=>''
+    'Employee list'=>''
     ]
 @endphp
-<x-breadcrumb title='Customer' :links="$links"/>
+<x-breadcrumb title='Employee' :links="$links"/>
 
 <!-- Main content -->
 <section class="content">
@@ -21,9 +21,9 @@ Customer List
             <div class="col-12">
                 <div class="card card-info">
                     <div class="card-header">
-                        <h3 class="card-title">Customer List</h3>
+                        <h3 class="card-title">Employee List</h3>
                         <div class="card-tools">
-                            <a href="{{route('customers.create')}}"><button class="btn btn-sm btn-primary"><i class="fa fa-plus-circle" aria-hidden="true"></i> &nbsp;Add customer</button></a>
+                            <a href="{{route('employees.create')}}"><button class="btn btn-sm btn-primary"><i class="fa fa-plus-circle" aria-hidden="true"></i> &nbsp;Add Employee</button></a>
                         </div>
                     </div>
                     <!-- /.card-header -->
@@ -65,7 +65,7 @@ Customer List
             serverSide: true,
             processing: true,
             ajax: {
-                url: "{{ route('customers.index') }}",
+                url: "{{ route('employees.index') }}",
             },
             columns: [{
                 data: "DT_RowIndex",
@@ -80,8 +80,13 @@ Customer List
                     searchable: true
                 },
                 {
-                    data: "mobile",
-                    title: "Mobile",
+                    data: "email",
+                    title: "email",
+                    searchable: true
+                },
+                {
+                    data: "phone",
+                    title: "Phone",
                     searchable: true
                 },
                 {
@@ -89,16 +94,6 @@ Customer List
                     title: "Address",
                     searchable: true
                 },
-                {
-                    data: "email",
-                    title: "email",
-                    searchable: true
-                },
-                // {
-                //     data: "website",
-                //     title: "website",
-                //     searchable: true
-                // },
                 {
                     data: "created_at",
                     title: "created at",
