@@ -16,11 +16,33 @@ class SupplierSeeder extends Seeder
     {
         Supplier::create( [
             'id'=>1,
-            'name'=>'Hasan',
+            'name'=>'Amin Supplier',
             'mobile'=>"01710355789",
             'email'=>'supplier@gmail.com',
             'address'=>'Dhaka',
             'supplier_group_id'=>1,
+            'status'=>'active',
+            'created_at'=>'2023-06-07 13:01:13',
+            'updated_at'=>'2023-06-07 13:01:13'
+        ] );
+        Supplier::create( [
+            'id'=>2,
+            'name'=>'Jamil Supplier',
+            'mobile'=>"01710355709",
+            'email'=>'supplier2@gmail.com',
+            'address'=>'Dhaka',
+            'supplier_group_id'=>2,
+            'status'=>'active',
+            'created_at'=>'2023-06-07 13:01:13',
+            'updated_at'=>'2023-06-07 13:01:13'
+        ] );
+        Supplier::create( [
+            'id'=>3,
+            'name'=>'Rafi Supplier',
+            'mobile'=>"01710355709",
+            'email'=>'supplier2@gmail.com',
+            'address'=>'Dhaka',
+            'supplier_group_id'=>2,
             'status'=>'active',
             'created_at'=>'2023-06-07 13:01:13',
             'updated_at'=>'2023-06-07 13:01:13'
