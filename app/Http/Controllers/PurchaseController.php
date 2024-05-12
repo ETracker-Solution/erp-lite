@@ -85,14 +85,15 @@ class PurchaseController extends Controller
             $purchase->items()->create($product);
             // Inventory Transaction Effect
             InventoryTransaction::query()->create([
-                'supplier_id' => $purchase->supplier_id,
+                'store_id' => $purchase->store_id,
                 'doc_type' => 'GPB',
                 'doc_id' => $purchase->id,
-                'amount' => $purchase->net_payable,
+                'quantity' => $product['quantity'],
+                'rate' => $product['rate'],
+                'amount' => $product['quantity'] * $product['rate'],
                 'date' => $purchase->date,
-                'transaction_type' => 1,
-                'chart_of_account_id' => 12,
-                'description' => 'Purchase of goods',
+                'type' => 1,
+                'coi_id' => $product['id'],
             ]);
         }
 

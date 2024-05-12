@@ -26,15 +26,7 @@ class RMOpeningBalanceController extends Controller
 
     public function index()
     {
-        $serial_count = $this->base_model->latest()->first() ? $this->base_model->latest()->first()->serial_no : 0;
-        $serial_no = $serial_count + 1;
-        $data = [
-            'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'RM'])->get(),
-            'serial_no' => $serial_no,
-            'stores' => Store::query()->whereType('RM')->get()
-
-        ];
-        return view('opening_balance.raw_materials.index', $data);
+        return view('opening_balance.raw_materials.index');
     }
 
     public function store(Request $request)
@@ -53,7 +45,7 @@ class RMOpeningBalanceController extends Controller
 
             $rmob = $this->base_model->create([
                 'date' => $request->date,
-                'qty' => $request->qty,
+                'quantity' => $request->qty,
                 'rate' => $request->rate,
                 'amount' => $request->qty * $request->rate,
                 'store_id' => $request->store_id,
@@ -102,7 +94,7 @@ class RMOpeningBalanceController extends Controller
 
             $rmob = $this->base_model->create([
                 'date' => $request->date,
-                'qty' => $request->qty,
+                'quantity' => $request->qty,
                 'rate' => $request->rate,
                 'amount' => $request->qty * $request->rate,
                 'store_id' => $request->store_id,

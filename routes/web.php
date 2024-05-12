@@ -55,6 +55,7 @@ Route::middleware('auth')->group(function () {
 
 
     Route::resource('consumptions', \App\Http\Controllers\ConsumptionController::class);
+    Route::get('consumption-pdf/{id}', [App\Http\Controllers\ConsumptionController::class, 'consumptionPdf'])->name('consumptions.pdf');
     //-----start Pos---------
     Route::resource('pos', App\Http\Controllers\POSController::class);
 
@@ -69,6 +70,7 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('attributes', AttributeController::class);
 
+    Route::get('/fetch-consumption-by-id/{id}', [App\Http\Controllers\ApiController::class, 'fetchConsumptionById']);
     Route::get('/fetch-items-by-group-id/{id}', [App\Http\Controllers\ApiController::class, 'fetch_products_by_cat_id']);
     Route::get('/fetch-suppliers-by-group-id/{id}', [App\Http\Controllers\ApiController::class, 'fetchSuppliersByGroupId']);
     Route::get('fetch-purchase-products-info/{id}', [App\Http\Controllers\ApiController::class, 'fetchPurchaseProductInfo']);
@@ -114,6 +116,10 @@ Route::middleware('auth')->group(function () {
     Route::get('raw-materials-opening-balances-initial-info',[\App\Http\Controllers\Api\Web\RMOpeningBalanceController::class, 'initialInfo']);
     Route::resource('raw-materials-opening-balances',\App\Http\Controllers\Api\Web\RMOpeningBalanceController::class);
     /*=========== Raw Materials Opening Balance Api Ends ===========*/
+
+    /*=========== Raw Materials Inventory Report Api Starts ===========*/
+    Route::resource('raw-materials-inventory-report',\App\Http\Controllers\Api\Web\RMInventoryReportController::class);
+    /*=========== Raw Materials Inventory Report Api Ends ===========*/
 });
 Route::group(['prefix' => 'reports', 'middleware' => 'auth'], function () {
     //Report Route

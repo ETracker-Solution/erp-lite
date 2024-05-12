@@ -2,11 +2,11 @@
 @section('title', 'Raw Material Consumption')
 @section('content')
     @php
-    $links = [
-        'Home' => route('dashboard'),
-        'Raw Material Consumption' => route('consumptions.index'),
-        'Raw Material Consumption create' => '',
-    ]
+        $links = [
+            'Home' => route('dashboard'),
+            'Raw Material Consumption' => route('consumptions.index'),
+            'Raw Material Consumption create' => '',
+        ]
     @endphp
     <x-breadcrumb title='Raw Material Consumption' :links="$links"/>
 
@@ -48,9 +48,9 @@
                                                             <div class="input-group">
                                                                 <input type="text" class="form-control input-sm"
                                                                        value="{{$serial_no}}" name="serial_no"
-                                                                       id="serial_no">
+                                                                       id="serial_no" v-model="serial_no">
                                                                 <span class="input-group-append">
-                    <button type="button" class="btn btn-info btn-flat">Search</button>
+                    <button type="button" class="btn btn-info btn-flat" @click="data_edit">Search</button>
                   </span>
                                                             </div>
                                                         </div>
@@ -58,8 +58,9 @@
                                                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                         <div class="form-group">
                                                             <label for="date">Date</label>
-                                                            <input type="text" class="form-control input-sm" id="date"
-                                                                   value="{{date('Y-m-d')}}">
+                                                            <vuejs-datepicker v-model="date" name="date"
+                                                                              placeholder="Select date"
+                                                                              format="yyyy-MM-dd"></vuejs-datepicker>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -102,14 +103,14 @@
                                                         <div class="form-group">
                                                             <label for="reference_no">Reference No</label>
                                                             <input type="text" class="form-control input-sm"
-                                                                   value="{{old('reference_no')}}" name="reference_no">
+                                                                   value="{{old('reference_no')}}" name="reference_no" v-model="reference_no">
                                                         </div>
                                                     </div>
                                                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                         <div class="form-group">
                                                             <label for="remark">Remark</label>
-                                                            <textarea class="form-control" name="remark" rows="2"
-                                                                      placeholder="Enter Remark"></textarea>
+                                                            <textarea class="form-control" name="remark" rows="1"
+                                                                      placeholder="Enter Remark" v-model="remark"></textarea>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -129,7 +130,7 @@
                                 <div class="card-box">
                                     <div id="">
                                         <div class="row">
-                                            <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
+                                            <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
                                                 <div class="form-group">
                                                     <label for="group_id" class="control-label">Group</label>
                                                     <select class="form-control" name="group_id" v-model="group_id"
@@ -141,7 +142,7 @@
                                                     </select>
                                                 </div>
                                             </div>
-                                            <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
+                                            <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
                                                 <div class="form-group">
                                                     <label for="item_id">Item</label>
                                                     <select name="item_id" id="item_id" class="form-control bSelect"
@@ -153,7 +154,14 @@
                                                     </select>
                                                 </div>
                                             </div>
-                                            <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12" style="margin-top: 30px;">
+                                            <div class="col-lg-3 col-md-4 col-sm-3 col-xs-12">
+                                                <div class="form-group">
+                                                    <label for="stock">Stock</label>
+                                                    <input type="text" class="form-control input-sm"
+                                                           value="" name="stock">
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-2 col-md-2 col-sm-6 col-xs-12" style="margin-top: 30px;">
                                                 <button type="button" class="btn btn-info btn-block"
                                                         @click="data_input">Add
                                                 </button>
@@ -169,8 +177,10 @@
                                                     <table class="table table-bordered">
                                                         <thead class="bg-secondary">
                                                         <tr>
+                                                            <th>#</th>
                                                             <th>Group</th>
                                                             <th>Item</th>
+                                                            <th>Stock</th>
                                                             <th>Qty</th>
                                                             <th>Rate</th>
                                                             <th>Value</th>
@@ -180,7 +190,10 @@
                                                         <tbody>
                                                         <tr v-for="(row, index) in selected_items">
 
-                                                            <td>
+                                                            <td style="width: 10px">
+                                                                @{{ ++index }}
+                                                            </td>
+                                                            <td style="width: 200px">
                                                                 @{{ row.group }}
                                                             </td>
                                                             <td>
@@ -191,23 +204,29 @@
                                                                        v-bind:value="row.id">
 
                                                             </td>
-                                                            <td>
+                                                            <td style="width: 180px">
                                                                 <input type="number" v-model="row.quantity"
                                                                        :name="'products['+index+'][quantity]'"
                                                                        class="form-control input-sm"
                                                                        @change="itemtotal(row)" required>
                                                             </td>
-                                                            <td>
+                                                            <td style="width: 180px">
+                                                                <input type="number" v-model="row.quantity"
+                                                                       :name="'products['+index+'][quantity]'"
+                                                                       class="form-control input-sm"
+                                                                       @change="itemtotal(row)" required>
+                                                            </td>
+                                                            <td style="width: 180px">
                                                                 <input type="number" v-model="row.rate"
                                                                        :name="'products['+index+'][rate]'"
                                                                        class="form-control input-sm"
                                                                        @change="itemtotal(row)" required>
                                                             </td>
-                                                            <td>
+                                                            <td style="width: 180px">
                                                                 <input type="text" class="form-control input-sm"
                                                                        v-bind:value="itemtotal(row)" readonly>
                                                             </td>
-                                                            <td>
+                                                            <td style="width: 10px">
                                                                 <button type="button" class="btn btn-sm btn-danger"
                                                                         @click="delete_row(row)"><i
                                                                         class="fa fa-trash"></i></button>
@@ -216,7 +235,7 @@
                                                         </tbody>
                                                         <tfoot>
                                                         <tr>
-                                                            <td colspan="3">
+                                                            <td colspan="5">
 
                                                             </td>
                                                             <td>
@@ -225,33 +244,6 @@
                                                             <td>
                                                                 <input type="text" class="form-control input-sm"
                                                                        name="subtotal" v-bind:value="subtotal" readonly>
-                                                            </td>
-                                                            <td></td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td colspan="3">
-
-                                                            </td>
-                                                            <td>
-                                                                Vat
-                                                            </td>
-                                                            <td>
-                                                                <input type="text" name="vat"
-                                                                       class="form-control input-sm" v-model="vat">
-                                                            </td>
-                                                            <td></td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td colspan="3">
-
-                                                            </td>
-                                                            <td>
-                                                                Net Payable
-                                                            </td>
-                                                            <td>
-                                                                <input type="text" class="form-control input-sm"
-                                                                       name="net_payable" v-bind:value="net_payable"
-                                                                       readonly>
                                                             </td>
                                                             <td></td>
                                                         </tr>
@@ -292,6 +284,23 @@
             color: red;
             z-index: 999;
         }
+
+        input[placeholder="Select date"] {
+            display: block;
+            width: 100%;
+            height: calc(2.25rem + 2px);
+            padding: .375rem .75rem;
+            font-size: 1rem;
+            font-weight: 400;
+            line-height: 1.5;
+            color: #495057;
+            background-color: #fff;
+            background-clip: padding-box;
+            border: 1px solid #ced4da;
+            border-radius: .25rem;
+            box-shadow: inset 0 0 0 transparent;
+            transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+        }
     </style>
 
     <link rel="stylesheet" href="{{ asset('vue-js/bootstrap-select/dist/css/bootstrap-select.min.css') }}">
@@ -303,6 +312,7 @@
     <script src="{{ asset('vue-js/vue/dist/vue.js') }}"></script>
     <script src="{{ asset('vue-js/axios/dist/axios.min.js') }}"></script>
     <script src="{{ asset('vue-js/bootstrap-select/dist/js/bootstrap-select.min.js') }}"></script>
+    <script src="https://cms.diu.ac/vue/vuejs-datepicker.min.js"></script>
     <script>
         $(document).ready(function () {
 
@@ -313,7 +323,10 @@
 
                         get_items_info_by_group_id_url: "{{ url('fetch-items-by-group-id') }}",
                         get_item_info_url: "{{ url('fetch-item-info') }}",
+                        get_edit_data_url: "{{ url('fetch-consumption-by-id') }}",
                     },
+                    serial_no: {{$serial_no}},
+                    date: new Date(),
                     store_id: '',
                     batch_id: '',
                     group_id: '',
@@ -322,16 +335,16 @@
                     selected_items: [],
                     pageLoading: false
                 },
+                components: {
+                    vuejsDatepicker
+                },
                 computed: {
 
                     subtotal: function () {
                         return this.selected_items.reduce((total, item) => {
                             return total + item.quantity * item.rate
                         }, 0)
-                    },
-                    net_payable: function () {
-                        return this.subtotal + parseFloat(this.vat)
-                    },
+                    }
                 },
                 methods: {
 
@@ -382,7 +395,7 @@
                                     console.log(item_info);
                                     vm.selected_items.push({
                                         id: item_info.id,
-                                        group: item_info.name,
+                                        group: item_info.parent.name,
                                         name: item_info.name,
                                         rate: '',
                                         quantity: '',
@@ -405,6 +418,40 @@
                             }
 
                         }
+
+                    },
+                    data_edit() {
+                        var vm = this;
+
+                        var slug = vm.serial_no;
+
+                        if (slug) {
+                            vm.pageLoading = true;
+                            axios.get(this.config.get_edit_data_url + '/' + slug).then(function (response) {
+
+                                // vm.selected_items = response.data.products;
+                                vm.selected_items = response.data.items;
+                                vm.pageLoading = false;
+                            }).catch(function (error) {
+
+                                toastr.error('Something went to wrong', {
+                                    closeButton: true,
+                                    progressBar: true,
+                                });
+
+                                return false;
+
+                            });
+                        }
+                        alert(vm.serial_no);
+
+                        vm.serial_no = 1;
+                        vm.date = '2024-04-23';
+                        vm.store_id = 1;
+                        vm.batch_id = 1;
+                        vm.reference_no = 1;
+                        vm.remark = 1;
+
 
                     },
                     delete_row: function (row) {

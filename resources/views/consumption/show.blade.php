@@ -1,11 +1,11 @@
-@extends('factory.layouts.app')
+@extends('layouts.app')
 @section('title', 'Consumption')
 @section('content')
     <div class="content-wrapper">
         @php
             $links = [
             'Home'=>route('dashboard'),
-            'Consumption'=>route('factory.stock-adjusts.index'),
+            'Consumption'=>route('consumptions.index'),
             'Consumption Details'=>''
             ]
         @endphp
@@ -19,11 +19,8 @@
                             <div class="card-header">
                                 <h4 class="card-title">Consumption Details</h4>
                                 <div class="text-right">
-                                    <a href="{{ route('factory.consumptions.pdf',encrypt($consumption->id)) }}" class="btn btn-primary" target="_blank">
+                                    <a href="{{ route('consumptions.pdf',encrypt($consumption->id)) }}" class="btn btn-primary" target="_blank">
                                         <i class="fa fa-download"></i> PDF</a>
-                                    @include('buttons.back', [
-                                        'route' => route('factory.stock-adjusts.index'),
-                                    ])
                                 </div>
                             </div>
                             <div class="card-body">
@@ -62,13 +59,13 @@
                                                     <b>{{ $loop->iteration }}</b>
                                                 </td>
                                                 <td>
-                                                    <b>{{ $row->product->name }} </b>
+                                                    <b>{{ $row->coi->name }} </b>
                                                 </td>
                                                 <td>
-                                                    <b>{{ $row->product->category->name }} </b>
+                                                    <b>{{ $row->coi->parent->name }} </b>
                                                 </td>
                                                 <td>
-                                                    <b>{{ $row->product->unit->name }} </b>
+                                                    <b>{{ $row->coi->unit->name }} </b>
                                                 </td>
                                                 <td>
                                                     <b>{{ $row->quantity }} </b>

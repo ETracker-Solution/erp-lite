@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('raw_material_opening_balances', function (Blueprint $table) {
             $table->id();
             $table->date('date');
-            $table->double('qty', 8, 2);
+            $table->double('quantity', 8, 2);
             $table->double('rate', 8, 2);
             $table->double('amount', 8, 2);
             $table->string('store_id')->nullable();

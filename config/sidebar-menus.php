@@ -12,13 +12,13 @@ return [
             'has_child' => false,
         ],
         [
-            'name' => 'Procurement Module',
+            'name' => 'Purchase Module',
             'icon' => 'fas fa-shopping-cart',
             'active_condition' => false,
             'has_child' => true,
             'child' => [
                 [
-                    'name' => 'Procurement Entry',
+                    'name' => 'Purchase Entry',
                     'url' => '#',
                     'has_child' => true,
                     'active_condition' => false,
@@ -26,6 +26,27 @@ return [
                         [
                             'name' => 'Goods Purchase Bill',
                             'url' => '/purchases/create',
+                            'active_condition' => '',
+                        ]
+                    ],
+                ]
+            ],
+        ],
+        [
+            'name' => 'Store RM Module',
+            'icon' => 'fas fa-shopping-cart',
+            'active_condition' => false,
+            'has_child' => true,
+            'child' => [
+                [
+                    'name' => 'Report',
+                    'url' => '#',
+                    'has_child' => true,
+                    'active_condition' => false,
+                    'child' => [
+                        [
+                            'name' => 'RM Inventory Report',
+                            'url' => '/raw-materials-inventory-report',
                             'active_condition' => '',
                         ]
                     ],

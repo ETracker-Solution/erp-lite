@@ -106,9 +106,9 @@
                                     @forelse ($stock_adjust->items as $row)
                                     <tr>
                                         <td>{{ $i++ }}</td>
-                                        <td>{{ $row->product ? $row->product->name : '' }}</td>
-                                        <td>{{ $row->product->category->name }}</td>
-                                        <td>{{ $row->product->unit->name }}</td>
+                                        <td>{{ $row->coi ? $row->coi->name : '' }}</td>
+                                        <td>{{ $row->coi->parent->name }}</td>
+                                        <td>{{ $row->coi->unit->name }}</td>
                                         <td>{{ $row->quantity }}</td>
                                     </tr>
                                     @empty
