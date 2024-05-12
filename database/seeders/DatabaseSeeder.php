@@ -15,11 +15,6 @@ class DatabaseSeeder extends Seeder
     {
         // \App\Models\User::factory(10)->create();
 
-         \App\Models\User::factory()->create([
-             'name' => 'Mohammad Ali',
-             'email' => 'admin@gmail.com',
-             'password' => bcrypt('12345678'),
-         ]);
         $this->call(BusinessSeeder::class);
         $this->call(BrandSeeder::class);
         $this->call(AttributeSeeder::class);
@@ -33,5 +28,13 @@ class DatabaseSeeder extends Seeder
         $this->call(CustomerSeeder::class);
         $this->call(StoreSeeder::class);
         $this->call(BatchSeeder::class);
+        $this->call(EmployeeSeeder::class);
+
+        \App\Models\User::factory()->create([
+            'name' => 'Mohammad Ali',
+            'email' => 'admin@gmail.com',
+            'employee_id' => 1,
+            'password' => bcrypt('12345678'),
+        ]);
     }
 }

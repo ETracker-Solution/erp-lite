@@ -1,6 +1,6 @@
 @extends('layouts.app')
 @section('title')
-Supplier
+Employee
 @endsection
 @section('style')
 <!-- Select2 -->
@@ -12,10 +12,10 @@ Supplier
 @php
 $links = [
 'Home'=>route('dashboard'),
-'Supplier Details'=>''
+'Employee Details'=>''
 ]
 @endphp
-<x-breadcrumb title='Supplier' :links="$links" />
+<x-breadcrumb title='Employee' :links="$links" />
 
 
 
@@ -28,7 +28,7 @@ $links = [
                 <div class="card card-info">
                     <div class="card-header">
 
-                        <h3 class="card-title">Supplier Details</h3>
+                        <h3 class="card-title">Employee Details</h3>
                     </div>
                     <!-- /.card-header -->
                     <!-- form start -->
@@ -37,28 +37,28 @@ $links = [
                         <table class="table">
                             <tbody>
                                 <tr>
-                                    <th>Group : </th>
-                                    <td>{{ $supplier->group ? $supplier->group->name : '' }}</td>
-                                </tr>
-                                <tr>
                                     <th>Name : </th>
-                                    <td>{{ $supplier->name }}</td>
+                                    <td>{{ $employee->name }}</td>
                                 </tr>
                                 <tr>
                                     <th>Mobile : </th>
-                                    <td>{{ $supplier->mobile }}</td>
+                                    <td>{{ $employee->mobile }}</td>
                                 </tr>
                                 <tr>
                                     <th>Address : </th>
-                                    <td>{{ $supplier->address }}</td>
+                                    <td>{{ $employee->address }}</td>
                                 </tr>
                                 <tr>
                                     <th>Email : </th>
-                                    <td>{{ $supplier->email }}</td>
+                                    <td>{{ $employee->email }}</td>
                                 </tr>
                                 <tr>
                                     <th>Status : </th>
-                                    <td>{!! showStatus($supplier->status) !!}</td>
+                                    <td>{!! showStatus($employee->status) !!}</td>
+                                </tr>
+                                <tr>
+                                    <th>Type : </th>
+                                    <td>{{ $employee->type }}</td>
                                 </tr>
                             </tbody>
                         </table>
