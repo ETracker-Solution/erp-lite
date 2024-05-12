@@ -97,10 +97,28 @@
                         <div class="card-body">
                             <div class="row">
                                 <div class="col-12">
-                                  <div class="text-center">
-                                      <button class="btn btn-sm btn-dark w-50">Show RM Quantity Summary </button>
-                                      <button class="btn btn-sm btn-dark w-50">Show Single Store Quantity Summary </button>
-                                  </div>
+                                    <div class="text-center">
+                                        <button class="btn btn-sm btn-dark w-50 mb-2" @click="showReport('all_group')">
+                                            Show All Groups Quantity Summary
+                                        </button>
+                                        <button class="btn btn-sm btn-dark w-50 mb-2"
+                                                @click="showReport('single_group_item')">Show Single Group Item Quantity
+                                            Summary
+                                        </button>
+                                        <button class="btn btn-sm btn-dark w-50 mb-2" @click="showReport('all_item')">
+                                            Show All Item Quantity Summary
+                                        </button>
+{{--                                        <button class="btn btn-sm btn-dark w-50 mb-2"--}}
+{{--                                                @click="showReport('single_item')">Show Single Item Quantity Summary--}}
+{{--                                        </button>--}}
+                                        <button class="btn btn-sm btn-dark w-50 mb-2"
+                                                @click="showReport('store_group')">Show All Store Quantity Summary
+                                        </button>
+                                        <button class="btn btn-sm btn-dark w-50 mb-2"
+                                                @click="showReport('store_group_item')">Show Single Store + Group + Item
+                                            Quantity Summary
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -153,7 +171,7 @@
                 el: '#vue_app',
                 data: {
                     config: {
-                        RMOBUrl: "{{ url('raw-materials-opening-balances') }}",
+                        inventoryReportUrl: "{{ url('raw-materials-inventory-report') }}",
                         initial_info_url: "{{ url('raw-materials-opening-balances-initial-info') }}",
                         get_items_info_by_group_id_url: "{{ url('fetch-items-by-group-id') }}",
                         get_item_info_url: "{{ url('fetch-item-info') }}",
@@ -167,15 +185,13 @@
                     items: [],
                     pageLoading: false,
                     groups: [],
-                    stores:[]
+                    stores: []
 
                 },
                 components: {
                     vuejsDatepicker,
                 },
-                computed: {
-
-                },
+                computed: {},
                 methods: {
                     fetch_product() {
                         var vm = this;
@@ -223,7 +239,7 @@
 
                     },
                     backAsStarting() {
-                        var vm = this;
+                        const vm = this;
                         vm.isEditMode = false
                         vm.date = new Date()
                         vm.group_id = ''
@@ -238,7 +254,7 @@
                         vm.editableItem = ''
                     },
                     get_initial_data() {
-                        var vm = this;
+                        const vm = this;
                         vm.pageLoading = true;
                         axios.get(this.config.initial_info_url).then(function (response) {
                             vm.groups = response.data.groups;
@@ -253,6 +269,53 @@
                             return false;
                         });
                     },
+                    showReport(reportType) {
+                        const vm = this;
+                        if (reportType === 'single_group_item') {
+                            if (!vm.group_id) {
+                                toastr.error('Please Select Group', {
+                                    closeButton: true,
+                                    progressBar: true,
+                                });
+                                return false;
+                            }
+                        }
+                        if (reportType === 'store_group_item') {
+                            if (!vm.store_id) {
+                                toastr.error('Please Select Store', {
+                                    closeButton: true,
+                                    progressBar: true,
+                                });
+                                return false;
+                            }
+                        }
+
+                        vm.pageLoading = true;
+                        axios.get(this.config.inventoryReportUrl + '/create', {
+                            params: {
+                                report_type: reportType,
+                                from_date: vm.from_date,
+                                to_date: vm.to_date,
+                                group_id: vm.group_id,
+                                item_id: vm.item_id,
+                                store_id: vm.store_id,
+                            },
+                            responseType: 'blob',
+                        }).then(function (response) {
+                            const blob = new Blob([response.data], {
+                                type: 'application/pdf'
+                            });
+                            const url = window.URL.createObjectURL(blob);
+                            window.open(url)
+                            vm.pageLoading = false;
+                        }).catch(function (error) {
+                            toastr.error('Something went to wrong', {
+                                closeButton: true,
+                                progressBar: true,
+                            });
+                            return false;
+                        });
+                    }
                 },
 
                 updated() {
