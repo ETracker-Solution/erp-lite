@@ -122,7 +122,7 @@ class PurchaseController extends Controller
 //            return back();
 //        }
         Toastr::success('Purchase Created Successfully!.', '', ["progressBar" => true]);
-        return redirect()->route('purchases.create');
+        return redirect()->route('purchases.index');
 
     }
 

@@ -58,7 +58,7 @@
         <form action="{{ route('login') }}" method="post">
             @csrf
             <div class="input-group mb-3">
-                <input type="email" name="email" class="form-control" placeholder="Email">
+                <input type="email" name="email" @if(isset($_COOKIE["email"])) value="{{ $_COOKIE['email'] }}" @endif class="form-control" placeholder="Email">
                 <div class="input-group-append">
                     <div class="input-group-text">
                         <span class="fas fa-envelope"></span>
@@ -66,7 +66,7 @@
                 </div>
             </div>
             <div class="input-group mb-3">
-                <input type="password" name="password" value="{{ old('password') }}" class="form-control" placeholder="Password">
+                <input type="password" name="password" @if(isset($_COOKIE["password"])) value="{{ $_COOKIE['password'] }}" @endif class="form-control" placeholder="Password">
                 <div class="input-group-append">
                     <div class="input-group-text">
                         <span class="fas fa-lock"></span>
@@ -76,7 +76,7 @@
             <div class="row">
                 <div class="col-8">
                     <div class="icheck-primary">
-                        <input type="checkbox" name="remember" id="remember_me">
+                        <input type="checkbox" name="remember" id="remember_me" @if(isset($_COOKIE['email'])) checked ="checked" @endif >
                         <label for="remember_me">
                             Remember Me
                         </label>

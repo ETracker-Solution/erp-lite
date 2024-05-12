@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\ChartOfInventory;
+use App\Models\Consumption;
+use App\Models\ConsumptionItem;
 use App\Models\Product;
 use App\Models\Supplier;
 use App\Models\PurchaseItem;
@@ -13,8 +15,9 @@ class ApiController extends Controller
 
     public function fetchItemById($id)
     {
-        return ChartOfInventory::with('unit','parent')->findOrFail($id);
+        return ChartOfInventory::with('unit', 'parent')->findOrFail($id);
     }
+
     public function fetch_product_sale($id)
     {
 
@@ -28,6 +31,7 @@ class ApiController extends Controller
         ];
         return $data;
     }
+
     public function fetch_products_by_cat_id($id)
     {
         $data = array();
@@ -50,6 +54,7 @@ class ApiController extends Controller
 
         return $data;
     }
+
     public function fetchSuppliersByGroupId($id)
     {
 
@@ -63,6 +68,7 @@ class ApiController extends Controller
 
         return $data;
     }
+
     public function fetchPurchaseProductInfo($id)
     {
         $products = PurchaseItem::with('coi')->where('purchase_id', $id)->get();
@@ -78,5 +84,27 @@ class ApiController extends Controller
             ];
         }
         return response()->json($items);
+    }
+
+    public function fetchConsumptionById($id)
+    {
+        $consumption = Consumption::with('items')->where('id', $id)->first();
+        $items = [];
+        foreach ($consumption->items as $row) {
+            $items[] = [
+                'consumption_id' => $id,
+                'id' => $row->coi_id,
+                'name' => $row->coi->name ?? '',
+                'group' => $row->coi->parent->name ?? '',
+                'quantity' => $row->quantity,
+                'rate' => $row->rate
+            ];
+        }
+        $data=[
+            'items' => $items,
+            'store_id' => $consumption->store_id,
+            'batch_id' => $consumption->batch_id
+        ];
+        return response()->json($data);
     }
 }

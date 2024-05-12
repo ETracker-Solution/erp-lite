@@ -15,8 +15,8 @@ class CreateConsumptionItemsTable extends Migration
     {
         Schema::create('consumption_items', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('product_id')->references('id')->on('products')->onDelete('cascade');
-            $table->double('unit_price', 16, 2);
+            $table->foreignId('coi_id')->references('id')->on('chart_of_inventories')->onDelete('cascade');
+            $table->double('rate', 16, 2);
             $table->double('quantity', 16, 2);
             $table->foreignId('consumption_id')->references('id')->on('consumptions')->onDelete('cascade');
             $table->timestamps();

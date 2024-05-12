@@ -27,31 +27,31 @@ class StoreConsumptionRequest extends FormRequest
         return [
             'date' => ['required'],
             'status' => ['nullable'],
-            'materials' => ['required', 'array'],
-            'materials.*.quantity' => 'required',
+            'products' => ['required', 'array'],
+//            'products.*.coi' => 'required',
+//            'products.*.rate' => 'required',
+//            'products.*.quantity' => 'required',
             'remark' => ['nullable'],
             'subtotal' => ['nullable'],
             'reference_no' => ['nullable'],
-            'discount' => ['nullable'],
-            'grand_total' => ['nullable'],
-            'consumption_no' => ['required'],
-            'production_id' => ['required'],
+            'serial_no' => ['required'],
+            'batch_id' => ['required'],
+            'store_id' => ['required'],
         ];
     }
 
     public function prepareForValidation()
     {
         $this->merge([
-            'grand_total' => $this->grandtotal,
-            'consumption_no' => ConsumptionNumber::serial_number()
+            'created_by' => auth()->user()->id
         ]);
     }
 
     public function messages()
     {
         return [
-            'materials.*.quantity.required' => 'Quantity of the Raw Material is required'
+            'products.*.quantity.required' => 'Quantity of the Raw Material is required'
         ];
 
-}
+    }
 }

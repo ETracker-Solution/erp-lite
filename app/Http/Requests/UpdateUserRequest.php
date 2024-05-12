@@ -2,9 +2,10 @@
 
 namespace App\Http\Requests;
 
+use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
 
-class UpdateStoreRequest extends FormRequest
+class UpdateUserRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,17 +24,8 @@ class UpdateStoreRequest extends FormRequest
     {
         return [
             'name' => 'required',
-            'type' => 'required',
-            'outlet_id' => 'required',
-            'updated_by' => 'required'
+            'email' => ['required'],
+            'password' => ['nullable', 'exclude_if:password,null'],
         ];
-    }
-    public function prepareForValidation(): void
-    {
-
-        $this->merge([
-            'updated_by' => auth()->user()->id,
-        ]);
-
     }
 }

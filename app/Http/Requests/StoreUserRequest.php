@@ -2,9 +2,11 @@
 
 namespace App\Http\Requests;
 
+use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rules;
 
-class UpdateStoreRequest extends FormRequest
+class StoreUserRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,17 +25,8 @@ class UpdateStoreRequest extends FormRequest
     {
         return [
             'name' => 'required',
-            'type' => 'required',
-            'outlet_id' => 'required',
-            'updated_by' => 'required'
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
+            'password' => 'required',
         ];
-    }
-    public function prepareForValidation(): void
-    {
-
-        $this->merge([
-            'updated_by' => auth()->user()->id,
-        ]);
-
     }
 }

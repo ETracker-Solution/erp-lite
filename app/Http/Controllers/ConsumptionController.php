@@ -57,7 +57,6 @@ class ConsumptionController extends Controller
             'stores' => Store::where(['type' => 'RM'])->get(),
             'batches' => Batch::all(),
             'serial_no' => $serial_no,
-
         ];
 
         return view('consumption.create', $data);
@@ -71,30 +70,26 @@ class ConsumptionController extends Controller
      */
     public function store(StoreConsumptionRequest $request)
     {
-        //dd($request->all());
         $validated = $request->validated();
-        DB::beginTransaction();
-        try {
-            if (count($validated['materials']) < 1) {
+//        DB::beginTransaction();
+//        try {
+            if (count($validated['products']) < 1) {
                 Toastr::info('At Least One Product Required.', '', ["progressBar" => true]);
                 return back();
             }
-            $validated['created_by'] = authUser(true);
             $consumption = Consumption::create($validated);
-            foreach ($validated['materials'] as $product) {
+            foreach ($validated['products'] as $product) {
                 $consumption->items()->create($product);
-                factoryStockOut(\auth('factory')->user()->production_house_id, $product['product_id'], $product['unit_price'] ?? 0, $product['quantity'], 'raw');
             }
-            Production::updateOrCreate(['id' => $validated['production_id']], ['status' => 'adjusted']);
-            DB::commit();
-        } catch (\Exception $exception) {
-            DB::rollBack();
-            return $exception;
-            Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
-            return back();
-        }
+//            DB::commit();
+//        } catch (\Exception $exception) {
+//            DB::rollBack();
+//            return $exception;
+//            Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
+//            return back();
+//        }
         Toastr::success('Consumption Created Successfully!.', '', ["progressBar" => true]);
-        return redirect()->route('factory.consumptions.index');
+        return redirect()->route('consumptions.index');
     }
 
     /**
@@ -103,9 +98,10 @@ class ConsumptionController extends Controller
      * @param \App\Models\Consumption $consumption
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Http\Response|\Illuminate\View\View
      */
-    public function show(Consumption $consumption)
+    public function show($id)
     {
-        return view('factory.consumption.show', compact('consumption'));
+        $consumption=Consumption::findOrFail(decrypt($id));
+        return view('consumption.show', compact('consumption'));
     }
 
     /**
@@ -114,9 +110,10 @@ class ConsumptionController extends Controller
      * @param \App\Models\Consumption $consumption
      * @return \Illuminate\Http\Response
      */
-    public function edit(Consumption $consumption)
+    public function edit($id)
     {
-        //
+        $consumption=Consumption::findOrFail(decrypt($id));
+        return view('consumption.show', compact('consumption'));
     }
 
     /**
@@ -137,9 +134,19 @@ class ConsumptionController extends Controller
      * @param \App\Models\Consumption $consumption
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Consumption $consumption)
+    public function destroy($id)
     {
-        //
+        DB::beginTransaction();
+        try {
+            Consumption::findOrFail(decrypt($id))->delete();
+            DB::commit();
+        } catch (\Exception $error) {
+            DB::rollBack();
+            Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
+            return back();
+        }
+        Toastr::success('Consumption Deleted Successfully!.', '', ["progressBar" => true]);
+        return redirect()->route('consumptions.index');
     }
 
     public function consumptionPdf($id)
@@ -150,7 +157,7 @@ class ConsumptionController extends Controller
         ];
 
         $pdf = Pdf::loadView(
-            'factory.consumption.pdf',
+            'consumption.pdf',
             $data,
             [],
             [
