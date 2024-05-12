@@ -74,6 +74,10 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/fetch-consumption-by-id/{id}', [App\Http\Controllers\ApiController::class, 'fetchConsumptionById']);
     Route::get('/fetch-items-by-group-id/{id}', [App\Http\Controllers\ApiController::class, 'fetch_products_by_cat_id']);
+    Route::get('/fetch-item-available-balance/{item_id}/{store_id?}', [App\Http\Controllers\ApiController::class, 'fetchItemAvailableBalance']);
+    Route::get('fetch-item-info-rm-consumption/{item_id}/{store_id?}', [App\Http\Controllers\ApiController::class, 'fetchItemInfoRMConsumption']);
+
+
     Route::get('/fetch-suppliers-by-group-id/{id}', [App\Http\Controllers\ApiController::class, 'fetchSuppliersByGroupId']);
     Route::get('fetch-purchase-products-info/{id}', [App\Http\Controllers\ApiController::class, 'fetchPurchaseProductInfo']);
     Route::get('/fetch-product-by-category-id/{id}', [App\Http\Controllers\ProductController::class, 'fetch_products_by_cat_id']);

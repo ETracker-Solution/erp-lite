@@ -73,54 +73,52 @@ class PurchaseController extends Controller
     public function store(StorePurchaseRequest $request)
     {
         $validated = $request->validated();
-//        DB::beginTransaction();
-//        try {
-        if (count($validated['products']) < 1) {
-            Toastr::info('At Least One Product Required.', '', ["progressBar" => true]);
-            return back();
-        }
-        $purchase = Purchase::query()->create($validated);
-        $purchase->amount = $purchase->net_payable;
-        foreach ($validated['products'] as $product) {
-            $purchase->items()->create($product);
-            // Inventory Transaction Effect
-            InventoryTransaction::query()->create([
-                'store_id' => $purchase->store_id,
+        DB::beginTransaction();
+        try {
+            if (count($validated['products']) < 1) {
+                Toastr::info('At Least One Product Required.', '', ["progressBar" => true]);
+                return back();
+            }
+            $purchase = Purchase::query()->create($validated);
+            $purchase->amount = $purchase->net_payable;
+            foreach ($validated['products'] as $product) {
+                $purchase->items()->create($product);
+                // Inventory Transaction Effect
+                InventoryTransaction::query()->create([
+                    'store_id' => $purchase->store_id,
+                    'doc_type' => 'GPB',
+                    'doc_id' => $purchase->id,
+                    'quantity' => $product['quantity'],
+                    'rate' => $product['rate'],
+                    'amount' => $product['quantity'] * $product['rate'],
+                    'date' => $purchase->date,
+                    'type' => 1,
+                    'coi_id' => $product['coi_id'],
+                ]);
+            }
+
+
+            // Accounts Transaction Effect
+
+            addAccountsTransaction('GPB', $purchase, 13, 12);
+
+            // Supplier Transaction Effect
+            SupplierTransaction::query()->create([
+                'supplier_id' => $purchase->supplier_id,
                 'doc_type' => 'GPB',
                 'doc_id' => $purchase->id,
-                'quantity' => $product['quantity'],
-                'rate' => $product['rate'],
-                'amount' => $product['quantity'] * $product['rate'],
+                'amount' => $purchase->net_payable,
                 'date' => $purchase->date,
-                'type' => 1,
-                'coi_id' => $product['id'],
+                'transaction_type' => 1,
+                'chart_of_account_id' => 12,
+                'description' => 'Purchase of goods',
             ]);
+            DB::commit();
+        } catch (\Exception $exception) {
+            DB::rollBack();
+            Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
+            return back();
         }
-
-
-        // Accounts Transaction Effect
-
-        addAccountsTransaction('GPB', $purchase, 13, 12);
-
-        // Supplier Transaction Effect
-        SupplierTransaction::query()->create([
-            'supplier_id' => $purchase->supplier_id,
-            'doc_type' => 'GPB',
-            'doc_id' => $purchase->id,
-            'amount' => $purchase->net_payable,
-            'date' => $purchase->date,
-            'transaction_type' => 1,
-            'chart_of_account_id' => 12,
-            'description' => 'Purchase of goods',
-        ]);
-
-
-//            DB::commit();
-//        } catch (\Exception $exception) {
-//            DB::rollBack();
-//            Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
-//            return back();
-//        }
         Toastr::success('Purchase Created Successfully!.', '', ["progressBar" => true]);
         return redirect()->route('purchases.index');
 
