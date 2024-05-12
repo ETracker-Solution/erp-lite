@@ -93,7 +93,7 @@ class PurchaseController extends Controller
                 'amount' => $product['quantity'] * $product['rate'],
                 'date' => $purchase->date,
                 'type' => 1,
-                'coi_id' => $product['id'],
+                'coi_id' => $product['coi_id'],
             ]);
         }
 

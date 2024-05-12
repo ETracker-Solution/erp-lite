@@ -18,6 +18,18 @@ class ApiController extends Controller
         return ChartOfInventory::with('unit', 'parent')->findOrFail($id);
     }
 
+    public function fetchItemInfoRMConsumption($item_id,$store_id=null)
+    {
+
+        $item = ChartOfInventory::with('unit', 'parent')->findOrFail($item_id);
+        $data = [
+            'item' => $item,
+            'average_rate' => averageRMRate($item_id, $store_id),
+            'balance' => availableInventoryBalance($item_id, $store_id),
+        ];
+        return $data;
+    }
+
     public function fetch_product_sale($id)
     {
 
@@ -100,10 +112,21 @@ class ApiController extends Controller
                 'rate' => $row->rate
             ];
         }
-        $data=[
+        $data = [
             'items' => $items,
             'store_id' => $consumption->store_id,
             'batch_id' => $consumption->batch_id
+        ];
+        return response()->json($data);
+    }
+
+    public function fetchItemAvailableBalance($item_id, $store_id = null): \Illuminate\Http\JsonResponse
+    {
+
+        $data = [
+            'balance' => availableInventoryBalance($item_id, $store_id),
+            'store_id' => $store_id,
+            'item_id' => $item_id
         ];
         return response()->json($data);
     }
