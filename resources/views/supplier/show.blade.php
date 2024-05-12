@@ -58,7 +58,7 @@ $links = [
                                 </tr>
                                 <tr>
                                     <th>Status : </th>
-                                    <td>{{ $supplier->status }}</td>
+                                    <td>{!! showStatus($supplier->status) !!}</td>
                                 </tr>
                             </tbody>
                         </table>
