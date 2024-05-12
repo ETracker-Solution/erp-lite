@@ -29,6 +29,7 @@ class DatabaseSeeder extends Seeder
         $this->call(StoreSeeder::class);
         $this->call(BatchSeeder::class);
         $this->call(EmployeeSeeder::class);
+        $this->call(PermissionSeeder::class);
 
         \App\Models\User::factory()->create([
             'name' => 'Mohammad Ali',
