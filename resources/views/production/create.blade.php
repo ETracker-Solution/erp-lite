@@ -1,16 +1,14 @@
 @extends('layouts.app')
 @section('title', 'FG Production')
 @section('content')
-    <section class="content-header">
-        @php
-            $links = [
-            'Home' => route('dashboard'),
-            'FG Production' => route('productions.index'),
-            'FG Production create' => '',
-            ];
-        @endphp
-        <x-bread-crumb-component title='FG Production' :links="$links"/>
-    </section>
+    @php
+        $links = [
+        'Home' => route('dashboard'),
+        'FG Production' => route('productions.index'),
+        'FG Production create' => '',
+        ];
+    @endphp
+    <x-breadcrumb title='FG Production' :links="$links"/>
 
     <!-- Main content -->
     <section class="content">

@@ -54,7 +54,7 @@ $links = [
                                 </tr>
                                 <tr>
                                     <th>Status : </th>
-                                    <td>{{ $customer->status }}</td>
+                                    <td>{!! showStatus($customer->status) !!}</td>
                                 </tr>
                                 <tr>
                                     <th>Type : </th>
