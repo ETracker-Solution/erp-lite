@@ -114,6 +114,10 @@ Route::middleware('auth')->group(function () {
     Route::get('raw-materials-opening-balances-initial-info',[\App\Http\Controllers\Api\Web\RMOpeningBalanceController::class, 'initialInfo']);
     Route::resource('raw-materials-opening-balances',\App\Http\Controllers\Api\Web\RMOpeningBalanceController::class);
     /*=========== Raw Materials Opening Balance Api Ends ===========*/
+
+    /*=========== Raw Materials Inventory Report Api Starts ===========*/
+    Route::resource('raw-materials-inventory-report',\App\Http\Controllers\Api\Web\RMInventoryReportController::class);
+    /*=========== Raw Materials Inventory Report Api Ends ===========*/
 });
 Route::group(['prefix' => 'reports', 'middleware' => 'auth'], function () {
     //Report Route

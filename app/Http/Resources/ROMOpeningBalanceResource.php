@@ -23,7 +23,7 @@ class ROMOpeningBalanceResource extends JsonResource
             'item_name' => $this->chartOfInventory->name,
             'item_id' => $this->chartOfInventory->id,
             'unit' => $this->chartOfInventory->unit ? $this->chartOfInventory->unit->name : '',
-            'qty' => $this->qty,
+            'qty' => $this->quantity,
             'rate' => $this->rate,
             'value' => $this->amount,
             'store' => $this->pHouse->name,
