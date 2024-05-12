@@ -219,7 +219,7 @@
                                                                 <input type="number" v-model="row.quantity"
                                                                        :name="'products['+index+'][quantity]'"
                                                                        class="form-control input-sm"
-                                                                       @change="itemtotal(row)" required>
+                                                                       @change="itemtotal(row);valid(row)" required>
                                                             </td>
                                                             <td style="width: 180px">
                                                                 <input type="number" v-model="row.rate"
@@ -393,7 +393,13 @@
 
                         var store_id = vm.store_id;
                         var item_id = vm.item_id;
-
+                        if (!vm.store_id) {
+                            toastr.error('Please Select Store', {
+                                closeButton: true,
+                                progressBar: true,
+                            });
+                            return false;
+                        }
                         if (item_id) {
                             vm.pageLoading = true;
                             axios.get(this.config.get_item_balance_info_url + '/' + item_id + '/' + store_id).then(function (response) {
@@ -520,6 +526,17 @@
                         //   alert(quantity);
                         //  var total= row.quantity);
                         //  row.itemtotal=total;
+                    },
+                    valid: function (index) {
+                        //console.log(index.stock_quantity);
+                        if(index.quantity > index.balance ){
+                            //console.log('1st');
+                            index.quantity = index.balance ;
+                        }
+                        if(index.quantity <= 0){
+                            //console.log('3');
+                            index.quantity = '';
+                        }
                     },
 
                 },
