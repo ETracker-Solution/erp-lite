@@ -81,7 +81,8 @@ class ProductionController extends Controller
         $data = [
             'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'FG'])->get(),
             'batches' => Batch::all(),
-            'stores' => Store::where(['type' => 'FG'])->get(),
+            'rm_stores' => Store::where(['type' => 'RM'])->get(),
+            'fg_stores' => Store::where(['type' => 'FG'])->get(),
             'serial_no' => $serial_no,
 
         ];
