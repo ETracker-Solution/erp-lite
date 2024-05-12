@@ -53,6 +53,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('productions', \App\Http\Controllers\ProductionController::class);
     Route::resource('outlets', \App\Http\Controllers\OutletController::class);
     Route::resource('employees', \App\Http\Controllers\EmployeeController::class);
+    Route::resource('permissions', \App\Http\Controllers\PermissionController::class);
 
 
     Route::resource('consumptions', \App\Http\Controllers\ConsumptionController::class);
