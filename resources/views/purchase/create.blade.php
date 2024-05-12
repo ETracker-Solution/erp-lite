@@ -46,9 +46,12 @@
                                                         <div class="form-group">
                                                             <label for="serial_no">Purchase No</label>
                                                             <div class="input-group">
-                                                                <input type="text" class="form-control input-sm"  value="{{$serial_no}}" name="serial_no" id="serial_no">
+                                                                <input type="text" class="form-control input-sm"
+                                                                       value="{{$serial_no}}" name="serial_no"
+                                                                       id="serial_no">
                                                                 <span class="input-group-append">
-                                                                    <button type="button" class="btn btn-secondary btn-flat">Search</button>
+                                                                    <button type="button"
+                                                                            class="btn btn-secondary btn-flat">Search</button>
                                                                 </span>
                                                             </div>
                                                         </div>
@@ -69,7 +72,8 @@
                                                         <div class="form-group">
                                                             <label for="date">Date</label>
                                                             <vuejs-datepicker v-model="date" name="date"
-                                                                              placeholder="Select date" format="yyyy-MM-dd"></vuejs-datepicker>
+                                                                              placeholder="Select date"
+                                                                              format="yyyy-MM-dd"></vuejs-datepicker>
                                                         </div>
                                                     </div>
                                                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
@@ -155,7 +159,8 @@
                                             <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
                                                 <div class="form-group">
                                                     <label for="group_id" class="control-label">Group</label>
-                                                    <select class="form-control bSelect" name="group_id" v-model="group_id"
+                                                    <select class="form-control bSelect" name="group_id"
+                                                            v-model="group_id"
                                                             @change="fetch_product">
                                                         <option value="">Select One</option>
                                                         @foreach ($groups as $row)
@@ -220,13 +225,15 @@
                                                                 <input type="number" v-model="row.quantity"
                                                                        :name="'products['+index+'][quantity]'"
                                                                        class="form-control input-sm"
-                                                                       @change="itemtotal(row)" required>
+                                                                       @change="itemtotal(row);valid_quantity(row)"
+                                                                       required>
                                                             </td>
                                                             <td>
                                                                 <input type="number" v-model="row.rate"
                                                                        :name="'products['+index+'][rate]'"
                                                                        class="form-control input-sm"
-                                                                       @change="itemtotal(row)" required>
+                                                                       @change="itemtotal(row);valid_rate(row)"
+                                                                       required>
                                                             </td>
                                                             <td>
                                                                 <input type="text" class="form-control input-sm"
@@ -491,13 +498,25 @@
 
                         console.log(index.quantity * index.rate);
                         return index.quantity * index.rate;
-
-
-                        //   alert(quantity);
-                        //  var total= row.quantity);
-                        //  row.itemtotal=total;
                     },
-
+                    valid_quantity: function (index) {
+                        if (index.quantity <= 0) {
+                            toastr.error('Quantity 0 or Negative not Allow', {
+                                closeButton: true,
+                                progressBar: true,
+                            });
+                            index.quantity = '';
+                        }
+                    },
+                    valid_rate: function (index) {
+                        if (index.rate <= 0) {
+                            toastr.error('Rate 0 or Negative not Allow', {
+                                closeButton: true,
+                                progressBar: true,
+                            });
+                            index.rate = '';
+                        }
+                    },
                 },
 
                 updated() {
