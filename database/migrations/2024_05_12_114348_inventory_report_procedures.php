@@ -12,7 +12,7 @@ return new class extends Migration {
     public function up(): void
     {
         $procedure = "DROP PROCEDURE IF EXISTS `get_all_groups`;
-      CREATE PROCEDURE `get_all_groups`( IN `as_on_date` varchar(191))
+      CREATE PROCEDURE `get_all_groups`( IN `as_on_date` varchar(191), IN `ac_type` varchar(191))
       BEGIN
     SELECT
     CIP.name as `Group Name`,
@@ -27,6 +27,7 @@ return new class extends Migration {
     chart_of_inventories CIP ON CIP.id = CI.parent_id
     WHERE
             IT.date <= as_on_date
+            AND CI.rootAccountType = ac_type
     GROUP BY
     CIP.id;
 END;";
@@ -35,7 +36,7 @@ END;";
 
         $procedure = "DROP PROCEDURE IF EXISTS `get_all_items`;
 
-        CREATE PROCEDURE `get_all_items`( IN `as_on_date` varchar(191))
+        CREATE PROCEDURE `get_all_items`( IN `as_on_date` varchar(191),IN `ac_type` varchar(191))
         BEGIN
 SELECT
     `Group Name`,
@@ -68,6 +69,7 @@ FROM (
             chart_of_inventories CIP ON CIP.id = CI.parent_id
          WHERE
             IT.date <= as_on_date
+            AND CI.rootAccountType = ac_type
         GROUP BY
             CIP.id, CI.id WITH ROLLUP
     ) AS subquery,
@@ -79,7 +81,7 @@ FROM (
 
         $procedure = "DROP PROCEDURE IF EXISTS `get_all_items_by_group`;
 
-        CREATE PROCEDURE `get_all_items_by_group`( IN `group_id` INT, IN `as_on_date` varchar(191))
+        CREATE PROCEDURE `get_all_items_by_group`( IN `group_id` INT, IN `as_on_date` varchar(191), IN `ac_type` varchar(191))
         BEGIN
 SELECT
     `Item ID`,
@@ -112,6 +114,7 @@ FROM (
          WHERE
             CIP.id = group_id
             AND IT.date <= as_on_date
+            AND CI.rootAccountType = ac_type
         GROUP BY
             CI.id WITH ROLLUP
     ) AS subquery,
@@ -123,13 +126,13 @@ FROM (
 
         $procedure = "DROP PROCEDURE IF EXISTS `get_all_stores`;
 
-        CREATE PROCEDURE `get_all_stores`(IN `as_on_date` varchar(191))
+        CREATE PROCEDURE `get_all_stores`(IN `as_on_date` varchar(191),IN `ac_type` varchar(191))
         BEGIN
 SELECT
     `Store Name`,
     `Group Name`,
-    `Subgroup ID`,
-    `Subgroup Name`,
+    `Item ID`,
+    `Item Name`,
     `Balance Qty`,
     `Rate`,
     `Value`
@@ -137,8 +140,8 @@ FROM (
     SELECT
 		IF(Store_Name = @prev_store, '', IFNULL(Store_Name, '')) AS `Store Name`,
         IF(Group_Name = @prev_group, '', IFNULL(Group_Name, '')) AS `Group Name`,
-        IF(Subgroup_ID IS NULL, '', IFNULL(Subgroup_ID, '')) AS `Subgroup ID`,
-        IF(Subgroup_ID IS NULL, '', IFNULL(Subgroup_Name, '')) AS `Subgroup Name`,
+        IF(Subgroup_ID IS NULL, '', IFNULL(Subgroup_ID, '')) AS `Item ID`,
+        IF(Subgroup_ID IS NULL, '', IFNULL(Subgroup_Name, '')) AS `Item Name`,
         `Balance Qty`,
         IF(Subgroup_ID IS NULL, '', IFNULL(IF(`Balance Qty` = 0, NULL,format( `Value` / `Balance Qty`,2)), ''))  AS `Rate`,
         `Value`,
@@ -163,8 +166,9 @@ FROM (
 			stores ST on ST.id  = IT.store_id
 		WHERE
             IT.date <= as_on_date
+            AND CI.rootAccountType = ac_type
         GROUP BY
-            CIP.id, CI.id WITH ROLLUP
+            CI.id WITH ROLLUP
     ) AS subquery,
     (SELECT @prev_group := null, @prev_store:= null) AS prev
 ) AS result;
@@ -173,12 +177,12 @@ FROM (
 
         $procedure = "DROP PROCEDURE IF EXISTS `get_all_items_by_store`;
 
-        CREATE PROCEDURE `get_all_items_by_store`(IN `store_id` INT,IN `as_on_date` varchar(191))
+        CREATE PROCEDURE `get_all_items_by_store`(IN `store_id` INT,IN `as_on_date` varchar(191),IN `ac_type` varchar(191))
         BEGIN
 SELECT
     `Group Name`,
-    `Subgroup ID`,
-    `Subgroup Name`,
+    `Item ID`,
+    `Item Name`,
     `Balance Qty`,
     `Rate`,
     `Value`
@@ -186,8 +190,8 @@ FROM (
     SELECT
 		IF(Store_Name = @prev_store, '', IFNULL(Store_Name, '')) AS `Store Name`,
         IF(Group_Name = @prev_group, '', IFNULL(Group_Name, '')) AS `Group Name`,
-        IF(Subgroup_ID IS NULL, '', IFNULL(Subgroup_ID, '')) AS `Subgroup ID`,
-        IF(Subgroup_ID IS NULL, '', IFNULL(Subgroup_Name, '')) AS `Subgroup Name`,
+        IF(Subgroup_ID IS NULL, '', IFNULL(Subgroup_ID, '')) AS `Item ID`,
+        IF(Subgroup_ID IS NULL, '', IFNULL(Subgroup_Name, '')) AS `Item Name`,
         `Balance Qty`,
         IF(Subgroup_ID IS NULL, '', IFNULL(IF(`Balance Qty` = 0, NULL,format( `Value` / `Balance Qty`,2)), ''))  AS `Rate`,
         `Value`,
@@ -213,8 +217,9 @@ FROM (
         WHERE
 			IT.store_id = store_id
 			AND IT.date <= as_on_date
+			 AND CI.rootAccountType = ac_type
         GROUP BY
-            CIP.id, CI.id WITH ROLLUP
+             CI.id WITH ROLLUP
     ) AS subquery,
     (SELECT @prev_group := null, @prev_store:= null) AS prev
 ) AS result;

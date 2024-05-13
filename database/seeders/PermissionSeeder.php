@@ -14,8 +14,8 @@ class PermissionSeeder extends Seeder
      */
     public function run(): void
     {
-        
-        $modules = ['purchase','store rm','production','data admin','system admin'];
+
+        $modules = ['purchase','store rm','production','data admin','system admin','account'];
         $suffix = ['admin','operator','viewer','approver'];
 
         foreach ($modules as $key => $module) {

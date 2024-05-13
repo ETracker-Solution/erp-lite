@@ -46,6 +46,7 @@ return [
                     ],
                 ]
             ],
+            'permissions' => ['account-admin','account-operator','account-viewer','account-approver']
         ],
         [
             'name' => 'Purchase Module',
@@ -224,6 +225,11 @@ return [
                         [
                             'name' => 'Create New User',
                             'url' => '/users',
+                            'active_condition' => false,
+                        ],
+                        [
+                            'name' => 'Employees',
+                            'url' => '/employees',
                             'active_condition' => false,
                         ]
                     ],
