@@ -12,6 +12,42 @@ return [
             'has_child' => false,
         ],
         [
+            'name' => 'Accounts Module',
+            'icon' => 'fas fa-wrench',
+            'active_condition' => false,
+            'has_child' => true,
+            'child' => [
+                [
+                    'name' => 'General Accounts',
+                    'url' => '#',
+                    'has_child' => true,
+                    'active_condition' => false,
+                    'child' => [
+                        [
+                            'name' => 'Receive Voucher',
+                            'url' => '/receive-vouchers',
+                            'active_condition' => "Request::segment(1) == 'receive-vouchers'",
+                        ],
+                        [
+                            'name' => 'Payment Voucher',
+                            'url' => '/payment-vouchers',
+                            'active_condition' => "Request::segment(1) == 'payment-vouchers'",
+                        ],
+                        [
+                            'name' => 'Journal Voucher',
+                            'url' => '/journal-vouchers',
+                            'active_condition' => "Request::segment(1) == 'journal-vouchers'",
+                        ],
+                        [
+                            'name' => 'FT Voucher',
+                            'url' => '/fund-transfer-vouchers',
+                            'active_condition' => "Request::segment(1) == 'fund-transfer-vouchers'",
+                        ]
+                    ],
+                ]
+            ],
+        ],
+        [
             'name' => 'Purchase Module',
             'icon' => 'fas fa-shopping-cart',
             'active_condition' => false,
