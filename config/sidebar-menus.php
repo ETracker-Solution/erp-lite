@@ -202,7 +202,7 @@ return [
                         ],
                         [
                             'name' => 'Finish Goods',
-                            'url' => '#',
+                            'url' => '/finish-goods-opening-balances',
                             'active_condition' => '',
                         ]
                     ],

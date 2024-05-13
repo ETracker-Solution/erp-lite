@@ -10,6 +10,7 @@ use Brian2694\Toastr\Facades\Toastr;
 use Yajra\DataTables\Facades\DataTables;
 use App\Http\Requests\StoreReceiveVoucherRequest;
 use App\Http\Requests\UpdateReceiveVoucherRequest;
+use App\Models\AccountTransaction;
 use Illuminate\Http\Request;
 use niklasravnsborg\LaravelPdf\Facades\Pdf;
 
@@ -125,7 +126,7 @@ class ReceiveVoucherController extends Controller
         DB::beginTransaction();
         try {
             ReceiveVoucher::findOrFail(decrypt($id))->delete();
-            Transaction::where('doc_type','rv')->where('doc_id',decrypt($id))->delete();
+            AccountTransaction::where('doc_type','rv')->where('doc_id',decrypt($id))->delete();
 
             DB::commit();
         } catch (\Exception $error) {
