@@ -58,7 +58,7 @@ Customer
                                   :isRequired='true' :isReadonly='false' defaultValue="" />
                             </div>
                         </div>
-                        <button class="btn btn-primary waves-effect waves-float waves-light float-right"
+                        <button class="btn btn-info waves-effect waves-float waves-light float-right"
                             type="submit">Submit
                         </button>
                     </div>

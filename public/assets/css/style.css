@@ -9,3 +9,7 @@
 #dataTable{
     width: 100% !important;
 }
+
+.page-item.active .page-link{
+    background-color: #17A2B8 !important;
+}
