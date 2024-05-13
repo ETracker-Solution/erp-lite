@@ -482,6 +482,7 @@
                                     console.log(item_info);
                                     vm.selected_items.push({
                                         id: item_info.id,
+                                        unit: item_info.unit.name,
                                         group: item_info.parent.name,
                                         name: item_info.name,
                                         rate: '',
