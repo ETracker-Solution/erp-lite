@@ -159,12 +159,12 @@ class PurchaseController extends Controller
      */
     public function update(UpdatePurchaseRequest $request, Purchase $purchase)
     {
-//        DB::beginTransaction();
-//        try {
+        DB::beginTransaction();
+        try {
             $validated = $request->validated();
             $purchase->update($validated);
             PurchaseItem::where('purchase_id', $purchase->id)->delete();
-            InventoryTransaction::where(['doc_id'=> $purchase->id,'doc_type'=> 'GPB'])->delete();
+            InventoryTransaction::where(['doc_id' => $purchase->id, 'doc_type' => 'GPB'])->delete();
             $purchase->amount = $purchase->net_payable;
             foreach ($validated['products'] as $product) {
                 $purchase->items()->create($product);
@@ -183,29 +183,29 @@ class PurchaseController extends Controller
                 ]);
             }
 
-        // Accounts Transaction Effect
-        AccountTransaction::where(['doc_id'=> $purchase->id,'doc_type'=> 'GPB'])->delete();
-        addAccountsTransaction('GPB', $purchase, 13, 12);
+            // Accounts Transaction Effect
+            AccountTransaction::where(['doc_id' => $purchase->id, 'doc_type' => 'GPB'])->delete();
+            addAccountsTransaction('GPB', $purchase, 13, 12);
 
-        // Supplier Transaction Effect
-        SupplierTransaction::where(['doc_id'=> $purchase->id,'doc_type'=> 'GPB'])->delete();
-        SupplierTransaction::query()->create([
-            'supplier_id' => $purchase->supplier_id,
-            'doc_type' => 'GPB',
-            'doc_id' => $purchase->id,
-            'amount' => $purchase->net_payable,
-            'date' => $purchase->date,
-            'transaction_type' => 1,
-            'chart_of_account_id' => 12,
-            'description' => 'Purchase of goods',
-        ]);
-//            DB::commit();
-//        } catch (\Exception $exception) {
-//            DB::rollBack();
-//            return $exception;
-//            Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
-//            return back();
-//        }
+            // Supplier Transaction Effect
+            SupplierTransaction::where(['doc_id' => $purchase->id, 'doc_type' => 'GPB'])->delete();
+            SupplierTransaction::query()->create([
+                'supplier_id' => $purchase->supplier_id,
+                'doc_type' => 'GPB',
+                'doc_id' => $purchase->id,
+                'amount' => $purchase->net_payable,
+                'date' => $purchase->date,
+                'transaction_type' => 1,
+                'chart_of_account_id' => 12,
+                'description' => 'Purchase of goods',
+            ]);
+            DB::commit();
+        } catch (\Exception $exception) {
+            DB::rollBack();
+            return $exception;
+            Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
+            return back();
+        }
 
         Toastr::success('Goods Purchase Updated Successful!.', '', ["progressbar" => true]);
         return redirect()->route('purchases.index');
