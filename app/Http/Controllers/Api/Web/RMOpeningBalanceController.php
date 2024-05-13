@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Web;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\PaginateResource;
 use App\Http\Resources\ROMOpeningBalanceResource;
+use App\Models\AccountTransaction;
 use App\Models\ChartOfInventory;
 use App\Models\InventoryTransaction;
 use App\Models\Purchase;
@@ -84,7 +85,9 @@ class RMOpeningBalanceController extends Controller
         try {
             $rawMaterialOpeningBalance = RawMaterialOpeningBalance::find($id);
             $previous_uid = $rawMaterialOpeningBalance->uid;
+            AccountTransaction::where(['doc_id' => $rawMaterialOpeningBalance->id, 'doc_type' => 'RMOB'])->delete();
             $rawMaterialOpeningBalance->inventoryTransaction()->delete();
+
             $rawMaterialOpeningBalance->delete();
 
             $alreadyExists = $this->base_model->where(['store_id' => $request->store_id, 'coi_id' => $request->item_id])->exists();
@@ -109,6 +112,7 @@ class RMOpeningBalanceController extends Controller
             ]);
 
             addInventoryTransaction(1, 'RMOB', $rmob);
+
 
             addAccountsTransaction('RMOB', $rmob, getRMInventoryGLId(), getOpeningBalanceOfEquityGLId());
 
