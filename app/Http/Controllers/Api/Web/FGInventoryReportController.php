@@ -7,7 +7,6 @@ use App\Models\ChartOfInventory;
 use App\Models\InventoryTransaction;
 use App\Models\Store;
 use Carbon\Carbon;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use niklasravnsborg\LaravelPdf\Facades\Pdf;
 
@@ -42,7 +41,7 @@ class FGInventoryReportController extends Controller
             $statement = "CALL get_all_items_by_store(" . \request()->store_id . ",'" . $asOnDate . "','FG')";
         }
 
-        return $getPost = DB::select($statement);
+        $getPost = DB::select($statement);
 
         if (!count($getPost) > 0){
             return false;
