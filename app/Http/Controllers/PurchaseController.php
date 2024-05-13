@@ -29,8 +29,8 @@ class PurchaseController extends Controller
      */
     public function index()
     {
-        $purchases = Purchase::latest();
         if (\request()->ajax()) {
+            $purchases = Purchase::with('supplier','store')->latest();
             return DataTables::of($purchases)
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {

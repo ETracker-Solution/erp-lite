@@ -199,17 +199,21 @@
                                                     <table class="table table-bordered">
                                                         <thead class="bg-secondary">
                                                         <tr>
-                                                            <th>Group</th>
+                                                            <th style="width: 10px">#</th>
+                                                            <th style="width: 200px">Group</th>
                                                             <th>Item</th>
-                                                            <th>Qty</th>
-                                                            <th>Rate</th>
-                                                            <th>Value</th>
-                                                            <th></th>
+                                                            <th style="width: 50px">Unit</th>
+                                                            <th style="width: 180px">Qty</th>
+                                                            <th style="width: 180px">Rate</th>
+                                                            <th style="width: 180px">Value</th>
+                                                            <th style="width: 10px"></th>
                                                         </tr>
                                                         </thead>
                                                         <tbody>
                                                         <tr v-for="(row, index) in selected_items">
-
+                                                            <td>
+                                                                @{{ ++index }}
+                                                            </td>
                                                             <td>
                                                                 @{{ row.group }}
                                                             </td>
@@ -220,6 +224,9 @@
                                                                        class="form-control input-sm"
                                                                        v-bind:value="row.id">
 
+                                                            </td>
+                                                            <td>
+                                                                @{{ row.unit }}
                                                             </td>
                                                             <td>
                                                                 <input type="number" v-model="row.quantity"
@@ -248,7 +255,7 @@
                                                         </tbody>
                                                         <tfoot>
                                                         <tr>
-                                                            <td colspan="3">
+                                                            <td colspan="5">
 
                                                             </td>
                                                             <td>
@@ -261,7 +268,7 @@
                                                             <td></td>
                                                         </tr>
                                                         <tr>
-                                                            <td colspan="3">
+                                                            <td colspan="5">
 
                                                             </td>
                                                             <td>
@@ -274,7 +281,7 @@
                                                             <td></td>
                                                         </tr>
                                                         <tr>
-                                                            <td colspan="3">
+                                                            <td colspan="5">
 
                                                             </td>
                                                             <td>
@@ -468,6 +475,7 @@
                                         id: item_info.id,
                                         group: item_info.parent.name,
                                         name: item_info.name,
+                                        unit: item_info.unit.name,
                                         rate: '',
                                         quantity: '',
                                     });

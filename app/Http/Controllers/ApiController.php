@@ -107,15 +107,20 @@ class ApiController extends Controller
                 'consumption_id' => $id,
                 'id' => $row->coi_id,
                 'name' => $row->coi->name ?? '',
+                'unit' => $row->coi->unit->name ?? '',
                 'group' => $row->coi->parent->name ?? '',
                 'quantity' => $row->quantity,
+                'balance' => $row->quantity,
                 'rate' => $row->rate
             ];
         }
         $data = [
             'items' => $items,
             'store_id' => $consumption->store_id,
-            'batch_id' => $consumption->batch_id
+            'batch_id' => $consumption->batch_id,
+            'reference_no' => $consumption->reference_no,
+            'remark' => $consumption->remark,
+            'date' => $consumption->date
         ];
         return response()->json($data);
     }

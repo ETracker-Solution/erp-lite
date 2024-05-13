@@ -16,6 +16,7 @@ class CreateConsumptionsTable extends Migration
         Schema::create('consumptions', function (Blueprint $table) {
             $table->id();
             $table->string('serial_no')->nullable();
+            $table->string('reference_no')->nullable();
             $table->date('date');
             $table->double('subtotal', 15, 2)->nullable();
             $table->text('remark')->nullable();

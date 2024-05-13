@@ -331,7 +331,7 @@
                         get_item_info_url: "{{ url('fetch-item-info-rm-consumption') }}",
                         get_edit_data_url: "{{ url('fetch-consumption-by-id') }}",
                     },
-                    action: {{$store}},
+                    action: {{$store_url}},
                     serial_no: {{$serial_no}},
                     date: new Date(),
                     store_id: '',
@@ -352,7 +352,7 @@
 
                     subtotal: function () {
                         return this.selected_items.reduce((total, item) => {
-                            return parseFloat(total + item.quantity * item.rate).toFixed(2)
+                            return total + (item.quantity * item.rate)
                         }, 0)
                     }
                 },

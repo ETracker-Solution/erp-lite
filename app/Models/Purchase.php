@@ -11,6 +11,13 @@ class Purchase extends Model
 
     protected $guarded = ['id'];
 
+    public function store()
+    {
+
+        return $this->belongsTo('App\Models\Store', 'store_id');
+
+    }
+
     public function supplier()
     {
 
