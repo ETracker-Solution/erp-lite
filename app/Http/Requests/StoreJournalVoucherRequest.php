@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreJournalVoucherRequest extends FormRequest
@@ -32,6 +33,14 @@ class StoreJournalVoucherRequest extends FormRequest
             'narration' => 'nullable',
             'reference_no' => 'nullable',
         ];
+    }
+    public function prepareForValidation()
+    {
+
+        $this->merge([
+            'date' => Carbon::parse($this->date)->format('Y-m-d'),
+        ]);
+
     }
     public function messages()
     {
