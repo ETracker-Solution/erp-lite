@@ -57,10 +57,10 @@ class ConsumptionController extends Controller
             'stores' => Store::where(['type' => 'RM'])->get(),
             'batches' => Batch::all(),
             'serial_no' => $serial_no,
-            'store' => 1,
+            'store_url' => 1,
         ];
 
-        return view('consumption.create', $data);
+        return view('consumption.edit', $data);
     }
 
     /**
@@ -113,8 +113,16 @@ class ConsumptionController extends Controller
      */
     public function edit($id)
     {
-        $consumption=Consumption::findOrFail(decrypt($id));
-        return view('consumption.show', compact('consumption'));
+        $data = [
+            'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'RM'])->get(),
+            'stores' => Store::where(['type' => 'RM'])->get(),
+            'batches' => Batch::all(),
+            'serial_no' => decrypt($id),
+            'store_url' => 1,
+            'consumption' => Consumption::findOrFail(decrypt($id)),
+        ];
+
+        return view('consumption.create', $data);
     }
 
     /**

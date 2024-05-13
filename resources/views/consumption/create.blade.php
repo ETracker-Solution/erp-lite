@@ -331,7 +331,7 @@
                         get_item_info_url: "{{ url('fetch-item-info-rm-consumption') }}",
                         get_edit_data_url: "{{ url('fetch-consumption-by-id') }}",
                     },
-                    action: {{$store}},
+                    action: {{$store_url}},
                     serial_no: {{$serial_no}},
                     date: new Date(),
                     store_id: '',

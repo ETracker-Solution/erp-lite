@@ -201,7 +201,8 @@
 
                                                             <td>
                                                                 @{{ ++index }}
-                                                            </td> <td>
+                                                            </td>
+                                                            <td>
                                                                 @{{ row.group }}
                                                             </td>
                                                             <td>
