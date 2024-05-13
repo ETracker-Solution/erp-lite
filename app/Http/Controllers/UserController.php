@@ -8,6 +8,7 @@ use App\Models\User;
 use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\Models\Permission;
 use Yajra\DataTables\Facades\DataTables;
 
 class UserController extends Controller
@@ -32,22 +33,24 @@ class UserController extends Controller
 
     public function create()
     {
-        return view('user.create');
+        $data = Permission::all()->groupBy('module_name');
+        return view('user.create',compact('data'));
     }
     
     public function store(StoreUserRequest $request)
     {
+    
         $validated = $request->validated();
-
         DB::beginTransaction();
         try {
-
             $validated['password'] = bcrypt($validated['password']);
 
-            User::create($validated);
+            $user = User::create($validated);
+            $user->syncPermissions($request->permissions);
             DB::commit();
         } catch (\Exception $error) {
             DB::rollBack();
+            return $error;
             Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
             return back();
         }

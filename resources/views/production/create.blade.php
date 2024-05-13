@@ -44,9 +44,10 @@
                                                             <div class="input-group">
                                                                 <input type="text" class="form-control input-sm"
                                                                        value="{{$serial_no}}" name="serial_no"
-                                                                       id="serial_no"  v-model="serial_no">
+                                                                       id="serial_no" v-model="serial_no">
                                                                 <span class="input-group-append">
-                                                                    <button type="button" class="btn btn-info btn-flat"  @click="data_edit">Search</button>
+                                                                    <button type="button" class="btn btn-info btn-flat"
+                                                                            @click="data_edit">Search</button>
                                                                 </span>
                                                             </div>
                                                         </div>
@@ -54,8 +55,9 @@
                                                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                         <div class="form-group">
                                                             <label for="date">Date</label>
-                                                            <input type="text" class="form-control input-sm" id="date"
-                                                                   value="{{date('Y-m-d')}}">
+                                                            <vuejs-datepicker v-model="date" name="date"
+                                                                              placeholder="Select date"
+                                                                              format="yyyy-MM-dd"></vuejs-datepicker>
                                                         </div>
                                                     </div>
 
@@ -80,12 +82,26 @@
                                                     </div>
                                                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                         <div class="form-group">
-                                                            <label for="store_id">Store</label>
-                                                            <select name="store_id" id="store_id"
+                                                            <label for="rm_store_id">Production Unit</label>
+                                                            <select name="rm_store_id" id="rm_store_id"
                                                                     class="form-control bSelect"
-                                                                    v-model="store_id" required>
-                                                                <option value="">Select Batch</option>
-                                                                @foreach($stores as $row)
+                                                                    v-model="rm_store_id" required>
+                                                                <option value="">Select One</option>
+                                                                @foreach($rm_stores as $row)
+                                                                    <option
+                                                                        value="{{ $row->id }}">{{ $row->name }}</option>
+                                                                @endforeach
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                                        <div class="form-group">
+                                                            <label for="store_id">Store</label>
+                                                            <select name="fg_store_id" id="fg_store_id"
+                                                                    class="form-control bSelect"
+                                                                    v-model="fg_store_id" required>
+                                                                <option value="">Select One</option>
+                                                                @foreach($fg_stores as $row)
                                                                     <option
                                                                         value="{{ $row->id }}">{{ $row->name }}</option>
                                                                 @endforeach
@@ -106,7 +122,7 @@
                                                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                         <div class="form-group">
                                                             <label for="remark">Remark</label>
-                                                            <textarea class="form-control" name="remark" rows="2"
+                                                            <textarea class="form-control" name="remark" rows="1"
                                                                       placeholder="Enter Remark"></textarea>
                                                         </div>
                                                     </div>
@@ -172,17 +188,22 @@
                                                     <table class="table table-bordered">
                                                         <thead class="bg-secondary">
                                                         <tr>
-                                                            <th>Group</th>
+                                                            <th style="width: 10px">#</th>
+                                                            <th style="width: 200px">Group</th>
                                                             <th>Item</th>
-                                                            <th>Qty</th>
-                                                            <th>Rate</th>
-                                                            <th>Value</th>
-                                                            <th></th>
+                                                            <th style="width: 50px">Unit</th>
+                                                            <th style="width: 180px">Qty</th>
+                                                            <th style="width: 180px">Rate</th>
+                                                            <th style="width: 180px">Value</th>
+                                                            <th style="width: 10px"></th>
                                                         </tr>
                                                         </thead>
                                                         <tbody>
                                                         <tr v-for="(row, index) in selected_items">
 
+                                                            <td>
+                                                                @{{ ++index }}
+                                                            </td>
                                                             <td>
                                                                 @{{ row.group }}
                                                             </td>
@@ -195,10 +216,14 @@
 
                                                             </td>
                                                             <td>
+                                                                @{{ row.unit }}
+                                                            </td>
+                                                            <td>
                                                                 <input type="number" v-model="row.quantity"
                                                                        :name="'products['+index+'][quantity]'"
                                                                        class="form-control input-sm"
-                                                                       @change="itemtotal(row)" required>
+                                                                       @change="itemtotal(row);valid_quantity(row)"
+                                                                       required>
                                                             </td>
                                                             <td>
                                                                 <input type="number" v-model="row.rate"
@@ -219,14 +244,20 @@
                                                         </tbody>
                                                         <tfoot>
                                                         <tr>
-                                                            <td colspan="2">
+                                                            <td colspan="8" style="background-color: #DDDCDC">
+
+                                                            </td>
+                                                        </tr>
+                                                        <tr class="text-right">
+                                                            <td colspan="4">
                                                                 Total
                                                             </td>
 
                                                             <td>
-                                                                @{{ total_quantity }}
+                                                                @{{ total_quantity? total_quantity:0 }}
                                                                 <input type="hidden" class="form-control input-sm"
-                                                                       name="total_quantity" v-bind:value="total_quantity" readonly>
+                                                                       name="total_quantity"
+                                                                       v-bind:value="total_quantity" readonly>
                                                             </td>
                                                             <td></td>
                                                             <td>
@@ -273,6 +304,23 @@
             color: red;
             z-index: 999;
         }
+
+        input[placeholder="Select date"] {
+            display: block;
+            width: 100%;
+            height: calc(2.25rem + 2px);
+            padding: .375rem .75rem;
+            font-size: 1rem;
+            font-weight: 400;
+            line-height: 1.5;
+            color: #495057;
+            background-color: #fff;
+            background-clip: padding-box;
+            border: 1px solid #ced4da;
+            border-radius: .25rem;
+            box-shadow: inset 0 0 0 transparent;
+            transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+        }
     </style>
 
     <link rel="stylesheet" href="{{ asset('vue-js/bootstrap-select/dist/css/bootstrap-select.min.css') }}">
@@ -284,6 +332,7 @@
     <script src="{{ asset('vue-js/vue/dist/vue.js') }}"></script>
     <script src="{{ asset('vue-js/axios/dist/axios.min.js') }}"></script>
     <script src="{{ asset('vue-js/bootstrap-select/dist/js/bootstrap-select.min.js') }}"></script>
+    <script src="https://cms.diu.ac/vue/vuejs-datepicker.min.js"></script>
     <script>
         $(document).ready(function () {
 
@@ -295,9 +344,10 @@
                         get_items_info_by_group_id_url: "{{ url('fetch-items-by-group-id') }}",
                         get_item_info_url: "{{ url('fetch-item-info') }}",
                     },
-
+                    date: new Date(),
                     serial_no: {{$serial_no}},
-                    store_id: '',
+                    rm_store_id: '',
+                    fg_store_id: '',
                     batch_id: '',
                     group_id: '',
                     item_id: '',
@@ -305,10 +355,13 @@
                     selected_items: [],
                     pageLoading: false
                 },
+                components: {
+                    vuejsDatepicker
+                },
                 computed: {
                     total_quantity: function () {
                         return this.selected_items.reduce((total, item) => {
-                            return total+ parseFloat(item.quantity)
+                            return total + parseFloat(item.quantity ? item.quantity : 0)
                         }, 0)
                     },
                     subtotal: function () {
@@ -370,8 +423,9 @@
                                         id: item_info.id,
                                         group: item_info.parent.name,
                                         name: item_info.name,
-                                        rate: '',
-                                        quantity: 1,
+                                        unit: item_info.unit.name,
+                                        rate: item_info.price,
+                                        quantity: '',
                                     });
                                     console.log(vm.selected_items);
                                     vm.item_id = '';
@@ -397,47 +451,11 @@
                     data_edit() {
                         var vm = this;
 
-                        alert(vm.serial_no);
-                        if (!vm.item_id) {
-                            toastr.error('Please Select Item', {
-                                closeButton: true,
-                                progressBar: true,
-                            });
-                            return false;
-                        } else {
-
-                            var slug = vm.item_id;
-
-                            if (slug) {
-                                vm.pageLoading = true;
-                                axios.get(this.config.get_item_info_url + '/' + slug).then(function (response) {
-                                    let item_info = response.data;
-                                    console.log(item_info);
-                                    vm.selected_items.push({
-                                        id: item_info.id,
-                                        group: item_info.parent.name,
-                                        name: item_info.name,
-                                        rate: '',
-                                        quantity: 1,
-                                    });
-                                    console.log(vm.selected_items);
-                                    vm.item_id = '';
-                                    vm.group_id = '';
-                                    vm.pageLoading = false;
-
-                                }).catch(function (error) {
-
-                                    toastr.error('Something went to wrong', {
-                                        closeButton: true,
-                                        progressBar: true,
-                                    });
-
-                                    return false;
-
-                                });
-                            }
-
-                        }
+                       // alert(vm.serial_no);
+                        toastr.error('Under Construction-------', {
+                            closeButton: true,
+                            progressBar: true,
+                        });
 
                     },
                     delete_row: function (row) {
@@ -453,7 +471,15 @@
                         //  var total= row.quantity);
                         //  row.itemtotal=total;
                     },
-
+                    valid_quantity: function (index) {
+                        if (index.quantity <= 0) {
+                            toastr.error('Quantity 0 or Negative not Allow', {
+                                closeButton: true,
+                                progressBar: true,
+                            });
+                            index.quantity = '';
+                        }
+                    },
                 },
 
                 updated() {

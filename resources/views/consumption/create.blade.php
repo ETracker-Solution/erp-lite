@@ -219,7 +219,7 @@
                                                                 <input type="number" v-model="row.quantity"
                                                                        :name="'products['+index+'][quantity]'"
                                                                        class="form-control input-sm"
-                                                                       @change="itemtotal(row)" required>
+                                                                       @change="itemtotal(row);valid(row)" required>
                                                             </td>
                                                             <td style="width: 180px">
                                                                 <input type="number" v-model="row.rate"
@@ -239,6 +239,11 @@
                                                         </tr>
                                                         </tbody>
                                                         <tfoot>
+                                                        <tr>
+                                                            <td colspan="9" style="background-color: #DDDCDC">
+
+                                                            </td>
+                                                        </tr>
                                                         <tr>
                                                             <td colspan="6">
 
@@ -331,7 +336,7 @@
                         get_item_info_url: "{{ url('fetch-item-info-rm-consumption') }}",
                         get_edit_data_url: "{{ url('fetch-consumption-by-id') }}",
                     },
-                    action: {{$store}},
+                    action: {{$store_url}},
                     serial_no: {{$serial_no}},
                     date: new Date(),
                     store_id: '',
@@ -352,7 +357,7 @@
 
                     subtotal: function () {
                         return this.selected_items.reduce((total, item) => {
-                            return parseFloat(total + item.quantity * item.rate).toFixed(2)
+                            return total + (item.quantity * item.rate)
                         }, 0)
                     }
                 },
@@ -393,7 +398,13 @@
 
                         var store_id = vm.store_id;
                         var item_id = vm.item_id;
-
+                        if (!vm.store_id) {
+                            toastr.error('Please Select Store', {
+                                closeButton: true,
+                                progressBar: true,
+                            });
+                            return false;
+                        }
                         if (item_id) {
                             vm.pageLoading = true;
                             axios.get(this.config.get_item_balance_info_url + '/' + item_id + '/' + store_id).then(function (response) {
@@ -520,6 +531,17 @@
                         //   alert(quantity);
                         //  var total= row.quantity);
                         //  row.itemtotal=total;
+                    },
+                    valid: function (index) {
+                        //console.log(index.stock_quantity);
+                        if(index.quantity > index.balance ){
+                            //console.log('1st');
+                            index.quantity = index.balance ;
+                        }
+                        if(index.quantity <= 0){
+                            //console.log('3');
+                            index.quantity = '';
+                        }
                     },
 
                 },

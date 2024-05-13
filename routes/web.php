@@ -3,8 +3,12 @@
 use App\Http\Controllers\AttributeController;
 use App\Http\Controllers\ChartOfAccountController;
 use App\Http\Controllers\ChartOfInventoryController;
+use App\Http\Controllers\FundTransferVoucherController;
+use App\Http\Controllers\JournalVoucherController;
+use App\Http\Controllers\PaymentVoucherController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PurchaseController;
+use App\Http\Controllers\ReceiveVoucherController;
 use App\Http\Controllers\SaleController;
 use Illuminate\Support\Facades\Route;
 
@@ -51,8 +55,14 @@ Route::middleware('auth')->group(function () {
     Route::resource('purchases', PurchaseController::class);
     Route::resource('sales', SaleController::class);
     Route::resource('productions', \App\Http\Controllers\ProductionController::class);
+    Route::get('production-pdf/{id}', [App\Http\Controllers\ProductionController::class, 'productionPdf'])->name('production.pdf');
     Route::resource('outlets', \App\Http\Controllers\OutletController::class);
     Route::resource('employees', \App\Http\Controllers\EmployeeController::class);
+    Route::resource('permissions', \App\Http\Controllers\PermissionController::class);
+    Route::resource('payment-vouchers', PaymentVoucherController::class);
+    Route::resource('receive-vouchers', ReceiveVoucherController::class);
+    Route::resource('journal-vouchers', JournalVoucherController::class);
+    Route::resource('fund-transfer-vouchers', FundTransferVoucherController::class);
 
 
     Route::resource('consumptions', \App\Http\Controllers\ConsumptionController::class);
@@ -71,6 +81,7 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('attributes', AttributeController::class);
 
+    Route::get('/fetch-production-by-id/{id}', [App\Http\Controllers\ApiController::class, 'fetchProductionById']);
     Route::get('/fetch-consumption-by-id/{id}', [App\Http\Controllers\ApiController::class, 'fetchConsumptionById']);
     Route::get('/fetch-items-by-group-id/{id}', [App\Http\Controllers\ApiController::class, 'fetch_products_by_cat_id']);
     Route::get('/fetch-item-available-balance/{item_id}/{store_id?}', [App\Http\Controllers\ApiController::class, 'fetchItemAvailableBalance']);

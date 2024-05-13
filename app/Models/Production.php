@@ -12,6 +12,25 @@ class Production extends Model
 
     protected $guarded = ['id'];
 
+    public function batch(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+
+        return $this->belongsTo('App\Models\Batch', 'batch_id');
+
+    }
+
+    public function fgStore(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+
+        return $this->belongsTo('App\Models\Store', 'fg_store_id');
+
+    } public function rmStore(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+
+        return $this->belongsTo('App\Models\Store', 'rm_store_id');
+
+    }
+
     public function items(): HasMany
     {
 

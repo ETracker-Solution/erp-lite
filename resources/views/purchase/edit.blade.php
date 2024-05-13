@@ -20,10 +20,10 @@
                             <img src="{{ asset('loading.gif') }}" alt="loading">
                         </span>
                 <div class="col-lg-12 col-md-12">
-                        <form action="{{route('purchases.update',$purchase->id)}}" method="POST" class=""
-                              enctype="multipart/form-data">
-                            @csrf
-                            @method('put')
+                    <form action="{{route('purchases.update',$purchase->id)}}" method="POST" class=""
+                          enctype="multipart/form-data">
+                        @csrf
+                        @method('put')
                         <div class="card">
                             <div class="card-header bg-info">
                                 <h3 class="card-title">Goods Purchase Bill (GPB) Entry</h3>
@@ -48,9 +48,12 @@
                                                         <div class="form-group">
                                                             <label for="serial_no">Purchase No</label>
                                                             <div class="input-group">
-                                                                <input type="text" class="form-control input-sm"  value="{{$purchase->id}}" name="serial_no" id="serial_no">
+                                                                <input type="text" class="form-control input-sm"
+                                                                       value="{{$purchase->id}}" name="serial_no"
+                                                                       id="serial_no">
                                                                 <span class="input-group-append">
-                                                                    <button type="button" class="btn btn-secondary btn-flat">Search</button>
+                                                                    <button type="button"
+                                                                            class="btn btn-secondary btn-flat">Search</button>
                                                                 </span>
                                                             </div>
                                                         </div>
@@ -59,7 +62,8 @@
                                                         <div class="form-group">
                                                             <label for="reference_no">Reference No</label>
                                                             <input type="text" class="form-control input-sm"
-                                                                   value="{{old('reference_no',$purchase->reference_no)}}" name="reference_no">
+                                                                   value="{{old('reference_no',$purchase->reference_no)}}"
+                                                                   name="reference_no">
                                                         </div>
                                                     </div>
                                                 </div>
@@ -71,7 +75,8 @@
                                                         <div class="form-group">
                                                             <label for="date">Date</label>
                                                             <vuejs-datepicker v-model="date" name="date"
-                                                                              placeholder="Select date" format="yyyy-MM-dd"></vuejs-datepicker>
+                                                                              placeholder="Select date"
+                                                                              format="yyyy-MM-dd"></vuejs-datepicker>
                                                         </div>
                                                     </div>
                                                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
@@ -82,7 +87,7 @@
                                                                 <option value="">Select Store</option>
                                                                 @foreach($stores as $row)
                                                                     <option
-                                                                        value="{{ $row->id }}"   {{ old('store_id',$purchase->store_id) == $row->id ? 'selected' : '' }}>{{ $row->name }}</option>
+                                                                        value="{{ $row->id }}" {{ old('store_id',$purchase->store_id) == $row->id ? 'selected' : '' }}>{{ $row->name }}</option>
                                                                 @endforeach
                                                             </select>
                                                         </div>
@@ -157,7 +162,8 @@
                                             <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
                                                 <div class="form-group">
                                                     <label for="group_id" class="control-label">Group</label>
-                                                    <select class="form-control bSelect" name="group_id" v-model="group_id"
+                                                    <select class="form-control bSelect" name="group_id"
+                                                            v-model="group_id"
                                                             @change="fetch_product">
                                                         <option value="">Select One</option>
                                                         @foreach ($groups as $row)
@@ -196,17 +202,22 @@
                                                     <table class="table table-bordered">
                                                         <thead class="bg-secondary">
                                                         <tr>
-                                                            <th>Group</th>
+                                                            <th style="width: 10px">#</th>
+                                                            <th style="width: 200px">Group</th>
                                                             <th>Item</th>
-                                                            <th>Qty</th>
-                                                            <th>Rate</th>
-                                                            <th>Value</th>
-                                                            <th></th>
+                                                            <th style="width: 50px">Unit</th>
+                                                            <th style="width: 180px">Qty</th>
+                                                            <th style="width: 180px">Rate</th>
+                                                            <th style="width: 180px">Value</th>
+                                                            <th style="width: 10px"></th>
                                                         </tr>
                                                         </thead>
                                                         <tbody>
                                                         <tr v-for="(row, index) in selected_items">
 
+                                                            <td>
+                                                                @{{ ++index }}
+                                                            </td>
                                                             <td>
                                                                 @{{ row.group }}
                                                             </td>
@@ -217,6 +228,9 @@
                                                                        class="form-control input-sm"
                                                                        v-bind:value="row.id">
 
+                                                            </td>
+                                                            <td>
+                                                                @{{ row.unit }}
                                                             </td>
                                                             <td>
                                                                 <input type="number" v-model="row.quantity"
@@ -243,7 +257,10 @@
                                                         </tbody>
                                                         <tfoot>
                                                         <tr>
-                                                            <td colspan="3">
+                                                            <td colspan="8" style="background-color: #DDDCDC"></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td colspan="5">
 
                                                             </td>
                                                             <td>
@@ -256,7 +273,7 @@
                                                             <td></td>
                                                         </tr>
                                                         <tr>
-                                                            <td colspan="3">
+                                                            <td colspan="5">
 
                                                             </td>
                                                             <td>
@@ -269,7 +286,7 @@
                                                             <td></td>
                                                         </tr>
                                                         <tr>
-                                                            <td colspan="3">
+                                                            <td colspan="5">
 
                                                             </td>
                                                             <td>

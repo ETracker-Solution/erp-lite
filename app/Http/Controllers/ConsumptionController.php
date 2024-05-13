@@ -7,10 +7,13 @@ use App\Http\Requests\UpdateConsumptionRequest;
 use App\Models\Batch;
 use App\Models\ChartOfInventory;
 use App\Models\Consumption;
+use App\Models\ConsumptionItem;
 use App\Models\Product;
 use App\Models\Production;
+use App\Models\PurchaseItem;
 use App\Models\Store;
 use Brian2694\Toastr\Facades\Toastr;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use niklasravnsborg\LaravelPdf\Facades\Pdf;
 use Yajra\DataTables\Facades\DataTables;
@@ -57,7 +60,7 @@ class ConsumptionController extends Controller
             'stores' => Store::where(['type' => 'RM'])->get(),
             'batches' => Batch::all(),
             'serial_no' => $serial_no,
-            'store' => 1,
+            'store_url' => 1,
         ];
 
         return view('consumption.create', $data);
@@ -74,14 +77,14 @@ class ConsumptionController extends Controller
         $validated = $request->validated();
 //        DB::beginTransaction();
 //        try {
-            if (count($validated['products']) < 1) {
-                Toastr::info('At Least One Product Required.', '', ["progressBar" => true]);
-                return back();
-            }
-            $consumption = Consumption::create($validated);
-            foreach ($validated['products'] as $product) {
-                $consumption->items()->create($product);
-            }
+        if (count($validated['products']) < 1) {
+            Toastr::info('At Least One Product Required.', '', ["progressBar" => true]);
+            return back();
+        }
+        $consumption = Consumption::create($validated);
+        foreach ($validated['products'] as $product) {
+            $consumption->items()->create($product);
+        }
 //            DB::commit();
 //        } catch (\Exception $exception) {
 //            DB::rollBack();
@@ -101,7 +104,7 @@ class ConsumptionController extends Controller
      */
     public function show($id)
     {
-        $consumption=Consumption::findOrFail(decrypt($id));
+        $consumption = Consumption::findOrFail(decrypt($id));
         return view('consumption.show', compact('consumption'));
     }
 
@@ -113,8 +116,16 @@ class ConsumptionController extends Controller
      */
     public function edit($id)
     {
-        $consumption=Consumption::findOrFail(decrypt($id));
-        return view('consumption.show', compact('consumption'));
+        $data = [
+            'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'RM'])->get(),
+            'stores' => Store::where(['type' => 'RM'])->get(),
+            'batches' => Batch::all(),
+            'serial_no' => decrypt($id),
+            'store_url' => 1,
+            'consumption' => Consumption::findOrFail(decrypt($id)),
+        ];
+
+        return view('consumption.edit', $data);
     }
 
     /**
@@ -126,7 +137,15 @@ class ConsumptionController extends Controller
      */
     public function update(UpdateConsumptionRequest $request, Consumption $consumption)
     {
-        //
+        $validated = $request->validated();
+        $consumption->update($validated);
+        ConsumptionItem::where('consumption_id', $consumption->id)->delete();
+        $products = $request->get('products');
+        foreach ($products as $row) {
+            $consumption->items()->create($row);
+        }
+        Toastr::success('Consumption Updated Successful!.', '', ["progressbar" => true]);
+        return redirect()->route('consumptions.index');
     }
 
     /**
