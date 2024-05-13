@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Api\Web;
 
 use App\Http\Controllers\Controller;
+use App\Models\ChartOfInventory;
 use App\Models\InventoryTransaction;
+use App\Models\Store;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -65,7 +67,7 @@ class RMInventoryReportController extends Controller
             $this->visible_columns['store'] = true;
             $this->visible_columns['group'] = true;
             $this->visible_columns['item'] = true;
-            $items = $items->groupBy('ST.id', 'CIP.id','CI.id');
+            $items = $items->groupBy('ST.id', 'CIP.id', 'CI.id');
         } elseif ($report_type == 'store_group_item') {
             $this->visible_columns['store'] = false;
             $this->visible_columns['group'] = true;
@@ -79,17 +81,37 @@ class RMInventoryReportController extends Controller
 
     public function create()
     {
-        $fromDate = Carbon::parse(\request()->from_date)->format('Y-m-d') ?? Carbon::now()->format('Y-m-d');
-        $toDate = Carbon::parse(\request()->to_date)->format('Y-m-d') ?? Carbon::now()->format('Y-m-d');
+
+        $asOnDate = Carbon::parse(\request()->as_on_date)->format('Y-m-d') ?? Carbon::now()->format('Y-m-d');
+
+        $page_title = false;
+
+        $report_type = \request()->report_type;
+        if ($report_type == 'all_groups') {
+            $statement = "CALL get_all_groups('" . $asOnDate . "')";
+        } elseif ($report_type == 'single_group_item') {
+            $page_title = 'Group Name: ' . ChartOfInventory::find(\request()->group_id)->name;
+            $statement = "CALL get_all_items_by_group(" . \request()->group_id . ",'" . $asOnDate . "')";
+        } elseif ($report_type == 'all_item') {
+            $statement = "CALL get_all_items('" . $asOnDate . "')";
+        } elseif ($report_type == 'store_group') {
+            $statement = "CALL get_all_stores('" . $asOnDate . "')";
+        } elseif ($report_type == 'store_group_item') {
+            $page_title = 'Store Name: ' . Store::find(\request()->store_id)->name;
+            $statement = "CALL get_all_items_by_store(" . \request()->store_id . ",'" . $asOnDate . "')";
+        }
+
+        $getPost = DB::select($statement);
+        $columns = array_keys((array)$getPost[0]);
         $data = [
-            'dateRange' => 'From ' . $fromDate . ' To ' . $toDate,
-            'data' => $this->getInventoryData()->get(),
-            'visible_columns' => $this->visible_columns,
-            'one_title' => $this->one_title,
-            'one_value' => $this->one_value,
+            'dateRange' => 'as On  ' . $asOnDate,
+            'data' => $getPost,
+            'page_title' => $page_title,
+            'columns' => $columns
         ];
         $pdf = Pdf::loadView('raw_material_inventory_report.rm_quantity_summary', $data);
 //        return $pdf->stream();
         $pdf->stream();
     }
+
 }
