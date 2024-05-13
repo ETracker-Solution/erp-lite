@@ -7,7 +7,7 @@ Purchase List
 <!-- Content Header (Page header) -->
 <section class="content-header">
     <div class="container-fluid">
-        <div class="row mb-2">
+        <div class="row mb-2" style="background: #343A40; padding:8px; border-radius:6px; color:white">
             <div class="col-sm-6">
                 <h1>Goods Purchase Bill</h1>
             </div>
@@ -31,7 +31,7 @@ Purchase List
                     <div class="row">
                         <div class="col-12">
                             <h4>
-                                <i class="fas fa-globe"></i> E-Moto Bazar.
+                                <i class="fas fa-globe"></i> Cake Town.
                                 <small class="float-right">Date:{{ $model->created_at }}</small>
                             </h4>
                         </div>
@@ -68,10 +68,10 @@ Purchase List
                                         <th>#</th>
                                         <th>Group</th>
                                         <th>Product</th>
-                                        <th>Serial #</th>
+                                        <th>Unit</th>
                                         <th>Qty</th>
                                         <th>Price</th>
-                                        <th>Item Total</th>
+                                        <th class="text-right">Item Total</th>
                                     </tr>
                                 </thead>
                                 <tbody>
