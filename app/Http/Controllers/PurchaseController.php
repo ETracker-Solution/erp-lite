@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AccountTransaction;
 use App\Models\ChartOfInventory;
 use App\Models\InventoryTransaction;
 use App\Models\Product;
@@ -13,6 +14,7 @@ use App\Models\Store;
 use App\Models\Supplier;
 use App\Models\SupplierGroup;
 use App\Models\SupplierTransaction;
+use App\Models\Transaction;
 use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -30,7 +32,7 @@ class PurchaseController extends Controller
     public function index()
     {
         if (\request()->ajax()) {
-            $purchases = Purchase::with('supplier','store')->latest();
+            $purchases = Purchase::with('supplier', 'store')->latest();
             return DataTables::of($purchases)
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
@@ -157,20 +159,53 @@ class PurchaseController extends Controller
      */
     public function update(UpdatePurchaseRequest $request, Purchase $purchase)
     {
-//        dd( $request->all());
-        $purchase->subtotal = $request->subtotal;
-        $purchase->net_payable = $request->net_payable;
-        $purchase->supplier_id = $request->supplier_id;
-        $purchase->vat = $request->vat;
-        $purchase->remark = $request->remark;
-        $purchase->updated_by = Auth::guard('web')->id();
-        $purchase->save();
-        PurchaseItem::where('purchase_id', $purchase->id)->delete();
-        $products = $request->get('products');
-        foreach ($products as $row) {
-            $purchase->items()->create($row);
-        }
+        DB::beginTransaction();
+        try {
+            $validated = $request->validated();
+            $purchase->update($validated);
+            PurchaseItem::where('purchase_id', $purchase->id)->delete();
+            InventoryTransaction::where(['doc_id' => $purchase->id, 'doc_type' => 'GPB'])->delete();
+            $purchase->amount = $purchase->net_payable;
+            foreach ($validated['products'] as $product) {
+                $purchase->items()->create($product);
 
+                // Inventory Transaction Effect
+                InventoryTransaction::query()->create([
+                    'store_id' => $purchase->store_id,
+                    'doc_type' => 'GPB',
+                    'doc_id' => $purchase->id,
+                    'quantity' => $product['quantity'],
+                    'rate' => $product['rate'],
+                    'amount' => $product['quantity'] * $product['rate'],
+                    'date' => $purchase->date,
+                    'type' => 1,
+                    'coi_id' => $product['coi_id'],
+                ]);
+            }
+
+            // Accounts Transaction Effect
+            AccountTransaction::where(['doc_id' => $purchase->id, 'doc_type' => 'GPB'])->delete();
+            addAccountsTransaction('GPB', $purchase, 13, 12);
+
+            // Supplier Transaction Effect
+            SupplierTransaction::where(['doc_id' => $purchase->id, 'doc_type' => 'GPB'])->delete();
+            SupplierTransaction::query()->create([
+                'supplier_id' => $purchase->supplier_id,
+                'doc_type' => 'GPB',
+                'doc_id' => $purchase->id,
+                'amount' => $purchase->net_payable,
+                'date' => $purchase->date,
+                'transaction_type' => 1,
+                'chart_of_account_id' => 12,
+                'description' => 'Purchase of goods',
+            ]);
+            DB::commit();
+        } catch (\Exception $exception) {
+            DB::rollBack();
+            return $exception;
+            Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
+            return back();
+        }
 
         Toastr::success('Goods Purchase Updated Successful!.', '', ["progressbar" => true]);
         return redirect()->route('purchases.index');

@@ -4,20 +4,18 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateTransactionsTable extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
-        Schema::create('transactions', function (Blueprint $table) {
+        Schema::create('account_transactions', function (Blueprint $table) {
             $table->id();
             $table->date('date');
-            $table->enum('type',['debit','credit']);
-            $table->double('amount',16,2);
+            $table->integer('transaction_type')->comment('1 = Debit, -1 = Credit');
+            $table->enum('type', ['debit', 'credit']);
+            $table->double('amount', 16, 2);
             $table->bigInteger('transaction_id');
             $table->string('payee_name')->nullable();
             $table->longText('narration')->nullable();
@@ -31,11 +29,9 @@ class CreateTransactionsTable extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
-        Schema::dropIfExists('transactions');
+        Schema::dropIfExists('accounts_transactions');
     }
-}
+};
