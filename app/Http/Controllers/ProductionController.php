@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreProductionRequest;
 use App\Http\Requests\UpdateProductionRequest;
+use App\Models\AccountTransaction;
 use App\Models\Batch;
 use App\Models\ChartOfInventory;
+use App\Models\InventoryTransaction;
 use App\Models\Product;
 use App\Models\Production;
 
@@ -107,10 +109,24 @@ class ProductionController extends Controller
                 return back();
             }
             $production = Production::create($validated);
-
+            $production->amount = $production->subtotal;
             foreach ($validated['products'] as $product) {
                 $production->items()->create($product);
+                // Inventory Transaction Effect
+                InventoryTransaction::query()->create([
+                    'store_id' => $production->fg_store_id,
+                    'doc_type' => 'FGP',
+                    'doc_id' => $production->id,
+                    'quantity' => $product['quantity'],
+                    'rate' => $product['rate'],
+                    'amount' => $product['quantity'] * $product['rate'],
+                    'date' => $production->date,
+                    'type' => 1,
+                    'coi_id' => $product['coi_id'],
+                ]);
             }
+            // Accounts Transaction Effect
+            addAccountsTransaction('FGP', $production, 16, 17);
             DB::commit();
         } catch (\Exception $exception) {
             DB::rollBack();
@@ -164,11 +180,39 @@ class ProductionController extends Controller
     public function update(UpdateProductionRequest $request, Production $production)
     {
         $validated = $request->validated();
-        $production->update($validated);
-        ProductionItem::where('production_id', $production->id)->delete();
-        $products = $request->get('products');
-        foreach ($products as $row) {
-            $production->items()->create($row);
+        DB::beginTransaction();
+        try {
+            $production->update($validated);
+            $production->amount = $production->subtotal;
+            ProductionItem::where('production_id', $production->id)->delete();
+            InventoryTransaction::where(['doc_id' => $production->id, 'doc_type' => 'FGP'])->delete();
+            foreach ($validated['products'] as $product) {
+                $production->items()->create($product);
+
+                // Inventory Transaction Effect
+                InventoryTransaction::query()->create([
+                    'store_id' => $production->store_id,
+                    'doc_type' => 'FGP',
+                    'doc_id' => $production->id,
+                    'quantity' => $product['quantity'],
+                    'rate' => $product['rate'],
+                    'amount' => $product['quantity'] * $product['rate'],
+                    'date' => $production->date,
+                    'type' => 1,
+                    'coi_id' => $product['coi_id'],
+                ]);
+            }
+
+            // Accounts Transaction Effect
+            AccountTransaction::where(['doc_id' => $production->id, 'doc_type' => 'FGP'])->delete();
+            addAccountsTransaction('FGP', $production, 16, 17);
+
+            DB::commit();
+        } catch (\Exception $exception) {
+            DB::rollBack();
+            return $exception;
+            Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
+            return back();
         }
         Toastr::success('Production Updated Successful!.', '', ["progressbar" => true]);
         return redirect()->route('productions.index');
