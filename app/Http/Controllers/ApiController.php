@@ -6,6 +6,7 @@ use App\Models\ChartOfInventory;
 use App\Models\Consumption;
 use App\Models\ConsumptionItem;
 use App\Models\Product;
+use App\Models\Production;
 use App\Models\Supplier;
 use App\Models\PurchaseItem;
 use Illuminate\Http\Request;
@@ -122,6 +123,32 @@ class ApiController extends Controller
             'reference_no' => $consumption->reference_no,
             'remark' => $consumption->remark,
             'date' => $consumption->date
+        ];
+        return response()->json($data);
+    }
+    public function fetchProductionById($id)
+    {
+        $production = Production::with('items')->where('id', $id)->first();
+        $items = [];
+        foreach ($production->items as $row) {
+            $items[] = [
+                'consumption_id' => $id,
+                'id' => $row->coi_id,
+                'name' => $row->coi->name ?? '',
+                'unit' => $row->coi->unit->name ?? '',
+                'group' => $row->coi->parent->name ?? '',
+                'quantity' => $row->quantity,
+                'balance' => $row->quantity,
+                'rate' => $row->rate
+            ];
+        }
+        $data = [
+            'items' => $items,
+            'store_id' => $production->store_id,
+            'batch_id' => $production->batch_id,
+            'reference_no' => $production->reference_no,
+            'remark' => $production->remark,
+            'date' => $production->date
         ];
         return response()->json($data);
     }

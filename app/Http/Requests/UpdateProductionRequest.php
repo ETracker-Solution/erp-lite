@@ -13,7 +13,7 @@ class UpdateProductionRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -24,7 +24,24 @@ class UpdateProductionRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            'fg_store_id' => ['required'],
+            'rm_store_id' => ['required'],
+            'batch_id' => ['required'],
+            'date' => ['required'],
+            'status' => ['nullable'],
+            'products' => ['required', 'array'],
+            'remark' => ['nullable'],
+            'reference_no' => ['nullable'],
+            'subtotal' => ['nullable'],
+            'total_quantity' => ['nullable'],
+            'updated_by' => ['nullable'],
         ];
+    }
+
+    public function prepareForValidation()
+    {
+        $this->merge([
+            'updated_by' => auth()->user()->id,
+        ]);
     }
 }

@@ -15,7 +15,7 @@ class CreateProductionItemsTable extends Migration
     {
         Schema::create('production_items', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('coi')->references('id')->on('chart_of_inventories')->onDelete('cascade');
+            $table->foreignId('coi_id')->references('id')->on('chart_of_inventories')->onDelete('cascade');
             $table->double('rate', 16, 2)->nullable();
             $table->double('quantity', 16, 2);
             $table->foreignId('production_id')->references('id')->on('productions')->onDelete('cascade');

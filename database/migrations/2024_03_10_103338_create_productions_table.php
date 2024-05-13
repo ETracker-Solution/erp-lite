@@ -15,17 +15,15 @@ class CreateProductionsTable extends Migration
     {
         Schema::create('productions', function (Blueprint $table) {
             $table->id();
-            $table->string('production_no')->nullable();
-            $table->string('batch_no')->nullable();
             $table->string('reference_no')->nullable();
             $table->date('date')->nullable();
             $table->double('subtotal', 15, 2)->nullable();
-            $table->double('vat_total', 15, 2)->nullable();
-            $table->double('discount', 15, 2)->nullable();
-            $table->double('grand_total', 15, 2)->nullable();
+            $table->double('total_quantity', 15, 2)->nullable();
             $table->text('remark')->nullable();
             $table->string('status')->default('pending');
             $table->string('type')->default('in');
+            $table->foreignId('fg_store_id')->nullable()->constrained('stores')->onDelete('cascade');
+            $table->foreignId('rm_store_id')->nullable()->constrained('stores')->onDelete('cascade');
             $table->foreignId('batch_id')->nullable()->constrained('batches')->onDelete('cascade');
             $table->foreignId('created_by')->nullable()->constrained('users')->onDelete('cascade');
             $table->foreignId('updated_by')->nullable()->constrained('users')->onDelete('cascade');

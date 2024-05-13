@@ -109,13 +109,13 @@
                                     @forelse ($production->items as $row)
                                     <tr>
                                         <td>{{ $i++ }}</td>
-                                        <td>{{ $row->product ? $row->product->name : '' }}</td>
-                                        <td>{{ $row->product->category ? $row->product->category->name : '' }}</td>
-                                        <td>{{ $row->product->unit ? $row->product->unit->name : '' }}</td>
-                                        <td>{{ $row->unit_price }}</td>
+                                        <td>{{ $row->coi ? $row->coi->name : '' }}</td>
+                                        <td>{{ $row->coi->group ? $row->coi->group->name : '' }}</td>
+                                        <td>{{ $row->coi->unit ? $row->coi->unit->name : '' }}</td>
+                                        <td>{{ $row->rate }}</td>
                                         <td>{{ $row->quantity }}</td>
-                                        <td>{{ $row->unit_price * $row->quantity }}</td>
-                                        
+                                        <td>{{ $row->rate * $row->quantity }}</td>
+
                                     </tr>
                                     @empty
 
@@ -127,35 +127,6 @@
                                         <td class="text-left">Sub Total </td>
                                         <td class="text-right">{{$production->subtotal}} </td>
                                     </tr>
-                                    <tr>
-                                        <td colspan="5"></td>
-                                        <td class="text-left">
-                                            Discount
-                                        </td>
-                                        <td class="text-right">{{$production->discount}} </td>
-                                    </tr>
-                                    <tr>
-                                        <td colspan="5"></td>
-                                        <td class="text-left">
-                                            Grand Total
-                                        </td>
-                                        <td class="text-right">{{$production->grand_total}} </td>
-                                    </tr>
-                                    <tr>
-                                        <td colspan="5"></td>
-                                        <td class="text-left">
-                                            Total Paid
-                                        </td>
-                                        <td class="text-right">0</td>
-                                    </tr>
-                                    <tr>
-                                        <td colspan="5"></td>
-                                        <td class="text-left">
-                                            Total Due
-                                        </td>
-                                        <td class="text-right">{{$production->grand_total}} </td>
-                                    </tr>
-
                                 </tbody>
                             </table>
                             <htmlpagefooter name="page-footer">

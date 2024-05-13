@@ -44,9 +44,10 @@
                                                             <div class="input-group">
                                                                 <input type="text" class="form-control input-sm"
                                                                        value="{{$serial_no}}" name="serial_no"
-                                                                       id="serial_no"  v-model="serial_no">
+                                                                       id="serial_no" v-model="serial_no">
                                                                 <span class="input-group-append">
-                                                                    <button type="button" class="btn btn-info btn-flat"  @click="data_edit">Search</button>
+                                                                    <button type="button" class="btn btn-info btn-flat"
+                                                                            @click="data_edit">Search</button>
                                                                 </span>
                                                             </div>
                                                         </div>
@@ -81,7 +82,7 @@
                                                     </div>
                                                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                         <div class="form-group">
-                                                            <label for="store_id">Production Unit</label>
+                                                            <label for="rm_store_id">Production Unit</label>
                                                             <select name="rm_store_id" id="rm_store_id"
                                                                     class="form-control bSelect"
                                                                     v-model="rm_store_id" required>
@@ -92,12 +93,13 @@
                                                                 @endforeach
                                                             </select>
                                                         </div>
-                                                    </div> <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                                    </div>
+                                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                         <div class="form-group">
                                                             <label for="store_id">Store</label>
-                                                            <select name="store_id" id="store_id"
+                                                            <select name="fg_store_id" id="fg_store_id"
                                                                     class="form-control bSelect"
-                                                                    v-model="store_id" required>
+                                                                    v-model="fg_store_id" required>
                                                                 <option value="">Select One</option>
                                                                 @foreach($fg_stores as $row)
                                                                     <option
@@ -187,12 +189,12 @@
                                                         <thead class="bg-secondary">
                                                         <tr>
                                                             <th style="width: 10px">#</th>
-                                                             <th style="width: 200px">Group</th>
-                                                             <th>Item</th>
-                                                             <th style="width: 50px">Unit</th>
-                                                             <th style="width: 180px">Qty</th>
-                                                             <th style="width: 180px">Rate</th>
-                                                             <th style="width: 180px">Value</th>
+                                                            <th style="width: 200px">Group</th>
+                                                            <th>Item</th>
+                                                            <th style="width: 50px">Unit</th>
+                                                            <th style="width: 180px">Qty</th>
+                                                            <th style="width: 180px">Rate</th>
+                                                            <th style="width: 180px">Value</th>
                                                             <th style="width: 10px"></th>
                                                         </tr>
                                                         </thead>
@@ -220,7 +222,8 @@
                                                                 <input type="number" v-model="row.quantity"
                                                                        :name="'products['+index+'][quantity]'"
                                                                        class="form-control input-sm"
-                                                                       @change="itemtotal(row);valid_quantity(row)" required>
+                                                                       @change="itemtotal(row);valid_quantity(row)"
+                                                                       required>
                                                             </td>
                                                             <td>
                                                                 <input type="number" v-model="row.rate"
@@ -241,14 +244,20 @@
                                                         </tbody>
                                                         <tfoot>
                                                         <tr>
-                                                            <td colspan="2">
+                                                            <td colspan="8" style="background-color: #DDDCDC">
+
+                                                            </td>
+                                                        </tr>
+                                                        <tr class="text-right">
+                                                            <td colspan="4">
                                                                 Total
                                                             </td>
 
                                                             <td>
-                                                                @{{ total_quantity }}
+                                                                @{{ total_quantity? total_quantity:0 }}
                                                                 <input type="hidden" class="form-control input-sm"
-                                                                       name="total_quantity" v-bind:value="total_quantity" readonly>
+                                                                       name="total_quantity"
+                                                                       v-bind:value="total_quantity" readonly>
                                                             </td>
                                                             <td></td>
                                                             <td>
@@ -295,6 +304,7 @@
             color: red;
             z-index: 999;
         }
+
         input[placeholder="Select date"] {
             display: block;
             width: 100%;
@@ -351,7 +361,7 @@
                 computed: {
                     total_quantity: function () {
                         return this.selected_items.reduce((total, item) => {
-                            return total+ parseFloat(item.quantity)
+                            return total + parseFloat(item.quantity ? item.quantity : 0)
                         }, 0)
                     },
                     subtotal: function () {

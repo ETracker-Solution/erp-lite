@@ -140,14 +140,14 @@ class PurchaseController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit($purchase)
+    public function edit($id)
     {
         $data = [
             'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'RM'])->get(),
             'supplier_groups' => SupplierGroup::all(),
             'suppliers' => Supplier::all(),
             'stores' => Store::where(['type' => 'RM'])->get(),
-            'purchase' => Purchase::with('supplier')->find(decrypt($purchase))
+            'purchase' => Purchase::with('supplier')->find(decrypt($id))
         ];
         return view('purchase.edit', $data);
     }

@@ -9,6 +9,7 @@ use App\Models\ChartOfInventory;
 use App\Models\Product;
 use App\Models\Production;
 
+use App\Models\ProductionItem;
 use App\Models\Purchase;
 use App\Models\Store;
 use App\Models\Supplier;
@@ -51,11 +52,11 @@ class ProductionController extends Controller
     public function index()
     {
         if (\request()->ajax()) {
-            $productions = Production::where('created_by',auth('factory')->user()->production_house_id)->latest();
+            $productions = Production::with('batch')->latest();
             return DataTables::of($productions)
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
-                    return view('factory.production.action', compact('row'));
+                    return view('production.action', compact('row'));
                 })
                 ->editColumn('status', function ($row) {
                     return showStatus($row->status);
@@ -98,7 +99,6 @@ class ProductionController extends Controller
      */
     public function store(StoreProductionRequest $request)
     {
-        //dd($request->all());
         $validated = $request->validated();
         DB::beginTransaction();
         try {
@@ -106,13 +106,11 @@ class ProductionController extends Controller
                 Toastr::info('At Least One Product Required.', '', ["progressBar" => true]);
                 return back();
             }
-            // $validated['purchase_number'] = PurchaseNumber::serial_number();
-            $validated['created_by'] = authUser(true);
             $production = Production::create($validated);
+
             foreach ($validated['products'] as $product) {
                 $production->items()->create($product);
-                }
-
+            }
             DB::commit();
         } catch (\Exception $exception) {
             DB::rollBack();
@@ -121,7 +119,7 @@ class ProductionController extends Controller
             return back();
         }
         Toastr::success('Production Created Successfully!.', '', ["progressBar" => true]);
-        return redirect()->route('factory.productions.index');
+        return redirect()->route('productions.index');
     }
 
     /**
@@ -132,7 +130,7 @@ class ProductionController extends Controller
      */
     public function show(Production $production)
     {
-        return view('factory.production.show', compact('production'));
+        return view('production.show', compact('production'));
     }
 
     /**
@@ -141,9 +139,19 @@ class ProductionController extends Controller
      * @param \App\Models\Production $production
      * @return \Illuminate\Http\Response
      */
-    public function edit(Production $production)
+    public function edit($id)
     {
-        //
+
+
+        $data = [
+            'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'FG'])->get(),
+            'batches' => Batch::all(),
+            'rm_stores' => Store::where(['type' => 'RM'])->get(),
+            'fg_stores' => Store::where(['type' => 'FG'])->get(),
+            'production' => Production::with('items')->find(decrypt($id))
+
+        ];
+        return view('production.edit', $data);
     }
 
     /**
@@ -155,7 +163,15 @@ class ProductionController extends Controller
      */
     public function update(UpdateProductionRequest $request, Production $production)
     {
-        //
+        $validated = $request->validated();
+        $production->update($validated);
+        ProductionItem::where('production_id', $production->id)->delete();
+        $products = $request->get('products');
+        foreach ($products as $row) {
+            $production->items()->create($row);
+        }
+        Toastr::success('Production Updated Successful!.', '', ["progressbar" => true]);
+        return redirect()->route('productions.index');
     }
 
     /**
@@ -177,7 +193,7 @@ class ProductionController extends Controller
         ];
 
         $pdf = Pdf::loadView(
-            'factory.production.pdf',
+            'production.pdf',
             $data,
             [],
             [
