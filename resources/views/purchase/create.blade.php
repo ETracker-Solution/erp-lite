@@ -51,7 +51,7 @@
                                                                        id="serial_no">
                                                                 <span class="input-group-append">
                                                                     <button type="button"
-                                                                            class="btn btn-secondary btn-flat">Search</button>
+                                                                            class="btn btn-info btn-flat">Search</button>
                                                                 </span>
                                                             </div>
                                                         </div>

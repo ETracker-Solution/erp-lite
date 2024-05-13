@@ -53,7 +53,7 @@ $links = [
                                     <x-forms.email label="Email" inputName="email" placeholder="Enter Email" :isRequired='true' :isReadonly='false' :defaultValue="$customer->email" />
                                 </div>
                             </div>
-                            <button class="btn btn-primary waves-effect waves-float waves-light float-right" type="submit">Update
+                            <button class="btn btn-info waves-effect waves-float waves-light float-right" type="submit">Update
                             </button>
                         </div>
 

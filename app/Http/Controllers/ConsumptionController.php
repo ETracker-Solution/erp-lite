@@ -4,10 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreConsumptionRequest;
 use App\Http\Requests\UpdateConsumptionRequest;
+use App\Models\AccountTransaction;
 use App\Models\Batch;
 use App\Models\ChartOfInventory;
 use App\Models\Consumption;
 use App\Models\ConsumptionItem;
+use App\Models\InventoryTransaction;
 use App\Models\Product;
 use App\Models\Production;
 use App\Models\PurchaseItem;
@@ -82,9 +84,29 @@ class ConsumptionController extends Controller
             return back();
         }
         $consumption = Consumption::create($validated);
+
+        InventoryTransaction::where(['doc_id' => $consumption->id, 'doc_type' => 'RMC'])->delete();
+        $consumption->amount = $consumption->subtotal;
         foreach ($validated['products'] as $product) {
             $consumption->items()->create($product);
+            // Inventory Transaction Effect
+            InventoryTransaction::query()->create([
+                'store_id' => $consumption->store_id,
+                'doc_type' => 'RMC',
+                'doc_id' => $consumption->id,
+                'quantity' => $product['quantity'],
+                'rate' => $product['rate'],
+                'amount' => $product['quantity'] * $product['rate'],
+                'date' => $consumption->date,
+                'type' => -1,
+                'coi_id' => $product['coi_id'],
+            ]);
         }
+        // Accounts Transaction Effect
+        AccountTransaction::where(['doc_id' => $consumption->id, 'doc_type' => 'RMC'])->delete();
+        addAccountsTransaction('RMC', $consumption, 17, 15);
+
+
 //            DB::commit();
 //        } catch (\Exception $exception) {
 //            DB::rollBack();
@@ -138,11 +160,36 @@ class ConsumptionController extends Controller
     public function update(UpdateConsumptionRequest $request, Consumption $consumption)
     {
         $validated = $request->validated();
-        $consumption->update($validated);
-        ConsumptionItem::where('consumption_id', $consumption->id)->delete();
-        $products = $request->get('products');
-        foreach ($products as $row) {
-            $consumption->items()->create($row);
+        DB::beginTransaction();
+        try {
+            $consumption->update($validated);
+            ConsumptionItem::where('consumption_id', $consumption->id)->delete();
+            InventoryTransaction::where(['doc_id' => $consumption->id, 'doc_type' => 'RMC'])->delete();
+            $consumption->amount = $consumption->subtotal;
+            foreach ($validated['products'] as $product) {
+                $consumption->items()->create($product);
+                // Inventory Transaction Effect
+                InventoryTransaction::query()->create([
+                    'store_id' => $consumption->store_id,
+                    'doc_type' => 'RMC',
+                    'doc_id' => $consumption->id,
+                    'quantity' => $product['quantity'],
+                    'rate' => $product['rate'],
+                    'amount' => $product['quantity'] * $product['rate'],
+                    'date' => $consumption->date,
+                    'type' => -1,
+                    'coi_id' => $product['coi_id'],
+                ]);
+            }
+            // Accounts Transaction Effect
+            AccountTransaction::where(['doc_id' => $consumption->id, 'doc_type' => 'RMC'])->delete();
+            addAccountsTransaction('RMC', $consumption, 17, 15);
+            DB::commit();
+        } catch (\Exception $exception) {
+            DB::rollBack();
+            return $exception;
+            Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
+            return back();
         }
         Toastr::success('Consumption Updated Successful!.', '', ["progressbar" => true]);
         return redirect()->route('consumptions.index');
