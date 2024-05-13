@@ -52,7 +52,7 @@ class ProductionController extends Controller
     public function index()
     {
         if (\request()->ajax()) {
-            $productions = Production::with('batch')->latest();
+            $productions = Production::with('batch', 'rmStore', 'fgStore')->latest();
             return DataTables::of($productions)
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {

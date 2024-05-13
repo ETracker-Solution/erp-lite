@@ -89,6 +89,16 @@
                         title: "Batch",
                         searchable: true,
                         "defaultContent":"Not Set"
+                    }, {
+                        data: "rm_store.name",
+                        title: "Production Unit(RM Store)",
+                        searchable: true,
+                        "defaultContent":"Not Set"
+                    },{
+                        data: "fg_store.name",
+                        title: "FG Store",
+                        searchable: true,
+                        "defaultContent":"Not Set"
                     },
 
                     {

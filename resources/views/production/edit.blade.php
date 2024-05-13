@@ -43,16 +43,9 @@
                                                 <div class="row">
                                                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                         <div class="form-group">
-                                                            <label for="purchase_id">FGP No</label>
-                                                            <div class="input-group">
-                                                                <input type="text" class="form-control input-sm"
-                                                                       value="{{$production->id}}" name="serial_no"
-                                                                       id="serial_no" v-model="serial_no">
-                                                                <span class="input-group-append">
-                                                                    <button type="button" class="btn btn-info btn-flat"
-                                                                            @click="data_edit">Search</button>
-                                                                </span>
-                                                            </div>
+                                                            <label for="serial_no">FGP No</label>
+                                                            <input type="text" class="form-control input-sm"
+                                                                   value="{{old('serial_no',$production)}}" name="serial_no" v-model="serial_no">
                                                         </div>
                                                     </div>
                                                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
@@ -455,52 +448,6 @@
 
                     },
 
-                    data_edit() {
-                        var vm = this;
-
-                        alert(vm.serial_no);
-                        if (!vm.item_id) {
-                            toastr.error('Please Select Item', {
-                                closeButton: true,
-                                progressBar: true,
-                            });
-                            return false;
-                        } else {
-
-                            var slug = vm.item_id;
-
-                            if (slug) {
-                                vm.pageLoading = true;
-                                axios.get(this.config.get_item_info_url + '/' + slug).then(function (response) {
-                                    let item_info = response.data;
-                                    console.log(item_info);
-                                    vm.selected_items.push({
-                                        id: item_info.id,
-                                        group: item_info.parent.name,
-                                        name: item_info.name,
-                                        rate: '',
-                                        quantity: 1,
-                                    });
-                                    console.log(vm.selected_items);
-                                    vm.item_id = '';
-                                    vm.group_id = '';
-                                    vm.pageLoading = false;
-
-                                }).catch(function (error) {
-
-                                    toastr.error('Something went to wrong', {
-                                        closeButton: true,
-                                        progressBar: true,
-                                    });
-
-                                    return false;
-
-                                });
-                            }
-
-                        }
-
-                    },
                     delete_row: function (row) {
                         this.selected_items.splice(this.selected_items.indexOf(row), 1);
                     },
