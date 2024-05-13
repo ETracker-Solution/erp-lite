@@ -18,8 +18,10 @@
                             <img src="{{ asset('loading.gif') }}" alt="loading">
                         </span>
                 <div class="col-lg-12 col-md-12">
-                    <form action="{{route('consumptions.store')}}" method="POST" class="">
+                    <form action="{{route('consumptions.update',$consumption->id)}}" method="POST" class=""
+                          enctype="multipart/form-data">
                         @csrf
+                        @method('put')
                         <div class="card">
                             <div class="card-header bg-info">
                                 <h3 class="card-title">Raw Material Consumption (RMC) Entry</h3>
@@ -263,7 +265,7 @@
                             </div>
                             <div class="card-footer" v-if="selected_items.length > 0">
                                 <button class="float-right btn btn-primary" type="submit"><i
-                                        class="fa fa-fw fa-lg fa-check-circle"></i>Submit
+                                        class="fa fa-fw fa-lg fa-check-circle"></i>Update
                                 </button>
                             </div>
                         </div>
@@ -337,13 +339,13 @@
                     serial_no: {{$serial_no}},
                     consumption_id: '{{ $consumption->id }}',
                     date: '{{$consumption->date}}',
-                    store_id: '',
-                    batch_id: '',
+                    store_id: '{{$consumption->store_id}}',
+                    batch_id: '{{$consumption->batch_id}}',
                     group_id: '',
                     item_id: '',
-                    remark: '',
+                    remark: '{{$consumption->remark}}',
                     balance: '',
-                    reference_no: '',
+                    reference_no: '{{$consumption->reference_no}}',
                     items: [],
                     selected_items: [],
                     pageLoading: false
@@ -355,7 +357,7 @@
 
                     subtotal: function () {
                         return this.selected_items.reduce((total, item) => {
-                            return parseFloat(total + item.quantity * item.rate).toFixed(2)
+                            return total + (item.quantity * item.rate)
                         }, 0)
                     }
                 },
@@ -523,8 +525,8 @@
                         var vm = this;
                         var slug = vm.consumption_id;
                         //  alert(slug);
-                        axios.get(this.config.get_old_items_data + '/' + slug).then(function (response) {
-                            var item = response.data;
+                        axios.get(this.config.get_edit_data_url + '/' + slug).then(function (response) {
+                            var item = response.data.items;
                             for (key in item) {
                                 vm.selected_items.push(item[key]);
                             }
@@ -543,11 +545,11 @@
                     },
                     valid: function (index) {
                         //console.log(index.stock_quantity);
-                        if(index.quantity > index.balance ){
+                        if (index.quantity > index.balance) {
                             //console.log('1st');
-                            index.quantity = index.balance ;
+                            index.quantity = index.balance;
                         }
-                        if(index.quantity <= 0){
+                        if (index.quantity <= 0) {
                             //console.log('3');
                             index.quantity = '';
                         }
