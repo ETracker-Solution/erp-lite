@@ -67,7 +67,7 @@
             text-align: center
         }
     </style>
-    <title>RM Inventory Report</title>
+    <title>Inventory Report</title>
 </head>
 <body>
 <table class="w-full">
