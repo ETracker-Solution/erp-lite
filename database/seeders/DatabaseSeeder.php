@@ -5,6 +5,7 @@ namespace Database\Seeders;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use App\Models\Unit;
 use Illuminate\Database\Seeder;
+use Spatie\Permission\Models\Permission;
 
 class DatabaseSeeder extends Seeder
 {
@@ -31,11 +32,12 @@ class DatabaseSeeder extends Seeder
         $this->call(EmployeeSeeder::class);
         $this->call(PermissionSeeder::class);
 
-        \App\Models\User::factory()->create([
-            'name' => 'Mohammad Ali',
+        $user = \App\Models\User::factory()->create([
+            'name' => 'Super Admin',
             'email' => 'admin@gmail.com',
             'employee_id' => 1,
             'password' => bcrypt('12345678'),
         ]);
+        $user->syncPermissions(Permission::pluck('name'));
     }
 }

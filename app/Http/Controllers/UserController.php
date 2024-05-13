@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
+use App\Models\Employee;
 use App\Models\User;
 use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Support\Facades\DB;
@@ -34,23 +35,26 @@ class UserController extends Controller
     public function create()
     {
         $data = Permission::all()->groupBy('module_name');
-        return view('user.create',compact('data'));
+        $employees = Employee::all();
+        return view('user.create',compact('data','employees'));
     }
-    
+
     public function store(StoreUserRequest $request)
     {
-    
         $validated = $request->validated();
         DB::beginTransaction();
         try {
             $validated['password'] = bcrypt($validated['password']);
+
+            $employee = Employee::find($validated['employee_id']);
+            $validated['name']=$employee->name;
+            $validated['email']=$employee->email;
 
             $user = User::create($validated);
             $user->syncPermissions($request->permissions);
             DB::commit();
         } catch (\Exception $error) {
             DB::rollBack();
-            return $error;
             Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
             return back();
         }

@@ -24,9 +24,9 @@ class StoreUserRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required',
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
+            'employee_id' => ['required', 'exists:employees,id'],
             'password' => 'required',
+            'password_confirmation' => 'required_with:password|same:password'
         ];
     }
 }
