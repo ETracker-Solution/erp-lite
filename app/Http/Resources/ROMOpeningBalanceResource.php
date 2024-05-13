@@ -16,7 +16,7 @@ class ROMOpeningBalanceResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'serial_no' => $this->serial_no,
+            'uid' => $this->uid ?? '',
             'date' => $this->date,
             'group' => $this->chartOfInventory->parent->name,
             'group_id' => $this->chartOfInventory->parent->id,
