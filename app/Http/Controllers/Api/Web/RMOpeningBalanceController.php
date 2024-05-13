@@ -56,6 +56,7 @@ class RMOpeningBalanceController extends Controller
             ]);
             addInventoryTransaction(1, 'RMOB', $rmob);
 
+            addAccountsTransaction('RMOB', $rmob, getRMInventoryGLId(), getOpeningBalanceOfEquityGLId());
             DB::commit();
         } catch (\Exception $exception) {
             DB::rollBack();
@@ -108,6 +109,8 @@ class RMOpeningBalanceController extends Controller
             ]);
 
             addInventoryTransaction(1, 'RMOB', $rmob);
+
+            addAccountsTransaction('RMOB', $rmob, getRMInventoryGLId(), getOpeningBalanceOfEquityGLId());
 
             DB::commit();
         } catch (\Exception $exception) {

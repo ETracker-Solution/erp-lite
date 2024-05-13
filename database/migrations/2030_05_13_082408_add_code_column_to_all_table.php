@@ -44,7 +44,6 @@ return new class extends Migration {
         return [
             app(\App\Models\RawMaterialOpeningBalance::class)->getTable(),
             app(\App\Models\InventoryTransaction::class)->getTable(),
-            app(\App\Models\Transaction::class)->getTable(),
             app(\App\Models\Purchase::class)->getTable(),
             app(\App\Models\Production::class)->getTable(),
         ];
