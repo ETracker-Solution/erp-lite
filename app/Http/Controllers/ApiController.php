@@ -89,6 +89,7 @@ class ApiController extends Controller
             $items[] = [
                 'purchase_id' => $id,
                 'id' => $row->coi_id,
+                'unit' => $row->coi->unit->name ?? '',
                 'name' => $row->coi->name ?? '',
                 'group' => $row->coi->parent->name ?? '',
                 'quantity' => $row->quantity,
