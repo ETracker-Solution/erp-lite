@@ -96,7 +96,7 @@ $links = [
                             </div>
 
                             <div class="card-footer">
-                                <button class="btn btn-primary float-right"><i class="fa fa-check" aria-hidden="true"></i>
+                                <button class="btn btn-info float-right"><i class="fa fa-check" aria-hidden="true"></i>
                                     Submit
                                 </button>
                             </div>

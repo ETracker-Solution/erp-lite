@@ -56,7 +56,7 @@ $links = [
                                   <x-forms.select label="Suppllier Group" inputName="supplier_group_id" placeholder="Select One" :isRequired='true'  :isReadonly='false' :defaultValue="$supplier->supplier_group_id" :options="$supplier_groups" optionId="id" optionValue="name"/>
                               </div>
                             </div>
-                            <button class="btn btn-primary waves-effect waves-float waves-light float-right" type="submit">Update
+                            <button class="btn btn-info waves-effect waves-float waves-light float-right" type="submit">Update
                             </button>
                         </div>
 
