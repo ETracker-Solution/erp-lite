@@ -27,33 +27,33 @@ function showStatus($status)
 {
     switch ($status) {
         case 'picked':
-            return '<div class="badge badge-primary">' . ucfirst($status) . '</div>';
+            return '<span class="badge badge-primary">' . ucfirst($status) . '</span>';
         case 'assigned':
-            return '<div class="badge badge-info">' . ucfirst($status) . '</div>';
+            return '<span class="badge badge-info">' . ucfirst($status) . '</span>';
         case 'accepted':
         case 'active':
         case 'delivered':
-            return '<div class="badge badge-success">' . ucfirst($status) . '</div>';
+            return '<span class="badge badge-success">' . ucfirst($status) . '</span>';
         case 'return':
-            return '<div class="badge badge-light-danger">' . ucfirst($status) . '</div>';
+            return '<span class="badge badge-light-danger">' . ucfirst($status) . '</span>';
         case 'cancelled':
-            return '<div class="badge badge-glow badge-danger">' . ucfirst($status) . '</div>';
+            return '<span class="badge badge-glow badge-danger">' . ucfirst($status) . '</span>';
         case 'inactive':
-            return '<div class="badge badge-danger">' . ucfirst($status) . '</div>';
+            return '<span class="badge badge-danger">' . ucfirst($status) . '</span>';
         case 'pending':
-            return '<div class="badge badge-warning">Pending</div>';
+            return '<span class="badge badge-warning">Pending</span>';
         case 'hold':
-            return '<div class="badge badge-light-warning">Hold</div>';
+            return '<span class="badge badge-light-warning">Hold</span>';
         case 'enable':
-            return '<div class="badge badge-glow badge-success">Enable</div>';
+            return '<span class="badge badge-glow badge-success">Enable</span>';
         case 'disable':
-            return '<div class="badge badge-glow badge-warning">Disable</div>';
+            return '<span class="badge badge-glow badge-warning">Disable</span>';
         case 'transit':
-            return '<div class="badge badge-glow badge-info">Transit</div>';
+            return '<span class="badge badge-glow badge-info">Transit</span>';
         case 'partial':
-            return '<div class="badge badge-pill badge-glow badge-primary">Partial Collection</div>';
+            return '<span class="badge badge-pill badge-glow badge-primary">Partial Collection</span>';
         case 'wait_for_pickup':
-            return '<div class="badge badge-pill badge-glow badge-warning">Wait for Pickup</div>';
+            return '<span class="badge badge-pill badge-glow badge-warning">Wait for Pickup</span>';
     }
 }
 

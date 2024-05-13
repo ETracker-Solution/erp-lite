@@ -1,7 +1,6 @@
 @extends('layouts.app')
 @section('title', 'Consumption')
 @section('content')
-    <div class="content-wrapper">
         @php
             $links = [
             'Home'=>route('dashboard'),
@@ -9,13 +8,13 @@
             'Consumption Details'=>''
             ]
         @endphp
-        <x-bread-crumb-component title='Consumption Details' :links="$links"/>
-        <div class="content-body">
-            <!-- Basic Inputs start -->
-            <section id="basic-input">
+        <x-breadcrumb title='Consumption Details' :links="$links"/>
+        <!-- Basic Inputs start -->
+        <section class="content">
+            <div class="container-fluid">
                 <div class="row">
                     <div class="col-md-12">
-                        <div class="card">
+                        <div class="card card-info">
                             <div class="card-header">
                                 <h4 class="card-title">Consumption Details</h4>
                                 <div class="text-right">
@@ -24,22 +23,23 @@
                                 </div>
                             </div>
                             <div class="card-body">
-                                <table class="table table-bordered table-striped">
+                                <table class="table table-bordered table-striped" width="100%">
                                     <tbody>
-                                    <tr>
-                                        <th><strong>Consumption No</strong></th>
-                                        <td>{{ $consumption->consumption_no }}</td>
-                                        <th><strong>Date</strong></th>
-                                        <td>{{ $consumption->created_at->format('Y-m-d') }}</td>
-                                        <th><strong>Status </strong></th>
-                                        <td>{!! showStatus($consumption->status) !!}</td>
-                                    </tr>
+                                        <tr>
+                                            <td style="text-align: left; padding:8px;" width="50%">
+                                              <p><b>Consumption No : </b> {{ $consumption->consumption_no }} </p>
+                                              <p><b>Date : </b> {{ $consumption->created_at->format('Y-m-d') }} </p>
+                                            </td>
+                                            <td style="text-align: left; padding:8px;" width="50%">
+                                                <p><b>Status : </b> {!! showStatus($consumption->status) !!} </p>
+                                                <p><b>Description : </b> {{ $consumption->remark }} </p>
+                                            </td>
+                                        </tr>
                                     </tbody>
                                 </table>
-                                {{-- <p class="mt-1"><b>Remarks: </b>{{$consumption->remark}}</p> --}}
                             </div>
                         </div>
-                        <div class="card" v-if="products.length > 0">
+                        <div class="card card-info" v-if="products.length > 0">
                             <div class="card-header">
                                 <h4 class="card-title">Items</h4>
                             </div>
@@ -89,8 +89,7 @@
                         </div>
                     </div>
                 </div>
-            </section>
-            <!-- Basic Inputs end -->
-        </div>
-    </div>
+            </div>
+        </section>
+        <!-- Basic Inputs end -->
 @endsection
