@@ -565,7 +565,7 @@ class ChartOfAccountSeeder extends Seeder
                     [
                         'id' => 46,
                         'parent_id' => 45,
-                        'name' => 'Owner Equity',
+                        'name' => 'Owners Equity',
                         'status' => 'active',
                         'default_type' => 'accounts_payable',
                         'type' => 'ledger',
