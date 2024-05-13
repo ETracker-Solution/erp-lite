@@ -255,6 +255,11 @@
                                                         </tbody>
                                                         <tfoot>
                                                         <tr>
+                                                            <td colspan="8" style="background-color: #DDDCDC">
+
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
                                                             <td colspan="5">
 
                                                             </td>

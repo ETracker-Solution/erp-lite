@@ -78,24 +78,22 @@
                     searchable: false,
                     orderable: false
                 },
-                    {
-                        data: "purchase_number",
-                        title: "Purchase No",
-                        searchable: true
-                    },
+
                     {
                         data: "subtotal",
                         title: "Sub Total",
                         searchable: true
                     },
                     {
-                        data: "vat",
-                        title: "Vat Amount",
-                        searchable: true
+                        data: "batch.batch_no",
+                        title: "Batch",
+                        searchable: true,
+                        "defaultContent":"Not Set"
                     },
+
                     {
-                        data: "net_payable",
-                        title: "Net Payable",
+                        data: "total_quantity",
+                        title: "Total Quantity",
                         searchable: true
                     },
                     {

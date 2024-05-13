@@ -25,22 +25,24 @@ class StoreProductionRequest extends FormRequest
     public function rules()
     {
         return [
-            'date'=>['required'],
-            'status'=>['nullable'],
-            'products'=>['required', 'array'],
-            'remark'=>['nullable'],
-            'subtotal'=>['nullable'],
-            'reference_no'=>['nullable'],
-            'discount'=>['nullable'],
-            'grand_total'=>['nullable'],
-            'production_no'=>['required'],
+            'fg_store_id' => ['required'],
+            'rm_store_id' => ['required'],
+            'batch_id' => ['required'],
+            'date' => ['required'],
+            'status' => ['nullable'],
+            'products' => ['required', 'array'],
+            'remark' => ['nullable'],
+            'reference_no' => ['nullable'],
+            'subtotal' => ['nullable'],
+            'total_quantity' => ['nullable'],
+            'created_by' => ['nullable'],
         ];
     }
+
     public function prepareForValidation()
     {
         $this->merge([
-            'grand_total' =>  $this->grandtotal,
-            'production_no' =>  ProductionNumber::serial_number()
+            'created_by' => auth()->user()->id,
         ]);
     }
 }

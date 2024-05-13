@@ -55,6 +55,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('purchases', PurchaseController::class);
     Route::resource('sales', SaleController::class);
     Route::resource('productions', \App\Http\Controllers\ProductionController::class);
+    Route::get('production-pdf/{id}', [App\Http\Controllers\ProductionController::class, 'productionPdf'])->name('production.pdf');
     Route::resource('outlets', \App\Http\Controllers\OutletController::class);
     Route::resource('employees', \App\Http\Controllers\EmployeeController::class);
     Route::resource('permissions', \App\Http\Controllers\PermissionController::class);
@@ -80,6 +81,7 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('attributes', AttributeController::class);
 
+    Route::get('/fetch-production-by-id/{id}', [App\Http\Controllers\ApiController::class, 'fetchProductionById']);
     Route::get('/fetch-consumption-by-id/{id}', [App\Http\Controllers\ApiController::class, 'fetchConsumptionById']);
     Route::get('/fetch-items-by-group-id/{id}', [App\Http\Controllers\ApiController::class, 'fetch_products_by_cat_id']);
     Route::get('/fetch-item-available-balance/{item_id}/{store_id?}', [App\Http\Controllers\ApiController::class, 'fetchItemAvailableBalance']);

@@ -12,7 +12,12 @@ class Production extends Model
 
     protected $guarded = ['id'];
 
-    public function items(): HasMany
+    public function batch(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+
+        return $this->belongsTo('App\Models\Batch', 'batch_id');
+
+    } public function items(): HasMany
     {
 
         return $this->hasMany('App\Models\ProductionItem', 'production_id');

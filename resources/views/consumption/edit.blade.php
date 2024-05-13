@@ -242,6 +242,11 @@
                                                         </tbody>
                                                         <tfoot>
                                                         <tr>
+                                                            <td colspan="9" style="background-color: #DDDCDC">
+
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
                                                             <td colspan="6">
 
                                                             </td>
@@ -332,8 +337,6 @@
                         get_item_balance_info_url: "{{ url('fetch-item-available-balance') }}",
                         get_item_info_url: "{{ url('fetch-item-info-rm-consumption') }}",
                         get_edit_data_url: "{{ url('fetch-consumption-by-id') }}",
-
-                        get_old_items_data: "{{ url('fetch-purchase-products-info') }}",
                     },
                     action: {{$store_url}},
                     serial_no: {{$serial_no}},
