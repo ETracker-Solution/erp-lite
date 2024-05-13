@@ -85,7 +85,7 @@
         <table style="border: 2px solid #fff;">
             <tr>
                 <td class="tc bb-none">
-                    E-Moto Bazar
+                    Cake Town
                 </td>
             </tr>
             <tr>
@@ -137,7 +137,7 @@
 
     </table>
     <htmlpagefooter name="page-footer">
-        <p style=" font-size: 14px;" class="tc">ধন্যবাদ কেনাকাটা করার জন্য............।</p>
+        <p style=" font-size: 14px;" class="tc">Thank You for Purchase</p>
     </htmlpagefooter>
 </body>
 
