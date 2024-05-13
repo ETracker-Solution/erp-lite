@@ -82,3 +82,8 @@ function getNextId($model)
     $item = $model::latest('uid')->first();
     return $item ? (int) $item->uid + 1 : 1;
 }
+
+function getAllPermissions()
+{
+    return \Spatie\Permission\Models\Permission::pluck('name');
+}

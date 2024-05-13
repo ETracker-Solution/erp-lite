@@ -22,19 +22,33 @@
                             <h3 class="card-title">Create User</h3>
                         </div>
                         <div class="card-body">
-                            
                                 <div class="row">
                                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                                        <x-forms.text label="Name" inputName="name" placeholder="Enter User Name" :isRequired='true'  :isReadonly='false' defaultValue=""/>
+                                        <label for="employee_id">Employee</label>
+                                        <select name="employee" id="employee" class="form-control select2" required>
+                                            <option value="" selected>Select Employee</option>
+                                            @foreach($employees as $employee)
+                                                <option value="{{ $employee }}">{{ $employee->id . ' - '. $employee->name }}</option>
+                                            @endforeach
+                                        </select>
+                                        <input type="hidden" name="employee_id">
                                     </div>
                                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                                        <x-forms.email label="Email" inputName="email" placeholder="Enter Email" :isRequired='true' :isReadonly='false' defaultValue="" />
+                                        <x-forms.text label="Name" inputName="name" placeholder="Enter User Name" :isRequired='false'  :isReadonly='true' defaultValue=""/>
                                     </div>
                                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                                        <x-forms.password label="Password" inputName="password" placeholder="Enter Password" :isRequired='true'  :isReadonly='false' defaultValue=""/>
+                                        <x-forms.email label="Email" inputName="email" placeholder="Enter Email" :isRequired='false' :isReadonly='true' defaultValue="" />
                                     </div>
                                 </div>
-                               
+                            <div class="row">
+                                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                                    <x-forms.password label="Password" inputName="password" placeholder="Enter Password" :isRequired='true'  :isReadonly='false' defaultValue=""/>
+                                </div>
+                                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                                    <x-forms.password label="Retype Password" inputName="password_confirmation" placeholder="Enter Password" :isRequired='true'  :isReadonly='false' defaultValue=""/>
+                                </div>
+                            </div>
+
                         </div>
                     </div>
                 </div>
@@ -61,7 +75,7 @@
                                                         <span>{{ $permission->display_name }}</span>
                                                     </div>
                                                 @endforeach
-                                            </div>  
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -79,3 +93,14 @@
         </div>
     </section>
 @endsection
+@push('script')
+    <script>
+        $('#employee').on('select2:select', function (e) {
+            const user = JSON.parse(e.params.data.id);
+            console.log(user)
+            $('input[name=employee_id]').val(user.id)
+            $('input[name=name]').val(user.name)
+            $('input[name=email]').val(user.email)
+        })
+    </script>
+@endpush
