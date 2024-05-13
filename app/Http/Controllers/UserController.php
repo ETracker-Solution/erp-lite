@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Models\Employee;
+use App\Models\Outlet;
 use App\Models\User;
 use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Support\Facades\DB;
@@ -36,7 +37,8 @@ class UserController extends Controller
     {
         $data = Permission::all()->groupBy('module_name');
         $employees = Employee::all();
-        return view('user.create',compact('data','employees'));
+        $outlets = Outlet::all();
+        return view('user.create',compact('data','employees','outlets'));
     }
 
     public function store(StoreUserRequest $request)

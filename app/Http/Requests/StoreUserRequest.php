@@ -26,7 +26,8 @@ class StoreUserRequest extends FormRequest
         return [
             'employee_id' => ['required', 'exists:employees,id'],
             'password' => 'required',
-            'password_confirmation' => 'required_with:password|same:password'
+            'password_confirmation' => 'required_with:password|same:password',
+            'outlet_id'=>'nullable'
         ];
     }
 }
