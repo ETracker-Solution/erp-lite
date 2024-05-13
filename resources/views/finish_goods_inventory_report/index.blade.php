@@ -1,17 +1,17 @@
 @extends('layouts.app')
 @section('title')
-    RM Inventory Report
+    FG Inventory Report
 @endsection
 @section('content')
     @php
         $links = [
        'Home'=>route('dashboard'),
-       'Store RM Module'=>'',
+       'Store FG Module'=>'',
        'Report'=>'',
-       'RM Inventory Report'=>'',
+       'FG Inventory Report'=>'',
         ]
     @endphp
-    <x-breadcrumb title='RM Inventory Report' :links="$links"/>
+    <x-breadcrumb title='FG Inventory Report' :links="$links"/>
 
     <section class="content">
         <div class="container-fluid">
@@ -92,7 +92,7 @@
                 <div class="col-6">
                     <div class="card card-info">
                         <div class="card-header">
-                            <div class="card-title">Raw Material Inventory Report</div>
+                            <div class="card-title">Finish Goods Inventory Report</div>
                         </div>
                         <div class="card-body">
                             <div class="row">
@@ -171,11 +171,11 @@
                 el: '#vue_app',
                 data: {
                     config: {
-                        inventoryReportUrl: "{{ url('raw-materials-inventory-report') }}",
-                        initial_info_url: "{{ url('raw-materials-opening-balances-initial-info') }}",
+                        inventoryReportUrl: "{{ url('finish-goods-inventory-report') }}",
+                        initial_info_url: "{{ url('finish-goods-opening-balances-initial-info') }}",
                         get_items_info_by_group_id_url: "{{ url('fetch-items-by-group-id') }}",
                         get_item_info_url: "{{ url('fetch-item-info') }}",
-                        get_balances_url: "{{ url('raw-materials-opening-balances-list') }}",
+                        get_balances_url: "{{ url('finish-goods-opening-balances-list') }}",
                     },
                     from_date: new Date(),
                     to_date: new Date(),
