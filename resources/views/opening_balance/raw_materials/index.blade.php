@@ -151,7 +151,7 @@
                                         </thead>
                                         <tbody>
                                         <tr v-for="(row , index) in balances" @click="makeEditable(row)">
-                                            <td>@{{ row.id }}</td>
+                                            <td>@{{ row.uid }}</td>
                                             <td>@{{ row.date }}</td>
                                             <td>@{{ row.group }}</td>
                                             <td>@{{ row.item_name }}</td>
@@ -388,6 +388,7 @@
                     },
                     makeEditable(row) {
                         var vm = this;
+                        vm.next_id = row.uid
                         vm.isEditMode = true
                         vm.editableItem = row.id
                         vm.date = row.date

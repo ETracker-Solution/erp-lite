@@ -79,6 +79,6 @@ function getDue($merchant_id)
 
 function getNextId($model)
 {
-    $id = DB::select("SHOW TABLE STATUS LIKE '" . app($model)->getTable() . "'");
-    return $id[0]->Auto_increment;
+    $item = $model::latest('uid')->first();
+    return $item ? (int) $item->uid + 1 : 1;
 }

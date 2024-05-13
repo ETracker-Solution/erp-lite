@@ -34,9 +34,9 @@ class RMOpeningBalanceController extends Controller
         DB::beginTransaction();
         try {
 
-            $alreadyExists = $this->base_model->where(['store_id'=> $request->store_id,'coi_id' => $request->item_id])->exists();
+            $alreadyExists = $this->base_model->where(['store_id' => $request->store_id, 'coi_id' => $request->item_id])->exists();
 
-            if ($alreadyExists){
+            if ($alreadyExists) {
                 return response()->json([
                     'message' => 'Opening Balance Already Added',
                     'success' => false
@@ -44,6 +44,7 @@ class RMOpeningBalanceController extends Controller
             }
 
             $rmob = $this->base_model->create([
+                'uid' => getNextId(RawMaterialOpeningBalance::class),
                 'date' => $request->date,
                 'quantity' => $request->qty,
                 'rate' => $request->rate,
@@ -53,7 +54,7 @@ class RMOpeningBalanceController extends Controller
                 'remarks' => $request->remarks,
                 'created_by' => auth()->user()->id,
             ]);
-            addInventoryTransaction(1,'RMOB',$rmob);
+            addInventoryTransaction(1, 'RMOB', $rmob);
 
             DB::commit();
         } catch (\Exception $exception) {
@@ -68,24 +69,26 @@ class RMOpeningBalanceController extends Controller
             'success' => true
         ]);
     }
+
     public function list()
     {
         $rom_balances = $this->base_model->with('chartOfInventory.unit', 'chartOfInventory.parent')->paginate(10);
         return response()->json(['success' => true, 'items' => new PaginateResource($rom_balances, ROMOpeningBalanceResource::class)]);
     }
 
-    public function update(Request $request,  $id)
+    public function update(Request $request, $id)
     {
 
         DB::beginTransaction();
         try {
             $rawMaterialOpeningBalance = RawMaterialOpeningBalance::find($id);
+            $previous_uid = $rawMaterialOpeningBalance->uid;
             $rawMaterialOpeningBalance->inventoryTransaction()->delete();
             $rawMaterialOpeningBalance->delete();
 
-            $alreadyExists = $this->base_model->where(['store_id'=> $request->store_id,'coi_id' => $request->item_id])->exists();
+            $alreadyExists = $this->base_model->where(['store_id' => $request->store_id, 'coi_id' => $request->item_id])->exists();
 
-            if ($alreadyExists){
+            if ($alreadyExists) {
                 return response()->json([
                     'message' => 'Opening Balance Already Added',
                     'success' => false
@@ -93,6 +96,7 @@ class RMOpeningBalanceController extends Controller
             }
 
             $rmob = $this->base_model->create([
+                'uid' => $previous_uid,
                 'date' => $request->date,
                 'quantity' => $request->qty,
                 'rate' => $request->rate,
@@ -103,7 +107,7 @@ class RMOpeningBalanceController extends Controller
                 'created_by' => auth()->user()->id,
             ]);
 
-            addInventoryTransaction(1,'RMOB',$rmob);
+            addInventoryTransaction(1, 'RMOB', $rmob);
 
             DB::commit();
         } catch (\Exception $exception) {
@@ -125,7 +129,7 @@ class RMOpeningBalanceController extends Controller
             $rawMaterialOpeningBalance = RawMaterialOpeningBalance::find($id);
             $rawMaterialOpeningBalance->inventoryTransaction()->delete();
             $rawMaterialOpeningBalance->delete();
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             return response()->json([
                 'message' => $exception->getMessage(),
                 'success' => false
