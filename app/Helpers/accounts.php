@@ -60,3 +60,8 @@ function getAccountsReceiveableGLId()
 {
     return 18;
 }
+
+function getFGInventoryGLId()
+{
+    return 16;
+}
