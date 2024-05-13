@@ -66,9 +66,8 @@
         .headers{
             text-align: center
         }
-
     </style>
-    <title>Invoice</title>
+    <title>RM Inventory Report</title>
 </head>
 <body>
 <table class="w-full">
@@ -81,76 +80,27 @@
 </table>
 <table  class="w-full">
     <tr>
-        <td>@if($one_title) {{ ucfirst($one_value).' Name: '.ucwords($data[0][$one_value]) }} @endif</td>
+        <td>{{ $page_title }}</td>
     </tr>
 </table>
-{{--<div class="margin-top">--}}
-{{--    <table class="w-full">--}}
-{{--        <tr>--}}
-{{--            <td class="w-half">--}}
-{{--                <div><h4>To:</h4></div>--}}
-{{--                <div>John Doe</div>--}}
-{{--                <div>123 Acme Str.</div>--}}
-{{--            </td>--}}
-{{--            <td class="w-half">--}}
-{{--                <div><h4>From:</h4></div>--}}
-{{--                <div>Laravel Daily</div>--}}
-{{--                <div>London</div>--}}
-{{--            </td>--}}
-{{--        </tr>--}}
-{{--    </table>--}}
-{{--</div>--}}
-@php
-    $group = null;
-    $store = null;
-@endphp
 <div class="margin-top">
     <table class="products">
         <tr>
-            @if($visible_columns['store'])
-                <th>Store</th>
-            @endif
-            @if($visible_columns['group'])
-                <th>Group</th>
-            @endif
-            @if($visible_columns['item'])
-                <th>Item</th>
-            @endif
-            @if($visible_columns['quantity'])
-                <th>Quantity</th>
-            @endif
-                <th>Balance</th>
+            @foreach($columns as $column)
+                <th>{{$column}}</th>
+            @endforeach
         </tr>
         @foreach($data as $key=>$item)
             <tr class="items">
-                @if($visible_columns['store'])
-                    <td>{{ $store !== $item->store ? $item->store: '' }}</td>
-                @endif
-                @if($visible_columns['group'])
-                        <td>{{ $group !== $item->group ? $item->group : '' }}</td>
-                @endif
-                @if($visible_columns['item'])
-                    <td>  {{ $item->item }}</td>
-                @endif
-                @if($visible_columns['quantity'])
-                    <td>  {{ $item->total }}</td>
-                @endif
-                    <td>{{ $item->TAmount }}</td>
-            </tr>
-            @php
-                $store = $item->store;
-                $group = $item->group;
-            @endphp
+                @foreach($columns as $column)
+                    <td>{{ $item->$column }}</td>
+                @endforeach
+
         @endforeach
     </table>
 </div>
-{{--<div class="total">--}}
-{{--    Total: $129.00 USD--}}
-{{--</div>--}}
-
-{{--<div class="footer margin-top">--}}
-{{--    <div>Thank you</div>--}}
-{{--    <div>&copy; Laravel Daily</div>--}}
-{{--</div>--}}
+<htmlpagefooter name="page-footer">
+    {PAGENO}
+</htmlpagefooter>
 </body>
 </html>

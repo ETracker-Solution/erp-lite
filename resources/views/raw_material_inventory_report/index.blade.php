@@ -73,18 +73,18 @@
                             <div class="row">
                                 <div class="col-12">
                                     <div class="form-group">
-                                        <label for="">From Date</label>
-                                        <vuejs-datepicker v-model="from_date" name="from_date"
+                                        <label for="">As On Date</label>
+                                        <vuejs-datepicker v-model="from_date" name="as_on_date"
                                                           placeholder="Select date"></vuejs-datepicker>
                                     </div>
                                 </div>
-                                <div class="col-12">
-                                    <div class="form-group">
-                                        <label for="">To Date</label>
-                                        <vuejs-datepicker v-model="to_date" name="to_date"
-                                                          placeholder="Select date"></vuejs-datepicker>
-                                    </div>
-                                </div>
+{{--                                <div class="col-12">--}}
+{{--                                    <div class="form-group">--}}
+{{--                                        <label for="">To Date</label>--}}
+{{--                                        <vuejs-datepicker v-model="to_date" name="to_date"--}}
+{{--                                                          placeholder="Select date"></vuejs-datepicker>--}}
+{{--                                    </div>--}}
+{{--                                </div>--}}
                             </div>
                         </div>
                     </div>
@@ -98,7 +98,7 @@
                             <div class="row">
                                 <div class="col-12">
                                     <div class="text-center">
-                                        <button class="btn btn-sm btn-dark w-50 mb-2" @click="showReport('all_group')">
+                                        <button class="btn btn-sm btn-dark w-50 mb-2" @click="showReport('all_groups')">
                                             Show All Groups Quantity Summary
                                         </button>
                                         <button class="btn btn-sm btn-dark w-50 mb-2"
@@ -294,8 +294,7 @@
                         axios.get(this.config.inventoryReportUrl + '/create', {
                             params: {
                                 report_type: reportType,
-                                from_date: vm.from_date,
-                                to_date: vm.to_date,
+                                as_on_date: vm.as_on_date,
                                 group_id: vm.group_id,
                                 item_id: vm.item_id,
                                 store_id: vm.store_id,
