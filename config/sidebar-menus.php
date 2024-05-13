@@ -93,6 +93,28 @@ return [
             'permissions' => ['store-rm-admin','store-rm-operator','store-rm-viewer','store-rm-approver']
         ],
         [
+            'name' => 'Store FG Module',
+            'icon' => 'fas fa-shopping-cart',
+            'active_condition' => false,
+            'has_child' => true,
+            'child' => [
+                [
+                    'name' => 'Report',
+                    'url' => '#',
+                    'has_child' => true,
+                    'active_condition' => false,
+                    'child' => [
+                        [
+                            'name' => 'FG Inventory Report',
+                            'url' => '/finish-goods-inventory-report',
+                            'active_condition' => '',
+                        ]
+                    ],
+                ]
+            ],
+            'permissions' => ['store-rm-admin','store-rm-operator','store-rm-viewer','store-rm-approver']
+        ],
+        [
             'name' => 'Production Module',
             'icon' => 'fas fa-tag',
             'active_condition' => false,
