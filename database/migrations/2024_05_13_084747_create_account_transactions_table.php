@@ -13,7 +13,7 @@ return new class extends Migration {
         Schema::create('account_transactions', function (Blueprint $table) {
             $table->id();
             $table->date('date');
-            $table->enum('transaction_type', [1, -1])->comment('1 = Debit, -1 = Credit');
+            $table->integer('transaction_type')->comment('1 = Debit, -1 = Credit');
             $table->enum('type', ['debit', 'credit']);
             $table->double('amount', 16, 2);
             $table->bigInteger('transaction_id');
