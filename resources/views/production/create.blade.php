@@ -347,7 +347,7 @@
                     date: new Date(),
                     serial_no: {{$serial_no}},
                     rm_store_id: '',
-                    store_id: '',
+                    fg_store_id: '',
                     batch_id: '',
                     group_id: '',
                     item_id: '',
@@ -451,47 +451,11 @@
                     data_edit() {
                         var vm = this;
 
-                        alert(vm.serial_no);
-                        if (!vm.item_id) {
-                            toastr.error('Please Select Item', {
-                                closeButton: true,
-                                progressBar: true,
-                            });
-                            return false;
-                        } else {
-
-                            var slug = vm.item_id;
-
-                            if (slug) {
-                                vm.pageLoading = true;
-                                axios.get(this.config.get_item_info_url + '/' + slug).then(function (response) {
-                                    let item_info = response.data;
-                                    console.log(item_info);
-                                    vm.selected_items.push({
-                                        id: item_info.id,
-                                        group: item_info.parent.name,
-                                        name: item_info.name,
-                                        rate: '',
-                                        quantity: 1,
-                                    });
-                                    console.log(vm.selected_items);
-                                    vm.item_id = '';
-                                    vm.group_id = '';
-                                    vm.pageLoading = false;
-
-                                }).catch(function (error) {
-
-                                    toastr.error('Something went to wrong', {
-                                        closeButton: true,
-                                        progressBar: true,
-                                    });
-
-                                    return false;
-
-                                });
-                            }
-
-                        }
+                       // alert(vm.serial_no);
+                        toastr.error('Under Construction-------', {
+                            closeButton: true,
+                            progressBar: true,
+                        });
 
                     },
                     delete_row: function (row) {

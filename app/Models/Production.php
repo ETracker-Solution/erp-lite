@@ -17,7 +17,21 @@ class Production extends Model
 
         return $this->belongsTo('App\Models\Batch', 'batch_id');
 
-    } public function items(): HasMany
+    }
+
+    public function fgStore(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+
+        return $this->belongsTo('App\Models\Store', 'fg_store_id');
+
+    } public function rmStore(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+
+        return $this->belongsTo('App\Models\Store', 'rm_store_id');
+
+    }
+
+    public function items(): HasMany
     {
 
         return $this->hasMany('App\Models\ProductionItem', 'production_id');
