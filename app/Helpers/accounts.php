@@ -11,6 +11,7 @@ function addAccountsTransaction($doc_type, $doc, $debit_account_id, $credit_acco
         [
             'date' => $doc->date,
             'type' => 'debit',
+            'transaction_type' => 1,
             'amount' => $doc->amount,
             'transaction_id' => $doc->transaction_id ?? '000',
             'payee_name' => $doc->payee_name,
@@ -23,6 +24,7 @@ function addAccountsTransaction($doc_type, $doc, $debit_account_id, $credit_acco
         [
             'date' => $doc->date,
             'type' => 'credit',
+            'transaction_type' => -1,
             'amount' => $doc->amount,
             'transaction_id' => $doc->transaction_id ?? '000',
             'payee_name' => $doc->payee_name,
@@ -34,5 +36,5 @@ function addAccountsTransaction($doc_type, $doc, $debit_account_id, $credit_acco
         ]
     ];
 
-    DB::table('transactions')->insert($data);
+    DB::table('account_transactions')->insert($data);
 }
