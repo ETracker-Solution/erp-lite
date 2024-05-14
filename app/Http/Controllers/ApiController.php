@@ -9,17 +9,24 @@ use App\Models\Product;
 use App\Models\Production;
 use App\Models\Supplier;
 use App\Models\PurchaseItem;
+use App\Models\SupplierTransaction;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ApiController extends Controller
 {
+
+    public function fetchSupplierDueById($id)
+    {
+        return SupplierTransaction::where('supplier_id',$id)->sum(DB::raw('amount * transaction_type'));
+    }
 
     public function fetchItemById($id)
     {
         return ChartOfInventory::with('unit', 'parent')->findOrFail($id);
     }
 
-    public function fetchItemInfoRMConsumption($item_id,$store_id=null)
+    public function fetchItemInfoRMConsumption($item_id, $store_id = null)
     {
 
         $item = ChartOfInventory::with('unit', 'parent')->findOrFail($item_id);
@@ -126,6 +133,7 @@ class ApiController extends Controller
         ];
         return response()->json($data);
     }
+
     public function fetchProductionById($id)
     {
         $production = Production::with('items')->where('id', $id)->first();
