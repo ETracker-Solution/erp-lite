@@ -1,17 +1,17 @@
 @extends('layouts.app')
 
-@section('title', 'Receive Voucher')
+@section('title', 'Supplier Payment Voucher')
 @section('content')
     @push('style')
     @endpush
     @php
     $links = [
     'Home'=>route('dashboard'),
-    'Supplier Voucher'=>route('supplier-vouchers.index'),
-    'Supplier Voucher Edit'=>'',
+    'Supplier Payment Voucher'=>route('supplier-vouchers.index'),
+    'Supplier Payment Voucher Edit'=>'',
     ]
     @endphp
-    <x-breadcrumb title='Supplier Voucher' :links="$links"/>
+    <x-breadcrumb title='Supplier Payment Voucher' :links="$links"/>
 
     <!-- Basic Inputs start -->
     <section class="content">
@@ -20,7 +20,7 @@
                 <div class="col-md-12">
                     <div class="card card-info">
                         <div class="card-header">
-                            <h4 class="card-title">Supplier Voucher Details</h4>
+                            <h4 class="card-title">Supplier Payment Voucher Details</h4>
                             <div class="text-right">
                                 {{-- <a href="{{ route('supplier-voucher.pdf', encrypt($supplierVoucher->id)) }}" class="btn btn-primary" target="_blank"><i class="fa fa-download"></i> PDF</a> --}}
                             </div>
@@ -37,8 +37,8 @@
                                         <td>{{ $supplierVoucher->date }}</td>
                                     </tr>
                                     <tr>
-                                        <th><strong>SV No :</strong></th>
-                                        <td>{{ $supplierVoucher->sv_no }}</td>
+                                        <th><strong>SPV No :</strong></th>
+                                        <td>{{ $supplierVoucher->uid }}</td>
                                     </tr>
                                     <tr>
                                         <th><strong>Credit Account  :</strong></th>

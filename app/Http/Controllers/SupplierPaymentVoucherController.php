@@ -56,28 +56,28 @@ class SupplierPaymentVoucherController extends Controller
     public function store(StoreSupplierPaymentVoucherRequest $request)
     {
         $validated = $request->validated();
-//        DB::beginTransaction();
-//        try {
-        $voucher = SupplierPaymentVoucher::create($validated);
-        //Accounts Effect
-        addAccountsTransaction('SPV', $voucher, $voucher->debit_account_id, $voucher->credit_account_id);
-        // Supplier Transaction Effect
-        SupplierTransaction::query()->create([
-            'supplier_id' => $voucher->supplier_id,
-            'doc_type' => 'SPV',
-            'doc_id' => $voucher->id,
-            'amount' => $voucher->amount,
-            'date' => $voucher->date,
-            'transaction_type' => -1,
-            'chart_of_account_id' => $voucher->credit_account_id,
-            'description' => 'Payment For Purchase of Goods',
-        ]);
-//            DB::commit();
-//        } catch (\Exception $error) {
-//            DB::rollBack();
-//            Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
-//            return back();
-//        }
+        DB::beginTransaction();
+        try {
+            $voucher = SupplierPaymentVoucher::create($validated);
+            //Accounts Effect
+            addAccountsTransaction('SPV', $voucher, $voucher->debit_account_id, $voucher->credit_account_id);
+            // Supplier Transaction Effect
+            SupplierTransaction::query()->create([
+                'supplier_id' => $voucher->supplier_id,
+                'doc_type' => 'SPV',
+                'doc_id' => $voucher->id,
+                'amount' => $voucher->amount,
+                'date' => $voucher->date,
+                'transaction_type' => -1,
+                'chart_of_account_id' => $voucher->credit_account_id,
+                'description' => 'Payment For Purchase of Goods',
+            ]);
+            DB::commit();
+        } catch (\Exception $error) {
+            DB::rollBack();
+            Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
+            return back();
+        }
         Toastr::success('Supplier Payment Voucher Created Successfully!.', '', ["progressBar" => true]);
         return redirect()->route('supplier-vouchers.index');
     }
