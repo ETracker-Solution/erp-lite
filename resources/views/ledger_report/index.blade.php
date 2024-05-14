@@ -27,10 +27,10 @@
                             <div class="row">
                                 <div class="col-12">
                                     <div class="form-group">
-                                        <label for="store_id">Ledger A/C</label>
-                                        <select name="store_id" id="store_id" class="form-control" v-model="store_id">
+                                        <label for="account_id">Ledger A/C</label>
+                                        <select name="account_id" id="account_id" class="form-control bSelect" v-model="account_id">
                                             <option value="">Select a Ledger A/C</option>
-                                            <option :value="row.id" v-for="row in stores"
+                                            <option :value="row.id" v-for="row in accounts"
                                             >@{{ row.id + ' - ' + row.name }}
                                             </option>
                                         </select>
@@ -38,10 +38,10 @@
                                 </div>
                                 <div class="col-12">
                                     <div class="form-group">
-                                        <label for="store_id">Supplier</label>
-                                        <select name="store_id" id="store_id" class="form-control" v-model="store_id">
+                                        <label for="supplier_id">Supplier</label>
+                                        <select name="supplier_id" id="supplier_id" class="form-control bSelect" v-model="supplier_id">
                                             <option value="">Select a Supplier</option>
-                                            <option :value="row.id" v-for="row in stores"
+                                            <option :value="row.id" v-for="row in suppliers"
                                             >@{{ row.id + ' - ' + row.name }}
                                             </option>
                                         </select>
@@ -49,10 +49,10 @@
                                 </div>
                                 <div class="col-12">
                                     <div class="form-group">
-                                        <label for="store_id">Customer</label>
-                                        <select name="store_id" id="store_id" class="form-control" v-model="store_id">
+                                        <label for="customer_id">Customer</label>
+                                        <select name="customer_id" id="customer_id" class="form-control bSelect" v-model="customer_id">
                                             <option value="">Select a Customer</option>
-                                            <option :value="row.id" v-for="row in stores"
+                                            <option :value="row.id" v-for="row in customers"
                                             >@{{ row.id + ' - ' + row.name }}
                                             </option>
                                         </select>
@@ -94,13 +94,13 @@
                             <div class="row">
                                 <div class="col-12">
                                     <div class="text-center">
-                                        <button class="btn btn-sm btn-dark w-50 mb-2" @click="showReport('all_groups')">
+                                        <button class="btn btn-sm btn-dark w-50 mb-2" @click="showReport('account_ledger')">
                                             Show General Account Ledger
                                         </button>
                                         <button class="btn btn-sm btn-dark w-50 mb-2"
-                                                @click="showReport('single_group_item')">Show Supplier Account Ledger
+                                                @click="showReport('supplier_ledger')">Show Supplier Account Ledger
                                         </button>
-                                        <button class="btn btn-sm btn-dark w-50 mb-2" @click="showReport('all_item')">
+                                        <button class="btn btn-sm btn-dark w-50 mb-2" @click="showReport('customer_ledger')">
                                             Show Customer Account Ledger
                                         </button>
                                     </div>
@@ -156,20 +156,22 @@
                 el: '#vue_app',
                 data: {
                     config: {
-                        inventoryReportUrl: "{{ url('raw-materials-inventory-report') }}",
-                        initial_info_url: "{{ url('raw-materials-opening-balances-initial-info') }}",
-                        get_items_info_by_group_id_url: "{{ url('fetch-items-by-group-id') }}",
-                        get_item_info_url: "{{ url('fetch-item-info') }}",
-                        get_balances_url: "{{ url('raw-materials-opening-balances-list') }}",
+                        ledger_report_url: "{{ url('ledger-reports') }}",
+                        initial_info_url: "{{ url('ledger-reports-initial-info') }}",
                     },
                     from_date: new Date(),
                     to_date: new Date(),
                     group_id: '',
-                    item_id: '',
-                    store_id: '',
-                    items: [],
+                    account_id: '',
+                    supplier_id: '',
+                    customer_id: '',
+
+                    accounts: [],
+                    suppliers: [],
+                    customers: [],
                     pageLoading: false,
-                    groups: [],
+
+                    store_id: '',
                     stores: []
 
                 },
@@ -178,51 +180,7 @@
                 },
                 computed: {},
                 methods: {
-                    fetch_product() {
-                        var vm = this;
-                        var slug = vm.group_id;
-                        if (slug) {
-                            vm.pageLoading = true;
-                            axios.get(this.config.get_items_info_by_group_id_url + '/' + slug).then(function (response) {
-                                vm.items = response.data.products;
-                                vm.pageLoading = false;
-                            }).catch(function (error) {
-                                toastr.error('Something went to wrong', {
-                                    closeButton: true,
-                                    progressBar: true,
-                                });
-                                return false;
-                            });
-                        }
-                    },
-                    get_product_info() {
-                        const vm = this;
-                        if (!vm.item_id) {
-                            toastr.error('Please Select Item', {
-                                closeButton: true,
-                                progressBar: true,
-                            });
-                            return false;
-                        } else {
-                            const slug = vm.item_id;
-                            if (slug) {
-                                vm.pageLoading = true;
-                                axios.get(this.config.get_item_info_url + '/' + slug).then(function (response) {
-                                    let item_info = response.data;
-                                    vm.unit = item_info.unit ? item_info.unit.name : '';
-                                    vm.pageLoading = false;
-                                }).catch(function (error) {
-                                    toastr.error('Something went to wrong', {
-                                        closeButton: true,
-                                        progressBar: true,
-                                    });
-                                    return false;
-                                });
-                            }
 
-                        }
-
-                    },
                     backAsStarting() {
                         const vm = this;
                         vm.isEditMode = false
@@ -242,9 +200,9 @@
                         const vm = this;
                         vm.pageLoading = true;
                         axios.get(this.config.initial_info_url).then(function (response) {
-                            vm.groups = response.data.groups;
-                            vm.stores = response.data.stores;
-                            vm.next_id = response.data.next_id;
+                            vm.accounts = response.data.accounts;
+                            vm.suppliers= response.data.suppliers;
+                            vm.customers= response.data.customers;
                             vm.pageLoading = false;
                         }).catch(function (error) {
                             toastr.error('Something went to wrong', {
@@ -256,18 +214,27 @@
                     },
                     showReport(reportType) {
                         const vm = this;
-                        if (reportType === 'single_group_item') {
-                            if (!vm.group_id) {
-                                toastr.error('Please Select Group', {
+                        if (reportType === 'account_ledger') {
+                            if (!vm.account_id) {
+                                toastr.error('Please Select Ledger A/C', {
                                     closeButton: true,
                                     progressBar: true,
                                 });
                                 return false;
                             }
                         }
-                        if (reportType === 'store_group_item') {
-                            if (!vm.store_id) {
-                                toastr.error('Please Select Store', {
+                        if (reportType === 'supplier_ledger') {
+                            if (!vm.supplier_id) {
+                                toastr.error('Please Select Supplier', {
+                                    closeButton: true,
+                                    progressBar: true,
+                                });
+                                return false;
+                            }
+                        }
+                        if (reportType === 'customer_ledger') {
+                            if (!vm.customer_id) {
+                                toastr.error('Please Select Customer', {
                                     closeButton: true,
                                     progressBar: true,
                                 });
@@ -276,13 +243,14 @@
                         }
 
                         vm.pageLoading = true;
-                        axios.get(this.config.inventoryReportUrl + '/create', {
+                        axios.get(this.config.ledger_report_url + '/create', {
                             params: {
                                 report_type: reportType,
-                                as_on_date: vm.as_on_date,
-                                group_id: vm.group_id,
-                                item_id: vm.item_id,
-                                store_id: vm.store_id,
+                                from_date: vm.from_date,
+                                to_date: vm.to_date,
+                                account_id: vm.account_id,
+                                supplier_id: vm.supplier_id,
+                                customer_id: vm.customer_id,
                             },
                             responseType: 'blob',
                         }).then(function (response) {

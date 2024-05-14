@@ -170,11 +170,17 @@ Route::middleware('auth')->group(function () {
      Route::get('supplier-opening-balances-initial-info',[\App\Http\Controllers\Api\Web\SupplierOpeningBalanceController::class, 'initialInfo']);
      Route::resource('supplier-opening-balances',\App\Http\Controllers\Api\Web\SupplierOpeningBalanceController::class);
      /*=========== Supplier Opening Balance Api Ends ===========*/
+
+
+    /*=========== Raw Materials Opening Balance Api Starts ===========*/
+    Route::get('ledger-reports-initial-info',[\App\Http\Controllers\Api\Web\LedgerReportController::class, 'initialInfo']);
+    Route::resource('ledger-reports',\App\Http\Controllers\Api\Web\LedgerReportController::class);
+    /*=========== Raw Materials Opening Balance Api Ends ===========*/
 });
 Route::group(['prefix' => 'reports', 'middleware' => 'auth'], function () {
 
 
-    Route::get('ledger-reports', [App\Http\Controllers\LedgerReportController::class, 'index'])->name('ledger-reports.index');
+    Route::get('ledger-reports', [App\Http\Controllers\LedgerReportController::class, 'index']);
 
     //Report Route
     Route::get('daily-report', [App\Http\Controllers\ReportController::class, 'dailyReport'])->name('daily.report');
