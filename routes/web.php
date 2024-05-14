@@ -10,6 +10,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\ReceiveVoucherController;
 use App\Http\Controllers\SaleController;
+use App\Http\Controllers\SupplierVoucherController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -63,6 +64,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('receive-vouchers', ReceiveVoucherController::class);
     Route::resource('journal-vouchers', JournalVoucherController::class);
     Route::resource('fund-transfer-vouchers', FundTransferVoucherController::class);
+    Route::resource('supplier-vouchers', SupplierVoucherController::class);
 
 
     Route::resource('consumptions', \App\Http\Controllers\ConsumptionController::class);
@@ -137,13 +139,28 @@ Route::middleware('auth')->group(function () {
     Route::resource('raw-materials-inventory-report',\App\Http\Controllers\Api\Web\RMInventoryReportController::class);
     /*=========== Raw Materials Inventory Report Api Ends ===========*/
 
-    /*=========== Raw Materials Opening Balance Api Starts ===========*/
+    /*=========== Finish Goods Opening Balance Api Starts ===========*/
     Route::get('finish-goods-opening-balances-list',[\App\Http\Controllers\Api\Web\FGOpeningBalanceController::class, 'list']);
     Route::get('finish-goods-opening-balances-initial-info',[\App\Http\Controllers\Api\Web\FGOpeningBalanceController::class, 'initialInfo']);
     Route::resource('finish-goods-opening-balances',\App\Http\Controllers\Api\Web\FGOpeningBalanceController::class);
-    /*=========== Raw Materials Opening Balance Api Ends ===========*/
+    /*=========== Finish Goods Opening Balance Api Ends ===========*/
+
+    /*=========== Finish Goods Inventory Report Api Starts ===========*/
+    Route::resource('finish-goods-inventory-report',\App\Http\Controllers\Api\Web\FGInventoryReportController::class);
+    /*=========== Finish Goods Inventory Report Api Ends ===========*/
+
+
+     /*=========== General ledger Opening Balance Api Starts ===========*/
+     Route::get('general-ledger-opening-balances-list',[\App\Http\Controllers\Api\Web\GLOpeningBalanceController::class, 'list']);
+     Route::get('general-ledger-opening-balances-initial-info',[\App\Http\Controllers\Api\Web\GLOpeningBalanceController::class, 'initialInfo']);
+     Route::resource('general-ledger-opening-balances',\App\Http\Controllers\Api\Web\GLOpeningBalanceController::class);
+     /*=========== General ledger Opening Balance Api Ends ===========*/
 });
 Route::group(['prefix' => 'reports', 'middleware' => 'auth'], function () {
+
+
+    Route::get('ledger-reports', [App\Http\Controllers\LedgerReportController::class, 'index'])->name('ledger-reports.index');
+
     //Report Route
     Route::get('daily-report', [App\Http\Controllers\ReportController::class, 'dailyReport'])->name('daily.report');
     Route::get('profit-loss', [App\Http\Controllers\ReportController::class, 'profitLoss'])->name('profit.loss');

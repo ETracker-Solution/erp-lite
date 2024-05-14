@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AccountTransaction;
 use App\Models\JournalVoucher;
 use App\Http\Requests\StoreJournalVoucherRequest;
 use App\Http\Requests\UpdateJournalVoucherRequest;
@@ -45,7 +46,7 @@ class JournalVoucherController extends Controller
      */
     public function create()
     {
-        
+
         $chartOfAccounts = ChartOfAccount::where(['type' => 'ledger', 'status' => 'active'])->get();
         $lastValue = JournalVoucher::latest()->pluck('jv_no')->first();
         if ($lastValue !== null) {
@@ -68,7 +69,8 @@ class JournalVoucherController extends Controller
         DB::beginTransaction();
         try {
             $voucher = JournalVoucher::create($validated);
-            // transaction('jv', $voucher);
+            // Accounts Effect
+            addAccountsTransaction('JV', $voucher, $voucher->debit_account_id, $voucher->credit_account_id);
             DB::commit();
         } catch (\Exception $error) {
             DB::rollBack();
@@ -125,7 +127,7 @@ class JournalVoucherController extends Controller
         DB::beginTransaction();
         try {
             JournalVoucher::findOrFail(decrypt($id))->delete();
-            Transaction::where('doc_type','jv')->where('doc_id',decrypt($id))->delete();
+            AccountTransaction::where('doc_type','JV')->where('doc_id',decrypt($id))->delete();
             DB::commit();
         } catch (\Exception $error) {
             DB::rollBack();

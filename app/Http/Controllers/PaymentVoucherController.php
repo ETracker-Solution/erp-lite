@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AccountTransaction;
 use App\Models\PaymentVoucher;
 use App\Http\Requests\StorePaymentVoucherRequest;
 use App\Http\Requests\UpdatePaymentVoucherRequest;
@@ -53,7 +54,7 @@ class PaymentVoucherController extends Controller
         } else {
             $PVno = 1; // Set the default value to 1
         }
-        return view('payment_voucher.create', compact('debitAccounts', 'creditAccounts','PVno'));
+        return view('payment_voucher.create', compact('debitAccounts', 'creditAccounts', 'PVno'));
 
     }
 
@@ -69,7 +70,8 @@ class PaymentVoucherController extends Controller
         DB::beginTransaction();
         try {
             $voucher = PaymentVoucher::create($validated);
-            // transaction('pv', $voucher);
+            // Accounts Effect
+            addAccountsTransaction('PV', $voucher, $voucher->debit_account_id, $voucher->credit_account_id);
             DB::commit();
         } catch (\Exception $error) {
             DB::rollBack();
@@ -126,7 +128,7 @@ class PaymentVoucherController extends Controller
         DB::beginTransaction();
         try {
             PaymentVoucher::findOrFail(decrypt($id))->delete();
-            Transaction::where('doc_type','pv')->where('doc_id',decrypt($id))->delete();
+            AccountTransaction::where(['doc_type' => 'PV', 'doc_id' => decrypt($id)])->delete();
             DB::commit();
         } catch (\Exception $error) {
             DB::rollBack();
@@ -140,9 +142,9 @@ class PaymentVoucherController extends Controller
     public function paymentVoucherPdf($id)
     {
         $paymentVoucher = PaymentVoucher::findOrFail(decrypt($id));
-            $data = [
-                'paymentVoucher' => $paymentVoucher,
-            ];
+        $data = [
+            'paymentVoucher' => $paymentVoucher,
+        ];
 
         $pdf = PDF::loadView(
             'payment_voucher.pdf',

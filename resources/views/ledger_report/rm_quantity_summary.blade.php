@@ -67,13 +67,13 @@
             text-align: center
         }
     </style>
-    <title>Inventory Report</title>
+    <title>RM Inventory Report</title>
 </head>
 <body>
 <table class="w-full">
     <tr>
         <td class="w-full headers">
-            <h3>{{ $report_header }}</h3>
+            <h3>RM Inventory Report</h3>
             <span>{{ $dateRange }}</span>
         </td>
     </tr>
@@ -94,7 +94,7 @@
             <tr class="items">
                 @foreach($columns as $column)
                     <td>{{ $item->$column }}</td>
-        @endforeach
+                @endforeach
 
         @endforeach
     </table>
