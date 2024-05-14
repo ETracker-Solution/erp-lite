@@ -44,9 +44,18 @@ return [
                             'active_condition' => "Request::segment(1) == 'fund-transfer-vouchers'",
                         ]
                     ],
+                ],
+                [
+
+                    'name' => 'Ledger Reports',
+                    'icon' => 'fas fa-tachometer-alt',
+                    'url' => '/reports/ledger-reports',
+                    'active_condition' => '',
+                    'has_child' => false,
+
                 ]
             ],
-            'permissions' => ['account-admin','account-operator','account-viewer','account-approver']
+            'permissions' => ['account-admin', 'account-operator', 'account-viewer', 'account-approver']
         ],
         [
             'name' => 'Purchase Module',
@@ -68,7 +77,7 @@ return [
                     ],
                 ]
             ],
-            'permissions' => ['purchase-admin','purchase-operator','purchase-viewer','purchase-approver']
+            'permissions' => ['purchase-admin', 'purchase-operator', 'purchase-viewer', 'purchase-approver']
         ],
         [
             'name' => 'Store RM Module',
@@ -90,7 +99,7 @@ return [
                     ],
                 ]
             ],
-            'permissions' => ['store-rm-admin','store-rm-operator','store-rm-viewer','store-rm-approver']
+            'permissions' => ['store-rm-admin', 'store-rm-operator', 'store-rm-viewer', 'store-rm-approver']
         ],
         [
             'name' => 'Store FG Module',
@@ -112,7 +121,7 @@ return [
                     ],
                 ]
             ],
-            'permissions' => ['store-rm-admin','store-rm-operator','store-rm-viewer','store-rm-approver']
+            'permissions' => ['store-rm-admin', 'store-rm-operator', 'store-rm-viewer', 'store-rm-approver']
         ],
         [
             'name' => 'Production Module',
@@ -144,7 +153,7 @@ return [
                     ],
                 ]
             ],
-            'permissions' => ['production-admin','production-operator','production-viewer','production-approver']
+            'permissions' => ['production-admin', 'production-operator', 'production-viewer', 'production-approver']
         ],
         [
             'name' => 'Data Admin Module',
@@ -230,7 +239,7 @@ return [
                     ],
                 ]
             ],
-            'permissions' => ['data-admin-admin','data-admin-operator','data-admin-viewer','data-admin-approver']
+            'permissions' => ['data-admin-admin', 'data-admin-operator', 'data-admin-viewer', 'data-admin-approver']
         ],
         [
             'name' => 'System Admin Module',
@@ -257,7 +266,7 @@ return [
                     ],
                 ]
             ],
-            'permissions' => ['system-admin-admin','system-admin-operator','system-admin-viewer','system-admin-approver']
+            'permissions' => ['system-admin-admin', 'system-admin-operator', 'system-admin-viewer', 'system-admin-approver']
         ]
     ],
     'logo' => [

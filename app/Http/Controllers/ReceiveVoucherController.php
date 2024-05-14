@@ -54,7 +54,7 @@ class ReceiveVoucherController extends Controller
         } else {
             $RVno = 1; // Set the default value to 1
         }
-        return view('receive_voucher.create', compact('debitAccounts', 'creditAccounts','RVno'));
+        return view('receive_voucher.create', compact('debitAccounts', 'creditAccounts', 'RVno'));
     }
 
     /**
@@ -66,16 +66,17 @@ class ReceiveVoucherController extends Controller
     public function store(StoreReceiveVoucherRequest $request)
     {
         $validated = $request->validated();
-//        DB::beginTransaction();
-//        try {
-        $voucher = ReceiveVoucher::create($validated);
-        // transaction('rv', $voucher);
-//            DB::commit();
-//        } catch (\Exception $error) {
-//            DB::rollBack();
-//            Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
-//            return back();
-//        }
+        DB::beginTransaction();
+        try {
+            $voucher = ReceiveVoucher::create($validated);
+            // Accounts Effect
+            addAccountsTransaction('RV', $voucher, $voucher->debit_account_id, $voucher->credit_account_id);
+            DB::commit();
+        } catch (\Exception $error) {
+            DB::rollBack();
+            Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
+            return back();
+        }
         Toastr::success('Receive Voucher Created Successfully!.', '', ["progressBar" => true]);
         return redirect()->route('receive-vouchers.index');
     }
@@ -126,7 +127,7 @@ class ReceiveVoucherController extends Controller
         DB::beginTransaction();
         try {
             ReceiveVoucher::findOrFail(decrypt($id))->delete();
-            AccountTransaction::where('doc_type','rv')->where('doc_id',decrypt($id))->delete();
+            AccountTransaction::where('doc_type', 'rv')->where('doc_id', decrypt($id))->delete();
 
             DB::commit();
         } catch (\Exception $error) {
@@ -137,12 +138,13 @@ class ReceiveVoucherController extends Controller
         Toastr::success('Receive Voucher Deleted Successfully!.', '', ["progressBar" => true]);
         return redirect()->route('receive-vouchers.index');
     }
+
     public function receiveVoucherPdf($id)
     {
         $receiveVoucher = ReceiveVoucher::findOrFail(decrypt($id));
-            $data = [
-                'receiveVoucher' => $receiveVoucher,
-            ];
+        $data = [
+            'receiveVoucher' => $receiveVoucher,
+        ];
 
         $pdf = PDF::loadView(
             'receive_voucher.pdf',
