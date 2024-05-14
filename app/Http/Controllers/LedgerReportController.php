@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ChartOfAccount;
+use App\Models\Customer;
+use App\Models\Supplier;
 use Illuminate\Http\Request;
 
 class LedgerReportController extends Controller
