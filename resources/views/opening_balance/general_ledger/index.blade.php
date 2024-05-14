@@ -76,7 +76,7 @@
                                     <i
                                         class="fa fa-trash"></i>Delete
                                 </button>
-                                <button class="btn btn-sm btn-primary" type="button" @click="store_balance" v-if="!isEditMode">
+                                <button class="btn btn-sm btn-info" type="button" @click="store_balance" v-if="!isEditMode">
                                     <i
                                         class="fa fa-check-circle"></i>Submit
                                 </button>
@@ -95,7 +95,7 @@
                                     <table class="table table-bordered">
                                         <thead>
                                         <tr>
-                                            <th>FG ID</th>
+                                            <th>GL ID</th>
                                             <th>Date</th>
                                             <th>Account Name</th>
                                             <th>Amount</th>
@@ -239,7 +239,6 @@
                                 vm.pageLoading = true;
                                 axios.get(this.config.get_item_info_url + '/' + slug).then(function (response) {
                                     let item_info = response.data;
-                                    vm.unit = item_info.unit ? item_info.unit.name : '';
                                     vm.pageLoading = false;
                                 }).catch(function (error) {
                                     toastr.error('Something went to wrong', {
