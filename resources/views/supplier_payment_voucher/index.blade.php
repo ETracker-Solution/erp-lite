@@ -1,16 +1,16 @@
 @extends('layouts.app')
 @section('title')
-Supplier Voucher List
+Supplier Payment Voucher List
 @endsection
 
 @section('content')
     @php
     $links = [
     'Home'=>route('dashboard'),
-    'Supplier Voucher List'=>''
+    'Supplier Payment Voucher List'=>''
     ]
     @endphp
-    <x-breadcrumb title='Supplier Voucher' :links="$links"/>
+    <x-breadcrumb title='Supplier Payment Voucher' :links="$links"/>
     <!-- Main content -->
     <section class="content">
         <div class="container-fluid">
@@ -18,7 +18,7 @@ Supplier Voucher List
                 <div class="col-12">
                     <div class="card card-info">
                         <div class="card-header">
-                            <h3 class="card-title">All Supplier Voucher List</h3>
+                            <h3 class="card-title">All Supplier Payment Voucher List</h3>
                             <div class="card-tools">
                                 <a href="{{route('supplier-vouchers.create')}}">
                                     <button class="btn btn-sm btn-primary"><i class="fa fa-plus-circle"
@@ -85,22 +85,22 @@ Supplier Voucher List
                 },
                 {
                     data: "date",
-                    title: "date",
+                    title: "Date",
                     searchable: true
                 },
                 {
-                    data: "sv_no",
-                    title: "SV No",
+                    data: "uid",
+                    title: "SPV No",
                     searchable: true
                 },
                 {
                     data: "credit_account.name",
-                    title: "credit",
+                    title: "Credit",
                     searchable: false
                 },
                 {
                     data: "debit_account.name",
-                    title: "debit",
+                    title: "Debit",
                     searchable: false,
                     "defaultContent":"Not Set"
                 },
@@ -116,7 +116,7 @@ Supplier Voucher List
                 },
                 {
                     data: "created_at",
-                    title: "created at",
+                    title: "Created At",
                     searchable: true
                 },
                 {

@@ -6,10 +6,10 @@
 @php
 $links = [
 'Home'=>route('dashboard'),
-'Supllier list'=>''
+'Supplier list'=>''
 ]
 @endphp
-<x-breadcrumb title='Supllier' :links="$links"/>
+<x-breadcrumb title='Supplier' :links="$links"/>
 
     <!-- Main content -->
     <section class="content">

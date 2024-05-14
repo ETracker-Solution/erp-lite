@@ -10,7 +10,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\ReceiveVoucherController;
 use App\Http\Controllers\SaleController;
-use App\Http\Controllers\SupplierVoucherController;
+use App\Http\Controllers\SupplierPaymentVoucherController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -64,8 +64,11 @@ Route::middleware('auth')->group(function () {
     Route::resource('receive-vouchers', ReceiveVoucherController::class);
     Route::resource('journal-vouchers', JournalVoucherController::class);
     Route::resource('fund-transfer-vouchers', FundTransferVoucherController::class);
-    Route::resource('supplier-vouchers', SupplierVoucherController::class);
 
+    //-----Supplier Payment Voucher---------
+    Route::resource('supplier-vouchers', SupplierPaymentVoucherController::class);
+    Route::get('fetch-due-by-supplier-id/{id}', [App\Http\Controllers\ApiController::class, 'fetchSupplierDueById'])->name('supplier.due');
+    //-----Supplier Payment Voucher---------
 
     Route::resource('consumptions', \App\Http\Controllers\ConsumptionController::class);
     Route::get('consumption-pdf/{id}', [App\Http\Controllers\ConsumptionController::class, 'consumptionPdf'])->name('consumptions.pdf');
@@ -155,6 +158,18 @@ Route::middleware('auth')->group(function () {
      Route::get('general-ledger-opening-balances-initial-info',[\App\Http\Controllers\Api\Web\GLOpeningBalanceController::class, 'initialInfo']);
      Route::resource('general-ledger-opening-balances',\App\Http\Controllers\Api\Web\GLOpeningBalanceController::class);
      /*=========== General ledger Opening Balance Api Ends ===========*/
+
+     /*=========== Customer Opening Balance Api Starts ===========*/
+     Route::get('customer-opening-balances-list',[\App\Http\Controllers\Api\Web\CustomerOpeningBalanceController::class, 'list']);
+     Route::get('customer-opening-balances-initial-info',[\App\Http\Controllers\Api\Web\CustomerOpeningBalanceController::class, 'initialInfo']);
+     Route::resource('customer-opening-balances',\App\Http\Controllers\Api\Web\CustomerOpeningBalanceController::class);
+     /*=========== Customer Opening Balance Api Ends ===========*/
+
+     /*=========== Supplier Opening Balance Api Starts ===========*/
+     Route::get('supplier-opening-balances-list',[\App\Http\Controllers\Api\Web\SupplierOpeningBalanceController::class, 'list']);
+     Route::get('supplier-opening-balances-initial-info',[\App\Http\Controllers\Api\Web\SupplierOpeningBalanceController::class, 'initialInfo']);
+     Route::resource('supplier-opening-balances',\App\Http\Controllers\Api\Web\SupplierOpeningBalanceController::class);
+     /*=========== Supplier Opening Balance Api Ends ===========*/
 });
 Route::group(['prefix' => 'reports', 'middleware' => 'auth'], function () {
 

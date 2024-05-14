@@ -11,9 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('supplier_vouchers', function (Blueprint $table) {
+        Schema::create('supplier_payment_vouchers', function (Blueprint $table) {
             $table->id();
-            $table->string('sv_no');
+            $table->string('uid')->nullable()->unique();
             $table->date('date');
             $table->double('amount',16,2);
             $table->foreignId('supplier_id')->constrained('suppliers')->onDelete('cascade');

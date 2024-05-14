@@ -1,6 +1,6 @@
 @extends('layouts.app')
 @section('title')
-    Supllier Create
+    Supplier Create
 @endsection
 @section('style')
     <!-- Select2 -->
@@ -11,10 +11,10 @@
 @php
 $links = [
 'Home'=>route('dashboard'),
-'Supllier Create'=>''
+'Supplier Create'=>''
 ]
 @endphp
-<x-breadcrumb title='Supllier' :links="$links"/>
+<x-breadcrumb title='Supplier' :links="$links"/>
 
 
 

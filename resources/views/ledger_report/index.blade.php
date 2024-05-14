@@ -27,9 +27,9 @@
                             <div class="row">
                                 <div class="col-12">
                                     <div class="form-group">
-                                        <label for="store_id">Store</label>
+                                        <label for="store_id">Ledger A/C</label>
                                         <select name="store_id" id="store_id" class="form-control" v-model="store_id">
-                                            <option value="">Select a Store</option>
+                                            <option value="">Select a Ledger A/C</option>
                                             <option :value="row.id" v-for="row in stores"
                                             >@{{ row.id + ' - ' + row.name }}
                                             </option>
@@ -38,11 +38,10 @@
                                 </div>
                                 <div class="col-12">
                                     <div class="form-group">
-                                        <label for="group_id">Group</label>
-                                        <select name="group_id" id="group_id" @change="fetch_product"
-                                                class="form-control" v-model="group_id">
-                                            <option value="">Select a Group</option>
-                                            <option :value="row.id" v-for="row in groups"
+                                        <label for="store_id">Supplier</label>
+                                        <select name="store_id" id="store_id" class="form-control" v-model="store_id">
+                                            <option value="">Select a Supplier</option>
+                                            <option :value="row.id" v-for="row in stores"
                                             >@{{ row.id + ' - ' + row.name }}
                                             </option>
                                         </select>
@@ -50,12 +49,10 @@
                                 </div>
                                 <div class="col-12">
                                     <div class="form-group">
-                                        <label for="item_id">Item</label>
-                                        <select name="item_id" id="item_id"
-                                                class="form-control bSelect" v-model="item_id"
-                                                @change="get_product_info">
-                                            <option value="">Select one</option>
-                                            <option :value="row.id" v-for="row in items"
+                                        <label for="store_id">Customer</label>
+                                        <select name="store_id" id="store_id" class="form-control" v-model="store_id">
+                                            <option value="">Select a Customer</option>
+                                            <option :value="row.id" v-for="row in stores"
                                             >@{{ row.id + ' - ' + row.name }}
                                             </option>
                                         </select>
@@ -70,20 +67,20 @@
                         </div>
                         <div class="card-body">
                             <div class="row">
-                                <div class="col-12">
+                                <div class="col-6">
                                     <div class="form-group">
-                                        <label for="">As On Date</label>
-                                        <vuejs-datepicker v-model="from_date" name="as_on_date"
+                                        <label for="">From Date</label>
+                                        <vuejs-datepicker v-model="from_date" name="from_date"
                                                           placeholder="Select date"></vuejs-datepicker>
                                     </div>
                                 </div>
-                                {{--                                <div class="col-12">--}}
-                                {{--                                    <div class="form-group">--}}
-                                {{--                                        <label for="">To Date</label>--}}
-                                {{--                                        <vuejs-datepicker v-model="to_date" name="to_date"--}}
-                                {{--                                                          placeholder="Select date"></vuejs-datepicker>--}}
-                                {{--                                    </div>--}}
-                                {{--                                </div>--}}
+                                <div class="col-6">
+                                    <div class="form-group">
+                                        <label for="">To Date</label>
+                                        <vuejs-datepicker v-model="to_date" name="to_date"
+                                                          placeholder="Select date"></vuejs-datepicker>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
