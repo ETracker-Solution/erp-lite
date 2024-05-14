@@ -42,6 +42,11 @@ return [
                             'name' => 'FT Voucher',
                             'url' => '/fund-transfer-vouchers',
                             'active_condition' => "Request::segment(1) == 'fund-transfer-vouchers'",
+                        ],
+                        [
+                            'name' => 'Supplier Voucher',
+                            'url' => '/supplier-vouchers',
+                            'active_condition' => "Request::segment(1) == 'supplier-vouchers'",
                         ]
                     ],
                 ],

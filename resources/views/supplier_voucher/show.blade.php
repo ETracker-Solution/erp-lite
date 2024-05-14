@@ -29,16 +29,16 @@
                             <table class="table table-bordered">
                                 <thead>
                                     <tr>
+                                        <th><strong>Supplier  :</strong></th>
+                                        <td>{{ $supplierVoucher->supplier->name }}</td>
+                                    </tr>
+                                    <tr>
                                         <th><strong>Date :</strong></th>
                                         <td>{{ $supplierVoucher->date }}</td>
                                     </tr>
                                     <tr>
                                         <th><strong>SV No :</strong></th>
                                         <td>{{ $supplierVoucher->sv_no }}</td>
-                                    </tr>
-                                    <tr>
-                                        <th><strong>Supplier  :</strong></th>
-                                        <td>{{ $supplierVoucher->supplier->name }}</td>
                                     </tr>
                                     <tr>
                                         <th><strong>Credit Account  :</strong></th>
