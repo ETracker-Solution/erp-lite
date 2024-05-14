@@ -33,7 +33,7 @@
                             <div class="card-header">
                                 <h3 class="card-title">Supplier Group</h3>
                                 <div class="card-tools">
-                                    <a href="{{ route('suppliers.index') }}" class="btn btn-sm btn-primary">
+                                    <a href="{{ route('supplier-groups.index') }}" class="btn btn-sm btn-primary">
                                         <i class="fa fa-list" aria-hidden="true"></i>
                                         &nbsp;See List
 
@@ -69,7 +69,7 @@
                             </div>
 
                             <div class="card-footer">
-                                <button class="btn btn-primary float-right"><i class="fa fa-check" aria-hidden="true"></i>
+                                <button class="btn btn-info float-right"><i class="fa fa-check" aria-hidden="true"></i>
                                     Submit
                                 </button>
                             </div>
