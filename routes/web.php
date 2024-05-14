@@ -10,7 +10,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\ReceiveVoucherController;
 use App\Http\Controllers\SaleController;
-use App\Http\Controllers\SupplierVoucherController;
+use App\Http\Controllers\SupplierPaymentVoucherController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -64,8 +64,11 @@ Route::middleware('auth')->group(function () {
     Route::resource('receive-vouchers', ReceiveVoucherController::class);
     Route::resource('journal-vouchers', JournalVoucherController::class);
     Route::resource('fund-transfer-vouchers', FundTransferVoucherController::class);
-    Route::resource('supplier-vouchers', SupplierVoucherController::class);
 
+    //-----Supplier Payment Voucher---------
+    Route::resource('supplier-vouchers', SupplierPaymentVoucherController::class);
+    Route::get('fetch-due-by-supplier-id/{id}', [App\Http\Controllers\ApiController::class, 'fetchSupplierDueById'])->name('supplier.due');
+    //-----Supplier Payment Voucher---------
 
     Route::resource('consumptions', \App\Http\Controllers\ConsumptionController::class);
     Route::get('consumption-pdf/{id}', [App\Http\Controllers\ConsumptionController::class, 'consumptionPdf'])->name('consumptions.pdf');
