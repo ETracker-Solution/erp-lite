@@ -20,7 +20,7 @@ class SupplierVoucherController extends Controller
     public function index()
     {
         if (\request()->ajax()) {
-            $journalVouchers = SupplierVoucher::with('debitAccount', 'creditAccount')->latest();
+            $journalVouchers = SupplierVoucher::with('debitAccount', 'creditAccount','supplier')->latest();
             return DataTables::of($journalVouchers)
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {

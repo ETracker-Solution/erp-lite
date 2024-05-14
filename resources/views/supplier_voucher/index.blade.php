@@ -79,6 +79,11 @@ Supplier Voucher List
                     orderable: false
                 },
                 {
+                    data: "supplier.name",
+                    title: "Supplier",
+                    searchable: false
+                },
+                {
                     data: "date",
                     title: "date",
                     searchable: true
@@ -106,7 +111,7 @@ Supplier Voucher List
                 },
                 {
                     data: "payee_name",
-                    title: "Supplier Name",
+                    title: "Receiver",
                     searchable: false
                 },
                 {
