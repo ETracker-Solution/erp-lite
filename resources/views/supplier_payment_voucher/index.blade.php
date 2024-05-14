@@ -89,7 +89,7 @@ Supplier Payment Voucher List
                     searchable: true
                 },
                 {
-                    data: "sv_no",
+                    data: "uid",
                     title: "SPV No",
                     searchable: true
                 },
