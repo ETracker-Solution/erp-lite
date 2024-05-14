@@ -439,7 +439,7 @@ class ChartOfAccountSeeder extends Seeder
                         'type' => 'ledger',
                         'account_type' => 'debit',
                         'is_bank_cash' => 'no',
-                        'parent_account_type' => 'ex',
+                        'parent_account_type' => 'in',
                         'created_at' => Carbon::now(),
                     ],
                     [
