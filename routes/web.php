@@ -157,6 +157,10 @@ Route::middleware('auth')->group(function () {
      /*=========== General ledger Opening Balance Api Ends ===========*/
 });
 Route::group(['prefix' => 'reports', 'middleware' => 'auth'], function () {
+
+
+    Route::get('ledger-reports', [App\Http\Controllers\LedgerReportController::class, 'index'])->name('ledger-reports.index');
+
     //Report Route
     Route::get('daily-report', [App\Http\Controllers\ReportController::class, 'dailyReport'])->name('daily.report');
     Route::get('profit-loss', [App\Http\Controllers\ReportController::class, 'profitLoss'])->name('profit.loss');

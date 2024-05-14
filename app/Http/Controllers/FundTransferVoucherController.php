@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AccountTransaction;
 use App\Models\FundTransferVoucher;
 use App\Http\Requests\StoreFundTransferVoucherRequest;
 use App\Http\Requests\UpdateFundTransferVoucherRequest;
@@ -52,7 +53,7 @@ class FundTransferVoucherController extends Controller
         } else {
             $FTVno = 1; // Set the default value to 1
         }
-        return view('fund_transfer_voucher.create', compact('chartOfAccounts','FTVno'));
+        return view('fund_transfer_voucher.create', compact('chartOfAccounts', 'FTVno'));
     }
 
     /**
@@ -67,7 +68,8 @@ class FundTransferVoucherController extends Controller
         DB::beginTransaction();
         try {
             $voucher = FundTransferVoucher::create($validated);
-            // transaction('ftv', $voucher);
+            // Accounts Effect
+            addAccountsTransaction('FTV', $voucher, $voucher->debit_account_id, $voucher->credit_account_id);
             DB::commit();
         } catch (\Exception $error) {
             DB::rollBack();
@@ -124,7 +126,7 @@ class FundTransferVoucherController extends Controller
         DB::beginTransaction();
         try {
             FundTransferVoucher::findOrFail(decrypt($id))->delete();
-            Transaction::where('doc_type','ftv')->where('doc_id',decrypt($id))->delete();
+            AccountTransaction::where('doc_type', 'FTV')->where('doc_id', decrypt($id))->delete();
             DB::commit();
         } catch (\Exception $error) {
             DB::rollBack();
@@ -138,9 +140,9 @@ class FundTransferVoucherController extends Controller
     public function fundTransferVoucherPdf($id)
     {
         $fundTransferVoucher = FundTransferVoucher::findOrFail(decrypt($id));
-            $data = [
-                'fundTransferVoucher' => $fundTransferVoucher,
-            ];
+        $data = [
+            'fundTransferVoucher' => $fundTransferVoucher,
+        ];
 
         $pdf = PDF::loadView(
             'fund_transfer_voucher.pdf',
