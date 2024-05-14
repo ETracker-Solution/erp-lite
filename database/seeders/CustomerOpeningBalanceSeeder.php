@@ -15,6 +15,6 @@ class CustomerOpeningBalanceSeeder extends Seeder
     public function run(): void
     {
         CustomerOpeningBalance::truncate();
-        CustomerOpeningBalance::factory(5)->create();
+        // CustomerOpeningBalance::factory(5)->create();
     }
 }
