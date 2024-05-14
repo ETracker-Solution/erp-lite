@@ -148,6 +148,13 @@ Route::middleware('auth')->group(function () {
     /*=========== Finish Goods Inventory Report Api Starts ===========*/
     Route::resource('finish-goods-inventory-report',\App\Http\Controllers\Api\Web\FGInventoryReportController::class);
     /*=========== Finish Goods Inventory Report Api Ends ===========*/
+
+
+     /*=========== General ledger Opening Balance Api Starts ===========*/
+     Route::get('general-ledger-opening-balances-list',[\App\Http\Controllers\Api\Web\GLOpeningBalanceController::class, 'list']);
+     Route::get('general-ledger-opening-balances-initial-info',[\App\Http\Controllers\Api\Web\GLOpeningBalanceController::class, 'initialInfo']);
+     Route::resource('general-ledger-opening-balances',\App\Http\Controllers\Api\Web\GLOpeningBalanceController::class);
+     /*=========== General ledger Opening Balance Api Ends ===========*/
 });
 Route::group(['prefix' => 'reports', 'middleware' => 'auth'], function () {
     //Report Route
