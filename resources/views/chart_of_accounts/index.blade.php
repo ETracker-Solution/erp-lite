@@ -1,6 +1,6 @@
 @extends('layouts.app')
 @section('title')
-    Sale
+Chart Of Accounts
 @endsection
 @section('content')
     @php
