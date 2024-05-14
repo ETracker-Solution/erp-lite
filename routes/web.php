@@ -155,6 +155,18 @@ Route::middleware('auth')->group(function () {
      Route::get('general-ledger-opening-balances-initial-info',[\App\Http\Controllers\Api\Web\GLOpeningBalanceController::class, 'initialInfo']);
      Route::resource('general-ledger-opening-balances',\App\Http\Controllers\Api\Web\GLOpeningBalanceController::class);
      /*=========== General ledger Opening Balance Api Ends ===========*/
+
+     /*=========== Customer Opening Balance Api Starts ===========*/
+     Route::get('customer-opening-balances-list',[\App\Http\Controllers\Api\Web\CustomerOpeningBalanceController::class, 'list']);
+     Route::get('customer-opening-balances-initial-info',[\App\Http\Controllers\Api\Web\CustomerOpeningBalanceController::class, 'initialInfo']);
+     Route::resource('customer-opening-balances',\App\Http\Controllers\Api\Web\CustomerOpeningBalanceController::class);
+     /*=========== Customer Opening Balance Api Ends ===========*/
+
+     /*=========== Supplier Opening Balance Api Starts ===========*/
+     Route::get('supplier-opening-balances-list',[\App\Http\Controllers\Api\Web\SupplierOpeningBalanceController::class, 'list']);
+     Route::get('supplier-opening-balances-initial-info',[\App\Http\Controllers\Api\Web\SupplierOpeningBalanceController::class, 'initialInfo']);
+     Route::resource('supplier-opening-balances',\App\Http\Controllers\Api\Web\SupplierOpeningBalanceController::class);
+     /*=========== Supplier Opening Balance Api Ends ===========*/
 });
 Route::group(['prefix' => 'reports', 'middleware' => 'auth'], function () {
 

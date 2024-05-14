@@ -228,7 +228,7 @@ return [
                     'child' => [
                         [
                             'name' => 'GL Account',
-                            'url' => '#',
+                            'url' => '/general-ledger-opening-balances',
                             'active_condition' => '',
                         ],
                         [
@@ -239,6 +239,16 @@ return [
                         [
                             'name' => 'Finish Goods',
                             'url' => '/finish-goods-opening-balances',
+                            'active_condition' => '',
+                        ],
+                        [
+                            'name' => 'Customer OB',
+                            'url' => '/customer-opening-balances',
+                            'active_condition' => '',
+                        ],
+                        [
+                            'name' => 'Supplier OB',
+                            'url' => '/supplier-opening-balances',
                             'active_condition' => '',
                         ]
                     ],

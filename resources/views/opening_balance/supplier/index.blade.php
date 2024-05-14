@@ -1,6 +1,6 @@
 @extends('layouts.app')
 @section('title')
-    GL Opening Balance
+    Supplier Opening Balance
 @endsection
 @section('content')
     @php
@@ -8,10 +8,10 @@
        'Home'=>route('dashboard'),
        'Data Admin Module'=>'',
        'Opening Balance'=>'',
-       'General Ledger'=>'',
+       'Supplier OB'=>'',
         ]
     @endphp
-    <x-breadcrumb title='General Ledger' :links="$links"/>
+    <x-breadcrumb title='Supplier OB' :links="$links"/>
 
     <section class="content">
         <div class="container-fluid">
@@ -22,12 +22,12 @@
                 <div class="col-12">
                     <div class="card card-info">
                         <div class="card-header">
-                            <div class="card-title">Accounts</div>
+                            <div class="card-title">Supplier</div>
                         </div>
                         <div class="card-body">
                             <div class="row">
                                 <div class="col-3">
-                                    <label for="item_id">GLOB ID</label>
+                                    <label for="item_id">SOB ID</label>
                                     <input type="text" name="" id="" v-model="next_id" disabled class="form-control">
                                 </div>
                                 <div class="col-3">
@@ -39,7 +39,7 @@
                                 </div>
                                 <div class="col-6">
                                     <div class="form-group">
-                                        <label for="item_id">Account</label>
+                                        <label for="item_id">Suppliers</label>
                                         <select name="item_id" id="item_id"
                                                 class="form-control bSelect" v-model="item_id"
                                                 @change="get_product_info">
@@ -87,7 +87,7 @@
                 <div class="col-12">
                     <div class="card card-info">
                         <div class="card-header">
-                            <div class="card-title">Finish Goods Opening Balance List</div>
+                            <div class="card-title">Supplier Opening Balance List</div>
                         </div>
                         <div class="card-body">
                             <div class="row">
@@ -95,9 +95,9 @@
                                     <table class="table table-bordered">
                                         <thead>
                                         <tr>
-                                            <th>GL ID</th>
+                                            <th>SOB ID</th>
                                             <th>Date</th>
-                                            <th>Account Name</th>
+                                            <th>Supplier Name</th>
                                             <th>Amount</th>
                                             <th>Remarks</th>
                                         </tr>
@@ -106,7 +106,7 @@
                                         <tr v-for="(row , index) in balances" @click="makeEditable(row)">
                                             <td>@{{ row.uid }}</td>
                                             <td>@{{ row.date }}</td>
-                                            <td>@{{ row.item_name }}</td>
+                                            <td>@{{ row.supplier.name }}</td>
                                             <td>@{{ row.amount }}</td>
                                             <td>@{{ row.remarks }}</td>
                                         </tr>
@@ -179,11 +179,11 @@
                 el: '#vue_app',
                 data: {
                     config: {
-                        GLOBUrl: "{{ url('general-ledger-opening-balances') }}",
-                        initial_info_url: "{{ url('general-ledger-opening-balances-initial-info') }}",
+                        SOBUrl: "{{ url('supplier-opening-balances') }}",
+                        initial_info_url: "{{ url('supplier-opening-balances-initial-info') }}",
                         get_items_info_by_group_id_url: "{{ url('fetch-items-by-group-id') }}",
                         get_item_info_url: "{{ url('fetch-item-info') }}",
-                        get_balances_url: "{{ url('general-ledger-opening-balances-list') }}",
+                        get_balances_url: "{{ url('supplier-opening-balances-list') }}",
                     },
                     next_id: "",
                     date: new Date(),
@@ -264,7 +264,7 @@
                             const slug = vm.item_id;
                             if (slug) {
                                 vm.pageLoading = true;
-                                axios.post(this.config.GLOBUrl, {
+                                axios.post(this.config.SOBUrl, {
                                     date: vm.date,
                                     item_id: vm.item_id,
                                     remarks: vm.remarks,
@@ -327,7 +327,7 @@
                         vm.isEditMode = true
                         vm.editableItem = row.id
                         vm.date = row.date
-                        vm.item_id = row.item_id
+                        vm.item_id = row.supplier_id
                         vm.amount = row.amount
                         vm.remarks = row.remarks
                     },
@@ -339,6 +339,7 @@
                         vm.items = []
                         vm.pageLoading = false
                         vm.remarks = ''
+                        vm.amount = 0
                         vm.editableItem = ''
                     },
                     update_balance() {
@@ -353,7 +354,7 @@
                             const slug = vm.editableItem;
                             if (slug) {
                                 vm.pageLoading = true;
-                                axios.put(this.config.GLOBUrl + '/' + slug, {
+                                axios.put(this.config.SOBUrl + '/' + slug, {
                                     date: vm.date,
                                     item_id: vm.item_id,
                                     remarks: vm.remarks,
@@ -407,7 +408,7 @@
                                     const slug = vm.editableItem;
                                     if (slug) {
                                         vm.pageLoading = true;
-                                        axios.delete(this.config.GLOBUrl + '/' + slug)
+                                        axios.delete(this.config.SOBUrl + '/' + slug)
                                             .then(function (response) {
                                                 if(response.data.success){
                                                     vm.get_initial_data()
@@ -443,7 +444,7 @@
                         var vm = this;
                         vm.pageLoading = true;
                         axios.get(this.config.initial_info_url).then(function (response) {
-                            vm.items = response.data.accounts;
+                            vm.items = response.data.suppliers;
                             vm.next_id = response.data.next_id;
                             vm.pageLoading = false;
                         }).catch(function (error) {
