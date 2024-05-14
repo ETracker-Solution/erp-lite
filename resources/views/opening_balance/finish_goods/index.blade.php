@@ -118,7 +118,7 @@
                                     <i
                                         class="fa fa-trash"></i>Delete
                                 </button>
-                                <button class="btn btn-sm btn-primary" type="button" @click="store_balance" v-if="!isEditMode">
+                                <button class="btn btn-sm btn-info" type="button" @click="store_balance" v-if="!isEditMode">
                                     <i
                                         class="fa fa-check-circle"></i>Submit
                                 </button>
