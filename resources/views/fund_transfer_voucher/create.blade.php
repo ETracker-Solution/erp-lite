@@ -158,6 +158,6 @@
     <script>
         var i = parseInt(document.getElementById('fundTransferVoucaher').value);
 
-        document.getElementById('ftv_no').value = i;
+        document.getElementById('uid').value = i;
     </script>
 @endpush
