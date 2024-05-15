@@ -34,7 +34,7 @@
                                     </tr>
                                     <tr>
                                         <th><strong>JV No :</strong></th>
-                                        <td>{{ $journalVoucher->jv_no }}</td>
+                                        <td>{{ $journalVoucher->uid }}</td>
                                     </tr>
                                     <tr>
                                         <th><strong>Debit Account  :</strong></th>

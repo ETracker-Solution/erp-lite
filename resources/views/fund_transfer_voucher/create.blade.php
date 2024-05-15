@@ -31,23 +31,23 @@
                                             <div class="card">
                                                 <div class="card-body">
                                                     <div class="row">
-                                                        <div class="col-xl-12 col-md-12 col-12">
+                                                        <div class="col-xl-4 col-md-4 col-12">
                                                             <div class="form-group">
-                                                                <label for="ftv_no">FTV No</label>
-                                                                <input type="number" class="form-control" id="ftv_no"
-                                                                        name="ftv_no" placeholder="Enter JV No"
-                                                                        value="{{ old('ftv_no') }}" readonly>
-                                                                @if ($errors->has('ftv_no'))
-                                                                    <small class="text-danger">{{ $errors->first('ftv_no') }}</small>
+                                                                <label for="uid">FTV No</label>
+                                                                <input type="number" class="form-control" id="uid"
+                                                                        name="uid" placeholder="Enter JV No"
+                                                                        value="{{ old('uid') }}" readonly>
+                                                                @if ($errors->has('uid'))
+                                                                    <small class="text-danger">{{ $errors->first('uid') }}</small>
                                                                 @endif
                                                             </div>
                                                         </div>
-                                                        <div class="col-xl-12 col-md-12 col-12">
+                                                        <div class="col-xl-4 col-md-4 col-12">
                                                             <div class="form-group">
                                                                 <label for="date">Date</label>
                                                                 <div class="input-group date" id="reservationdate"
                                                                 data-target-input="nearest">
-                                                                <input type="text" name="date" class="form-control datetimepicker-input"
+                                                                <input type="text" name="date" value="{{ date('Y-m-d') }}" class="form-control datetimepicker-input"
                                                                     data-target="#reservationdate" />
                                                                 <div class="input-group-append" data-target="#reservationdate"
                                                                     data-toggle="datetimepicker">
@@ -57,7 +57,7 @@
                                                             </div>
                                                             </div>
                                                         </div>
-                                                        <div class="col-xl-12 col-md-12 col-12">
+                                                        <div class="col-xl-4 col-md-4 col-12">
                                                             <div class="form-group">
                                                                 <label for="credit_account_id">Transfer From</label>
                                                                 <select class="form-control select2" name="credit_account_id"
@@ -86,24 +86,22 @@
                                             <div class="card">
                                                 <div class="card-body">
                                                     <div class="row">
-                                                        <div class="col-xl-12 col-md-12 col-12">
-                                                            <div class="form-group">
-                                                                <label for="debit_account_id">Transfer To</label>
-                                                                <select class="form-control select2" name="debit_account_id"
-                                                                    id="debit_account_id">
-                                                                    <option value="">---Select Account---</option>
-                                                                    @foreach ($chartOfAccounts as $row)
-                                                                        <option value="{{ $row->id }}" {{ old('debit_account_id') == $row->id ? 'selected' : '' }}>{{ $row->name }}
-                                                                        </option>
-                                                                    @endforeach
-                                                                </select>
+                                                        <div class="col-md-6">
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <div class="col-xl-12 col-md-12 col-12">
+                                                                <div class="form-group">
+                                                                    <label for="debit_account_id">Transfer To</label>
+                                                                    <select class="form-control select2" name="debit_account_id"
+                                                                        id="debit_account_id">
+                                                                        <option value="">---Select Account---</option>
+                                                                        @foreach ($chartOfAccounts as $row)
+                                                                            <option value="{{ $row->id }}" {{ old('debit_account_id') == $row->id ? 'selected' : '' }}>{{ $row->name }}
+                                                                            </option>
+                                                                        @endforeach
+                                                                    </select>
+                                                                </div>
                                                             </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="row">
-                                                        <div class="col-md-6">
-                                                        </div>
-                                                        <div class="col-md-6">
                                                             <div class="col-xl-12 col-md-12 col-12">
                                                                 <div class="form-group">
                                                                     <label for="amount">Amount</label>

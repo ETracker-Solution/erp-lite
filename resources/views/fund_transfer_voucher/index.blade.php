@@ -8,7 +8,7 @@
     'Fund Transfer Voucher'=>''
     ]
     @endphp
-    <x-breadcrumb title='Payment Voucher' :links="$links"/>
+    <x-breadcrumb title='Fund Transfer Voucher' :links="$links"/>
     <!-- Main content -->
     <section class="content">
         <div class="container-fluid">
@@ -83,7 +83,7 @@
                     searchable: true
                 },
                 {
-                    data: "ftv_no",
+                    data: "uid",
                     title: "FTV No",
                     searchable: true
                 },
