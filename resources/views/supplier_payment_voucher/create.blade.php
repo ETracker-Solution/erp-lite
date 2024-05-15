@@ -192,7 +192,7 @@
                                 </div>
                             </div>
                             <div class="card-footer">
-                                <button type="submit" class="float-right btn btn-primary"><i class="fa fa-fw fa-lg fa-check-circle"></i>Submit
+                                <button type="submit" class="float-right btn btn-info"><i class="fa fa-fw fa-lg fa-check-circle"></i>Submit
                                 </button>
                             </div>
                         </div>

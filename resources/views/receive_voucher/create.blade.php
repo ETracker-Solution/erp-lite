@@ -152,7 +152,7 @@
                                         </div>
                                     </div>
                                     <div class="card-footer">
-                                        <button class="float-right btn btn-primary waves-effect waves-float waves-light"
+                                        <button class="float-right btn btn-info waves-effect waves-float waves-light"
                                             type="submit">Save</button>
                                     </div>
                                 </div>
