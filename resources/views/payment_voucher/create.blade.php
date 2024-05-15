@@ -32,23 +32,23 @@ $links = [
                                         <div class="card">
                                             <div class="card-body">
                                                 <div class="row">
-                                                    <div class="col-xl-12 col-md-12 col-12">
+                                                    <div class="col-xl-4 col-md-4 col-12">
                                                         <div class="form-group">
-                                                            <label for="pv_no">PV No</label>
-                                                            <input type="number" class="form-control" id="pv_no"
-                                                                   name="pv_no" placeholder="Enter Amount"
-                                                                   value="{{ old('pv_no') }}" readonly>
-                                                            @if ($errors->has('pv_no'))
-                                                                <small class="text-danger">{{ $errors->first('pv_no') }}</small>
+                                                            <label for="uid">PV No</label>
+                                                            <input type="number" class="form-control" id="uid"
+                                                                   name="uid" placeholder="Enter Amount"
+                                                                   value="{{ old('uid') }}" readonly>
+                                                            @if ($errors->has('uid'))
+                                                                <small class="text-danger">{{ $errors->first('uid') }}</small>
                                                             @endif
                                                         </div>
                                                     </div>
-                                                    <div class="col-xl-12 col-md-12 col-12">
+                                                    <div class="col-xl-4 col-md-4 col-12">
                                                         <div class="form-group">
                                                             <label for="date">Date</label>
                                                             <div class="input-group date" id="reservationdate"
                                                                 data-target-input="nearest">
-                                                                <input type="text" name="date" class="form-control datetimepicker-input"
+                                                                <input type="text" name="date" value="{{ date('Y-m-d') }}" class="form-control datetimepicker-input"
                                                                     data-target="#reservationdate" />
                                                                 <div class="input-group-append" data-target="#reservationdate"
                                                                     data-toggle="datetimepicker">
@@ -58,7 +58,7 @@ $links = [
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    <div class="col-xl-12 col-md-12 col-12">
+                                                    <div class="col-xl-4 col-md-4 col-12">
                                                         <div class="form-group">
                                                             <label for="cash_bank_account_id">Payment Account</label>
                                                             <select class="form-control select2" name="credit_account_id"
@@ -87,24 +87,22 @@ $links = [
                                         <div class="card">
                                             <div class="card-body">
                                                 <div class="row">
-                                                    <div class="col-xl-12 col-md-12 col-12">
-                                                        <div class="form-group">
-                                                            <label for="debit_account_id">Debit Account</label>
-                                                            <select class="form-control select2" name="debit_account_id"
-                                                                id="debit_account_id">
-                                                                <option value="">---Select Account---</option>
-                                                                @foreach ($debitAccounts as $row)
-                                                                    <option value="{{ $row->id }}" {{ old('debit_account_id') == $row->id ? 'selected' : '' }}>{{ $row->name }}
-                                                                    </option>
-                                                                @endforeach
-                                                            </select>
+                                                    <div class="col-md-6">
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="col-xl-12 col-md-12 col-12">
+                                                            <div class="form-group">
+                                                                <label for="debit_account_id">Debit Account</label>
+                                                                <select class="form-control select2" name="debit_account_id"
+                                                                    id="debit_account_id">
+                                                                    <option value="">---Select Account---</option>
+                                                                    @foreach ($debitAccounts as $row)
+                                                                        <option value="{{ $row->id }}" {{ old('debit_account_id') == $row->id ? 'selected' : '' }}>{{ $row->name }}
+                                                                        </option>
+                                                                    @endforeach
+                                                                </select>
+                                                            </div>
                                                         </div>
-                                                    </div>
-                                                </div>
-                                                <div class="row">
-                                                    <div class="col-md-6">
-                                                    </div>
-                                                    <div class="col-md-6">
                                                         <div class="col-xl-12 col-md-12 col-12">
                                                             <div class="form-group">
                                                                 <label for="amount">Amount</label>
@@ -170,80 +168,9 @@ $links = [
 
 @endsection
 @push('script')
-<script src="{{asset('admin/app-assets/vendors/js/pickers/pickadate/picker.js')}}"></script>
-<script src="{{asset('admin/app-assets/vendors/js/pickers/pickadate/picker.date.js')}}"></script>
-<script src="{{asset('admin/app-assets/vendors/js/pickers/pickadate/picker.time.js')}}"></script>
-<script src="{{asset('admin/app-assets/vendors/js/pickers/pickadate/legacy.js')}}"></script>
-<script src="{{asset('admin/app-assets/vendors/js/pickers/flatpickr/flatpickr.min.js')}}"></script>
-<script src="{{asset('admin/app-assets/js/scripts/forms/pickers/form-pickers.js')}}"></script>
-    <script>
-        $.fn.extend({
-            treed: function(o) {
-
-                var openedClass = 'fas fa-minus';
-                var closedClass = 'fas fa-plus';
-
-                if (typeof o != 'undefined') {
-                    if (typeof o.openedClass != 'undefined') {
-                        openedClass = o.openedClass;
-                    }
-                    if (typeof o.closedClass != 'undefined') {
-                        closedClass = o.closedClass;
-                    }
-                };
-
-                //initialize each of the top levels
-                var tree = $(this);
-                tree.addClass("tree");
-                tree.find('li').has("ul").each(function() {
-                    var branch = $(this); //li with children ul
-                    branch.prepend("<i class='indicator fas " + closedClass + "'></i>");
-                    branch.addClass('branch');
-                    branch.on('click', function(e) {
-                        if (this == e.target) {
-                            var icon = $(this).children('i:first');
-                            icon.toggleClass(openedClass + " " + closedClass);
-                            $(this).children().children().toggle();
-                        }
-                    })
-                    branch.children().children().toggle();
-                });
-                //fire event from the dynamically added icon
-                tree.find('.branch .indicator').each(function() {
-                    $(this).on('click', function() {
-                        $(this).closest('li').click();
-                    });
-                });
-                //fire event to open branch if the li contains an anchor instead of text
-                tree.find('.branch>a').each(function() {
-                    $(this).on('click', function(e) {
-                        $(this).closest('li').click();
-                        e.preventDefault();
-                    });
-                });
-                //fire event to open branch if the li contains a button instead of text
-                tree.find('.branch>button').each(function() {
-                    $(this).on('click', function(e) {
-                        $(this).closest('li').click();
-                        e.preventDefault();
-                    });
-                });
-            }
-        });
-
-        //Initialization of treeviews
-
-        $('#tree1').treed();
-
-        var click = 0
-        function changeChart(parent_id){
-            $('select[name="parent_id"]').val($(event.target)[0].id).change().attr('selected', 'selected')
-            event.preventDefault
-        }
-    </script>
     <script>
         var i = parseInt(document.getElementById('paymentVoucaher').value);
     
-        document.getElementById('pv_no').value = i;
+        document.getElementById('uid').value = i;
     </script>
 @endpush

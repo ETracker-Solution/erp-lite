@@ -32,25 +32,25 @@ $links = [
                                     <div class="card">
                                         <div class="card-body">
                                             <div class="row">
-                                                <div class="col-xl-12 col-md-12 col-12">
+                                                <div class="col-xl-4 col-md-4 col-12">
                                                     <div class="form-group">
-                                                        <label for="jv_no">JV No</label>
+                                                        <label for="uid">JV No</label>
                                                         <input type="text" class="form-control"
-                                                            id="jv_no" name="jv_no"
+                                                            id="uid" name="uid"
                                                             placeholder="Enter JV No"
-                                                            value="{{ old('jv_no') }}" readonly>
-                                                        @if ($errors->has('jv_no'))
+                                                            value="{{ old('uid') }}" readonly>
+                                                        @if ($errors->has('uid'))
                                                             <small
-                                                                class="text-danger">{{ $errors->first('jv_no') }}</small>
+                                                                class="text-danger">{{ $errors->first('uid') }}</small>
                                                         @endif
                                                     </div>
                                                 </div>
-                                                <div class="col-xl-12 col-md-12 col-12">
+                                                <div class="col-xl-4 col-md-4 col-12">
                                                     <div class="form-group">
                                                         <label for="date">Date</label>
                                                         <div class="input-group date" id="reservationdate"
                                                                     data-target-input="nearest">
-                                                            <input type="text" name="date" class="form-control datetimepicker-input"
+                                                            <input type="text" name="date" value="{{ date('Y-m-d') }}" class="form-control datetimepicker-input"
                                                                 data-target="#reservationdate" />
                                                             <div class="input-group-append" data-target="#reservationdate"
                                                                 data-toggle="datetimepicker">
@@ -60,7 +60,7 @@ $links = [
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div class="col-xl-12 col-md-12 col-12">
+                                                <div class="col-xl-4 col-md-4 col-12">
                                                     <div class="form-group">
                                                         <label for="debit_account_id">Debit Account</label>
                                                         <select class="form-control select2"
@@ -91,26 +91,24 @@ $links = [
                                     <div class="card">
                                         <div class="card-body">
                                             <div class="row">
-                                                <div class="col-xl-12 col-md-12 col-12">
-                                                    <div class="form-group">
-                                                        <label for="credit_account_id">Credit Account</label>
-                                                        <select class="form-control select2"
-                                                            name="credit_account_id" id="credit_account_id">
-                                                            <option value="">---Select Account---</option>
-                                                            @foreach ($chartOfAccounts as $row)
-                                                                <option value="{{ $row->id }}"
-                                                                    {{ old('credit_account_id') == $row->id ? 'selected' : '' }}>
-                                                                    {{ $row->name }}
-                                                                </option>
-                                                            @endforeach
-                                                        </select>
+                                                <div class="col-md-6">
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="col-xl-12 col-md-12 col-12">
+                                                        <div class="form-group">
+                                                            <label for="credit_account_id">Credit Account</label>
+                                                            <select class="form-control select2"
+                                                                name="credit_account_id" id="credit_account_id">
+                                                                <option value="">---Select Account---</option>
+                                                                @foreach ($chartOfAccounts as $row)
+                                                                    <option value="{{ $row->id }}"
+                                                                        {{ old('credit_account_id') == $row->id ? 'selected' : '' }}>
+                                                                        {{ $row->name }}
+                                                                    </option>
+                                                                @endforeach
+                                                            </select>
+                                                        </div>
                                                     </div>
-                                                </div>
-                                            </div>
-                                            <div class="row">
-                                                <div class="col-md-6">
-                                                </div>
-                                                <div class="col-md-6">
                                                     <div class="col-xl-12 col-md-12 col-12">
                                                         <div class="form-group">
                                                             <label for="amount">Amount</label>
@@ -176,7 +174,7 @@ $links = [
         var i = parseInt(document.getElementById('journalVoucaher').value);
     
         // var defaultExpense = `${i++}`;
-        document.getElementById('jv_no').value = i;
+        document.getElementById('uid').value = i;
     </script>
     
 @endpush

@@ -46,8 +46,8 @@ class SupplierPaymentVoucherController extends Controller
         $paymentAccounts = ChartOfAccount::where(['is_bank_cash' => 'yes', 'type' => 'ledger', 'status' => 'active'])->get();
 
         $serial_count = SupplierPaymentVoucher::latest()->first() ? SupplierPaymentVoucher::latest()->first()->id : 0;
-        $spv_no = $serial_count + 1;
-        return view('supplier_payment_voucher.create', compact('paymentAccounts', 'spv_no', 'supplier_groups'));
+        $uid = $serial_count + 1;
+        return view('supplier_payment_voucher.create', compact('paymentAccounts', 'uid', 'supplier_groups'));
     }
 
     /**

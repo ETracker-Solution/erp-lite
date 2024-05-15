@@ -23,7 +23,7 @@ class StoreSupplierPaymentVoucherRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'spv_no' => 'required',
+            'uid' => 'required',
             'date' => 'required',
             'amount' => 'required',
             'supplier_id' => 'required',

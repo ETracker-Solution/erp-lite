@@ -48,7 +48,7 @@ class PaymentVoucherController extends Controller
     {
         $creditAccounts = ChartOfAccount::where(['is_bank_cash' => 'yes', 'type' => 'ledger', 'status' => 'active'])->get();
         $debitAccounts = ChartOfAccount::where(['is_bank_cash' => 'no', 'type' => 'ledger', 'status' => 'active'])->get();
-        $lastValue = PaymentVoucher::latest()->pluck('pv_no')->first();
+        $lastValue = PaymentVoucher::latest()->pluck('uid')->first();
         if ($lastValue !== null) {
             $PVno = (int)$lastValue + 1;
         } else {
@@ -100,9 +100,12 @@ class PaymentVoucherController extends Controller
      * @param \App\Models\PaymentVoucher $paymentVoucher
      * @return \Illuminate\Http\Response
      */
-    public function edit(PaymentVoucher $paymentVoucher)
+    public function edit($id)
     {
-        //
+        $creditAccounts = ChartOfAccount::where(['is_bank_cash' => 'yes', 'type' => 'ledger', 'status' => 'active'])->get();
+        $debitAccounts = ChartOfAccount::where(['is_bank_cash' => 'no', 'type' => 'ledger', 'status' => 'active'])->get();
+        $paymentVoucher = PaymentVoucher::findOrFail(decrypt($id));
+        return view('payment_voucher.edit', compact('paymentVoucher','creditAccounts','debitAccounts'));
     }
 
     /**
@@ -112,9 +115,23 @@ class PaymentVoucherController extends Controller
      * @param \App\Models\PaymentVoucher $paymentVoucher
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, PaymentVoucher $paymentVoucher)
+    public function update(UpdatePaymentVoucherRequest $request, PaymentVoucher $paymentVoucher)
     {
-        //
+        $validated = $request->validated();
+        DB::beginTransaction();
+        try {
+            $paymentVoucher->update($validated);
+            // Accounts Effect
+            AccountTransaction::where('doc_type', 'PV')->where('doc_id', $paymentVoucher->id)->delete();
+            addAccountsTransaction('PV', $paymentVoucher, $validated['debit_account_id'], $validated['credit_account_id']);
+            DB::commit();
+        } catch (\Exception $error) {
+            DB::rollBack();
+            Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
+            return back();
+        }
+        Toastr::success('Payment Voucher Update Successfully!.', '', ["progressBar" => true]);
+        return redirect()->route('payment-vouchers.index');
     }
 
     /**

@@ -30,21 +30,21 @@
                                     <div class="card">
                                         <div class="card-body">
                                             <div class="row">
-                                                <div class="col-xl-4 col-md-4 col-4">
+                                                <div class="col-xl-4 col-md-4 col-12">
                                                     <div class="form-group">
-                                                        <label for="spv_no">SPV No</label>
+                                                        <label for="uid">SPV No</label>
                                                         <input type="number" class="form-control"
-                                                               v-model="spv_no" id="spv_no"
-                                                               name="spv_no" placeholder="Enter SPV No"
-                                                               value="{{ old('spv_no') }}" readonly>
-                                                        @if ($errors->has('spv_no'))
+                                                               v-model="uid" id="uid"
+                                                               name="uid" placeholder="Enter SPV No"
+                                                               value="{{ old('uid') }}" readonly>
+                                                        @if ($errors->has('uid'))
                                                             <small
-                                                                class="text-danger">{{ $errors->first('spv_no') }}</small>
+                                                                class="text-danger">{{ $errors->first('uid') }}</small>
                                                         @endif
                                                     </div>
                                                 </div>
 
-                                                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
+                                                <div class="col-xl-4 col-md-4 col-12">
                                                     <div class="form-group">
                                                         <label for="supplier_id">Group</label>
                                                         <select name="supplier_group_id"
@@ -60,7 +60,7 @@
                                                         </select>
                                                     </div>
                                                 </div>
-                                                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
+                                                <div class="col-xl-4 col-md-4 col-12">
                                                     <div class="form-group">
                                                         <label for="supplier_id">Supplier</label>
                                                         <select name="supplier_id" id="supplier_id"
@@ -258,7 +258,7 @@
                         get_due_by_supplier_id_url: "{{ url('fetch-due-by-supplier-id') }}",
                     },
                     date: new Date(),
-                    spv_no: {{$spv_no}},
+                    uid: {{$uid}},
                     supplier_group_id: '',
                     supplier_id: '',
                     amount: '',

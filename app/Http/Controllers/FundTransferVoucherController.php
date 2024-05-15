@@ -47,7 +47,7 @@ class FundTransferVoucherController extends Controller
     public function create()
     {
         $chartOfAccounts = ChartOfAccount::where(['is_bank_cash' => 'yes', 'type' => 'ledger', 'status' => 'active'])->get();
-        $lastValue = FundTransferVoucher::latest()->pluck('ftv_no')->first();
+        $lastValue = FundTransferVoucher::latest()->pluck('uid')->first();
         if ($lastValue !== null) {
             $FTVno = (int)$lastValue + 1;
         } else {
@@ -98,9 +98,11 @@ class FundTransferVoucherController extends Controller
      * @param \App\Models\FundTransferVoucher $fundTransferVoucher
      * @return \Illuminate\Http\Response
      */
-    public function edit(FundTransferVoucher $fundTransferVoucher)
+    public function edit($id)
     {
-        //
+        $chartOfAccounts = ChartOfAccount::where(['is_bank_cash' => 'yes', 'type' => 'ledger', 'status' => 'active'])->get();
+        $fundTransferVoucher = FundTransferVoucher::findOrFail(decrypt($id));
+        return view('fund_transfer_voucher.edit',compact('fundTransferVoucher','chartOfAccounts'));
     }
 
     /**
@@ -110,9 +112,23 @@ class FundTransferVoucherController extends Controller
      * @param \App\Models\FundTransferVoucher $fundTransferVoucher
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, FundTransferVoucher $fundTransferVoucher)
+    public function update(UpdateFundTransferVoucherRequest $request, FundTransferVoucher $fundTransferVoucher)
     {
-        //
+        $validated = $request->validated();
+        DB::beginTransaction();
+        try {
+            $fundTransferVoucher->update($validated);
+            // Accounts Effect
+            AccountTransaction::where('doc_type','FTV')->where('doc_id',$fundTransferVoucher->id)->delete();
+            addAccountsTransaction('FTV', $fundTransferVoucher, $validated['debit_account_id'], $validated['credit_account_id']);
+            DB::commit();
+        } catch (\Exception $error) {
+            DB::rollBack();
+            Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
+            return back();
+        }
+        Toastr::success('Fund Transfer Voucher Update Successfully!.', '', ["progressBar" => true]);
+        return redirect()->route('fund-transfer-vouchers.index');
     }
 
     /**

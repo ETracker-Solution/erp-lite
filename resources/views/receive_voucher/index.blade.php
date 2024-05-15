@@ -84,7 +84,7 @@ Receive Voucher List
                     searchable: true
                 },
                 {
-                    data: "rv_no",
+                    data: "uid",
                     title: "RV No",
                     searchable: true
                 },

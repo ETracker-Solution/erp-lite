@@ -15,7 +15,7 @@ class CreatePaymentVouchersTable extends Migration
     {
         Schema::create('payment_vouchers', function (Blueprint $table) {
             $table->id();
-            $table->string('pv_no');
+            $table->string('uid')->nullable();
             $table->date('date');
             $table->double('amount',16,2);
             $table->foreignId('credit_account_id')->comment('chart_of_account_id')->constrained('chart_of_accounts')->onDelete('cascade');
