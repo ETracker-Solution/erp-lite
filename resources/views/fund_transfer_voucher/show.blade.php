@@ -33,7 +33,7 @@
                                     </tr>
                                     <tr>
                                         <th><strong>FTV No :</strong></th>
-                                        <td>{{ $fundTransferVoucher->ftv_no }}</td>
+                                        <td>{{ $fundTransferVoucher->uid }}</td>
                                     </tr>
                                     <tr>
                                         <th><strong>Transfer From Account  :</strong></th>

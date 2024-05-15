@@ -48,7 +48,7 @@ class JournalVoucherController extends Controller
     {
 
         $chartOfAccounts = ChartOfAccount::where(['type' => 'ledger', 'status' => 'active'])->get();
-        $lastValue = JournalVoucher::latest()->pluck('jv_no')->first();
+        $lastValue = JournalVoucher::latest()->pluck('uid')->first();
         if ($lastValue !== null) {
             $JVno = (int)$lastValue + 1;
         } else {
@@ -101,7 +101,9 @@ class JournalVoucherController extends Controller
      */
     public function edit($id)
     {
-        //
+        $chartOfAccounts = ChartOfAccount::where(['type' => 'ledger', 'status' => 'active'])->get();
+        $journalVoucher = JournalVoucher::findOrFail(decrypt($id));
+        return view('journal_voucher.edit', compact('journalVoucher','chartOfAccounts'));
     }
 
     /**
@@ -111,9 +113,23 @@ class JournalVoucherController extends Controller
      * @param \App\Models\JournalVoucher $journalVoucher
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(UpdateJournalVoucherRequest $request, JournalVoucher $journalVoucher)
     {
-        //
+        $validated = $request->validated();
+        DB::beginTransaction();
+        try {
+            $journalVoucher->update($validated);
+            // Accounts Effect
+            AccountTransaction::where('doc_type','JV')->where('doc_id',$journalVoucher->id)->delete();
+            addAccountsTransaction('JV', $journalVoucher, $validated['debit_account_id'], $validated['credit_account_id']);
+            DB::commit();
+        } catch (\Exception $error) {
+            DB::rollBack();
+            Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
+            return back();
+        }
+        Toastr::success('Journal Voucher Update Successfully!.', '', ["progressBar" => true]);
+        return redirect()->route('journal-vouchers.index');
     }
 
     /**

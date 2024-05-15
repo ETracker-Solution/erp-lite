@@ -15,7 +15,7 @@ class CreateFundTransferVouchersTable extends Migration
     {
         Schema::create('fund_transfer_vouchers', function (Blueprint $table) {
             $table->id();
-            $table->string('ftv_no');
+            $table->string('uid');
             $table->date('date');
             $table->double('amount',16,2);
             $table->foreignId('credit_account_id')->comment('chart_of_account_id,from')->constrained('chart_of_accounts')->onDelete('cascade');

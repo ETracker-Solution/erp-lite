@@ -82,7 +82,7 @@
                     searchable: true
                 },
                 {
-                    data: "jv_no",
+                    data: "uid",
                     title: "JV No",
                     searchable: true
                 },
