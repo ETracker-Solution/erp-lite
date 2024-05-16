@@ -21,7 +21,7 @@ class CreateChartOfAccountsTable extends Migration
             $table->enum('type',['group','ledger']);
             $table->enum('account_type',['debit','credit']);
             $table->enum('is_bank_cash',['yes','no'])->default('no')->comment('cash and bank accounts identify by this column');
-            $table->enum('parent_account_type',['as','li','in','ex'])->comment('plz replace with root account type');
+            $table->enum('root_account_type',['as','li','in','ex']);
             $table->string('default_type')->nullable();
             $table->foreignId('created_by')->nullable()->constrained('users')->onDelete('cascade');
             $table->foreignId('updated_by')->nullable()->constrained('users')->onDelete('cascade');
