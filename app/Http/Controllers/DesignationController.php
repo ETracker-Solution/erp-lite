@@ -2,37 +2,39 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreEmployeeRequest;
-use App\Http\Requests\UpdateEmployeeRequest;
-use App\Models\Department;
+use App\Http\Requests\StoreDesignationRequest;
+use App\Http\Requests\UpdateDesignationRequest;
 use App\Models\Designation;
-use App\Models\Employee;
-use App\Models\Outlet;
 use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Facades\DataTables;
 
-class EmployeeController extends Controller
+class DesignationController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $employees = Employee::all();
+        $serial_count = Designation::latest()->first() ? Designation::latest()->first()->id : 0;
+        $uid = $serial_count + 1;
+        $designations = Designation::all();
         if (\request()->ajax()) {
-            return DataTables::of($employees)
+            return DataTables::of($designations)
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
-                    return view('employee.action', compact('row'));
+                    return view('designation.action', compact('row'));
+                })
+                ->editColumn('type', function ($row) {
+                    return strtoupper($row->type);
                 })
                 ->addColumn('created_at', function ($row) {
-                    return view('common.created_at',compact('row'));
+                    return view('common.created_at', compact('row'));
                 })
-                ->rawColumns(['action','created_at'])
+                ->rawColumns(['action'])
                 ->make(true);
         }
-        return view('employee.index');
+        return view('designation.index',compact('uid'));
     }
 
     /**
@@ -40,39 +42,35 @@ class EmployeeController extends Controller
      */
     public function create()
     {
-        $designations = Designation::all();
-        $departments = Department::all();
-        $outlets = Outlet::all();
-        return view('employee.create',compact('designations','departments','outlets'));
+        //
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreEmployeeRequest $request)
+    public function store(StoreDesignationRequest $request)
     {
         $validated = $request->validated();
 
         DB::beginTransaction();
         try {
-            Employee::create($validated);
+            Designation::create($validated);
             DB::commit();
         } catch (\Exception $error) {
             DB::rollBack();
             Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
             return back();
         }
-        Toastr::success('Employee Created Successfully!.', '', ["progressBar" => true]);
-        return redirect()->route('employees.index');
+        Toastr::success('Designation Created Successfully!.', '', ["progressBar" => true]);
+        return redirect()->route('designations.index');
     }
 
     /**
      * Display the specified resource.
      */
-    public function show($id)
+    public function show(Designation $designation)
     {
-        $employee = Employee::findOrFail(decrypt($id));
-        return view('employee.show',compact('employee'));
+        //
     }
 
     /**
@@ -80,27 +78,27 @@ class EmployeeController extends Controller
      */
     public function edit($id)
     {
-        $employee = Employee::findOrFail(decrypt($id));
-        return view('employee.edit',compact('employee'));
+        $designation = Designation::findOrFail(decrypt($id));
+        return view('designation.index', compact('designation'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateEmployeeRequest $request, $id)
+    public function update(UpdateDesignationRequest $request, $id)
     {
         $validated = $request->validated();
         DB::beginTransaction();
         try {
-            Employee::findOrFail($id)->update($validated);
+            Designation::findOrFail($id)->update($validated);
             DB::commit();
         } catch (\Exception $error) {
             DB::rollBack();
             Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
             return back();
         }
-        Toastr::success('Employee Updated Successfully!.', '', ["progressBar" => true]);
-        return redirect()->route('employees.index');
+        Toastr::success('Department Updated Successfully!.', '', ["progressBar" => true]);
+        return redirect()->route('designations.index');
     }
 
     /**
@@ -110,14 +108,14 @@ class EmployeeController extends Controller
     {
         DB::beginTransaction();
         try {
-            Employee::findOrFail(decrypt($id))->delete();
+            Designation::findOrFail(decrypt($id))->delete();
             DB::commit();
         } catch (\Exception $error) {
             DB::rollBack();
             Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
             return back();
         }
-        Toastr::success('Employee Deleted Successfully!.', '', ["progressBar" => true]);
-        return redirect()->route('employees.index');
+        Toastr::success('Designation Deleted Successfully!.', '', ["progressBar" => true]);
+        return redirect()->route('designations.index');
     }
 }
