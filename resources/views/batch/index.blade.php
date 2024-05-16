@@ -54,7 +54,7 @@ Batch List
                                                 <label for="serial_no">Batch Date</label>
                                                 <div class="input-group date" id="reservationdate"
                                                     data-target-input="nearest">
-                                                    <input type="text" name="date" class="form-control datetimepicker-input"
+                                                    <input type="text" name="date" value="{{ date('Y-m-d') }}" class="form-control datetimepicker-input"
                                                         data-target="#reservationdate" />
                                                     <div class="input-group-append" data-target="#reservationdate"
                                                         data-toggle="datetimepicker">
