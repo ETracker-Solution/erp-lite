@@ -25,7 +25,7 @@ class ChartOfAccountSeeder extends Seeder
                         'type' => 'group',
                         'account_type' => 'debit',
                         'is_bank_cash' => 'no',
-                        'parent_account_type' => 'as',
+                        'root_account_type' => 'as',
                         'created_at' => Carbon::now(),
                     ],
                     [
@@ -37,7 +37,7 @@ class ChartOfAccountSeeder extends Seeder
                         'type' => 'group',
                         'account_type' => 'credit',
                         'is_bank_cash' => 'no',
-                        'parent_account_type' => 'li',
+                        'root_account_type' => 'li',
                         'created_at' => Carbon::now(),
                     ],
                     [
@@ -49,7 +49,7 @@ class ChartOfAccountSeeder extends Seeder
                         'type' => 'group',
                         'account_type' => 'credit',
                         'is_bank_cash' => 'no',
-                        'parent_account_type' => 'in',
+                        'root_account_type' => 'in',
                         'created_at' => Carbon::now(),
                     ],
                     [
@@ -61,7 +61,7 @@ class ChartOfAccountSeeder extends Seeder
                         'type' => 'group',
                         'account_type' => 'debit',
                         'is_bank_cash' => 'no',
-                        'parent_account_type' => 'ex',
+                        'root_account_type' => 'ex',
                         'created_at' => Carbon::now(),
                     ],
 
@@ -74,7 +74,7 @@ class ChartOfAccountSeeder extends Seeder
                         'type' => 'group',
                         'account_type' => 'debit',
                         'is_bank_cash' => 'no',
-                        'parent_account_type' => 'as',
+                        'root_account_type' => 'as',
                         'created_at' => Carbon::now(),
                     ],
                     [
@@ -86,7 +86,7 @@ class ChartOfAccountSeeder extends Seeder
                         'type' => 'group',
                         'account_type' => 'debit',
                         'is_bank_cash' => 'no',
-                        'parent_account_type' => 'as',
+                        'root_account_type' => 'as',
                         'created_at' => Carbon::now(),
                     ],
                     [
@@ -98,7 +98,7 @@ class ChartOfAccountSeeder extends Seeder
                         'type' => 'group',
                         'account_type' => 'debit',
                         'is_bank_cash' => 'no',
-                        'parent_account_type' => 'as',
+                        'root_account_type' => 'as',
                         'created_at' => Carbon::now(),
                     ],
                     [
@@ -110,7 +110,7 @@ class ChartOfAccountSeeder extends Seeder
                         'type' => 'group',
                         'account_type' => 'debit',
                         'is_bank_cash' => 'yes',
-                        'parent_account_type' => 'as',
+                        'root_account_type' => 'as',
                         'created_at' => Carbon::now(),
                     ],
                     [
@@ -122,7 +122,7 @@ class ChartOfAccountSeeder extends Seeder
                         'type' => 'group',
                         'account_type' => 'debit',
                         'is_bank_cash' => 'yes',
-                        'parent_account_type' => 'as',
+                        'root_account_type' => 'as',
                         'created_at' => Carbon::now(),
                     ],
                     [
@@ -134,7 +134,7 @@ class ChartOfAccountSeeder extends Seeder
                         'type' => 'group',
                         'account_type' => 'debit',
                         'is_bank_cash' => 'yes',
-                        'parent_account_type' => 'as',
+                        'root_account_type' => 'as',
                         'created_at' => Carbon::now(),
                     ],
 
@@ -147,10 +147,10 @@ class ChartOfAccountSeeder extends Seeder
                         'type' => 'group',
                         'account_type' => 'debit',
                         'is_bank_cash' => 'no',
-                        'parent_account_type' => 'as',
+                        'root_account_type' => 'as',
                         'created_at' => Carbon::now(),
                     ],
-                    
+
                     [
                         'id' => 12,
                         'parent_id' => 8,
@@ -160,7 +160,7 @@ class ChartOfAccountSeeder extends Seeder
                         'type' => 'ledger',
                         'account_type' => 'debit',
                         'is_bank_cash' => 'yes',
-                        'parent_account_type' => 'as',
+                        'root_account_type' => 'as',
                         'created_at' => Carbon::now(),
                     ],
                     [
@@ -172,7 +172,7 @@ class ChartOfAccountSeeder extends Seeder
                         'type' => 'ledger',
                         'account_type' => 'debit',
                         'is_bank_cash' => 'yes',
-                        'parent_account_type' => 'as',
+                        'root_account_type' => 'as',
                         'created_at' => Carbon::now(),
                     ],
                     [
@@ -184,7 +184,7 @@ class ChartOfAccountSeeder extends Seeder
                         'type' => 'ledger',
                         'account_type' => 'debit',
                         'is_bank_cash' => 'no',
-                        'parent_account_type' => 'as',
+                        'root_account_type' => 'as',
                         'created_at' => Carbon::now(),
                     ],
                     [
@@ -196,7 +196,7 @@ class ChartOfAccountSeeder extends Seeder
                         'type' => 'ledger',
                         'account_type' => 'debit',
                         'is_bank_cash' => 'no',
-                        'parent_account_type' => 'as',
+                        'root_account_type' => 'as',
                         'created_at' => Carbon::now(),
                     ],
                     [
@@ -208,7 +208,7 @@ class ChartOfAccountSeeder extends Seeder
                         'type' => 'ledger',
                         'account_type' => 'debit',
                         'is_bank_cash' => 'no',
-                        'parent_account_type' => 'as',
+                        'root_account_type' => 'as',
                         'created_at' => Carbon::now(),
                     ],
                     [
@@ -220,7 +220,7 @@ class ChartOfAccountSeeder extends Seeder
                         'type' => 'ledger',
                         'account_type' => 'debit',
                         'is_bank_cash' => 'no',
-                        'parent_account_type' => 'as',
+                        'root_account_type' => 'as',
                         'created_at' => Carbon::now(),
                     ],
                     [
@@ -232,10 +232,10 @@ class ChartOfAccountSeeder extends Seeder
                         'type' => 'ledger',
                         'account_type' => 'debit',
                         'is_bank_cash' => 'no',
-                        'parent_account_type' => 'as',
+                        'root_account_type' => 'as',
                         'created_at' => Carbon::now(),
-                    ],                    
-                    
+                    ],
+
                     [
                         'id' => 19,
                         'parent_id' => 6,
@@ -245,7 +245,7 @@ class ChartOfAccountSeeder extends Seeder
                         'type' => 'ledger',
                         'account_type' => 'debit',
                         'is_bank_cash' => 'no',
-                        'parent_account_type' => 'as',
+                        'root_account_type' => 'as',
                         'created_at' => Carbon::now(),
                     ],
 
@@ -258,9 +258,9 @@ class ChartOfAccountSeeder extends Seeder
                         'type' => 'group',
                         'account_type' => 'credit',
                         'is_bank_cash' => 'no',
-                        'parent_account_type' => 'li',
+                        'root_account_type' => 'li',
                         'created_at' => Carbon::now(),
-                    ], 
+                    ],
                     [
                         'id' => 21,
                         'parent_id' => 2,
@@ -270,7 +270,7 @@ class ChartOfAccountSeeder extends Seeder
                         'type' => 'group',
                         'account_type' => 'credit',
                         'is_bank_cash' => 'no',
-                        'parent_account_type' => 'li',
+                        'root_account_type' => 'li',
                         'created_at' => Carbon::now(),
                     ],
                     [
@@ -282,9 +282,9 @@ class ChartOfAccountSeeder extends Seeder
                         'type' => 'ledger',
                         'account_type' => 'credit',
                         'is_bank_cash' => 'no',
-                        'parent_account_type' => 'li',
+                        'root_account_type' => 'li',
                         'created_at' => Carbon::now(),
-                    ], 
+                    ],
                     [
                         'id' => 23,
                         'parent_id' => 20,
@@ -294,9 +294,9 @@ class ChartOfAccountSeeder extends Seeder
                         'type' => 'ledger',
                         'account_type' => 'credit',
                         'is_bank_cash' => 'no',
-                        'parent_account_type' => 'li',
+                        'root_account_type' => 'li',
                         'created_at' => Carbon::now(),
-                    ], 
+                    ],
                     [
                         'id' => 24,
                         'parent_id' => 20,
@@ -306,7 +306,7 @@ class ChartOfAccountSeeder extends Seeder
                         'type' => 'ledger',
                         'account_type' => 'credit',
                         'is_bank_cash' => 'no',
-                        'parent_account_type' => 'li',
+                        'root_account_type' => 'li',
                         'created_at' => Carbon::now(),
                     ],
                     [
@@ -318,7 +318,7 @@ class ChartOfAccountSeeder extends Seeder
                         'type' => 'ledger',
                         'account_type' => 'debit',
                         'is_bank_cash' => 'no',
-                        'parent_account_type' => 'ex',
+                        'root_account_type' => 'ex',
                         'created_at' => Carbon::now(),
                     ],
                     [
@@ -330,7 +330,7 @@ class ChartOfAccountSeeder extends Seeder
                         'type' => 'ledger',
                         'account_type' => 'credit',
                         'is_bank_cash' => 'no',
-                        'parent_account_type' => 'li',
+                        'root_account_type' => 'li',
                         'created_at' => Carbon::now(),
                     ],
 
@@ -343,7 +343,7 @@ class ChartOfAccountSeeder extends Seeder
                         'type' => 'group',
                         'account_type' => 'credit',
                         'is_bank_cash' => 'no',
-                        'parent_account_type' => 'li',
+                        'root_account_type' => 'li',
                         'created_at' => Carbon::now(),
                     ],
                     [
@@ -355,9 +355,9 @@ class ChartOfAccountSeeder extends Seeder
                         'type' => 'ledger',
                         'account_type' => 'debit',
                         'is_bank_cash' => 'no',
-                        'parent_account_type' => 'ex',
+                        'root_account_type' => 'ex',
                         'created_at' => Carbon::now(),
-                    ], 
+                    ],
                     [
                         'id' => 29,
                         'parent_id' => 21,
@@ -367,7 +367,7 @@ class ChartOfAccountSeeder extends Seeder
                         'type' => 'ledger',
                         'account_type' => 'credit',
                         'is_bank_cash' => 'no',
-                        'parent_account_type' => 'li',
+                        'root_account_type' => 'li',
                         'created_at' => Carbon::now(),
                     ],
                     [
@@ -379,7 +379,7 @@ class ChartOfAccountSeeder extends Seeder
                         'type' => 'ledger',
                         'account_type' => 'credit',
                         'is_bank_cash' => 'no',
-                        'parent_account_type' => 'li',
+                        'root_account_type' => 'li',
                         'created_at' => Carbon::now(),
                     ],
                     [
@@ -391,7 +391,7 @@ class ChartOfAccountSeeder extends Seeder
                         'type' => 'ledger',
                         'account_type' => 'credit',
                         'is_bank_cash' => 'no',
-                        'parent_account_type' => 'li',
+                        'root_account_type' => 'li',
                         'created_at' => Carbon::now(),
                     ],
                     [
@@ -403,7 +403,7 @@ class ChartOfAccountSeeder extends Seeder
                         'type' => 'ledger',
                         'account_type' => 'credit',
                         'is_bank_cash' => 'no',
-                        'parent_account_type' => 'li',
+                        'root_account_type' => 'li',
                         'created_at' => Carbon::now(),
                     ],
                     [
@@ -415,7 +415,7 @@ class ChartOfAccountSeeder extends Seeder
                         'type' => 'group',
                         'account_type' => 'credit',
                         'is_bank_cash' => 'no',
-                        'parent_account_type' => 'in',
+                        'root_account_type' => 'in',
                         'created_at' => Carbon::now(),
                     ],
                     [
@@ -427,7 +427,7 @@ class ChartOfAccountSeeder extends Seeder
                         'type' => 'group',
                         'account_type' => 'credit',
                         'is_bank_cash' => 'no',
-                        'parent_account_type' => 'in',
+                        'root_account_type' => 'in',
                         'created_at' => Carbon::now(),
                     ],
                     [
@@ -439,7 +439,7 @@ class ChartOfAccountSeeder extends Seeder
                         'type' => 'ledger',
                         'account_type' => 'debit',
                         'is_bank_cash' => 'no',
-                        'parent_account_type' => 'in',
+                        'root_account_type' => 'in',
                         'created_at' => Carbon::now(),
                     ],
                     [
@@ -451,7 +451,7 @@ class ChartOfAccountSeeder extends Seeder
                         'type' => 'group',
                         'account_type' => 'debit',
                         'is_bank_cash' => 'no',
-                        'parent_account_type' => 'ex',
+                        'root_account_type' => 'ex',
                         'created_at' => Carbon::now(),
                     ],
                     [
@@ -463,7 +463,7 @@ class ChartOfAccountSeeder extends Seeder
                         'type' => 'group',
                         'account_type' => 'debit',
                         'is_bank_cash' => 'no',
-                        'parent_account_type' => 'ex',
+                        'root_account_type' => 'ex',
                         'created_at' => Carbon::now(),
                     ],
                     [
@@ -475,7 +475,7 @@ class ChartOfAccountSeeder extends Seeder
                         'type' => 'ledger',
                         'account_type' => 'debit',
                         'is_bank_cash' => 'no',
-                        'parent_account_type' => 'ex',
+                        'root_account_type' => 'ex',
                         'created_at' => Carbon::now(),
                     ],
                     [
@@ -487,7 +487,7 @@ class ChartOfAccountSeeder extends Seeder
                         'type' => 'group',
                         'account_type' => 'debit',
                         'is_bank_cash' => 'no',
-                        'parent_account_type' => 'ex',
+                        'root_account_type' => 'ex',
                         'created_at' => Carbon::now(),
                     ],
                     [
@@ -499,7 +499,7 @@ class ChartOfAccountSeeder extends Seeder
                         'type' => 'group',
                         'account_type' => 'debit',
                         'is_bank_cash' => 'no',
-                        'parent_account_type' => 'ex',
+                        'root_account_type' => 'ex',
                         'created_at' => Carbon::now(),
                     ],
                     [
@@ -511,7 +511,7 @@ class ChartOfAccountSeeder extends Seeder
                         'type' => 'ledger',
                         'account_type' => 'debit',
                         'is_bank_cash' => 'no',
-                        'parent_account_type' => 'ex',
+                        'root_account_type' => 'ex',
                         'created_at' => Carbon::now(),
                     ],
                     [
@@ -523,7 +523,7 @@ class ChartOfAccountSeeder extends Seeder
                         'type' => 'ledger',
                         'account_type' => 'debit',
                         'is_bank_cash' => 'no',
-                        'parent_account_type' => 'ex',
+                        'root_account_type' => 'ex',
                         'created_at' => Carbon::now(),
                     ],
                     [
@@ -535,9 +535,9 @@ class ChartOfAccountSeeder extends Seeder
                         'type' => 'ledger',
                         'account_type' => 'debit',
                         'is_bank_cash' => 'no',
-                        'parent_account_type' => 'ex',
+                        'root_account_type' => 'ex',
                         'created_at' => Carbon::now(),
-                    ], 
+                    ],
                     [
                         'id' => 44,
                         'parent_id' => 2,
@@ -547,9 +547,9 @@ class ChartOfAccountSeeder extends Seeder
                         'type' => 'group',
                         'account_type' => 'credit',
                         'is_bank_cash' => 'no',
-                        'parent_account_type' => 'li',
+                        'root_account_type' => 'li',
                         'created_at' => Carbon::now(),
-                    ], 
+                    ],
                     [
                         'id' => 45,
                         'parent_id' => 2,
@@ -559,9 +559,9 @@ class ChartOfAccountSeeder extends Seeder
                         'type' => 'group',
                         'account_type' => 'credit',
                         'is_bank_cash' => 'no',
-                        'parent_account_type' => 'li',
+                        'root_account_type' => 'li',
                         'created_at' => Carbon::now(),
-                    ],     
+                    ],
                     [
                         'id' => 46,
                         'parent_id' => 45,
@@ -571,7 +571,7 @@ class ChartOfAccountSeeder extends Seeder
                         'type' => 'ledger',
                         'account_type' => 'credit',
                         'is_bank_cash' => 'no',
-                        'parent_account_type' => 'li',
+                        'root_account_type' => 'li',
                         'created_at' => Carbon::now(),
                     ],
                     [
@@ -583,10 +583,10 @@ class ChartOfAccountSeeder extends Seeder
                         'type' => 'ledger',
                         'account_type' => 'credit',
                         'is_bank_cash' => 'no',
-                        'parent_account_type' => 'li',
+                        'root_account_type' => 'li',
                         'created_at' => Carbon::now(),
-                    ],         
-            
+                    ],
+
                 ];
         DB::table('chart_of_accounts')->insert($data);
     }

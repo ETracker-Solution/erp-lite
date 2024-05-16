@@ -36,16 +36,17 @@
             /*border: 1px solid black;*/
         }
 
-        table.products tr {
+        table.products tr th {
             background-color: #dfdfdf;
         }
 
         table.products th {
             padding: 0.5rem;
+            text-align: left;
         }
 
         table tr.items {
-            background-color: rgb(243, 248, 253);
+            /*background-color: rgb(243, 248, 253);*/
         }
 
         table tr.items td {
