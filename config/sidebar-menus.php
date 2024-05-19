@@ -57,7 +57,13 @@ return [
                     'url' => '/reports/ledger-reports',
                     'active_condition' => '',
                     'has_child' => false,
-
+                ],
+                [
+                    'name' => 'Financial Statement',
+                    'icon' => 'fas fa-tachometer-alt',
+                    'url' => '/financial-statements',
+                    'active_condition' => '',
+                    'has_child' => false,
                 ]
             ],
             'permissions' => ['account-admin', 'account-operator', 'account-viewer', 'account-approver']
