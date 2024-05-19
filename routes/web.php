@@ -100,7 +100,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/fetch-suppliers-by-group-id/{id}', [App\Http\Controllers\ApiController::class, 'fetchSuppliersByGroupId']);
     Route::get('fetch-purchase-products-info/{id}', [App\Http\Controllers\ApiController::class, 'fetchPurchaseProductInfo']);
     Route::get('/fetch-product-by-category-id/{id}', [App\Http\Controllers\ProductController::class, 'fetch_products_by_cat_id']);
+
+    //as soon as possible Remove
     Route::get('/fetch-product-info-for-sale/{id}', [App\Http\Controllers\ApiController::class, 'fetch_product_sale'])->name('fetch-product-info-for-sale');
+//    new
+    Route::get('/fetch-item-by-id-for-sale/{id}', [App\Http\Controllers\ApiController::class, 'fetchItemByIdForSale'])->name('fetch-item-by-id-for-sale');
+
     Route::resource('stocks', App\Http\Controllers\StockController::class);
     Route::resource('label', App\Http\Controllers\LabelController::class);
     Route::get('vuejs/autocomplete/search', [App\Http\Controllers\LabelController::class, 'autocompleteSearch'])->name('vuejs.autocomplete.search');

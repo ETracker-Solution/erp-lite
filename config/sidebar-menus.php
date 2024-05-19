@@ -263,6 +263,28 @@ return [
             'permissions' => ['data-admin-admin', 'data-admin-operator', 'data-admin-viewer', 'data-admin-approver']
         ],
         [
+            'name' => 'Sales Module',
+            'icon' => 'fas fa-shopping-cart',
+            'active_condition' => false,
+            'has_child' => true,
+            'child' => [
+                [
+                    'name' => 'Sales Entry',
+                    'url' => '#',
+                    'has_child' => true,
+                    'active_condition' => false,
+                    'child' => [
+                        [
+                            'name' => 'Sales',
+                            'url' => '/sales/create',
+                            'active_condition' => '',
+                        ]
+                    ],
+                ]
+            ],
+            'permissions' => ['purchase-admin', 'purchase-operator', 'purchase-viewer', 'purchase-approver']
+        ],
+        [
             'name' => 'System Admin Module',
             'icon' => 'fas fa-cog',
             'active_condition' => false,
