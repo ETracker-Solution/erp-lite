@@ -4,11 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Libraries\SaleUtil;
 use App\Models\Category;
+use App\Models\ChartOfInventory;
 use App\Models\Customer;
 use App\Models\Product;
 use App\Models\Sale;
 use App\Http\Requests\StoreSaleRequest;
 use App\Http\Requests\UpdateSaleRequest;
+use App\Models\Store;
 use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -48,10 +50,17 @@ class SaleController extends Controller
      */
     public function create()
     {
-        $categories = Category::where('status', 'active')->get();
-        $products = Product::where('status', 'active')->get();
-        $customers = Customer::where('status', 'active')->get();
-        return view('sale.create', compact('products', 'customers', 'categories'));
+
+        $serial_count = Sale::latest()->first() ? Production::latest()->first()->id : 0;
+        $serial_no = $serial_count + 1;
+        $data = [
+            'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'FG'])->get(),
+            'stores' => Store::where(['type' => 'FG'])->get(),
+            'serial_no' => $serial_no,
+            'customers' => Customer::where('status', 'active')->get(),
+
+        ];
+        return view('sale.create', $data);
     }
 
     /**
@@ -173,6 +182,7 @@ class SaleController extends Controller
         ];
         return $data;
     }
+
     public function pdf($id)
     {
         $item_details = DB::table('sale_items')
@@ -222,6 +232,7 @@ class SaleController extends Controller
 
         return $pdf->stream($name . '.pdf');
     }
+
     public function pdfDownload($id)
     {
         $data = [
