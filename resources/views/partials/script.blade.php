@@ -55,7 +55,7 @@
 
     //Date picker
     $('#reservationdate').datetimepicker({
-        format: 'L'
+        format: 'YYYY-mm-DD'
     });
 
     //Date and time picker

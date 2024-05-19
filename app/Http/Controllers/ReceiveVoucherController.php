@@ -48,7 +48,7 @@ class ReceiveVoucherController extends Controller
     {
         $debitAccounts = ChartOfAccount::where(['is_bank_cash' => 'yes', 'type' => 'ledger', 'status' => 'active'])->get();
         $creditAccounts = ChartOfAccount::where(['is_bank_cash' => 'no', 'type' => 'ledger', 'status' => 'active'])->get();
-        $lastValue = ReceiveVoucher::latest()->pluck('rv_no')->first();
+        $lastValue = ReceiveVoucher::latest()->pluck('uid')->first();
         if ($lastValue !== null) {
             $RVno = (int)$lastValue + 1;
         } else {
@@ -99,9 +99,12 @@ class ReceiveVoucherController extends Controller
      * @param \App\Models\ReceiveVoucher $receiveVoucher
      * @return \Illuminate\Http\Response
      */
-    public function edit(ReceiveVoucher $receiveVoucher)
+    public function edit($id)
     {
-        //
+        $debitAccounts = ChartOfAccount::where(['is_bank_cash' => 'yes', 'type' => 'ledger', 'status' => 'active'])->get();
+        $creditAccounts = ChartOfAccount::where(['is_bank_cash' => 'no', 'type' => 'ledger', 'status' => 'active'])->get();
+        $receiveVoucher = ReceiveVoucher::findOrFail(decrypt($id));
+        return view('receive_voucher.edit', compact('receiveVoucher', 'debitAccounts', 'creditAccounts'));
     }
 
     /**
@@ -111,9 +114,23 @@ class ReceiveVoucherController extends Controller
      * @param \App\Models\ReceiveVoucher $receiveVoucher
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, ReceiveVoucher $receiveVoucher)
+    public function update(UpdateReceiveVoucherRequest $request, ReceiveVoucher $receiveVoucher)
     {
-        //
+        $validated = $request->validated();
+        DB::beginTransaction();
+        try {
+            $receiveVoucher->update($validated);
+            // Accounts Effect
+            AccountTransaction::where('doc_type', 'RV')->where('doc_id', $receiveVoucher->id)->delete();
+            addAccountsTransaction('RV', $receiveVoucher, $validated['debit_account_id'], $validated['credit_account_id']);
+            DB::commit();
+        } catch (\Exception $error) {
+            DB::rollBack();
+            Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
+            return back();
+        }
+        Toastr::success('Receive Voucher Update Successfully!.', '', ["progressBar" => true]);
+        return redirect()->route('receive-vouchers.index');
     }
 
     /**
@@ -127,7 +144,7 @@ class ReceiveVoucherController extends Controller
         DB::beginTransaction();
         try {
             ReceiveVoucher::findOrFail(decrypt($id))->delete();
-            AccountTransaction::where('doc_type', 'rv')->where('doc_id', decrypt($id))->delete();
+            AccountTransaction::where('doc_type', 'RV')->where('doc_id', decrypt($id))->delete();
 
             DB::commit();
         } catch (\Exception $error) {

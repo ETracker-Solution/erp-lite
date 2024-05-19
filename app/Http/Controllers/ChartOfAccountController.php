@@ -46,7 +46,7 @@ class ChartOfAccountController extends Controller
             'type' => $request->input('type'),
             'account_type' => $chartOfAccount->account_type,
             'is_bank_cash' => $chartOfAccount->is_bank_cash,
-            'parent_account_type' => $chartOfAccount->parent_account_type,
+            'root_account_type' => $chartOfAccount->root_account_type,
         ]);
         Toastr::success('Chart of Account Created Successfully!.', '', ["progressBar" => true]);
         return redirect()->route('user.chart-of-accounts.index');
@@ -98,7 +98,7 @@ class ChartOfAccountController extends Controller
             'type' => $request->input('type'),
             'account_type' => $chartOfAccount->account_type,
             'is_bank_cash' => $chartOfAccount->is_bank_cash,
-            'parent_account_type' => $chartOfAccount->parent_account_type,
+            'root_account_type' => $chartOfAccount->root_account_type,
             'status' => $request->input('status')
         ]);
         Toastr::success('Chart of Account Updated Successfully!.', '', ["progressBar" => true]);

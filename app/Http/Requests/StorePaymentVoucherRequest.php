@@ -25,7 +25,7 @@ class StorePaymentVoucherRequest extends FormRequest
     public function rules()
     {
         return [
-            'pv_no' => 'required',
+            'uid' => 'required',
             'date' => 'required',
             'amount' => 'required',
             'credit_account_id' => ['required','different:debit_account_id'],
@@ -38,9 +38,7 @@ class StorePaymentVoucherRequest extends FormRequest
     public function prepareForValidation()
     {
 
-        $this->merge([
-            'date' => Carbon::parse($this->date)->format('Y-m-d'),
-        ]);
+        //
 
     }
     public function messages()

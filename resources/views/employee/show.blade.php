@@ -41,8 +41,8 @@ $links = [
                                     <td>{{ $employee->name }}</td>
                                 </tr>
                                 <tr>
-                                    <th>Mobile : </th>
-                                    <td>{{ $employee->mobile }}</td>
+                                    <th>Phone : </th>
+                                    <td>{{ $employee->phone }}</td>
                                 </tr>
                                 <tr>
                                     <th>Address : </th>
@@ -52,14 +52,14 @@ $links = [
                                     <th>Email : </th>
                                     <td>{{ $employee->email }}</td>
                                 </tr>
-                                <tr>
+                                {{-- <tr>
                                     <th>Status : </th>
                                     <td>{!! showStatus($employee->status) !!}</td>
                                 </tr>
                                 <tr>
                                     <th>Type : </th>
                                     <td>{{ $employee->type }}</td>
-                                </tr>
+                                </tr> --}}
                             </tbody>
                         </table>
                     </div>

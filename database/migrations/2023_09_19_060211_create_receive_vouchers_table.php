@@ -15,7 +15,7 @@ class CreateReceiveVouchersTable extends Migration
     {
         Schema::create('receive_vouchers', function (Blueprint $table) {
             $table->id();
-            $table->string('rv_no');
+            $table->string('uid')->nullable();
             $table->date('date');
             $table->double('amount',16,2);
             $table->foreignId('debit_account_id')->comment('chart_of_account_id')->constrained('chart_of_accounts')->onDelete('cascade');

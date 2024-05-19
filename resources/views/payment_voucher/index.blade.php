@@ -91,7 +91,7 @@
                     searchable: true
                 },
                 {
-                    data: "pv_no",
+                    data: "uid",
                     title: "PV No",
                     searchable: true
                 },

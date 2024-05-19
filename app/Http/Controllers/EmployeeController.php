@@ -4,7 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreEmployeeRequest;
 use App\Http\Requests\UpdateEmployeeRequest;
+use App\Models\Department;
+use App\Models\Designation;
 use App\Models\Employee;
+use App\Models\Outlet;
 use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Facades\DataTables;
@@ -37,7 +40,10 @@ class EmployeeController extends Controller
      */
     public function create()
     {
-        return view('employee.create');
+        $designations = Designation::all();
+        $departments = Department::all();
+        $outlets = Outlet::all();
+        return view('employee.create',compact('designations','departments','outlets'));
     }
 
     /**

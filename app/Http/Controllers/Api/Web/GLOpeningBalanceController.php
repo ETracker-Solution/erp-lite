@@ -50,7 +50,7 @@ class GLOpeningBalanceController extends Controller
                 'amount' => $request->amount,
                 'coia_id' => $request->item_id,
                 'remarks' => $request->remarks,
-                'account_type' => $account->parent_account_type,
+                'account_type' => $account->root_account_type,
                 'created_by' => auth()->user()->id,
             ]);
 
@@ -106,7 +106,7 @@ class GLOpeningBalanceController extends Controller
                 'amount' => $request->amount,
                 'coia_id' => $request->item_id,
                 'remarks' => $request->remarks,
-                'account_type' => $account->parent_account_type,
+                'account_type' => $account->root_account_type,
                 'created_by' => auth()->user()->id,
             ]);
 

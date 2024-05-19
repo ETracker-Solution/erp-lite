@@ -34,7 +34,7 @@
                                     </tr>
                                     <tr>
                                         <th><strong>RV No :</strong></th>
-                                        <td>{{ $receiveVoucher->rv_no }}</td>
+                                        <td>{{ $receiveVoucher->uid }}</td>
                                     </tr>
                                     <tr>
                                         <th><strong>Credit Account  :</strong></th>
