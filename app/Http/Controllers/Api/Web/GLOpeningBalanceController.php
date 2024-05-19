@@ -54,10 +54,10 @@ class GLOpeningBalanceController extends Controller
                 'created_by' => auth()->user()->id,
             ]);
 
-            if ($account->parent_account_type == 'as') {
+            if ($account->root_account_type == 'as') {
                 addAccountsTransaction('GLOB', $glob, $account->id, getOpeningBalanceOfEquityGLId());
             }
-            if ($account->parent_account_type == 'li') {
+            if ($account->root_account_type == 'li') {
                 addAccountsTransaction('GLOB', $glob, getOpeningBalanceOfEquityGLId(), $account->id);
             }
 
@@ -147,7 +147,7 @@ class GLOpeningBalanceController extends Controller
     {
         return response()->json([
             'next_id' => getNextId(GeneralLedgerOpeningBalance::class),
-            'accounts' => ChartOfAccount::where(['type' => 'ledger'])->whereIN('parent_account_type', ['as', 'li'])->get(),
+            'accounts' => ChartOfAccount::where(['type' => 'ledger'])->whereIN('root_account_type', ['as', 'li'])->get(),
             'success' => true
         ]);
     }
