@@ -31,7 +31,7 @@ class CustomerOpeningBalanceController extends Controller
         DB::beginTransaction();
         try {
 
-            $alreadyExists = $this->base_model->where(['coia_id' => $request->item_id])->exists();
+            $alreadyExists = $this->base_model->where(['customer_id' => $request->item_id])->exists();
 
             if ($alreadyExists) {
                 return response()->json([
@@ -40,9 +40,9 @@ class CustomerOpeningBalanceController extends Controller
                 ]);
             }
 
-            $account = ChartOfAccount::find($request->item_id); 
+            $account = ChartOfAccount::find($request->item_id);
 
-            $rmob = $this->base_model->create([
+            $cob = $this->base_model->create([
                 'uid' => getNextId(CustomerOpeningBalance::class),
                 'date' => $request->date,
                 'amount' => $request->amount,
@@ -51,7 +51,7 @@ class CustomerOpeningBalanceController extends Controller
                 'created_by' => auth()->user()->id,
             ]);
 
-            // addAccountsTransaction('GLOB', $rmob, getFGInventoryGLId(), getOpeningBalanceOfEquityGLId());
+             addAccountsTransaction('COB', $cob, getAccountsReceiveableGLId(), getOpeningBalanceOfEquityGLId());
             DB::commit();
         } catch (\Exception $exception) {
             DB::rollBack();
@@ -81,7 +81,7 @@ class CustomerOpeningBalanceController extends Controller
             AccountTransaction::where(['doc_id' => $customerOpeningBalance->id, 'doc_type' => 'COB'])->delete();
             $customerOpeningBalance->delete();
 
-            $alreadyExists = $this->base_model->where(['coia_id' => $request->item_id])->exists();
+            $alreadyExists = $this->base_model->where(['customer_id' => $request->item_id])->exists();
 
             if ($alreadyExists) {
                 return response()->json([
@@ -89,9 +89,8 @@ class CustomerOpeningBalanceController extends Controller
                     'success' => false
                 ]);
             }
-            $account = ChartOfAccount::find($request->item_id); 
 
-            $glob = $this->base_model->create([
+            $cob = $this->base_model->create([
                 'uid' => $previous_uid,
                 'date' => $request->date,
                 'amount' => $request->amount,
@@ -100,7 +99,7 @@ class CustomerOpeningBalanceController extends Controller
                 'created_by' => auth()->user()->id,
             ]);
 
-            // addAccountsTransaction('GLOB', $glob, getFGInventoryGLId(), getOpeningBalanceOfEquityGLId());
+            addAccountsTransaction('COB', $cob, getAccountsReceiveableGLId(), getOpeningBalanceOfEquityGLId());
 
             DB::commit();
         } catch (\Exception $exception) {
