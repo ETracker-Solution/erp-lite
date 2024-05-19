@@ -57,6 +57,14 @@
     $('#reservationdate').datetimepicker({
         format: 'YYYY-mm-DD'
     });
+    //Date picker
+    $('#reservationdate1').datetimepicker({
+        format: 'YYYY-mm-DD'
+    });
+    //Date picker
+    $('#reservationdate2').datetimepicker({
+        format: 'YYYY-mm-DD'
+    });
 
     //Date and time picker
     $('#reservationdatetime').datetimepicker({ icons: { time: 'far fa-clock' } });

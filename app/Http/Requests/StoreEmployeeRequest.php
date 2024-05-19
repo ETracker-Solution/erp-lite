@@ -22,10 +22,30 @@ class StoreEmployeeRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'employee_id' => 'required',
             'name' => 'required',
+            'image' => 'nullable',
+            'father_name' => 'nullable',
+            'mother_name' => 'nullable',
+            'nominee_name' => 'nullable',
+            'nominee_relation' => 'nullable',
+            'blood_group' => 'required',
+            'nid' => 'required',
+            'dob' => 'required',
+            'bank_account' => 'required',
+            'present_address' => 'required',
+            'permanent_address' => 'nullable',
             'email' => 'required',
+            'personal_email' => 'nullable',
             'phone' => 'required',
-            'address' => 'nullable',
+            'alternative_phone' => 'nullable',
+            'department_id' => 'required',
+            'designation_id' => 'required',
+            'outlet_id' => 'required',
+            'sallery' => 'required',
+            'joining_date' => 'nullable',
+            'confirm_date' => 'nullable',
+            'status' => 'required',
         ];
     }
 }
