@@ -19,7 +19,7 @@ class EmployeeSeeder extends Seeder
             'name'=>'Sohel Rana',
             'phone'=>"01713616087",
             'email'=>'sohel@gmail.com',
-            'address'=>'Khilket,Dhaka',
+            'present_address'=>'Khilket,Dhaka',
             'created_at'=> Carbon::now()->format('Y-m-d H:i:s'),
             'updated_at'=> Carbon::now()->format('Y-m-d H:i:s'),
         ] );
@@ -28,7 +28,7 @@ class EmployeeSeeder extends Seeder
             'name'=>'Sabbir Rana',
             'phone'=>"01713616443",
             'email'=>'sabbir@gmail.com',
-            'address'=>'Mirpur,Dhaka',
+            'present_address'=>'Mirpur,Dhaka',
             'created_at'=> Carbon::now()->format('Y-m-d H:i:s'),
             'updated_at'=> Carbon::now()->format('Y-m-d H:i:s'),
         ] );

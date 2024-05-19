@@ -71,8 +71,12 @@ class EmployeeController extends Controller
      */
     public function show($id)
     {
-        $employee = Employee::findOrFail(decrypt($id));
-        return view('employee.show',compact('employee'));
+        $employee = Employee::where('employee_id',$id)->first();
+        if(!$employee){
+            return false;
+        }
+        $employee->update_url = route('employees.update',$employee->id);
+        return $employee;
     }
 
     /**

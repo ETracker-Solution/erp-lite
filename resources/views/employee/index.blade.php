@@ -75,6 +75,11 @@ Employee List
                 orderable: false
             },
                 {
+                    data: "employee_id",
+                    title: "Employee ID",
+                    searchable: true
+                },
+                {
                     data: "name",
                     title: "Name",
                     searchable: true
@@ -90,8 +95,8 @@ Employee List
                     searchable: true
                 },
                 {
-                    data: "address",
-                    title: "Address",
+                    data: "present_address",
+                    title: "Present Address",
                     searchable: true
                 },
                 {
