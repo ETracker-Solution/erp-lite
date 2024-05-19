@@ -140,12 +140,18 @@
                                                                         class="fa fa-trash"></i></button>
                                                             </td>
                                                             <td>
+                                                                @{{ row.group }}
+                                                            </td>
+                                                            <td>
                                                                 <input type="hidden"
                                                                        :name="'products['+index+'][item_id]'"
                                                                        class="form-control input-sm"
                                                                        v-bind:value="row.item_id">
                                                                 <input type="text" class="form-control input-sm"
                                                                        v-bind:value="row.product_name" readonly>
+                                                            </td>
+                                                            <td>
+                                                                @{{ row.unit }}
                                                             </td>
                                                             <td>
 
@@ -302,7 +308,7 @@
                     config: {
 
                         get_items_info_by_group_id_url: "{{ url('fetch-items-by-group-id') }}",
-                        get_product_info_url: "{{ url('fetch-product-info-for-sale') }}",
+                        get_product_info_url: "{{ url('fetch-item-by-id-for-sale') }}",
                     },
                     customer_id: '',
                     store_id: '',
@@ -383,6 +389,7 @@
                                     product_details = response.data;
                                     vm.items.push({
                                         item_id: product_details.item_id,
+                                        group: product_details.group,
                                         product_name: product_details.product_name,
                                         unit: product_details.unit,
                                         stock: product_details.stock,
