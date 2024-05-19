@@ -44,7 +44,7 @@ class GLOpeningBalanceController extends Controller
 
             $account = ChartOfAccount::find($request->item_id);
 
-            $rmob = $this->base_model->create([
+            $glob = $this->base_model->create([
                 'uid' => getNextId(GeneralLedgerOpeningBalance::class),
                 'date' => $request->date,
                 'amount' => $request->amount,
@@ -54,7 +54,13 @@ class GLOpeningBalanceController extends Controller
                 'created_by' => auth()->user()->id,
             ]);
 
-            // addAccountsTransaction('GLOB', $rmob, getFGInventoryGLId(), getOpeningBalanceOfEquityGLId());
+            if ($account->root_account_type == 'as') {
+                addAccountsTransaction('GLOB', $glob, $account->id, getOpeningBalanceOfEquityGLId());
+            }
+            if ($account->root_account_type == 'li') {
+                addAccountsTransaction('GLOB', $glob, getOpeningBalanceOfEquityGLId(), $account->id);
+            }
+
             DB::commit();
         } catch (\Exception $exception) {
             DB::rollBack();
@@ -141,7 +147,7 @@ class GLOpeningBalanceController extends Controller
     {
         return response()->json([
             'next_id' => getNextId(GeneralLedgerOpeningBalance::class),
-            'accounts' => ChartOfAccount::where(['type' => 'ledger'])->get(),
+            'accounts' => ChartOfAccount::where(['type' => 'ledger'])->whereIN('root_account_type', ['as', 'li'])->get(),
             'success' => true
         ]);
     }

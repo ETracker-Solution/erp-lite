@@ -26,27 +26,27 @@ return [
                         [
                             'name' => 'Receive Voucher',
                             'url' => '/receive-vouchers',
-                            'active_condition' => "Request::segment(1) == 'receive-vouchers'",
+                            'active_condition' => false,
                         ],
                         [
                             'name' => 'Payment Voucher',
                             'url' => '/payment-vouchers',
-                            'active_condition' => "Request::segment(1) == 'payment-vouchers'",
+                            'active_condition' => false,
                         ],
                         [
                             'name' => 'Journal Voucher',
                             'url' => '/journal-vouchers',
-                            'active_condition' => "Request::segment(1) == 'journal-vouchers'",
+                            'active_condition' => false,
                         ],
                         [
                             'name' => 'FT Voucher',
                             'url' => '/fund-transfer-vouchers',
-                            'active_condition' => "Request::segment(1) == 'fund-transfer-vouchers'",
+                            'active_condition' => false,
                         ],
                         [
                             'name' => 'Supplier Voucher',
                             'url' => '/supplier-vouchers',
-                            'active_condition' => "Request::segment(1) == 'supplier-vouchers'",
+                            'active_condition' => false,
                         ]
                     ],
                 ],
@@ -203,7 +203,7 @@ return [
                     ],
                 ],
                 [
-                    'name' => 'Procurement Settings',
+                    'name' => 'Purchase Settings',
                     'url' => '#',
                     'has_child' => true,
                     'active_condition' => false,
@@ -255,6 +255,28 @@ return [
                 ]
             ],
             'permissions' => ['data-admin-admin', 'data-admin-operator', 'data-admin-viewer', 'data-admin-approver']
+        ],
+        [
+            'name' => 'Sales Module',
+            'icon' => 'fas fa-shopping-cart',
+            'active_condition' => false,
+            'has_child' => true,
+            'child' => [
+                [
+                    'name' => 'Sales Entry',
+                    'url' => '#',
+                    'has_child' => true,
+                    'active_condition' => false,
+                    'child' => [
+                        [
+                            'name' => 'Sales',
+                            'url' => '/sales/create',
+                            'active_condition' => '',
+                        ]
+                    ],
+                ]
+            ],
+            'permissions' => ['purchase-admin', 'purchase-operator', 'purchase-viewer', 'purchase-approver']
         ],
         [
             'name' => 'System Admin Module',
