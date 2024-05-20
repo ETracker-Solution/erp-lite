@@ -92,13 +92,13 @@ $links = [
                     },
                     {
                         data: "point",
-                        title: "point",
+                        title: "Point",
                         searchable: false,
                         orderable: false,
                     },
                     {
                         data: "created_at",
-                        title: "created at",
+                        title: "Date",
                         searchable: true
                     },
                     {
