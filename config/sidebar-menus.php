@@ -112,28 +112,7 @@ return [
             ],
             'permissions' => ['store-rm-admin', 'store-rm-operator', 'store-rm-viewer', 'store-rm-approver']
         ],
-        [
-            'name' => 'Store FG Module',
-            'icon' => 'fas fa-shopping-cart',
-            'active_condition' => false,
-            'has_child' => true,
-            'child' => [
-                [
-                    'name' => 'Report',
-                    'url' => '#',
-                    'has_child' => true,
-                    'active_condition' => false,
-                    'child' => [
-                        [
-                            'name' => 'FG Inventory Report',
-                            'url' => '/finish-goods-inventory-report',
-                            'active_condition' => '',
-                        ]
-                    ],
-                ]
-            ],
-            'permissions' => ['store-rm-admin', 'store-rm-operator', 'store-rm-viewer', 'store-rm-approver']
-        ],
+
         [
             'name' => 'Production Module',
             'icon' => 'fas fa-tag',
@@ -165,6 +144,68 @@ return [
                 ]
             ],
             'permissions' => ['production-admin', 'production-operator', 'production-viewer', 'production-approver']
+        ],
+        [
+            'name' => 'Store FG Module',
+            'icon' => 'fas fa-shopping-cart',
+            'active_condition' => false,
+            'has_child' => true,
+            'child' => [
+                [
+                    'name' => 'Store FG Entry',
+                    'url' => '#',
+                    'has_child' => true,
+                    'active_condition' => false,
+                    'child' => [
+                        [
+                            'name' => 'FG Inventory Transfer',
+                            'url' => '/finish-goods-inventory-transfers/create',
+                            'active_condition' => '',
+                        ],
+                        [
+                            'name' => 'FG Inventory Adjustment',
+                            'url' => '/finish-goods-inventory-report',
+                            'active_condition' => '',
+                        ]
+                    ],
+                ],
+                [
+                    'name' => 'Store FG Report',
+                    'url' => '#',
+                    'has_child' => true,
+                    'active_condition' => false,
+                    'child' => [
+                        [
+                            'name' => 'FG Inventory Report',
+                            'url' => '/finish-goods-inventory-report',
+                            'active_condition' => '',
+                        ]
+                    ],
+                ]
+            ],
+            'permissions' => ['store-rm-admin', 'store-rm-operator', 'store-rm-viewer', 'store-rm-approver']
+        ],
+        [
+            'name' => 'Sales Module',
+            'icon' => 'fas fa-shopping-cart',
+            'active_condition' => false,
+            'has_child' => true,
+            'child' => [
+                [
+                    'name' => 'Sales Entry',
+                    'url' => '#',
+                    'has_child' => true,
+                    'active_condition' => false,
+                    'child' => [
+                        [
+                            'name' => 'Sales',
+                            'url' => '/sales/create',
+                            'active_condition' => '',
+                        ]
+                    ],
+                ]
+            ],
+            'permissions' => ['purchase-admin', 'purchase-operator', 'purchase-viewer', 'purchase-approver']
         ],
         [
             'name' => 'Data Admin Module',
@@ -295,28 +336,7 @@ return [
             ],
             'permissions' => ['data-admin-admin', 'data-admin-operator', 'data-admin-viewer', 'data-admin-approver']
         ],
-        [
-            'name' => 'Sales Module',
-            'icon' => 'fas fa-shopping-cart',
-            'active_condition' => false,
-            'has_child' => true,
-            'child' => [
-                [
-                    'name' => 'Sales Entry',
-                    'url' => '#',
-                    'has_child' => true,
-                    'active_condition' => false,
-                    'child' => [
-                        [
-                            'name' => 'Sales',
-                            'url' => '/sales/create',
-                            'active_condition' => '',
-                        ]
-                    ],
-                ]
-            ],
-            'permissions' => ['purchase-admin', 'purchase-operator', 'purchase-viewer', 'purchase-approver']
-        ],
+
         [
             'name' => 'System Admin Module',
             'icon' => 'fas fa-cog',

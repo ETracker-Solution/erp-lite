@@ -1,51 +1,73 @@
 @extends('layouts.app')
 @section('title')
-    Requisition
+    FG Inventory Transfer
 @endsection
 @section('content')
     <!-- Content Header (Page header) -->
     @php
         $links = [
         'Home'=>route('dashboard'),
-        'Requisition list'=>''
+        'FG Inventory Transfer list'=>''
         ]
     @endphp
-    <x-breadcrumb title='Requisition Entry' :links="$links"/>
+    <x-breadcrumb title='FG Inventory Transfer Entry' :links="$links"/>
     <!-- Main content -->
     <section class="content">
         <div class="container-fluid">
             <div class="row" id="vue_app">
+                <span v-if="pageLoading" class="pageLoader">
+                    <img src="{{ asset('loading.gif') }}" alt="loading">
+                </span>
                 <div class="col-lg-12 col-md-12">
-                    <div class="card card-info">
-                        <div class="card-header">
-                            <h3 class="card-title">Requisition Entry</h3>
-                            <div class="card-tools">
-                                <a href="{{route('requisitions.index')}}">
-                                    <button class="btn btn-sm btn-primary">
-                                        <i class="fa fa-list" aria-hidden="true"></i> &nbsp;Requisition List
-                                    </button>
-                                </a>
+                    <form action="{{ route('finish-goods-inventory-transfers.store') }}" method="POST" class="">
+                        @csrf
+                        <div class="card card-info">
+                            <div class="card-header">
+                                <h3 class="card-title">FG Inventory Transfer(FGIT) Entry </h3>
+                                <div class="card-tools">
+                                    <a href="{{route('finish-goods-inventory-transfers.index')}}">
+                                        <button class="btn btn-sm btn-primary">
+                                            <i class="fa fa-list" aria-hidden="true"></i> &nbsp;FG Inventory Transfer
+                                            List
+                                        </button>
+                                    </a>
+                                </div>
                             </div>
-                        </div>
-                        <form action="{{ route('requisitions.store') }}" method="POST" class="">
-                            @csrf
                             <div class="card-body">
                                 <div class="card-box">
+                                    <hr>
                                     <div id="">
                                         <div class="row">
-                                            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                                            <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                                 <div class="form-group">
-                                                    <label for="customer_id">Customer</label>
-                                                    <select name="customer_id" id="customer_id"
-                                                            class="form-control bSelect" v-model="customer_id">
-                                                        <option value="">Select One</option>
-                                                        @foreach($customers as $customer)
+                                                    <label for="serial_no">FGIT No</label>
+                                                    <div class="input-group">
+                                                        <input type="text" class="form-control input-sm"
+                                                               value="{{$serial_no}}" name="serial_no"
+                                                               id="serial_no">
+                                                        <span class="input-group-append">
+                                                                    <button type="button"
+                                                                            class="btn btn-info btn-flat">Search</button>
+                                                                </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+                                                <div class="form-group">
+                                                    <label for="store_id">Store</label>
+                                                    <select name="store_id" id="store_id"
+                                                            class="form-control bSelect" required>
+                                                        <option value="">Select Store</option>
+                                                        @foreach($stores as $row)
                                                             <option
-                                                                value="{{ $customer->id }}">{{ $customer->name }}</option>
+                                                                value="{{ $row->id }}">{{ $row->name }}</option>
                                                         @endforeach
                                                     </select>
                                                 </div>
                                             </div>
+
+
                                             <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                                                 <div class="form-group">
                                                     <label for="store_id">Store</label>
@@ -60,6 +82,21 @@
                                                     </select>
                                                 </div>
                                             </div>
+                                            <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+                                                <div class="form-group">
+                                                    <label for="reference_no">Reference No</label>
+                                                    <input type="text" class="form-control input-sm"
+                                                           value="{{old('reference_no')}}" name="reference_no">
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+                                                <div class="form-group">
+                                                    <label for="date">Date</label>
+                                                    <vuejs-datepicker v-model="date" name="date"
+                                                                      placeholder="Select date"
+                                                                      format="yyyy-MM-dd"></vuejs-datepicker>
+                                                </div>
+                                            </div>
                                             <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                                                 <div class="form-group">
                                                     <label for="remark">Remark</label>
@@ -68,6 +105,21 @@
                                                 </div>
                                             </div>
                                         </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card card-info">
+                            <div class="card-header">
+                                <h3 class="card-title">FGT Item Information</h3>
+                                <div class="card-tools">
+
+                                </div>
+                            </div>
+
+                            <div class="card-body">
+                                <div class="card-box">
+                                    <div id="">
                                         <div class="row">
                                             <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
                                                 <div class="form-group">
@@ -202,8 +254,9 @@
                                     </button>
                                 </div>
                             </div>
-                        </form>
-                    </div>
+
+                        </div>
+                    </form>
                 </div> <!-- end col -->
             </div>
             <!-- /.row -->
@@ -212,14 +265,45 @@
     <!-- /.content -->
 @endsection
 @section('css')
-    <link rel="stylesheet" type="text/css"
-          href="{{ asset('vue-js/bootstrap-select/dist/css/bootstrap-select.min.css') }}">
+
 @endsection
+@push('style')
+    <style>
+        .pageLoader {
+            position: absolute;
+            top: 50%;
+            right: 40%;
+            transform: translate(-50%, -50%);
+            color: red;
+            z-index: 999;
+        }
+
+        input[placeholder="Select date"] {
+            display: block;
+            width: 100%;
+            height: calc(2.25rem + 2px);
+            padding: .375rem .75rem;
+            font-size: 1rem;
+            font-weight: 400;
+            line-height: 1.5;
+            color: #495057;
+            background-color: #fff;
+            background-clip: padding-box;
+            border: 1px solid #ced4da;
+            border-radius: .25rem;
+            box-shadow: inset 0 0 0 transparent;
+            transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+        }
+    </style>
+
+    <link rel="stylesheet" href="{{ asset('vue-js/bootstrap-select/dist/css/bootstrap-select.min.css') }}">
+@endpush
 @push('script')
 
     <script src="{{ asset('vue-js/vue/dist/vue.js') }}"></script>
     <script src="{{ asset('vue-js/axios/dist/axios.min.js') }}"></script>
     <script src="{{ asset('vue-js/bootstrap-select/dist/js/bootstrap-select.min.js') }}"></script>
+    <script src="https://cms.diu.ac/vue/vuejs-datepicker.min.js"></script>
     <script>
         $(document).ready(function () {
 
@@ -231,6 +315,8 @@
                         get_items_info_by_group_id_url: "{{ url('fetch-items-by-group-id') }}",
                         get_item_info_url: "{{ url('fetch-item-by-id-for-sale') }}",
                     },
+
+                    date: new Date(),
                     customer_id: '',
                     store_id: '',
                     category_id: '',
@@ -245,6 +331,9 @@
                     receive_amount: 0,
                     selling_price: 0,
 
+                },
+                components: {
+                    vuejsDatepicker
                 },
                 computed: {
 
