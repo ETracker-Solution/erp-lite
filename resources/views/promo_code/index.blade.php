@@ -9,34 +9,34 @@ $links = [
 'Promo Code list'=>''
 ]
 @endphp
-<x-breadcrumb title='Promo Code list' :links="$links"/>
+<x-breadcrumb title='Promo Code list' :links="$links" />
 <section class="content">
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-12">
-            <div class="card card-info">
-                <div class="card-header">
-                    <h3 class="card-title">All Promo Code List</h3>
-                    <div class="card-tools">
-                        <a href="{{ route('promo-codes.create') }}"><button class="btn btn-sm btn-primary"><i class="fa fa-plus-circle"
-                                    aria-hidden="true"></i> &nbsp;Add New</button></a>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="card card-info">
+                    <div class="card-header">
+                        <h3 class="card-title">All Promo Code List</h3>
+                        <div class="card-tools">
+                            <a href="{{ route('promo-codes.create') }}"><button class="btn btn-sm btn-primary"><i
+                                        class="fa fa-plus-circle" aria-hidden="true"></i> &nbsp;Add New</button></a>
+                        </div>
                     </div>
+                    <!-- /.card-header -->
+                    <div class="card-body table-responsive">
+                        <table id="dataTable" class="table table-bordered table-hover">
+                            {{-- show from datatable--}}
+                        </table>
+                    </div>
+                    <!-- /.card-body -->
                 </div>
-                <!-- /.card-header -->
-                <div class="card-body table-responsive">
-                    <table id="dataTable" class="table table-bordered table-hover">
-                        {{-- show from datatable--}}
-                    </table>
-                </div>
-                <!-- /.card-body -->
+                <!-- /.card -->
+
             </div>
-            <!-- /.card -->
-
         </div>
-    </div>
-    <!-- /.row -->
+        <!-- /.row -->
 
-</div><!-- /.container-fluid -->
+    </div><!-- /.container-fluid -->
 </section>
 @endsection
 @section('css')
@@ -54,8 +54,8 @@ $links = [
 <script src="{{ asset('assets/plugins/datatables-responsive/js/responsive.bootstrap4.min.js')}}"></script>
 @endsection
 @push('script')
-    <script>
-        $(document).ready(function () {
+<script>
+    $(document).ready(function () {
             $('#dataTable').dataTable({
                 stateSave: true,
                 responsive: true,
@@ -109,6 +109,6 @@ $links = [
                 ],
             });
         })
-    </script>
+</script>
 
 @endpush

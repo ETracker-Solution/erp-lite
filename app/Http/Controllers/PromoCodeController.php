@@ -22,7 +22,7 @@ class PromoCodeController extends Controller
      */
     public function index()
     {
-        if (\request()->ajax()){
+        if (\request()->ajax()) {
             $codes = PromoCode::latest();
             return DataTables::of($codes)
                 ->addIndexColumn()
@@ -36,12 +36,12 @@ class PromoCodeController extends Controller
                     return $row->created_at->format('Y-m-d');
                 })
                 ->addColumn('discount', function ($row) {
-                    return $row->discount_type == 'fixed' ? $row->discount_value. ' BDT' : $row->discount_value. ' %';
+                    return $row->discount_type == 'fixed' ? $row->discount_value . ' BDT' : $row->discount_value . ' %';
                 })
                 ->addColumn('action', function ($row) {
                     return view('promo_code.action-button', compact('row'));
                 })
-                ->rawColumns(['status', 'action','discount'])
+                ->rawColumns(['status', 'action', 'discount'])
                 ->make(true);
         }
         return view('promo_code.index');
@@ -55,7 +55,7 @@ class PromoCodeController extends Controller
     public function create()
     {
         $memberTypes = MemberType::all();
-        return view('promo_code.create',compact('memberTypes'));
+        return view('promo_code.create', compact('memberTypes'));
     }
 
     /**
@@ -68,34 +68,34 @@ class PromoCodeController extends Controller
     {
         $validated =  $request->validated();
         DB::beginTransaction();
-        try{
-            if ($validated['discount_for'] == 'all_customers'){
-                if (!array_key_exists('customers',$validated)){
+        try {
+            if ($validated['discount_for'] == 'all_customers') {
+                if (!array_key_exists('customers', $validated)) {
                     $validated['customers'] = Customer::pluck('id')->toArray();
                 }
             }
-            if ($validated['discount_for'] == 'non_member'){
-                if (!array_key_exists('customers',$validated)){
+            if ($validated['discount_for'] == 'non_member') {
+                if (!array_key_exists('customers', $validated)) {
                     $validated['customers'] = Customer::whereDoesntHave('membership')->pluck('id')->toArray();
                 }
             }
-            if ($validated['discount_for'] == 'member'){
-                $validated['member_types'] = implode(',',MemberType::whereIn('id',$validated['member_type'])->pluck('id')->toArray());
-                if (!array_key_exists('customers',$validated)){
-                    $validated['customers'] = Customer::whereHas('membership', function ($q) use ($validated){
-                        $q->whereIn('member_type_id',$validated['member_type']);
+            if ($validated['discount_for'] == 'member') {
+                $validated['member_types'] = implode(',', MemberType::whereIn('id', $validated['member_type'])->pluck('id')->toArray());
+                if (!array_key_exists('customers', $validated)) {
+                    $validated['customers'] = Customer::whereHas('membership', function ($q) use ($validated) {
+                        $q->whereIn('member_type_id', $validated['member_type']);
                     })->pluck('id')->toArray();
                 }
             }
             $promoCode = PromoCode::create($validated);
-            foreach ($validated['customers'] as $customer){
+            foreach ($validated['customers'] as $customer) {
                 $promoCode->customerPromoCodes()->create([
-                    'customer_id'=>$customer
+                    'customer_id' => $customer
                 ]);
             }
 
             DB::commit();
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             DB::rollBack();
             Toastr::error('Something Went Wrong');
             return back();
@@ -125,7 +125,7 @@ class PromoCodeController extends Controller
     {
         $memberTypes = MemberType::all();
         $row = PromoCode::find(decrypt($id));
-        return view('promo_code.edit',compact('row','memberTypes'));
+        return view('promo_code.edit', compact('row', 'memberTypes'));
     }
 
     /**
@@ -139,36 +139,36 @@ class PromoCodeController extends Controller
     {
         $validated =  $request->validated();
         DB::beginTransaction();
-        try{
-            if ($validated['discount_for'] == 'all_customers'){
-                if (!array_key_exists('customers',$validated)){
+        try {
+            if ($validated['discount_for'] == 'all_customers') {
+                if (!array_key_exists('customers', $validated)) {
                     $validated['customers'] = Customer::pluck('id')->toArray();
                 }
             }
-            if ($validated['discount_for'] == 'non_member'){
-                if (!array_key_exists('customers',$validated)){
-                    $validated['customers'] = Customer::where('type','!=','default')->whereDoesntHave('membership')->pluck('id')->toArray();
+            if ($validated['discount_for'] == 'non_member') {
+                if (!array_key_exists('customers', $validated)) {
+                    $validated['customers'] = Customer::where('type', '!=', 'default')->whereDoesntHave('membership')->pluck('id')->toArray();
                 }
             }
-            if ($validated['discount_for'] == 'member'){
-                $validated['member_types'] = implode(',',MemberType::whereIn('id',$validated['member_type'])->pluck('name')->toArray());
-                if (!array_key_exists('customers',$validated)){
-                    $validated['customers'] = Customer::whereHas('membership', function ($q) use ($validated){
-                        $q->whereIn('member_type_id',$validated['member_type']);
+            if ($validated['discount_for'] == 'member') {
+                $validated['member_types'] = implode(',', MemberType::whereIn('id', $validated['member_type'])->pluck('name')->toArray());
+                if (!array_key_exists('customers', $validated)) {
+                    $validated['customers'] = Customer::whereHas('membership', function ($q) use ($validated) {
+                        $q->whereIn('member_type_id', $validated['member_type']);
                     })->pluck('id')->toArray();
                 }
             }
             $promoCode = PromoCode::find(decrypt($id));
             $promoCode->update($validated);
             $promoCode->customerPromoCodes()->delete();
-            foreach ($validated['customers'] as $customer){
+            foreach ($validated['customers'] as $customer) {
                 $promoCode->customerPromoCodes()->create([
-                    'customer_id'=>$customer
+                    'customer_id' => $customer
                 ]);
             }
 
             DB::commit();
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             DB::rollBack();
             return $exception;
             Toastr::error('Something Went Wrong');
@@ -191,19 +191,19 @@ class PromoCodeController extends Controller
 
     public function getCustomers(Request $request)
     {
-        if ($request->discount_for == 'non_member'){
-            $customers = Customer::where('type','!=','default')->whereDoesntHave('membership');
-        }else if ($request->discount_for == 'member'){
+        if ($request->discount_for == 'non_member') {
+            $customers = Customer::where('type', '!=', 'default')->whereDoesntHave('membership');
+        } else if ($request->discount_for == 'member') {
             $member_type = $request->member_type;
-            if ($member_type){
-                $customers = Customer::where('type','!=','default')->whereHas('membership', function ($q) use ($member_type){
-                    return $q->whereIn('member_type_id',$member_type);
+            if ($member_type) {
+                $customers = Customer::where('type', '!=', 'default')->whereHas('membership', function ($q) use ($member_type) {
+                    return $q->whereIn('member_type_id', $member_type);
                 });
-            }else{
-                $customers = Customer::where('type','!=','default')->whereHas('membership');
+            } else {
+                $customers = Customer::where('type', '!=', 'default')->whereHas('membership');
             }
-        }else {
-            $customers = Customer::where('type','!=','default')->query();
+        } else {
+            $customers = Customer::where('type', '!=', 'default')->query();
         }
         return $customers->select('name', 'id')->get();
     }
