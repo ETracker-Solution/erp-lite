@@ -84,8 +84,11 @@ class EmployeeController extends Controller
      */
     public function edit($id)
     {
-        $employee = Employee::findOrFail(decrypt($id));
-        return view('employee.edit',compact('employee'));
+        $designations = Designation::all();
+        $departments = Department::all();
+        $outlets = Outlet::all();
+        $employee = Employee::findOrFail($id);
+        return view('employee.edit',compact('employee','designations','departments','outlets'));
     }
 
     /**

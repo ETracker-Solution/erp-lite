@@ -5,6 +5,7 @@ use App\Http\Controllers\ChartOfAccountController;
 use App\Http\Controllers\ChartOfInventoryController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\DesignationController;
+use App\Http\Controllers\FactoryController;
 use App\Http\Controllers\FundTransferVoucherController;
 use App\Http\Controllers\JournalVoucherController;
 use App\Http\Controllers\PaymentVoucherController;
@@ -69,6 +70,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('fund-transfer-vouchers', FundTransferVoucherController::class);
     Route::resource('departments', DepartmentController::class);
     Route::resource('designations', DesignationController::class);
+    Route::resource('factories', FactoryController::class);
 
     //-----Supplier Payment Voucher---------
     Route::resource('supplier-vouchers', SupplierPaymentVoucherController::class);
