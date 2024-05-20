@@ -23,7 +23,7 @@ Factory List
                         @endif
                     <div class="card card-info">
                         <div class="card-header">
-                            <h3 class="card-title">Factory Create</h3>
+                            <h3 class="card-title">Factory Entry</h3>
                             <div class="card-tools">
 
                             </div>
@@ -31,10 +31,6 @@ Factory List
                         <div class="card-body">
                             <div class="row">
                                 <div class="col-xl-12 col-md-12 col-12 mb-1">
-                                    {{--
-                                    <x-forms.text label="Unit No" inputName="unit_no" placeholder="Enter Unit No"
-                                        :isRequired='true' value="{{old('unit_no',$unit_no)}}" :isReadonly='true'
-                                        defaultValue="" /> --}}
                                     <div class="form-group">
                                         <label for="uid">Factory No</label>
                                         <input type="text" class="form-control" id="uid" name="uid"
@@ -66,10 +62,6 @@ Factory List
                 <div class="card card-info">
                     <div class="card-header">
                         <h3 class="card-title">Factory List</h3>
-                        {{-- <div class="card-tools">
-                            <a href="{{route('factories.create')}}"><button class="btn btn-sm btn-primary"><i
-                                        class="fa fa-plus-circle" aria-hidden="true"></i> &nbsp;Add Unit</button></a>
-                        </div> --}}
                     </div>
                     <!-- /.card-header -->
                     <div class="card-body">

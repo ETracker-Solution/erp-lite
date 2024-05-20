@@ -1,6 +1,6 @@
 @extends('layouts.app')
 @section('title')
-    Supplier Create
+    Supplier Entry
 @endsection
 @section('style')
     <!-- Select2 -->
@@ -11,7 +11,7 @@
 @php
 $links = [
 'Home'=>route('dashboard'),
-'Supplier Create'=>''
+'Supplier Entry'=>''
 ]
 @endphp
 <x-breadcrumb title='Supplier' :links="$links"/>
@@ -29,7 +29,7 @@ $links = [
                         <!-- Horizontal Form -->
                         <div class="card card-info">
                             <div class="card-header">
-                                <h3 class="card-title">Supplier Create</h3>
+                                <h3 class="card-title">Supplier Entry</h3>
                                 <div class="card-tools">
                                     <a href="{{route('suppliers.index')}}" class="btn btn-sm btn-primary">
                                         <i class="fa fa-list"

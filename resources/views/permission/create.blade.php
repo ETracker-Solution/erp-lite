@@ -1,6 +1,6 @@
 @extends('layouts.app')
 @section('title')
-    Permission Create
+    Permission Entry
 @endsection
 @section('style')
     <!-- Select2 -->
@@ -11,7 +11,7 @@
 @php
 $links = [
 'Home'=>route('dashboard'),
-'Permission Create'=>''
+'Permission Entry'=>''
 ]
 @endphp
 <x-breadcrumb title='Permission' :links="$links"/>

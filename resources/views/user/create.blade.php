@@ -1,15 +1,15 @@
 @extends('layouts.app')
 @section('title')
-    Create User
+    User Entry
 @endsection
 @section('content')
     @php
         $links = [
        'Home'=>route('dashboard'),
-       'Create User'=>''
+       'User Entry'=>''
         ]
     @endphp
-    <x-breadcrumb title='Create User' :links="$links"/>
+    <x-breadcrumb title='User Entry' :links="$links"/>
 
     <section class="content">
         <div class="container-fluid">
@@ -19,7 +19,7 @@
                 <div class="col-6">
                     <div class="card card-info">
                         <div class="card-header">
-                            <h3 class="card-title">Create User</h3>
+                            <h3 class="card-title">User Entry</h3>
                         </div>
                         <div class="card-body">
                                 <div class="row">

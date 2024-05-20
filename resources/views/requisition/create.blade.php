@@ -10,7 +10,7 @@
         'Requisition list'=>''
         ]
     @endphp
-    <x-breadcrumb title='Requisition Create' :links="$links"/>
+    <x-breadcrumb title='Requisition Entry' :links="$links"/>
     <!-- Main content -->
     <section class="content">
         <div class="container-fluid">
@@ -18,7 +18,7 @@
                 <div class="col-lg-12 col-md-12">
                     <div class="card card-info">
                         <div class="card-header">
-                            <h3 class="card-title">Requisition Create</h3>
+                            <h3 class="card-title">Requisition Entry</h3>
                             <div class="card-tools">
                                 <a href="{{route('requisitions.index')}}">
                                     <button class="btn btn-sm btn-primary">

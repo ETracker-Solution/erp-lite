@@ -23,7 +23,7 @@ Unit List
                         @endif
                     <div class="card card-info">
                         <div class="card-header">
-                            <h3 class="card-title">Unit Create</h3>
+                            <h3 class="card-title">Unit Entry</h3>
                             <div class="card-tools">
 
                             </div>

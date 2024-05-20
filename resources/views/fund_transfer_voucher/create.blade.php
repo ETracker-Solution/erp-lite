@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Fund Transfer Voucher Create')
+@section('title', 'Fund Transfer Voucher Entry')
 @push('style')
 
 @endpush
@@ -8,7 +8,7 @@
         $links = [
             'Home' => route('dashboard'),
             'Fund Transfer Voucher' => route('fund-transfer-vouchers.index'),
-            'Fund Transfer Voucher create' => '',
+            'Fund Transfer Voucher Entry' => '',
         ];
     @endphp
     <x-breadcrumb title='Fund Transfer Voucher' :links="$links"/>

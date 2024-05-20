@@ -80,7 +80,7 @@ Receive Voucher List
                 },
                 {
                     data: "date",
-                    title: "date",
+                    title: "Date",
                     searchable: true
                 },
                 {
@@ -90,7 +90,7 @@ Receive Voucher List
                 },
                 {
                     data: "credit_account.name",
-                    title: "credit",
+                    title: "Credit",
                     searchable: false
                 },
                 {
@@ -101,19 +101,19 @@ Receive Voucher List
                 },
                 {
                     data: "amount",
-                    title: "amount",
+                    title: "Amount",
                     searchable: false
                 },
                 {
                     data: "payee_name",
-                    title: "receiver name",
+                    title: "Receiver Name",
                     searchable: false
                 },
-                {
-                    data: "created_at",
-                    title: "created at",
-                    searchable: true
-                },
+                // {
+                //     data: "created_at",
+                //     title: "Created At",
+                //     searchable: true
+                // },
                 {
                     data: "action",
                     title: "Action",

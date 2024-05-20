@@ -11,7 +11,7 @@
     @php
         $links = [
             'Home' => route('dashboard'),
-            'Outlet' . (isset($outlet) ? ' Edit' : ' Create') => '',
+            'Outlet' . (isset($outlet) ? ' Edit' : ' Entry') => '',
         ];
     @endphp
     <x-breadcrumb title='Outlet' :links="$links" />

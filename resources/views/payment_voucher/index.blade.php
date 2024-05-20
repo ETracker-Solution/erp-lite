@@ -87,7 +87,7 @@
                 },
                 {
                     data: "date",
-                    title: "date",
+                    title: "Date",
                     searchable: true
                 },
                 {
@@ -97,24 +97,24 @@
                 },
                 {
                     data: "debit_account.name",
-                    title: "debit",
+                    title: "Debit",
                     searchable: false
                 },
                 {
                     data: "cash_bank_account.name",
-                    title: "payment",
+                    title: "Payment",
                     searchable: false
                 },
                 {
                     data: "amount",
-                    title: "amount",
+                    title: "Amount",
                     searchable: false
                 },
-                {
-                    data: "created_at",
-                    title: "created at",
-                    searchable: true
-                },
+                // {
+                //     data: "created_at",
+                //     title: "Created At",
+                //     searchable: true
+                // },
                 {
                     data: "action",
                     title: "Action",

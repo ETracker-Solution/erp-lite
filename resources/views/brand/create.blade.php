@@ -8,7 +8,7 @@
         @php
             $links = [
             'Home'=>route('dashboard'),
-            'Brand Create'=>''
+            'Brand Entry'=>''
             ]
         @endphp
         <x-bread-crumb-component title='Brand' :links="$links"/>
@@ -24,7 +24,7 @@
                         @csrf
                         <div class="card">
                             <div class="card-header">
-                                <h4 class="card-title">Brand Create</h4>
+                                <h4 class="card-title">Brand Entry</h4>
                             </div>
                             <div class="card-body">
                                 <div class="row">
