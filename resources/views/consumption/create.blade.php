@@ -5,7 +5,7 @@
         $links = [
             'Home' => route('dashboard'),
             'Raw Material Consumption' => route('consumptions.index'),
-            'Raw Material Consumption create' => '',
+            'Raw Material Consumption Entry' => '',
         ]
     @endphp
     <x-breadcrumb title='Raw Material Consumption' :links="$links"/>

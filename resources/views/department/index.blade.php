@@ -25,7 +25,7 @@ Department List
                     @endif
                     <div class="card card-info">
                         <div class="card-header">
-                            <h3 class="card-title">Department Create</h3>
+                            <h3 class="card-title">Department Entry</h3>
                             <div class="card-tools">
 
                             </div>

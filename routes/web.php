@@ -70,6 +70,16 @@ Route::middleware('auth')->group(function () {
     Route::resource('departments', DepartmentController::class);
     Route::resource('designations', DesignationController::class);
     Route::resource('factories', FactoryController::class);
+    
+    Route::resource('earn-points', \App\Http\Controllers\EarnPointController::class);
+    Route::resource('redeem-points', \App\Http\Controllers\RedeemPointController::class);
+    Route::resource('member-types', \App\Http\Controllers\MemberTypeController::class);
+    Route::resource('member-points', \App\Http\Controllers\MemberPointController::class);
+    Route::resource('memberships', \App\Http\Controllers\MembershipController::class);
+
+    //Promo Code
+    Route::get('get-customer-by-type', [\App\Http\Controllers\PromoCodeController::class, 'getCustomers'])->name('promo-codes.customers');
+    Route::resource('promo-codes', \App\Http\Controllers\PromoCodeController::class);
 
     //-----Supplier Payment Voucher---------
     Route::resource('supplier-vouchers', SupplierPaymentVoucherController::class);

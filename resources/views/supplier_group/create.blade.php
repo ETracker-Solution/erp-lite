@@ -11,7 +11,7 @@
     @php
         $links = [
             'Home' => route('dashboard'),
-            'Supllier Group' . (isset($supplierGroup) ? ' Edit' : ' Create') => '',
+            'Supllier Group' . (isset($supplierGroup) ? ' Edit' : ' Entry') => '',
         ];
     @endphp
     <x-breadcrumb title='Supllier Group' :links="$links" />

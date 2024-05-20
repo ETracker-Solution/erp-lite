@@ -35,7 +35,7 @@
                         @csrf
                         <div class="card card-info">
                             <div class="card-header">
-                                <h4 class="card-title">Chart of Inventory Create</h4>
+                                <h4 class="card-title">Chart of Inventory Entry</h4>
                             </div>
                             <div class="card-body">
                                 <div class="row callout callout-success">

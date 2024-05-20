@@ -79,7 +79,7 @@
                 },
                 {
                     data: "date",
-                    title: "date",
+                    title: "Date",
                     searchable: true
                 },
                 {
@@ -89,24 +89,24 @@
                 },
                 {
                     data: "credit_account.name",
-                    title: "transfer from",
+                    title: "Transfer From",
                     searchable: false
                 },
                 {
                     data: "debit_account.name",
-                    title: "transfer to",
+                    title: "Transfer To",
                     searchable: false
                 },
                 {
                     data: "amount",
-                    title: "amount",
+                    title: "Amount",
                     searchable: false
                 },
-                {
-                    data: "created_at",
-                    title: "created at",
-                    searchable: true
-                },
+                // {
+                //     data: "created_at",
+                //     title: "Created At",
+                //     searchable: true
+                // },
                 {
                     data: "action",
                     title: "Action",

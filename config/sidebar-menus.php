@@ -258,6 +258,39 @@ return [
                             'active_condition' => '',
                         ]
                     ],
+                ],
+                [
+                    'name' => 'Loyalty',
+                    'url' => '#',
+                    'has_child' => true,
+                    'active_condition' => false,
+                    'child' => [
+                        [
+                            'name' => 'Earn Point',
+                            'url' => '/earn-points',
+                            'active_condition' => '',
+                        ],
+                        [
+                            'name' => 'Redeem Point',
+                            'url' => '/redeem-points',
+                            'active_condition' => '',
+                        ],
+                        [
+                            'name' => 'Point Setting',
+                            'url' => '/member-points',
+                            'active_condition' => '',
+                        ],
+                        [
+                            'name' => 'Membership',
+                            'url' => '/memberships',
+                            'active_condition' => '',
+                        ],
+                        [
+                            'name' => 'Member Type',
+                            'url' => '/member-types',
+                            'active_condition' => '',
+                        ]
+                    ],
                 ]
             ],
             'permissions' => ['data-admin-admin', 'data-admin-operator', 'data-admin-viewer', 'data-admin-approver']

@@ -1,11 +1,11 @@
 @extends('layouts.app')
-@section('title', 'Receive Voucher Create')
+@section('title', 'Receive Voucher Entry')
 @section('content')
     @php
         $links = [
             'Home' => route('dashboard'),
             'Receive Voucher' => route('receive-vouchers.index'),
-            'Receive Voucher create' => '',
+            'Receive Voucher Entry' => '',
         ];
     @endphp
     <x-breadcrumb title='Receive Voucher' :links="$links"/>
