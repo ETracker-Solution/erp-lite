@@ -1,39 +1,33 @@
 @extends('layouts.app')
 @section('title')
-    Sale
+    Requisition
 @endsection
 @section('content')
     <!-- Content Header (Page header) -->
     @php
         $links = [
         'Home'=>route('dashboard'),
-        'Sale list'=>''
+        'Requisition list'=>''
         ]
     @endphp
-    <x-breadcrumb title='Sale Create' :links="$links"/>
-
-
-
+    <x-breadcrumb title='Requisition Create' :links="$links"/>
     <!-- Main content -->
     <section class="content">
         <div class="container-fluid">
             <div class="row" id="vue_app">
                 <div class="col-lg-12 col-md-12">
-
                     <div class="card card-info">
                         <div class="card-header">
-                            <h3 class="card-title">Sale Create</h3>
+                            <h3 class="card-title">Requisition Create</h3>
                             <div class="card-tools">
-                                <a href="{{route('sales.index')}}">
+                                <a href="{{route('requisitions.index')}}">
                                     <button class="btn btn-sm btn-primary">
-                                        <i class="fa fa-list" aria-hidden="true"></i> &nbsp;Sale List
+                                        <i class="fa fa-list" aria-hidden="true"></i> &nbsp;Requisition List
                                     </button>
                                 </a>
                             </div>
                         </div>
-
-
-                        <form action="{{ route('sales.store') }}" method="POST" class="">
+                        <form action="{{ route('requisitions.store') }}" method="POST" class="">
                             @csrf
                             <div class="card-body">
                                 <div class="card-box">
@@ -121,14 +115,13 @@
                                                     <table class="table table-bordered">
                                                         <thead>
                                                         <tr>
-                                                            <th>#</th>
+                                                            <th width="20"></th>
                                                             <th>Group</th>
                                                             <th>Item</th>
                                                             <th>Unit</th>
-                                                            <th>Stock</th>
+                                                            <th>Balance Qty</th>
                                                             <th>Selling Price</th>
-                                                            <th>Quantity</th>
-                                                            <th>Discount</th>
+                                                            <th width="180">Quantity</th>
                                                             <th>Item total</th>
                                                         </tr>
                                                         </thead>
@@ -144,41 +137,36 @@
                                                             </td>
                                                             <td>
                                                                 <input type="hidden"
-                                                                       :name="'products['+index+'][item_id]'"
+                                                                       :name="'products['+index+'][coi_id]'"
                                                                        class="form-control input-sm"
-                                                                       v-bind:value="row.item_id">
-                                                                <input type="text" class="form-control input-sm"
-                                                                       v-bind:value="row.product_name" readonly>
+                                                                       v-bind:value="row.coi_id">
+                                                                @{{ row.name }}
                                                             </td>
                                                             <td>
                                                                 @{{ row.unit }}
                                                             </td>
-                                                            <td>
-
-                                                                <input type="text" :name="'products['+index+'][stock]'"
+                                                            <td class="text-right">
+                                                                @{{ row.balance_qty }}
+                                                                <input type="hidden"
+                                                                       :name="'products['+index+'][balance_qty]'"
                                                                        class="form-control input-sm"
-                                                                       v-bind:value="row.stock" readonly>
+                                                                       v-bind:value="row.balance_qty" readonly>
                                                             </td>
-                                                            <td>
-                                                                <input type="number" v-model="row.price"
-                                                                       :name="'products['+index+'][sale_price]'"
+                                                            <td class="text-right">
+                                                                @{{ row.price }}
+                                                                <input type="hidden"
+                                                                       :name="'products['+index+'][price]'"
                                                                        class="form-control input-sm"
-                                                                       @change="itemtotal(row)" readonly>
+                                                                       v-bind:value="row.price" readonly>
                                                             </td>
-                                                            <td>
+                                                            <td class="text-right">
                                                                 <input type="number" v-model="row.quantity"
                                                                        :name="'products['+index+'][quantity]'"
                                                                        class="form-control input-sm"
-                                                                       @change="valid(row)" required>
+                                                                       @change="valid(row);item_total(row)" required>
                                                             </td>
-                                                            <td>
-                                                                <input type="number" v-model="row.product_discount"
-                                                                       :name="'products['+index+'][product_discount]'"
-                                                                       class="form-control input-sm" required>
-                                                            </td>
-                                                            <td>
-                                                                <input type="text" class="form-control input-sm"
-                                                                       v-bind:value="itemtotal(row)" readonly>
+                                                            <td class="text-right">
+                                                                @{{ item_total(row) }}
                                                             </td>
 
                                                         </tr>
@@ -187,83 +175,18 @@
                                                         <tfoot>
 
                                                         <tr>
-                                                            <td colspan="7">
+                                                            <td colspan="6">
 
                                                             </td>
-                                                            <td>
+                                                            <td class="text-right">
                                                                 SubTotal
                                                             </td>
-                                                            <td>
-                                                                <input type="text" name="subtotal"
-                                                                       class="form-control input-sm"
-                                                                       v-bind:value="subtotal" readonly>
-
+                                                            <td class="text-right">
+                                                                @{{subtotal}}
                                                             </td>
                                                         </tr>
-                                                        <tr>
-                                                            <td colspan="7">
-
-                                                            </td>
-                                                            <td>
-                                                                Discount
-                                                            </td>
-                                                            <td>
-                                                                <input type="text" name="discount"
-                                                                       class="form-control input-sm" v-model="discount">
-
-                                                            </td>
-                                                        </tr>
-
-                                                        <tr>
-                                                            <td colspan="7">
-
-                                                            </td>
-                                                            <td>
-                                                                Grand Total
-                                                            </td>
-                                                            <td>
-                                                                <input type="text" name="grandtotal"
-                                                                       class="form-control input-sm"
-                                                                       v-bind:value="grandtotal" readonly>
-
-                                                            </td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td colspan="7">
-
-                                                            </td>
-                                                            <td>
-                                                                Receive Amount
-                                                            </td>
-                                                            <td>
-                                                                <input type="text" name="receive_amount"
-                                                                       class="form-control input-sm"
-                                                                       v-model="receive_amount">
-
-                                                            </td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td colspan="7">
-                                                            </td>
-                                                            <td>
-                                                                Change Amount
-                                                            </td>
-                                                            <td>
-                                                                <input type="text" class="form-control input-sm"
-                                                                       name="change_amount" v-bind:value="change_amount"
-                                                                       readonly>
-
-                                                            </td>
-                                                        </tr>
-                                                        <tfoot>
+                                                        </tfoot>
                                                     </table>
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12"
-                                                 v-if="items.length > 0">
-                                                <div class="text-right col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                                    <textarea class="form-control" name="comments" rows="5"
-                                                              placeholder="Enter Comments"></textarea>
                                                 </div>
                                             </div>
                                         </div>
@@ -271,21 +194,19 @@
 
                                     </div>
                                 </div>
-
                             </div>
-                            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 text-right" v-if="items.length > 0">
-                                <button class="float-right btn btn-primary" type="submit"><i
-                                        class="fa fa-fw fa-lg fa-check-circle"></i>Submit
-                                </button>
+                            <div class="card-footer">
+                                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 text-right" v-if="items.length > 0">
+                                    <button class="float-right btn btn-primary" type="submit"><i
+                                            class="fa fa-fw fa-lg fa-check-circle"></i>Submit
+                                    </button>
+                                </div>
                             </div>
                         </form>
                     </div>
-
-
                 </div> <!-- end col -->
             </div>
             <!-- /.row -->
-
         </div><!-- /.container-fluid -->
     </section>
     <!-- /.content -->
@@ -308,7 +229,7 @@
                     config: {
 
                         get_items_info_by_group_id_url: "{{ url('fetch-items-by-group-id') }}",
-                        get_product_info_url: "{{ url('fetch-item-by-id-for-sale') }}",
+                        get_item_info_url: "{{ url('fetch-item-by-id-for-sale') }}",
                     },
                     customer_id: '',
                     store_id: '',
@@ -329,14 +250,8 @@
 
                     subtotal: function () {
                         return this.items.reduce((total, item) => {
-                            return total + ((item.quantity * item.price) - item.product_discount)
+                            return total + (item.quantity * item.price)
                         }, 0)
-                    },
-                    grandtotal: function () {
-                        return this.subtotal - this.discount
-                    },
-                    change_amount: function () {
-                        return this.grandtotal - this.receive_amount
                     },
 
                 },
@@ -384,19 +299,18 @@
                             var slug = vm.item_id;
 
                             if (slug) {
-                                axios.get(this.config.get_product_info_url + '/' + slug).then(function (response) {
+                                axios.get(this.config.get_item_info_url + '/' + slug).then(function (response) {
 
                                     product_details = response.data;
                                     vm.items.push({
-                                        item_id: product_details.item_id,
+                                        coi_id: product_details.coi_id,
                                         group: product_details.group,
-                                        product_name: product_details.product_name,
+                                        name: product_details.name,
                                         unit: product_details.unit,
-                                        stock: product_details.stock,
-                                        price: product_details.sale_price,
+                                        balance_qty: product_details.balance_qty,
+                                        price: product_details.price,
                                         quantity: '',
-                                        product_discount: 0,
-                                        subtotal: 0,
+                                        item_total: 0,
                                     });
 
                                     vm.item_id = '';
@@ -421,15 +335,15 @@
                     delete_row: function (row) {
                         this.items.splice(this.items.indexOf(row), 1);
                     },
-                    itemtotal: function (index) {
+                    item_total: function (index) {
 
                         //   console.log(index.quantity * index.price);
-                        return (index.quantity * index.price) - index.product_discount;
+                        return (index.quantity * index.price);
 
 
                         //   alert(quantity);
                         //  var total= row.quantity);
-                        //  row.itemtotal=total;
+                        //  row.item_total=total;
                     },
                     valid: function (index) {
                         console.log(index.stock);
