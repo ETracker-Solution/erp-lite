@@ -25,11 +25,9 @@
                             <div class="card-header">
                                 <h3 class="card-title">FG Inventory Transfer(FGIT) Entry </h3>
                                 <div class="card-tools">
-                                    <a href="{{route('finish-goods-inventory-adjustments.index')}}">
-                                        <button class="btn btn-sm btn-primary">
+                                    <a class="btn btn-sm btn-primary" href="{{route('finish-goods-inventory-adjustments.index')}}">
                                             <i class="fa fa-list" aria-hidden="true"></i> &nbsp;FG Inventory Adjustment
                                             List
-                                        </button>
                                     </a>
                                 </div>
                             </div>
