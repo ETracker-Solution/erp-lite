@@ -71,7 +71,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('departments', DepartmentController::class);
     Route::resource('designations', DesignationController::class);
     Route::resource('factories', FactoryController::class);
-    
+
     Route::resource('earn-points', \App\Http\Controllers\EarnPointController::class);
     Route::resource('redeem-points', \App\Http\Controllers\RedeemPointController::class);
     Route::resource('member-types', \App\Http\Controllers\MemberTypeController::class);
@@ -177,6 +177,10 @@ Route::middleware('auth')->group(function () {
 
     /*=========== Finish Goods Inventory Transfer Starts ===========*/
     Route::resource('finish-goods-inventory-transfers', \App\Http\Controllers\FGInventoryTransferController::class);
+    /*=========== Finish Goods Inventory Transfer Ends ===========*/
+
+    /*=========== Finish Goods Inventory Transfer Starts ===========*/
+    Route::resource('finish-goods-inventory-adjustments', \App\Http\Controllers\FGInventoryAdjustmentController::class);
     /*=========== Finish Goods Inventory Transfer Ends ===========*/
 
 

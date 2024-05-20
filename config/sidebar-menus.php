@@ -164,7 +164,7 @@ return [
                         ],
                         [
                             'name' => 'FG Inventory Adjustment',
-                            'url' => '/finish-goods-inventory-report',
+                            'url' => '/finish-goods-inventory-adjustments/create',
                             'active_condition' => '',
                         ]
                     ],
