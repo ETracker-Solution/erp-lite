@@ -208,6 +208,53 @@ return [
             'permissions' => ['purchase-admin', 'purchase-operator', 'purchase-viewer', 'purchase-approver']
         ],
         [
+            'name' => 'Loyalty Module',
+            'icon' => 'fa fa-trophy',
+            'active_condition' => false,
+            'has_child' => true,
+            'child' => [
+                [
+                    'name' => 'Loyalty Entry',
+                    'url' => '#',
+                    'has_child' => true,
+                    'active_condition' => false,
+                    'child' => [
+                        [
+                            'name' => 'Earn Point',
+                            'url' => '/earn-points',
+                            'active_condition' => '',
+                        ],
+                        [
+                            'name' => 'Redeem Point',
+                            'url' => '/redeem-points',
+                            'active_condition' => '',
+                        ],
+                        [
+                            'name' => 'Point Setting',
+                            'url' => '/member-points',
+                            'active_condition' => '',
+                        ],
+                        [
+                            'name' => 'Membership',
+                            'url' => '/memberships',
+                            'active_condition' => '',
+                        ],
+                        [
+                            'name' => 'Member Type',
+                            'url' => '/member-types',
+                            'active_condition' => '',
+                        ],
+                        [
+                            'name' => 'Promo Code',
+                            'url' => '/promo-codes',
+                            'active_condition' => '',
+                        ]
+                    ],
+                ]
+            ],
+            'permissions' => ['purchase-admin', 'purchase-operator', 'purchase-viewer', 'purchase-approver']
+        ],
+        [
             'name' => 'Data Admin Module',
             'icon' => 'fas fa-wrench',
             'active_condition' => false,
@@ -296,39 +343,6 @@ return [
                         [
                             'name' => 'Supplier OB',
                             'url' => '/supplier-opening-balances',
-                            'active_condition' => '',
-                        ]
-                    ],
-                ],
-                [
-                    'name' => 'Loyalty',
-                    'url' => '#',
-                    'has_child' => true,
-                    'active_condition' => false,
-                    'child' => [
-                        [
-                            'name' => 'Earn Point',
-                            'url' => '/earn-points',
-                            'active_condition' => '',
-                        ],
-                        [
-                            'name' => 'Redeem Point',
-                            'url' => '/redeem-points',
-                            'active_condition' => '',
-                        ],
-                        [
-                            'name' => 'Point Setting',
-                            'url' => '/member-points',
-                            'active_condition' => '',
-                        ],
-                        [
-                            'name' => 'Membership',
-                            'url' => '/memberships',
-                            'active_condition' => '',
-                        ],
-                        [
-                            'name' => 'Member Type',
-                            'url' => '/member-types',
                             'active_condition' => '',
                         ]
                     ],
