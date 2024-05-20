@@ -1,11 +1,11 @@
 @extends('layouts.app')
-@section('title', 'Supplier Payment Voucher Create')
+@section('title', 'Supplier Payment Voucher Entry')
 @section('content')
     @php
         $links = [
             'Home' => route('dashboard'),
             'Supplier Payment Voucher' => route('supplier-vouchers.index'),
-            'Supplier Payment Voucher create' => '',
+            'Supplier Payment Voucher Entry' => '',
         ];
     @endphp
     <x-breadcrumb title='Supplier Payment Voucher' :links="$links"/>

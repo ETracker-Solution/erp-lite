@@ -5,7 +5,7 @@
         $links = [
         'Home' => route('dashboard'),
         'FG Production' => route('productions.index'),
-        'FG Production create' => '',
+        'FG Production Entry' => '',
         ];
     @endphp
     <x-breadcrumb title='FG Production' :links="$links"/>

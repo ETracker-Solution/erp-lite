@@ -1,6 +1,6 @@
 @extends('layouts.app')
 @section('title')
-Customer
+Customer Entry
 @endsection
 @section('style')
 <!-- Select2 -->
@@ -12,7 +12,7 @@ Customer
 @php
     $links = [
     'Home'=>route('dashboard'),
-    'Customer Create'=>''
+    'Customer Entry'=>''
     ]
 @endphp
 <x-breadcrumb title='Customer' :links="$links"/>
@@ -28,7 +28,7 @@ Customer
                 <div class="card card-info">
                     <div class="card-header">
 
-                        <h3 class="card-title">Customer</h3>
+                        <h3 class="card-title">Customer Entry</h3>
                         <div class="card-tools">
                             <a href="{{route('customers.index')}}"><button class="btn btn-sm btn-primary"><i class="fa fa-list" aria-hidden="true"></i> &nbsp;See List</button></a>
                         </div>

@@ -55,15 +55,14 @@ class ApiController extends Controller
     public function fetchItemByIdForSale($id)
     {
 
-        $product = ChartOfInventory::findOrFail($id);
+        $coi = ChartOfInventory::findOrFail($id);
         $data = [
-            'group' => $product->parent->name,
-            'product_name' => $product->name,
-            'unit' => $product->unit->name ?? 'No Unit',
-            'sale_price' => $product->selling_price,
-            'buy_price' => $product->buying_price,
-            'product_id' => $id,
-            'stock' => 500,
+            'group' => $coi->parent->name,
+            'name' => $coi->name,
+            'unit' => $coi->unit->name ?? 'No Unit',
+            'price' => $coi->price,
+            'coi_id' => $id,
+            'balance_qty' => 500,
         ];
         return $data;
     }

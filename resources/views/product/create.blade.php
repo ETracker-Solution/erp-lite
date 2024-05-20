@@ -6,7 +6,7 @@
 @php
 $links = [
 'Home'=>route('dashboard'),
-'Product Create'=>''
+'Product Entry'=>''
 ]
 @endphp
 <x-breadcrumb title='Product' :links="$links"/>

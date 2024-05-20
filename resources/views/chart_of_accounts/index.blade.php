@@ -32,7 +32,7 @@ Chart Of Accounts
                 <div class="col-lg-8 col-md-8">
                     <div class="card card-info">
                         <div class="card-header">
-                            <h4 class="card-title">Chart of Inventory Create</h4>
+                            <h4 class="card-title">Chart of Inventory Entry</h4>
                         </div>
                         <div class="card-body">
                             <div class="row callout callout-success">

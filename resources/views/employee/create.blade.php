@@ -12,7 +12,7 @@
     @php
         $links = [
             'Home' => route('dashboard'),
-            'Employee Create' => '',
+            'Employee Entry' => '',
         ];
     @endphp
     <x-breadcrumb title='Employee' :links="$links" />

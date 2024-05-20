@@ -44,7 +44,7 @@
                 <div class="col-lg-8 col-md-8">
                     <div class="card">
                         <div class="card-header">
-                            <h3 class="card-title" style="color:#115548;">Chart Of Inventory Create</h3>
+                            <h3 class="card-title" style="color:#115548;">Chart Of Inventory Entry</h3>
                             <div class="card-tools">
 
                             </div>

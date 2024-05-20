@@ -10,7 +10,7 @@
         'Sale list'=>''
         ]
     @endphp
-    <x-breadcrumb title='Sale Create' :links="$links"/>
+    <x-breadcrumb title='Sale Entry' :links="$links"/>
 
 
 
@@ -22,7 +22,7 @@
 
                     <div class="card card-info">
                         <div class="card-header">
-                            <h3 class="card-title">Sale Create</h3>
+                            <h3 class="card-title">Sale Entry</h3>
                             <div class="card-tools">
                                 <a href="{{route('sales.index')}}">
                                     <button class="btn btn-sm btn-primary">
@@ -125,7 +125,7 @@
                                                             <th>Group</th>
                                                             <th>Item</th>
                                                             <th>Unit</th>
-                                                            <th>Stock</th>
+                                                            <th>Balance Qty</th>
                                                             <th>Selling Price</th>
                                                             <th>Quantity</th>
                                                             <th>Discount</th>

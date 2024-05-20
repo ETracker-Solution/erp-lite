@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Payment Voucher Create')
+@section('title', 'Payment Voucher Entry')
 @push('style')
 
 @endpush
@@ -8,7 +8,7 @@
 $links = [
     'Home' => route('dashboard'),
     'Payment Voucher' => route('payment-vouchers.index'),
-    'Payment Voucher create' => '',
+    'Payment Voucher Entry' => '',
 ];
 @endphp
 <x-breadcrumb title='Payment Voucher' :links="$links"/>
