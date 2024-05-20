@@ -159,7 +159,7 @@ return [
                     'child' => [
                         [
                             'name' => 'FG Inventory Transfer',
-                            'url' => '/finish-goods-inventory-transfers',
+                            'url' => '/finish-goods-inventory-transfers/create',
                             'active_condition' => '',
                         ],
                         [

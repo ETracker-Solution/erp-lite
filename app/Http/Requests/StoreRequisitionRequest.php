@@ -24,7 +24,6 @@ class StoreRequisitionRequest extends FormRequest
     {
         return [
             'store_id' => 'required',
-            'supplier_id' => 'required',
             'products' => 'array',
             'date' => 'required',
             'reference_no' => 'nullable',
