@@ -22,6 +22,7 @@ class CreateCustomersTable extends Migration
             $table->string('website', 100)->nullable();
             $table->enum('status', ['active', 'inactive'])->default('active');
             $table->enum('type', ['default', 'regular'])->default('regular');
+            $table->foreignId('member_type_id')->nullable()->constrained('member_types')->onDelete('cascade');
             $table->foreignId('business_id')->nullable()->constrained('businesses')->onDelete('cascade');
             $table->foreignId('created_by')->nullable()->constrained('users')->onDelete('cascade');
             $table->foreignId('updated_by')->nullable()->constrained('users')->onDelete('cascade');
