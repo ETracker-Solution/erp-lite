@@ -84,13 +84,13 @@ net_profit AS (
               FROM account_transactions att
               JOIN chart_of_accounts coa ON att.chart_of_account_id = coa.id
               WHERE coa.root_account_type = 'in'
-              AND DATE <= '$as_on_date'
+              AND att.date <= '$as_on_date'
               ), 0) -
     COALESCE((SELECT SUM(att.amount * att.transaction_type)
               FROM account_transactions att
               JOIN chart_of_accounts coa ON att.chart_of_account_id = coa.id
               WHERE coa.root_account_type = 'ex'
-              AND DATE <= '$as_on_date'
+              AND att.date <= '$as_on_date'
               ), 0)
  AS amount
 ),
@@ -104,9 +104,9 @@ cumulative_balance_cte AS (
         account_hierarchy ah
     LEFT JOIN
         account_transactions att ON ah.id = att.chart_of_account_id
+        AND  att.date <= '$as_on_date'
     LEFT JOIN
         net_profit np ON ah.id = np.id
-    WHERE  date <= '$as_on_date'
     GROUP BY
         ah.id
 ), finalData as(

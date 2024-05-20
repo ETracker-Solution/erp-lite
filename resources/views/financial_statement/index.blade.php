@@ -158,9 +158,9 @@
                                 return false;
                             }
                         }
-                        if (reportType === 'balance_sheet') {
+                        if (reportType === 'trial_balance') {
                             if (!vm.store_id) {
-                                toastr.error('Under Construction', {
+                                toastr.warning('Under Construction', {
                                     closeButton: true,
                                     progressBar: true,
                                 });
@@ -172,10 +172,7 @@
                         axios.get(this.config.inventoryReportUrl + '/create', {
                             params: {
                                 report_type: reportType,
-                                as_on_date: vm.as_on_date,
-                                group_id: vm.group_id,
-                                item_id: vm.item_id,
-                                store_id: vm.store_id,
+                                as_on_date: vm.as_on_date
                             },
                             responseType: 'blob',
                         }).then(function (response) {
