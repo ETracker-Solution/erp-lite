@@ -129,69 +129,74 @@ Route::middleware('auth')->group(function () {
     Route::resource('batches', \App\Http\Controllers\BatchController::class);
 
     /*=========== Chart Of Inventory Api Starts ===========*/
-    Route::get('inventory-items',[\App\Http\Controllers\Api\Web\InventoryController::class, 'inventoryItems']);
-    Route::get('inventory-details/{id}',[\App\Http\Controllers\Api\Web\InventoryController::class, 'inventoryDetails']);
-    Route::post('inventory-update/{id}',[\App\Http\Controllers\Api\Web\InventoryController::class, 'inventoryUpdate']);
-    Route::post('inventory-store/{id}',[\App\Http\Controllers\Api\Web\InventoryController::class, 'inventoryStore']);
-    Route::delete('inventory-delete/{id}',[\App\Http\Controllers\Api\Web\InventoryController::class, 'inventoryDelete']);
+    Route::get('inventory-items', [\App\Http\Controllers\Api\Web\InventoryController::class, 'inventoryItems']);
+    Route::get('inventory-details/{id}', [\App\Http\Controllers\Api\Web\InventoryController::class, 'inventoryDetails']);
+    Route::post('inventory-update/{id}', [\App\Http\Controllers\Api\Web\InventoryController::class, 'inventoryUpdate']);
+    Route::post('inventory-store/{id}', [\App\Http\Controllers\Api\Web\InventoryController::class, 'inventoryStore']);
+    Route::delete('inventory-delete/{id}', [\App\Http\Controllers\Api\Web\InventoryController::class, 'inventoryDelete']);
     /*=========== Chart Of Inventory Api Ends ===========*/
 
     /*=========== Chart Of Account Api Starts ===========*/
-    Route::get('coa-items',[\App\Http\Controllers\Api\Web\COAccountController::class, 'items']);
-    Route::get('coa-details/{id}',[\App\Http\Controllers\Api\Web\COAccountController::class, 'details']);
-    Route::post('coa-update/{id}',[\App\Http\Controllers\Api\Web\COAccountController::class, 'update']);
-    Route::post('coa-store/{id}',[\App\Http\Controllers\Api\Web\COAccountController::class, 'store']);
-    Route::delete('coa-delete/{id}',[\App\Http\Controllers\Api\Web\COAccountController::class, 'delete']);
+    Route::get('coa-items', [\App\Http\Controllers\Api\Web\COAccountController::class, 'items']);
+    Route::get('coa-details/{id}', [\App\Http\Controllers\Api\Web\COAccountController::class, 'details']);
+    Route::post('coa-update/{id}', [\App\Http\Controllers\Api\Web\COAccountController::class, 'update']);
+    Route::post('coa-store/{id}', [\App\Http\Controllers\Api\Web\COAccountController::class, 'store']);
+    Route::delete('coa-delete/{id}', [\App\Http\Controllers\Api\Web\COAccountController::class, 'delete']);
     /*=========== Chart Of Account Api Ends ===========*/
 
     /*=========== Raw Materials Opening Balance Api Starts ===========*/
-    Route::get('raw-materials-opening-balances-list',[\App\Http\Controllers\Api\Web\RMOpeningBalanceController::class, 'list']);
-    Route::get('raw-materials-opening-balances-initial-info',[\App\Http\Controllers\Api\Web\RMOpeningBalanceController::class, 'initialInfo']);
-    Route::resource('raw-materials-opening-balances',\App\Http\Controllers\Api\Web\RMOpeningBalanceController::class);
+    Route::get('raw-materials-opening-balances-list', [\App\Http\Controllers\Api\Web\RMOpeningBalanceController::class, 'list']);
+    Route::get('raw-materials-opening-balances-initial-info', [\App\Http\Controllers\Api\Web\RMOpeningBalanceController::class, 'initialInfo']);
+    Route::resource('raw-materials-opening-balances', \App\Http\Controllers\Api\Web\RMOpeningBalanceController::class);
     /*=========== Raw Materials Opening Balance Api Ends ===========*/
 
     /*=========== Raw Materials Inventory Report Api Starts ===========*/
-    Route::resource('raw-materials-inventory-report',\App\Http\Controllers\Api\Web\RMInventoryReportController::class);
+    Route::resource('raw-materials-inventory-report', \App\Http\Controllers\Api\Web\RMInventoryReportController::class);
     /*=========== Raw Materials Inventory Report Api Ends ===========*/
 
     /*=========== Finish Goods Opening Balance Api Starts ===========*/
-    Route::get('finish-goods-opening-balances-list',[\App\Http\Controllers\Api\Web\FGOpeningBalanceController::class, 'list']);
-    Route::get('finish-goods-opening-balances-initial-info',[\App\Http\Controllers\Api\Web\FGOpeningBalanceController::class, 'initialInfo']);
-    Route::resource('finish-goods-opening-balances',\App\Http\Controllers\Api\Web\FGOpeningBalanceController::class);
+    Route::get('finish-goods-opening-balances-list', [\App\Http\Controllers\Api\Web\FGOpeningBalanceController::class, 'list']);
+    Route::get('finish-goods-opening-balances-initial-info', [\App\Http\Controllers\Api\Web\FGOpeningBalanceController::class, 'initialInfo']);
+    Route::resource('finish-goods-opening-balances', \App\Http\Controllers\Api\Web\FGOpeningBalanceController::class);
     /*=========== Finish Goods Opening Balance Api Ends ===========*/
 
     /*=========== Finish Goods Inventory Report Api Starts ===========*/
-    Route::resource('finish-goods-inventory-report',\App\Http\Controllers\Api\Web\FGInventoryReportController::class);
+    Route::resource('finish-goods-inventory-report', \App\Http\Controllers\Api\Web\FGInventoryReportController::class);
     /*=========== Finish Goods Inventory Report Api Ends ===========*/
 
 
-     /*=========== General ledger Opening Balance Api Starts ===========*/
-     Route::get('general-ledger-opening-balances-list',[\App\Http\Controllers\Api\Web\GLOpeningBalanceController::class, 'list']);
-     Route::get('general-ledger-opening-balances-initial-info',[\App\Http\Controllers\Api\Web\GLOpeningBalanceController::class, 'initialInfo']);
-     Route::resource('general-ledger-opening-balances',\App\Http\Controllers\Api\Web\GLOpeningBalanceController::class);
-     /*=========== General ledger Opening Balance Api Ends ===========*/
+    /*=========== Finish Goods Inventory Transfer Starts ===========*/
+    Route::resource('finish-goods-inventory-transfers', \App\Http\Controllers\FGInventoryTransferController::class);
+    /*=========== Finish Goods Inventory Transfer Ends ===========*/
 
-     /*=========== Customer Opening Balance Api Starts ===========*/
-     Route::get('customer-opening-balances-list',[\App\Http\Controllers\Api\Web\CustomerOpeningBalanceController::class, 'list']);
-     Route::get('customer-opening-balances-initial-info',[\App\Http\Controllers\Api\Web\CustomerOpeningBalanceController::class, 'initialInfo']);
-     Route::resource('customer-opening-balances',\App\Http\Controllers\Api\Web\CustomerOpeningBalanceController::class);
-     /*=========== Customer Opening Balance Api Ends ===========*/
 
-     /*=========== Supplier Opening Balance Api Starts ===========*/
-     Route::get('supplier-opening-balances-list',[\App\Http\Controllers\Api\Web\SupplierOpeningBalanceController::class, 'list']);
-     Route::get('supplier-opening-balances-initial-info',[\App\Http\Controllers\Api\Web\SupplierOpeningBalanceController::class, 'initialInfo']);
-     Route::resource('supplier-opening-balances',\App\Http\Controllers\Api\Web\SupplierOpeningBalanceController::class);
-     /*=========== Supplier Opening Balance Api Ends ===========*/
+    /*=========== General ledger Opening Balance Api Starts ===========*/
+    Route::get('general-ledger-opening-balances-list', [\App\Http\Controllers\Api\Web\GLOpeningBalanceController::class, 'list']);
+    Route::get('general-ledger-opening-balances-initial-info', [\App\Http\Controllers\Api\Web\GLOpeningBalanceController::class, 'initialInfo']);
+    Route::resource('general-ledger-opening-balances', \App\Http\Controllers\Api\Web\GLOpeningBalanceController::class);
+    /*=========== General ledger Opening Balance Api Ends ===========*/
+
+    /*=========== Customer Opening Balance Api Starts ===========*/
+    Route::get('customer-opening-balances-list', [\App\Http\Controllers\Api\Web\CustomerOpeningBalanceController::class, 'list']);
+    Route::get('customer-opening-balances-initial-info', [\App\Http\Controllers\Api\Web\CustomerOpeningBalanceController::class, 'initialInfo']);
+    Route::resource('customer-opening-balances', \App\Http\Controllers\Api\Web\CustomerOpeningBalanceController::class);
+    /*=========== Customer Opening Balance Api Ends ===========*/
+
+    /*=========== Supplier Opening Balance Api Starts ===========*/
+    Route::get('supplier-opening-balances-list', [\App\Http\Controllers\Api\Web\SupplierOpeningBalanceController::class, 'list']);
+    Route::get('supplier-opening-balances-initial-info', [\App\Http\Controllers\Api\Web\SupplierOpeningBalanceController::class, 'initialInfo']);
+    Route::resource('supplier-opening-balances', \App\Http\Controllers\Api\Web\SupplierOpeningBalanceController::class);
+    /*=========== Supplier Opening Balance Api Ends ===========*/
 
 
     /*=========== Raw Materials Opening Balance Api Starts ===========*/
-    Route::get('ledger-reports-initial-info',[\App\Http\Controllers\Api\Web\LedgerReportController::class, 'initialInfo']);
-    Route::resource('ledger-reports',\App\Http\Controllers\Api\Web\LedgerReportController::class);
+    Route::get('ledger-reports-initial-info', [\App\Http\Controllers\Api\Web\LedgerReportController::class, 'initialInfo']);
+    Route::resource('ledger-reports', \App\Http\Controllers\Api\Web\LedgerReportController::class);
     /*=========== Raw Materials Opening Balance Api Ends ===========*/
 
     /*=========== Raw Materials Opening Balance Api Starts ===========*/
-    Route::get('financial-statements-initial-info',[\App\Http\Controllers\Api\Web\FinancialStatementReportController::class, 'initialInfo']);
-    Route::resource('financial-statements',\App\Http\Controllers\Api\Web\FinancialStatementReportController::class);
+    Route::get('financial-statements-initial-info', [\App\Http\Controllers\Api\Web\FinancialStatementReportController::class, 'initialInfo']);
+    Route::resource('financial-statements', \App\Http\Controllers\Api\Web\FinancialStatementReportController::class);
     /*=========== Raw Materials Opening Balance Api Ends ===========*/
 });
 Route::group(['prefix' => 'reports', 'middleware' => 'auth'], function () {
