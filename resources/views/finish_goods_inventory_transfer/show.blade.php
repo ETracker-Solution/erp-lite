@@ -9,7 +9,7 @@ FG Inventory Transfer Details
         'FG Inventory Transfer'=>''
         ]
     @endphp
-<x-breadcrumb title='FG Inventory Transfer' :links="$links"/>
+<x-breadcrumb title='FG Inventory Transfer Details' :links="$links"/>
 <section class="content">
     <div class="container-fluid">
         <div class="row">
@@ -17,33 +17,30 @@ FG Inventory Transfer Details
                 <!-- Main content -->
                 <div class="invoice p-3 mb-3">
                     <!-- title row -->
-                    <div class="row">
-                        <div class="col-12">
-                            <h4>
-                                <i class="fas fa-globe"></i> Company Name.
-                                <small class="float-right">Date:{{ $fGInventoryTransfer->created_at }}</small>
-                            </h4>
-                        </div>
-                        <!-- /.col -->
-                    </div>
                     <!-- info row -->
                     <div class="row invoice-info">
                         <div class="col-sm-4 invoice-col">
-                            <address>
-                                Address : 17/1, 60 Feet, Mirpur, Dhaka-1215
-                                <br>
-                                Phone: +880 1710355789<br>
-                                Email:info.company@gmail.com
-                            </address>
+                            <table width="100%">
+                                <tbody>
+                                    <tr>
+                                        <td style="text-align: left; padding:8px; line-height: 0.6">
+                                            <p><b>UID :</b> {{ $fGInventoryTransfer->uid }}</p>
+                                            <p><b>Date :</b> {{ $fGInventoryTransfer->date }} </p>
+                                            <p><b>Transfer From :</b> {{ $fGInventoryTransfer->fromStore->name }} </p>
+                                            <p><b>Transfer To :</b> {{ $fGInventoryTransfer->toStore->name }} </p>
+                                            <p><b>Status :</b> {{ $fGInventoryTransfer->status }}</p>
+                                        </td> 
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                         <!-- /.col -->
-                        {{-- <div class="col-sm-4 invoice-col">
-                            <td>Customer:</td>
-                        </div> --}}
+                        <div class="col-sm-4 invoice-col">
+                        </div>
                         <!-- /.col -->
-                        {{-- <div class="col-sm-4 invoice-col">
-                            <b>Invoice:</b>
-                        </div> --}}
+                        <div class="col-sm-4 invoice-col">
+                             
+                        </div>
                         <!-- /.col -->
                     </div>
                     <!-- /.row -->
