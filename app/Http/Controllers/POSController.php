@@ -71,6 +71,7 @@ class POSController extends Controller
             $sale = new Sale();
             $sale->invoice_number = $request->invoice_number ?? \App\Classes\SaleNumber::serial_number();
 
+            $sale->date = date('Y-m-d');
             $sale->subtotal = $request->sub_total;
             $sale->discount = $request->discount;
             $sale->grand_total = $request->grand_total;
@@ -81,18 +82,33 @@ class POSController extends Controller
             $sale->outlet_id = $outlet_id;
             $sale->save();
             $products = $request->get('products');
+
+            $salesAmount = $sale->grand_total;
+            $avgProductionPrice = 0;
+//            return $products;
             foreach ($products as $row) {
                 $row['product_id'] = $row['id'];
                 $row['unit_price'] = $row['price'];
-                $currentStock = factoryOrOutletStock($row['product_id'], Outlet::class, $outlet_id);
+//                $currentStock = factoryOrOutletStock($row['product_id'], Outlet::class, $outlet_id);
+                $currentStock = availableInventoryBalance($row['id']);
                 if ($currentStock < $row['quantity']) {
                     Toastr::error('Delivery Quantity cannot more then ' . $currentStock . ' !', '', ["progressBar" => true]);
                     return back();
                 }
-                outletStockOut($outlet_id, $row['product_id'], $row['unit_price'], $row['quantity']);
-                $sale->items()->create($row);
+
+
+
+                $sale_item = $sale->items()->create($row);
+                $sale_item['date'] = date('Y-m-d');
+                $sale_item['coi_id'] = $row['id'];
+                $sale_item['rate'] = averageFGRate($row['id']);
+                $sale_item['amount'] = $sale_item['rate'] * $row['quantity'];
+                $sale_item['store_id'] = 4;
+                addInventoryTransaction(-1, 'POS', $sale_item);
+
+                $avgProductionPrice += $sale_item['amount'];
             }
-            $receive_amount=0;
+            $receive_amount = 0;
             foreach ($request->payment_methods as $paymentMethod) {
                 $receive_amount += $paymentMethod['amount'];
                 Payment::create([
@@ -110,17 +126,26 @@ class POSController extends Controller
             $sale->change_amount = $receive_amount - $sale->grand_total;
             $sale->save();
             //Start Loyalty Effect
-            pointEarnAndUpgradeMember($sale->id, $customer_id ?? null, $request->grand_total);
+//            pointEarnAndUpgradeMember($sale->id, $customer_id ?? null, $request->grand_total);
             //End Loyalty Effect
+            $sale->amount = $salesAmount;
+            addAccountsTransaction('POS',$sale, getAccountsReceiveableGLId(), getIncomeFromSalesGLId());
+            $sale->amount = $avgProductionPrice;
+            addAccountsTransaction('POS',$sale, getCOGSGLId(), getFGInventoryGLId());
+            $sale->amount = $salesAmount;
+            addAccountsTransaction('POS',$sale, getCashGLID(), getAccountsReceiveableGLId());
+
+
             DB::commit();
 
         } catch (\Exception $error) {
             DB::rollBack();
             Log::emergency("File:" . $error->getFile() . "Line:" . $error->getLine() . "Message:" . $error->getMessage());
 //            Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
-            return response()->json(['message' => 'error'], 500);
+//            return response()->json(['message' => 'error'], 500);
+            return response()->json(['message' => $error->getMessage()], 500);
         }
-        return response()->json(['message' => 'success','sale'=>$sale]);
+        return response()->json(['message' => 'success', 'sale' => $sale]);
     }
 
     /**
@@ -170,7 +195,7 @@ class POSController extends Controller
 
     public function getAllProducts(Request $request)
     {
-        $products = ChartOfInventory::where(['type' => 'item', 'status' => 'active','rootAccountType'=>'FG']);
+        $products = ChartOfInventory::where(['type' => 'item', 'status' => 'active', 'rootAccountType' => 'FG']);
         if ($request->category && $request->category != null) {
             $products->where('parent_id', $request->category);
         }
@@ -180,16 +205,15 @@ class POSController extends Controller
         $products = $products->get();
 
         foreach ($products as $product) {
-//            $product->stock = availableInventoryBalance($product->id);
-            $product->stock = 10;
+            $product->stock = availableInventoryBalance($product->id,4);
         }
         return $products;
     }
 
     public function getAllProductCategories(Request $request)
     {
-        return ChartOfInventory::where(['rootAccountType' => 'FG', 'status' => 'active'])->whereHas('subChartOfInventories', function ($q){
-            return $q->where('type','item');
+        return ChartOfInventory::where(['rootAccountType' => 'FG', 'status' => 'active'])->whereHas('subChartOfInventories', function ($q) {
+            return $q->where('type', 'item');
         })->get();
     }
 
@@ -240,20 +264,20 @@ class POSController extends Controller
     public function getCouponDiscountValue(Request $request)
     {
         $now = Carbon::now()->format('Y-m-d');
-        $user = Customer::where('mobile',$request->user)->first();
-        if (!$user){
-            return response()->json(['success'=>false,'message'=>'Customer Number Required']);
+        $user = Customer::where('mobile', $request->user)->first();
+        if (!$user) {
+            return response()->json(['success' => false, 'message' => 'Customer Number Required']);
         }
-        $code = PromoCode::where('code',$request->code)->where('start_date','<=',$now)->where('end_date','>=',$now)->first();
-        if (!$code){
-            return response()->json(['success'=>false,'message'=>'Invalid Code']);
+        $code = PromoCode::where('code', $request->code)->where('start_date', '<=', $now)->where('end_date', '>=', $now)->first();
+        if (!$code) {
+            return response()->json(['success' => false, 'message' => 'Invalid Code']);
         }
-        $alreadyUsed = CustomerPromoCode::where(['customer_id'=>$user->id,'promo_code_id'=>$code->id])->first();
-        if ($alreadyUsed && $alreadyUsed->used > 0){
-            return response()->json(['success'=>false,'message'=>'Code Already Used ']);
+        $alreadyUsed = CustomerPromoCode::where(['customer_id' => $user->id, 'promo_code_id' => $code->id])->first();
+        if ($alreadyUsed && $alreadyUsed->used > 0) {
+            return response()->json(['success' => false, 'message' => 'Code Already Used ']);
         }
 
-        return response()->json(['success'=>true,'message'=>'Code Found ', 'data'=>$code]);
+        return response()->json(['success' => true, 'message' => 'Code Found ', 'data' => $code]);
     }
 
     public function addCustomer(StoreCustomerRequest $request)
@@ -265,9 +289,9 @@ class POSController extends Controller
             DB::commit();
         } catch (\Exception $error) {
             DB::rollBack();
-            return response()->json(['success'=>false,'message'=>'Something Went Wrong']);
+            return response()->json(['success' => false, 'message' => 'Something Went Wrong']);
         }
-        return response()->json(['success'=>true,'message'=>'Customer Added']);
+        return response()->json(['success' => true, 'message' => 'Customer Added']);
     }
 
     public function updateCustomer(UpdateCustomerRequest $request, $id)
@@ -280,9 +304,9 @@ class POSController extends Controller
         } catch (\Exception $error) {
             DB::rollBack();
             return $error;
-            return response()->json(['success'=>false,'message'=>'Something Went Wrong']);
+            return response()->json(['success' => false, 'message' => 'Something Went Wrong']);
         }
-        return response()->json(['success'=>true,'message'=>'Customer Updated']);
+        return response()->json(['success' => true, 'message' => 'Customer Updated']);
     }
 
     public function printInvoice($id)

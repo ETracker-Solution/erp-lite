@@ -312,13 +312,13 @@ class ChartOfAccountSeeder extends Seeder
                     [
                         'id' => 25,
                         'parent_id' => 20,
-                        'name' => 'Cost of Goods Sold',
+                        'name' => 'VAT Payable',
                         'status' => 'active',
                         'default_type' => '',
                         'type' => 'ledger',
                         'account_type' => 'debit',
                         'is_bank_cash' => 'no',
-                        'root_account_type' => 'ex',
+                        'root_account_type' => 'li',
                         'created_at' => Carbon::now(),
                     ],
                     [

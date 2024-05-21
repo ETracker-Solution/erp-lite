@@ -24,7 +24,7 @@
                     <td style="white-space: pre">{!!  str_replace(' ',"&nbsp;",$item->$column) !!}</td>
 {{--            @if($key==4) <?php  dd($item) ?> @endif--}}
         @endforeach
-
+            </tr>
         @endforeach
     </table>
 </div>
