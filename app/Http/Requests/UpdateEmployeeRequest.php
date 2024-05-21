@@ -24,7 +24,7 @@ class UpdateEmployeeRequest extends FormRequest
         return [
             'employee_id' => 'required',
             'name' => 'required',
-            'image' => 'nullable',
+            'image' => ['nullable', 'exclude_if:image,null'],
             'father_name' => 'nullable',
             'mother_name' => 'nullable',
             'nominee_name' => 'nullable',
