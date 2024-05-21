@@ -1,119 +1,113 @@
 @extends('layouts.app')
 @section('title')
-    Requisition
+Requisition
 @endsection
 @section('content')
-    <!-- Content Header (Page header) -->
-    @php
-        $links = [
-        'Home'=>route('dashboard'),
-        'Requisition list'=>''
-        ]
-    @endphp
-    <x-breadcrumb title='Requisition Entry' :links="$links"/>
-    <!-- Main content -->
-    <section class="content">
-        <div class="container-fluid">
-            <div class="row" id="vue_app">
-                <div class="col-lg-12 col-md-12">
-                    <div class="card card-info">
-                        <div class="card-header">
-                            <h3 class="card-title">Requisition Entry</h3>
-                            <div class="card-tools">
-                                <a href="{{route('requisitions.index')}}">
-                                    <button class="btn btn-sm btn-primary">
-                                        <i class="fa fa-list" aria-hidden="true"></i> &nbsp;Requisition List
-                                    </button>
-                                </a>
-                            </div>
+<!-- Content Header (Page header) -->
+@php
+$links = [
+'Home'=>route('dashboard'),
+'Requisition list'=>''
+]
+@endphp
+<x-breadcrumb title='Requisition Entry' :links="$links" />
+<!-- Main content -->
+<section class="content">
+    <div class="container-fluid">
+        <div class="row" id="vue_app">
+            <div class="col-lg-12 col-md-12">
+                <div class="card card-info">
+                    <div class="card-header">
+                        <h3 class="card-title">Requisition Entry</h3>
+                        <div class="card-tools">
+                            <a href="{{route('requisitions.index')}}">
+                                <button class="btn btn-sm btn-primary">
+                                    <i class="fa fa-list" aria-hidden="true"></i> &nbsp;Requisition List
+                                </button>
+                            </a>
                         </div>
-                        <form action="{{ route('requisitions.store') }}" method="POST" class="">
-                            @csrf
-                            <div class="card-body">
-                                <div class="card-box">
-                                    <div id="">
-                                        <div class="row">
-                                            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                                                <div class="form-group">
-                                                    <label for="customer_id">Customer</label>
-                                                    <select name="customer_id" id="customer_id"
-                                                            class="form-control bSelect" v-model="customer_id">
-                                                        <option value="">Select One</option>
-                                                        @foreach($customers as $customer)
-                                                            <option
-                                                                value="{{ $customer->id }}">{{ $customer->name }}</option>
-                                                        @endforeach
-                                                    </select>
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                                                <div class="form-group">
-                                                    <label for="store_id">Store</label>
-                                                    <select name="store_id" id="store_id"
-                                                            class="form-control bSelect"
-                                                            v-model="store_id" required>
-                                                        <option value="">Select One</option>
-                                                        @foreach($stores as $row)
-                                                            <option
-                                                                value="{{ $row->id }}">{{ $row->name }}</option>
-                                                        @endforeach
-                                                    </select>
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                                                <div class="form-group">
-                                                    <label for="remark">Remark</label>
-                                                    <textarea class="form-control" name="remark" rows="1"
-                                                              placeholder="Enter Remark"></textarea>
-                                                </div>
+                    </div>
+                    <form action="{{ route('requisitions.store') }}" method="POST" class="">
+                        @csrf
+                        <div class="card-body">
+                            <div class="card-box">
+                                <div id="">
+                                    <div class="row">
+                                        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                                            <div class="form-group">
+                                                <label for="customer_id">Customer</label>
+                                                <select name="customer_id" id="customer_id" class="form-control bSelect"
+                                                    v-model="customer_id">
+                                                    <option value="">Select One</option>
+                                                    @foreach($customers as $customer)
+                                                    <option value="{{ $customer->id }}">{{ $customer->name }}</option>
+                                                    @endforeach
+                                                </select>
                                             </div>
                                         </div>
-                                        <div class="row">
-                                            <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
-                                                <div class="form-group">
-                                                    <label for="category_id" class="control-label">Group</label>
-                                                    <select class="form-control bSelect" name="category_id"
-                                                            v-model="category_id" @change="fetch_item">
-                                                        <option value="">Select One</option>
-                                                        @foreach ($groups as $category)
-                                                            <option
-                                                                value="{{ $category->id }}">{{ $category->name }}</option>
-                                                        @endforeach
-                                                    </select>
-                                                </div>
+                                        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                                            <div class="form-group">
+                                                <label for="store_id">Store</label>
+                                                <select name="store_id" id="store_id" class="form-control bSelect"
+                                                    v-model="store_id" required>
+                                                    <option value="">Select One</option>
+                                                    @foreach($stores as $row)
+                                                    <option value="{{ $row->id }}">{{ $row->name }}</option>
+                                                    @endforeach
+                                                </select>
                                             </div>
-                                            <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
-                                                <div class="form-group">
-                                                    <label for="item_id">Item</label>
-                                                    <select name="item_id" id="item_id"
-                                                            class="form-control bSelect" v-model="item_id">
-                                                        <option value="">Select one</option>
-
-                                                        <option :value="row.id" v-for="row in products"
-                                                                v-html="row.name">
-                                                        </option>
-
-                                                    </select>
-                                                </div>
+                                        </div>
+                                        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                                            <div class="form-group">
+                                                <label for="remark">Remark</label>
+                                                <textarea class="form-control" name="remark" rows="1"
+                                                    placeholder="Enter Remark"></textarea>
                                             </div>
-
-                                            <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12" style="margin-top: 26px;">
-                                                <button type="button" class="btn btn-info btn-block"
-                                                        @click="data_input">Add
-                                                </button>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
+                                            <div class="form-group">
+                                                <label for="category_id" class="control-label">Group</label>
+                                                <select class="form-control bSelect" name="category_id"
+                                                    v-model="category_id" @change="fetch_item">
+                                                    <option value="">Select One</option>
+                                                    @foreach ($groups as $category)
+                                                    <option value="{{ $category->id }}">{{ $category->name }}</option>
+                                                    @endforeach
+                                                </select>
                                             </div>
+                                        </div>
+                                        <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
+                                            <div class="form-group">
+                                                <label for="item_id">Item</label>
+                                                <select name="item_id" id="item_id" class="form-control bSelect"
+                                                    v-model="item_id">
+                                                    <option value="">Select one</option>
 
-                                            <br>
-                                            <br>
-                                            <br>
-                                            <br>
+                                                    <option :value="row.id" v-for="row in products" v-html="row.name">
+                                                    </option>
 
-                                            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                                </select>
+                                            </div>
+                                        </div>
 
-                                                <hr>
-                                                <div class="table-responsive">
-                                                    <table class="table table-bordered">
-                                                        <thead>
+                                        <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12" style="margin-top: 26px;">
+                                            <button type="button" class="btn btn-info btn-block" @click="data_input">Add
+                                            </button>
+                                        </div>
+
+                                        <br>
+                                        <br>
+                                        <br>
+                                        <br>
+
+                                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+
+                                            <hr>
+                                            <div class="table-responsive">
+                                                <table class="table table-bordered">
+                                                    <thead>
                                                         <tr>
                                                             <th width="20"></th>
                                                             <th>Group</th>
@@ -124,12 +118,12 @@
                                                             <th width="180">Quantity</th>
                                                             <th>Item total</th>
                                                         </tr>
-                                                        </thead>
-                                                        <tbody>
+                                                    </thead>
+                                                    <tbody>
                                                         <tr v-for="(row, index) in items">
                                                             <td>
                                                                 <button type="button" class="btn btn-danger"
-                                                                        @click="delete_row(row)"><i
+                                                                    @click="delete_row(row)"><i
                                                                         class="fa fa-trash"></i></button>
                                                             </td>
                                                             <td>
@@ -137,9 +131,9 @@
                                                             </td>
                                                             <td>
                                                                 <input type="hidden"
-                                                                       :name="'products['+index+'][coi_id]'"
-                                                                       class="form-control input-sm"
-                                                                       v-bind:value="row.coi_id">
+                                                                    :name="'products['+index+'][coi_id]'"
+                                                                    class="form-control input-sm"
+                                                                    v-bind:value="row.coi_id">
                                                                 @{{ row.name }}
                                                             </td>
                                                             <td>
@@ -148,22 +142,21 @@
                                                             <td class="text-right">
                                                                 @{{ row.balance_qty }}
                                                                 <input type="hidden"
-                                                                       :name="'products['+index+'][balance_qty]'"
-                                                                       class="form-control input-sm"
-                                                                       v-bind:value="row.balance_qty" readonly>
+                                                                    :name="'products['+index+'][balance_qty]'"
+                                                                    class="form-control input-sm"
+                                                                    v-bind:value="row.balance_qty" readonly>
                                                             </td>
                                                             <td class="text-right">
                                                                 @{{ row.price }}
-                                                                <input type="hidden"
-                                                                       :name="'products['+index+'][price]'"
-                                                                       class="form-control input-sm"
-                                                                       v-bind:value="row.price" readonly>
+                                                                <input type="hidden" :name="'products['+index+'][rate]'"
+                                                                    class="form-control input-sm"
+                                                                    v-bind:value="row.price" readonly>
                                                             </td>
                                                             <td class="text-right">
                                                                 <input type="number" v-model="row.quantity"
-                                                                       :name="'products['+index+'][quantity]'"
-                                                                       class="form-control input-sm"
-                                                                       @change="valid(row);item_total(row)" required>
+                                                                    :name="'products['+index+'][quantity]'"
+                                                                    class="form-control input-sm"
+                                                                    @change="valid(row);item_total(row)" required>
                                                             </td>
                                                             <td class="text-right">
                                                                 @{{ item_total(row) }}
@@ -171,8 +164,8 @@
 
                                                         </tr>
 
-                                                        </tbody>
-                                                        <tfoot>
+                                                    </tbody>
+                                                    <tfoot>
 
                                                         <tr>
                                                             <td colspan="6">
@@ -183,49 +176,45 @@
                                                             </td>
                                                             <td class="text-right">
                                                                 @{{subtotal}}
-                                                                <input type="hidden"
-                                                                       :name="'subtotal'"
-                                                                       class="form-control input-sm"
-                                                                       v-bind:value="subtotal" readonly>
+                                                                <input type="hidden" :name="'subtotal'"
+                                                                    class="form-control input-sm"
+                                                                    v-bind:value="subtotal" readonly>
                                                             </td>
                                                         </tr>
-                                                        </tfoot>
-                                                    </table>
-                                                </div>
+                                                    </tfoot>
+                                                </table>
                                             </div>
                                         </div>
-
-
                                     </div>
                                 </div>
                             </div>
-                            <div class="card-footer">
-                                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 text-right" v-if="items.length > 0">
-                                    <button class="float-right btn btn-primary" type="submit"><i
-                                            class="fa fa-fw fa-lg fa-check-circle"></i>Submit
-                                    </button>
-                                </div>
+                        </div>
+                        <div class="card-footer">
+                            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 text-right" v-if="items.length > 0">
+                                <button class="float-right btn btn-primary" type="submit"><i
+                                        class="fa fa-fw fa-lg fa-check-circle"></i>Submit
+                                </button>
                             </div>
-                        </form>
-                    </div>
-                </div> <!-- end col -->
-            </div>
-            <!-- /.row -->
-        </div><!-- /.container-fluid -->
-    </section>
-    <!-- /.content -->
+                        </div>
+                    </form>
+                </div>
+            </div> <!-- end col -->
+        </div>
+        <!-- /.row -->
+    </div><!-- /.container-fluid -->
+</section>
+<!-- /.content -->
 @endsection
 @section('css')
-    <link rel="stylesheet" type="text/css"
-          href="{{ asset('vue-js/bootstrap-select/dist/css/bootstrap-select.min.css') }}">
+<link rel="stylesheet" type="text/css" href="{{ asset('vue-js/bootstrap-select/dist/css/bootstrap-select.min.css') }}">
 @endsection
 @push('script')
 
-    <script src="{{ asset('vue-js/vue/dist/vue.js') }}"></script>
-    <script src="{{ asset('vue-js/axios/dist/axios.min.js') }}"></script>
-    <script src="{{ asset('vue-js/bootstrap-select/dist/js/bootstrap-select.min.js') }}"></script>
-    <script>
-        $(document).ready(function () {
+<script src="{{ asset('vue-js/vue/dist/vue.js') }}"></script>
+<script src="{{ asset('vue-js/axios/dist/axios.min.js') }}"></script>
+<script src="{{ asset('vue-js/bootstrap-select/dist/js/bootstrap-select.min.js') }}"></script>
+<script>
+    $(document).ready(function () {
 
             var vue = new Vue({
                 el: '#vue_app',
@@ -377,5 +366,5 @@
             });
 
         });
-    </script>
+</script>
 @endpush

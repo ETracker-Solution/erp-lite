@@ -27,6 +27,7 @@ function showStatus($status)
 {
     switch ($status) {
         case 'picked':
+        case 'draft':
             return '<span class="badge badge-primary">' . ucfirst($status) . '</span>';
         case 'assigned':
             return '<span class="badge badge-info">' . ucfirst($status) . '</span>';

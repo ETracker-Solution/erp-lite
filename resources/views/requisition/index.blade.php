@@ -76,9 +76,15 @@
                     searchable: false,
                     orderable: false
                 },
+                {
+                        data: "date",
+                        title: "Date",
+                        searchable: true,
+                        "defaultContent":"Not Set"
+                    },
                     {
                         data: "invoice_number",
-                        title: "Requisition No",
+                        title: "UID No",
                         searchable: true,
                         "defaultContent":"Not Set"
                     },
@@ -95,7 +101,7 @@
                     },
                     {
                         data: "created_at",
-                        title: "Date",
+                        title: "Created At",
                         searchable: true
                     },
                     {

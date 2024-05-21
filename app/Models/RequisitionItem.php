@@ -8,13 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class RequisitionItem extends Model
 {
     use HasFactory;
-    protected $fillable = [
-        'order_id',
-        'product_id',
-        'unit_price',
-        'quantity',
-        'discount'
-    ];
+    protected  $guarded = ['id'];
     public function product(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Product::class);
@@ -23,4 +17,10 @@ class RequisitionItem extends Model
     {
         return $this->belongsTo(Requisition::class);
     }
+
+    public function coi(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(ChartOfInventory::class,'coi_id');
+    }
+
 }
