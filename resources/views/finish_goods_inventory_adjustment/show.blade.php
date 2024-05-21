@@ -9,7 +9,7 @@ FGInventory Adjustment Details
         'FG Inventory Adjustment'=>''
         ]
     @endphp
-<x-breadcrumb title='FG Inventory Adjustment' :links="$links"/>
+<x-breadcrumb title='FG Inventory Adjustment Details' :links="$links"/>
 
 <section class="content">
     <div class="container-fluid">
@@ -17,26 +17,31 @@ FGInventory Adjustment Details
             <div class="col-12">
                 <!-- Main content -->
                 <div class="invoice p-3 mb-3">
-                    <!-- title row -->
-                    <div class="row">
-                        <div class="col-12">
-                            <h4>
-                                <i class="fas fa-globe"></i> Company Name.
-                                <small class="float-right">Date:{{ $fGInventoryAdjustment->created_at }}</small>
-                            </h4>
-                        </div>
-                        <!-- /.col -->
-                    </div>
+                    <!-- info row -->
                     <!-- info row -->
                     <div class="row invoice-info">
                         <div class="col-sm-4 invoice-col">
-                            <address>
-                                Address : 17/1, 60 Feet, Mirpur, Dhaka-1215
-                                <br>
-                                Phone: +880 1710355789<br>
-                                Email:info.company@gmail.com
-                            </address>
+                            <table width="100%">
+                                <tbody>
+                                    <tr>
+                                        <td style="text-align: left; padding:8px; line-height: 0.6">
+                                            <p><b>UID :</b> {{ $fGInventoryAdjustment->uid }}</p>
+                                            <p><b>Date :</b> {{ $fGInventoryAdjustment->date }} </p>
+                                            <p><b>Store :</b> {{ $fGInventoryAdjustment->store->name }} </p>
+                                            <p><b>Status :</b> {{ $fGInventoryAdjustment->status }}</p>
+                                        </td> 
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
+                        <!-- /.col -->
+                        <div class="col-sm-4 invoice-col">
+                        </div>
+                        <!-- /.col -->
+                        <div class="col-sm-4 invoice-col">
+                             
+                        </div>
+                        <!-- /.col -->
                     </div>
                     <!-- /.row -->
 
