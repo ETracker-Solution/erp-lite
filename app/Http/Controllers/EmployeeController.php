@@ -55,6 +55,13 @@ class EmployeeController extends Controller
 
         DB::beginTransaction();
         try {
+            $filename = '';
+            if ($request->hasfile('image')) {
+                $file = $request->file('image');
+                $filename = date('Ymdmhs') . '.' . $file->getClientOriginalExtension();
+                $file->move(public_path('/upload'), $filename);
+            }
+            $validated['image'] = $filename ?? null;
             Employee::create($validated);
             DB::commit();
         } catch (\Exception $error) {
@@ -99,6 +106,15 @@ class EmployeeController extends Controller
         $validated = $request->validated();
         DB::beginTransaction();
         try {
+            $filename = '';
+            if ($request->hasfile('image')) {
+                $file = $request->file('image');
+                $filename = date('Ymdmhs') . '.' . $file->getClientOriginalExtension();
+                $file->move(public_path('/upload'), $filename);
+            }
+            if (isset($validated['image'])) {
+                $validated['image'] = $filename ?? null;
+            }
             Employee::findOrFail($id)->update($validated);
             DB::commit();
         } catch (\Exception $error) {

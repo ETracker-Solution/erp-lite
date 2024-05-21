@@ -28,7 +28,7 @@ Requisition Details
                                             <p><b>Requisition No :</b> {{ $requisition->uid }}</p>
                                             <p><b>Date :</b> {{ $requisition->date }} </p>
                                             <p><b>Sub Total :</b> {{ $requisition->subtotal }} </p>
-                                            <p><b>Status :</b> {{ $requisition->status }}</p>
+                                            <p><b>Status :</b> {!! showStatus($requisition->status) !!}</p>
                                         </td> 
                                     </tr>
                                 </tbody>

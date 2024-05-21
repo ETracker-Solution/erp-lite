@@ -31,7 +31,7 @@
                             </div>
                         </div>
                     </div>
-                    <form action="{{ route('employees.store') }}" method="POST" class="" id="employeeForm">
+                    <form action="{{ route('employees.store') }}" method="POST" class="" id="employeeForm" enctype="multipart/form-data">
                         @csrf
                         <input type="hidden" name="_method" value="POST">
                         <!-- Horizontal Form -->
