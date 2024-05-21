@@ -224,6 +224,8 @@ Route::middleware('auth')->group(function () {
     Route::get('financial-statements-initial-info', [\App\Http\Controllers\Api\Web\FinancialStatementReportController::class, 'initialInfo']);
     Route::resource('financial-statements', \App\Http\Controllers\Api\Web\FinancialStatementReportController::class);
     /*=========== Raw Materials Opening Balance Api Ends ===========*/
+
+    Route::resource('system-config',\App\Http\Controllers\SystemConfigController::class);
 });
 Route::group(['prefix' => 'reports', 'middleware' => 'auth'], function () {
 

@@ -88,3 +88,27 @@ function getAllPermissions()
 {
     return \Spatie\Permission\Models\Permission::pluck('name');
 }
+
+function getSettingValue($key)
+{
+    $setting =  \App\Models\SystemConfig::where('key', $key)->first();
+    if ($setting) {
+        return $setting->value;
+    }
+    return null;
+}
+
+function storeValue($key, $value)
+{
+    $exists = \App\Models\SystemConfig::where('key', $key)->first();
+    if ($exists) {
+        $exists->update([
+            'value' => $value
+        ]);
+    } else {
+        \App\Models\SystemConfig::create([
+            'key' => $key,
+            'value' => $value ?? '',
+        ]);
+    }
+}

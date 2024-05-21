@@ -7,6 +7,7 @@ use App\Models\Category;
 use App\Models\ChartOfInventory;
 use App\Models\Customer;
 use App\Models\Product;
+use App\Models\Production;
 use App\Models\Sale;
 use App\Http\Requests\StoreSaleRequest;
 use App\Http\Requests\UpdateSaleRequest;

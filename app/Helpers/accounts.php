@@ -1,6 +1,7 @@
 <?php
 
 
+use App\Models\ChartOfAccount;
 use Illuminate\Support\Facades\DB;
 
 
@@ -79,4 +80,8 @@ function getCOGSGLId()
 function getCashGLID()
 {
     return 13;
+}
+
+function getAllLedgers(){
+    return ChartOfAccount::where('type','ledger')->select(DB::raw('id,name,CONCAT(id,". ",name, " (",root_account_type,")") as display_name'))->get();
 }
