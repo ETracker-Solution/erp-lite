@@ -17,7 +17,7 @@ return new class extends Migration {
             $table->integer('total_item')->nullable();
             $table->string('uid')->nullable();
             $table->double('total_quantity', 8, 2);
-            $table->double('total_amount', 8, 2)->default(0);
+            $table->double('subtotal', 8, 2)->default(0);
             $table->text('description')->nullable();
             $table->enum('status', ['draft', 'pending', 'approved', 'delivered', 'rejected'])->default('draft');
             $table->string('model_type')->nullable();
