@@ -25,8 +25,9 @@
                             <div class="card-header">
                                 <h3 class="card-title">FG Inventory Transfer(FGIT) Entry </h3>
                                 <div class="card-tools">
-                                    <a class="btn btn-sm btn-primary" href="{{route('finish-goods-inventory-transfers.index')}}">
-                                            <i class="fa fa-list" aria-hidden="true"></i> &nbsp;FG Inventory Transfer List
+                                    <a class="btn btn-sm btn-primary"
+                                       href="{{route('finish-goods-inventory-transfers.index')}}">
+                                        <i class="fa fa-list" aria-hidden="true"></i> &nbsp;FG Inventory Transfer List
                                     </a>
                                 </div>
                             </div>
@@ -54,7 +55,8 @@
                                                 <div class="form-group">
                                                     <label for="from_store_id">From Store</label>
                                                     <select name="from_store_id" id="from_store_id"
-                                                            class="form-control bSelect" v-model="from_store_id" required>
+                                                            class="form-control bSelect" v-model="from_store_id"
+                                                            required>
                                                         <option value="">Select Store</option>
                                                         @foreach($stores as $row)
                                                             <option
@@ -161,24 +163,23 @@
                                                 <hr>
                                                 <div class="table-responsive">
                                                     <table class="table table-bordered">
-                                                        <thead>
+                                                        <thead class="bg-secondary">
                                                         <tr>
-                                                            <th width="20"></th>
-                                                            <th>Group</th>
+                                                            <th style="width: 10px">#</th>
+                                                            <th style="width: 250px">Group</th>
                                                             <th>Item</th>
-                                                            <th>Unit</th>
-                                                            <th>Balance Qty</th>
-                                                            <th>Selling Price</th>
-                                                            <th width="180">Quantity</th>
-                                                            <th>Item total</th>
+                                                            <th style="width: 100px">Unit</th>
+                                                            <th style="width: 120px">Balance Qty</th>
+                                                            <th style="width: 120px">Selling Price</th>
+                                                            <th style="width: 180px">Quantity</th>
+                                                            <th style="width: 120px;vertical-align: middle">Value</th>
+                                                            <th style="width: 30px"></th>
                                                         </tr>
                                                         </thead>
                                                         <tbody>
                                                         <tr v-for="(row, index) in items">
                                                             <td>
-                                                                <button type="button" class="btn btn-danger"
-                                                                        @click="delete_row(row)"><i
-                                                                        class="fa fa-trash"></i></button>
+                                                                @{{ ++index }}
                                                             </td>
                                                             <td>
                                                                 @{{ row.group }}
@@ -216,12 +217,18 @@
                                                             <td class="text-right">
                                                                 @{{ item_total(row) }}
                                                             </td>
-
+                                                            <td>
+                                                                <button type="button" class="btn btn-danger"
+                                                                        @click="delete_row(row)"><i
+                                                                        class="fa fa-trash"></i></button>
+                                                            </td>
                                                         </tr>
 
                                                         </tbody>
                                                         <tfoot>
-
+                                                        <tr>
+                                                            <td colspan="9" style="background-color: #DDDCDC"></td>
+                                                        </tr>
                                                         <tr>
                                                             <td colspan="6">
 
@@ -232,6 +239,10 @@
                                                             <td class="text-right">
                                                                 @{{subtotal}}
                                                             </td>
+                                                            <td class="text-right">
+
+                                                            </td>
+
                                                         </tr>
                                                         </tfoot>
                                                     </table>

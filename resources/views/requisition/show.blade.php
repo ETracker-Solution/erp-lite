@@ -19,36 +19,32 @@ Requisition Details
             <div class="col-12">
                 <!-- Main content -->
                 <div class="invoice p-3 mb-3">
-                    <!-- title row -->
-                    <div class="row">
-                        <div class="col-12">
-                            <h4>
-                                <i class="fas fa-globe"></i> Company Name.
-                                <small class="float-right">Date:{{ $requisition->created_at }}</small>
-                            </h4>
-                        </div>
-                        <!-- /.col -->
-                    </div>
-                    <!-- info row -->
                     <div class="row invoice-info">
                         <div class="col-sm-4 invoice-col">
-                            <address>
-                                Address : 17/1, 60 Feet, Mirpur, Dhaka-1215
-                                <br>
-                                Phone: +880 1710355789<br>
-                                Email:info.company@gmail.com
-                            </address>
+                            <table width="100%">
+                                <tbody>
+                                    <tr>
+                                        <td style="text-align: left; padding:8px; line-height: 0.6">
+                                            <p><b>Requisition No :</b> {{ $requisition->uid }}</p>
+                                            <p><b>Date :</b> {{ $requisition->date }} </p>
+                                            <p><b>Sub Total :</b> {{ $requisition->subtotal }} </p>
+                                            <p><b>Status :</b> {{ $requisition->status }}</p>
+                                        </td> 
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                         <!-- /.col -->
                         <div class="col-sm-4 invoice-col">
-                            <td>Customer : {{ $requisition->customer->name??'Walking Customer'}}</td>
+                            <td><b>Customer :</b> {{ $requisition->customer->name??'Walking Customer'}}</td>
                         </div>
                         <!-- /.col -->
                         <div class="col-sm-4 invoice-col">
-                            <b>Invoice : {{ $requisition->invoice_number }}</b>
+                             
                         </div>
                         <!-- /.col -->
                     </div>
+
                     <!-- /.row -->
 
                     <!-- Table row -->

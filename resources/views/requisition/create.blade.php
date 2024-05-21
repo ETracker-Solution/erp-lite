@@ -15,6 +15,9 @@
     <section class="content">
         <div class="container-fluid">
             <div class="row" id="vue_app">
+                  <span v-if="pageLoading" class="pageLoader">
+                            <img src="{{ asset('loading.gif') }}" alt="loading">
+                        </span>
                 <div class="col-lg-12 col-md-12">
                     <form action="{{ route('requisitions.store') }}" method="POST" class="">
                         @csrf
@@ -22,10 +25,8 @@
                             <div class="card-header bg-info">
                                 <h3 class="card-title">Requisition Entry</h3>
                                 <div class="card-tools">
-                                    <a href="{{route('requisitions.index')}}">
-                                        <button class="btn btn-sm btn-primary">
+                                    <a href="{{route('requisitions.index')}}" class="btn btn-sm btn-primary">
                                             <i class="fa fa-list" aria-hidden="true"></i> &nbsp;Requisition List
-                                        </button>
                                     </a>
                                 </div>
                             </div>
