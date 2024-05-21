@@ -65,10 +65,10 @@ class RequisitionController extends Controller
         try {
             DB::beginTransaction();
             $data = $request->validated();
-            $sale = Requisition::query()->create($data);
+            $requisition = Requisition::query()->create($data);
             $products = $request->get('products');
             foreach ($products as $row) {
-                $sale->items()->create($row);
+                $requisition->items()->create($row);
             }
             DB::commit();
             Toastr::success('Requisition Entry Successful!.', '', ["progressBar" => true]);
