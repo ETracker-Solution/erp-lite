@@ -52,9 +52,9 @@
 
                                             <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                                 <div class="form-group">
-                                                    <label for="store_id">Store</label>
-                                                    <select name="store_id" id="store_id"
-                                                            class="form-control bSelect" required>
+                                                    <label for="from_store_id">From Store</label>
+                                                    <select name="from_store_id" id="from_store_id"
+                                                            class="form-control bSelect" v-model="from_store_id" required>
                                                         <option value="">Select Store</option>
                                                         @foreach($stores as $row)
                                                             <option
@@ -64,13 +64,12 @@
                                                 </div>
                                             </div>
 
-
                                             <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                                                 <div class="form-group">
-                                                    <label for="store_id">Store</label>
-                                                    <select name="store_id" id="store_id"
+                                                    <label for="to_store_id">To Store</label>
+                                                    <select name="to_store_id" id="to_store_id"
                                                             class="form-control bSelect"
-                                                            v-model="store_id" required>
+                                                            v-model="to_store_id" required>
                                                         <option value="">Select One</option>
                                                         @foreach($stores as $row)
                                                             <option
@@ -204,7 +203,7 @@
                                                             <td class="text-right">
                                                                 @{{ row.price }}
                                                                 <input type="hidden"
-                                                                       :name="'products['+index+'][price]'"
+                                                                       :name="'products['+index+'][rate]'"
                                                                        class="form-control input-sm"
                                                                        v-bind:value="row.price" readonly>
                                                             </td>
@@ -315,7 +314,8 @@
 
                     date: new Date(),
                     customer_id: '',
-                    store_id: '',
+                    from_store_id: '',
+                    to_store_id: '',
                     category_id: '',
                     item_id: '',
                     products: [],

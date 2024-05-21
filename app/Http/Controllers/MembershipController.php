@@ -113,8 +113,18 @@ class MembershipController extends Controller
      * @param \App\Models\Membership $membership
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Membership $membership)
+    public function destroy($id)
     {
-        //
+        DB::beginTransaction();
+        try {
+            Membership::findOrFail(decrypt($id))->delete();
+            DB::commit();
+        } catch (\Exception $error) {
+            DB::rollBack();
+            Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
+            return back();
+        }
+        Toastr::success('Membership Deleted Successfully!.', '', ["progressBar" => true]);
+        return redirect()->route('memberships.index');
     }
 }
