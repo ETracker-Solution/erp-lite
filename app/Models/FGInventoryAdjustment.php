@@ -8,4 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 class FGInventoryAdjustment extends Model
 {
     use HasFactory;
+    protected $guarded = ['id'];
+
+    public function store(){
+        return $this->belongsTo(Store::class,'store_id');
+    }
 }

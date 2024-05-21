@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreFGInventoryAdjustmentRequest extends FormRequest
@@ -11,7 +12,7 @@ class StoreFGInventoryAdjustmentRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +23,21 @@ class StoreFGInventoryAdjustmentRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'store_id' => 'required',
+            'products' => 'array',
+            'date' => 'required',
+            'reference_no' => 'nullable',
+            'remark' => 'nullable',
+            'created_by' => 'required',
         ];
+    }
+    public function prepareForValidation()
+    {
+
+        $this->merge([
+            'created_by' => auth()->user()->id,
+            'date' => Carbon::parse($this->date)->format('Y-m-d'),
+        ]);
+
     }
 }

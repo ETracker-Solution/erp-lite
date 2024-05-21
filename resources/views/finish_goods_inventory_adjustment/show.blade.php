@@ -1,6 +1,6 @@
 @extends('layouts.app')
 @section('title')
-Purchase List
+FGInventory Adjustment Details
 @endsection
 @section('content')
 <!-- Content Wrapper. Contains page content -->
@@ -9,12 +9,12 @@ Purchase List
     <div class="container-fluid">
         <div class="row mb-2">
             <div class="col-sm-6">
-                <h1>Invoice</h1>
+                <h1>FG Inventory Adjustment</h1>
             </div>
             <div class="col-sm-6">
                 <ol class="breadcrumb float-sm-right">
                     <li class="breadcrumb-item"><a href="#">Home</a></li>
-                    <li class="breadcrumb-item active">Invoice</li>
+                    <li class="breadcrumb-item active">FG Inventory Adjustment</li>
                 </ol>
             </div>
         </div>
@@ -25,13 +25,6 @@ Purchase List
     <div class="container-fluid">
         <div class="row">
             <div class="col-12">
-                <div class="callout callout-info">
-                    <h5><i class="fas fa-info"></i> Note:</h5>
-                    This page has been enhanced for printing. Click the print button at the bottom of the invoice to
-                    test.
-                </div>
-
-
                 <!-- Main content -->
                 <div class="invoice p-3 mb-3">
                     <!-- title row -->
@@ -39,7 +32,7 @@ Purchase List
                         <div class="col-12">
                             <h4>
                                 <i class="fas fa-globe"></i> Company Name.
-                                <small class="float-right">Date:{{ $model->created_at }}</small>
+                                <small class="float-right">Date:{{ $fGInventoryAdjustment->created_at }}</small>
                             </h4>
                         </div>
                         <!-- /.col -->
@@ -54,15 +47,6 @@ Purchase List
                                 Email:info.company@gmail.com
                             </address>
                         </div>
-                        <!-- /.col -->
-                        <div class="col-sm-4 invoice-col">
-                            <td>Customer:{{ $model->customer->name??'Walking Customer'}}</td>
-                        </div>
-                        <!-- /.col -->
-                        <div class="col-sm-4 invoice-col">
-                            <b>Invoice: {{ $model->invoice_number }}</b>
-                        </div>
-                        <!-- /.col -->
                     </div>
                     <!-- /.row -->
 
@@ -73,80 +57,28 @@ Purchase List
                                 <thead>
                                     <tr>
                                         <th>#</th>
-                                        <th>Product</th>
-                                        <th>Serial #</th>
-                                        <th>Quantity</th>
+                                        <th>Group</th>
+                                        <th>Name</th>
+                                        <th>Unit</th>
                                         <th>Price</th>
-                                        <th>Item Total</th>
+                                        <th>Quantity</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach ($item_details as $item)
+                                    @foreach ($items as $item)
                                     <tr>
                                         <td>{{ $loop->iteration }}</td>
-                                        <td>{{ $item->name ?? '' }}</td>
-                                        <td>{{ $item->code ?? '' }}</td>
-                                        <td>{{ $item->item_quantity ?? '' }}</td>
-                                        <td>{{ $item->sale_price ?? '' }} TK</td>
-                                        <td>{{ $item->item_total ?? '' }} TK</td>
+                                        <td>{{ $item->coi->parent->name ?? '' }}</td>
+                                        <td>{{ $item->coi->name ?? '' }}</td>
+                                        <td>{{ $item->coi->unit->name ?? '' }}</td>
+                                        <td>{{ $item->rate ?? '' }}</td>
+                                        <td>{{ $item->quantity ?? '' }}</td>
                                     </tr>
                                     @endforeach
                                 </tbody>
                             </table>
                         </div>
                         <!-- /.col -->
-                    </div>
-                    <!-- /.row -->
-
-                    <div class="row">
-                        <!-- accepted payments column -->
-                        <div class="col-8">
-
-                        </div>
-                        <!-- /.col -->
-                        <div class="col-4">
-                            <div class="table-responsive">
-                                <table class="table">
-                                    <tr>
-                                        <th style="width:50%">Subtotal:</th>
-                                        <td>{{ $model->subtotal }} TK</td>
-                                    </tr>
-                                    <tr>
-                                        <th>Shipping:</th>
-                                        <td>{{ $model->subtotal }} TK</td>
-                                    </tr>
-                                    <tr>
-                                        <th>Discount:</th>
-                                        <td>{{ $model->discount }} TK</td>
-                                    </tr>
-                                    <tr>
-                                        <th>Total:</th>
-                                        <td>{{ $model->grandtotal }} TK</td>
-                                    </tr>
-                                    <tr>
-                                        <th>Receive Amount:</th>
-                                        <td>{{ $model->receive_amount }} TK</td>
-                                    </tr>
-                                    <tr>
-                                        <th>Change Amount:</th>
-                                        <td>{{ $model->change_amount }} TK</td>
-                                    </tr>
-                                </table>
-                            </div>
-                        </div>
-                        <!-- /.col -->
-                    </div>
-                    <!-- /.row -->
-
-                    <!-- this row will not appear when printing -->
-                    <div class="row no-print">
-                        <div class="col-12">
-                            <a href="{{ route('sale.pdf', $model->id) }}" target="_blank" class="btn btn-default float-right">
-                                <i class="fas fa-print"></i> Print</a>
-                            <a href="{{ route('sale.pdf-download', $model->id) }}" class="btn btn-primary float-right">
-                                <i class="fas fa-download"></i> Generate PDF</a>
-
-                        </div>
                     </div>
                 </div>
                 <!-- /.invoice -->

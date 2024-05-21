@@ -10,9 +10,9 @@ class FGInventoryTransferItem extends Model
     use HasFactory;
     protected $guarded = ['id'];
 
- public function coi(){
-    
-    return $this->belongsTo('App\Models\ChartOfInventory', 'coi_id');
+    public function coi(){
+
+        return $this->belongsTo('App\Models\ChartOfInventory', 'coi_id');
 
     }
 }

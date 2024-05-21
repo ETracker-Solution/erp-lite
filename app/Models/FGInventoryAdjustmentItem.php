@@ -8,4 +8,11 @@ use Illuminate\Database\Eloquent\Model;
 class FGInventoryAdjustmentItem extends Model
 {
     use HasFactory;
+
+    protected $guarded = ['id'];
+
+    public function coi(){
+        
+        return $this->belongsTo(ChartOfInventory::class, 'coi_id');
+    }
 }

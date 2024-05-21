@@ -36,7 +36,7 @@
                                     <hr>
                                     <div id="">
                                         <div class="row">
-                                            <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+                                            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                                                 <div class="form-group">
                                                     <label for="serial_no">FGIT No</label>
                                                     <div class="input-group">
@@ -50,21 +50,6 @@
                                                     </div>
                                                 </div>
                                             </div>
-
-                                            <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
-                                                <div class="form-group">
-                                                    <label for="store_id">Store</label>
-                                                    <select name="store_id" id="store_id"
-                                                            class="form-control bSelect" required>
-                                                        <option value="">Select Store</option>
-                                                        @foreach($stores as $row)
-                                                            <option
-                                                                value="{{ $row->id }}">{{ $row->name }}</option>
-                                                        @endforeach
-                                                    </select>
-                                                </div>
-                                            </div>
-
 
                                             <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                                                 <div class="form-group">
@@ -80,7 +65,7 @@
                                                     </select>
                                                 </div>
                                             </div>
-                                            <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+                                            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                                                 <div class="form-group">
                                                     <label for="reference_no">Reference No</label>
                                                     <input type="text" class="form-control input-sm"
@@ -205,7 +190,7 @@
                                                             <td class="text-right">
                                                                 @{{ row.price }}
                                                                 <input type="hidden"
-                                                                       :name="'products['+index+'][price]'"
+                                                                       :name="'products['+index+'][rate]'"
                                                                        class="form-control input-sm"
                                                                        v-bind:value="row.price" readonly>
                                                             </td>
