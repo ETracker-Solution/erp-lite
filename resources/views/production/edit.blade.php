@@ -78,12 +78,12 @@
                                                     </div>
                                                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                         <div class="form-group">
-                                                            <label for="rm_store_id">Production Unit</label>
-                                                            <select name="rm_store_id" id="rm_store_id"
+                                                            <label for="factory_id">Production Unit</label>
+                                                            <select name="factory_id" id="factory_id"
                                                                     class="form-control bSelect"
-                                                                    v-model="rm_store_id" required>
+                                                                    v-model="factory_id" required>
                                                                 <option value="">Select One</option>
-                                                                @foreach($rm_stores as $row)
+                                                                @foreach($factories as $row)
                                                                     <option
                                                                         value="{{ $row->id }}">{{ $row->name }}</option>
                                                                 @endforeach
@@ -93,11 +93,11 @@
                                                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                         <div class="form-group">
                                                             <label for="store_id">Store</label>
-                                                            <select name="fg_store_id" id="fg_store_id"
+                                                            <select name="store_id" id="store_id"
                                                                     class="form-control bSelect"
-                                                                    v-model="fg_store_id" required>
+                                                                    v-model="store_id" required>
                                                                 <option value="">Select One</option>
-                                                                @foreach($fg_stores as $row)
+                                                                @foreach($stores as $row)
                                                                     <option
                                                                         value="{{ $row->id }}">{{ $row->name }}</option>
                                                                 @endforeach
@@ -344,8 +344,8 @@
                     date:{{$production->date}},
                     serial_no: {{$production->id}},
                     production_id: {{$production->id}},
-                    rm_store_id: '{{$production->rm_store_id}}',
-                    fg_store_id: '{{$production->fg_store_id}}',
+                    factory_id: '{{$production->factory_id}}',
+                    store_id: '{{$production->store_id}}',
                     batch_id: '{{$production->batch_id}}',
                     reference_no: '{{$production->reference_no}}',
                     remark: '{{$production->remark}}',

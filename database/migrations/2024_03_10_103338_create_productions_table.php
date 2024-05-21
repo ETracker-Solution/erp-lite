@@ -22,8 +22,8 @@ class CreateProductionsTable extends Migration
             $table->text('remark')->nullable();
             $table->string('status')->default('pending');
             $table->string('type')->default('in');
-            $table->foreignId('fg_store_id')->nullable()->constrained('stores')->onDelete('cascade');
-            $table->foreignId('rm_store_id')->nullable()->constrained('stores')->onDelete('cascade');
+            $table->foreignId('store_id')->nullable()->constrained('stores')->onDelete('cascade');
+            $table->foreignId('factory_id')->nullable()->constrained('factories')->onDelete('cascade');
             $table->foreignId('batch_id')->nullable()->constrained('batches')->onDelete('cascade');
             $table->foreignId('created_by')->nullable()->constrained('users')->onDelete('cascade');
             $table->foreignId('updated_by')->nullable()->constrained('users')->onDelete('cascade');

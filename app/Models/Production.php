@@ -19,15 +19,15 @@ class Production extends Model
 
     }
 
-    public function fgStore(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function store(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
 
-        return $this->belongsTo('App\Models\Store', 'fg_store_id');
+        return $this->belongsTo('App\Models\Store', 'store_id');
 
-    } public function rmStore(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    } public function factory(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
 
-        return $this->belongsTo('App\Models\Store', 'rm_store_id');
+        return $this->belongsTo('App\Models\Factory', 'factory_id');
 
     }
 
