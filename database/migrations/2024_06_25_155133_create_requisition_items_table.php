@@ -16,7 +16,7 @@ class CreateRequisitionItemsTable extends Migration
         Schema::create('requisition_items', function (Blueprint $table) {
             $table->id();
             $table->double('quantity', 8, 2);
-            $table->double('unit_price', 8, 2);
+            $table->double('rate', 8, 2);
             $table->foreignId('coi_id')->nullable()->constrained('chart_of_inventories')->onDelete('cascade');
             $table->foreignId('requisition_id')->nullable()->constrained('requisitions')->onDelete('cascade');
             $table->timestamps();
