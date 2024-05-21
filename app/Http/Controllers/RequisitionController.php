@@ -51,8 +51,6 @@ class RequisitionController extends Controller
             'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'FG'])->get(),
             'stores' => Store::where(['type' => 'FG'])->get(),
             'serial_no' => $serial_no,
-            'customers' => Customer::where('status', 'active')->get(),
-
         ];
         return view('requisition.create', $data);
     }
