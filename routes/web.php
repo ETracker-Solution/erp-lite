@@ -9,6 +9,7 @@ use App\Http\Controllers\FactoryController;
 use App\Http\Controllers\FundTransferVoucherController;
 use App\Http\Controllers\JournalVoucherController;
 use App\Http\Controllers\PaymentVoucherController;
+use App\Http\Controllers\POSController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\ReceiveVoucherController;
@@ -90,7 +91,18 @@ Route::middleware('auth')->group(function () {
     Route::resource('consumptions', \App\Http\Controllers\ConsumptionController::class);
     Route::get('consumption-pdf/{id}', [App\Http\Controllers\ConsumptionController::class, 'consumptionPdf'])->name('consumptions.pdf');
     //-----start Pos---------
-    Route::resource('pos', App\Http\Controllers\POSController::class);
+    Route::get('pos-invoice-print/{id}', [POSController::class, 'printInvoice'])->name('pos.invoice.print');
+    Route::post('pos-add-customer', [POSController::class, 'addCustomer'])->name('pos.add.customer');
+    Route::post('pos-update-customer/{id}', [POSController::class, 'updateCustomer'])->name('pos.update.customer');
+    Route::get('pos-coupon-code-discount', [POSController::class, 'getCouponDiscountValue'])->name('pos.coupon.discount');
+    Route::get('pos-product-by-name-sku-bar-code', [POSController::class, 'getProductByNameSkuBarCode'])->name('pos.product.barcode');
+    Route::get('pos-categories', [POSController::class, 'getAllProductCategories'])->name('pos.categories');
+    Route::get('pos-products', [POSController::class, 'getAllProducts'])->name('pos.products');
+    Route::get('pos-customers', [POSController::class, 'getAllCustomers'])->name('pos.customers');
+    Route::get('pos-customer-by-number', [POSController::class, 'getCustomerByNumber'])->name('pos.customer.by.number');
+    Route::get('pos-orders', [POSController::class, 'getAllOrders'])->name('pos.orders');
+    Route::get('pos-view', [POSController::class, 'getView'])->name('pos.get-view');
+    Route::resource('pos', POSController::class);
 
     Route::get('fetch-sub-category-product-info/{id}', [App\Http\Controllers\POSController::class, 'fetchSubCategoryProductInfo']);
     Route::get('fetch-sub-category-wise-product-info/{catId}/{subCatId}', [App\Http\Controllers\POSController::class, 'fetch_sub_category_wise_product_info']);
