@@ -179,9 +179,9 @@ Route::middleware('auth')->group(function () {
     Route::resource('finish-goods-inventory-transfers', \App\Http\Controllers\FGInventoryTransferController::class);
     /*=========== Finish Goods Inventory Transfer Ends ===========*/
 
-    /*=========== Finish Goods Inventory Transfer Starts ===========*/
-    Route::resource('finish-goods-inventory-adjustments', \App\Http\Controllers\FGInventoryAdjustmentController::class);
-    /*=========== Finish Goods Inventory Transfer Ends ===========*/
+    /*=========== Finish Goods Inventory Adjustment Starts ===========*/
+    Route::resource('fg-inventory-adjustments', \App\Http\Controllers\FGInventoryAdjustmentController::class);
+    /*=========== Finish Goods Inventory Adjustment Ends ===========*/
 
 
     /*=========== General ledger Opening Balance Api Starts ===========*/

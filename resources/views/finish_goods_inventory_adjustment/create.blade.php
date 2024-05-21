@@ -19,13 +19,13 @@
                     <img src="{{ asset('loading.gif') }}" alt="loading">
                 </span>
                 <div class="col-lg-12 col-md-12">
-                    <form action="{{ route('finish-goods-inventory-adjustments.store') }}" method="POST" class="">
+                    <form action="{{ route('fg-inventory-adjustments.store') }}" method="POST" class="">
                         @csrf
                         <div class="card card-info">
                             <div class="card-header">
                                 <h3 class="card-title">FG Inventory Transfer(FGIT) Entry </h3>
                                 <div class="card-tools">
-                                    <a class="btn btn-sm btn-primary" href="{{route('finish-goods-inventory-adjustments.index')}}">
+                                    <a class="btn btn-sm btn-primary" href="{{route('fg-inventory-adjustments.index')}}">
                                             <i class="fa fa-list" aria-hidden="true"></i> &nbsp;FG Inventory Adjustment
                                             List
                                     </a>
