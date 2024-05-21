@@ -15,7 +15,7 @@ class UnitSeeder extends Seeder
     {
         Unit::create( [
             'id'=>1,
-            'name'=>'Piece',
+            'name'=>'Ltr',
             'short_name'=>NULL,
             'status'=>'active',
             'business_id'=>1,
@@ -23,18 +23,33 @@ class UnitSeeder extends Seeder
             'updated_at'=>'2023-06-07 13:02:10'
         ] );
 
-
-
         Unit::create( [
-            'id'=>3,
-            'name'=>'Pcs',
+            'id'=>2,
+            'name'=>'PCs',
             'short_name'=>NULL,
             'status'=>'active',
             'business_id'=>1,
             'created_at'=>'2023-11-17 17:30:27',
             'updated_at'=>'2023-11-17 20:31:24'
         ] );
-
+        Unit::create( [
+            'id'=>3,
+            'name'=>'KG',
+            'short_name'=>NULL,
+            'status'=>'active',
+            'business_id'=>1,
+            'created_at'=>'2023-11-17 17:30:27',
+            'updated_at'=>'2023-11-17 20:31:24'
+        ] );
+        Unit::create( [
+            'id'=>4,
+            'name'=>'Box',
+            'short_name'=>NULL,
+            'status'=>'active',
+            'business_id'=>1,
+            'created_at'=>'2023-11-17 17:30:27',
+            'updated_at'=>'2023-11-17 20:31:24'
+        ] );
 
     }
 }
