@@ -6,8 +6,12 @@ use App\Http\Requests\StoreFGInventoryAdjustmentRequest;
 use App\Http\Requests\UpdateFGInventoryAdjustmentRequest;
 use App\Models\ChartOfInventory;
 use App\Models\FGInventoryAdjustment;
+use App\Models\FGInventoryAdjustmentItem;
 use App\Models\FGInventoryTransfer;
 use App\Models\Store;
+use Brian2694\Toastr\Facades\Toastr;
+use Illuminate\Support\Facades\DB;
+use Yajra\DataTables\Facades\DataTables;
 
 class FGInventoryAdjustmentController extends Controller
 {
@@ -16,7 +20,20 @@ class FGInventoryAdjustmentController extends Controller
      */
     public function index()
     {
-        //
+        $fGInventoryAdjustments = FGInventoryAdjustment::with('store')->latest();
+        if (\request()->ajax()) {
+            return DataTables::of($fGInventoryAdjustments)
+                ->addIndexColumn()
+                ->addColumn('action', function ($row) {
+                    return view('finish_goods_inventory_adjustment.action', compact('row'));
+                })
+                ->addColumn('created_at', function ($row) {
+                    return view('common.created_at', compact('row'));
+                })
+                ->rawColumns(['action', 'amount_info'])
+                ->make(true);
+        }
+        return view('finish_goods_inventory_adjustment.index');
     }
 
     /**
@@ -39,15 +56,38 @@ class FGInventoryAdjustmentController extends Controller
      */
     public function store(StoreFGInventoryAdjustmentRequest $request)
     {
-        //
+        $data = $request->validated();
+        DB::beginTransaction();
+        try {
+            $fGInventoryAdjustment = FGInventoryAdjustment::create($data);
+            foreach ($data['products'] as $product) {
+                // FG Inventory Transfer Effect
+                FGInventoryAdjustmentItem::query()->create([
+                    'fg_inventory_adjust_id' => $fGInventoryAdjustment->id,
+                    'quantity' => $product['quantity'],
+                    'rate' => $product['rate'],
+                    'coi_id' => $product['coi_id'],
+                ]);
+            }
+            DB::commit();
+        } catch (\Exception $error) {
+            DB::rollBack();
+            Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
+            return back();
+        }
+        Toastr::success('Member Point Created Successfully!.', '', ["progressBar" => true]);
+        return redirect()->route('fg-inventory-adjustments.index');
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(FGInventoryAdjustment $fGInventoryAdjustment)
+    public function show($id)
     {
-        //
+        
+        $fGInventoryAdjustment = FGInventoryAdjustment::findOrFail(decrypt($id));
+        $items = FGInventoryAdjustmentItem::where('fg_inventory_adjust_id',decrypt($id))->get();
+        return view('finish_goods_inventory_adjustment.show', compact('fGInventoryAdjustment', 'items'));
     }
 
     /**
