@@ -15,7 +15,7 @@ return new class extends Migration {
             $table->foreignId('coi_id')->references('id')->on('chart_of_inventories')->onDelete('cascade');
             $table->double('rate', 16, 2);
             $table->double('quantity', 16, 2);
-            $table->foreignId('f_g_inventory_adjustment_id')->references('id')->on('f_g_inventory_adjustments')->onDelete('cascade');
+            $table->foreignId('f_g_inventory_adjust_id')->references('id')->on('f_g_inventory_adjustments')->onDelete('cascade');
             $table->timestamps();
         });
     }

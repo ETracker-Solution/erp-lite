@@ -183,6 +183,10 @@
                                                             </td>
                                                             <td class="text-right">
                                                                 @{{subtotal}}
+                                                                <input type="hidden"
+                                                                       :name="'subtotal'"
+                                                                       class="form-control input-sm"
+                                                                       v-bind:value="subtotal" readonly>
                                                             </td>
                                                         </tr>
                                                         </tfoot>

@@ -78,25 +78,13 @@
                 },
                     {
                         data: "invoice_number",
-                        title: "Invoice No",
+                        title: "Requisition No",
                         searchable: true,
                         "defaultContent":"Not Set"
                     },
                     {
                         data: "subtotal",
                         title: "Sub Total",
-                        searchable: true,
-                        "defaultContent":"Not Set"
-                    },
-                    {
-                        data: "discount",
-                        title: "Discount",
-                        searchable: true,
-                        "defaultContent":"Not Set"
-                    },
-                    {
-                        data: "grand_total",
-                        title: "Grand Total",
                         searchable: true,
                         "defaultContent":"Not Set"
                     },
