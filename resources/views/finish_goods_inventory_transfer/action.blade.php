@@ -1,13 +1,13 @@
 <div class="project-actions text-right">
-    <form action="{{route('requisitions.destroy', $row->id)}}" method="post">
+    <form action="{{route('finish-goods-inventory-transfers.destroy', $row->id)}}" method="post">
         <input type="hidden" name="_method" value="DELETE">
         @csrf
-        <a href="{{ route('requisitions.edit', $row->id) }}" class="btn btn-info btn-xs">
+        <a href="{{ route('finish-goods-inventory-transfers.edit', $row->id) }}" class="btn btn-info btn-xs">
             <i class="fas fa-pencil-alt">
             </i>
             Edit
         </a>
-        <a href="{{ route('requisitions.show', $row->id) }}" class="btn btn-xs btn-primary">
+        <a href="{{ route('finish-goods-inventory-transfers.show', $row->id) }}" class="btn btn-xs btn-primary">
             <i class="fas fa-folder">
             </i> Show
         </a>
