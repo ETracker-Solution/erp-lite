@@ -32,6 +32,7 @@ class DatabaseSeeder extends Seeder
         $this->call(BatchSeeder::class);
         $this->call(EmployeeSeeder::class);
         $this->call(PermissionSeeder::class);
+        $this->call(SystemConfigSeeder::class);
 
         $user = \App\Models\User::factory()->create([
             'name' => 'Super Admin',
