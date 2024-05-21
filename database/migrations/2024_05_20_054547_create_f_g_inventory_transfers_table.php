@@ -13,6 +13,15 @@ return new class extends Migration
     {
         Schema::create('f_g_inventory_transfers', function (Blueprint $table) {
             $table->id();
+            $table->string('uid')->nullable();
+            $table->string('reference_no')->nullable();
+            $table->date('date');
+            $table->double('subtotal', 15, 2)->nullable();
+            $table->text('remark')->nullable();
+            $table->string('status')->default('pending');
+            $table->foreignId('store_id')->nullable()->constrained('stores')->onDelete('cascade');
+            $table->foreignId('created_by')->nullable()->constrained('users')->onDelete('cascade');
+            $table->foreignId('updated_by')->nullable()->constrained('users')->onDelete('cascade');
             $table->timestamps();
         });
     }
