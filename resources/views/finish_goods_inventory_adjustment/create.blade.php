@@ -23,7 +23,7 @@
                         @csrf
                         <div class="card card-info">
                             <div class="card-header">
-                                <h3 class="card-title">FG Inventory Transfer(FGIT) Entry </h3>
+                                <h3 class="card-title">FG Inventory Adjustment(FGIA) Entry </h3>
                                 <div class="card-tools">
                                     <a class="btn btn-sm btn-primary" href="{{route('fg-inventory-adjustments.index')}}">
                                             <i class="fa fa-list" aria-hidden="true"></i> &nbsp;FG Inventory Adjustment
@@ -38,7 +38,7 @@
                                         <div class="row">
                                             <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                                                 <div class="form-group">
-                                                    <label for="serial_no">FGIT No</label>
+                                                    <label for="serial_no">FGIA No</label>
                                                     <div class="input-group">
                                                         <input type="text" class="form-control input-sm"
                                                                value="{{$serial_no}}" name="serial_no"
@@ -72,7 +72,7 @@
                                                            value="{{old('reference_no')}}" name="reference_no">
                                                 </div>
                                             </div>
-                                            <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+                                            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                                                 <div class="form-group">
                                                     <label for="date">Date</label>
                                                     <vuejs-datepicker v-model="date" name="date"
@@ -94,7 +94,7 @@
                         </div>
                         <div class="card card-info">
                             <div class="card-header">
-                                <h3 class="card-title">FGT Item Information</h3>
+                                <h3 class="card-title">FGIA Item Information</h3>
                                 <div class="card-tools">
 
                                 </div>
@@ -148,24 +148,23 @@
                                                 <hr>
                                                 <div class="table-responsive">
                                                     <table class="table table-bordered">
-                                                        <thead>
+                                                        <thead class="bg-secondary">
                                                         <tr>
-                                                            <th width="20"></th>
-                                                            <th>Group</th>
+                                                            <th style="width: 10px">#</th>
+                                                            <th style="width: 250px">Group</th>
                                                             <th>Item</th>
-                                                            <th>Unit</th>
-                                                            <th>Balance Qty</th>
-                                                            <th>Selling Price</th>
-                                                            <th width="180">Quantity</th>
-                                                            <th>Item total</th>
+                                                            <th style="width: 100px">Unit</th>
+                                                            <th style="width: 120px">Balance Qty</th>
+                                                            <th style="width: 120px">Selling Price</th>
+                                                            <th style="width: 180px">Quantity</th>
+                                                            <th style="width: 120px;vertical-align: middle">Value</th>
+                                                            <th style="width: 30px"></th>
                                                         </tr>
                                                         </thead>
                                                         <tbody>
                                                         <tr v-for="(row, index) in items">
                                                             <td>
-                                                                <button type="button" class="btn btn-danger"
-                                                                        @click="delete_row(row)"><i
-                                                                        class="fa fa-trash"></i></button>
+                                                                @{{ ++index }}
                                                             </td>
                                                             <td>
                                                                 @{{ row.group }}
@@ -203,22 +202,27 @@
                                                             <td class="text-right">
                                                                 @{{ item_total(row) }}
                                                             </td>
-
+                                                            <td>
+                                                                <button type="button" class="btn btn-danger"
+                                                                        @click="delete_row(row)"><i
+                                                                        class="fa fa-trash"></i></button>
+                                                            </td>
                                                         </tr>
 
                                                         </tbody>
                                                         <tfoot>
-
                                                         <tr>
-                                                            <td colspan="6">
-
-                                                            </td>
+                                                            <td colspan="9" style="background-color: #DDDCDC"></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td colspan="6"></td>
                                                             <td class="text-right">
                                                                 SubTotal
                                                             </td>
                                                             <td class="text-right">
                                                                 @{{subtotal}}
                                                             </td>
+                                                            <td class="text-right"></td>
                                                         </tr>
                                                         </tfoot>
                                                     </table>
