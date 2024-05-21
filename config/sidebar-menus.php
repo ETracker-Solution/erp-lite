@@ -91,6 +91,28 @@ return [
             'permissions' => ['purchase-admin', 'purchase-operator', 'purchase-viewer', 'purchase-approver']
         ],
         [
+            'name' => 'Requisition Module',
+            'icon' => 'fas fa-shopping-cart',
+            'active_condition' => false,
+            'has_child' => true,
+            'child' => [
+                [
+                    'name' => 'Requisition Entry',
+                    'url' => '#',
+                    'has_child' => true,
+                    'active_condition' => false,
+                    'child' => [
+                        [
+                            'name' => 'Create New Requisition',
+                            'url' => '/requisitions/create',
+                            'active_condition' => '',
+                        ]
+                    ],
+                ]
+            ],
+            'permissions' => ['purchase-admin', 'purchase-operator', 'purchase-viewer', 'purchase-approver']
+        ],
+        [
             'name' => 'Store RM Module',
             'icon' => 'fas fa-shopping-cart',
             'active_condition' => false,

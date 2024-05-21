@@ -51,8 +51,6 @@ class RequisitionController extends Controller
             'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'FG'])->get(),
             'stores' => Store::where(['type' => 'FG'])->get(),
             'serial_no' => $serial_no,
-            'customers' => Customer::where('status', 'active')->get(),
-
         ];
         return view('requisition.create', $data);
     }
@@ -65,10 +63,10 @@ class RequisitionController extends Controller
         try {
             DB::beginTransaction();
             $data = $request->validated();
-            $sale = Requisition::query()->create($data);
+            $requisition = Requisition::query()->create($data);
             $products = $request->get('products');
             foreach ($products as $row) {
-                $sale->items()->create($row);
+                $requisition->items()->create($row);
             }
             DB::commit();
             Toastr::success('Requisition Entry Successful!.', '', ["progressBar" => true]);
@@ -84,9 +82,10 @@ class RequisitionController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Requisition $requisition)
+    public function show($id)
     {
-        //
+        $requisition = Requisition::findOrFail(decrypt($id));
+        return view('requisition.show', compact('requisition'));
     }
 
     /**

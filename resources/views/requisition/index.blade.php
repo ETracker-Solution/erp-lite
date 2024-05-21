@@ -76,9 +76,15 @@
                     searchable: false,
                     orderable: false
                 },
+                {
+                        data: "date",
+                        title: "Date",
+                        searchable: true,
+                        "defaultContent":"Not Set"
+                    },
                     {
                         data: "invoice_number",
-                        title: "Invoice No",
+                        title: "UID No",
                         searchable: true,
                         "defaultContent":"Not Set"
                     },
@@ -89,25 +95,13 @@
                         "defaultContent":"Not Set"
                     },
                     {
-                        data: "discount",
-                        title: "Discount",
-                        searchable: true,
-                        "defaultContent":"Not Set"
-                    },
-                    {
-                        data: "grand_total",
-                        title: "Grand Total",
-                        searchable: true,
-                        "defaultContent":"Not Set"
-                    },
-                    {
                         data: "status",
                         title: "Status",
                         searchable: false, "defaultContent":"Not Set"
                     },
                     {
                         data: "created_at",
-                        title: "Date",
+                        title: "Created At",
                         searchable: true
                     },
                     {

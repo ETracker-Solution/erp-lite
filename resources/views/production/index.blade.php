@@ -78,32 +78,32 @@
                     searchable: false,
                     orderable: false
                 },
-
-                    {
-                        data: "subtotal",
-                        title: "Sub Total",
-                        searchable: true
-                    },
                     {
                         data: "batch.batch_no",
                         title: "Batch",
                         searchable: true,
-                        "defaultContent":"Not Set"
+                        "defaultContent": "Not Set"
                     }, {
-                        data: "rm_store.name",
-                        title: "Production Unit(RM Store)",
+                        data: "factory.name",
+                        title: "Production Unit(Factory)",
                         searchable: true,
-                        "defaultContent":"Not Set"
-                    },{
-                        data: "fg_store.name",
+                        "defaultContent": "Not Set"
+                    }, {
+                        data: "store.name",
                         title: "FG Store",
                         searchable: true,
-                        "defaultContent":"Not Set"
+                        "defaultContent": "Not Set"
                     },
 
                     {
                         data: "total_quantity",
                         title: "Total Quantity",
+                        searchable: true
+                    },
+
+                    {
+                        data: "subtotal",
+                        title: "Sub Total",
                         searchable: true
                     },
                     {

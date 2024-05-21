@@ -24,8 +24,8 @@ class UpdateProductionRequest extends FormRequest
     public function rules()
     {
         return [
-            'fg_store_id' => ['required'],
-            'rm_store_id' => ['required'],
+            'factory_id' => ['required'],
+            'store_id' => ['required'],
             'batch_id' => ['required'],
             'date' => ['required'],
             'status' => ['nullable'],

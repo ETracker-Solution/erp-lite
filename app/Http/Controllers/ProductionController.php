@@ -7,6 +7,7 @@ use App\Http\Requests\UpdateProductionRequest;
 use App\Models\AccountTransaction;
 use App\Models\Batch;
 use App\Models\ChartOfInventory;
+use App\Models\Factory;
 use App\Models\InventoryTransaction;
 use App\Models\Product;
 use App\Models\Production;
@@ -54,7 +55,7 @@ class ProductionController extends Controller
     public function index()
     {
         if (\request()->ajax()) {
-            $productions = Production::with('batch', 'rmStore', 'fgStore')->latest();
+            $productions = Production::with('batch', 'factory', 'store')->latest();
             return DataTables::of($productions)
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
@@ -84,8 +85,8 @@ class ProductionController extends Controller
         $data = [
             'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'FG'])->get(),
             'batches' => Batch::all(),
-            'rm_stores' => Store::where(['type' => 'RM'])->get(),
-            'fg_stores' => Store::where(['type' => 'FG'])->get(),
+            'factories' => Factory::query()->get(),
+            'stores' => Store::where(['type' => 'FG'])->get(),
             'serial_no' => $serial_no,
 
         ];
@@ -114,7 +115,7 @@ class ProductionController extends Controller
                 $production->items()->create($product);
                 // Inventory Transaction Effect
                 InventoryTransaction::query()->create([
-                    'store_id' => $production->fg_store_id,
+                    'store_id' => $production->store_id,
                     'doc_type' => 'FGP',
                     'doc_id' => $production->id,
                     'quantity' => $product['quantity'],
@@ -162,8 +163,8 @@ class ProductionController extends Controller
         $data = [
             'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'FG'])->get(),
             'batches' => Batch::all(),
-            'rm_stores' => Store::where(['type' => 'RM'])->get(),
-            'fg_stores' => Store::where(['type' => 'FG'])->get(),
+            'factories' => Factory::query()->get(),
+            'stores' => Store::where(['type' => 'FG'])->get(),
             'production' => Production::with('items')->find(decrypt($id))
 
         ];
