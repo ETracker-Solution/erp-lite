@@ -6,9 +6,15 @@
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <style>
+        @page {
+            header: page-header;
+            footer: page-footer;
+        }
+
         h4 {
             margin: 0;
         }
+
         p {
             font-size: 12px;
         }
@@ -16,6 +22,7 @@
         .w-full {
             width: 100%;
         }
+
         .margin-top {
             margin-top: 1rem;
         }
@@ -53,6 +60,7 @@
             padding: 0.5rem;
             border-bottom: 1px solid #dfdfdf;
         }
+
         .headers {
             text-align: center
         }
@@ -84,14 +92,12 @@
         @foreach($data as $key=>$item)
             <tr class="items">
                 @foreach($columns as $column)
-                    <td>{{ $item->$column }}</td>
-        @endforeach
-
+                    <td style="white-space: pre">{!!  str_replace(' ',"&nbsp;",$item->$column) !!}</td>
+                @endforeach
+            </tr>
         @endforeach
     </table>
 </div>
-<htmlpagefooter name="page-footer">
-    {PAGENO}
-</htmlpagefooter>
+@include('common.report_footer')
 </body>
 </html>

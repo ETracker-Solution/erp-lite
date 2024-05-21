@@ -1,6 +1,7 @@
 <?php
 
 
+use App\Models\ChartOfAccount;
 use Illuminate\Support\Facades\DB;
 
 
@@ -64,4 +65,23 @@ function getAccountsReceiveableGLId()
 function getFGInventoryGLId()
 {
     return 16;
+}
+
+function getIncomeFromSalesGLId()
+{
+    return 33;
+}
+
+function getCOGSGLId()
+{
+    return 43;
+}
+
+function getCashGLID()
+{
+    return 13;
+}
+
+function getAllLedgers(){
+    return ChartOfAccount::where('type','ledger')->select(DB::raw('id,name,CONCAT(id,". ",name, " (",root_account_type,")") as display_name'))->get();
 }

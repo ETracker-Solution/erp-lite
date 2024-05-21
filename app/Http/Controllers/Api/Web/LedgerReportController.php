@@ -47,7 +47,6 @@ class LedgerReportController extends Controller
         $getData = $this->ledgerReportQuery(\request()->account_id, $from_date, $to_date);
         $columns = array_keys((array)$getData[0]);
 
-
         $data = [
             'dateRange' => ' For the Period ' . $from_date . ' to ' . $to_date,
             'data' => $getData,
@@ -55,8 +54,9 @@ class LedgerReportController extends Controller
             'columns' => $columns,
             'report_header' => $report_header
         ];
+//        return view('common.report_main', $data);
         $pdf = Pdf::loadView(
-            'common.ledger_report_view', $data,
+            'common.report_main', $data,
             [],
             [
                 'format' => 'A4-L',

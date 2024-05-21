@@ -55,7 +55,7 @@ class RMInventoryReportController extends Controller
             'columns' => $columns,
             'report_header'=>$report_header
         ];
-        $pdf = Pdf::loadView('common.inventory_report_view', $data);
+        $pdf = Pdf::loadView('common.report_main', $data);
 //        return $pdf->stream();
         $pdf->stream();
     }

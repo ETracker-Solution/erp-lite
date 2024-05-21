@@ -32,7 +32,6 @@ class FinancialStatementReportController extends Controller
         $getData = DB::select($this->balanceSheetQuery($asOnDate));
         $columns = array_keys((array)$getData[0]);
 
-//        dd($getData);
         $data = [
             'dateRange' => 'as On  ' . $asOnDate,
             'data' => $getData,
@@ -40,8 +39,8 @@ class FinancialStatementReportController extends Controller
             'columns' => $columns,
             'report_header' => $report_header
         ];
-//        return view('common.accounts_report', $data);
-        $pdf = Pdf::loadView('common.accounts_report', $data);
+//        return view('common.report_main', $data);
+        $pdf = Pdf::loadView('common.report_main', $data);
         $pdf->stream();
     }
 
@@ -80,18 +79,12 @@ class FinancialStatementReportController extends Controller
 net_profit AS (
     SELECT
         32 AS id,
-    COALESCE((SELECT SUM(att.amount * att.transaction_type)
-              FROM account_transactions att
-              JOIN chart_of_accounts coa ON att.chart_of_account_id = coa.id
-              WHERE coa.root_account_type = 'in'
-              AND att.date <= '$as_on_date'
-              ), 0) -
-    COALESCE((SELECT SUM(att.amount * att.transaction_type)
-              FROM account_transactions att
-              JOIN chart_of_accounts coa ON att.chart_of_account_id = coa.id
-              WHERE coa.root_account_type = 'ex'
-              AND att.date <= '$as_on_date'
-              ), 0)
+coalesce((select SUM(att.transaction_type * att.amount) * -1 as profit
+from account_transactions att
+join chart_of_accounts COA
+on COA.id = att.chart_of_account_id
+AND COA.root_account_type in ('in','ex')
+AND att.date <= '$as_on_date'),0)
  AS amount
 ),
 
@@ -130,7 +123,7 @@ LEFT JOIN
 ORDER BY
     ah.path, ah.id
 )
-select account_name as Account, COALESCE(cumulative_balance ,0) as Balance from finalData
+select account_name as 'Account Head', COALESCE(cumulative_balance ,0) as Amount from finalData
 ORDER BY
     finalData.path
         ";

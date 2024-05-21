@@ -10,9 +10,13 @@ class SaleItem extends Model
     use HasFactory;
     protected $guarded = ['id'];
 
-    public function product(){
+    public function product(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Product::class);
+    }
 
-        return $this->belongsTo('App\Models\Product', 'product_id');
-
+    public function sale()
+    {
+        return $this->belongsTo(Sale::class,'sale_id');
     }
 }

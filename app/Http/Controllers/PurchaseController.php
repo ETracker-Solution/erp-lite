@@ -102,7 +102,7 @@ class PurchaseController extends Controller
 
             // Accounts Transaction Effect
 
-            addAccountsTransaction('GPB', $purchase, 13, 12);
+            addAccountsTransaction('GPB', $purchase, 15, 22);
 
             // Supplier Transaction Effect
             SupplierTransaction::query()->create([

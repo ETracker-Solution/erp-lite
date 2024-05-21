@@ -15,13 +15,11 @@ class CreateSaleItemsTable extends Migration
     {
         Schema::create('sale_items', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('product_id')->references('id')->on('products')->onDelete('cascade');
-            $table->double('sale_price', 16, 2);
+            $table->integer('product_id');
+            $table->double('unit_price', 16, 2);
             $table->double('quantity', 16, 2);
             $table->double('discount', 16, 2)->nullable();
             $table->foreignId('sale_id')->references('id')->on('sales')->onDelete('cascade');
-            $table->string('batch_number', 50)->nullable();
-            $table->softDeletes();
             $table->timestamps();
         });
     }
