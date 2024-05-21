@@ -1,6 +1,6 @@
 @extends('layouts.app')
 @section('title')
-Purchase List
+FG Inventory Transfer Details
 @endsection
 @section('content')
 <!-- Content Wrapper. Contains page content -->
@@ -9,12 +9,12 @@ Purchase List
     <div class="container-fluid">
         <div class="row mb-2">
             <div class="col-sm-6">
-                <h1>Invoice</h1>
+                <h1>FG Inventory Transfer</h1>
             </div>
             <div class="col-sm-6">
                 <ol class="breadcrumb float-sm-right">
                     <li class="breadcrumb-item"><a href="#">Home</a></li>
-                    <li class="breadcrumb-item active">Invoice</li>
+                    <li class="breadcrumb-item active">FG Inventory Transfer</li>
                 </ol>
             </div>
         </div>
@@ -49,13 +49,13 @@ Purchase List
                             </address>
                         </div>
                         <!-- /.col -->
-                        <div class="col-sm-4 invoice-col">
+                        {{-- <div class="col-sm-4 invoice-col">
                             <td>Customer:</td>
-                        </div>
+                        </div> --}}
                         <!-- /.col -->
-                        <div class="col-sm-4 invoice-col">
+                        {{-- <div class="col-sm-4 invoice-col">
                             <b>Invoice:</b>
-                        </div>
+                        </div> --}}
                         <!-- /.col -->
                     </div>
                     <!-- /.row -->
@@ -67,7 +67,9 @@ Purchase List
                                 <thead>
                                     <tr>
                                         <th>#</th>
-                                        <th>Chart of Inventory</th>
+                                        <th>Group</th>
+                                        <th>Name</th>
+                                        <th>Unit</th>
                                         <th>Price</th>
                                         <th>Quantity</th>
                                     </tr>
@@ -76,7 +78,9 @@ Purchase List
                                     @foreach ($items as $item)
                                     <tr>
                                         <td>{{ $loop->iteration }}</td>
-                                        <td>{{ $item->coi->name ?? '' }}</td>
+                                        <td>{{ $item->coi->parent ? $item->coi->parent->name : '' }}</td>
+                                        <td>{{ $item->coi ? $item->coi->name : '' }}</td>
+                                        <td>{{ $item->coi->unit->name }}</td>
                                         <td>{{ $item->rate ?? '' }}</td>
                                         <td>{{ $item->quantity ?? '' }}</td>
                                     </tr>
@@ -93,51 +97,8 @@ Purchase List
                         <div class="col-8">
 
                         </div>
-                        <!-- /.col -->
-                        <div class="col-4">
-                            <div class="table-responsive">
-                                <table class="table">
-                                    <tr>
-                                        <th style="width:50%">Subtotal:</th>
-                                        <td>{{ $fGInventoryTransfer->date }} TK</td>
-                                    </tr>
-                                    <tr>
-                                        <th>Shipping:</th>
-                                        <td>{{ $fGInventoryTransfer->subtotal }} TK</td>
-                                    </tr>
-                                    <tr>
-                                        <th>Discount:</th>
-                                        <td>{{ $fGInventoryTransfer->discount }} TK</td>
-                                    </tr>
-                                    <tr>
-                                        <th>Total:</th>
-                                        <td>{{ $fGInventoryTransfer->grandtotal }} TK</td>
-                                    </tr>
-                                    <tr>
-                                        <th>Receive Amount:</th>
-                                        <td>{{ $fGInventoryTransfer->receive_amount }} TK</td>
-                                    </tr>
-                                    <tr>
-                                        <th>Change Amount:</th>
-                                        <td>{{ $fGInventoryTransfer->change_amount }} TK</td>
-                                    </tr>
-                                </table>
-                            </div>
-                        </div>
-                        <!-- /.col -->
                     </div>
                     <!-- /.row -->
-
-                    <!-- this row will not appear when printing -->
-                    <div class="row no-print">
-                        <div class="col-12">
-                            <a href="{{ route('sale.pdf', $fGInventoryTransfer->id) }}" target="_blank" class="btn btn-default float-right">
-                                <i class="fas fa-print"></i> Print</a>
-                            <a href="{{ route('sale.pdf-download', $fGInventoryTransfer->id) }}" class="btn btn-primary float-right">
-                                <i class="fas fa-download"></i> Generate PDF</a>
-
-                        </div>
-                    </div>
                 </div>
                 <!-- /.invoice -->
             </div><!-- /.col -->
