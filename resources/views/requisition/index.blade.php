@@ -83,7 +83,7 @@
                         "defaultContent":"Not Set"
                     },
                     {
-                        data: "invoice_number",
+                        data: "uid",
                         title: "UID No",
                         searchable: true,
                         "defaultContent":"Not Set"
