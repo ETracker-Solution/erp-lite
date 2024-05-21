@@ -84,9 +84,10 @@ class RequisitionController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Requisition $requisition)
+    public function show($id)
     {
-        //
+        $requisition = Requisition::findOrFail(decrypt($id));
+        return view('requisition.show', compact('requisition'));
     }
 
     /**
