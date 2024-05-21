@@ -1,15 +1,15 @@
 @extends('layouts.app')
 @section('title')
-    Requisition List
+    Finish Goods Inventory Transfer List
 @endsection
 @section('content')
     @php
         $links = [
         'Home'=>route('dashboard'),
-        'Requisition list'=>''
+        'Finish Goods Inventory Transfer list'=>''
         ]
     @endphp
-    <x-breadcrumb title='Requisition' :links="$links"/>
+    <x-breadcrumb title='Finish Goods Inventory Transfer' :links="$links"/>
 
     <!-- Main content -->
     <section class="content">
@@ -19,11 +19,11 @@
                 <div class="col-12">
                     <div class="card card-info">
                         <div class="card-header">
-                            <h3 class="card-title">Requisition List</h3>
+                            <h3 class="card-title">Finish Goods Inventory Transfer List</h3>
                             <div class="card-tools">
-                                <a href="{{route('requisitions.create')}}">
+                                <a href="{{route('finish-goods-inventory-transfers.create')}}">
                                     <button class="btn btn-sm btn-primary"><i class="fa fa-plus-circle"
-                                                                              aria-hidden="true"></i> &nbsp;Add Requisition
+                                                                              aria-hidden="true"></i> &nbsp;Add New
                                     </button>
                                 </a>
                             </div>
@@ -67,7 +67,7 @@
                 serverSide: true,
                 processing: true,
                 ajax: {
-                    url: "{{ route('requisitions.index') }}",
+                    url: "{{ route('finish-goods-inventory-transfers.index') }}",
                 },
                 columns: [{
                     data: "DT_RowIndex",
@@ -77,26 +77,26 @@
                     orderable: false
                 },
                     {
-                        data: "invoice_number",
-                        title: "Invoice No",
+                        data: "date",
+                        title: "Date",
                         searchable: true,
                         "defaultContent":"Not Set"
                     },
                     {
-                        data: "subtotal",
-                        title: "Sub Total",
+                        data: "uid",
+                        title: "UID",
                         searchable: true,
                         "defaultContent":"Not Set"
                     },
                     {
-                        data: "discount",
-                        title: "Discount",
+                        data: "from_store.name",
+                        title: "From Store",
                         searchable: true,
                         "defaultContent":"Not Set"
                     },
                     {
-                        data: "grand_total",
-                        title: "Grand Total",
+                        data: "to_store.name",
+                        title: "To Store",
                         searchable: true,
                         "defaultContent":"Not Set"
                     },
@@ -107,7 +107,7 @@
                     },
                     {
                         data: "created_at",
-                        title: "Date",
+                        title: "Created At",
                         searchable: true
                     },
                     {

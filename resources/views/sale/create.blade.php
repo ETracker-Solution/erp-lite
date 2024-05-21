@@ -1,6 +1,6 @@
 @extends('layouts.app')
 @section('title')
-    Sale
+    Sale Entry
 @endsection
 @section('content')
     <!-- Content Header (Page header) -->

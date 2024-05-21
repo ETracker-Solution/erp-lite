@@ -8,4 +8,11 @@ use Illuminate\Database\Eloquent\Model;
 class FGInventoryTransferItem extends Model
 {
     use HasFactory;
+    protected $guarded = ['id'];
+
+ public function coi(){
+    
+    return $this->belongsTo('App\Models\ChartOfInventory', 'coi_id');
+
+    }
 }

@@ -23,11 +23,11 @@ class StoreFGInventoryTransferRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'store_id' => 'required',
+            'to_store_id' => ['required', 'different:from_store_id'],
+            'from_store_id' => ['required','different:to_store_id'],
             'products' => 'array',
             'date' => 'required',
             'reference_no' => 'nullable',
-            'subtotal' => 'required',
             'remark' => 'nullable',
             'created_by' => 'required',
         ];
@@ -41,5 +41,12 @@ class StoreFGInventoryTransferRequest extends FormRequest
             'date' => Carbon::parse($this->date)->format('Y-m-d'),
         ]);
 
+    }
+    public function messages()
+    {
+        return [
+            'from_store_id.different' => 'Transfer must be Different Store',
+            'from_store_id.different' => 'Transfer Can not be Null',
+        ];
     }
 }

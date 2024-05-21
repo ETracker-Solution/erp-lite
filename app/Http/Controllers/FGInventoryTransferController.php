@@ -7,8 +7,12 @@ use App\Http\Requests\UpdateFGInventoryTransferRequest;
 use App\Models\ChartOfInventory;
 use App\Models\Customer;
 use App\Models\FGInventoryTransfer;
+use App\Models\FGInventoryTransferItem;
 use App\Models\Requisition;
 use App\Models\Store;
+use Brian2694\Toastr\Facades\Toastr;
+use Illuminate\Support\Facades\DB;
+use Yajra\DataTables\Facades\DataTables;
 
 class FGInventoryTransferController extends Controller
 {
@@ -17,7 +21,20 @@ class FGInventoryTransferController extends Controller
      */
     public function index()
     {
-        //
+        $fGInventoryTransfers = FGInventoryTransfer::with('toStore','fromStore')->latest();
+        if (\request()->ajax()) {
+            return DataTables::of($fGInventoryTransfers)
+                ->addIndexColumn()
+                ->addColumn('action', function ($row) {
+                    return view('finish_goods_inventory_transfer.action', compact('row'));
+                })
+                ->addColumn('created_at', function ($row) {
+                    return view('common.created_at', compact('row'));
+                })
+                ->rawColumns(['action', 'amount_info'])
+                ->make(true);
+        }
+        return view('finish_goods_inventory_transfer.index');
     }
 
     /**
@@ -41,15 +58,36 @@ class FGInventoryTransferController extends Controller
     public function store(StoreFGInventoryTransferRequest $request)
     {
         $data = $request->validated();
-        dd($data);
+        DB::beginTransaction();
+        try {
+            $fGInventoryTransfer = FGInventoryTransfer::create($data);
+            foreach ($data['products'] as $product) {
+                // FG Inventory Transfer Effect
+                FGInventoryTransferItem::query()->create([
+                    'f_g_inventory_transfer_id' => $fGInventoryTransfer->id,
+                    'quantity' => $product['quantity'],
+                    'rate' => $product['rate'],
+                    'coi_id' => $product['coi_id'],
+                ]);
+            }
+            DB::commit();
+        } catch (\Exception $error) {
+            DB::rollBack();
+            Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
+            return back();
+        }
+        Toastr::success('Member Point Created Successfully!.', '', ["progressBar" => true]);
+        return redirect()->route('finish-goods-inventory-transfers.index');
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(FGInventoryTransfer $fGInventoryTransfer)
+    public function show($id)
     {
-        //
+        $items = FGInventoryTransferItem::where('f_g_inventory_transfer_id', $id)->get();
+        $fGInventoryTransfer = FGInventoryTransfer::with('toStore','fromStore')->find($id);
+        return view('finish_goods_inventory_transfer.show', compact('fGInventoryTransfer','items'));
     }
 
     /**
