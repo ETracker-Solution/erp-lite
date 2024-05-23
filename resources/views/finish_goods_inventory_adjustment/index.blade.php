@@ -23,7 +23,7 @@
                             <div class="card-tools">
                                 <a href="{{route('fg-inventory-adjustments.create')}}">
                                     <button class="btn btn-sm btn-primary"><i class="fa fa-plus-circle"
-                                                                              aria-hidden="true"></i> &nbsp;Add Requisition
+                                                                              aria-hidden="true"></i> &nbsp;Add Inventory Adjustment
                                     </button>
                                 </a>
                             </div>

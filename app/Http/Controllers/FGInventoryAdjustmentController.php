@@ -75,7 +75,7 @@ class FGInventoryAdjustmentController extends Controller
             Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
             return back();
         }
-        Toastr::success('Member Point Created Successfully!.', '', ["progressBar" => true]);
+        Toastr::success('FG Inventory Adjustment Created Successfully!.', '', ["progressBar" => true]);
         return redirect()->route('fg-inventory-adjustments.index');
     }
 
@@ -84,7 +84,7 @@ class FGInventoryAdjustmentController extends Controller
      */
     public function show($id)
     {
-        
+
         $fGInventoryAdjustment = FGInventoryAdjustment::findOrFail(decrypt($id));
         $items = FGInventoryAdjustmentItem::where('fg_inventory_adjust_id',decrypt($id))->get();
         return view('finish_goods_inventory_adjustment.show', compact('fGInventoryAdjustment', 'items'));
