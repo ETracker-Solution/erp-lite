@@ -86,7 +86,7 @@ class ProductionController extends Controller
             'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'FG'])->get(),
             'batches' => Batch::all(),
             'factories' => Factory::query()->get(),
-            'stores' => Store::where(['type' => 'FG'])->get(),
+            'stores' => Store::where(['type' => 'FG','doc_type'=>'factory'])->get(),
             'serial_no' => $serial_no,
 
         ];
@@ -164,7 +164,7 @@ class ProductionController extends Controller
             'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'FG'])->get(),
             'batches' => Batch::all(),
             'factories' => Factory::query()->get(),
-            'stores' => Store::where(['type' => 'FG'])->get(),
+            'stores' => Store::where(['type' => 'FG','doc_type'=>'factory'])->get(),
             'production' => Production::with('items')->find(decrypt($id))
 
         ];

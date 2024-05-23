@@ -368,7 +368,19 @@ return [
                             'active_condition' => '',
                         ]
                     ],
-                ]
+                ],
+                [
+                    'name' => 'Create Factory',
+                    'url' => '/factories',
+                    'has_child' => false,
+                    'active_condition' => false,
+                ],
+                [
+                    'name' => 'Create Outlet',
+                    'url' => '/outlets',
+                    'has_child' => false,
+                    'active_condition' => false,
+                ],
             ],
             'permissions' => ['data-admin-admin', 'data-admin-operator', 'data-admin-viewer', 'data-admin-approver']
         ],

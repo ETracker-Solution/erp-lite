@@ -7,6 +7,7 @@ use App\Http\Requests\UpdateEmployeeRequest;
 use App\Models\Department;
 use App\Models\Designation;
 use App\Models\Employee;
+use App\Models\Factory;
 use App\Models\Outlet;
 use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Support\Facades\DB;
@@ -43,7 +44,8 @@ class EmployeeController extends Controller
         $designations = Designation::all();
         $departments = Department::all();
         $outlets = Outlet::all();
-        return view('employee.create',compact('designations','departments','outlets'));
+        $factories = Factory::all();
+        return view('employee.create',compact('designations','departments','outlets','factories'));
     }
 
     /**

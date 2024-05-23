@@ -24,7 +24,8 @@ class StoreStoreRequest extends FormRequest
         return [
             'name' => 'required',
             'type' => 'required',
-            'outlet_id' => 'required',
+            'doc_type' => 'required',
+            'doc_id' => 'nullable',
             'created_by' => 'required',
         ];
     }

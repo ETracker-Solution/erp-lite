@@ -47,15 +47,6 @@
                                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                     <x-forms.password label="Retype Password" inputName="password_confirmation" placeholder="Enter Password" :isRequired='true'  :isReadonly='false' defaultValue=""/>
                                 </div>
-                                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                    <label for="employee_id">Outlet ID</label>
-                                    <select name="outlet_id" id="outlet_id" class="form-control select2">
-                                        <option value="" selected>Select Outlet</option>
-                                        @foreach($outlets as $outlet)
-                                            <option value="{{ $outlet }}">{{ $outlet->id . ' - '. $outlet->name }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
                             </div>
 
                         </div>

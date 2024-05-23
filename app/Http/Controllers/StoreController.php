@@ -18,7 +18,8 @@ class StoreController extends Controller
     public function index()
     {
         $outlets = Outlet::all();
-        $serial_count = Store::latest()->first() ? Store::latest()->first()->id : 0;
+        $factories = Outlet::all();
+        $serial_count = Store::first() ? Store::max('id') : 0;
         $serial_no = $serial_count + 1;
         $stores = Store::all();
         if (\request()->ajax()) {
@@ -36,7 +37,7 @@ class StoreController extends Controller
                 ->rawColumns(['action'])
                 ->make(true);
         }
-        return view('store.index',compact('serial_no','outlets'));
+        return view('store.index',compact('serial_no','outlets','factories'));
     }
 
     /**

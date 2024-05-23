@@ -806,7 +806,15 @@
                     vm.selectedOnHoldOrderToPos = holdOrder
                     vm.selectedProducts = holdOrder.items
                     this.closeOnHoldOrderModal()
-                }
+                },
+                openPreOrderModal() {
+                    var vm = this
+                    vm.$refs['pre-order-modal'].show()
+                },
+                closePreOrderModal() {
+                    var vm = this
+                    vm.$refs['pre-order-modal'].hide()
+                },
                 // checkPointInput(){
                 //     if (this.)
                 // }

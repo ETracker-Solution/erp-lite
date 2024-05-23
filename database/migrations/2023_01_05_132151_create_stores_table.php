@@ -16,7 +16,8 @@ return new class extends Migration
             $table->string('name');
             $table->enum('type', ['BP', 'FG', 'RM','WIP']);
             $table->enum('status', ['pending', 'inactive', 'active'])->default('active');
-            $table->unsignedInteger('outlet_id')->nullable();
+            $table->string('doc_type')->nullable();
+            $table->unsignedInteger('doc_id')->nullable();
             $table->foreignId('created_by')->nullable()->constrained('users')->onDelete('set null');
             $table->foreignId('updated_by')->nullable()->constrained('users')->onDelete('set null');
             $table->timestamps();

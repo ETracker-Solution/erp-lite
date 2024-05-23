@@ -29,11 +29,13 @@ return new class extends Migration
             $table->string('email');
             $table->string('personal_email')->nullable();
             $table->string('phone');
+            $table->string('user_of')->nullable();
             $table->string('alternative_phone')->nullable();
             $table->foreignId('department_id')->nullable()->constrained('departments')->onDelete('set null');
             $table->foreignId('designation_id')->nullable()->constrained('designations')->onDelete('set null');
             $table->foreignId('outlet_id')->nullable()->constrained('outlets')->onDelete('set null');
-            $table->double('sallery', 8, 2);
+            $table->foreignId('factory_id')->nullable();
+            $table->double('salary', 8, 2);
             $table->date('joining_date');
             $table->date('confirm_date');
             $table->string('status');
