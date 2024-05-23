@@ -41,38 +41,41 @@
                                         <div class="row">
                                             <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                                                 <div class="form-group">
-                                                    <label for="customer_id">Customer</label>
-                                                    <select name="customer_id" id="customer_id"
-                                                            class="form-control bSelect" v-model="customer_id">
-                                                        <option value="">Select One</option>
-                                                        @foreach($customers as $customer)
-                                                            <option
-                                                                value="{{ $customer->id }}">{{ $customer->name }}</option>
-                                                        @endforeach
-                                                    </select>
+                                                    <label for="customer_id">Customer Number</label>
+                                                    <input type="text" class="form-control" placeholder="Enter Customer Number" v-model="customerNumber"
+                                                           @keydown.enter="getCustomerInfo" name="customer_number">
+{{--                                                    <select name="customer_id" id="customer_id"--}}
+{{--                                                            class="form-control bSelect" v-model="customer_id">--}}
+{{--                                                        <option value="">Select One</option>--}}
+{{--                                                        @foreach($customers as $customer)--}}
+{{--                                                            <option--}}
+{{--                                                                value="{{ $customer->id }}">{{ $customer->name }}</option>--}}
+{{--                                                        @endforeach--}}
+{{--                                                    </select>--}}
                                                 </div>
                                             </div>
                                             <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                                                 <div class="form-group">
-                                                    <label for="store_id">Store</label>
-                                                    <select name="store_id" id="store_id"
-                                                            class="form-control bSelect"
-                                                            v-model="store_id" required>
-                                                        <option value="">Select One</option>
-                                                        @foreach($stores as $row)
-                                                            <option
-                                                                value="{{ $row->id }}">{{ $row->name }}</option>
-                                                        @endforeach
-                                                    </select>
+                                                    <label for="store_id">Customer Name</label>
+                                                    <input type="text" v-model="customer.name" class="form-control" disabled>
+{{--                                                    <select name="store_id" id="store_id"--}}
+{{--                                                            class="form-control bSelect"--}}
+{{--                                                            v-model="store_id" required>--}}
+{{--                                                        <option value="">Select One</option>--}}
+{{--                                                        @foreach($stores as $row)--}}
+{{--                                                            <option--}}
+{{--                                                                value="{{ $row->id }}">{{ $row->name }}</option>--}}
+{{--                                                        @endforeach--}}
+{{--                                                    </select>--}}
                                                 </div>
                                             </div>
-                                            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                                                <div class="form-group">
-                                                    <label for="remark">Remark</label>
-                                                    <textarea class="form-control" name="remark" rows="1"
-                                                              placeholder="Enter Remark"></textarea>
-                                                </div>
-                                            </div>
+{{--                                            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">--}}
+{{--                                                <div class="form-group">--}}
+{{--                                                    <label for="remark">Remark</label>--}}
+{{--                                                    <textarea class="form-control" name="remark" rows="1"--}}
+{{--                                                              placeholder="Enter Remark"></textarea>--}}
+{{--                                                </div>--}}
+{{--                                            </div>--}}
                                         </div>
                                         <div class="row">
                                             <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
@@ -309,6 +312,7 @@
 
                         get_items_info_by_group_id_url: "{{ url('fetch-items-by-group-id') }}",
                         get_product_info_url: "{{ url('fetch-item-by-id-for-sale') }}",
+                        get_customer_url: "{{ url('pos-customer-by-number') }}",
                     },
                     customer_id: '',
                     store_id: '',
@@ -323,6 +327,8 @@
                     product_discount: 0,
                     receive_amount: 0,
                     selling_price: 0,
+                    customerNumber: '',
+                    customer: {},
 
                 },
                 computed: {
@@ -388,12 +394,13 @@
 
                                     product_details = response.data;
                                     vm.items.push({
-                                        item_id: product_details.item_id,
+                                        item_id: vm.item_id,
                                         group: product_details.group,
-                                        product_name: product_details.product_name,
+                                        product_name: product_details.name,
                                         unit: product_details.unit,
-                                        stock: product_details.stock,
-                                        price: product_details.sale_price,
+                                        stock: product_details.balance_qty,
+                                        price: product_details.price,
+                                        sale_price: product_details.price,
                                         quantity: '',
                                         product_discount: 0,
                                         subtotal: 0,
@@ -443,6 +450,26 @@
                             //console.log('3');
                             index.quantity = '';
                         }
+                    },
+                    getCustomerInfo() {
+                        var vm = this;
+                        vm.customer = {}
+                        axios.get(this.config.get_customer_url, {
+                            params: {
+                                number: this.customerNumber
+                            }
+                        }).then(function (response) {
+                            vm.customer = (response.data);
+                            if(vm.customer.name){
+                                vm.customer.name = vm.customer.name + '  (' + vm.customer.current_point+ '  point)'
+                            }
+                        }).catch(function (error) {
+                            toastr.error(error, {
+                                closeButton: true,
+                                progressBar: true,
+                            });
+                            return false;
+                        });
                     },
 
                 },
