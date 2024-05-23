@@ -195,6 +195,10 @@ Route::middleware('auth')->group(function () {
     Route::resource('fg-inventory-adjustments', \App\Http\Controllers\FGInventoryAdjustmentController::class);
     /*=========== Finish Goods Inventory Adjustment Ends ===========*/
 
+    /*=========== Finish Goods Inventory Adjustment Starts ===========*/
+    Route::resource('rm-requisitions', \App\Http\Controllers\RMRequisitionController::class);
+    /*=========== Finish Goods Inventory Adjustment Ends ===========*/
+
 
     /*=========== General ledger Opening Balance Api Starts ===========*/
     Route::get('general-ledger-opening-balances-list', [\App\Http\Controllers\Api\Web\GLOpeningBalanceController::class, 'list']);

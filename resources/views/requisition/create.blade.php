@@ -1,16 +1,16 @@
 @extends('layouts.app')
 @section('title')
-    Requisition
+   FG Requisition
 @endsection
 @section('content')
     <!-- Content Header (Page header) -->
     @php
         $links = [
         'Home'=>route('dashboard'),
-        'Requisition list'=>''
+        'FG Requisition list'=>''
         ]
     @endphp
-    <x-breadcrumb title='Requisition Entry' :links="$links"/>
+    <x-breadcrumb title='FG Requisition Entry' :links="$links"/>
     <!-- Main content -->
     <section class="content">
         <div class="container-fluid">
@@ -26,7 +26,7 @@
                                 <h3 class="card-title">Requisition Entry</h3>
                                 <div class="card-tools">
                                     <a href="{{route('requisitions.index')}}" class="btn btn-sm btn-primary">
-                                            <i class="fa fa-list" aria-hidden="true"></i> &nbsp;Requisition List
+                                            <i class="fa fa-list" aria-hidden="true"></i> &nbsp;FG Requisition List
                                     </a>
                                 </div>
                             </div>
@@ -36,7 +36,7 @@
                                         <div class="row">
                                             <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                                 <div class="form-group">
-                                                    <label for="requisition_no">Requisition No</label>
+                                                    <label for="requisition_no">FGR No</label>
                                                     <div class="input-group">
                                                         <input type="text" class="form-control input-sm"
                                                                value="{{$serial_no}}" name="serial_no"

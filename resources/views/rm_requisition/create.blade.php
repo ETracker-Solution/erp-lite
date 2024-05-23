@@ -1,79 +1,53 @@
 @extends('layouts.app')
 @section('title')
-    FG Inventory Adjustment
+   RM Requisition
 @endsection
 @section('content')
     <!-- Content Header (Page header) -->
     @php
         $links = [
         'Home'=>route('dashboard'),
-        'FG Inventory Adjustment list'=>''
+        'RM Requisition list'=>''
         ]
     @endphp
-    <x-breadcrumb title='FG Inventory Adjustment Entry' :links="$links"/>
+    <x-breadcrumb title='RM Requisition Entry' :links="$links"/>
     <!-- Main content -->
     <section class="content">
         <div class="container-fluid">
             <div class="row" id="vue_app">
-                <span v-if="pageLoading" class="pageLoader">
-                    <img src="{{ asset('loading.gif') }}" alt="loading">
-                </span>
+                  <span v-if="pageLoading" class="pageLoader">
+                            <img src="{{ asset('loading.gif') }}" alt="loading">
+                        </span>
                 <div class="col-lg-12 col-md-12">
-                    <form action="{{ route('fg-inventory-adjustments.store') }}" method="POST" class="">
+                    <form action="{{ route('rm-requisitions.store') }}" method="POST" class="">
                         @csrf
-                        <div class="card card-info">
-                            <div class="card-header">
-                                <h3 class="card-title">FG Inventory Adjustment(FGIA) Entry </h3>
+                        <div class="card">
+                            <div class="card-header bg-info">
+                                <h3 class="card-title">RM Requisition Entry</h3>
                                 <div class="card-tools">
-                                    <a class="btn btn-sm btn-primary"
-                                       href="{{route('fg-inventory-adjustments.index')}}">
-                                        <i class="fa fa-list" aria-hidden="true"></i> &nbsp;FG Inventory Adjustment
-                                        List
+                                    <a href="{{route('rm-requisitions.index')}}" class="btn btn-sm btn-primary">
+                                            <i class="fa fa-list" aria-hidden="true"></i> &nbsp;RM Requisition List
                                     </a>
                                 </div>
                             </div>
                             <div class="card-body">
                                 <div class="card-box">
-                                    <hr>
                                     <div id="">
                                         <div class="row">
-                                            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                                            <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                                 <div class="form-group">
-                                                    <label for="serial_no">FGIA No</label>
+                                                    <label for="requisition_no">RMR No</label>
                                                     <div class="input-group">
                                                         <input type="text" class="form-control input-sm"
                                                                value="{{$serial_no}}" name="serial_no"
-                                                               id="serial_no">
+                                                               id="serial_no" v-model="serial_no">
                                                         <span class="input-group-append">
-                                                                    <button type="button"
-                                                                            class="btn btn-info btn-flat">Search</button>
-                                                                </span>
+                                                                    <button type="button" class="btn btn-info btn-flat">Search</button>
+                                                        </span>
                                                     </div>
                                                 </div>
                                             </div>
-
-                                            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                                                <div class="form-group">
-                                                    <label for="store_id">Store</label>
-                                                    <select name="store_id" id="store_id"
-                                                            class="form-control bSelect"
-                                                            v-model="store_id" required>
-                                                        <option value="">Select One</option>
-                                                        @foreach($stores as $row)
-                                                            <option
-                                                                value="{{ $row->id }}">{{ $row->name }}</option>
-                                                        @endforeach
-                                                    </select>
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                                                <div class="form-group">
-                                                    <label for="reference_no">Reference No</label>
-                                                    <input type="text" class="form-control input-sm"
-                                                           value="{{old('reference_no')}}" name="reference_no">
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                                            <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                                 <div class="form-group">
                                                     <label for="date">Date</label>
                                                     <vuejs-datepicker v-model="date" name="date"
@@ -81,18 +55,19 @@
                                                                       format="yyyy-MM-dd"></vuejs-datepicker>
                                                 </div>
                                             </div>
-                                            <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
+                                            <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                                 <div class="form-group">
-                                                    <label for="transaction_type">Transaction Type</label>
-                                                    <select name="transaction_type" id="transaction_type"
-                                                            class="form-control bSelect" v-model="transaction_type">
-                                                        <option value="">Select one</option>
-                                                        <option value="1">Increase</option>
-                                                        <option value="-1">Decrease</option>
+                                                    <label for="store_id">Store</label>
+                                                    <select name="store_id" id="store_id" class="form-control bSelect"
+                                                            v-model="store_id" required>
+                                                        <option value="">Select One</option>
+                                                        @foreach($stores as $row)
+                                                            <option value="{{ $row->id }}">{{ $row->name }}</option>
+                                                        @endforeach
                                                     </select>
                                                 </div>
                                             </div>
-                                            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                                            <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                                 <div class="form-group">
                                                     <label for="remark">Remark</label>
                                                     <textarea class="form-control" name="remark" rows="1"
@@ -104,14 +79,13 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="card card-info">
-                            <div class="card-header">
-                                <h3 class="card-title">FGIA Item Information</h3>
+                        <div class="card">
+                            <div class="card-header bg-info">
+                                <h3 class="card-title">Requisition Line Item</h3>
                                 <div class="card-tools">
 
                                 </div>
                             </div>
-
                             <div class="card-body">
                                 <div class="card-box">
                                     <div id="">
@@ -132,8 +106,8 @@
                                             <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
                                                 <div class="form-group">
                                                     <label for="item_id">Item</label>
-                                                    <select name="item_id" id="item_id"
-                                                            class="form-control bSelect" v-model="item_id">
+                                                    <select name="item_id" id="item_id" class="form-control bSelect"
+                                                            v-model="item_id">
                                                         <option value="">Select one</option>
 
                                                         <option :value="row.id" v-for="row in products"
@@ -156,7 +130,6 @@
                                             <br>
 
                                             <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-
                                                 <hr>
                                                 <div class="table-responsive">
                                                     <table class="table table-bordered">
@@ -178,43 +151,42 @@
                                                             <td>
                                                                 @{{ ++index }}
                                                             </td>
-                                                            <td>
+                                                            <td style="vertical-align: middle">
                                                                 @{{ row.group }}
                                                             </td>
-                                                            <td>
+                                                            <td style="vertical-align: middle">
                                                                 <input type="hidden"
                                                                        :name="'products['+index+'][coi_id]'"
                                                                        class="form-control input-sm"
                                                                        v-bind:value="row.coi_id">
                                                                 @{{ row.name }}
                                                             </td>
-                                                            <td>
+                                                            <td style="vertical-align: middle">
                                                                 @{{ row.unit }}
                                                             </td>
-                                                            <td class="text-right">
+                                                            <td style="vertical-align: middle" class="text-right">
                                                                 @{{ row.balance_qty }}
                                                                 <input type="hidden"
                                                                        :name="'products['+index+'][balance_qty]'"
                                                                        class="form-control input-sm"
                                                                        v-bind:value="row.balance_qty" readonly>
                                                             </td>
-                                                            <td class="text-right">
+                                                            <td style="vertical-align: middle" class="text-right">
                                                                 @{{ row.price }}
-                                                                <input type="hidden"
-                                                                       :name="'products['+index+'][rate]'"
+                                                                <input type="hidden" :name="'products['+index+'][rate]'"
                                                                        class="form-control input-sm"
                                                                        v-bind:value="row.price" readonly>
                                                             </td>
-                                                            <td class="text-right">
+                                                            <td style="vertical-align: middle" class="text-right">
                                                                 <input type="number" v-model="row.quantity"
                                                                        :name="'products['+index+'][quantity]'"
                                                                        class="form-control input-sm"
                                                                        @change="valid(row);item_total(row)" required>
                                                             </td>
-                                                            <td class="text-right">
+                                                            <td style="vertical-align: middle" class="text-right">
                                                                 @{{ item_total(row) }}
                                                             </td>
-                                                            <td>
+                                                            <td style="vertical-align: middle">
                                                                 <button type="button" class="btn btn-danger"
                                                                         @click="delete_row(row)"><i
                                                                         class="fa fa-trash"></i></button>
@@ -224,25 +196,30 @@
                                                         </tbody>
                                                         <tfoot>
                                                         <tr>
-                                                            <td colspan="9" style="background-color: #DDDCDC"></td>
+                                                            <td colspan="9" style="background-color: #DDDCDC">
+
+                                                            </td>
                                                         </tr>
                                                         <tr>
-                                                            <td colspan="6"></td>
+                                                            <td colspan="6">
+
+                                                            </td>
                                                             <td class="text-right">
                                                                 SubTotal
                                                             </td>
                                                             <td class="text-right">
                                                                 @{{subtotal}}
+                                                                <input type="hidden" :name="'subtotal'"
+                                                                       class="form-control input-sm"
+                                                                       v-bind:value="subtotal" readonly>
                                                             </td>
-                                                            <td class="text-right"></td>
+                                                            <td></td>
                                                         </tr>
                                                         </tfoot>
                                                     </table>
                                                 </div>
                                             </div>
                                         </div>
-
-
                                     </div>
                                 </div>
                             </div>
@@ -253,7 +230,6 @@
                                     </button>
                                 </div>
                             </div>
-
                         </div>
                     </form>
                 </div> <!-- end col -->
@@ -262,9 +238,6 @@
         </div><!-- /.container-fluid -->
     </section>
     <!-- /.content -->
-@endsection
-@section('css')
-
 @endsection
 @push('style')
     <style>
@@ -314,8 +287,8 @@
                         get_items_info_by_group_id_url: "{{ url('fetch-items-by-group-id') }}",
                         get_item_info_url: "{{ url('fetch-item-by-id-for-sale') }}",
                     },
-
                     date: new Date(),
+                    serial_no: {{$serial_no}},
                     customer_id: '',
                     store_id: '',
                     category_id: '',
@@ -329,6 +302,7 @@
                     product_discount: 0,
                     receive_amount: 0,
                     selling_price: 0,
+                    pageLoading: false,
 
                 },
                 components: {
