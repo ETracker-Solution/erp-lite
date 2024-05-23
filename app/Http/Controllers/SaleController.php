@@ -74,11 +74,22 @@ class SaleController extends Controller
             'description' => 'nullable',
         ]);
 
-        // dd( $request->all());
+//         dd( $request->all());
         try {
             DB::beginTransaction();
 
-
+            $customer_id = 1;
+            if ($request->customer_number) {
+                $customer = Customer::where('mobile', $request->customer_number)->first();
+                if (!$customer) {
+                    $customer = Customer::create([
+                        'name' => 'New Customer',
+                        'mobile' => $request->customer_number
+                    ]);
+                }
+                $customer_id = $customer->id;
+            }
+            $outlet_id = \auth('web')->user()->outlet_id;
             $sale = new Sale();
             $sale->invoice_number = \App\Classes\SaleNumber::serial_number();
             $sale->subtotal = $request->subtotal;
@@ -86,39 +97,54 @@ class SaleController extends Controller
             $sale->grand_total = $request->grandtotal;
             $sale->receive_amount = $request->receive_amount;
             $sale->change_amount = $request->change_amount;
-            $sale->customer_id = $request->customer_id;
+            $sale->customer_id = $customer_id;
             $sale->date = Carbon::now()->format('Y-m-d');
-            $sale->description = $request->description;
+//            $sale->description = $request->description;
             $sale->created_by = Auth::id();
+            $sale->outlet_id = $outlet_id;
             $sale->save();
 
             $products = $request->get('products');
+
+            $salesAmount = $sale->grand_total;
+            $avgProductionPrice = 0;
+
             foreach ($products as $row) {
-                $batch_map = SaleUtil::fifo_batch($row['product_id'], $row['quantity']);
-
-                foreach ($batch_map as $batch) {
-                    $row['batch_number'] = $batch['batch_number'];
-                    $row['quantity'] = $batch['quantity'];
-
-                    // $sale_item = new SaleItem();
-                    // $sale_item->product_id = $row['product_id'];
-                    // $sale_item->sale_price = $row['sale_price'];
-                    // $sale_item->discount = $row['discount'] ?? 0;
-                    // $sale_item->quantity = $row['quantity'];
-                    // $sale_item->sale_id = $sale->id;
-                    // $sale_item->save();
-
-                    $sale->items()->create($row);
-                    $sale->stock_out_items()->create($row);
+                $row['product_id'] = $row['item_id'];
+                $row['unit_price'] = $row['sale_price'];
+                $currentStock = availableInventoryBalance($row['product_id']);
+                if ($currentStock < $row['quantity']) {
+                    Toastr::error('Quantity cannot more then ' . $currentStock . ' !', '', ["progressBar" => true]);
+                    return back();
                 }
-            }
 
+                $sale_item = $sale->items()->create($row);
+                $sale_item['date'] = date('Y-m-d');
+                $sale_item['coi_id'] = $row['product_id'];
+                $sale_item['rate'] = averageFGRate($row['product_id']);
+                $sale_item['amount'] = $sale_item['rate'] * $row['quantity'];
+                $sale_item['store_id'] = 4;
+                addInventoryTransaction(-1, 'POS', $sale_item);
+
+                $avgProductionPrice += $sale_item['amount'];
+            }
+            $receive_amount = $request->receive_amount;
+            //Start Loyalty Effect
+//            pointEarnAndUpgradeMember($sale->id, $customer_id ?? null, $request->grand_total);
+            //End Loyalty Effect
+            $sale->amount = $salesAmount;
+            addAccountsTransaction('POS',$sale, getAccountsReceiveableGLId(), getIncomeFromSalesGLId());
+            $sale->amount = $avgProductionPrice;
+            addAccountsTransaction('POS',$sale, getCOGSGLId(), getFGInventoryGLId());
+            $sale->amount = $salesAmount;
+            addAccountsTransaction('POS',$sale, getCashGLID(), getAccountsReceiveableGLId());
             DB::commit();
 
             Toastr::success('Sale Order Successful!.', '', ["progressBar" => true]);
             return redirect()->route('sales.index');
         } catch (\Exception $e) {
             DB::rollBack();
+            return $e;
             Log::emergency("File:" . $e->getFile() . "Line:" . $e->getLine() . "Message:" . $e->getMessage());
             Toastr::info('Something went wrong!.', '', ["progressbar" => true]);
             return back();
