@@ -12,17 +12,17 @@ return new class extends Migration {
     {
         Schema::create('requisitions', function (Blueprint $table) {
             $table->id();
+            $table->string('uid')->nullable();
             $table->date('date')->nullable();
             $table->string('reference_no')->nullable();
             $table->integer('total_item')->nullable();
-            $table->string('uid')->nullable();
             $table->double('total_quantity', 8, 2);
-            $table->double('subtotal', 8, 2)->default(0);
             $table->text('remark')->nullable();
             $table->enum('status', ['pending', 'approved', 'completed', 'rejected'])->default('pending');
             $table->enum('type', ['FG', 'RM'])->default('FG');
-            $table->string('created_by')->nullable();
-            $table->string('approved_by')->nullable();
+            $table->foreignId('store_id')->nullable()->constrained('stores')->onDelete('cascade');
+            $table->unsignedBigInteger('created_by')->nullable();
+            $table->unsignedBigInteger('approved_by')->nullable();
             $table->timestamps();
         });
     }
