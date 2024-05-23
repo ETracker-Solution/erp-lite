@@ -1,15 +1,15 @@
 @extends('layouts.app')
 @section('title')
-    FG Inventory Adjustment List
+    RM Requisition List
 @endsection
 @section('content')
     @php
         $links = [
         'Home'=>route('dashboard'),
-        'FG Inventory Adjustment list'=>''
+        'RM Requisition list'=>''
         ]
     @endphp
-    <x-breadcrumb title='FG Inventory Adjustment' :links="$links"/>
+    <x-breadcrumb title='RM Requisition' :links="$links"/>
 
     <!-- Main content -->
     <section class="content">
@@ -19,11 +19,12 @@
                 <div class="col-12">
                     <div class="card card-info">
                         <div class="card-header">
-                            <h3 class="card-title">FG Inventory Adjustment List</h3>
+                            <h3 class="card-title">RM Requisition List</h3>
                             <div class="card-tools">
-                                <a href="{{route('fg-inventory-adjustments.create')}}">
+                                <a href="{{route('rm-requisitions.create')}}">
                                     <button class="btn btn-sm btn-primary"><i class="fa fa-plus-circle"
-                                                                              aria-hidden="true"></i> &nbsp;Add Inventory Adjustment
+                                                                              aria-hidden="true"></i> &nbsp;Add RM
+                                        Requisition
                                     </button>
                                 </a>
                             </div>
@@ -67,7 +68,7 @@
                 serverSide: true,
                 processing: true,
                 ajax: {
-                    url: "{{ route('fg-inventory-adjustments.index') }}",
+                    url: "{{ route('rm-requisitions.index') }}",
                 },
                 columns: [{
                     data: "DT_RowIndex",
@@ -76,28 +77,28 @@
                     searchable: false,
                     orderable: false
                 },
+
                     {
+                        data: "uid",
+                        title: "RMR No",
+                        searchable: true,
+                        "defaultContent": "Not Set"
+                    }, {
                         data: "date",
                         title: "Date",
                         searchable: true,
-                        "defaultContent":"Not Set"
+                        "defaultContent": "Not Set"
                     },
                     {
-                        data: "uid",
-                        title: "UID",
+                        data: "subtotal",
+                        title: "Sub Total",
                         searchable: true,
-                        "defaultContent":"Not Set"
-                    },
-                    {
-                        data: "store.name",
-                        title: "Store",
-                        searchable: true,
-                        "defaultContent":"Not Set"
+                        "defaultContent": "Not Set"
                     },
                     {
                         data: "status",
                         title: "Status",
-                        searchable: false, "defaultContent":"Not Set"
+                        searchable: false, "defaultContent": "Not Set"
                     },
                     {
                         data: "created_at",

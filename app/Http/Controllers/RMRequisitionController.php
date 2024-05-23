@@ -2,31 +2,29 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreRequisitionRequest;
-use App\Http\Requests\UpdateRequisitionRequest;
-use App\Libraries\SaleUtil;
+use App\Http\Requests\StoreRMRequisitionRequest;
 use App\Models\ChartOfInventory;
-use App\Models\Customer;
 use App\Models\Requisition;
 use App\Models\Store;
 use Brian2694\Toastr\Facades\Toastr;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Yajra\DataTables\Facades\DataTables;
 
-class RequisitionController extends Controller
+class RMRequisitionController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $data = Requisition::where('type', 'FG')->latest();
         if (\request()->ajax()) {
+            $data = Requisition::where('type', 'RM')->latest();
             return DataTables::of($data)
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
-                    return view('requisition.action', compact('row'));
+                    return view('rm_requisition.action', compact('row'));
                 })
                 ->addColumn('created_at', function ($row) {
                     return view('common.created_at', compact('row'));
@@ -37,7 +35,7 @@ class RequisitionController extends Controller
                 ->rawColumns(['action', 'created_at', 'status'])
                 ->make(true);
         }
-        return view('requisition.index');
+        return view('rm_requisition.index');
     }
 
     /**
@@ -45,20 +43,20 @@ class RequisitionController extends Controller
      */
     public function create()
     {
-        $serial_count = Requisition::latest()->first() ? Requisition::latest()->first()->id : 0;
+        $serial_count = Requisition::first() ? Requisition::latest('id')->first()->id : 0;
         $serial_no = $serial_count + 1;
         $data = [
-            'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'FG'])->get(),
-            'stores' => Store::where(['type' => 'FG'])->get(),
+            'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'RM'])->get(),
+            'stores' => Store::where(['type' => 'RM'])->get(),
             'serial_no' => $serial_no,
         ];
-        return view('requisition.create', $data);
+        return view('rm_requisition.create', $data);
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreRequisitionRequest $request)
+    public function store(StoreRMRequisitionRequest $request)
     {
         try {
             DB::beginTransaction();
@@ -69,8 +67,8 @@ class RequisitionController extends Controller
                 $requisition->items()->create($row);
             }
             DB::commit();
-            Toastr::success('Requisition Entry Successful!.', '', ["progressBar" => true]);
-            return redirect()->route('requisitions.index');
+            Toastr::success('RM Requisition Entry Successful!.', '', ["progressBar" => true]);
+            return redirect()->route('rm-requisitions.index');
         } catch (\Exception $e) {
             DB::rollBack();
             Log::emergency("File:" . $e->getFile() . "Line:" . $e->getLine() . "Message:" . $e->getMessage());
@@ -82,16 +80,15 @@ class RequisitionController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show($id)
+    public function show(string $id)
     {
-        $requisition = Requisition::findOrFail(decrypt($id));
-        return view('requisition.show', compact('requisition'));
+        //
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Requisition $requisition)
+    public function edit(string $id)
     {
         //
     }
@@ -99,7 +96,7 @@ class RequisitionController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateRequisitionRequest $request, Requisition $requisition)
+    public function update(Request $request, string $id)
     {
         //
     }
@@ -107,7 +104,7 @@ class RequisitionController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Requisition $requisition)
+    public function destroy(string $id)
     {
         //
     }

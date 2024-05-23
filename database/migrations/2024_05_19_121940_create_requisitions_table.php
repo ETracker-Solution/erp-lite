@@ -19,12 +19,9 @@ return new class extends Migration {
             $table->double('total_quantity', 8, 2);
             $table->double('subtotal', 8, 2)->default(0);
             $table->text('remark')->nullable();
-            $table->enum('status', ['draft', 'pending', 'approved', 'delivered', 'rejected'])->default('draft');
-            $table->string('model_type')->nullable();
-            $table->string('model_id')->nullable();
-            $table->string('created_type')->nullable();
+            $table->enum('status', ['pending', 'approved', 'completed', 'rejected'])->default('pending');
+            $table->enum('type', ['FG', 'RM'])->default('FG');
             $table->string('created_by')->nullable();
-            $table->string('approved_type')->nullable();
             $table->string('approved_by')->nullable();
             $table->timestamps();
         });

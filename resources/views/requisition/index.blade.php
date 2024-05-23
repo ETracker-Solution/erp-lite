@@ -1,15 +1,15 @@
 @extends('layouts.app')
 @section('title')
-    Requisition List
+    FG Requisition List
 @endsection
 @section('content')
     @php
         $links = [
         'Home'=>route('dashboard'),
-        'Requisition list'=>''
+        'FG Requisition list'=>''
         ]
     @endphp
-    <x-breadcrumb title='Requisition' :links="$links"/>
+    <x-breadcrumb title='FG Requisition' :links="$links"/>
 
     <!-- Main content -->
     <section class="content">
@@ -19,11 +19,12 @@
                 <div class="col-12">
                     <div class="card card-info">
                         <div class="card-header">
-                            <h3 class="card-title">Requisition List</h3>
+                            <h3 class="card-title">FG Requisition List</h3>
                             <div class="card-tools">
                                 <a href="{{route('requisitions.create')}}">
                                     <button class="btn btn-sm btn-primary"><i class="fa fa-plus-circle"
-                                                                              aria-hidden="true"></i> &nbsp;Add Requisition
+                                                                              aria-hidden="true"></i> &nbsp;Add FG
+                                        Requisition
                                     </button>
                                 </a>
                             </div>
@@ -76,28 +77,28 @@
                     searchable: false,
                     orderable: false
                 },
-                {
+
+                    {
+                        data: "uid",
+                        title: "FGR No",
+                        searchable: true,
+                        "defaultContent": "Not Set"
+                    }, {
                         data: "date",
                         title: "Date",
                         searchable: true,
-                        "defaultContent":"Not Set"
-                    },
-                    {
-                        data: "uid",
-                        title: "UID No",
-                        searchable: true,
-                        "defaultContent":"Not Set"
+                        "defaultContent": "Not Set"
                     },
                     {
                         data: "subtotal",
                         title: "Sub Total",
                         searchable: true,
-                        "defaultContent":"Not Set"
+                        "defaultContent": "Not Set"
                     },
                     {
                         data: "status",
                         title: "Status",
-                        searchable: false, "defaultContent":"Not Set"
+                        searchable: false, "defaultContent": "Not Set"
                     },
                     {
                         data: "created_at",
