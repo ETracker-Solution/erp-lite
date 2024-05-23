@@ -25,9 +25,10 @@
                             <div class="card-header">
                                 <h3 class="card-title">FG Inventory Adjustment(FGIA) Entry </h3>
                                 <div class="card-tools">
-                                    <a class="btn btn-sm btn-primary" href="{{route('fg-inventory-adjustments.index')}}">
-                                            <i class="fa fa-list" aria-hidden="true"></i> &nbsp;FG Inventory Adjustment
-                                            List
+                                    <a class="btn btn-sm btn-primary"
+                                       href="{{route('fg-inventory-adjustments.index')}}">
+                                        <i class="fa fa-list" aria-hidden="true"></i> &nbsp;FG Inventory Adjustment
+                                        List
                                     </a>
                                 </div>
                             </div>
@@ -150,15 +151,15 @@
                                                     <table class="table table-bordered">
                                                         <thead class="bg-secondary">
                                                         <tr>
-                                                            <th style="width: 10px">#</th>
-                                                            <th style="width: 250px">Group</th>
-                                                            <th>Item</th>
-                                                            <th style="width: 100px">Unit</th>
-                                                            <th style="width: 120px">Balance Qty</th>
-                                                            <th style="width: 120px">Selling Price</th>
-                                                            <th style="width: 180px">Quantity</th>
-                                                            <th style="width: 120px;vertical-align: middle">Value</th>
-                                                            <th style="width: 30px"></th>
+                                                            <th style="width: 3%">#</th>
+                                                            <th style="width: 17%">Group</th>
+                                                            <th style="width: 31%">Item</th>
+                                                            <th style="width: 5%">Unit</th>
+                                                            <th style="width: 8%">Balance Qty</th>
+                                                            <th style="width: 8%">Selling Price</th>
+                                                            <th style="width: 15%">Quantity</th>
+                                                            <th style="width: 8%;vertical-align: middle">Value</th>
+                                                            <th style="width: 5%"></th>
                                                         </tr>
                                                         </thead>
                                                         <tbody>
