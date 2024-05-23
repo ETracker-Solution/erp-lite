@@ -23,7 +23,7 @@
                 <div class="col-12">
                     <div class="card card-info">
                         <div class="card-header">
-    
+
                             <h3 class="card-title">Employee</h3>
                             <div class="card-tools">
                                 <a href="{{ route('employees.index') }}"><button class="btn btn-sm btn-primary"><i
@@ -31,7 +31,7 @@
                             </div>
                         </div>
                     </div>
-                    <form action="{{ route('employees.store') }}" method="POST" class="" id="employeeForm" enctype="multipart/form-data">
+                    <form action="{{ route('employees.store') }}" method="POST" class="" id="employeeForm" enctype="multipart/form-data" novalidate>
                         @csrf
                         <input type="hidden" name="_method" value="POST">
                         <!-- Horizontal Form -->
@@ -121,7 +121,7 @@
                                     </div>
 
                                 </div>
-                                
+
                             </div>
                         </div>
 
@@ -156,7 +156,7 @@
                                             :isRequired='true' :isReadonly='false' defaultValue="" />
                                     </div>
                                 </div>
-                                
+
                             </div>
                         </div>
 
@@ -168,9 +168,6 @@
                                 <div class="row">
                                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                                         <x-forms.select label="Department" inputName="department_id" placeholder="Select One" :isRequired='true'  :isReadonly='false' defaultValue="" :options="$departments" optionId="id" optionValue="name"/>
-                                    </div>
-                                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                                        <x-forms.select label="Outlet" inputName="outlet_id" placeholder="Select One" :isRequired='true'  :isReadonly='false' defaultValue="" :options="$outlets" optionId="id" optionValue="name"/>
                                     </div>
                                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                                         <div class="form-group">
@@ -191,7 +188,7 @@
                                         <x-forms.select label="Designation" inputName="designation_id" placeholder="Select One" :isRequired='true'  :isReadonly='false' defaultValue="" :options="$designations" optionId="id" optionValue="name"/>
                                     </div>
                                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                                        <x-forms.text label="Sallery" inputName="sallery" placeholder="Enter Sallery"
+                                        <x-forms.text label="Salary" inputName="salary" placeholder="Enter Saalry"
                                             :isRequired='true' :isReadonly='false' defaultValue="" />
                                     </div>
                                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
@@ -208,6 +205,30 @@
                                                 </div>
                                             </div>
                                         </div>
+                                    </div>
+                                    <div class="col-xl-4 col-md-4 col-4 mb-1">
+                                        @php
+                                            $user_of = [
+        (object)   [
+              'key'=>'factory',
+              'value'=>'Factory'
+        ]      ,
+       (object)    [
+              'key'=>'outlet',
+              'value'=>'Outlet'
+        ]      ,
+        ];
+                                        @endphp
+                                        <x-forms.select label="User Of" inputName="user_of" placeholder="Select One"
+                                                        :isRequired='true' :isReadonly='false'
+                                                        defaultValue=""
+                                                        :options="$user_of" optionId="key" optionValue="value"/>
+                                    </div>
+                                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12" id="outletDropdown" hidden>
+                                        <x-forms.select label="Outlet" inputName="outlet_id" placeholder="Select One" :isRequired='true'  :isReadonly='false' defaultValue="" :options="$outlets" optionId="id" optionValue="name"/>
+                                    </div>
+                                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12"  id="factoryDropdown" hidden>
+                                        <x-forms.select label="Factory" inputName="factory_id" placeholder="Select One" :isRequired='true'  :isReadonly='false' defaultValue="" :options="$factories" optionId="id" optionValue="name"/>
                                     </div>
                                 </div>
                             </div>
@@ -267,15 +288,33 @@
                     $('select[name=department_id]').val(result.department_id)
                     $('select[name=designation_id]').val(result.designation_id)
                     $('select[name=outlet_id]').val(result.outlet_id)
-                    $('input[name=sallery]').val(result.sallery)
+                    $('input[name=salary]').val(result.salary)
                     $('input[name=joining_date]').val(result.joining_date)
                     $('input[name=confirm_date]').val(result.confirm_date)
                     $('select[name=status]').val(result.status)
                      var formElement =  $('#employeeForm')
                     formElement.attr('action',result.update_url)
                 },
-                
+
             });
     }
+
+    $('select[name=user_of]').on('select2:select', function (e) {
+        const docType = e.params.data.id;
+        $('select[name=factory_id]').val('')
+        $('select[name=outlet_id]').val('')
+        if (docType === 'factory') {
+            $('#factoryDropdown').prop('hidden', false)
+            $('#outletDropdown').prop('hidden', true)
+
+            $('select[name=doc_id]').val('')
+        } else if (docType === 'factory') {
+            $('#factoryDropdown').prop('hidden', true)
+            $('#outletDropdown').prop('hidden', false)
+        } else {
+            $('#factoryDropdown').prop('hidden', true)
+            $('#outletDropdown').prop('hidden', true)
+        }
+    })
 </script>
 @endpush

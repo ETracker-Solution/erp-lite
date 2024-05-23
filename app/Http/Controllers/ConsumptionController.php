@@ -59,7 +59,7 @@ class ConsumptionController extends Controller
         $serial_no = $serial_count + 1;
         $data = [
             'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'RM'])->get(),
-            'stores' => Store::where(['type' => 'RM'])->get(),
+            'stores' => Store::where(['type' => 'RM','doc_type'=>'factory'])->get(),
             'batches' => Batch::all(),
             'serial_no' => $serial_no,
             'store_url' => 1,
@@ -140,7 +140,7 @@ class ConsumptionController extends Controller
     {
         $data = [
             'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'RM'])->get(),
-            'stores' => Store::where(['type' => 'RM'])->get(),
+            'stores' => Store::where(['type' => 'RM','doc_type'=>'factory'])->get(),
             'batches' => Batch::all(),
             'serial_no' => decrypt($id),
             'store_url' => 1,

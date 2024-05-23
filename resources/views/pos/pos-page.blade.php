@@ -119,7 +119,7 @@
                 </div>
                 <div class="container text-center btn-group btn-group-justified mt-2" style="gap: 10px">
                     <button class="btn pause-button" @click="openOnHoldModal">On Hold</button>
-                    <button class="btn pause-button">Pre-Order</button>
+                    <button class="btn pause-button"  @click="openPreOrderModal">Pre-Order</button>
                 </div>
                 <div class=" payment-button mt-2 p-3" style="cursor: pointer" @click="openPaymentModal">
                     <div>
@@ -252,6 +252,57 @@
 {{--            <b-button class="mt-3" variant="outline-info"--}}
 {{--                      v-on:click="addHoldOrderToPos">Add To POS--}}
 {{--            </b-button>--}}
+        </div>
+    </b-modal>
+
+    <b-modal ref="pre-order-modal" hide-footer title="Pre Order">
+        <div class="d-block">
+            <div class="row">
+                <div class="col-12">
+                    <div class="form-group">
+                        <label for="">Delivery Date</label>
+                        <input type="datetime-local" class="form-control">
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="form-group">
+                        <label for="">Order From</label>
+                        <select name="order_from" id="" class="form-control">
+                            <option value="facebook" selected>Facebook</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="form-group">
+                        <label for="">Advance Payment</label>
+                        <input type="number" placeholder="ex: 500" class="form-control">
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="form-group">
+                        <label for="">Paid By</label>
+                        <select name="paid_by" id="" class="form-control">
+                            <option value="" selected>Select an Option</option>
+                            <option value="cash" >Cash</option>
+                            <option value="bkash" >Bkash</option>
+                            <option value="nagad" >Nagad</option>
+                            <option value="card" >Card</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="form-group">
+                        <label for="">Comments</label>
+                        <textarea name="remarks" id="" rows="2" class="form-control"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="text-center">
+            <b-button class="mt-3" variant="outline-danger" @click="closePreOrderModal">Close</b-button>
+            <b-button class="mt-3" variant="outline-info" :disabled="selectedProducts.length < 1"
+                      v-on:click="storePreOrder">Submit Order
+            </b-button>
         </div>
     </b-modal>
 

@@ -61,7 +61,7 @@ class PurchaseController extends Controller
             'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'RM'])->get(),
             'supplier_groups' => SupplierGroup::all(),
             'suppliers' => Supplier::all(),
-            'stores' => Store::where(['type' => 'RM'])->get(),
+            'stores' => Store::where(['type' => 'RM', 'doc_type' => 'ho', 'doc_id' => null])->get(),
             'serial_no' => $serial_no,
 
         ];
