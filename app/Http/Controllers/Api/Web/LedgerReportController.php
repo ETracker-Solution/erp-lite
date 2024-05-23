@@ -134,7 +134,7 @@ class LedgerReportController extends Controller
         'Opening Balance' AS Particulars,
         ' ' AS Debit,
         ' ' AS Credit,
-        ifnull(SUM(CASE WHEN TR.type = 'debit' THEN TR.amount ELSE -TR.amount END),0) AS Balance
+        ifnull(SUM(CASE WHEN TR.type = 'debit' THEN(TR.amount*TR.transaction_type) ELSE -(TR.amount*TR.transaction_type) END),0) AS Balance
     FROM account_transactions TR
     WHERE TR.chart_of_account_id = $account_id
     AND TR.date < '$start_date'
@@ -153,7 +153,7 @@ SELECT
     CASE WHEN TR.date < '$start_date' THEN 'Opening Balance' ELSE TR.narration END AS Particulars,
     CASE WHEN TR.date < '$start_date' THEN ' ' ELSE CASE WHEN TR.type = 'debit' THEN TR.amount ELSE 0 END END AS Debit,
     CASE WHEN TR.date < '$start_date' THEN ' ' ELSE CASE WHEN TR.type = 'credit' THEN TR.amount ELSE 0 END END AS Credit,
-    SUM(CASE WHEN TR.type = 'debit' THEN TR.amount ELSE -TR.amount END) OVER (ORDER BY TR.date, TR.id) + (SELECT Balance FROM OpeningBalance) AS Balance
+    SUM(CASE WHEN TR.type = 'debit' THEN (TR.amount*TR.transaction_type) ELSE -(TR.amount*TR.transaction_type) END) OVER (ORDER BY TR.date, TR.id) + (SELECT Balance FROM OpeningBalance) AS Balance
 FROM account_transactions TR
 LEFT JOIN receive_vouchers RV ON (RV.id = TR.doc_id AND TR.doc_type = 'RV')
 LEFT JOIN payment_vouchers PV ON PV.id = TR.doc_id AND TR.doc_type = 'PV'
