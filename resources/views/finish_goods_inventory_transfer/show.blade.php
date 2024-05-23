@@ -28,7 +28,7 @@ FG Inventory Transfer Details
                                             <p><b>Date :</b> {{ $fGInventoryTransfer->date }} </p>
                                             <p><b>Transfer From :</b> {{ $fGInventoryTransfer->fromStore->name }} </p>
                                             <p><b>Transfer To :</b> {{ $fGInventoryTransfer->toStore->name }} </p>
-                                            <p><b>Status :</b> {{ $fGInventoryTransfer->status }}</p>
+                                            <p><b>Status :</b> {!! showStatus($fGInventoryTransfer->status) !!}</p>
                                         </td> 
                                     </tr>
                                 </tbody>

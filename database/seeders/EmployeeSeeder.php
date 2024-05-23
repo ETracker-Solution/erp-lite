@@ -16,6 +16,7 @@ class EmployeeSeeder extends Seeder
     {
         Employee::create( [
             'id'=>1,
+            'employee_id'=>101,
             'name'=>'Sohel Rana',
             'phone'=>"01713616087",
             'email'=>'sohel@gmail.com',
@@ -25,6 +26,7 @@ class EmployeeSeeder extends Seeder
         ] );
         Employee::create( [
             'id'=>2,
+            'employee_id'=>102,
             'name'=>'Sabbir Rana',
             'phone'=>"01713616443",
             'email'=>'sabbir@gmail.com',
