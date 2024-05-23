@@ -25,10 +25,11 @@ class StoreRMRequisitionRequest extends FormRequest
         return [
             'store_id' => 'required',
             'products' => 'array',
-            'type' => 'required',
             'date' => 'required',
+            'type' => 'required',
             'reference_no' => 'nullable',
-            'subtotal' => 'required',
+            'total_item' => 'required',
+            'total_quantity' => 'required',
             'remark' => 'nullable',
             'created_by' => 'required',
         ];

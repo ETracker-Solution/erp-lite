@@ -1,6 +1,6 @@
 @extends('layouts.app')
 @section('title')
-   RM Requisition
+    RM Requisition
 @endsection
 @section('content')
     <!-- Content Header (Page header) -->
@@ -23,10 +23,10 @@
                         @csrf
                         <div class="card">
                             <div class="card-header bg-info">
-                                <h3 class="card-title">RM Requisition Entry</h3>
+                                <h3 class="card-title">Requisition Entry</h3>
                                 <div class="card-tools">
                                     <a href="{{route('rm-requisitions.index')}}" class="btn btn-sm btn-primary">
-                                            <i class="fa fa-list" aria-hidden="true"></i> &nbsp;RM Requisition List
+                                        <i class="fa fa-list" aria-hidden="true"></i> &nbsp;RM Requisition List
                                     </a>
                                 </div>
                             </div>
@@ -83,7 +83,9 @@
                             <div class="card-header bg-info">
                                 <h3 class="card-title">Requisition Line Item</h3>
                                 <div class="card-tools">
+                                    <a href="{{route('rm-requisitions.index')}}">
 
+                                    </a>
                                 </div>
                             </div>
                             <div class="card-body">
@@ -135,15 +137,12 @@
                                                     <table class="table table-bordered">
                                                         <thead class="bg-secondary">
                                                         <tr>
-                                                            <th style="width: 3%">#</th>
-                                                            <th style="width: 17%">Group</th>
-                                                            <th style="width: 31%">Item</th>
-                                                            <th style="width: 5%">Unit</th>
-                                                            <th style="width: 8%">Balance Qty</th>
-                                                            <th style="width: 8%">Selling Price</th>
-                                                            <th style="width: 15%">Quantity</th>
-                                                            <th style="width: 8%;vertical-align: middle">Value</th>
-                                                            <th style="width: 5%"></th>
+                                                            <th style="width: 5%">#</th>
+                                                            <th style="width: 20%">Group</th>
+                                                            <th style="width:35%">Item</th>
+                                                            <th style="width: 6%">Unit</th>
+                                                            <th style="width: 8%;vertical-align: middle">Quantity</th>
+                                                            <th style="width: 6%"></th>
                                                         </tr>
                                                         </thead>
                                                         <tbody>
@@ -165,26 +164,10 @@
                                                                 @{{ row.unit }}
                                                             </td>
                                                             <td style="vertical-align: middle" class="text-right">
-                                                                @{{ row.balance_qty }}
-                                                                <input type="hidden"
-                                                                       :name="'products['+index+'][balance_qty]'"
-                                                                       class="form-control input-sm"
-                                                                       v-bind:value="row.balance_qty" readonly>
-                                                            </td>
-                                                            <td style="vertical-align: middle" class="text-right">
-                                                                @{{ row.price }}
-                                                                <input type="hidden" :name="'products['+index+'][rate]'"
-                                                                       class="form-control input-sm"
-                                                                       v-bind:value="row.price" readonly>
-                                                            </td>
-                                                            <td style="vertical-align: middle" class="text-right">
                                                                 <input type="number" v-model="row.quantity"
                                                                        :name="'products['+index+'][quantity]'"
                                                                        class="form-control input-sm"
-                                                                       @change="valid(row);item_total(row)" required>
-                                                            </td>
-                                                            <td style="vertical-align: middle" class="text-right">
-                                                                @{{ item_total(row) }}
+                                                                       @change="valid(row)" required>
                                                             </td>
                                                             <td style="vertical-align: middle">
                                                                 <button type="button" class="btn btn-danger"
@@ -196,22 +179,22 @@
                                                         </tbody>
                                                         <tfoot>
                                                         <tr>
-                                                            <td colspan="9" style="background-color: #DDDCDC">
+                                                            <td colspan="6" style="background-color: #DDDCDC">
 
                                                             </td>
                                                         </tr>
                                                         <tr>
-                                                            <td colspan="6">
-
+                                                            <td colspan="4" class="text-right">
+                                                                Total Quantity
                                                             </td>
                                                             <td class="text-right">
-                                                                SubTotal
-                                                            </td>
-                                                            <td class="text-right">
-                                                                @{{subtotal}}
-                                                                <input type="hidden" :name="'subtotal'"
+                                                                @{{total_quantity}}
+                                                                <input type="hidden" :name="'total_quantity'"
                                                                        class="form-control input-sm"
-                                                                       v-bind:value="subtotal" readonly>
+                                                                       v-bind:value="total_quantity" readonly>
+                                                                <input type="hidden" :name="'total_item'"
+                                                                       class="form-control input-sm"
+                                                                       v-bind:value="items.length" readonly>
                                                             </td>
                                                             <td></td>
                                                         </tr>
@@ -295,14 +278,7 @@
                     item_id: '',
                     products: [],
                     items: [],
-                    quantity: '',
-                    Stock_quantity: 0,
-                    price: 0,
-                    discount: 0,
-                    product_discount: 0,
-                    receive_amount: 0,
-                    selling_price: 0,
-                    pageLoading: false,
+                    pageLoading:false,
 
                 },
                 components: {
@@ -310,9 +286,9 @@
                 },
                 computed: {
 
-                    subtotal: function () {
+                    total_quantity: function () {
                         return this.items.reduce((total, item) => {
-                            return total + (item.quantity * item.price)
+                            return total + parseFloat(item.quantity ? item.quantity : 0)
                         }, 0)
                     },
 
@@ -372,7 +348,7 @@
                                         balance_qty: product_details.balance_qty,
                                         price: product_details.price,
                                         quantity: '',
-                                        item_total: 0,
+
                                     });
 
                                     vm.item_id = '';
@@ -397,30 +373,14 @@
                     delete_row: function (row) {
                         this.items.splice(this.items.indexOf(row), 1);
                     },
-                    item_total: function (index) {
-
-                        //   console.log(index.quantity * index.price);
-                        return (index.quantity * index.price);
-
-
-                        //   alert(quantity);
-                        //  var total= row.quantity);
-                        //  row.item_total=total;
-                    },
                     valid: function (index) {
-                        console.log(index.stock);
-                        console.log(index.quantity);
 
-                        if (index.quantity > index.stock) {
-                            //console.log('2');
-                            index.quantity = index.stock;
-                        }
+                        console.log(index.quantity);
                         if (index.quantity <= 0) {
                             //console.log('3');
                             index.quantity = '';
                         }
-                    },
-
+                    }
                 },
 
                 updated() {
