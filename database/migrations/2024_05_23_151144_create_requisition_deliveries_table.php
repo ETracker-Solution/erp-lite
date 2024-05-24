@@ -4,15 +4,15 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
+return new class extends Migration
+{
     /**
      * Run the migrations.
      */
     public function up(): void
     {
-        Schema::create('requisitions', function (Blueprint $table) {
+        Schema::create('requisition_deliveries', function (Blueprint $table) {
             $table->id();
-            $table->string('uid')->unique();
             $table->date('date')->nullable();
             $table->string('reference_no')->nullable();
             $table->integer('total_item')->nullable();
@@ -21,9 +21,9 @@ return new class extends Migration {
             $table->enum('status', ['pending', 'approved', 'completed', 'rejected'])->default('pending');
             $table->enum('type', ['FG', 'RM'])->default('FG');
             $table->foreignId('store_id')->nullable()->constrained('stores')->onDelete('cascade');
+            $table->foreignId('requisition_id')->nullable()->constrained('requisitions')->onDelete('cascade');
             $table->unsignedBigInteger('created_by')->nullable();
             $table->unsignedBigInteger('updated_by')->nullable();
-            $table->unsignedBigInteger('approved_by')->nullable();
             $table->timestamps();
         });
     }
@@ -33,6 +33,6 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('requisitions');
+        Schema::dropIfExists('requisition_deliveries');
     }
 };

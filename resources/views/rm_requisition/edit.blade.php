@@ -10,7 +10,7 @@
         'RM Requisition list'=>''
         ]
     @endphp
-    <x-breadcrumb title='RM Requisition Entry' :links="$links"/>
+    <x-breadcrumb title='RM Requisition Entry Edit' :links="$links"/>
     <!-- Main content -->
     <section class="content">
         <div class="container-fluid">
@@ -19,8 +19,9 @@
                             <img src="{{ asset('loading.gif') }}" alt="loading">
                         </span>
                 <div class="col-lg-12 col-md-12">
-                    <form action="{{ route('rm-requisitions.store') }}" method="POST" class="">
+                    <form action="{{ route('rm-requisitions.update',$requisition->id) }}" method="POST" class="">
                         @csrf
+                        @method('PUT')
                         <div class="card">
                             <div class="card-header bg-info">
                                 <h3 class="card-title">RM Requisition Entry</h3>
@@ -39,7 +40,7 @@
                                                     <label for="requisition_no">RMR No</label>
                                                     <div class="input-group">
                                                         <input type="text" class="form-control input-sm"
-                                                               value="{{$serial_no}}" name="serial_no"
+                                                               value="" name="serial_no"
                                                                id="serial_no" v-model="serial_no">
                                                         <span class="input-group-append">
                                                                     <button type="button" class="btn btn-info btn-flat">Search</button>
@@ -71,14 +72,14 @@
                                                 <div class="form-group">
                                                     <label for="reference_no">Reference No</label>
                                                     <input type="text" class="form-control input-sm"   placeholder="Enter Reference No"
-                                                           value="{{old('reference_no')}}" name="reference_no">
+                                                           value="{{old('reference_no')}}" name="reference_no" v-model="reference_no">
                                                 </div>
                                             </div>
                                             <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                                 <div class="form-group">
                                                     <label for="remark">Remark</label>
                                                     <textarea class="form-control" name="remark" rows="1"
-                                                              placeholder="Enter Remark"></textarea>
+                                                              placeholder="Enter Remark" v-model="remark"></textarea>
                                                 </div>
                                             </div>
                                         </div>
@@ -101,9 +102,9 @@
                                         <div class="row">
                                             <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
                                                 <div class="form-group">
-                                                    <label for="category_id" class="control-label">Group</label>
-                                                    <select class="form-control bSelect" name="category_id"
-                                                            v-model="category_id" @change="fetch_item">
+                                                    <label for="group_id" class="control-label">Group</label>
+                                                    <select class="form-control bSelect" name="group_id"
+                                                            v-model="group_id" @change="fetch_item">
                                                         <option value="">Select One</option>
                                                         @foreach ($groups as $category)
                                                             <option
@@ -276,12 +277,16 @@
 
                         get_items_info_by_group_id_url: "{{ url('fetch-items-by-group-id') }}",
                         get_item_info_url: "{{ url('fetch-item-by-id-for-sale') }}",
+
+                        get_old_items_data: "{{ url('fetch-requisition-by-id') }}",
                     },
-                    date: new Date(),
-                    serial_no: {{$serial_no}},
-                    customer_id: '',
-                    store_id: '',
-                    category_id: '',
+                    requisition_id: {{$requisition->id}},
+                    date:'',
+                    reference_no:'',
+                    remark:'',
+                    serial_no: {{$requisition->uid}},
+                    store_id:  {{$requisition->store_id}},
+                    group_id: '',
                     item_id: '',
                     products: [],
                     items: [],
@@ -306,7 +311,7 @@
 
                         var vm = this;
 
-                        var slug = vm.category_id;
+                        var slug = vm.group_id;
                         //    alert(slug);
                         if (slug) {
                             axios.get(this.config.get_items_info_by_group_id_url + '/' + slug).then(function (response) {
@@ -359,7 +364,7 @@
                                     });
 
                                     vm.item_id = '';
-                                    vm.category_id = '';
+                                    vm.group_id = '';
 
                                 }).catch(function (error) {
 
@@ -380,6 +385,23 @@
                     delete_row: function (row) {
                         this.items.splice(this.items.indexOf(row), 1);
                     },
+                    load_old() {
+                        var vm = this;
+                        var slug = vm.requisition_id;
+                        vm.pageLoading = true;
+                        axios.get(this.config.get_old_items_data + '/' + slug).then(function (response) {
+                            var item = response.data.items;
+                            for (key in item) {
+                                vm.items.push(item[key]);
+                            };
+                            vm.store_id=response.data.store_id;
+                            vm.date=response.data.date;
+                            vm.reference_no=response.data.reference_no;
+                            vm.remark=response.data.remark;
+                            vm.pageLoading = false;
+                        })
+
+                    },
                     valid: function (index) {
 
                         console.log(index.quantity);
@@ -389,7 +411,9 @@
                         }
                     }
                 },
-
+                beforeMount() {
+                    this.load_old();
+                },
                 updated() {
                     $('.bSelect').selectpicker('refresh');
                 }

@@ -7,10 +7,10 @@
     @php
         $links = [
         'Home'=>route('dashboard'),
-        'RM Requisition list'=>''
+        'RM Requisition Delivery list'=>''
         ]
     @endphp
-    <x-breadcrumb title='RM Requisition Entry' :links="$links"/>
+    <x-breadcrumb title='RM Requisition Delivery Entry' :links="$links"/>
     <!-- Main content -->
     <section class="content">
         <div class="container-fluid">
@@ -19,7 +19,7 @@
                             <img src="{{ asset('loading.gif') }}" alt="loading">
                         </span>
                 <div class="col-lg-12 col-md-12">
-                    <form action="{{ route('rm-requisitions.store') }}" method="POST" class="">
+                    <form action="{{ route('rm-requisition-deliveries.store') }}" method="POST" class="">
                         @csrf
                         <div class="card">
                             <div class="card-header bg-info">
@@ -36,15 +36,14 @@
                                         <div class="row">
                                             <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                                 <div class="form-group">
-                                                    <label for="requisition_no">RMR No</label>
-                                                    <div class="input-group">
-                                                        <input type="text" class="form-control input-sm"
-                                                               value="{{$serial_no}}" name="serial_no"
-                                                               id="serial_no" v-model="serial_no">
-                                                        <span class="input-group-append">
-                                                                    <button type="button" class="btn btn-info btn-flat">Search</button>
-                                                        </span>
-                                                    </div>
+                                                    <label for="requisition_id">Requisition</label>
+                                                    <select name="requisition_id" id="requisition_id" class="form-control bSelect"
+                                                            v-model="requisition_id" required @change="load_old">
+                                                        <option value="">Select One</option>
+                                                        @foreach($requisitions as $row)
+                                                            <option value="{{ $row->id }}">{{ $row->uid }}</option>
+                                                        @endforeach
+                                                    </select>
                                                 </div>
                                             </div>
                                             <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
@@ -71,14 +70,14 @@
                                                 <div class="form-group">
                                                     <label for="reference_no">Reference No</label>
                                                     <input type="text" class="form-control input-sm"   placeholder="Enter Reference No"
-                                                           value="{{old('reference_no')}}" name="reference_no">
+                                                           value="{{old('reference_no')}}" name="reference_no" v-model="reference_no">
                                                 </div>
                                             </div>
                                             <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                                 <div class="form-group">
                                                     <label for="remark">Remark</label>
                                                     <textarea class="form-control" name="remark" rows="1"
-                                                              placeholder="Enter Remark"></textarea>
+                                                              placeholder="Enter Remark" v-model="remark"></textarea>
                                                 </div>
                                             </div>
                                         </div>
@@ -99,45 +98,6 @@
                                 <div class="card-box">
                                     <div id="">
                                         <div class="row">
-                                            <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
-                                                <div class="form-group">
-                                                    <label for="category_id" class="control-label">Group</label>
-                                                    <select class="form-control bSelect" name="category_id"
-                                                            v-model="category_id" @change="fetch_item">
-                                                        <option value="">Select One</option>
-                                                        @foreach ($groups as $category)
-                                                            <option
-                                                                value="{{ $category->id }}">{{ $category->name }}</option>
-                                                        @endforeach
-                                                    </select>
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
-                                                <div class="form-group">
-                                                    <label for="item_id">Item</label>
-                                                    <select name="item_id" id="item_id" class="form-control bSelect"
-                                                            v-model="item_id">
-                                                        <option value="">Select one</option>
-
-                                                        <option :value="row.id" v-for="row in products"
-                                                                v-html="row.name">
-                                                        </option>
-
-                                                    </select>
-                                                </div>
-                                            </div>
-
-                                            <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12" style="margin-top: 26px;">
-                                                <button type="button" class="btn btn-info btn-block"
-                                                        @click="data_input">Add
-                                                </button>
-                                            </div>
-
-                                            <br>
-                                            <br>
-                                            <br>
-                                            <br>
-
                                             <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                 <hr>
                                                 <div class="table-responsive">
@@ -276,12 +236,16 @@
 
                         get_items_info_by_group_id_url: "{{ url('fetch-items-by-group-id') }}",
                         get_item_info_url: "{{ url('fetch-item-by-id-for-sale') }}",
+
+                        get_old_items_data: "{{ url('fetch-requisition-by-id') }}",
                     },
-                    date: new Date(),
-                    serial_no: {{$serial_no}},
-                    customer_id: '',
-                    store_id: '',
-                    category_id: '',
+                    requisition_id: '',
+                    date:'',
+                    reference_no:'',
+                    remark:'',
+                    serial_no: '',
+                    store_id:  '',
+                    group_id: '',
                     item_id: '',
                     products: [],
                     items: [],
@@ -301,84 +265,25 @@
 
                 },
                 methods: {
-
-                    fetch_item() {
-
-                        var vm = this;
-
-                        var slug = vm.category_id;
-                        //    alert(slug);
-                        if (slug) {
-                            axios.get(this.config.get_items_info_by_group_id_url + '/' + slug).then(function (response) {
-
-                                vm.products = response.data.products;
-                                vm.pageLoading = false;
-
-                            }).catch(function (error) {
-
-                                toastr.error('Something went to wrong', {
-                                    closeButton: true,
-                                    progressBar: true,
-                                });
-
-                                return false;
-
-                            });
-                        }
-
-                    },
-                    data_input() {
-
-                        var vm = this;
-                        if (!vm.item_id) {
-
-                            toastr.error('Enter product', {
-                                closeButton: true,
-                                progressBar: true,
-                            });
-
-                            return false;
-
-                        } else {
-
-                            var slug = vm.item_id;
-
-                            if (slug) {
-                                axios.get(this.config.get_item_info_url + '/' + slug).then(function (response) {
-
-                                    product_details = response.data;
-                                    vm.items.push({
-                                        coi_id: product_details.coi_id,
-                                        group: product_details.group,
-                                        name: product_details.name,
-                                        unit: product_details.unit,
-                                        balance_qty: product_details.balance_qty,
-                                        price: product_details.price,
-                                        quantity: '',
-
-                                    });
-
-                                    vm.item_id = '';
-                                    vm.category_id = '';
-
-                                }).catch(function (error) {
-
-                                    toastr.error('Something went to wrong', {
-                                        closeButton: true,
-                                        progressBar: true,
-                                    });
-
-                                    return false;
-
-                                });
-                            }
-
-                        }
-
-                    },
-
                     delete_row: function (row) {
                         this.items.splice(this.items.indexOf(row), 1);
+                    },
+                    load_old() {
+                        var vm = this;
+                        var slug = vm.requisition_id;
+                        vm.pageLoading = true;
+                        axios.get(this.config.get_old_items_data + '/' + slug).then(function (response) {
+                            var item = response.data.items;
+                            for (key in item) {
+                                vm.items.push(item[key]);
+                            };
+                            vm.store_id=response.data.store_id;
+                            vm.date=response.data.date;
+                            vm.reference_no=response.data.reference_no;
+                            vm.remark=response.data.remark;
+                            vm.pageLoading = false;
+                        })
+
                     },
                     valid: function (index) {
 
