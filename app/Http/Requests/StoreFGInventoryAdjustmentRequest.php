@@ -29,6 +29,8 @@ class StoreFGInventoryAdjustmentRequest extends FormRequest
             'reference_no' => 'nullable',
             'remark' => 'nullable',
             'created_by' => 'required',
+            'transaction_type' => 'required',
+            'subtotal' => 'required',
         ];
     }
     public function prepareForValidation()

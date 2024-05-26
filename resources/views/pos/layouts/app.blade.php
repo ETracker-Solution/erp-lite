@@ -222,6 +222,7 @@
     $(document).ready(function () {
         $('#customer').hide()
         $('#order').hide()
+        $('#pre-order').hide()
         new Vue({
             el: '#vue_app',
             data: {
@@ -237,6 +238,8 @@
                     update_customer_url: "{{ url('pos-update-customer') }}",
                     print_invoice_url: "{{ url('pos-invoice-print') }}",
                     get_product_by_search_string_url: "{{ url('pos-product-by-name-sku-bar-code') }}",
+                    store_pre_order_url: "{{ url('pos-pre-order') }}",
+                    get_all_pre_orders_url: "{{ url('pos-pre-orders') }}",
                 },
                 categories: [],
                 products: [],
@@ -279,7 +282,15 @@
                 editableCustomerId: null,
                 onHoldIdentifier: '',
                 holdOrders: [],
-                selectedOnHoldOrderToPos: null
+                selectedOnHoldOrderToPos: null,
+                preOrderValues:{
+                    delivery_date: new Date(),
+                    order_from: '',
+                    advance_payment: 0,
+                    paid_by: '',
+                    comment:''
+                },
+                pre_orders: []
             },
             mounted() {
                 this.getAllProducts();
@@ -478,6 +489,8 @@
                             customer_number: this.customerNumber,
                             payment_methods: this.paymentMethods
                         }).then(function (response) {
+                            // console.log(response)
+                            // return
                             vm.selectedProducts = [];
                             vm.customer = {};
                             vm.discount_type = '';
@@ -710,7 +723,6 @@
                     var vm = this
                     vm.$refs['coupon-modal'].show()
                 },
-
                 closeCouponModal() {
                     var vm = this
                     vm.$refs['coupon-modal'].hide()
@@ -719,12 +731,10 @@
                     var vm = this
                     vm.$refs['discount-modal'].show()
                 },
-
                 closeDiscountModal() {
                     var vm = this
                     vm.$refs['discount-modal'].hide()
                 },
-
                 addSpecialDiscount() {
                     var vm = this
                     vm.special_discount_amount = (vm.total_bill * vm.special_discount_value) / 100
@@ -740,22 +750,18 @@
                         }
                     });
                 },
-
                 openPaymentModal() {
                     var vm = this
                     vm.$refs['payment-modal'].show()
                 },
-
                 closePaymentModal() {
                     const vm = this;
                     vm.$refs['payment-modal'].hide()
                 },
-
                 openOnHoldModal() {
                     const vm = this;
                     vm.$refs['on-hold-modal'].show()
                 },
-
                 closeOnHoldModal() {
                     const vm = this;
                     vm.$refs['on-hold-modal'].hide()
@@ -795,12 +801,10 @@
                     }
                     vm.$refs['on-hold-order-modal'].show()
                 },
-
                 closeOnHoldOrderModal() {
                     var vm = this
                     vm.$refs['on-hold-order-modal'].hide()
                 },
-
                 addHoldOrderToPos(holdOrder) {
                     const vm = this;
                     vm.selectedOnHoldOrderToPos = holdOrder
@@ -809,12 +813,79 @@
                 },
                 openPreOrderModal() {
                     var vm = this
+                    if (!this.customerNumber) {
+                        toastr.error('Please Enter Customer NUmber', {
+                            closeButton: true,
+                            progressBar: true,
+                        });
+                        return
+                    }
+                    if (this.selectedProducts.length < 1) {
+                        toastr.error('No Product Added', {
+                            closeButton: true,
+                            progressBar: true,
+                        });
+                        return
+                    }
                     vm.$refs['pre-order-modal'].show()
                 },
                 closePreOrderModal() {
                     var vm = this
                     vm.$refs['pre-order-modal'].hide()
                 },
+                storePreOrder(){
+                    if (this.selectedProducts.length < 1) {
+                        toastr.error('No Product Added to Sell', {
+                            closeButton: true,
+                            progressBar: true,
+                        });
+                        return
+                    } else {
+                        var vm = this;
+                        axios.post(this.config.store_pre_order_url, {
+                            products: this.selectedProducts,
+                            customer_number: this.customerNumber,
+                            order_data: this.preOrderValues,
+                            sub_total: this.total_bill,
+                            discount: this.total_discount_amount,
+                            grand_total: this.total_payable_bill,
+                        }).then(function (response) {
+                            vm.selectedProducts = [];
+                            vm.customer = {};
+                            vm.customerNumber = '';
+                            vm.getAllProducts()
+                            vm.getAllOrders()
+                            toastr.success('Success', {
+                                closeButton: true,
+                                progressBar: true,
+                            });
+
+                            vm.closePreOrderModal()
+
+                            // vm.printInvoice(response.data.sale.id)
+                        }).catch(function (error) {
+                            console.log(error)
+                            toastr.error('Something Went Wrong', {
+                                closeButton: true,
+                                progressBar: true,
+                            });
+                            return false;
+                        });
+                    }
+                },
+                getAllPreOrders(){
+                    var vm = this;
+                    axios.get(this.config.get_all_pre_orders_url)
+                        .then(function (response) {
+                            vm.pre_orders = (response.data);
+                        }).catch(function (error) {
+                        toastr.error(error, {
+                            closeButton: true,
+                            progressBar: true,
+                        });
+                        return false;
+                    });
+                }
                 // checkPointInput(){
                 //     if (this.)
                 // }

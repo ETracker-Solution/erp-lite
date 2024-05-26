@@ -219,7 +219,7 @@ return [
                     ],
                 ]
             ],
-            'permissions' => ['store-rm-admin', 'store-rm-operator', 'store-rm-viewer', 'store-rm-approver']
+            'permissions' => ['store-fg-admin', 'store-fg-operator', 'store-fg-viewer', 'store-fg-approver']
         ],
         [
             'name' => 'Sales Module',
@@ -241,7 +241,7 @@ return [
                     ],
                 ]
             ],
-            'permissions' => ['purchase-admin', 'purchase-operator', 'purchase-viewer', 'purchase-approver']
+            'permissions' => ['sales-admin', 'sales-operator', 'sales-viewer', 'sales-approver']
         ],
         [
             'name' => 'Loyalty Module',
@@ -288,7 +288,7 @@ return [
                     ],
                 ]
             ],
-            'permissions' => ['purchase-admin', 'purchase-operator', 'purchase-viewer', 'purchase-approver']
+            'permissions' => ['loyalty-admin', 'loyalty-operator', 'loyalty-viewer', 'loyalty-approver']
         ],
         [
             'name' => 'Data Admin Module',

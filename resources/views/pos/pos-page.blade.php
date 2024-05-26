@@ -261,13 +261,13 @@
                 <div class="col-12">
                     <div class="form-group">
                         <label for="">Delivery Date</label>
-                        <input type="datetime-local" class="form-control">
+                        <input type="datetime-local" class="form-control" v-model="preOrderValues.delivery_date">
                     </div>
                 </div>
                 <div class="col-12">
                     <div class="form-group">
                         <label for="">Order From</label>
-                        <select name="order_from" id="" class="form-control">
+                        <select name="order_from" id="" class="form-control" v-model="preOrderValues.order_from">
                             <option value="facebook" selected>Facebook</option>
                         </select>
                     </div>
@@ -275,13 +275,13 @@
                 <div class="col-6">
                     <div class="form-group">
                         <label for="">Advance Payment</label>
-                        <input type="number" placeholder="ex: 500" class="form-control">
+                        <input type="number" placeholder="ex: 500" class="form-control" v-model="preOrderValues.advance_payment">
                     </div>
                 </div>
                 <div class="col-6">
                     <div class="form-group">
                         <label for="">Paid By</label>
-                        <select name="paid_by" id="" class="form-control">
+                        <select name="paid_by" id="" class="form-control" v-model="preOrderValues.paid_by">
                             <option value="" selected>Select an Option</option>
                             <option value="cash" >Cash</option>
                             <option value="bkash" >Bkash</option>
@@ -293,7 +293,7 @@
                 <div class="col-12">
                     <div class="form-group">
                         <label for="">Comments</label>
-                        <textarea name="remarks" id="" rows="2" class="form-control"></textarea>
+                        <textarea name="remarks" id="" rows="2" class="form-control" v-model="preOrderValues.comment"></textarea>
                     </div>
                 </div>
             </div>
@@ -301,7 +301,7 @@
         <div class="text-center">
             <b-button class="mt-3" variant="outline-danger" @click="closePreOrderModal">Close</b-button>
             <b-button class="mt-3" variant="outline-info" :disabled="selectedProducts.length < 1"
-                      v-on:click="storePreOrder">Submit Order
+                      v-on:click="storePreOrder()">Submit Order
             </b-button>
         </div>
     </b-modal>

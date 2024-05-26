@@ -85,3 +85,20 @@ function getCashGLID()
 function getAllLedgers(){
     return ChartOfAccount::where('type','ledger')->select(DB::raw('id,name,CONCAT(id,". ",name, " (",root_account_type,")") as display_name'))->get();
 }
+
+function outletTransactionAccount($outlet_id, $account_type='cash'){
+    $account =  \App\Models\OutletTransactionConfig::where(['type'=>$account_type, 'outlet_id'=>$outlet_id])->first();
+    if ($account){
+        return $account->coa_id;
+    }
+    return false;
+}
+
+function getDiscountGLID(){
+    return 50;
+}
+
+function getRewardGLID(){
+    return 51;
+}
+

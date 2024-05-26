@@ -32,9 +32,9 @@ function customerCurrentMembership($customer_id, $totalBill = 0)
 {
     $data = \App\Models\Membership::where('customer_id', $customer_id)->first();
     if (!$data) {
-        $minimum_purchase_amount_to_be_a_member = 1000;
+        $minimum_purchase_amount_to_be_a_member = getSettingValue('minimum_purchase_amount');
         if ($minimum_purchase_amount_to_be_a_member <= $totalBill) {
-            return $data = \App\Models\Membership::create([
+            $data = \App\Models\Membership::create([
                 'member_type_id' => 1,
                 'customer_id' => $customer_id,
             ]);

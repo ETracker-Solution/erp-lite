@@ -100,6 +100,8 @@ Route::middleware('auth')->group(function () {
     Route::resource('consumptions', \App\Http\Controllers\ConsumptionController::class);
     Route::get('consumption-pdf/{id}', [App\Http\Controllers\ConsumptionController::class, 'consumptionPdf'])->name('consumptions.pdf');
     //-----start Pos---------
+    Route::get('pos-pre-orders', [POSController::class, 'getAllPreOrders'])->name('pos.pre.orders');
+    Route::post('pos-pre-order', [POSController::class, 'storePreOrder'])->name('pos.pre.order');
     Route::get('pos-invoice-print/{id}', [POSController::class, 'printInvoice'])->name('pos.invoice.print');
     Route::post('pos-add-customer', [POSController::class, 'addCustomer'])->name('pos.add.customer');
     Route::post('pos-update-customer/{id}', [POSController::class, 'updateCustomer'])->name('pos.update.customer');
@@ -145,7 +147,7 @@ Route::middleware('auth')->group(function () {
     Route::get('vuejs/autocomplete/search', [App\Http\Controllers\LabelController::class, 'autocompleteSearch'])->name('vuejs.autocomplete.search');
     Route::get('fetch-product-info-for-gatepass/{id}', [App\Http\Controllers\LabelController::class, 'fetch_product_info']);
 
-
+    Route::get('invoice-by-store/{store_id}',[SaleController::class,'getInvoiceByOutlet']);
     Route::get('sale-pdf/{id}', [App\Http\Controllers\SaleController::class, 'pdf'])->name('sale.pdf');
     Route::get('sale-pdf-download/{id}', [App\Http\Controllers\SaleController::class, 'pdfDownload'])->name('sale.pdf-download');
 
