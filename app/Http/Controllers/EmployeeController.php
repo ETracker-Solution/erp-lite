@@ -96,8 +96,9 @@ class EmployeeController extends Controller
         $designations = Designation::all();
         $departments = Department::all();
         $outlets = Outlet::all();
-        $employee = Employee::findOrFail($id);
-        return view('employee.edit',compact('employee','designations','departments','outlets'));
+        $factories = Factory::all();
+        $employee = Employee::findOrFail(decrypt($id));
+        return view('employee.edit',compact('employee','designations','departments','factories','outlets'));
     }
 
     /**
