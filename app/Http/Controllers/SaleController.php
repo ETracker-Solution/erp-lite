@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Classes\InvoiceNumber;
 use App\Libraries\SaleUtil;
 use App\Models\Category;
 use App\Models\ChartOfInventory;
@@ -51,12 +52,10 @@ class SaleController extends Controller
      */
     public function create()
     {
-
-        $serial_count = Sale::latest()->first() ? Production::latest()->first()->id : 0;
-        $serial_no = $serial_count + 1;
+        $serial_no =InvoiceNumber::generateInvoiceNumber(2);
         $data = [
             'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'FG'])->get(),
-            'stores' => Store::where(['type' => 'FG'])->get(),
+            'stores' => Store::where(['type' => 'FG','doc_type'=>'outlet'])->get(),
             'serial_no' => $serial_no,
             'customers' => Customer::where('status', 'active')->get(),
 
@@ -91,7 +90,7 @@ class SaleController extends Controller
             }
             $outlet_id = \auth('web')->user()->outlet_id;
             $sale = new Sale();
-            $sale->invoice_number = \App\Classes\SaleNumber::serial_number();
+            $sale->invoice_number = InvoiceNumber::generateInvoiceNumber(2);
             $sale->subtotal = $request->subtotal;
             $sale->discount = $request->discount;
             $sale->grand_total = $request->grandtotal;

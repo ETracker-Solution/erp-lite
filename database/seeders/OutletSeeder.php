@@ -6,7 +6,6 @@ use App\Models\ChartOfAccount;
 use App\Models\Outlet;
 use App\Models\OutletTransactionConfig;
 use App\Models\Store;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
