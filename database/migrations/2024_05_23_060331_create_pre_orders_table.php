@@ -22,6 +22,7 @@ return new class extends Migration
             $table->double('advance_amount', 15, 2)->default(0);
             $table->text('remark')->nullable();
             $table->string('order_from')->nullable();
+            $table->string('paid_by')->nullable();
             $table->date('delivery_date')->nullable();
             $table->string('customer_number');
             $table->foreignId('customer_id')->nullable()->constrained('customers')->onDelete('cascade');
