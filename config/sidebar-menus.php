@@ -119,6 +119,42 @@ return [
             'has_child' => true,
             'child' => [
                 [
+                    'name' => 'Store RM Entry',
+                    'url' => '#',
+                    'has_child' => true,
+                    'active_condition' => false,
+                    'child' => [
+                        [
+                            'name' => 'RM Inventory Transfer',
+                            'url' => '/finish-goods-inventory-transfers/create',
+                            'active_condition' => '',
+                        ],
+                        [
+                            'name' => 'RM Inventory Adjustment',
+                            'url' => '/fg-inventory-adjustments/create',
+                            'active_condition' => '',
+                        ]
+                    ],
+                ],
+                [
+                    'name' => 'RM Requisition Entry',
+                    'url' => '#',
+                    'has_child' => true,
+                    'active_condition' => false,
+                    'child' => [
+                        [
+                            'name' => 'Create RM Requisition',
+                            'url' => '/rm-requisitions/create',
+                            'active_condition' => '',
+                        ],
+                        [
+                            'name' => 'RM Requisition Delivery',
+                            'url' => '/rm-requisition-deliveries/create',
+                            'active_condition' => '',
+                        ]
+                    ],
+                ],
+                [
                     'name' => 'Report',
                     'url' => '#',
                     'has_child' => true,

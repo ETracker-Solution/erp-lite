@@ -1,15 +1,15 @@
 @extends('layouts.app')
 @section('title')
-    RM Requisition List
+    RM Requisition Delivery List
 @endsection
 @section('content')
     @php
         $links = [
         'Home'=>route('dashboard'),
-        'RM Requisition list'=>''
+        'RM Requisition Delivery list'=>''
         ]
     @endphp
-    <x-breadcrumb title='RM Requisition' :links="$links"/>
+    <x-breadcrumb title='RM Requisition Delivery' :links="$links"/>
 
     <!-- Main content -->
     <section class="content">
@@ -19,12 +19,12 @@
                 <div class="col-12">
                     <div class="card card-info">
                         <div class="card-header">
-                            <h3 class="card-title">RM Requisition List</h3>
+                            <h3 class="card-title">RM Requisition Delivery List</h3>
                             <div class="card-tools">
                                 <a href="{{route('rm-requisitions.create')}}">
                                     <button class="btn btn-sm btn-primary"><i class="fa fa-plus-circle"
                                                                               aria-hidden="true"></i> &nbsp;Add RM
-                                        Requisition
+                                        Requisition Delivery
                                     </button>
                                 </a>
                             </div>
@@ -68,7 +68,7 @@
                 serverSide: true,
                 processing: true,
                 ajax: {
-                    url: "{{ route('rm-requisitions.index') }}",
+                    url: "{{ route('rm-requisition-deliveries.index') }}",
                 },
                 columns: [{
                     data: "DT_RowIndex",
