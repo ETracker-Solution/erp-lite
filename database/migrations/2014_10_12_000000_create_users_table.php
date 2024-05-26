@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('password');
             $table->foreignId('employee_id')->nullable()->constrained('employees')->onDelete('cascade');
             $table->integer('outlet_id')->nullable();
+            $table->boolean('is_super')->default(false);
             $table->rememberToken();
             $table->timestamps();
         });

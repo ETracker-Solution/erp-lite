@@ -17,22 +17,26 @@ class EmployeeSeeder extends Seeder
         Employee::create( [
             'id'=>1,
             'employee_id'=>101,
-            'name'=>'Sohel Rana',
+            'name'=>'Factory User',
             'phone'=>"01713616087",
-            'email'=>'sohel@gmail.com',
+            'email'=>'factory@gmail.com',
             'present_address'=>'Khilket,Dhaka',
             'created_at'=> Carbon::now()->format('Y-m-d H:i:s'),
             'updated_at'=> Carbon::now()->format('Y-m-d H:i:s'),
+            'user_of'=>'factory',
+            'factory_id'=>1
         ] );
         Employee::create( [
             'id'=>2,
             'employee_id'=>102,
-            'name'=>'Sabbir Rana',
+            'name'=>'Outlet User',
             'phone'=>"01713616443",
-            'email'=>'sabbir@gmail.com',
+            'email'=>'outlet@gmail.com',
             'present_address'=>'Mirpur,Dhaka',
             'created_at'=> Carbon::now()->format('Y-m-d H:i:s'),
             'updated_at'=> Carbon::now()->format('Y-m-d H:i:s'),
+            'user_of'=>'outlet',
+            'outlet_id'=>1
         ] );
     }
 }

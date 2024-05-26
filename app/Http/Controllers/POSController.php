@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Classes\InvoiceNumber;
 use App\Http\Requests\StoreCustomerRequest;
 use App\Http\Requests\UpdateCustomerRequest;
 use App\Models\ChartOfInventory;
@@ -9,6 +10,7 @@ use App\Models\CustomerPromoCode;
 use App\Models\Outlet;
 use App\Models\Payment;
 use App\Models\PromoCode;
+use App\Models\Store;
 use Carbon\Carbon;
 use App\Models\Sale;
 use App\Models\Product;
@@ -33,6 +35,10 @@ class POSController extends Controller
      */
     public function index()
     {
+        if (!\auth()->user()->employee->outlet_id) {
+            Toastr::error('You are not permitted to do this');
+            return back();
+        }
         return view('pos.index');
     }
 
@@ -56,6 +62,7 @@ class POSController extends Controller
     {
         DB::beginTransaction();
         try {
+            $selectedDate = date('Y-m-d');
             $customer_id = 1;
             if ($request->customer_number) {
                 $customer = Customer::where('mobile', $request->customer_number)->first();
@@ -68,8 +75,10 @@ class POSController extends Controller
                 $customer_id = $customer->id;
             }
             $outlet_id = \auth('web')->user()->outlet_id;
+            $outlet = Outlet::find($outlet_id);
+            $store = Store::find(['doc_type' => 'outlet', 'doc_id' => $outlet->id]);
             $sale = new Sale();
-            $sale->invoice_number = $request->invoice_number ?? \App\Classes\SaleNumber::serial_number();
+            $sale->invoice_number = $request->invoice_number ?? InvoiceNumber::generateInvoiceNumber($outlet_id, $selectedDate);
 
             $sale->date = date('Y-m-d');
             $sale->subtotal = $request->sub_total;
@@ -89,13 +98,11 @@ class POSController extends Controller
             foreach ($products as $row) {
                 $row['product_id'] = $row['id'];
                 $row['unit_price'] = $row['price'];
-//                $currentStock = factoryOrOutletStock($row['product_id'], Outlet::class, $outlet_id);
-                $currentStock = availableInventoryBalance($row['id']);
+                $currentStock = availableInventoryBalance($row['product_id'], $store->id);
                 if ($currentStock < $row['quantity']) {
                     Toastr::error('Delivery Quantity cannot more then ' . $currentStock . ' !', '', ["progressBar" => true]);
                     return back();
                 }
-
 
 
                 $sale_item = $sale->items()->create($row);
@@ -103,7 +110,7 @@ class POSController extends Controller
                 $sale_item['coi_id'] = $row['id'];
                 $sale_item['rate'] = averageFGRate($row['id']);
                 $sale_item['amount'] = $sale_item['rate'] * $row['quantity'];
-                $sale_item['store_id'] = 4;
+                $sale_item['store_id'] = $store;
                 addInventoryTransaction(-1, 'POS', $sale_item);
 
                 $avgProductionPrice += $sale_item['amount'];
@@ -117,23 +124,31 @@ class POSController extends Controller
                     'payment_method' => $paymentMethod['method'],
                     'amount' => $paymentMethod['amount'],
                 ]);
+                if ($paymentMethod['method'] == 'bkash') {
+                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'bkash'), getAccountsReceiveableGLId());
+                }
+                if ($paymentMethod['method'] == 'cash') {
+                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id,), getAccountsReceiveableGLId());
+                }
                 if ($paymentMethod['method'] == 'point') {
                     redeemPoint($sale->id, $customer_id, $paymentMethod['amount']);
+                    addAccountsTransaction('POS', $sale, getRewardGLID(), getAccountsReceiveableGLId());
                 }
+                unset($sale->amount);
             }
 
             $sale->receive_amount = $receive_amount;
             $sale->change_amount = $receive_amount - $sale->grand_total;
             $sale->save();
             //Start Loyalty Effect
-//            pointEarnAndUpgradeMember($sale->id, $customer_id ?? null, $request->grand_total);
+            pointEarnAndUpgradeMember($sale->id, $customer_id ?? null, $request->grand_total);
             //End Loyalty Effect
             $sale->amount = $salesAmount;
-            addAccountsTransaction('POS',$sale, getAccountsReceiveableGLId(), getIncomeFromSalesGLId());
+            addAccountsTransaction('POS', $sale, getAccountsReceiveableGLId(), getIncomeFromSalesGLId());
             $sale->amount = $avgProductionPrice;
-            addAccountsTransaction('POS',$sale, getCOGSGLId(), getFGInventoryGLId());
-            $sale->amount = $salesAmount;
-            addAccountsTransaction('POS',$sale, getCashGLID(), getAccountsReceiveableGLId());
+            addAccountsTransaction('POS', $sale, getCOGSGLId(), getFGInventoryGLId());
+//            $sale->amount = $salesAmount;
+//            addAccountsTransaction('POS',$sale, getCashGLID(), getAccountsReceiveableGLId());
 
 
             DB::commit();
@@ -205,7 +220,7 @@ class POSController extends Controller
         $products = $products->get();
 
         foreach ($products as $product) {
-            $product->stock = availableInventoryBalance($product->id,4);
+            $product->stock = availableInventoryBalance($product->id, 4);
         }
         return $products;
     }

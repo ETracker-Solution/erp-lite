@@ -3,6 +3,8 @@
 namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\Membership;
+use App\Models\MemberType;
 use App\Models\Unit;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Permission;
@@ -33,12 +35,16 @@ class DatabaseSeeder extends Seeder
         $this->call(EmployeeSeeder::class);
         $this->call(PermissionSeeder::class);
         $this->call(SystemConfigSeeder::class);
+        $this->call(MemberTypeSeeder::class);
+        $this->call(MembershipSeeder::class);
+        $this->call(MemberPointSeeder::class);
 
         $user = \App\Models\User::factory()->create([
             'name' => 'Super Admin',
             'email' => 'admin@gmail.com',
             'employee_id' => 1,
             'password' => bcrypt('12345678'),
+            'is_super'=>true
         ]);
         $user->syncPermissions(Permission::pluck('name'));
     }

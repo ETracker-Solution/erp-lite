@@ -78,7 +78,7 @@ class FinancialStatementReportController extends Controller
 
 net_profit AS (
     SELECT
-        32 AS id,
+        53 AS id,
 coalesce((select SUM(att.transaction_type * att.amount) * -1 as profit
 from account_transactions att
 join chart_of_accounts COA

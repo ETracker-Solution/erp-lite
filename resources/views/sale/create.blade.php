@@ -41,14 +41,19 @@
                                         <div class="row">
                                             <div class="col-3">
                                                 <div class="form-group">
-                                                    <label for="">Date</label>
-                                                    <input type="date" name="date" id="" class="form-control">
+                                                    <label for="date">Date</label>
+                                                    <vuejs-datepicker v-model="date" name="date"
+                                                                      placeholder="Select date"
+                                                                      format="yyyy-MM-dd"
+                                                                      @closed="getStoreData()"></vuejs-datepicker>
                                                 </div>
                                             </div>
                                             <div class="col-3">
                                                 <div class="form-group">
                                                     <label for="">Current Store</label>
-                                                    <select name="store_id" id="" class="form-control">
+                                                    <select name="store_id" id="" class="form-control"
+                                                            @if($user_store) disabled @endif @change="getStoreData()"
+                                                            v-model="store_id">
                                                         <option value="">None</option>
                                                         @foreach($stores as $store)
                                                             <option value="{{$store->id}}">{{ $store->name }}</option>
@@ -61,46 +66,43 @@
                                             <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                                                 <div class="form-group">
                                                     <label for="customer_id">Invoice Number</label>
-                                                    <input type="text" class="form-control" placeholder="Enter Invoice Number"  >
+                                                    <input type="text" class="form-control"
+                                                           placeholder="Enter Invoice Number" v-model="invoice_number">
                                                 </div>
                                             </div>
                                             <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                                                 <div class="form-group">
                                                     <label for="customer_id">Customer Number</label>
-                                                    <input type="text" class="form-control" placeholder="Enter Customer Number" v-model="customerNumber"
+                                                    <input type="text" class="form-control"
+                                                           placeholder="Enter Customer Number and Press Enter"
+                                                           v-model="customerNumber"
                                                            @keydown.enter="getCustomerInfo" name="customer_number">
-{{--                                                    <select name="customer_id" id="customer_id"--}}
-{{--                                                            class="form-control bSelect" v-model="customer_id">--}}
-{{--                                                        <option value="">Select One</option>--}}
-{{--                                                        @foreach($customers as $customer)--}}
-{{--                                                            <option--}}
-{{--                                                                value="{{ $customer->id }}">{{ $customer->name }}</option>--}}
-{{--                                                        @endforeach--}}
-{{--                                                    </select>--}}
+                                                    {{--                                                    <select name="customer_id" id="customer_id"--}}
+                                                    {{--                                                            class="form-control bSelect" v-model="customer_id">--}}
+                                                    {{--                                                        <option value="">Select One</option>--}}
+                                                    {{--                                                        @foreach($customers as $customer)--}}
+                                                    {{--                                                            <option--}}
+                                                    {{--                                                                value="{{ $customer->id }}">{{ $customer->name }}</option>--}}
+                                                    {{--                                                        @endforeach--}}
+                                                    {{--                                                    </select>--}}
                                                 </div>
                                             </div>
                                             <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                                                 <div class="form-group">
                                                     <label for="store_id">Customer Name</label>
-                                                    <input type="text" v-model="customer.name" class="form-control" disabled>
-{{--                                                    <select name="store_id" id="store_id"--}}
-{{--                                                            class="form-control bSelect"--}}
-{{--                                                            v-model="store_id" required>--}}
-{{--                                                        <option value="">Select One</option>--}}
-{{--                                                        @foreach($stores as $row)--}}
-{{--                                                            <option--}}
-{{--                                                                value="{{ $row->id }}">{{ $row->name }}</option>--}}
-{{--                                                        @endforeach--}}
-{{--                                                    </select>--}}
+                                                    <input type="text" v-model="customer.name" class="form-control"
+                                                           disabled>
+                                                    {{--                                                    <select name="store_id" id="store_id"--}}
+                                                    {{--                                                            class="form-control bSelect"--}}
+                                                    {{--                                                            v-model="store_id" required>--}}
+                                                    {{--                                                        <option value="">Select One</option>--}}
+                                                    {{--                                                        @foreach($stores as $row)--}}
+                                                    {{--                                                            <option--}}
+                                                    {{--                                                                value="{{ $row->id }}">{{ $row->name }}</option>--}}
+                                                    {{--                                                        @endforeach--}}
+                                                    {{--                                                    </select>--}}
                                                 </div>
                                             </div>
-{{--                                            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">--}}
-{{--                                                <div class="form-group">--}}
-{{--                                                    <label for="remark">Remark</label>--}}
-{{--                                                    <textarea class="form-control" name="remark" rows="1"--}}
-{{--                                                              placeholder="Enter Remark"></textarea>--}}
-{{--                                                </div>--}}
-{{--                                            </div>--}}
                                         </div>
                                         <div class="row">
                                             <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
@@ -224,7 +226,7 @@
                                                             <td>
                                                                 <input type="text" name="subtotal"
                                                                        class="form-control input-sm"
-                                                                       v-bind:value="subtotal" readonly>
+                                                                       v-bind:value="total_bill" readonly>
 
                                                             </td>
                                                         </tr>
@@ -237,7 +239,7 @@
                                                             </td>
                                                             <td>
                                                                 <input type="text" name="discount"
-                                                                       class="form-control input-sm" v-model="discount">
+                                                                       class="form-control input-sm" v-model="allDiscountAmount" disabled>
 
                                                             </td>
                                                         </tr>
@@ -252,46 +254,96 @@
                                                             <td>
                                                                 <input type="text" name="grandtotal"
                                                                        class="form-control input-sm"
-                                                                       v-bind:value="grandtotal" readonly>
-
-                                                            </td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td colspan="7">
-
-                                                            </td>
-                                                            <td>
-                                                                Receive Amount
-                                                            </td>
-                                                            <td>
-                                                                <input type="text" name="receive_amount"
-                                                                       class="form-control input-sm"
-                                                                       v-model="receive_amount">
-
-                                                            </td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td colspan="7">
-                                                            </td>
-                                                            <td>
-                                                                Change Amount
-                                                            </td>
-                                                            <td>
-                                                                <input type="text" class="form-control input-sm"
-                                                                       name="change_amount" v-bind:value="change_amount"
-                                                                       readonly>
+                                                                       v-bind:value="total_payable_bill" readonly>
 
                                                             </td>
                                                         </tr>
                                                         <tfoot>
                                                     </table>
                                                 </div>
+                                                <hr>
+                                                <div class="table-responsive">
+                                                    <div class="row">
+                                                        <div class="col-7">
+                                                            <table class="table table-bordered">
+                                                                <thead>
+                                                                <tr>
+                                                                    <th>#</th>
+                                                                    <th>Method</th>
+                                                                    <th>Amount</th>
+                                                                </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                <tr v-for="(payment, index) in paymentMethods">
+                                                                    <td>
+                                                                        <button type="button" class="btn btn-danger"
+                                                                                @click="deletePaymentMethod(payment)"><i
+                                                                                class="fa fa-trash"></i></button>
+                                                                    </td>
+                                                                    <td>
+                                                                        <select v-model="payment.method"
+                                                                                :name="'payment_methods['+index+'][method]'"
+                                                                                class="form-control">
+                                                                            <option value="cash">Cash</option>
+                                                                            <option value="bkash">Bkash</option>
+                                                                            <option value="point">Redeem Point</option>
+                                                                        </select>
+                                                                    </td>
+                                                                    <td>
+                                                                        <input type="number" v-model="payment.amount"
+                                                                               :step="payment.method == 'point' ? 100 : 1"
+                                                                               :name="'payment_methods['+index+'][amount]'"
+                                                                               @key.press="checkPointInput"
+                                                                               class="form-control">
+                                                                    </td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td colspan="3">
+                                                                        <button class="btn btn-sm btn-secondary"
+                                                                                type="button"
+                                                                                @click="addMorePaymentMethod"> Add
+                                                                            Another Payment Method
+                                                                        </button>
+                                                                    </td>
+                                                                </tr>
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                        <div class="col-5">
+                                                            <table class="table">
+                                                                <tr>
+                                                                    <th>Receive Amount</th>
+                                                                    <td>
+                                                                        {{--                                                                        <input type="text" name="receive_amount"--}}
+                                                                        {{--                                                                               class="form-control input-sm"--}}
+                                                                        {{--                                                                               v-model="receive_amount" disabled>--}}
+                                                                        <input type="text" name="receive_amount"
+                                                                               class="form-control input-sm"
+                                                                               v-model="total_paying" disabled>
+                                                                    </td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <th>Change Amount</th>
+                                                                    <td>
+                                                                        {{--                                                                        <input type="text" name="receive_amount"--}}
+                                                                        {{--                                                                               class="form-control input-sm"--}}
+                                                                        {{--                                                                               v-model="change_amount" disabled>--}}
+                                                                        <input type="text" name="change_amount"
+                                                                               class="form-control input-sm"
+                                                                               v-model="cash_change" disabled>
+                                                                    </td>
+                                                                </tr>
+                                                            </table>
+                                                        </div>
+                                                    </div>
+
+                                                </div>
                                             </div>
                                             <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12"
                                                  v-if="items.length > 0">
                                                 <div class="text-right col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                                    <textarea class="form-control" name="comments" rows="5"
-                                                              placeholder="Enter Comments"></textarea>
+                                                        <textarea class="form-control" name="comments" rows="5"
+                                                                  placeholder="Enter Comments"></textarea>
                                                 </div>
                                             </div>
                                         </div>
@@ -318,29 +370,55 @@
     </section>
     <!-- /.content -->
 @endsection
-@section('css')
-    <link rel="stylesheet" type="text/css"
-          href="{{ asset('vue-js/bootstrap-select/dist/css/bootstrap-select.min.css') }}">
-@endsection
+@push('style')
+    <style>
+        .categoryLoader {
+            position: absolute;
+            top: 50%;
+            right: 40%;
+            transform: translate(-50%, -50%);
+            color: red;
+            z-index: 999;
+        }
+
+        input[placeholder="Select date"] {
+            display: block;
+            width: 100%;
+            height: calc(2.25rem + 2px);
+            padding: .375rem .75rem;
+            font-size: 1rem;
+            font-weight: 400;
+            line-height: 1.5;
+            color: #495057;
+            background-color: #fff;
+            background-clip: padding-box;
+            border: 1px solid #ced4da;
+            border-radius: .25rem;
+            box-shadow: inset 0 0 0 transparent;
+            transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+        }
+    </style>
+
+    <link rel="stylesheet" href="{{ asset('vue-js/bootstrap-select/dist/css/bootstrap-select.min.css') }}">
+@endpush
 @push('script')
 
     <script src="{{ asset('vue-js/vue/dist/vue.js') }}"></script>
     <script src="{{ asset('vue-js/axios/dist/axios.min.js') }}"></script>
     <script src="{{ asset('vue-js/bootstrap-select/dist/js/bootstrap-select.min.js') }}"></script>
+    <script src="https://cms.diu.ac/vue/vuejs-datepicker.min.js"></script>
     <script>
         $(document).ready(function () {
-
             var vue = new Vue({
                 el: '#vue_app',
                 data: {
                     config: {
-
                         get_items_info_by_group_id_url: "{{ url('fetch-items-by-group-id') }}",
                         get_product_info_url: "{{ url('fetch-item-by-id-for-sale') }}",
                         get_customer_url: "{{ url('pos-customer-by-number') }}",
                     },
                     customer_id: '',
-                    store_id: '',
+                    store_id: "{{ $user_store && $user_store->id }}",
                     category_id: '',
                     item_id: '',
                     products: [],
@@ -354,10 +432,21 @@
                     selling_price: 0,
                     customerNumber: '',
                     customer: {},
+                    date: new Date(),
+                    invoice_number: "{{ $invoice_number ?? 'Please Select Store First' }}",
+                    paymentMethods: [{
+                        amount: 0,
+                        method: 'cash'
+                    }],
+                    couponCodeDiscountAmount: 0,
+                    special_discount_amount: 0,
+                    total_discount_amount: 0,
 
                 },
+                components: {
+                    vuejsDatepicker
+                },
                 computed: {
-
                     subtotal: function () {
                         return this.items.reduce((total, item) => {
                             return total + ((item.quantity * item.price) - item.product_discount)
@@ -369,54 +458,78 @@
                     change_amount: function () {
                         return this.grandtotal - this.receive_amount
                     },
-
+                    total_bill: function () {
+                        return this.items.reduce((total, item) => {
+                            return total + ((item.quantity * item.price))
+                        }, 0)
+                    },
+                    total_paying: function () {
+                        let amount = this.paymentMethods.reduce((total, item) => {
+                            return Number(total) + Number(item.method ? item.amount : 0)
+                        }, 0)
+                        if (amount > 0) {
+                            if (this.items.length < 1) {
+                                toastr.error('Please Add Items', {
+                                    closeButton: true,
+                                    progressBar: true,
+                                });
+                                return 0;
+                            }
+                        }
+                        return amount
+                    },
+                    pay_left: function () {
+                        return this.total_paying > this.total_due ? 0 : this.total_due - this.total_paying
+                    },
+                    cash_change: function () {
+                        return this.total_paying > this.total_due ? this.total_paying - this.total_due : 0
+                    },
+                    total_payable_bill: function () {
+                        var vm = this
+                        return (this.total_bill - vm.couponCodeDiscountAmount - this.allDiscountAmount)
+                    },
+                    total_due: function () {
+                        return this.total_payable_bill
+                    },
+                    productWiseDiscount: function () {
+                        return this.items.reduce((total, item) => {
+                            return total + Number(item.product_discount)
+                        }, 0)
+                    },
+                    allDiscountAmount: function () {
+                        var vm = this
+                        return Number(vm.total_discount_amount) + Number(vm.special_discount_amount) + Number(this.productWiseDiscount)
+                    }
                 },
                 methods: {
-
                     fetch_item() {
-
                         var vm = this;
-
                         var slug = vm.category_id;
-                        //    alert(slug);
                         if (slug) {
                             axios.get(this.config.get_items_info_by_group_id_url + '/' + slug).then(function (response) {
-
                                 vm.products = response.data.products;
                                 vm.pageLoading = false;
-
                             }).catch(function (error) {
-
                                 toastr.error('Something went to wrong', {
                                     closeButton: true,
                                     progressBar: true,
                                 });
-
                                 return false;
-
                             });
                         }
-
                     },
                     data_input() {
-
                         var vm = this;
                         if (!vm.item_id) {
-
                             toastr.error('Enter product', {
                                 closeButton: true,
                                 progressBar: true,
                             });
-
                             return false;
-
                         } else {
-
                             var slug = vm.item_id;
-
                             if (slug) {
                                 axios.get(this.config.get_product_info_url + '/' + slug).then(function (response) {
-
                                     product_details = response.data;
                                     vm.items.push({
                                         item_id: vm.item_id,
@@ -430,49 +543,33 @@
                                         product_discount: 0,
                                         subtotal: 0,
                                     });
-
                                     vm.item_id = '';
                                     vm.category_id = '';
 
                                 }).catch(function (error) {
-
                                     toastr.error('Something went to wrong', {
                                         closeButton: true,
                                         progressBar: true,
                                     });
-
                                     return false;
-
                                 });
                             }
-
                         }
-
                     },
-
                     delete_row: function (row) {
                         this.items.splice(this.items.indexOf(row), 1);
                     },
                     itemtotal: function (index) {
 
-                        //   console.log(index.quantity * index.price);
                         return (index.quantity * index.price) - index.product_discount;
 
-
-                        //   alert(quantity);
-                        //  var total= row.quantity);
-                        //  row.itemtotal=total;
                     },
                     valid: function (index) {
-                        console.log(index.stock);
-                        console.log(index.quantity);
 
                         if (index.quantity > index.stock) {
-                            //console.log('2');
                             index.quantity = index.stock;
                         }
                         if (index.quantity <= 0) {
-                            //console.log('3');
                             index.quantity = '';
                         }
                     },
@@ -485,8 +582,8 @@
                             }
                         }).then(function (response) {
                             vm.customer = (response.data);
-                            if(vm.customer.name){
-                                vm.customer.name = vm.customer.name + '  (' + vm.customer.current_point+ '  point)'
+                            if (vm.customer.name) {
+                                vm.customer.name = vm.customer.name + '  (' + vm.customer.current_point + '  point)'
                             }
                         }).catch(function (error) {
                             toastr.error(error, {
@@ -496,20 +593,38 @@
                             return false;
                         });
                     },
-
+                    getStoreData() {
+                        const vm = this
+                        if (!vm.store_id) {
+                            vm.invoice_number = 'Please Select Store First'
+                            toastr.error('Please Select valid Store', {
+                                closeButton: true,
+                                progressBar: true,
+                            });
+                        }
+                        axios.get('/invoice-by-store/' + vm.store_id, {
+                            params: {
+                                date: vm.date
+                            }
+                        }).then((response) => {
+                                vm.invoice_number = response.data
+                            })
+                    },
+                    deletePaymentMethod: function (row) {
+                        this.paymentMethods.splice(this.paymentMethods.indexOf(row), 1);
+                    },
+                    addMorePaymentMethod() {
+                        this.paymentMethods.push({amount: 0, method: ''})
+                    },
                 },
-
                 updated() {
                     $('.bSelect').selectpicker('refresh');
-                }
-
+                },
             });
-
             $('.bSelect').selectpicker({
                 liveSearch: true,
                 size: 5
             });
-
         });
     </script>
 @endpush
