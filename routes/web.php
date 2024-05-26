@@ -32,9 +32,17 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+
 Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
+
+    Route::get('/admin-dashboard', [\App\Http\Controllers\AdminDashboardController::class, 'adminDashboard'])->name('admin.dashboard');
+    Route::get('/factory-dashboard', [\App\Http\Controllers\FactoryDashboardController::class, 'factoryDashboard'])->name('factory.dashboard');
+    Route::get('/outlet-dashboard', [\App\Http\Controllers\OutletDashboardController::class, 'outletDashboard'])->name('outlet.dashboard');
+
+
+
 
     //lock Screen Start
     Route::get('lock-screen', [App\Http\Controllers\LockScreenController::class, 'lockScreen']);
