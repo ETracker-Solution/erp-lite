@@ -26,7 +26,7 @@ class RMRequisitionDeliveryController extends Controller
             return DataTables::of($data)
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
-                    return view('requisition_delivery.action', compact('row'));
+                    return view('rm_requisition_delivery.action', compact('row'));
                 })
                 ->addColumn('created_at', function ($row) {
                     return view('common.created_at', compact('row'));
@@ -37,7 +37,7 @@ class RMRequisitionDeliveryController extends Controller
                 ->rawColumns(['action', 'created_at', 'status'])
                 ->make(true);
         }
-        return view('requisition_delivery.index');
+        return view('rm_requisition_delivery.index');
     }
 
     /**
@@ -50,7 +50,7 @@ class RMRequisitionDeliveryController extends Controller
             'stores' => Store::where(['type' => 'RM'])->get(),
             'requisitions' => Requisition::where(['type' => 'RM'])->get()
         ];
-        return view('requisition_delivery.create', $data);
+        return view('rm_requisition_delivery.create', $data);
     }
 
     /**

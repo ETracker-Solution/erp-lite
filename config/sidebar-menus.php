@@ -228,6 +228,24 @@ return [
                     ],
                 ],
                 [
+                    'name' => 'FG Requisition Entry',
+                    'url' => '#',
+                    'has_child' => true,
+                    'active_condition' => false,
+                    'child' => [
+                        [
+                            'name' => 'Create FG Requisition',
+                            'url' => '/requisitions/create',
+                            'active_condition' => '',
+                        ],
+                        [
+                            'name' => 'FG Requisition Delivery',
+                            'url' => '/fg-requisition-deliveries/create',
+                            'active_condition' => '',
+                        ]
+                    ],
+                ],
+                [
                     'name' => 'Store FG Report',
                     'url' => '#',
                     'has_child' => true,
