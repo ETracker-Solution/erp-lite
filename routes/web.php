@@ -78,6 +78,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('member-types', \App\Http\Controllers\MemberTypeController::class);
     Route::resource('member-points', \App\Http\Controllers\MemberPointController::class);
     Route::resource('memberships', \App\Http\Controllers\MembershipController::class);
+    Route::resource('outlet-configs', \App\Http\Controllers\OuteletConfigController::class);
 
     //Promo Code
     Route::get('get-customer-by-type', [\App\Http\Controllers\PromoCodeController::class, 'getCustomers'])->name('promo-codes.customers');

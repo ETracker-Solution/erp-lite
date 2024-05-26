@@ -440,6 +440,19 @@ return [
                             'active_condition' => false,
                         ]
                     ],
+                ],
+                [
+                    'name' => 'Outlet Config',
+                    'url' => '#',
+                    'has_child' => true,
+                    'active_condition' => false,
+                    'child' => [
+                        [
+                            'name' => 'Outlet Payment',
+                            'url' => '/outlet-configs/create',
+                            'active_condition' => false,
+                        ]
+                    ],
                 ]
             ],
             'permissions' => ['system-admin-admin', 'system-admin-operator', 'system-admin-viewer', 'system-admin-approver']
