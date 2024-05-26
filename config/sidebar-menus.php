@@ -91,35 +91,49 @@ return [
             'permissions' => ['purchase-admin', 'purchase-operator', 'purchase-viewer', 'purchase-approver']
         ],
         [
-            'name' => 'Requisition Module',
-            'icon' => 'fas fa-shopping-cart',
-            'active_condition' => false,
-            'has_child' => true,
-            'child' => [
-                [
-                    'name' => 'Requisition Entry',
-                    'url' => '#',
-                    'has_child' => true,
-                    'active_condition' => false,
-                    'child' => [
-                        [
-                            'name' => 'Create New Requisition',
-                            'url' => '/requisitions/create',
-                            'active_condition' => '',
-                        ]
-                    ],
-                ]
-            ],
-            'permissions' => ['purchase-admin', 'purchase-operator', 'purchase-viewer', 'purchase-approver']
-        ],
-        [
             'name' => 'Store RM Module',
             'icon' => 'fas fa-shopping-cart',
             'active_condition' => false,
             'has_child' => true,
             'child' => [
                 [
-                    'name' => 'Report',
+                    'name' => 'Store RM Entry',
+                    'url' => '#',
+                    'has_child' => true,
+                    'active_condition' => false,
+                    'child' => [
+                        [
+                            'name' => 'RM Inventory Transfer',
+                            'url' => '/finish-goods-inventory-transfers/create',
+                            'active_condition' => '',
+                        ],
+                        [
+                            'name' => 'RM Inventory Adjustment',
+                            'url' => '/fg-inventory-adjustments/create',
+                            'active_condition' => '',
+                        ]
+                    ],
+                ],
+                [
+                    'name' => 'RM Requisition Entry',
+                    'url' => '#',
+                    'has_child' => true,
+                    'active_condition' => false,
+                    'child' => [
+                        [
+                            'name' => 'Create RM Requisition',
+                            'url' => '/rm-requisitions/create',
+                            'active_condition' => '',
+                        ],
+                        [
+                            'name' => 'RM Requisition Delivery',
+                            'url' => '/rm-requisition-deliveries/create',
+                            'active_condition' => '',
+                        ]
+                    ],
+                ],
+                [
+                    'name' => 'Store RM Report',
                     'url' => '#',
                     'has_child' => true,
                     'active_condition' => false,
@@ -187,6 +201,24 @@ return [
                         [
                             'name' => 'FG Inventory Adjustment',
                             'url' => '/fg-inventory-adjustments/create',
+                            'active_condition' => '',
+                        ]
+                    ],
+                ],
+                [
+                    'name' => 'FG Requisition Entry',
+                    'url' => '#',
+                    'has_child' => true,
+                    'active_condition' => false,
+                    'child' => [
+                        [
+                            'name' => 'Create FG Requisition',
+                            'url' => '/requisitions/create',
+                            'active_condition' => '',
+                        ],
+                        [
+                            'name' => 'FG Requisition Delivery',
+                            'url' => '/fg-requisition-deliveries/create',
                             'active_condition' => '',
                         ]
                     ],

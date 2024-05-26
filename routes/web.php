@@ -204,6 +204,10 @@ Route::middleware('auth')->group(function () {
     Route::resource('rm-requisition-deliveries', \App\Http\Controllers\RMRequisitionDeliveryController::class);
     /*=========== Raw Materials Requisition Delivery Ends ===========*/
 
+    /*=========== Raw Materials Requisition Delivery Starts ===========*/
+    Route::resource('fg-requisition-deliveries', \App\Http\Controllers\FGRequisitionDeliveryController::class);
+    /*=========== Raw Materials Requisition Delivery Ends ===========*/
+
     /*=========== General ledger Opening Balance Api Starts ===========*/
     Route::get('general-ledger-opening-balances-list', [\App\Http\Controllers\Api\Web\GLOpeningBalanceController::class, 'list']);
     Route::get('general-ledger-opening-balances-initial-info', [\App\Http\Controllers\Api\Web\GLOpeningBalanceController::class, 'initialInfo']);
@@ -233,7 +237,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('financial-statements', \App\Http\Controllers\Api\Web\FinancialStatementReportController::class);
     /*=========== Raw Materials Opening Balance Api Ends ===========*/
 
-    Route::resource('system-config',\App\Http\Controllers\SystemConfigController::class);
+    Route::resource('system-config', \App\Http\Controllers\SystemConfigController::class);
 });
 Route::group(['prefix' => 'reports', 'middleware' => 'auth'], function () {
 

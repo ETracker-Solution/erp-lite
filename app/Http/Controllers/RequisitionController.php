@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Classes\RequisitionNumber;
 use App\Http\Requests\StoreRequisitionRequest;
 use App\Http\Requests\UpdateRequisitionRequest;
 use App\Libraries\SaleUtil;
@@ -45,12 +46,10 @@ class RequisitionController extends Controller
      */
     public function create()
     {
-        $serial_count = Requisition::latest()->first() ? Requisition::latest()->first()->id : 0;
-        $serial_no = $serial_count + 1;
         $data = [
             'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'FG'])->get(),
-            'stores' => Store::where(['type' => 'FG'])->get(),
-            'serial_no' => $serial_no,
+            'stores' => Store::where(['type' => 'RM', 'doc_type' => 'factory'])->get(),
+            'serial_no' =>RequisitionNumber::serial_number()
         ];
         return view('requisition.create', $data);
     }
