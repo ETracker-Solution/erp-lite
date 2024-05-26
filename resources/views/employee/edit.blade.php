@@ -169,9 +169,7 @@
                                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                                         <x-forms.select label="Department" inputName="department_id" placeholder="Select One" :isRequired='true'  :isReadonly='false' :defaultValue="$employee ? $employee->department_id : ''" :options="$departments" optionId="id" optionValue="name"/>
                                     </div>
-                                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                                        <x-forms.select label="Outlet" inputName="outlet_id" placeholder="Select One" :isRequired='true'  :isReadonly='false' :defaultValue="$employee ? $employee->outlet_id : ''" :options="$outlets" optionId="id" optionValue="name"/>
-                                    </div>
+                                    
                                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                                         <div class="form-group">
                                             <label for="joining_date">Joining Date</label>
@@ -191,8 +189,8 @@
                                         <x-forms.select label="Designation" inputName="designation_id" placeholder="Select One" :isRequired='true'  :isReadonly='false' :defaultValue="$employee ? $employee->designation_id : ''" :options="$designations" optionId="id" optionValue="name"/>
                                     </div>
                                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                                        <x-forms.text label="Sallery" inputName="sallery" placeholder="Enter Sallery"
-                                            :isRequired='true' :isReadonly='false' defaultValue="{{ $employee->sallery }}" />
+                                        <x-forms.text label="Salery" inputName="salary" placeholder="Enter Salery"
+                                            :isRequired='true' :isReadonly='false' defaultValue="{{ $employee->salary }}" />
                                     </div>
                                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                                         <div class="form-group">
@@ -208,6 +206,34 @@
                                                 </div>
                                             </div>
                                         </div>
+                                    </div>
+
+                                    <div class="col-xl-4 col-md-4 col-4 mb-1">
+                                        @php
+                                        $user_of = [
+                                        (object) [
+                                        'key'=>'factory',
+                                        'value'=>'Factory'
+                                        ] ,
+                                        (object) [
+                                        'key'=>'outlet',
+                                        'value'=>'Outlet'
+                                        ] ,
+                                        ];
+                                        @endphp
+                                        <x-forms.select label="User Of" inputName="user_of" placeholder="Select One"
+                                            :isRequired='true' :isReadonly='false' :defaultValue="$employee ? $employee->user_of : ''" :options="$user_of"
+                                            optionId="key" optionValue="value" />
+                                    </div>
+                                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12" id="outletDropdown" hidden>
+                                        <x-forms.select label="Outlet" inputName="outlet_id" placeholder="Select One"
+                                            :isRequired='false' :isReadonly='false' :defaultValue="$employee ? $employee->outlet_id : ''" :options="$outlets"
+                                            optionId="id" optionValue="name" />
+                                    </div>
+                                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12" id="factoryDropdown" hidden>
+                                        <x-forms.select label="Factory" inputName="factory_id" placeholder="Select One"
+                                            :isRequired='false' :isReadonly='false' :defaultValue="$employee ? $employee->factory_id : ''" :options="$factories"
+                                            optionId="id" optionValue="name" />
                                     </div>
                                 </div>
                             </div>
@@ -229,53 +255,42 @@
 @endsection
 
 @push('script')
+    <script>
 
-{{-- <script>
-    function getEmployeeData(){
-        var employeeId = ($('input[name=employee_id]').val())
-        if(!employeeId){
-            toastr.error('Please Enter Employee ID')
-                return
-        }
-        $.ajax({
-                method: 'GET',
-                url: "/employees/" + employeeId,
-                headers: {
-                    'X-CSRF-TOKEN': "{{ csrf_token() }}"
-                },
-                success: function (result) {
-                   if(!result){
-                    toastr.error('Invalid Employee Id')
-                return
-                   }
-                    $('input[name=_method]').val('PUT')
-                    $('input[name=name]').val(result.name)
-                    $('input[name=father_name]').val(result.father_name)
-                    $('input[name=mother_name]').val(result.mother_name)
-                    $('input[name=nominee_name]').val(result.nominee_name)
-                    $('input[name=nominee_relation]').val(result.nominee_relation)
-                    $('select[name=blood_group]').val(result.blood_group)
-                    $('input[name=nid]').val(result.nid)
-                    $('input[name=dob]').val(result.dob)
-                    $('input[name=bank_account]').val(result.bank_account)
-                    $('input[name=present_address]').val(result.present_address)
-                    $('input[name=permanent_address]').val(result.permanent_address)
-                    $('input[name=email]').val(result.email)
-                    $('input[name=personal_email]').val(result.personal_email)
-                    $('input[name=phone]').val(result.phone)
-                    $('input[name=alternative_phone]').val(result.alternative_phone)
-                    $('select[name=department_id]').val(result.department_id)
-                    $('select[name=designation_id]').val(result.designation_id)
-                    $('select[name=outlet_id]').val(result.outlet_id)
-                    $('input[name=sallery]').val(result.sallery)
-                    $('input[name=joining_date]').val(result.joining_date)
-                    $('input[name=confirm_date]').val(result.confirm_date)
-                    $('select[name=status]').val(result.status)
-                     var formElement =  $('#employeeForm')
-                    formElement.attr('action',result.update_url)
-                },
-                
-            });
-    }
-</script> --}}
+        $(document).ready(function() {
+            var docType = $('select[name=user_of]').val();
+            console.log('Auto-selected value:', docType);
+
+            if (docType === 'factory') {
+                $('#factoryDropdown').prop('hidden', false)
+                $('#outletDropdown').prop('hidden', true)
+
+                $('select[name=doc_id]').val('')
+            } else if (docType === 'outlet') {
+                $('#factoryDropdown').prop('hidden', true)
+                $('#outletDropdown').prop('hidden', false)
+            } else {
+                $('#factoryDropdown').prop('hidden', true)
+                $('#outletDropdown').prop('hidden', true)
+            }
+        });
+
+        $('select[name=user_of]').on('select2:select', function (e) {
+            const docType = e.params.data.id;
+            $('select[name=factory_id]').val('')
+            $('select[name=outlet_id]').val('')
+            if (docType === 'factory') {
+                $('#factoryDropdown').prop('hidden', false)
+                $('#outletDropdown').prop('hidden', true)
+
+                $('select[name=doc_id]').val('')
+            } else if (docType === 'outlet') {
+                $('#factoryDropdown').prop('hidden', true)
+                $('#outletDropdown').prop('hidden', false)
+            } else {
+                $('#factoryDropdown').prop('hidden', true)
+                $('#outletDropdown').prop('hidden', true)
+            }
+        })
+    </script>
 @endpush
