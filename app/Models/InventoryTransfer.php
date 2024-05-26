@@ -22,4 +22,10 @@ class InventoryTransfer extends Model
 
         return $this->belongsTo(Store::class, 'to_store_id');
     }
+    public function items()
+    {
+
+        return $this->hasMany('App\Models\InventoryTransferItem', 'inventory_transfer_id');
+
+    }
 }

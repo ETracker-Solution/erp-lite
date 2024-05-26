@@ -7,6 +7,7 @@ use App\Http\Requests\UpdateFGInventoryAdjustmentRequest;
 use App\Models\ChartOfInventory;
 use App\Models\InventoryAdjustment;
 use App\Models\InventoryAdjustmentItem;
+use App\Models\InventoryTransaction;
 use App\Models\Store;
 use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Support\Facades\DB;
@@ -58,15 +59,33 @@ class FGInventoryAdjustmentController extends Controller
         $data = $request->validated();
         DB::beginTransaction();
         try {
-            $fGInventoryAdjustment = InventoryAdjustment::create($data);
+            $adjustment = InventoryAdjustment::create($data);
+            $adjustment->amount = $adjustment->subtotal;
             foreach ($data['products'] as $product) {
-                // FG Inventory Transfer Effect
-                InventoryAdjustmentItem::query()->create([
-                    'inventory_adjustment_id' => $fGInventoryAdjustment->id,
+                $adjustment->items()->create($product);
+
+                // Inventory Transaction Effect
+
+                $type = $data['transaction_type'] === 'increase' ? 1 : -1;
+                InventoryTransaction::query()->create([
+                    'store_id' => $adjustment->store_id,
+                    'doc_type' => 'FGIA',
+                    'doc_id' => $adjustment->id,
                     'quantity' => $product['quantity'],
                     'rate' => $product['rate'],
+                    'amount' => $product['quantity'] * $product['rate'],
+                    'date' => $adjustment->date,
+                    'type' => $type,
                     'coi_id' => $product['coi_id'],
                 ]);
+                // Accounts Transaction Effect
+                if ($data['transaction_type'] === 'increase') {
+                    addAccountsTransaction('FGIA', $adjustment, 16, 52);
+                } else {
+                    addAccountsTransaction('FGIA', $adjustment, 52, 16);
+                }
+
+
             }
             DB::commit();
         } catch (\Exception $error) {
