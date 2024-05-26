@@ -59,8 +59,8 @@ class ConsumptionController extends Controller
         $serial_no = $serial_count + 1;
         $data = [
             'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'RM'])->get(),
-            'stores' => Store::where(['type' => 'RM','doc_type'=>'factory'])->get(),
-            'batches' => Batch::all(),
+            'stores' => Store::where(['type' => 'RM', 'doc_type' => 'factory'])->get(),
+            'batches' => Batch::where(['is_consumption' => false])->get(),
             'serial_no' => $serial_no,
             'store_url' => 1,
         ];
@@ -83,8 +83,8 @@ class ConsumptionController extends Controller
             Toastr::info('At Least One Product Required.', '', ["progressBar" => true]);
             return back();
         }
-        $consumption = Consumption::create($validated);
-
+        $consumption = Consumption::query()->create($validated);
+        Batch::where('id', $validated['batch_id'])->update(['is_consumption' => true]);
         InventoryTransaction::where(['doc_id' => $consumption->id, 'doc_type' => 'RMC'])->delete();
         $consumption->amount = $consumption->subtotal;
         foreach ($validated['products'] as $product) {
@@ -140,7 +140,7 @@ class ConsumptionController extends Controller
     {
         $data = [
             'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'RM'])->get(),
-            'stores' => Store::where(['type' => 'RM','doc_type'=>'factory'])->get(),
+            'stores' => Store::where(['type' => 'RM', 'doc_type' => 'factory'])->get(),
             'batches' => Batch::all(),
             'serial_no' => decrypt($id),
             'store_url' => 1,
@@ -162,7 +162,9 @@ class ConsumptionController extends Controller
         $validated = $request->validated();
         DB::beginTransaction();
         try {
+            Batch::where('id', $consumption->batch_id)->update(['is_consumption' => false]);
             $consumption->update($validated);
+            Batch::where('id', $validated['batch_id'])->update(['is_consumption' => true]);
             ConsumptionItem::where('consumption_id', $consumption->id)->delete();
             InventoryTransaction::where(['doc_id' => $consumption->id, 'doc_type' => 'RMC'])->delete();
             $consumption->amount = $consumption->subtotal;
