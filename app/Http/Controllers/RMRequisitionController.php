@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Classes\RequisitionNumber;
 use App\Http\Requests\StoreRMRequisitionRequest;
+use App\Http\Requests\UpdateRMRequisitionRequest;
 use App\Models\ChartOfInventory;
 use App\Models\Requisition;
+use App\Models\RequisitionItem;
 use App\Models\Store;
 use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Http\Request;
@@ -43,12 +46,11 @@ class RMRequisitionController extends Controller
      */
     public function create()
     {
-        $serial_count = Requisition::first() ? Requisition::latest('id')->first()->id : 0;
-        $serial_no = $serial_count + 1;
+
         $data = [
             'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'RM'])->get(),
             'stores' => Store::where(['type' => 'RM'])->get(),
-            'serial_no' => $serial_no,
+            'serial_no' => RequisitionNumber::serial_number()
         ];
         return view('rm_requisition.create', $data);
     }
@@ -90,22 +92,58 @@ class RMRequisitionController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $data = [
+            'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'RM'])->get(),
+            'stores' => Store::where(['type' => 'RM'])->get(),
+            'requisition' => Requisition::find(decrypt($id))
+        ];
+        return view('rm_requisition.edit', $data);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(UpdateRMRequisitionRequest $request, $id)
     {
-        //
+        DB::beginTransaction();
+        try {
+            $validated = $request->validated();
+            $requisition= Requisition::find($id);
+            $requisition->update($validated);
+            RequisitionItem::where('requisition_id', $requisition->id)->delete();
+            $products = $request->get('products');
+            foreach ($products as $row) {
+                $requisition->items()->create($row);
+            }
+
+
+            DB::commit();
+        } catch (\Exception $exception) {
+            DB::rollBack();
+            return $exception;
+            Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
+            return back();
+        }
+
+        Toastr::success('RM Requisition Updated Successful!.', '', ["progressbar" => true]);
+        return redirect()->route('rm-requisitions.index');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy($id)
     {
-        //
+        DB::beginTransaction();
+        try {
+            Requisition::findOrFail(decrypt($id))->delete();
+            DB::commit();
+        } catch (\Exception $error) {
+            DB::rollBack();
+            Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
+            return back();
+        }
+        Toastr::success('Requisition Deleted Successfully!.', '', ["progressBar" => true]);
+        return redirect()->route('rm-requisitions.index');
     }
 }

@@ -7,6 +7,7 @@ use App\Models\Consumption;
 use App\Models\ConsumptionItem;
 use App\Models\Product;
 use App\Models\Production;
+use App\Models\Requisition;
 use App\Models\Supplier;
 use App\Models\PurchaseItem;
 use App\Models\SupplierTransaction;
@@ -120,6 +121,30 @@ class ApiController extends Controller
             ];
         }
         return response()->json($items);
+    }
+
+    public function fetchRequisitionById($id)
+    {
+        $requisition = Requisition::with('items')->where('id', $id)->first();
+        $items = [];
+        foreach ($requisition->items as $row) {
+            $items[] = [
+                'requisition_id' => $id,
+                'coi_id' => $row->coi_id,
+                'unit' => $row->coi->unit->name ?? '',
+                'name' => $row->coi->name ?? '',
+                'group' => $row->coi->parent->name ?? '',
+                'quantity' => $row->quantity,
+            ];
+        }
+        $data = [
+            'items' => $items,
+            'date' => $requisition->date,
+            'store_id' => $requisition->store_id,
+            'reference_no' => $requisition->reference_no,
+            'remark' => $requisition->remark,
+        ];
+        return response()->json($data);
     }
 
     public function fetchConsumptionById($id)

@@ -27,7 +27,8 @@ class StoreRequisitionRequest extends FormRequest
             'products' => 'array',
             'date' => 'required',
             'reference_no' => 'nullable',
-            'subtotal' => 'required',
+            'total_item' => 'required',
+            'total_quantity' => 'required',
             'remark' => 'nullable',
             'created_by' => 'required',
         ];

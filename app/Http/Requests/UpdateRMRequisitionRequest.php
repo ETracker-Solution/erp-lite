@@ -6,7 +6,7 @@ use App\Classes\RequisitionNumber;
 use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreRMRequisitionRequest extends FormRequest
+class UpdateRMRequisitionRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -27,13 +27,11 @@ class StoreRMRequisitionRequest extends FormRequest
             'store_id' => 'required',
             'products' => 'array',
             'date' => 'required',
-            'uid' => 'required',
-            'type' => 'required',
             'reference_no' => 'nullable',
             'total_item' => 'required',
             'total_quantity' => 'required',
             'remark' => 'nullable',
-            'created_by' => 'required',
+            'updated_by' => 'required',
         ];
     }
 
@@ -41,9 +39,7 @@ class StoreRMRequisitionRequest extends FormRequest
     {
 
         $this->merge([
-            'uid' => RequisitionNumber::serial_number(),
-            'type' => 'RM',
-            'created_by' => auth()->user()->id,
+            'updated_by' => auth()->user()->id,
             'date' => Carbon::parse($this->date)->format('Y-m-d'),
         ]);
 
