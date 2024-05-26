@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -17,7 +16,9 @@ return new class extends Migration
             $table->date('date');
             $table->string('p_manager')->comment('production manager')->nullable();
             $table->longText('description')->nullable();
-            $table->enum('status', ['inactive','active'])->default('active');
+            $table->enum('status', ['inactive', 'active'])->default('active');
+            $table->boolean('is_consumption')->default(false);
+            $table->boolean('is_production')->default(false);
             $table->timestamps();
         });
     }

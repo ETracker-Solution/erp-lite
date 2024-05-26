@@ -12,7 +12,7 @@ class SaleItem extends Model
 
     public function product(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
-        return $this->belongsTo(Product::class);
+        return $this->belongsTo(ChartOfInventory::class,'product_id','id');
     }
 
     public function sale()

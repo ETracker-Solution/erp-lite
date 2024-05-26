@@ -78,6 +78,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('member-types', \App\Http\Controllers\MemberTypeController::class);
     Route::resource('member-points', \App\Http\Controllers\MemberPointController::class);
     Route::resource('memberships', \App\Http\Controllers\MembershipController::class);
+    Route::resource('outlet-configs', \App\Http\Controllers\OuteletConfigController::class);
 
     //Promo Code
     Route::get('get-customer-by-type', [\App\Http\Controllers\PromoCodeController::class, 'getCustomers'])->name('promo-codes.customers');
@@ -91,6 +92,8 @@ Route::middleware('auth')->group(function () {
     Route::resource('consumptions', \App\Http\Controllers\ConsumptionController::class);
     Route::get('consumption-pdf/{id}', [App\Http\Controllers\ConsumptionController::class, 'consumptionPdf'])->name('consumptions.pdf');
     //-----start Pos---------
+    Route::get('pos-pre-orders', [POSController::class, 'getAllPreOrders'])->name('pos.pre.orders');
+    Route::post('pos-pre-order', [POSController::class, 'storePreOrder'])->name('pos.pre.order');
     Route::get('pos-invoice-print/{id}', [POSController::class, 'printInvoice'])->name('pos.invoice.print');
     Route::post('pos-add-customer', [POSController::class, 'addCustomer'])->name('pos.add.customer');
     Route::post('pos-update-customer/{id}', [POSController::class, 'updateCustomer'])->name('pos.update.customer');
@@ -188,7 +191,7 @@ Route::middleware('auth')->group(function () {
 
 
     /*=========== Finish Goods Inventory Transfer Starts ===========*/
-    Route::resource('finish-goods-inventory-transfers', \App\Http\Controllers\FGInventoryTransferController::class);
+    Route::resource('fg-inventory-transfers', \App\Http\Controllers\FGInventoryTransferController::class);
     /*=========== Finish Goods Inventory Transfer Ends ===========*/
 
     /*=========== Finish Goods Inventory Adjustment Starts ===========*/
@@ -202,6 +205,10 @@ Route::middleware('auth')->group(function () {
 
     /*=========== Raw Materials Requisition Delivery Starts ===========*/
     Route::resource('rm-requisition-deliveries', \App\Http\Controllers\RMRequisitionDeliveryController::class);
+    /*=========== Raw Materials Requisition Delivery Ends ===========*/
+
+    /*=========== Raw Materials Requisition Delivery Starts ===========*/
+    Route::resource('fg-requisition-deliveries', \App\Http\Controllers\FGRequisitionDeliveryController::class);
     /*=========== Raw Materials Requisition Delivery Ends ===========*/
 
     /*=========== General ledger Opening Balance Api Starts ===========*/
@@ -233,7 +240,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('financial-statements', \App\Http\Controllers\Api\Web\FinancialStatementReportController::class);
     /*=========== Raw Materials Opening Balance Api Ends ===========*/
 
-    Route::resource('system-config',\App\Http\Controllers\SystemConfigController::class);
+    Route::resource('system-config', \App\Http\Controllers\SystemConfigController::class);
 });
 Route::group(['prefix' => 'reports', 'middleware' => 'auth'], function () {
 

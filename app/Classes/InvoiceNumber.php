@@ -4,6 +4,7 @@
 namespace App\Classes;
 
 use App\Models\Order;
+use App\Models\PreOrder;
 use App\Models\Sale;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
@@ -44,5 +45,23 @@ class InvoiceNumber
     public function lastPartCount()
     {
         return 5;
+    }
+
+    public static function generateOrderNumber($outlet_id,$givenDate=false)
+    {
+        $date = $givenDate ? Carbon::parse($givenDate)->format('y') : date('y');
+        $prefix = 'PO'.$date.str_pad($outlet_id,2,'0',STR_PAD_LEFT);
+        return  $prefix.(new InvoiceNumber)->getLastOrderSerial($prefix);
+    }
+
+    public function getLastOrderSerial($prefix)
+    {
+        $old =  PreOrder::where('order_number','like',$prefix.'%')->first();
+        $new_id = 0;
+        if($old){
+            $new_id = substr($old->invoice_number,-($this->lastPartCount()));
+            $new_id = (int) $new_id;
+        }
+        return str_pad($new_id +1,$this->lastPartCount(),'0',STR_PAD_LEFT);
     }
 }

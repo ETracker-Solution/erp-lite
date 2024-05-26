@@ -142,17 +142,17 @@
                     <a href="#" class="d-block">{{ Auth::user()->name }}</a>
                 </div>
             </div>
+
             <div class="dropdown-menu dropdown-menu dropdown-menu-right mt-2">
                 <a href="#" class="dropdown-item"><i class="fa fa-user"></i> Profile</a>
+                <div class="dropdown-divider"></div>
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
                     <a href="{{ route('logout') }}" class="dropdown-item" onclick="event.preventDefault();
                                                 this.closest('form').submit();"><i class="fas fa-power-off"></i> Logout
                     </a>
                 </form>
-                <div class="dropdown-divider">
 
-                </div>
             </div>
         </li>
         {{-- <li class="nav-item">

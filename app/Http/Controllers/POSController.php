@@ -9,6 +9,7 @@ use App\Models\ChartOfInventory;
 use App\Models\CustomerPromoCode;
 use App\Models\Outlet;
 use App\Models\Payment;
+use App\Models\PreOrder;
 use App\Models\PromoCode;
 use App\Models\Store;
 use Carbon\Carbon;
@@ -74,11 +75,12 @@ class POSController extends Controller
                 }
                 $customer_id = $customer->id;
             }
-            $outlet_id = \auth('web')->user()->outlet_id;
+            $outlet_id = \auth('web')->user()->employee->outlet_id;
             $outlet = Outlet::find($outlet_id);
-            $store = Store::find(['doc_type' => 'outlet', 'doc_id' => $outlet->id]);
+            $store = Store::where(['doc_type' => 'outlet', 'doc_id' => $outlet->id])->first();
             $sale = new Sale();
-            $sale->invoice_number = $request->invoice_number ?? InvoiceNumber::generateInvoiceNumber($outlet_id, $selectedDate);
+
+            $sale->invoice_number = InvoiceNumber::generateInvoiceNumber($outlet_id, $selectedDate);
 
             $sale->date = date('Y-m-d');
             $sale->subtotal = $request->sub_total;
@@ -90,6 +92,7 @@ class POSController extends Controller
             $sale->payment_status = 'paid';
             $sale->outlet_id = $outlet_id;
             $sale->save();
+
             $products = $request->get('products');
 
             $salesAmount = $sale->grand_total;
@@ -98,7 +101,7 @@ class POSController extends Controller
             foreach ($products as $row) {
                 $row['product_id'] = $row['id'];
                 $row['unit_price'] = $row['price'];
-                $currentStock = availableInventoryBalance($row['product_id'], $store->id);
+                $currentStock = availableInventoryBalance($row['id'], $store->id);
                 if ($currentStock < $row['quantity']) {
                     Toastr::error('Delivery Quantity cannot more then ' . $currentStock . ' !', '', ["progressBar" => true]);
                     return back();
@@ -155,6 +158,7 @@ class POSController extends Controller
 
         } catch (\Exception $error) {
             DB::rollBack();
+            return $error;
             Log::emergency("File:" . $error->getFile() . "Line:" . $error->getLine() . "Message:" . $error->getMessage());
 //            Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
 //            return response()->json(['message' => 'error'], 500);
@@ -337,5 +341,70 @@ class POSController extends Controller
         // Render the HTML as PDF
         $dompdf->render();
         return $dompdf->stream('order', ["Attachment" => false]);
+    }
+
+    public function storePreOrder(Request $request)
+    {
+        DB::beginTransaction();
+        try {
+            $selectedDate = date('Y-m-d');
+            $customer_id = 1;
+            if ($request->customer_number) {
+                $customer = Customer::where('mobile', $request->customer_number)->first();
+                if (!$customer) {
+                    $customer = Customer::create([
+                        'name' => 'New Customer',
+                        'mobile' => $request->customer_number
+                    ]);
+                }
+                $customer_id = $customer->id;
+            }
+            $outlet_id = \auth('web')->user()->employee->outlet_id;
+            $outlet = Outlet::find($outlet_id);
+            $store = Store::where(['doc_type' => 'outlet', 'doc_id' => $outlet->id])->first();
+
+            $orderData = $request->order_data;
+            $order = new PreOrder();
+            $order->order_number = $request->invoice_number ?? InvoiceNumber::generateOrderNumber($outlet_id, $selectedDate);
+            $order->order_date = $selectedDate;
+            $order->subtotal = $request->sub_total;
+            $order->discount = $request->discount;
+            $order->grand_total = $request->grand_total;
+            $order->customer_id = $customer_id;
+            $order->created_by = auth('web')->user()->id;
+
+            $order->advance_amount = $orderData['advance_payment'];
+            $order->remark = $orderData['comment'];
+            $order->order_from = $orderData['order_from'];
+            $order->delivery_date = Carbon::parse($orderData['delivery_date'])->format('Y-m-d');
+            $order->customer_number = $request->customer_number;
+            $order->outlet_id = $outlet_id;
+            $order->save();
+
+            $products = $request->get('products');
+            foreach ($products as $row) {
+                $row['coi_id'] = $row['id'];
+                $row['unit_price'] = $row['price'];
+                $currentStock = availableInventoryBalance($row['coi_id'], $store->id);
+                if ($currentStock < $row['quantity']) {
+                    Toastr::error('Delivery Quantity cannot more then ' . $currentStock . ' !', '', ["progressBar" => true]);
+                    return back();
+                }
+
+                $order->items()->create($row);
+            }
+            DB::commit();
+        } catch (\Exception $error) {
+            DB::rollBack();
+            return $error;
+            Log::emergency("File:" . $error->getFile() . "Line:" . $error->getLine() . "Message:" . $error->getMessage());
+            return response()->json(['message' => $error->getMessage()], 500);
+        }
+        return response()->json(['message' => 'success', 'sale' => $order]);
+    }
+
+    public function getAllPreOrders()
+    {
+        return PreOrder::with('items.product', 'customer')->withSum('items', 'quantity')->latest()->get();
     }
 }

@@ -5,14 +5,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class RequisitionDelivery extends Model
+class InventoryAdjustment extends Model
 {
     use HasFactory;
 
     protected $guarded = ['id'];
 
-    public function items()
+    public function store()
     {
-        return $this->hasMany(RequisitionDeliveryItem::class);
+        return $this->belongsTo(Store::class, 'store_id');
     }
 }

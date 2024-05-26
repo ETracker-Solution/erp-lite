@@ -91,35 +91,31 @@ return [
             'permissions' => ['purchase-admin', 'purchase-operator', 'purchase-viewer', 'purchase-approver']
         ],
         [
-            'name' => 'Requisition Module',
-            'icon' => 'fas fa-shopping-cart',
-            'active_condition' => false,
-            'has_child' => true,
-            'child' => [
-                [
-                    'name' => 'Requisition Entry',
-                    'url' => '#',
-                    'has_child' => true,
-                    'active_condition' => false,
-                    'child' => [
-                        [
-                            'name' => 'Create New Requisition',
-                            'url' => '/requisitions/create',
-                            'active_condition' => '',
-                        ]
-                    ],
-                ]
-            ],
-            'permissions' => ['purchase-admin', 'purchase-operator', 'purchase-viewer', 'purchase-approver']
-        ],
-        [
             'name' => 'Store RM Module',
             'icon' => 'fas fa-shopping-cart',
             'active_condition' => false,
             'has_child' => true,
             'child' => [
                 [
-                    'name' => 'Report',
+                    'name' => 'RM Requisition Entry',
+                    'url' => '#',
+                    'has_child' => true,
+                    'active_condition' => false,
+                    'child' => [
+                        [
+                            'name' => 'Create RM Requisition',
+                            'url' => '/rm-requisitions/create',
+                            'active_condition' => '',
+                        ],
+                        [
+                            'name' => 'RM Requisition Delivery',
+                            'url' => '/rm-requisition-deliveries/create',
+                            'active_condition' => '',
+                        ]
+                    ],
+                ],
+                [
+                    'name' => 'Store RM Report',
                     'url' => '#',
                     'has_child' => true,
                     'active_condition' => false,
@@ -181,12 +177,30 @@ return [
                     'child' => [
                         [
                             'name' => 'FG Inventory Transfer',
-                            'url' => '/finish-goods-inventory-transfers/create',
+                            'url' => '/fg-inventory-transfers/create',
                             'active_condition' => '',
                         ],
                         [
                             'name' => 'FG Inventory Adjustment',
                             'url' => '/fg-inventory-adjustments/create',
+                            'active_condition' => '',
+                        ]
+                    ],
+                ],
+                [
+                    'name' => 'FG Requisition Entry',
+                    'url' => '#',
+                    'has_child' => true,
+                    'active_condition' => false,
+                    'child' => [
+                        [
+                            'name' => 'Create FG Requisition',
+                            'url' => '/requisitions/create',
+                            'active_condition' => '',
+                        ],
+                        [
+                            'name' => 'FG Requisition Delivery',
+                            'url' => '/fg-requisition-deliveries/create',
                             'active_condition' => '',
                         ]
                     ],
@@ -205,7 +219,7 @@ return [
                     ],
                 ]
             ],
-            'permissions' => ['store-rm-admin', 'store-rm-operator', 'store-rm-viewer', 'store-rm-approver']
+            'permissions' => ['store-fg-admin', 'store-fg-operator', 'store-fg-viewer', 'store-fg-approver']
         ],
         [
             'name' => 'Sales Module',
@@ -227,7 +241,7 @@ return [
                     ],
                 ]
             ],
-            'permissions' => ['purchase-admin', 'purchase-operator', 'purchase-viewer', 'purchase-approver']
+            'permissions' => ['sales-admin', 'sales-operator', 'sales-viewer', 'sales-approver']
         ],
         [
             'name' => 'Loyalty Module',
@@ -274,7 +288,7 @@ return [
                     ],
                 ]
             ],
-            'permissions' => ['purchase-admin', 'purchase-operator', 'purchase-viewer', 'purchase-approver']
+            'permissions' => ['loyalty-admin', 'loyalty-operator', 'loyalty-viewer', 'loyalty-approver']
         ],
         [
             'name' => 'Data Admin Module',
@@ -405,6 +419,19 @@ return [
                         [
                             'name' => 'Employees',
                             'url' => '/employees',
+                            'active_condition' => false,
+                        ]
+                    ],
+                ],
+                [
+                    'name' => 'Outlet Config',
+                    'url' => '#',
+                    'has_child' => true,
+                    'active_condition' => false,
+                    'child' => [
+                        [
+                            'name' => 'Outlet Payment',
+                            'url' => '/outlet-configs/create',
                             'active_condition' => false,
                         ]
                     ],

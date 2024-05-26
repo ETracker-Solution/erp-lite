@@ -11,13 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('f_g_inventory_transfers', function (Blueprint $table) {
+        Schema::create('inventory_transfers', function (Blueprint $table) {
             $table->id();
             $table->string('uid')->nullable();
             $table->string('reference_no')->nullable();
             $table->date('date');
             $table->double('subtotal', 15, 2)->nullable();
             $table->text('remark')->nullable();
+            $table->enum('type', ['FG', 'RM'])->default('FG');
             $table->string('status')->default('pending');
             $table->foreignId('from_store_id')->nullable()->constrained('stores')->onDelete('cascade');
             $table->foreignId('to_store_id')->nullable()->constrained('stores')->onDelete('cascade');
@@ -32,6 +33,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('f_g_inventory_transfers');
+        Schema::dropIfExists('inventory_transfers');
     }
 };

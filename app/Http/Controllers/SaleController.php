@@ -3,17 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Classes\InvoiceNumber;
-use App\Libraries\SaleUtil;
-use App\Models\Category;
+use App\Http\Requests\StoreSaleRequest;
+use App\Http\Requests\UpdateSaleRequest;
 use App\Models\ChartOfInventory;
 use App\Models\Customer;
 use App\Models\Outlet;
 use App\Models\Payment;
 use App\Models\Product;
-use App\Models\Production;
 use App\Models\Sale;
-use App\Http\Requests\StoreSaleRequest;
-use App\Http\Requests\UpdateSaleRequest;
 use App\Models\Store;
 use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Http\Request;
@@ -21,8 +18,8 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Yajra\DataTables\Facades\DataTables;
 use niklasravnsborg\LaravelPdf\Facades\Pdf;
+use Yajra\DataTables\Facades\DataTables;
 
 class SaleController extends Controller
 {
@@ -70,6 +67,7 @@ class SaleController extends Controller
             'invoice_number'=>$serial_no
 
         ];
+//        return $data;
         return view('sale.create', $data);
     }
 

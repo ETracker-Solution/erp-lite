@@ -35,6 +35,8 @@ class DatabaseSeeder extends Seeder
         $this->call(EmployeeSeeder::class);
         $this->call(PermissionSeeder::class);
         $this->call(SystemConfigSeeder::class);
+        $this->call(DepartmentSeeder::class);
+        $this->call(DesignationSeeder::class);
         $this->call(MemberTypeSeeder::class);
         $this->call(MembershipSeeder::class);
         $this->call(MemberPointSeeder::class);

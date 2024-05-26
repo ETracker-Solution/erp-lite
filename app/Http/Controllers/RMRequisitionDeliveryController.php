@@ -2,10 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreRMRequisitionDeliveryRequest;
 use App\Models\ChartOfInventory;
 use App\Models\Requisition;
+use App\Models\RequisitionDelivery;
 use App\Models\Store;
+use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Yajra\DataTables\Facades\DataTables;
 
 class RMRequisitionDeliveryController extends Controller
 {
@@ -14,7 +20,24 @@ class RMRequisitionDeliveryController extends Controller
      */
     public function index()
     {
-        //
+
+        if (\request()->ajax()) {
+            $data = RequisitionDelivery::where('type', 'RM')->latest();
+            return DataTables::of($data)
+                ->addIndexColumn()
+                ->addColumn('action', function ($row) {
+                    return view('rm_requisition_delivery.action', compact('row'));
+                })
+                ->addColumn('created_at', function ($row) {
+                    return view('common.created_at', compact('row'));
+                })
+                ->editColumn('status', function ($row) {
+                    return showStatus($row->status);
+                })
+                ->rawColumns(['action', 'created_at', 'status'])
+                ->make(true);
+        }
+        return view('rm_requisition_delivery.index');
     }
 
     /**
@@ -25,17 +48,33 @@ class RMRequisitionDeliveryController extends Controller
         $data = [
             'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'RM'])->get(),
             'stores' => Store::where(['type' => 'RM'])->get(),
-            'requisitions' => Requisition::get()
+            'requisitions' => Requisition::where(['type' => 'RM'])->get()
         ];
-        return view('requisition_delivery.create', $data);
+        return view('rm_requisition_delivery.create', $data);
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreRMRequisitionDeliveryRequest $request)
     {
-        dd($request->all());
+        try {
+            DB::beginTransaction();
+            $data = $request->validated();
+            $requisition_delivery = RequisitionDelivery::query()->create($data);
+            $products = $request->get('products');
+            foreach ($products as $row) {
+                $requisition_delivery->items()->create($row);
+            }
+            DB::commit();
+            Toastr::success('RM Requisition Delivery Entry Successful!.', '', ["progressBar" => true]);
+            return redirect()->route('rm-requisition-deliveries.index');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::emergency("File:" . $e->getFile() . "Line:" . $e->getLine() . "Message:" . $e->getMessage());
+            Toastr::info('Something went wrong!.', '', ["progressbar" => true]);
+            return back();
+        }
     }
 
     /**

@@ -49,7 +49,7 @@ class RMRequisitionController extends Controller
 
         $data = [
             'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'RM'])->get(),
-            'stores' => Store::where(['type' => 'RM'])->get(),
+            'stores' => Store::where(['type' => 'RM','doc_type'=>'ho'])->get(),
             'serial_no' => RequisitionNumber::serial_number()
         ];
         return view('rm_requisition.create', $data);

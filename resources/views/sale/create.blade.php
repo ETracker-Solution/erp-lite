@@ -19,7 +19,6 @@
         <div class="container-fluid">
             <div class="row" id="vue_app">
                 <div class="col-lg-12 col-md-12">
-
                     <div class="card card-info">
                         <div class="card-header">
                             <h3 class="card-title">Sale Entry</h3>
@@ -56,7 +55,7 @@
                                                             v-model="store_id">
                                                         <option value="">None</option>
                                                         @foreach($stores as $store)
-                                                            <option value="{{$store->id}}">{{ $store->name }}</option>
+                                                            <option value="{{$store->id}}" {{ $user_store->id == $store->id ? 'selected' : '' }}>{{ $store->name }}</option>
                                                         @endforeach
                                                     </select>
                                                 </div>
@@ -113,7 +112,7 @@
                                                         <option value="">Select One</option>
                                                         @foreach ($groups as $category)
                                                             <option
-                                                                value="{{ $category->id }}">{{ $category->name }}</option>
+                                                                    value="{{ $category->id }}">{{ $category->name }}</option>
                                                         @endforeach
                                                     </select>
                                                 </div>
@@ -167,7 +166,7 @@
                                                             <td>
                                                                 <button type="button" class="btn btn-danger"
                                                                         @click="delete_row(row)"><i
-                                                                        class="fa fa-trash"></i></button>
+                                                                            class="fa fa-trash"></i></button>
                                                             </td>
                                                             <td>
                                                                 @{{ row.group }}
@@ -239,7 +238,8 @@
                                                             </td>
                                                             <td>
                                                                 <input type="text" name="discount"
-                                                                       class="form-control input-sm" v-model="allDiscountAmount" disabled>
+                                                                       class="form-control input-sm"
+                                                                       v-model="allDiscountAmount" disabled>
 
                                                             </td>
                                                         </tr>
@@ -278,7 +278,7 @@
                                                                     <td>
                                                                         <button type="button" class="btn btn-danger"
                                                                                 @click="deletePaymentMethod(payment)"><i
-                                                                                class="fa fa-trash"></i></button>
+                                                                                    class="fa fa-trash"></i></button>
                                                                     </td>
                                                                     <td>
                                                                         <select v-model="payment.method"
@@ -355,7 +355,7 @@
                             </div>
                             <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 text-right" v-if="items.length > 0">
                                 <button class="float-right btn btn-primary" type="submit"><i
-                                        class="fa fa-fw fa-lg fa-check-circle"></i>Submit
+                                            class="fa fa-fw fa-lg fa-check-circle"></i>Submit
                                 </button>
                             </div>
                         </form>
@@ -418,7 +418,7 @@
                         get_customer_url: "{{ url('pos-customer-by-number') }}",
                     },
                     customer_id: '',
-                    store_id: "{{ $user_store && $user_store->id }}",
+                    store_id: "",
                     category_id: '',
                     item_id: '',
                     products: [],
@@ -445,6 +445,9 @@
                 },
                 components: {
                     vuejsDatepicker
+                },
+                mounted: function (){
+                  this.setStoreId()
                 },
                 computed: {
                     subtotal: function () {
@@ -616,6 +619,10 @@
                     addMorePaymentMethod() {
                         this.paymentMethods.push({amount: 0, method: ''})
                     },
+                    setStoreId(){
+                        const vm=this
+                        vm.store_id = "{{ $user_store ?  $user_store->id : ''}}"
+                    }
                 },
                 updated() {
                     $('.bSelect').selectpicker('refresh');
