@@ -28,7 +28,7 @@
                         <h3 class="mb-75 mt-2 pt-50">
                             <a href="javascript:void(0);">{{ $totalSales }} BDT</a>
                         </h3>
-                        {{-- <a type="button" class="btn btn-primary" href="{{route('admin.report.sale.create')}}">View Report</a> --}}
+                        <a type="button" class="btn btn-primary" href="#">View Report</a>
                         <img
                             src="https://s3-alpha-sig.figma.com/img/546c/5a37/4c62faf89e51f8af3d964aefcde244b8?Expires=1711929600&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4&Signature=ZRnXfOLrptLQPS7zGcE~1WlhQu~ZynyRud0XimsBQrnAuUsMrVAafCC114I4xF6J7tL-N1thpB8CzZupobQ8KR8sN5bmd0evO9kZz16BQ-AO-G~5-jF9LSC-zDHcEJ-CAH6IegnAoeVGAPYUhCk4mc1rTk~3MhiCwbw-fJnDizSW-TZ9nZwnWm3oc2pNY6ac~u0q6NRiR1oi~4C0JOxFgZWb5LJAVcryH4Uh2FjHgyJ0H5uDMi0BH3pmB3YRCAPETM5F2fSyIqWqR5agcanHMPLKq8x4dx4zjxvexyZklARJ39G7ux2SenCLJ5pjALZDLYr-v8m00wvYGHTLQvZe3A__"
                             class="congratulation-medal" alt="Medal Pic"
@@ -54,7 +54,7 @@
                                                    colorClass="bg-light-primary"/>
                             </div>
                             <div class="col-xl-3 col-sm-6 col-12 mb-2 mb-xl-0">
-                                <x-card-statistics title="Customers" value="{{ $customers }}" icon="user"
+                                <x-card-statistics title="Customers" value="{{ $customers }}" icon="fa fa-user"
                                                    colorClass="bg-light-info"/>
                             </div>
                             <div class="col-xl-3 col-sm-6 col-12 mb-2 mb-sm-0">
@@ -126,7 +126,7 @@
                     <div class="row mx-0">
                         <div class="col-md-12 col-12 revenue-report-wrapper">
                             <div class="d-sm-flex justify-content-between align-items-center mb-3">
-                                <h4 class="card-title mb-50 mb-sm-0">Total Stock : {{ $stock['total'] }}</h4>
+                                <h4 class="card-title mb-50 mt-2 mb-sm-0">Total Stock : {{ $stock['total'] }}</h4>
                                 {{--                                <div class="d-flex align-items-center">--}}
                                 {{--                                    <div class="d-flex align-items-center mr-2">--}}
                                 {{--                                        <span class="bullet bullet-primary font-small-3 mr-50 cursor-pointer"></span>--}}
@@ -392,7 +392,7 @@
                 serverSide: true,
                 processing: true,
                 ajax: {
-                    url: "{{ route('admin.dashboard') }}",
+                    url: "{{ route('dashboard') }}",
                 },
                 columns: [
                     {
