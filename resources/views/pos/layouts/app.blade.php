@@ -297,6 +297,7 @@
                 this.getAllCategories();
                 this.getCustomers();
                 this.getAllOrders();
+                this.getAllPreOrders();
             },
             computed: {
                 total_items: function () {
@@ -528,9 +529,11 @@
                     let posElement = $('#pos-page')
                     let customerElement = $('#customer')
                     let orderElement = $('#order')
+                    let preOrderElement = $('#pre-order')
                     posElement.hide()
                     customerElement.hide()
                     orderElement.hide()
+                    preOrderElement.hide()
                     this.currentActiveMenu = navMenu
                     switch (navMenu) {
                         case 'home':
@@ -542,11 +545,15 @@
                         case 'orders':
                             orderElement.show()
                             break;
+                        case 'pre_orders':
+                            preOrderElement.show()
+                            break;
                         default:
                             this.currentActiveMenu = 'home'
                             posElement.hide()
                             customerElement.hide()
                             orderElement.hide()
+                            preOrderElement.hide()
                     }
 
                 },
@@ -854,7 +861,7 @@
                             vm.customer = {};
                             vm.customerNumber = '';
                             vm.getAllProducts()
-                            vm.getAllOrders()
+                            vm.getAllPreOrders()
                             toastr.success('Success', {
                                 closeButton: true,
                                 progressBar: true,
@@ -885,6 +892,13 @@
                         });
                         return false;
                     });
+                },
+                transferToSell(order){
+                    toastr.warning('Under Construction', {
+                        closeButton: true,
+                        progressBar: true,
+                    });
+                    console.log(order)
                 }
                 // checkPointInput(){
                 //     if (this.)

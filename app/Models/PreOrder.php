@@ -11,6 +11,8 @@ class PreOrder extends Model
 
     protected $guarded = ['id'];
 
+    protected $appends = ['readable_sell_date_time'];
+
     public function items()
     {
         return $this->hasMany(PreOrderItem::class,'pre_order_id');
@@ -19,5 +21,10 @@ class PreOrder extends Model
     public function customer()
     {
         return $this->belongsTo(Customer::class,'customer_id');
+    }
+
+    public function getReadableSellDateTimeAttribute()
+    {
+        return getTimeByFormat($this->created_at, 'F d, Y; h:i a');
     }
 }

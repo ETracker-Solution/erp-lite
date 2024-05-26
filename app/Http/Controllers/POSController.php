@@ -354,7 +354,8 @@ class POSController extends Controller
                 if (!$customer) {
                     $customer = Customer::create([
                         'name' => 'New Customer',
-                        'mobile' => $request->customer_number
+                        'mobile' => $request->customer_number,
+                        'email'=>null
                     ]);
                 }
                 $customer_id = $customer->id;
@@ -376,6 +377,7 @@ class POSController extends Controller
             $order->advance_amount = $orderData['advance_payment'];
             $order->remark = $orderData['comment'];
             $order->order_from = $orderData['order_from'];
+            $order->paid_by = $orderData['paid_by'];
             $order->delivery_date = Carbon::parse($orderData['delivery_date'])->format('Y-m-d');
             $order->customer_number = $request->customer_number;
             $order->outlet_id = $outlet_id;

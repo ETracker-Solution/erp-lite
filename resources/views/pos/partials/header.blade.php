@@ -10,7 +10,7 @@
                         <button class="btn new-button"  :class="currentActiveMenu == 'home' ? 'active' : ''" href="#" @click="changeToNav('home')">Home</button>
                         <button class="btn new-button" :class="currentActiveMenu == 'customers' ? 'active' : ''" href="#" @click="changeToNav('customers')">Customer</button>
                         <button class="btn new-button" :class="currentActiveMenu == 'orders' ? 'active' : ''" href="#" @click="changeToNav('orders')">Order</button>
-                        <button class="btn new-button">Pre-Order</button>
+                        <button class="btn new-button" :class="currentActiveMenu == 'pre_orders' ? 'active' : ''" href="#" @click="changeToNav('pre_orders')">Pre-Order</button>
                         <button class="btn new-button"  @click="openOnHoldOrderModal">On-Hold</button>
                     </div>
                 </div>
