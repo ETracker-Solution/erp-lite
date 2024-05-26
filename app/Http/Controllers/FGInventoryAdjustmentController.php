@@ -24,7 +24,7 @@ class FGInventoryAdjustmentController extends Controller
             return DataTables::of($fGInventoryAdjustments)
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
-                    return view('finish_goods_inventory_adjustment.action', compact('row'));
+                    return view('fg_inventory_adjustment.action', compact('row'));
                 })
                 ->addColumn('created_at', function ($row) {
                     return view('common.created_at', compact('row'));
@@ -32,7 +32,7 @@ class FGInventoryAdjustmentController extends Controller
                 ->rawColumns(['action', 'amount_info'])
                 ->make(true);
         }
-        return view('finish_goods_inventory_adjustment.index');
+        return view('fg_inventory_adjustment.index');
     }
 
     /**
@@ -47,7 +47,7 @@ class FGInventoryAdjustmentController extends Controller
             'stores' => Store::where(['type' => 'FG'])->get(),
             'serial_no' => $serial_no,
         ];
-        return view('finish_goods_inventory_adjustment.create', $data);
+        return view('fg_inventory_adjustment.create', $data);
     }
 
     /**
@@ -86,7 +86,7 @@ class FGInventoryAdjustmentController extends Controller
 
         $fGInventoryAdjustment = InventoryAdjustment::findOrFail(decrypt($id));
         $items = InventoryAdjustmentItem::where('inventory_adjustment_id', decrypt($id))->get();
-        return view('finish_goods_inventory_adjustment.show', compact('fGInventoryAdjustment', 'items'));
+        return view('fg_inventory_adjustment.show', compact('fGInventoryAdjustment', 'items'));
     }
 
     /**
