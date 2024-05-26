@@ -104,7 +104,7 @@ return [
                     'child' => [
                         [
                             'name' => 'RM Inventory Transfer',
-                            'url' => '/finish-goods-inventory-transfers/create',
+                            'url' => '/fg-inventory-transfers/create',
                             'active_condition' => '',
                         ],
                         [
@@ -195,7 +195,7 @@ return [
                     'child' => [
                         [
                             'name' => 'FG Inventory Transfer',
-                            'url' => '/finish-goods-inventory-transfers/create',
+                            'url' => '/fg-inventory-transfers/create',
                             'active_condition' => '',
                         ],
                         [
