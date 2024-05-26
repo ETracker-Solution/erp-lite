@@ -97,24 +97,6 @@ return [
             'has_child' => true,
             'child' => [
                 [
-                    'name' => 'Store RM Entry',
-                    'url' => '#',
-                    'has_child' => true,
-                    'active_condition' => false,
-                    'child' => [
-                        [
-                            'name' => 'RM Inventory Transfer',
-                            'url' => '/finish-goods-inventory-transfers/create',
-                            'active_condition' => '',
-                        ],
-                        [
-                            'name' => 'RM Inventory Adjustment',
-                            'url' => '/fg-inventory-adjustments/create',
-                            'active_condition' => '',
-                        ]
-                    ],
-                ],
-                [
                     'name' => 'RM Requisition Entry',
                     'url' => '#',
                     'has_child' => true,
@@ -195,7 +177,7 @@ return [
                     'child' => [
                         [
                             'name' => 'FG Inventory Transfer',
-                            'url' => '/finish-goods-inventory-transfers/create',
+                            'url' => '/fg-inventory-transfers/create',
                             'active_condition' => '',
                         ],
                         [

@@ -84,9 +84,9 @@ class ProductionController extends Controller
         $serial_no = $serial_count + 1;
         $data = [
             'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'FG'])->get(),
-            'batches' => Batch::all(),
+            'batches' => Batch::where(['is_production' => false])->get(),
             'factories' => Factory::query()->get(),
-            'stores' => Store::where(['type' => 'FG','doc_type'=>'factory'])->get(),
+            'stores' => Store::where(['type' => 'FG', 'doc_type' => 'factory'])->get(),
             'serial_no' => $serial_no,
 
         ];
@@ -109,7 +109,8 @@ class ProductionController extends Controller
                 Toastr::info('At Least One Product Required.', '', ["progressBar" => true]);
                 return back();
             }
-            $production = Production::create($validated);
+            $production = Production::query()->create($validated);
+            Batch::where('id', $validated['batch_id'])->update(['is_production' => true]);
             $production->amount = $production->subtotal;
             foreach ($validated['products'] as $product) {
                 $production->items()->create($product);
@@ -164,7 +165,7 @@ class ProductionController extends Controller
             'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'FG'])->get(),
             'batches' => Batch::all(),
             'factories' => Factory::query()->get(),
-            'stores' => Store::where(['type' => 'FG','doc_type'=>'factory'])->get(),
+            'stores' => Store::where(['type' => 'FG', 'doc_type' => 'factory'])->get(),
             'production' => Production::with('items')->find(decrypt($id))
 
         ];
@@ -183,7 +184,9 @@ class ProductionController extends Controller
         $validated = $request->validated();
         DB::beginTransaction();
         try {
+            Batch::where('id', $production->batch_id)->update(['is_production' => false]);
             $production->update($validated);
+            Batch::where('id', $validated['batch_id'])->update(['is_production' => true]);
             $production->amount = $production->subtotal;
             ProductionItem::where('production_id', $production->id)->delete();
             InventoryTransaction::where(['doc_id' => $production->id, 'doc_type' => 'FGP'])->delete();

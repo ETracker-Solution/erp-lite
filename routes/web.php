@@ -189,7 +189,7 @@ Route::middleware('auth')->group(function () {
 
 
     /*=========== Finish Goods Inventory Transfer Starts ===========*/
-    Route::resource('finish-goods-inventory-transfers', \App\Http\Controllers\FGInventoryTransferController::class);
+    Route::resource('fg-inventory-transfers', \App\Http\Controllers\FGInventoryTransferController::class);
     /*=========== Finish Goods Inventory Transfer Ends ===========*/
 
     /*=========== Finish Goods Inventory Adjustment Starts ===========*/

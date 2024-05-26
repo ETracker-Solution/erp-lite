@@ -5,14 +5,16 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class FGInventoryAdjustmentItem extends Model
+class InventoryTransferItem extends Model
 {
     use HasFactory;
 
     protected $guarded = ['id'];
 
-    public function coi(){
-        
-        return $this->belongsTo(ChartOfInventory::class, 'coi_id');
+    public function coi()
+    {
+
+        return $this->belongsTo('App\Models\ChartOfInventory', 'coi_id');
+
     }
 }

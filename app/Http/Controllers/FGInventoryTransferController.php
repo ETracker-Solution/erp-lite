@@ -5,10 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreFGInventoryTransferRequest;
 use App\Http\Requests\UpdateFGInventoryTransferRequest;
 use App\Models\ChartOfInventory;
-use App\Models\Customer;
-use App\Models\FGInventoryTransfer;
-use App\Models\FGInventoryTransferItem;
-use App\Models\Requisition;
+use App\Models\InventoryTransfer;
+use App\Models\InventoryTransferItem;
 use App\Models\Store;
 use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Support\Facades\DB;
@@ -21,12 +19,12 @@ class FGInventoryTransferController extends Controller
      */
     public function index()
     {
-        $fGInventoryTransfers = FGInventoryTransfer::with('toStore','fromStore')->latest();
+        $fGInventoryTransfers = InventoryTransfer::with('toStore', 'fromStore')->where(['type' => 'FG'])->latest();
         if (\request()->ajax()) {
             return DataTables::of($fGInventoryTransfers)
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
-                    return view('finish_goods_inventory_transfer.action', compact('row'));
+                    return view('fg_inventory_transfer.action', compact('row'));
                 })
                 ->addColumn('created_at', function ($row) {
                     return view('common.created_at', compact('row'));
@@ -34,7 +32,7 @@ class FGInventoryTransferController extends Controller
                 ->rawColumns(['action', 'amount_info'])
                 ->make(true);
         }
-        return view('finish_goods_inventory_transfer.index');
+        return view('fg_inventory_transfer.index');
     }
 
     /**
@@ -42,14 +40,14 @@ class FGInventoryTransferController extends Controller
      */
     public function create()
     {
-        $serial_count = FGInventoryTransfer::latest()->first() ? FGInventoryTransfer::latest()->first()->id : 0;
+        $serial_count = InventoryTransfer::latest()->first() ? InventoryTransfer::latest()->first()->id : 0;
         $serial_no = $serial_count + 1;
         $data = [
             'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'FG'])->get(),
             'stores' => Store::where(['type' => 'FG'])->get(),
             'serial_no' => $serial_no,
         ];
-        return view('finish_goods_inventory_transfer.create', $data);
+        return view('fg_inventory_transfer.create', $data);
     }
 
     /**
@@ -60,11 +58,11 @@ class FGInventoryTransferController extends Controller
         $data = $request->validated();
         DB::beginTransaction();
         try {
-            $fGInventoryTransfer = FGInventoryTransfer::create($data);
+            $fGInventoryTransfer = InventoryTransfer::create($data);
             foreach ($data['products'] as $product) {
                 // FG Inventory Transfer Effect
-                FGInventoryTransferItem::query()->create([
-                    'f_g_inventory_transfer_id' => $fGInventoryTransfer->id,
+                InventoryTransferItem::query()->create([
+                    'inventory_transfer_id' => $fGInventoryTransfer->id,
                     'quantity' => $product['quantity'],
                     'rate' => $product['rate'],
                     'coi_id' => $product['coi_id'],
@@ -76,8 +74,8 @@ class FGInventoryTransferController extends Controller
             Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
             return back();
         }
-        Toastr::success('Member Point Created Successfully!.', '', ["progressBar" => true]);
-        return redirect()->route('finish-goods-inventory-transfers.index');
+        Toastr::success('FG Inventory Transfer Successful!.', '', ["progressBar" => true]);
+        return redirect()->route('fg-inventory-transfers.index');
     }
 
     /**
@@ -85,15 +83,15 @@ class FGInventoryTransferController extends Controller
      */
     public function show($id)
     {
-        $items = FGInventoryTransferItem::where('f_g_inventory_transfer_id', $id)->get();
-        $fGInventoryTransfer = FGInventoryTransfer::with('toStore','fromStore')->find($id);
-        return view('finish_goods_inventory_transfer.show', compact('fGInventoryTransfer','items'));
+        $items = InventoryTransferItem::where('inventory_transfer_id', $id)->get();
+        $fGInventoryTransfer = InventoryTransfer::with('toStore', 'fromStore')->find($id);
+        return view('fg_inventory_transfer.show', compact('fGInventoryTransfer', 'items'));
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(FGInventoryTransfer $fGInventoryTransfer)
+    public function edit(InventoryTransfer $inventoryTransfer)
     {
         //
     }
@@ -101,7 +99,7 @@ class FGInventoryTransferController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateFGInventoryTransferRequest $request, FGInventoryTransfer $fGInventoryTransfer)
+    public function update(UpdateFGInventoryTransferRequest $request, InventoryTransfer $inventoryTransfer)
     {
         //
     }
@@ -109,7 +107,7 @@ class FGInventoryTransferController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(FGInventoryTransfer $fGInventoryTransfer)
+    public function destroy(FGInventoryTransfer $inventoryTransfer)
     {
         //
     }

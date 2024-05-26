@@ -21,7 +21,7 @@
                         <div class="card-header">
                             <h3 class="card-title">Finish Goods Inventory Transfer List</h3>
                             <div class="card-tools">
-                                <a href="{{route('finish-goods-inventory-transfers.create')}}">
+                                <a href="{{route('fg-inventory-transfers.create')}}">
                                     <button class="btn btn-sm btn-primary"><i class="fa fa-plus-circle"
                                                                               aria-hidden="true"></i> &nbsp;Add New
                                     </button>
@@ -67,7 +67,7 @@
                 serverSide: true,
                 processing: true,
                 ajax: {
-                    url: "{{ route('finish-goods-inventory-transfers.index') }}",
+                    url: "{{ route('fg-inventory-transfers.index') }}",
                 },
                 columns: [{
                     data: "DT_RowIndex",

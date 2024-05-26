@@ -5,9 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreFGInventoryAdjustmentRequest;
 use App\Http\Requests\UpdateFGInventoryAdjustmentRequest;
 use App\Models\ChartOfInventory;
-use App\Models\FGInventoryAdjustment;
-use App\Models\FGInventoryAdjustmentItem;
-use App\Models\FGInventoryTransfer;
+use App\Models\InventoryAdjustment;
+use App\Models\InventoryAdjustmentItem;
 use App\Models\Store;
 use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Support\Facades\DB;
@@ -20,12 +19,12 @@ class FGInventoryAdjustmentController extends Controller
      */
     public function index()
     {
-        $fGInventoryAdjustments = FGInventoryAdjustment::with('store')->latest();
+        $fGInventoryAdjustments = InventoryAdjustment::with('store')->latest();
         if (\request()->ajax()) {
             return DataTables::of($fGInventoryAdjustments)
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
-                    return view('finish_goods_inventory_adjustment.action', compact('row'));
+                    return view('fg_inventory_adjustment.action', compact('row'));
                 })
                 ->addColumn('created_at', function ($row) {
                     return view('common.created_at', compact('row'));
@@ -33,7 +32,7 @@ class FGInventoryAdjustmentController extends Controller
                 ->rawColumns(['action', 'amount_info'])
                 ->make(true);
         }
-        return view('finish_goods_inventory_adjustment.index');
+        return view('fg_inventory_adjustment.index');
     }
 
     /**
@@ -41,14 +40,14 @@ class FGInventoryAdjustmentController extends Controller
      */
     public function create()
     {
-        $serial_count = FGInventoryAdjustment::latest()->first() ? FGInventoryAdjustment::latest()->first()->id : 0;
+        $serial_count = InventoryAdjustment::latest()->first() ? InventoryAdjustment::latest()->first()->id : 0;
         $serial_no = $serial_count + 1;
         $data = [
             'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'FG'])->get(),
             'stores' => Store::where(['type' => 'FG'])->get(),
             'serial_no' => $serial_no,
         ];
-        return view('finish_goods_inventory_adjustment.create', $data);
+        return view('fg_inventory_adjustment.create', $data);
     }
 
     /**
@@ -59,11 +58,11 @@ class FGInventoryAdjustmentController extends Controller
         $data = $request->validated();
         DB::beginTransaction();
         try {
-            $fGInventoryAdjustment = FGInventoryAdjustment::create($data);
+            $fGInventoryAdjustment = InventoryAdjustment::create($data);
             foreach ($data['products'] as $product) {
                 // FG Inventory Transfer Effect
-                FGInventoryAdjustmentItem::query()->create([
-                    'fg_inventory_adjust_id' => $fGInventoryAdjustment->id,
+                InventoryAdjustmentItem::query()->create([
+                    'inventory_adjustment_id' => $fGInventoryAdjustment->id,
                     'quantity' => $product['quantity'],
                     'rate' => $product['rate'],
                     'coi_id' => $product['coi_id'],
@@ -75,7 +74,7 @@ class FGInventoryAdjustmentController extends Controller
             Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
             return back();
         }
-        Toastr::success('FG Inventory Adjustment Created Successfully!.', '', ["progressBar" => true]);
+        Toastr::success('FG Inventory Adjustment Successful!.', '', ["progressBar" => true]);
         return redirect()->route('fg-inventory-adjustments.index');
     }
 
@@ -85,15 +84,15 @@ class FGInventoryAdjustmentController extends Controller
     public function show($id)
     {
 
-        $fGInventoryAdjustment = FGInventoryAdjustment::findOrFail(decrypt($id));
-        $items = FGInventoryAdjustmentItem::where('fg_inventory_adjust_id',decrypt($id))->get();
-        return view('finish_goods_inventory_adjustment.show', compact('fGInventoryAdjustment', 'items'));
+        $fGInventoryAdjustment = InventoryAdjustment::findOrFail(decrypt($id));
+        $items = InventoryAdjustmentItem::where('inventory_adjustment_id', decrypt($id))->get();
+        return view('fg_inventory_adjustment.show', compact('fGInventoryAdjustment', 'items'));
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(FGInventoryAdjustment $fGInventoryAdjustment)
+    public function edit(InventoryAdjustment $fGInventoryAdjustment)
     {
         //
     }
@@ -101,7 +100,7 @@ class FGInventoryAdjustmentController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateFGInventoryAdjustmentRequest $request, FGInventoryAdjustment $fGInventoryAdjustment)
+    public function update(UpdateFGInventoryAdjustmentRequest $request, InventoryAdjustment $fGInventoryAdjustment)
     {
         //
     }
@@ -109,7 +108,7 @@ class FGInventoryAdjustmentController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(FGInventoryAdjustment $fGInventoryAdjustment)
+    public function destroy(InventoryAdjustment $fGInventoryAdjustment)
     {
         //
     }

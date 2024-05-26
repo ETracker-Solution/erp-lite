@@ -24,9 +24,10 @@ class StoreFGInventoryTransferRequest extends FormRequest
     {
         return [
             'to_store_id' => ['required', 'different:from_store_id'],
-            'from_store_id' => ['required','different:to_store_id'],
+            'from_store_id' => ['required', 'different:to_store_id'],
             'products' => 'array',
             'date' => 'required',
+            'type' => 'required',
             'reference_no' => 'nullable',
             'remark' => 'nullable',
             'created_by' => 'required',
@@ -37,11 +38,13 @@ class StoreFGInventoryTransferRequest extends FormRequest
     {
 
         $this->merge([
+            'type' => 'FG',
             'created_by' => auth()->user()->id,
             'date' => Carbon::parse($this->date)->format('Y-m-d'),
         ]);
 
     }
+
     public function messages()
     {
         return [
