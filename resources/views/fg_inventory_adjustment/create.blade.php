@@ -85,10 +85,10 @@
                                                 <div class="form-group">
                                                     <label for="transaction_type">Transaction Type</label>
                                                     <select name="transaction_type" id="transaction_type"
-                                                            class="form-control bSelect" v-model="transaction_type">
+                                                            class="form-control bSelect" v-model="transaction_type" required>
                                                         <option value="">Select one</option>
-                                                        <option value="1">Increase</option>
-                                                        <option value="-1">Decrease</option>
+                                                        <option value="increase">Increase</option>
+                                                        <option value="decrease">Decrease</option>
                                                     </select>
                                                 </div>
                                             </div>
@@ -225,6 +225,9 @@
                                                             </td>
                                                             <td class="text-right">
                                                                 @{{subtotal}}
+                                                                <input type="hidden" class="form-control input-sm"
+                                                                       name="subtotal" v-bind:value="subtotal"
+                                                                       readonly>
                                                             </td>
                                                             <td class="text-right"></td>
                                                         </tr>
@@ -308,6 +311,7 @@
                     },
 
                     date: new Date(),
+                    transaction_type: '',
                     customer_id: '',
                     store_id: '',
                     category_id: '',

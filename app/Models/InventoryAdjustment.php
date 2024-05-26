@@ -15,4 +15,11 @@ class InventoryAdjustment extends Model
     {
         return $this->belongsTo(Store::class, 'store_id');
     }
+
+    public function items()
+    {
+
+        return $this->hasMany('App\Models\InventoryAdjustmentItem', 'inventory_adjustment_id');
+
+    }
 }

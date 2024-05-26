@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreFGInventoryTransferRequest;
 use App\Http\Requests\UpdateFGInventoryTransferRequest;
 use App\Models\ChartOfInventory;
+use App\Models\InventoryTransaction;
 use App\Models\InventoryTransfer;
 use App\Models\InventoryTransferItem;
 use App\Models\Store;
@@ -56,24 +57,42 @@ class FGInventoryTransferController extends Controller
     public function store(StoreFGInventoryTransferRequest $request)
     {
         $data = $request->validated();
-        DB::beginTransaction();
-        try {
-            $fGInventoryTransfer = InventoryTransfer::create($data);
-            foreach ($data['products'] as $product) {
-                // FG Inventory Transfer Effect
-                InventoryTransferItem::query()->create([
-                    'inventory_transfer_id' => $fGInventoryTransfer->id,
-                    'quantity' => $product['quantity'],
-                    'rate' => $product['rate'],
-                    'coi_id' => $product['coi_id'],
-                ]);
-            }
-            DB::commit();
-        } catch (\Exception $error) {
-            DB::rollBack();
-            Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
-            return back();
+//        DB::beginTransaction();
+//        try {
+        $fGInventoryTransfer = InventoryTransfer::create($data);
+        foreach ($data['products'] as $product) {
+            $fGInventoryTransfer->items()->create($product);
+            // Inventory Transaction Effect
+            InventoryTransaction::query()->create([
+                'store_id' => $fGInventoryTransfer->from_store_id,
+                'doc_type' => 'FGIT',
+                'doc_id' => $fGInventoryTransfer->id,
+                'quantity' => $product['quantity'],
+                'rate' => $product['rate'],
+                'amount' => $product['quantity'] * $product['rate'],
+                'date' => $fGInventoryTransfer->date,
+                'type' => -1,
+                'coi_id' => $product['coi_id'],
+            ]);
+            InventoryTransaction::query()->create([
+                'store_id' => $fGInventoryTransfer->to_store_id,
+                'doc_type' => 'FGIT',
+                'doc_id' => $fGInventoryTransfer->id,
+                'quantity' => $product['quantity'],
+                'rate' => $product['rate'],
+                'amount' => $product['quantity'] * $product['rate'],
+                'date' => $fGInventoryTransfer->date,
+                'type' => 1,
+                'coi_id' => $product['coi_id'],
+            ]);
+
         }
+//            DB::commit();
+//        } catch (\Exception $error) {
+//            DB::rollBack();
+//            Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
+//            return back();
+//        }
         Toastr::success('FG Inventory Transfer Successful!.', '', ["progressBar" => true]);
         return redirect()->route('fg-inventory-transfers.index');
     }
