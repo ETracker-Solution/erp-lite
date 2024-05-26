@@ -39,6 +39,31 @@
                                 <div class="card-box">
                                     <div id="">
                                         <div class="row">
+                                            <div class="col-3">
+                                                <div class="form-group">
+                                                    <label for="">Date</label>
+                                                    <input type="date" name="date" id="" class="form-control">
+                                                </div>
+                                            </div>
+                                            <div class="col-3">
+                                                <div class="form-group">
+                                                    <label for="">Current Store</label>
+                                                    <select name="store_id" id="" class="form-control">
+                                                        <option value="">None</option>
+                                                        @foreach($stores as $store)
+                                                            <option value="{{$store->id}}">{{ $store->name }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                                                <div class="form-group">
+                                                    <label for="customer_id">Invoice Number</label>
+                                                    <input type="text" class="form-control" placeholder="Enter Invoice Number"  >
+                                                </div>
+                                            </div>
                                             <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                                                 <div class="form-group">
                                                     <label for="customer_id">Customer Number</label>
