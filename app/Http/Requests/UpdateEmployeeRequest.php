@@ -41,11 +41,13 @@ class UpdateEmployeeRequest extends FormRequest
             'alternative_phone' => 'nullable',
             'department_id' => 'required',
             'designation_id' => 'required',
-            'outlet_id' => 'required',
-            'sallery' => 'required',
+            'outlet_id' => 'nullable',
+            'salary' => 'required',
             'joining_date' => 'nullable',
             'confirm_date' => 'nullable',
             'status' => 'required',
+            'user_of'=>'required',
+            'factory_id' => 'nullable',
         ];
     }
 }
