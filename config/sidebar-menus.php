@@ -395,6 +395,24 @@ return [
                     'has_child' => false,
                     'active_condition' => false,
                 ],
+                [
+                    'name' => 'HR',
+                    'url' => '#',
+                    'has_child' => true,
+                    'active_condition' => false,
+                    'child' => [
+                        [
+                            'name' => 'Department',
+                            'url' => '/departments',
+                            'active_condition' => '',
+                        ],
+                        [
+                            'name' => 'Desgination',
+                            'url' => '/designations',
+                            'active_condition' => '',
+                        ]
+                    ],
+                ],
             ],
             'permissions' => ['data-admin-admin', 'data-admin-operator', 'data-admin-viewer', 'data-admin-approver']
         ],
