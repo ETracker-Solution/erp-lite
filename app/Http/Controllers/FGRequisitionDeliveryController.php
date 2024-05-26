@@ -68,7 +68,7 @@ class FGRequisitionDeliveryController extends Controller
                 $requisition_delivery->items()->create($row);
             }
             DB::commit();
-            Toastr::success('Requisition Delivery Entry Successful!.', '', ["progressBar" => true]);
+            Toastr::success('FG Requisition Delivery Entry Successful!.', '', ["progressBar" => true]);
             return redirect()->route('fg-requisition-deliveries.index');
         } catch (\Exception $e) {
             DB::rollBack();

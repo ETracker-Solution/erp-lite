@@ -67,7 +67,7 @@ class RMRequisitionDeliveryController extends Controller
                 $requisition_delivery->items()->create($row);
             }
             DB::commit();
-            Toastr::success('Requisition Delivery Entry Successful!.', '', ["progressBar" => true]);
+            Toastr::success('RM Requisition Delivery Entry Successful!.', '', ["progressBar" => true]);
             return redirect()->route('rm-requisition-deliveries.index');
         } catch (\Exception $e) {
             DB::rollBack();

@@ -36,8 +36,9 @@
                                         <div class="row">
                                             <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                                 <div class="form-group">
-                                                    <label for="requisition_id">Requisition</label>
-                                                    <select name="requisition_id" id="requisition_id" class="form-control bSelect"
+                                                    <label for="requisition_id">RMR No</label>
+                                                    <select name="requisition_id" id="requisition_id"
+                                                            class="form-control bSelect"
                                                             v-model="requisition_id" required @change="load_old">
                                                         <option value="">Select One</option>
                                                         @foreach($requisitions as $row)
@@ -69,8 +70,10 @@
                                             <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                                 <div class="form-group">
                                                     <label for="reference_no">Reference No</label>
-                                                    <input type="text" class="form-control input-sm"   placeholder="Enter Reference No"
-                                                           value="{{old('reference_no')}}" name="reference_no" v-model="reference_no">
+                                                    <input type="text" class="form-control input-sm"
+                                                           placeholder="Enter Reference No"
+                                                           value="{{old('reference_no')}}" name="reference_no"
+                                                           v-model="reference_no">
                                                 </div>
                                             </div>
                                             <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
@@ -240,16 +243,16 @@
                         get_old_items_data: "{{ url('fetch-requisition-by-id') }}",
                     },
                     requisition_id: '',
-                    date:'',
-                    reference_no:'',
-                    remark:'',
+                    date: '',
+                    reference_no: '',
+                    remark: '',
                     serial_no: '',
-                    store_id:  '',
+                    store_id: '',
                     group_id: '',
                     item_id: '',
                     products: [],
                     items: [],
-                    pageLoading:false,
+                    pageLoading: false,
 
                 },
                 components: {
@@ -273,14 +276,16 @@
                         var slug = vm.requisition_id;
                         vm.pageLoading = true;
                         axios.get(this.config.get_old_items_data + '/' + slug).then(function (response) {
+                            vm.items = [];
                             var item = response.data.items;
                             for (key in item) {
                                 vm.items.push(item[key]);
-                            };
-                            vm.store_id=response.data.store_id;
-                            vm.date=response.data.date;
-                            vm.reference_no=response.data.reference_no;
-                            vm.remark=response.data.remark;
+                            }
+                            ;
+                            vm.store_id = response.data.store_id;
+                            vm.date = response.data.date;
+                            vm.reference_no = response.data.reference_no;
+                            vm.remark = response.data.remark;
                             vm.pageLoading = false;
                         })
 
