@@ -25,6 +25,7 @@ return new class extends Migration
             $table->string('paid_by')->nullable();
             $table->date('delivery_date')->nullable();
             $table->string('customer_number');
+            $table->string('sale_id')->nullable();
             $table->foreignId('customer_id')->nullable()->constrained('customers')->onDelete('cascade');
             $table->foreignId('outlet_id')->nullable()->constrained('outlets')->onDelete('cascade');
             $table->foreignId('created_by')->nullable()->constrained('users')->onDelete('cascade');
