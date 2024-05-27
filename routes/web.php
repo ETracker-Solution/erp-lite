@@ -209,6 +209,10 @@ Route::middleware('auth')->group(function () {
     Route::resource('rm-inventory-adjustments', \App\Http\Controllers\RMInventoryAdjustmentController::class);
     /*=========== Raw Material Inventory Adjustment Ends ===========*/
 
+    /*=========== RM Inventory Transfer Starts ===========*/
+    Route::resource('rm-inventory-transfers', \App\Http\Controllers\RMInventoryTransferController::class);
+    /*=========== RM Inventory Transfer Ends ===========*/
+
     /*=========== Raw Materials Requisition Starts ===========*/
     Route::resource('rm-requisitions', \App\Http\Controllers\RMRequisitionController::class);
     Route::get('fetch-requisition-by-id/{id}', [App\Http\Controllers\ApiController::class, 'fetchRequisitionById']);

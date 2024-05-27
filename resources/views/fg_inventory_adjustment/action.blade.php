@@ -11,10 +11,6 @@
             <i class="fas fa-folder">
             </i> Show
         </a>
-        <a target="_blank" href="{{ route('sale.pdf', $row->id) }}" class="btn btn-xs btn-info">
-            <i class="fas fa-file-pdf"></i>
-            PDF
-        </a>
         <button id="btnDelete" class="btn btn-danger btn-xs"> <i class="fas fa-trash">
             </i> Delete</button>
     </form>
