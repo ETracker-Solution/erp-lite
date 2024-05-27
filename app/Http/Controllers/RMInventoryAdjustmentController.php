@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreFGInventoryAdjustmentRequest;
+use App\Http\Requests\StoreRMInventoryAdjustmentRequest;
 use App\Http\Requests\UpdateFGInventoryAdjustmentRequest;
 use App\Models\ChartOfInventory;
 use App\Models\InventoryAdjustment;
@@ -13,19 +14,19 @@ use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Facades\DataTables;
 
-class FGInventoryAdjustmentController extends Controller
+class RMInventoryAdjustmentController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $fGInventoryAdjustments = InventoryAdjustment::with('store')->where('type','FG')->latest();
+        $fGInventoryAdjustments = InventoryAdjustment::with('store')->where('type','RM')->latest();
         if (\request()->ajax()) {
             return DataTables::of($fGInventoryAdjustments)
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
-                    return view('fg_inventory_adjustment.action', compact('row'));
+                    return view('rm_inventory_adjustment.action', compact('row'));
                 })
                 ->addColumn('created_at', function ($row) {
                     return view('common.created_at', compact('row'));
@@ -33,7 +34,7 @@ class FGInventoryAdjustmentController extends Controller
                 ->rawColumns(['action', 'amount_info'])
                 ->make(true);
         }
-        return view('fg_inventory_adjustment.index');
+        return view('rm_inventory_adjustment.index');
     }
 
     /**
@@ -44,17 +45,17 @@ class FGInventoryAdjustmentController extends Controller
         $serial_count = InventoryAdjustment::latest()->first() ? InventoryAdjustment::latest()->first()->id : 0;
         $serial_no = $serial_count + 1;
         $data = [
-            'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'FG'])->get(),
-            'stores' => Store::where(['type' => 'FG'])->get(),
+            'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'RM'])->get(),
+            'stores' => Store::where(['type' => 'RM'])->get(),
             'serial_no' => $serial_no,
         ];
-        return view('fg_inventory_adjustment.create', $data);
+        return view('rm_inventory_adjustment.create', $data);
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreFGInventoryAdjustmentRequest $request)
+    public function store(StoreRMInventoryAdjustmentRequest $request)
     {
         $data = $request->validated();
         DB::beginTransaction();
@@ -80,9 +81,9 @@ class FGInventoryAdjustmentController extends Controller
                 ]);
                 // Accounts Transaction Effect
                 if ($data['transaction_type'] === 'increase') {
-                    addAccountsTransaction('FGIA', $adjustment, 16, 52);
+                    addAccountsTransaction('RMIA', $adjustment, 16, 52);
                 } else {
-                    addAccountsTransaction('FGIA', $adjustment, 52, 16);
+                    addAccountsTransaction('RMIA', $adjustment, 52, 16);
                 }
 
 
@@ -93,8 +94,8 @@ class FGInventoryAdjustmentController extends Controller
             Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
             return back();
         }
-        Toastr::success('FG Inventory Adjustment Successful!.', '', ["progressBar" => true]);
-        return redirect()->route('fg-inventory-adjustments.index');
+        Toastr::success('RM Inventory Adjustment Successful!.', '', ["progressBar" => true]);
+        return redirect()->route('rm-inventory-adjustments.index');
     }
 
     /**
@@ -105,7 +106,7 @@ class FGInventoryAdjustmentController extends Controller
 
         $fGInventoryAdjustment = InventoryAdjustment::findOrFail(decrypt($id));
         $items = InventoryAdjustmentItem::where('inventory_adjustment_id', decrypt($id))->get();
-        return view('fg_inventory_adjustment.show', compact('fGInventoryAdjustment', 'items'));
+        return view('rm_inventory_adjustment.show', compact('fGInventoryAdjustment', 'items'));
     }
 
     /**
