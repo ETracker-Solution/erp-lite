@@ -290,7 +290,8 @@
                     paid_by: '',
                     comment:''
                 },
-                pre_orders: []
+                pre_orders: [],
+                selectedPreOrderId: null
             },
             mounted() {
                 this.getAllProducts();
@@ -488,7 +489,8 @@
                             discount: this.total_discount_amount,
                             grand_total: this.total_payable_bill,
                             customer_number: this.customerNumber,
-                            payment_methods: this.paymentMethods
+                            payment_methods: this.paymentMethods,
+                            pre_order_id: this.selectedPreOrderId
                         }).then(function (response) {
                             // console.log(response)
                             // return
@@ -894,11 +896,36 @@
                     });
                 },
                 transferToSell(order){
+                    const vm = this;
                     toastr.warning('Under Construction', {
                         closeButton: true,
                         progressBar: true,
                     });
-                    console.log(order)
+                    vm.selectedPreOrderId = order.id
+                    order.items.forEach(function(item){
+                        vm.selectedProducts.push({
+                            id: item.product.id,
+                            name: item.product.name,
+                            quantity: item.quantity,
+                            price: item.unit_price,
+                            total: item.quantity * item.unit_price,
+                            editForm: false,
+                            stock: item.quantity,
+                            discountType: '',
+                            discountValue: 0,
+                            discountAmount: 0,
+                        })
+                    })
+                    if(order.advance_amount){
+                        vm.paymentMethods.length = 0
+                        vm.paymentMethods.push({
+                           amount: order.advance_amount,
+                           method: order.paid_by
+                        })
+                    }
+                    vm.customerNumber = order.customer_number
+                    vm.changeToNav('home')
+                    vm.getCustomerInfo()
                 }
                 // checkPointInput(){
                 //     if (this.)
