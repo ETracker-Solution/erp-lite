@@ -134,8 +134,9 @@ class LedgerReportController extends Controller
         'Opening Balance' AS Particulars,
         ' ' AS Debit,
         ' ' AS Credit,
-        IFNULL(SUM(CASE WHEN TR.type = 'debit' THEN TR.amount ELSE -TR.amount END),0) AS Balance
+        IF(COA.root_account_type='as',COALESCE(SUM(CASE WHEN TR.type = 'debit' THEN TR.amount ELSE -TR.amount END),0),COALESCE(SUM(CASE WHEN TR.type = 'debit' THEN -TR.amount ELSE TR.amount END),0)) AS Balance
     FROM account_transactions TR
+    LEFT JOIN chart_of_accounts COA ON COA.id = TR.chart_of_account_id
     WHERE TR.chart_of_account_id = $account_id
     AND TR.date < '$start_date'
     LIMIT 1

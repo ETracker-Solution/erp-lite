@@ -205,6 +205,9 @@ Route::middleware('auth')->group(function () {
     /*=========== Finish Goods Inventory Adjustment Starts ===========*/
     Route::resource('fg-inventory-adjustments', \App\Http\Controllers\FGInventoryAdjustmentController::class);
     /*=========== Finish Goods Inventory Adjustment Ends ===========*/
+    /*=========== Raw Material Inventory Adjustment Starts ===========*/
+    Route::resource('rm-inventory-adjustments', \App\Http\Controllers\RMInventoryAdjustmentController::class);
+    /*=========== Raw Material Inventory Adjustment Ends ===========*/
 
     /*=========== Raw Materials Requisition Starts ===========*/
     Route::resource('rm-requisitions', \App\Http\Controllers\RMRequisitionController::class);

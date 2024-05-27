@@ -97,6 +97,19 @@ return [
             'has_child' => true,
             'child' => [
                 [
+                    'name' => 'Store FG Entry',
+                    'url' => '#',
+                    'has_child' => true,
+                    'active_condition' => false,
+                    'child' => [
+                        [
+                            'name' => 'RM Inventory Adjustment',
+                            'url' => '/rm-inventory-adjustments/create',
+                            'active_condition' => '',
+                        ]
+                    ],
+                ],
+                [
                     'name' => 'RM Requisition Entry',
                     'url' => '#',
                     'has_child' => true,
