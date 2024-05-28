@@ -55,7 +55,7 @@
                                                             v-model="store_id">
                                                         <option value="">None</option>
                                                         @foreach($stores as $store)
-                                                            <option value="{{$store->id}}" {{ $user_store->id == $store->id ? 'selected' : '' }}>{{ $store->name }}</option>
+                                                            <option value="{{$store->id}}" {{ $user_store ?($user_store->id == $store->id ? 'selected' : '') :'' }}>{{ $store->name }}</option>
                                                         @endforeach
                                                     </select>
                                                 </div>

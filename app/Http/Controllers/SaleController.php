@@ -103,7 +103,7 @@ class SaleController extends Controller
             $sale = new Sale();
             $sale->invoice_number =$request->invoice_number ?? InvoiceNumber::generateInvoiceNumber($outlet_id,$selectedDate);
             $sale->subtotal = $request->subtotal;
-            $sale->discount = $request->discount;
+            $sale->discount = $request->discount ?? 0;
             $sale->grand_total = $request->grandtotal;
             $sale->receive_amount = $request->receive_amount ?? 0;
             $sale->change_amount = $request->change_amount ?? 0;
