@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Employee;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateEmployeeRequest extends FormRequest
@@ -22,7 +23,7 @@ class UpdateEmployeeRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'employee_id' => 'required',
+            'employee_id' => ['nullable', 'unique:' . app(Employee::class)->getTable() . ',employee_id'],
             'name' => 'required',
             'image' => ['nullable', 'exclude_if:image,null'],
             'father_name' => 'nullable',
