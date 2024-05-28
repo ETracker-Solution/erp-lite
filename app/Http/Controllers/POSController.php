@@ -153,6 +153,11 @@ class POSController extends Controller
 //            $sale->amount = $salesAmount;
 //            addAccountsTransaction('POS',$sale, getCashGLID(), getAccountsReceiveableGLId());
 
+            if($request->pre_order_id){
+                PreOrder::find($request->pre_order_id)->update([
+                   'sale_id'=>$sale->id
+                ]);
+            }
 
             DB::commit();
 
@@ -407,6 +412,12 @@ class POSController extends Controller
 
     public function getAllPreOrders()
     {
-        return PreOrder::with('items.product', 'customer')->withSum('items', 'quantity')->latest()->get();
+        return PreOrder::with('items.product', 'customer')->withSum('items', 'quantity')->latest()->get()->map(function($order){
+            $order->status = $order->sale_id ? 'Delivered' : '';
+            $order->backgroundColor = $order->sale_id ? '#e5e5e5' : '';
+            $order->delivered_at = $order->sale_id ? $order->sale->readable_sell_date_time : '';
+            $order->invoice_number = $order->sale_id ? $order->sale->invoice_number : '';
+            return $order;
+        });
     }
 }

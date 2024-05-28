@@ -27,4 +27,9 @@ class PreOrder extends Model
     {
         return getTimeByFormat($this->created_at, 'F d, Y; h:i a');
     }
+
+    public function sale()
+    {
+        return $this->belongsTo(Sale::class, 'sale_id');
+    }
 }

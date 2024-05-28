@@ -7,7 +7,7 @@
             </div>
             <div class="row" style="margin: 10px; max-height: 100vh; overflow-y: auto">
                 <div class="col-12 customerInfo"  v-for="(row,index) in pre_orders" @click="addToSelectedInvoice(row)">
-                    <div class="row">
+                    <div class="row" :style="{'background-color': row.backgroundColor}">
                         <div class="col-8">
                             <span class="customerName">#@{{ row.order_number }}</span><br>
                             <span>@{{ row.readable_sell_date_time }}</span><br>
@@ -55,9 +55,16 @@
                             <li><span>Comment</span><span style="float: right">@{{ selectedInvoice.remark }}</span></li>
                         </ul>
                     </div>
+                    <hr>
+                    <div>
+                        <ul style="list-style-type: none">
+                            <li><span>Delivered At</span><span style="float: right">@{{ selectedInvoice.delivered_at }}</span></li>
+                            <li><span>Invoice Number</span><span style="float: right">@{{ selectedInvoice.invoice_number }}</span></li>
+                        </ul>
+                    </div>
                 </div>
                 <div class="text-center">
-                    <button class="btn saveButton"  @click="transferToSell(selectedInvoice)">Sale Now</button>
+                    <button class="btn saveButton"  @click="transferToSell(selectedInvoice)" v-if="selectedInvoice.order_number && selectedInvoice.status != 'Delivered'">Sale Now</button>
                 </div>
             </div>
 

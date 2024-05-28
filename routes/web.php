@@ -205,6 +205,13 @@ Route::middleware('auth')->group(function () {
     /*=========== Finish Goods Inventory Adjustment Starts ===========*/
     Route::resource('fg-inventory-adjustments', \App\Http\Controllers\FGInventoryAdjustmentController::class);
     /*=========== Finish Goods Inventory Adjustment Ends ===========*/
+    /*=========== Raw Material Inventory Adjustment Starts ===========*/
+    Route::resource('rm-inventory-adjustments', \App\Http\Controllers\RMInventoryAdjustmentController::class);
+    /*=========== Raw Material Inventory Adjustment Ends ===========*/
+
+    /*=========== RM Inventory Transfer Starts ===========*/
+    Route::resource('rm-inventory-transfers', \App\Http\Controllers\RMInventoryTransferController::class);
+    /*=========== RM Inventory Transfer Ends ===========*/
 
     /*=========== Raw Materials Requisition Starts ===========*/
     Route::resource('rm-requisitions', \App\Http\Controllers\RMRequisitionController::class);
@@ -249,6 +256,12 @@ Route::middleware('auth')->group(function () {
     /*=========== Raw Materials Opening Balance Api Ends ===========*/
 
     Route::resource('system-config', \App\Http\Controllers\SystemConfigController::class);
+
+    /*=========== Sale Report Api Starts ===========*/
+    Route::get('get-all-customers', [\App\Http\Controllers\Api\Web\SaleReportController::class, 'getAllCustomers']);
+    Route::get('get-all-fg-stores', [\App\Http\Controllers\Api\Web\SaleReportController::class, 'getAllFGStores']);
+    Route::resource('sale-reports', \App\Http\Controllers\Api\Web\SaleReportController::class);
+    /*=========== Sale Report Api Ends ===========*/
 });
 Route::group(['prefix' => 'reports', 'middleware' => 'auth'], function () {
 
