@@ -68,6 +68,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('purchases', PurchaseController::class);
     Route::resource('sales', SaleController::class);
     Route::resource('requisitions', \App\Http\Controllers\RequisitionController::class);
+    Route::get('requisition-pdf/{id}', [App\Http\Controllers\RequisitionController::class, 'pdfDownload'])->name('requisition.pdf');
     Route::resource('productions', \App\Http\Controllers\ProductionController::class);
     Route::get('production-pdf/{id}', [App\Http\Controllers\ProductionController::class, 'productionPdf'])->name('production.pdf');
     Route::resource('outlets', \App\Http\Controllers\OutletController::class);

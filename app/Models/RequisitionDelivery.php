@@ -27,4 +27,9 @@ class RequisitionDelivery extends Model
     {
         return $this->hasMany(RequisitionDeliveryItem::class);
     }
+
+    public function requisition()
+    {
+        return $this->belongsTo(Requisition::class, 'requisition_id');
+    }
 }

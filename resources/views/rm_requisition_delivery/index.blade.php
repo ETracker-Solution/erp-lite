@@ -79,7 +79,7 @@
                 },
 
                     {
-                        data: "uid",
+                        data: "requisition.uid",
                         title: "RMR No",
                         searchable: true,
                         "defaultContent": "Not Set"
