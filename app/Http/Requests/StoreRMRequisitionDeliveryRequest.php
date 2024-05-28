@@ -44,7 +44,7 @@ class StoreRMRequisitionDeliveryRequest extends FormRequest
     {
 
         $this->merge([
-            'status' => 'delivered',
+            'status' => 'completed',
             'type' => 'RM',
             'uid' => RequisitionNumber::serial_number(),
             'created_by' => auth()->user()->id,
