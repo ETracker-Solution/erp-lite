@@ -202,7 +202,7 @@ $links = [
                                         :options="$designations" optionId="id" optionValue="name" />
                                 </div>
                                 <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                                    <x-forms.text label="Salary" inputName="salary" placeholder="Enter Saalry"
+                                    <x-forms.text label="Salary" inputName="salary" placeholder="Enter Salary"
                                         :isRequired='true' :isReadonly='false' defaultValue="" />
                                 </div>
                                 <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
@@ -309,6 +309,8 @@ $links = [
                     $('input[name=joining_date]').val(result.joining_date)
                     $('input[name=confirm_date]').val(result.confirm_date)
                     $('select[name=status]').val(result.status)
+                    $('select[name=user_of]').val(result.user_of)
+                    $('select[name=factory_id]').val(result.factory_id)
                      var formElement =  $('#employeeForm')
                     formElement.attr('action',result.update_url)
                 },
