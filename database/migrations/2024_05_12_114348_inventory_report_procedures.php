@@ -51,7 +51,7 @@ FROM (
         IF(Subgroup_ID IS NULL, '', IFNULL(Subgroup_ID, '')) AS `Item ID`,
         IF(Subgroup_ID IS NULL, '', IFNULL(Subgroup_Name, '')) AS `Item Name`,
         `Balance Qty`,
-        IF(Subgroup_ID IS NULL, '', IFNULL(IF(`Balance Qty` = 0, NULL,format( `Value` / `Balance Qty`,2)), ''))  AS `Rate`,
+        IF(Subgroup_ID IS NULL, '', IFNULL(IF(`AllQ` = 0, NULL,format( `AllA` / `AllQ`,2)), ''))  AS `Rate`,
         `Value`,
         @prev_group := Group_Name
     FROM (
@@ -60,6 +60,8 @@ FROM (
             CI.id AS Subgroup_ID,
             CI.name AS Subgroup_Name,
             SUM(IT.quantity * IT.type) AS `Balance Qty`,
+             SUM(CASE WHEN IT.type = 1 THEN IT.quantity ELSE 0 END) as `AllQ`,
+            SUM(CASE WHEN IT.type = 1 THEN IT.amount ELSE 0 END) as `AllA`,
             SUM(IT.amount) AS `Value`
         FROM
             inventory_transactions IT
@@ -95,7 +97,7 @@ FROM (
         IF(Subgroup_ID IS NULL, '', IFNULL(Subgroup_ID, '')) AS `Item ID`,
         IF(Subgroup_ID IS NULL, '', IFNULL(Subgroup_Name, '')) AS `Item Name`,
         `Balance Qty`,
-        IF(Subgroup_ID IS NULL, '', IFNULL(IF(`Balance Qty` = 0, NULL,format( `Value` / `Balance Qty`,2)), ''))  AS `Rate`,
+        IF(Subgroup_ID IS NULL, '', IFNULL(IF(`AllQ` = 0, NULL,format( `AllA` / `AllQ`,2)), ''))  AS `Rate`,
         `Value`,
         @prev_group := Group_Name
     FROM (
@@ -104,6 +106,8 @@ FROM (
             CI.id AS Subgroup_ID,
             CI.name AS Subgroup_Name,
             SUM(IT.quantity * IT.type) AS `Balance Qty`,
+            SUM(CASE WHEN IT.type = 1 THEN IT.quantity ELSE 0 END) as `AllQ`,
+            SUM(CASE WHEN IT.type = 1 THEN IT.amount ELSE 0 END) as `AllA`,
             SUM(IT.amount) AS `Value`
         FROM
             inventory_transactions IT
@@ -143,7 +147,7 @@ FROM (
         IF(Subgroup_ID IS NULL, '', IFNULL(Subgroup_ID, '')) AS `Item ID`,
         IF(Subgroup_ID IS NULL, '', IFNULL(Subgroup_Name, '')) AS `Item Name`,
         `Balance Qty`,
-        IF(Subgroup_ID IS NULL, '', IFNULL(IF(`Balance Qty` = 0, NULL,format( `Value` / `Balance Qty`,2)), ''))  AS `Rate`,
+        IF(Subgroup_ID IS NULL, '', IFNULL(IF(`AllQ` = 0, NULL,format( `AllA` / `AllQ`,2)), ''))  AS `Rate`,
         `Value`,
         @prev_group := Group_Name,
         @prev_store:= Store_Name
@@ -155,6 +159,8 @@ FROM (
             CI.id AS Subgroup_ID,
             CI.name AS Subgroup_Name,
             SUM(IT.quantity * IT.type) AS `Balance Qty`,
+            SUM(CASE WHEN IT.type = 1 THEN IT.quantity ELSE 0 END) as `AllQ`,
+            SUM(CASE WHEN IT.type = 1 THEN IT.amount ELSE 0 END) as `AllA`,
             SUM(IT.amount) AS `Value`
         FROM
             inventory_transactions IT
@@ -193,7 +199,7 @@ FROM (
         IF(Subgroup_ID IS NULL, '', IFNULL(Subgroup_ID, '')) AS `Item ID`,
         IF(Subgroup_ID IS NULL, '', IFNULL(Subgroup_Name, '')) AS `Item Name`,
         `Balance Qty`,
-        IF(Subgroup_ID IS NULL, '', IFNULL(IF(`Balance Qty` = 0, NULL,format( `Value` / `Balance Qty`,2)), ''))  AS `Rate`,
+        IF(Subgroup_ID IS NULL, '', IFNULL(IF(`AllQ` = 0, NULL,format( `AllA` / `AllQ`,2)), ''))  AS `Rate`,
         `Value`,
         @prev_group := Group_Name,
         @prev_store:= Store_Name
@@ -205,6 +211,8 @@ FROM (
             CI.id AS Subgroup_ID,
             CI.name AS Subgroup_Name,
             SUM(IT.quantity * IT.type) AS `Balance Qty`,
+            SUM(CASE WHEN IT.type = 1 THEN IT.quantity ELSE 0 END) as `AllQ`,
+            SUM(CASE WHEN IT.type = 1 THEN IT.amount ELSE 0 END) as `AllA`,
             SUM(IT.amount) AS `Value`
         FROM
             inventory_transactions IT
