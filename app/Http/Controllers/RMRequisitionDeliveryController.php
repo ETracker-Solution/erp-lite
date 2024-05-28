@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Yajra\DataTables\Facades\DataTables;
+use niklasravnsborg\LaravelPdf\Facades\Pdf;
 
 class RMRequisitionDeliveryController extends Controller
 {
@@ -109,7 +110,8 @@ class RMRequisitionDeliveryController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $requisitionDelivery = RequisitionDelivery::with('toStore', 'fromStore')->find(decrypt($id));
+        return view('rm_requisition_delivery.show', compact('requisitionDelivery'));
     }
 
     /**
@@ -134,5 +136,39 @@ class RMRequisitionDeliveryController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+
+    public function pdfDownload($id)
+    {
+        $data = [
+            'requisitionDelivery' => RequisitionDelivery::with('toStore', 'fromStore')->find(decrypt($id)),
+        ];
+
+        $pdf = PDF::loadView(
+            'rm_requisition_delivery.pdf',
+            $data,
+            [],
+            [
+                'format' => 'A4-P',
+                'orientation' => 'P',
+                'margin-left' => 1,
+
+                '', // mode - default ''
+                '', // format - A4, for example, default ''
+                0, // font size - default 0
+                '', // default font family
+                1, // margin_left
+                1, // margin right
+                1, // margin top
+                1, // margin bottom
+                1, // margin header
+                1, // margin footer
+                'L', // L - landscape, P - portrait
+
+            ]
+        );
+        $name = \Carbon\Carbon::now()->format('d-m-Y');
+
+        return $pdf->stream($name . '.pdf');
     }
 }
