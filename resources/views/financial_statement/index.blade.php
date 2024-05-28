@@ -1,6 +1,6 @@
 @extends('layouts.app')
 @section('title')
-    RM Inventory Report
+   Financial Statement
 @endsection
 @section('content')
     @php

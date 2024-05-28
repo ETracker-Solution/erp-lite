@@ -257,7 +257,20 @@ return [
                             'active_condition' => '',
                         ]
                     ],
-                ]
+                ],
+                [
+                    'name' => 'Report',
+                    'url' => '#',
+                    'has_child' => true,
+                    'active_condition' => false,
+                    'child' => [
+                        [
+                            'name' => 'Sales Report',
+                            'url' => '/sale-reports',
+                            'active_condition' => '',
+                        ]
+                    ],
+                ],
             ],
             'permissions' => ['sales-admin', 'sales-operator', 'sales-viewer', 'sales-approver']
         ],
@@ -448,7 +461,7 @@ return [
                     'active_condition' => false,
                     'child' => [
                         [
-                            'name' => 'Create New User',
+                            'name' => 'User List',
                             'url' => '/users',
                             'active_condition' => false,
                         ],
