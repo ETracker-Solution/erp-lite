@@ -461,7 +461,7 @@ return [
                     'active_condition' => false,
                     'child' => [
                         [
-                            'name' => 'Create New User',
+                            'name' => 'User List',
                             'url' => '/users',
                             'active_condition' => false,
                         ],
