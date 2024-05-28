@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -20,7 +19,8 @@ return new class extends Migration
             $table->text('remark')->nullable();
             $table->enum('status', ['pending', 'approved', 'completed', 'rejected'])->default('pending');
             $table->enum('type', ['FG', 'RM'])->default('FG');
-            $table->foreignId('store_id')->nullable()->constrained('stores')->onDelete('cascade');
+            $table->foreignId('from_store_id')->nullable()->constrained('stores')->onDelete('cascade');
+            $table->foreignId('to_store_id')->nullable()->constrained('stores')->onDelete('cascade');
             $table->foreignId('requisition_id')->nullable()->constrained('requisitions')->onDelete('cascade');
             $table->unsignedBigInteger('created_by')->nullable();
             $table->unsignedBigInteger('updated_by')->nullable();
