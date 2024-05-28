@@ -185,6 +185,7 @@ Route::middleware('auth')->group(function () {
 
     /*=========== Raw Materials Inventory Report Api Starts ===========*/
     Route::resource('raw-materials-inventory-report', \App\Http\Controllers\Api\Web\RMInventoryReportController::class);
+
     /*=========== Raw Materials Inventory Report Api Ends ===========*/
 
     /*=========== Finish Goods Opening Balance Api Starts ===========*/
@@ -211,6 +212,7 @@ Route::middleware('auth')->group(function () {
 
     /*=========== RM Inventory Transfer Starts ===========*/
     Route::resource('rm-inventory-transfers', \App\Http\Controllers\RMInventoryTransferController::class);
+    Route::get('rm-inventory-transfers-pdf/{id}', [App\Http\Controllers\RMInventoryTransferController::class, 'pdfDownload'])->name('rm-inventory-transfers.pdf');
     /*=========== RM Inventory Transfer Ends ===========*/
 
     /*=========== Raw Materials Requisition Starts ===========*/

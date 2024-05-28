@@ -23,7 +23,7 @@ class RMRequisitionController extends Controller
     public function index()
     {
         if (\request()->ajax()) {
-            $data = Requisition::where('type', 'RM')->latest();
+            $data = Requisition::with('store')->where('type', 'RM')->latest();
             return DataTables::of($data)
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
@@ -49,7 +49,7 @@ class RMRequisitionController extends Controller
 
         $data = [
             'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'RM'])->get(),
-            'stores' => Store::where(['type' => 'RM','doc_type'=>'ho'])->get(),
+            'stores' => Store::where(['type' => 'RM','doc_type'=>'factory'])->get(),
             'serial_no' => RequisitionNumber::serial_number()
         ];
         return view('rm_requisition.create', $data);

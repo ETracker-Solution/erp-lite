@@ -134,6 +134,7 @@ class ApiController extends Controller
                 'unit' => $row->coi->unit->name ?? '',
                 'name' => $row->coi->name ?? '',
                 'group' => $row->coi->parent->name ?? '',
+                'rate' => $row->rate,
                 'quantity' => $row->quantity,
             ];
         }

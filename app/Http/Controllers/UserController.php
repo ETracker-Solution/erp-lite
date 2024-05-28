@@ -70,7 +70,11 @@ class UserController extends Controller
     public function edit($id)
     {
         $user = User::findOrFail(decrypt($id));
-        return view('user.edit', compact('user'));
+        $data = Permission::all()->groupBy('module_name');
+        $userPermissions = $user->permissions->pluck('name')->toArray();
+        $employees = Employee::all();
+        $outlets = Outlet::all();
+        return view('user.edit', compact('user','employees','outlets','data','userPermissions'));
     }
     public function update(UpdateUserRequest $request, $id)
     {
@@ -80,7 +84,9 @@ class UserController extends Controller
             if (isset($validated['password'])) {
                 $validated['password'] = bcrypt($validated['password']);
             }
-            User::findOrFail($id)->update($validated);
+            $user = User::findOrFail($id);
+            $user->syncPermissions($request->permissions);
+            $user->update($validated);
             DB::commit();
         } catch (\Exception $error) {
             DB::rollBack();

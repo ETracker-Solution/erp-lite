@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreRMRequisitionDeliveryRequest;
 use App\Models\ChartOfInventory;
+use App\Models\InventoryTransaction;
 use App\Models\Requisition;
 use App\Models\RequisitionDelivery;
 use App\Models\Store;
@@ -47,7 +48,8 @@ class RMRequisitionDeliveryController extends Controller
     {
         $data = [
             'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'RM'])->get(),
-            'stores' => Store::where(['type' => 'RM'])->get(),
+            'from_stores' => Store::where(['type' => 'RM', 'doc_type' => 'ho'])->get(),
+            'to_stores' => Store::where(['type' => 'RM', 'doc_type' => 'factory'])->get(),
             'requisitions' => Requisition::where(['type' => 'RM'])->get()
         ];
         return view('rm_requisition_delivery.create', $data);
@@ -63,8 +65,32 @@ class RMRequisitionDeliveryController extends Controller
             $data = $request->validated();
             $requisition_delivery = RequisitionDelivery::query()->create($data);
             $products = $request->get('products');
-            foreach ($products as $row) {
-                $requisition_delivery->items()->create($row);
+            foreach ($products as $product) {
+                $requisition_delivery->items()->create($product);
+                // Inventory Transaction Effect
+                InventoryTransaction::query()->create([
+                    'store_id' => $requisition_delivery->from_store_id,
+                    'doc_type' => 'RMRD',
+                    'doc_id' => $requisition_delivery->id,
+                    'quantity' => $product['quantity'],
+                    'rate' => $product['rate'] ?? 0,
+                    'amount' => $product['quantity'] * $product['rate'],
+                    'date' => $requisition_delivery->date,
+                    'type' => -1,
+                    'coi_id' => $product['coi_id'],
+                ]);
+                InventoryTransaction::query()->create([
+                    'store_id' => $requisition_delivery->to_store_id,
+                    'doc_type' => 'RMRD',
+                    'doc_id' => $requisition_delivery->id,
+                    'quantity' => $product['quantity'],
+                    'rate' => $product['rate'] ?? 0,
+                    'amount' => $product['quantity'] * $product['rate'],
+                    'date' => $requisition_delivery->date,
+                    'type' => 1,
+                    'coi_id' => $product['coi_id'],
+                ]);
+
             }
             DB::commit();
             Toastr::success('RM Requisition Delivery Entry Successful!.', '', ["progressBar" => true]);

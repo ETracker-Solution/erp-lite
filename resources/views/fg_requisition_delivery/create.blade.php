@@ -19,13 +19,13 @@
                             <img src="{{ asset('loading.gif') }}" alt="loading">
                         </span>
                 <div class="col-lg-12 col-md-12">
-                    <form action="{{ route('rm-requisition-deliveries.store') }}" method="POST" class="">
+                    <form action="{{ route('fg-requisition-deliveries.store') }}" method="POST" class="">
                         @csrf
                         <div class="card">
                             <div class="card-header bg-info">
                                 <h3 class="card-title">FG Requisition Entry</h3>
                                 <div class="card-tools">
-                                    <a href="{{route('rm-requisition-deliveries.index')}}"
+                                    <a href="{{route('fg-requisition-deliveries.index')}}"
                                        class="btn btn-sm btn-primary">
                                         <i class="fa fa-list" aria-hidden="true"></i> &nbsp;FG Requisition List
                                     </a>
@@ -58,16 +58,29 @@
                                             </div>
                                             <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                                 <div class="form-group">
-                                                    <label for="store_id">Store</label>
-                                                    <select name="store_id" id="store_id" class="form-control bSelect"
-                                                            v-model="store_id" required>
+                                                    <label for="from_store_id">From Store</label>
+                                                    <select name="from_store_id" id="from_store_id" class="form-control bSelect"
+                                                            v-model="from_store_id" required>
                                                         <option value="">Select One</option>
-                                                        @foreach($stores as $row)
+                                                        @foreach($from_stores as $row)
                                                             <option value="{{ $row->id }}">{{ $row->name }}</option>
                                                         @endforeach
                                                     </select>
                                                 </div>
                                             </div>
+                                            <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+                                                <div class="form-group">
+                                                    <label for="to_store_id">To Store</label>
+                                                    <select name="to_store_id" id="to_to_store_id" class="form-control bSelect"
+                                                            v-model="to_store_id" required>
+                                                        <option value="">Select One</option>
+                                                        @foreach($to_stores as $row)
+                                                            <option value="{{ $row->id }}">{{ $row->name }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                            </div>
+
                                             <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                                 <div class="form-group">
                                                     <label for="reference_no">Reference No</label>
@@ -124,6 +137,10 @@
                                                                        :name="'products['+index+'][coi_id]'"
                                                                        class="form-control input-sm"
                                                                        v-bind:value="row.coi_id">
+                                                                <input type="hidden"
+                                                                       :name="'products['+index+'][rate]'"
+                                                                       class="form-control input-sm"
+                                                                       v-bind:value="row.rate">
                                                                 @{{ row.name }}
                                                             </td>
                                                             <td style="vertical-align: middle">
@@ -243,7 +260,8 @@
                     reference_no: '',
                     remark: '',
                     serial_no: '',
-                    store_id: '',
+                    from_store_id: '',
+                    to_store_id: '',
                     group_id: '',
                     item_id: '',
                     products: [],
@@ -278,7 +296,7 @@
                                 vm.items.push(item[key]);
                             }
                             ;
-                            vm.store_id = response.data.store_id;
+                            vm.to_store_id = response.data.store_id;
                             vm.date = response.data.date;
                             vm.reference_no = response.data.reference_no;
                             vm.remark = response.data.remark;
