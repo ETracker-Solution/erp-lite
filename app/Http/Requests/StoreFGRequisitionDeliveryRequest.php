@@ -44,7 +44,7 @@ class StoreFGRequisitionDeliveryRequest extends FormRequest
     {
 
         $this->merge([
-            'status' => 'delivered',
+            'status' => 'completed',
             'type' => 'FG',
             'uid' => RequisitionNumber::serial_number(),
             'created_by' => auth()->user()->id,

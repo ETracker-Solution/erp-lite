@@ -23,7 +23,7 @@ class RMRequisitionDeliveryController extends Controller
     {
 
         if (\request()->ajax()) {
-            $data = RequisitionDelivery::where('type', 'RM')->latest();
+            $data = RequisitionDelivery::with('fromStore','toStore')->where('type', 'RM')->latest();
             return DataTables::of($data)
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {

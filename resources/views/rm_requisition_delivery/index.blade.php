@@ -90,8 +90,14 @@
                         "defaultContent": "Not Set"
                     },
                     {
-                        data: "subtotal",
-                        title: "Sub Total",
+                        data: "from_store.name",
+                        title: "From Store",
+                        searchable: true,
+                        "defaultContent": "Not Set"
+                    },
+                    {
+                        data: "to_store.name",
+                        title: "To Store",
                         searchable: true,
                         "defaultContent": "Not Set"
                     },

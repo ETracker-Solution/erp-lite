@@ -24,7 +24,7 @@ class FGRequisitionDeliveryController extends Controller
     {
 
         if (\request()->ajax()) {
-            $data = RequisitionDelivery::where('type', 'FG')->latest();
+            $data = RequisitionDelivery::with('fromStore','toStore')->where('type', 'FG')->latest();
             return DataTables::of($data)
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
