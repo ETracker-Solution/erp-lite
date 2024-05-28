@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Employee;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreEmployeeRequest extends FormRequest
@@ -22,7 +23,7 @@ class StoreEmployeeRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'employee_id' => 'required',
+            'employee_id' => ['nullable', 'unique:' . app(Employee::class)->getTable() . ',employee_id'],
             'name' => 'required',
             'image' => 'nullable',
             'father_name' => 'nullable',
@@ -30,12 +31,12 @@ class StoreEmployeeRequest extends FormRequest
             'nominee_name' => 'nullable',
             'nominee_relation' => 'nullable',
             'blood_group' => 'required',
-            'nid' => 'required',
+            'nid' => ['required', 'unique:' . app(Employee::class)->getTable() . ',nid'],
             'dob' => 'required',
             'bank_account' => 'required',
             'present_address' => 'required',
             'permanent_address' => 'nullable',
-            'email' => 'required',
+            'email' => 'required|email|unique:employees,email',
             'personal_email' => 'nullable',
             'phone' => 'required',
             'alternative_phone' => 'nullable',
