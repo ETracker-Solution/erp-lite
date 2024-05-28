@@ -49,7 +49,7 @@ class FGRequisitionDeliveryController extends Controller
     {
         $data = [
             'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'FG'])->get(),
-            'from_stores' => Store::where(['type' => 'RM', 'doc_type' => 'factory'])->get(),
+            'from_stores' => Store::where(['type' => 'FG', 'doc_type' => 'factory'])->get(),
             'to_stores' => Store::where(['type' => 'FG', 'doc_type' => 'outlet'])->get(),
             'requisitions' => Requisition::where(['type' => 'FG'])->get()
         ];
@@ -74,7 +74,7 @@ class FGRequisitionDeliveryController extends Controller
                     'doc_type' => 'FGRD',
                     'doc_id' => $requisition_delivery->id,
                     'quantity' => $product['quantity'],
-                    'rate' => $product['rate'] ?? 0,
+                    'rate' => $product['rate'],
                     'amount' => $product['quantity'] * $product['rate'],
                     'date' => $requisition_delivery->date,
                     'type' => -1,
@@ -85,7 +85,7 @@ class FGRequisitionDeliveryController extends Controller
                     'doc_type' => 'FGRD',
                     'doc_id' => $requisition_delivery->id,
                     'quantity' => $product['quantity'],
-                    'rate' => $product['rate'] ?? 0,
+                    'rate' => $product['rate'],
                     'amount' => $product['quantity'] * $product['rate'],
                     'date' => $requisition_delivery->date,
                     'type' => 1,

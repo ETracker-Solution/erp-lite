@@ -63,7 +63,7 @@
                                                             v-model="from_store_id" required>
                                                         <option value="">Select One</option>
                                                         @foreach($from_stores as $row)
-                                                            <option value="{{ $row->id }}">{{ $row->name }}</option>
+                                                            <option value="{{ $row->id }}">{{ $row->id }}-{{ $row->name }}</option>
                                                         @endforeach
                                                     </select>
                                                 </div>
@@ -75,7 +75,7 @@
                                                             v-model="to_store_id" required>
                                                         <option value="">Select One</option>
                                                         @foreach($to_stores as $row)
-                                                            <option value="{{ $row->id }}">{{ $row->name }}</option>
+                                                            <option value="{{ $row->id }}">{{ $row->id }}-{{ $row->name }}</option>
                                                         @endforeach
                                                     </select>
                                                 </div>
