@@ -27,4 +27,15 @@ class RequisitionDelivery extends Model
     {
         return $this->hasMany(RequisitionDeliveryItem::class);
     }
+    public function fromStore()
+    {
+
+        return $this->belongsTo(Store::class, 'from_store_id');
+    }
+
+    public function toStore()
+    {
+
+        return $this->belongsTo(Store::class, 'to_store_id');
+    }
 }

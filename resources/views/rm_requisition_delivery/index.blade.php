@@ -21,7 +21,7 @@
                         <div class="card-header">
                             <h3 class="card-title">RM Requisition Delivery List</h3>
                             <div class="card-tools">
-                                <a href="{{route('rm-requisitions.create')}}">
+                                <a href="{{route('rm-requisition-deliveries.create')}}">
                                     <button class="btn btn-sm btn-primary"><i class="fa fa-plus-circle"
                                                                               aria-hidden="true"></i> &nbsp;Add RM
                                         Requisition Delivery
@@ -90,8 +90,14 @@
                         "defaultContent": "Not Set"
                     },
                     {
-                        data: "subtotal",
-                        title: "Sub Total",
+                        data: "from_store.name",
+                        title: "From Store",
+                        searchable: true,
+                        "defaultContent": "Not Set"
+                    },
+                    {
+                        data: "to_store.name",
+                        title: "To Store",
                         searchable: true,
                         "defaultContent": "Not Set"
                     },

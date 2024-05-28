@@ -34,6 +34,7 @@ function showStatus($status)
         case 'accepted':
         case 'active':
         case 'delivered':
+        case 'completed':
             return '<span class="badge badge-success">' . ucfirst($status) . '</span>';
         case 'return':
             return '<span class="badge badge-light-danger">' . ucfirst($status) . '</span>';
@@ -82,7 +83,7 @@ function getDue($merchant_id)
 function getNextId($model)
 {
     $item = $model::latest('uid')->first();
-    return $item ? (int) $item->uid + 1 : 1;
+    return $item ? (int)$item->uid + 1 : 1;
 }
 
 function getAllPermissions()
@@ -92,7 +93,7 @@ function getAllPermissions()
 
 function getSettingValue($key)
 {
-    $setting =  \App\Models\SystemConfig::where('key', $key)->first();
+    $setting = \App\Models\SystemConfig::where('key', $key)->first();
     if ($setting) {
         return $setting->value;
     }

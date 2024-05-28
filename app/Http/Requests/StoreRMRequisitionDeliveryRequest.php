@@ -36,6 +36,7 @@ class StoreRMRequisitionDeliveryRequest extends FormRequest
             'total_quantity' => 'required',
             'remark' => 'nullable',
             'created_by' => 'required',
+            'status' => 'required',
         ];
     }
 
@@ -43,6 +44,7 @@ class StoreRMRequisitionDeliveryRequest extends FormRequest
     {
 
         $this->merge([
+            'status' => 'completed',
             'type' => 'RM',
             'uid' => RequisitionNumber::serial_number(),
             'created_by' => auth()->user()->id,

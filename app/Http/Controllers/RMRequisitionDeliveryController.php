@@ -24,7 +24,7 @@ class RMRequisitionDeliveryController extends Controller
     {
 
         if (\request()->ajax()) {
-            $data = RequisitionDelivery::where('type', 'RM')->latest();
+            $data = RequisitionDelivery::with('fromStore','toStore')->where('type', 'RM')->latest();
             return DataTables::of($data)
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
@@ -51,7 +51,7 @@ class RMRequisitionDeliveryController extends Controller
             'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'RM'])->get(),
             'from_stores' => Store::where(['type' => 'RM', 'doc_type' => 'ho'])->get(),
             'to_stores' => Store::where(['type' => 'RM', 'doc_type' => 'factory'])->get(),
-            'requisitions' => Requisition::where(['type' => 'RM'])->get()
+            'requisitions' => Requisition::where(['type' => 'RM', 'status' => 'pending'])->get()
         ];
         return view('rm_requisition_delivery.create', $data);
     }
@@ -93,6 +93,7 @@ class RMRequisitionDeliveryController extends Controller
                 ]);
 
             }
+            Requisition::where('id', $data['requisition_id'])->update(['status' => 'completed']);
             DB::commit();
             Toastr::success('RM Requisition Delivery Entry Successful!.', '', ["progressBar" => true]);
             return redirect()->route('rm-requisition-deliveries.index');

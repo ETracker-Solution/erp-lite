@@ -69,7 +69,7 @@ function getFGInventoryGLId()
 
 function getIncomeFromSalesGLId()
 {
-    return 33;
+    return 35;
 }
 
 function getCOGSGLId()
