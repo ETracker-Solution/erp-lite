@@ -122,11 +122,13 @@
                                                         <thead class="bg-secondary">
                                                         <tr>
                                                             <th style="width: 5%">#</th>
-                                                            <th style="width: 20%">Group</th>
-                                                            <th style="width:35%">Item</th>
-                                                            <th style="width: 6%">Unit</th>
-                                                            <th style="width: 8%;vertical-align: middle">Quantity</th>
-                                                            <th style="width: 6%"></th>
+                                                            <th style="width: 15%">Group</th>
+                                                            <th style="width:25%">Item</th>
+                                                            <th style="width: 5%">Unit</th>
+                                                            <th style="width: 10%;vertical-align: middle">Balance Quantity</th>
+                                                            <th style="width: 10%;vertical-align: middle">Requisition Quantity</th>
+                                                            <th style="width: 10%;vertical-align: middle">Delivery Quantity</th>
+                                                            <th style="width: 5%"></th>
                                                         </tr>
                                                         </thead>
                                                         <tbody>
@@ -152,6 +154,16 @@
                                                                 @{{ row.unit }}
                                                             </td>
                                                             <td style="vertical-align: middle" class="text-right">
+                                                                <input type="number" v-model="row.balance_quantity"
+                                                                       :name="'products['+index+'][balance_quantity]'"
+                                                                       class="form-control input-sm"
+                                                                      required readonly>
+                                                            </td> <td style="vertical-align: middle" class="text-right">
+                                                                <input type="number" v-model="row.requisition_quantity"
+                                                                       :name="'products['+index+'][requisition_quantity]'"
+                                                                       class="form-control input-sm"
+                                                                     required readonly>
+                                                            </td> <td style="vertical-align: middle" class="text-right">
                                                                 <input type="number" v-model="row.quantity"
                                                                        :name="'products['+index+'][quantity]'"
                                                                        class="form-control input-sm"
@@ -167,12 +179,12 @@
                                                         </tbody>
                                                         <tfoot>
                                                         <tr>
-                                                            <td colspan="6" style="background-color: #DDDCDC">
+                                                            <td colspan="8" style="background-color: #DDDCDC">
 
                                                             </td>
                                                         </tr>
                                                         <tr>
-                                                            <td colspan="4" class="text-right">
+                                                            <td colspan="6" class="text-right">
                                                                 Total Quantity
                                                             </td>
                                                             <td class="text-right">
@@ -294,13 +306,13 @@
                         var vm = this;
                         var slug = vm.requisition_id;
                         vm.pageLoading = true;
-                        axios.get(this.config.get_old_items_data + '/' + slug).then(function (response) {
+                        axios.get(this.config.get_old_items_data + '/' + slug+ '/' + vm.from_store_id).then(function (response) {
                             vm.items = [];
                             var item = response.data.items;
                             for (key in item) {
                                 vm.items.push(item[key]);
                             }
-                            ;
+
                             vm.to_store_id = response.data.store_id;
                             vm.date = response.data.date;
                             vm.reference_no = response.data.reference_no;
@@ -309,11 +321,18 @@
                         })
 
                     },
-                    valid: function (index) {
 
-                        console.log(index.quantity);
-                        if (index.quantity <= 0) {
-                            //console.log('3');
+                    valid: function (index) {
+                        if(index.quantity > index.balance_quantity ){
+                            console.log('1st');
+                            index.quantity = index.balance_quantity ;
+                        }
+                        if(index.requisition_quantity < index.quantity ){
+                            console.log('2');
+                            index.quantity=index.requisition_quantity;
+                        }
+                        if(index.quantity <= 0){
+                            console.log('3');
                             index.quantity = '';
                         }
                     }

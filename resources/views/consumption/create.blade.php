@@ -429,8 +429,9 @@
 
                         var vm = this;
                         var slug = vm.item_id;
+                        var store_id = vm.store_id;
 
-                        if (!vm.store_id) {
+                        if (!store_id) {
                             toastr.error('Please Select Store', {
                                 closeButton: true,
                                 progressBar: true,
@@ -458,7 +459,7 @@
 
                             if (slug) {
                                 vm.pageLoading = true;
-                                axios.get(this.config.get_item_info_url + '/' + slug).then(function (response) {
+                                axios.get(this.config.get_item_info_url + '/' + slug+ '/' + store_id).then(function (response) {
                                     let data = response.data;
                                     console.log(data);
                                     vm.selected_items.push({

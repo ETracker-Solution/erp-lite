@@ -26,7 +26,7 @@ class StoreConsumptionRequest extends FormRequest
     {
         return [
             'date' => ['required'],
-            'status' => ['nullable'],
+            'status' => ['required'],
             'products' => ['required', 'array'],
 //            'products.*.coi' => 'required',
 //            'products.*.rate' => 'required',
@@ -43,6 +43,7 @@ class StoreConsumptionRequest extends FormRequest
     public function prepareForValidation()
     {
         $this->merge([
+            'status' =>'completed',
             'created_by' => auth()->user()->id
         ]);
     }
