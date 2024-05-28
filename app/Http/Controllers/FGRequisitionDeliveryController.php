@@ -51,7 +51,7 @@ class FGRequisitionDeliveryController extends Controller
             'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'FG'])->get(),
             'from_stores' => Store::where(['type' => 'FG', 'doc_type' => 'factory'])->get(),
             'to_stores' => Store::where(['type' => 'FG', 'doc_type' => 'outlet'])->get(),
-            'requisitions' => Requisition::where(['type' => 'FG'])->get()
+            'requisitions' => Requisition::where(['type' => 'FG', 'status' => 'pending'])->get()
         ];
         return view('fg_requisition_delivery.create', $data);
     }
@@ -92,6 +92,7 @@ class FGRequisitionDeliveryController extends Controller
                     'coi_id' => $product['coi_id'],
                 ]);
             }
+            Requisition::where('id', $data['requisition_id'])->update(['status' => 'completed']);
             DB::commit();
             Toastr::success('FG Requisition Delivery Entry Successful!.', '', ["progressBar" => true]);
             return redirect()->route('fg-requisition-deliveries.index');
