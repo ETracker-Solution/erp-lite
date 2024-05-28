@@ -17,7 +17,13 @@ FG Requisition Details
     <div class="container-fluid">
         <div class="row">
             <div class="col-12">
-                <!-- Main content -->
+                <div class="card card-info">
+                    <div class="card-header">
+                        <h3 class="card-title">FG Requisition Details</h3>
+                        <a href="{{route('requisition.pdf',encrypt($requisition->id))}}"
+                            class="btn btn-sm btn-primary float-right" target="_blank"><i class="fa fa-download"></i> PDF</a>
+                    </div>
+                    <!-- Main content -->
                     <div class="row invoice-info">
                         <div class="col-sm-4 invoice-col">
                             <table width="100%">
@@ -35,17 +41,17 @@ FG Requisition Details
                         </div>
                         <!-- /.col -->
                         <div class="col-sm-4 invoice-col">
-                            <td><b>Customer :</b> {{ $requisition->customer->name??'Walking Customer'}}</td>
+                            {{-- <td><b>Customer :</b> {{ $requisition->customer->name??'Walking Customer'}}</td> --}}
                         </div>
                         <!-- /.col -->
                         <div class="col-sm-4 invoice-col">
-                             
+                                
                         </div>
                         <!-- /.col -->
                     </div>
-
+    
                     <!-- /.row -->
-
+    
                     <!-- Table row -->
                     <div class="row">
                         <div class="col-12 table-responsive">
@@ -77,11 +83,11 @@ FG Requisition Details
                         <!-- /.col -->
                     </div>
                     <!-- /.row -->
-
+    
                     <div class="row">
                         <!-- accepted payments column -->
                         <div class="col-8">
-
+    
                         </div>
                         <!-- /.col -->
                         <div class="col-4">
@@ -96,10 +102,10 @@ FG Requisition Details
                         </div>
                         <!-- /.col -->
                     </div>
-                    <!-- /.row -->
                 </div>
+                <!-- /.row -->
+            </div>
                 <!-- /.invoice -->
-            </div><!-- /.col -->
         </div><!-- /.row -->
     </div><!-- /.container-fluid -->
 </section>
