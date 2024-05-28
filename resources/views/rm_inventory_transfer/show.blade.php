@@ -17,11 +17,8 @@ RM Inventory Transfer Details
                 <div class="card card-info">
                     <div class="card-header">
                         <h3 class="card-title">RM Inventory Transfer Details</h3>
-                        <a href="{{route('rm-inventory-transfers.pdf',$RMInventoryTransfer->id)}}">
-                            <button class="btn btn-sm btn-primary float-right"><i class="fa fa-download"
-                                                                      aria-hidden="true"></i> &nbsp;PDF
-                            </button>
-                        </a>
+                        <a href="{{route('rm-inventory-transfers.pdf',$RMInventoryTransfer->id)}}"
+                            class="btn btn-sm btn-primary float-right" target="_blank"><i class="fa fa-download"></i> PDF</a>
                     </div> 
                     <!-- Main content -->
                     <div class="invoice p-3 mb-3">
