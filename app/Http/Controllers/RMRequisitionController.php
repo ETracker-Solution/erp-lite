@@ -23,7 +23,7 @@ class RMRequisitionController extends Controller
     public function index()
     {
         if (\request()->ajax()) {
-            $data = Requisition::where('type', 'RM')->latest();
+            $data = Requisition::with('store')->where('type', 'RM')->latest();
             return DataTables::of($data)
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
