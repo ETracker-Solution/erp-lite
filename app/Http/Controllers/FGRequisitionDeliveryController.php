@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreFGRequisitionDeliveryRequest;
 use App\Http\Requests\StoreRMRequisitionDeliveryRequest;
 use App\Models\ChartOfInventory;
+use App\Models\InventoryTransaction;
 use App\Models\Requisition;
 use App\Models\RequisitionDelivery;
 use App\Models\Store;
@@ -23,7 +24,7 @@ class FGRequisitionDeliveryController extends Controller
     {
 
         if (\request()->ajax()) {
-            $data = RequisitionDelivery::where('type', 'RM')->latest();
+            $data = RequisitionDelivery::where('type', 'FG')->latest();
             return DataTables::of($data)
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
@@ -48,7 +49,8 @@ class FGRequisitionDeliveryController extends Controller
     {
         $data = [
             'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'FG'])->get(),
-            'stores' => Store::where(['type' => 'RM'])->get(),
+            'from_stores' => Store::where(['type' => 'RM', 'doc_type' => 'factory'])->get(),
+            'to_stores' => Store::where(['type' => 'FG', 'doc_type' => 'outlet'])->get(),
             'requisitions' => Requisition::where(['type' => 'FG'])->get()
         ];
         return view('fg_requisition_delivery.create', $data);
@@ -64,8 +66,31 @@ class FGRequisitionDeliveryController extends Controller
             $data = $request->validated();
             $requisition_delivery = RequisitionDelivery::query()->create($data);
             $products = $request->get('products');
-            foreach ($products as $row) {
-                $requisition_delivery->items()->create($row);
+            foreach ($products as $product) {
+                $requisition_delivery->items()->create($product);
+                // Inventory Transaction Effect
+                InventoryTransaction::query()->create([
+                    'store_id' => $requisition_delivery->from_store_id,
+                    'doc_type' => 'FGRD',
+                    'doc_id' => $requisition_delivery->id,
+                    'quantity' => $product['quantity'],
+                    'rate' => $product['rate'] ?? 0,
+                    'amount' => $product['quantity'] * $product['rate'],
+                    'date' => $requisition_delivery->date,
+                    'type' => -1,
+                    'coi_id' => $product['coi_id'],
+                ]);
+                InventoryTransaction::query()->create([
+                    'store_id' => $requisition_delivery->to_store_id,
+                    'doc_type' => 'FGRD',
+                    'doc_id' => $requisition_delivery->id,
+                    'quantity' => $product['quantity'],
+                    'rate' => $product['rate'] ?? 0,
+                    'amount' => $product['quantity'] * $product['rate'],
+                    'date' => $requisition_delivery->date,
+                    'type' => 1,
+                    'coi_id' => $product['coi_id'],
+                ]);
             }
             DB::commit();
             Toastr::success('FG Requisition Delivery Entry Successful!.', '', ["progressBar" => true]);

@@ -83,4 +83,7 @@ class Requisition extends Model
     public function productionHouse(){
         return $this->belongsTo(ProductionHouse::class);
     }
+    public function store(){
+        return $this->belongsTo(Store::class);
+    }
 }

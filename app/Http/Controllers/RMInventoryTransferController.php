@@ -67,7 +67,7 @@ class RMInventoryTransferController extends Controller
             // Inventory Transaction Effect
             InventoryTransaction::query()->create([
                 'store_id' => $fGInventoryTransfer->from_store_id,
-                'doc_type' => 'FGIT',
+                'doc_type' => 'RMIT',
                 'doc_id' => $fGInventoryTransfer->id,
                 'quantity' => $product['quantity'],
                 'rate' => $product['rate'],
@@ -78,7 +78,7 @@ class RMInventoryTransferController extends Controller
             ]);
             InventoryTransaction::query()->create([
                 'store_id' => $fGInventoryTransfer->to_store_id,
-                'doc_type' => 'FGIT',
+                'doc_type' => 'RMIT',
                 'doc_id' => $fGInventoryTransfer->id,
                 'quantity' => $product['quantity'],
                 'rate' => $product['rate'],

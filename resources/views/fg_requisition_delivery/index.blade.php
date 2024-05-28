@@ -23,7 +23,7 @@
                             <div class="card-tools">
                                 <a href="{{route('fg-requisition-deliveries.create')}}">
                                     <button class="btn btn-sm btn-primary"><i class="fa fa-plus-circle"
-                                                                              aria-hidden="true"></i> &nbsp;Add RM
+                                                                              aria-hidden="true"></i> &nbsp;Add FG
                                         Requisition Delivery
                                     </button>
                                 </a>

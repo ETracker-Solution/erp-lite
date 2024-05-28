@@ -90,9 +90,9 @@
                         "defaultContent": "Not Set"
                     },
                     {
-                        data: "subtotal",
-                        title: "Sub Total",
-                        searchable: true,
+                        data: "store.name",
+                        title: "Store",
+                        searchable: false,
                         "defaultContent": "Not Set"
                     },
                     {
