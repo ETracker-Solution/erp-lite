@@ -230,6 +230,8 @@ Route::middleware('auth')->group(function () {
 
     /*=========== Raw Materials Requisition Delivery Starts ===========*/
     Route::resource('fg-requisition-deliveries', \App\Http\Controllers\FGRequisitionDeliveryController::class);
+    Route::get('fg-requisition-delivery-pdf/{id}', [App\Http\Controllers\FGRequisitionDeliveryController::class, 'pdfDownload'])->name('fg-requisition-delivery.pdf');
+
     /*=========== Raw Materials Requisition Delivery Ends ===========*/
 
     /*=========== General ledger Opening Balance Api Starts ===========*/
