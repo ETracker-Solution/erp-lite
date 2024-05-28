@@ -123,7 +123,7 @@ class ApiController extends Controller
         return response()->json($items);
     }
 
-    public function fetchRequisitionById($id)
+    public function fetchRequisitionById($id, $store_id = null)
     {
         $requisition = Requisition::with('items')->where('id', $id)->first();
         $items = [];
