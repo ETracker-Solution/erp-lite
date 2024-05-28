@@ -23,10 +23,10 @@
                         @csrf
                         <div class="card">
                             <div class="card-header bg-info">
-                                <h3 class="card-title">RM Requisition Entry</h3>
+                                <h3 class="card-title">RM Requisition Delivery Entry</h3>
                                 <div class="card-tools">
-                                    <a href="{{route('rm-requisitions.index')}}" class="btn btn-sm btn-primary">
-                                        <i class="fa fa-list" aria-hidden="true"></i> &nbsp;RM Requisition List
+                                    <a href="{{route('rm-requisition-deliveries.index')}}" class="btn btn-sm btn-primary">
+                                        <i class="fa fa-list" aria-hidden="true"></i> &nbsp;RM Requisition Delivery List
                                     </a>
                                 </div>
                             </div>

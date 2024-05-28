@@ -1,6 +1,6 @@
 @extends('layouts.app')
 @section('title')
-Requisition Details
+FG Requisition Details
 @endsection
 @section('content')
 <!-- Content Wrapper. Contains page content -->
@@ -8,10 +8,10 @@ Requisition Details
     @php    
         $links = [
         'Home'=>route('dashboard'),
-        'Requisition Details'=>''
+        'FG Requisition Details'=>''
         ]
     @endphp
-<x-breadcrumb title='Requisition Details' :links="$links"/>
+<x-breadcrumb title='FG Requisition Details' :links="$links"/>
 
 <section class="content">
     <div class="container-fluid">
@@ -25,7 +25,7 @@ Requisition Details
                                 <tbody>
                                     <tr>
                                         <td style="text-align: left; padding:8px; line-height: 0.6">
-                                            <p><b>Requisition No :</b> {{ $requisition->uid }}</p>
+                                            <p><b>FGR No :</b> {{ $requisition->uid }}</p>
                                             <p><b>Date :</b> {{ $requisition->date }} </p>
                                             <p><b>Sub Total :</b> {{ $requisition->subtotal }} </p>
                                             <p><b>Status :</b> {!! showStatus($requisition->status) !!}</p>

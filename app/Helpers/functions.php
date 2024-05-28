@@ -46,6 +46,7 @@ function showStatus($status)
         case 'hold':
             return '<span class="badge badge-light-warning">Hold</span>';
         case 'enable':
+        case 'received':
             return '<span class="badge badge-glow badge-success">Enable</span>';
         case 'disable':
             return '<span class="badge badge-glow badge-warning">Disable</span>';
