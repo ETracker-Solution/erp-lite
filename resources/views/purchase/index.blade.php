@@ -94,7 +94,7 @@
                     },
                     {
                         data: "subtotal",
-                        title: "Sub Total",
+                        title: "Subtotal",
                         searchable: true
                     },
                     {
