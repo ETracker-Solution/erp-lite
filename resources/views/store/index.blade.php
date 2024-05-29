@@ -98,7 +98,7 @@
                                         type="submit">Submit
                                 </button>
                                 <a href="{{ route('stores.index') }}"
-                                   class="btn btn-success waves-effect waves-float waves-light float-right">Refresh</a>
+                                   class="btn btn-warning waves-effect waves-float waves-light float-right">Refresh</a>
                             </div>
                         </div>
                     </form>
