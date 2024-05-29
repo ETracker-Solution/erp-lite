@@ -107,13 +107,14 @@ class POSController extends Controller
                     return back();
                 }
 
+                $row['cogs'] = averageFGRate($row['id']) * $row['quantity'];
 
                 $sale_item = $sale->items()->create($row);
                 $sale_item['date'] = date('Y-m-d');
                 $sale_item['coi_id'] = $row['id'];
                 $sale_item['rate'] = averageFGRate($row['id']);
                 $sale_item['amount'] = $sale_item['rate'] * $row['quantity'];
-                $sale_item['store_id'] = $store;
+                $sale_item['store_id'] = $store->id;
                 addInventoryTransaction(-1, 'POS', $sale_item);
 
                 $avgProductionPrice += $sale_item['amount'];
@@ -127,6 +128,7 @@ class POSController extends Controller
                     'payment_method' => $paymentMethod['method'],
                     'amount' => $paymentMethod['amount'],
                 ]);
+                $sale->amount = $paymentMethod['amount'];
                 if ($paymentMethod['method'] == 'bkash') {
                     addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'bkash'), getAccountsReceiveableGLId());
                 }
@@ -150,12 +152,14 @@ class POSController extends Controller
             addAccountsTransaction('POS', $sale, getAccountsReceiveableGLId(), getIncomeFromSalesGLId());
             $sale->amount = $avgProductionPrice;
             addAccountsTransaction('POS', $sale, getCOGSGLId(), getFGInventoryGLId());
-//            $sale->amount = $salesAmount;
-//            addAccountsTransaction('POS',$sale, getCashGLID(), getAccountsReceiveableGLId());
+//            if ($request->discount > 0) {
+//                $sale->amount = $request->discount;
+//                addAccountsTransaction('POS', $sale, getDiscountGLID(), getAccountsReceiveableGLId());
+//            }
 
-            if($request->pre_order_id){
+            if ($request->pre_order_id) {
                 PreOrder::find($request->pre_order_id)->update([
-                   'sale_id'=>$sale->id
+                    'sale_id' => $sale->id
                 ]);
             }
 
@@ -360,7 +364,7 @@ class POSController extends Controller
                     $customer = Customer::create([
                         'name' => 'New Customer',
                         'mobile' => $request->customer_number,
-                        'email'=>null
+                        'email' => null
                     ]);
                 }
                 $customer_id = $customer->id;
@@ -412,7 +416,7 @@ class POSController extends Controller
 
     public function getAllPreOrders()
     {
-        return PreOrder::with('items.product', 'customer')->withSum('items', 'quantity')->latest()->get()->map(function($order){
+        return PreOrder::with('items.product', 'customer')->withSum('items', 'quantity')->latest()->get()->map(function ($order) {
             $order->status = $order->sale_id ? 'Delivered' : '';
             $order->backgroundColor = $order->sale_id ? '#e5e5e5' : '';
             $order->delivered_at = $order->sale_id ? $order->sale->readable_sell_date_time : '';
