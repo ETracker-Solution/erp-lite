@@ -16,7 +16,7 @@
     <section class="content">
         <div class="container-fluid">
             <div class="row" id="vue_app">
-                   <span v-if="pageLoading" class="categoryLoader">
+                   <span v-if="pageLoading" class="pageLoader">
                             <img src="{{ asset('loading.gif') }}" alt="loading">
                         </span>
                 <div class="col-lg-12 col-md-12">
@@ -45,8 +45,10 @@
                                                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                         <div class="form-group">
                                                             <label for="purchase_id">Purchase Bill No</label>
-                                                            <select name="purchase_id" id="purchase_id"  v-model="purchase_id"
-                                                                    class="form-control bSelect" required @change="load_old">
+                                                            <select name="purchase_id" id="purchase_id"
+                                                                    v-model="purchase_id"
+                                                                    class="form-control bSelect" required
+                                                                    @change="load_old">
                                                                 <option value="">Select One</option>
                                                                 @foreach($purchases as $row)
                                                                     <option
@@ -326,7 +328,7 @@
 @endsection
 @push('style')
     <style>
-        .categoryLoader {
+        .pageLoader {
             position: absolute;
             top: 50%;
             right: 40%;
@@ -513,22 +515,20 @@
                         var vm = this;
                         var slug = vm.purchase_id;
                         //  alert(slug);
+                        vm.pageLoading = true;
+                        vm.selected_items = [];
                         axios.get(this.config.get_old_items_data + '/' + slug).then(function (response) {
-                            var item = response.data.items;
+                            let item = response.data.items;
+                            vm.vat = response.data.purchase.vat;
                             for (key in item) {
                                 vm.selected_items.push(item[key]);
                             }
-                        })
+                        });
+                        vm.pageLoading = false;
                     },
                     itemtotal: function (index) {
-
                         console.log(index.quantity * index.rate);
                         return index.quantity * index.rate;
-
-
-                        //   alert(quantity);
-                        //  var total= row.quantity);
-                        //  row.itemtotal=total;
                     },
 
                 },
