@@ -42,8 +42,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/outlet-dashboard', [\App\Http\Controllers\OutletDashboardController::class, 'outletDashboard'])->name('outlet.dashboard');
 
 
-
-
     //lock Screen Start
     Route::get('lock-screen', [App\Http\Controllers\LockScreenController::class, 'lockScreen']);
 
@@ -66,6 +64,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('suppliers', App\Http\Controllers\SupplierController::class);
     Route::resource('customers', App\Http\Controllers\CustomerController::class);
     Route::resource('purchases', PurchaseController::class);
+    Route::resource('purchase-returns', \App\Http\Controllers\PurchaseReturnController::class);
     Route::resource('sales', SaleController::class);
     Route::resource('requisitions', \App\Http\Controllers\RequisitionController::class);
     Route::get('requisition-pdf/{id}', [App\Http\Controllers\RequisitionController::class, 'pdfDownload'])->name('requisition.pdf');
@@ -135,7 +134,7 @@ Route::middleware('auth')->group(function () {
 
 
     Route::get('/fetch-suppliers-by-group-id/{id}', [App\Http\Controllers\ApiController::class, 'fetchSuppliersByGroupId']);
-    Route::get('fetch-purchase-products-info/{id}', [App\Http\Controllers\ApiController::class, 'fetchPurchaseProductInfo']);
+    Route::get('fetch-purchase-by-id/{id}', [App\Http\Controllers\ApiController::class, 'fetchPurchaseById']);
     Route::get('/fetch-product-by-category-id/{id}', [App\Http\Controllers\ProductController::class, 'fetch_products_by_cat_id']);
 
     //as soon as possible Remove
@@ -148,7 +147,7 @@ Route::middleware('auth')->group(function () {
     Route::get('vuejs/autocomplete/search', [App\Http\Controllers\LabelController::class, 'autocompleteSearch'])->name('vuejs.autocomplete.search');
     Route::get('fetch-product-info-for-gatepass/{id}', [App\Http\Controllers\LabelController::class, 'fetch_product_info']);
 
-    Route::get('invoice-by-store/{store_id}',[SaleController::class,'getInvoiceByOutlet']);
+    Route::get('invoice-by-store/{store_id}', [SaleController::class, 'getInvoiceByOutlet']);
     Route::get('sale-pdf/{id}', [App\Http\Controllers\SaleController::class, 'pdf'])->name('sale.pdf');
     Route::get('sale-pdf-download/{id}', [App\Http\Controllers\SaleController::class, 'pdfDownload'])->name('sale.pdf-download');
 
