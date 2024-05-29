@@ -202,6 +202,7 @@ Route::middleware('auth')->group(function () {
 
     /*=========== Finish Goods Inventory Transfer Starts ===========*/
     Route::resource('fg-inventory-transfers', \App\Http\Controllers\FGInventoryTransferController::class);
+    Route::get('fg-inventory-transfers-pdf/{id}', [App\Http\Controllers\FGInventoryTransferController::class, 'pdfDownload'])->name('fg-inventory-transfers.pdf');
     /*=========== Finish Goods Inventory Transfer Ends ===========*/
 
     /*=========== Finish Goods Inventory Adjustment Starts ===========*/

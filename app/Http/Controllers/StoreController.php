@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreStoreRequest;
 use App\Http\Requests\UpdateStoreRequest;
+use App\Models\Factory;
 use App\Models\Outlet;
 use App\Models\Store;
 use Brian2694\Toastr\Facades\Toastr;
@@ -18,7 +19,7 @@ class StoreController extends Controller
     public function index()
     {
         $outlets = Outlet::all();
-        $factories = Outlet::all();
+        $factories = Factory::all();
         $serial_count = Store::first() ? Store::max('id') : 0;
         $serial_no = $serial_count + 1;
         $stores = Store::all();
@@ -82,8 +83,9 @@ class StoreController extends Controller
     public function edit($id)
     {
         $outlets = Outlet::all();
+        $factories = Factory::all();
         $store = Store::findOrFail(decrypt($id));
-        return view('store.index', compact('store','outlets'));
+        return view('store.index', compact('store','outlets','factories'));
     }
 
     /**
@@ -91,7 +93,7 @@ class StoreController extends Controller
      */
     public function update(UpdateStoreRequest $request, $id)
     {
-        $validated = $request->validated();
+        return $validated = $request->validated();
         DB::beginTransaction();
         try {
             Store::findOrFail($id)->update($validated);
