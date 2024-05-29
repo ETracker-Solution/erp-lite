@@ -60,7 +60,7 @@
                                                     <label for="from_store_id">From Store</label>
                                                     <select name="from_store_id" id="from_store_id"
                                                             class="form-control bSelect"
-                                                            v-model="from_store_id" required>
+                                                            v-model="from_store_id" required @change="load_old">
                                                         <option value="">Select One</option>
                                                         @foreach($from_stores as $row)
                                                             <option value="{{ $row->id }}">{{ $row->name }}</option>
