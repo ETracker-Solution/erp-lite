@@ -7,6 +7,7 @@ use App\Models\Consumption;
 use App\Models\ConsumptionItem;
 use App\Models\Product;
 use App\Models\Production;
+use App\Models\Purchase;
 use App\Models\Requisition;
 use App\Models\Supplier;
 use App\Models\PurchaseItem;
@@ -105,11 +106,11 @@ class ApiController extends Controller
         return $data;
     }
 
-    public function fetchPurchaseProductInfo($id)
+    public function fetchPurchaseById($id)
     {
-        $products = PurchaseItem::with('coi')->where('purchase_id', $id)->get();
+        $purchase = Purchase::with('items')->where('id', $id)->first();
         $items = [];
-        foreach ($products as $row) {
+        foreach ($purchase->items as $row) {
             $items[] = [
                 'purchase_id' => $id,
                 'id' => $row->coi_id,
@@ -120,7 +121,11 @@ class ApiController extends Controller
                 'rate' => $row->rate
             ];
         }
-        return response()->json($items);
+        $data = [
+            'purchase' => $purchase,
+            'items' => $items,
+        ];
+        return response()->json($data);
     }
 
     public function fetchRequisitionById($id, $store_id = null)

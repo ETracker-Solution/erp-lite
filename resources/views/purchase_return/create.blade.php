@@ -1,15 +1,15 @@
 @extends('layouts.app')
-@section('title', 'Goods Purchase')
+@section('title', 'Goods Purchase Return')
 
 @section('content')
     <!-- Content Header (Page header) -->
     @php
         $links = [
         'Home'=>route('dashboard'),
-        'Purchase Create'=>''
+        'Purchase Return Create'=>''
         ]
     @endphp
-    <x-breadcrumb title='Purchase' :links="$links"/>
+    <x-breadcrumb title='Purchase Return' :links="$links"/>
 
 
     <!-- Main content -->
@@ -20,24 +20,22 @@
                             <img src="{{ asset('loading.gif') }}" alt="loading">
                         </span>
                 <div class="col-lg-12 col-md-12">
-                    <form action="{{route('purchases.update',$purchase->id)}}" method="POST" class=""
+                    <form action="{{route('purchase-returns.store')}}" method="POST" class=""
                           enctype="multipart/form-data">
                         @csrf
-                        @method('put')
                         <div class="card">
                             <div class="card-header bg-info">
-                                <h3 class="card-title">Goods Purchase Bill (GPB) Entry</h3>
+                                <h3 class="card-title">Goods Purchase Return Bill (GPRB) Entry</h3>
                                 <div class="card-tools">
-                                    <a href="{{route('purchases.index')}}" class="btn btn-sm btn-primary">
+                                    <a href="{{route('purchase-returns.index')}}" class="btn btn-sm btn-primary">
                                         <i class="fas fa-bars"
                                            aria-hidden="true"></i> &nbsp;
-                                        Goods Purchase Bill List
+                                        Goods Purchase Return Bill List
                                     </a>
                                 </div>
                             </div>
 
                             <div class="card-body">
-
                                 <div class="card-box">
                                     <hr>
                                     <div id="">
@@ -46,23 +44,23 @@
                                                 <div class="row">
                                                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                         <div class="form-group">
-                                                            <label for="serial_no">Purchase No</label>
-                                                            <div class="input-group">
-                                                                <input type="text" class="form-control input-sm"
-                                                                       value="{{$purchase->id}}" name="serial_no"
-                                                                       id="serial_no">
-                                                                <span class="input-group-append">
-                                                                    <button type="button"
-                                                                            class="btn btn-secondary btn-flat">Search</button>
-                                                                </span>
-                                                            </div>
+                                                            <label for="purchase_id">Purchase Bill No</label>
+                                                            <select name="purchase_id" id="purchase_id"  v-model="purchase_id"
+                                                                    class="form-control bSelect" required @change="load_old">
+                                                                <option value="">Select One</option>
+                                                                @foreach($purchases as $row)
+                                                                    <option
+                                                                        value="{{ $row->id }}" {{ old('purchase_id',$purchase->purchase_id) == $row->id ? 'selected' : '' }}>{{ $row->id }}</option>
+                                                                @endforeach
+                                                            </select>
                                                         </div>
                                                     </div>
+
                                                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                         <div class="form-group">
                                                             <label for="reference_no">Reference No</label>
                                                             <input type="text" class="form-control input-sm"
-                                                                   value="{{old('reference_no',$purchase->reference_no)}}"
+                                                                   value="{{old('reference_no')}}"
                                                                    name="reference_no">
                                                         </div>
                                                     </div>
@@ -152,7 +150,7 @@
                         </div>
                         <div class="card">
                             <div class="card-header bg-info">
-                                <h3 class="card-title">Goods Purchase Line Item</h3>
+                                <h3 class="card-title">Goods Purchase Return Line Item</h3>
                             </div>
                             <div class="card-body">
 
@@ -376,14 +374,15 @@
                         get_suppliers_info_by_group_id_url: "{{ url('fetch-suppliers-by-group-id') }}",
                         get_items_info_by_group_id_url: "{{ url('fetch-items-by-group-id') }}",
                         get_item_info_url: "{{ url('fetch-item-info') }}",
+
                         get_old_items_data: "{{ url('fetch-purchase-by-id') }}",
                     },
 
-                    purchase_id: '{{ $purchase->id }}',
-                    date: '{{$purchase->date}}',
-                    vat: {{$purchase->vat}},
-                    supplier_group_id: {{$purchase->supplier->group->id}},
-                    supplier_id: {{$purchase->supplier_id}},
+                    purchase_id: '',
+                    date: '',
+                    vat: '',
+                    supplier_group_id: '',
+                    supplier_id: '',
                     group_id: '',
                     item_id: '',
                     items: [],

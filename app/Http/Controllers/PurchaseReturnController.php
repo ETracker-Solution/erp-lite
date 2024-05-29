@@ -2,9 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ChartOfInventory;
+use App\Models\Purchase;
 use App\Models\PurchaseReturn;
 use App\Http\Requests\StorePurchaseReturnRequest;
 use App\Http\Requests\UpdatePurchaseReturnRequest;
+use App\Models\Store;
+use App\Models\Supplier;
+use App\Models\SupplierGroup;
+use Yajra\DataTables\Facades\DataTables;
 
 class PurchaseReturnController extends Controller
 {
@@ -13,7 +19,30 @@ class PurchaseReturnController extends Controller
      */
     public function index()
     {
-        //
+        $purchase_returns = PurchaseReturn::all();
+        if (\request()->ajax()) {
+            return DataTables::of($purchase_returns)
+                ->addIndexColumn()
+                ->addColumn('action', function ($row) {
+                    return view('purchase_return.action', compact('row'));
+                })->addColumn('purchase_info', function ($row) {
+                    $data = [
+                        'Supplier' => $row->purchase->supplier->name ?? "",
+                        'Purchase No' => $row->purchase->purchase_number ?? "",
+                        'Challan No' => $row->purchase->challan_no ?? "",
+                    ];
+                    return view('common.flexible', compact('data'));
+                })
+                ->editColumn('status', function ($row) {
+                    return showStatus($row->status);
+                })
+                ->addColumn('created_at', function ($row) {
+                    return $row->created_at->format('Y-m-d');
+                })
+                ->rawColumns(['status', 'action', 'purchase_info'])
+                ->make(true);
+        }
+        return view('purchase_return.index');
     }
 
     /**
@@ -21,7 +50,15 @@ class PurchaseReturnController extends Controller
      */
     public function create()
     {
-        //
+        $data = [
+            'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'RM'])->get(),
+            'supplier_groups' => SupplierGroup::all(),
+            'suppliers' => Supplier::all(),
+            'stores' => Store::where(['type' => 'RM'])->get(),
+            'purchase' => Purchase::with('supplier')->find(1),
+            'purchases' => Purchase::all()
+        ];
+        return view('purchase_return.create', $data);
     }
 
     /**
