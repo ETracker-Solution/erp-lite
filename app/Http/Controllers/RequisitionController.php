@@ -9,6 +9,7 @@ use App\Libraries\SaleUtil;
 use App\Models\ChartOfInventory;
 use App\Models\Customer;
 use App\Models\Requisition;
+use App\Models\RequisitionItem;
 use App\Models\Store;
 use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Support\Facades\DB;
@@ -91,17 +92,43 @@ class RequisitionController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Requisition $requisition)
+    public function edit($id)
     {
-        //
+        $data = [
+            'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'FG'])->get(),
+            'stores' => Store::where(['type' => 'FG'])->get(),
+            'requisition' => Requisition::find(decrypt($id))
+        ];
+        return view('requisition.edit', $data);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateRequisitionRequest $request, Requisition $requisition)
+    public function update(UpdateRequisitionRequest $request, $id)
     {
-        //
+        DB::beginTransaction();
+        try {
+            $validated = $request->validated();
+            $requisition= Requisition::find($id);
+            $requisition->update($validated);
+            RequisitionItem::where('requisition_id', $requisition->id)->delete();
+            $products = $request->get('products');
+            foreach ($products as $row) {
+                $requisition->items()->create($row);
+            }
+
+
+            DB::commit();
+        } catch (\Exception $exception) {
+            DB::rollBack();
+            return $exception;
+            Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
+            return back();
+        }
+
+        Toastr::success('FG Requisition Updated Successful!.', '', ["progressbar" => true]);
+        return redirect()->route('requisitions.index');
     }
 
     /**
