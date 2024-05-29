@@ -22,9 +22,11 @@ class UpdateStoreRequest extends FormRequest
     public function rules(): array
     {
         return [
+
             'name' => 'required',
             'type' => 'required',
-            'outlet_id' => 'required',
+            'doc_type' => 'required',
+            'doc_id' => 'nullable',
             'updated_by' => 'required'
         ];
     }

@@ -94,9 +94,10 @@
                                     </div>
 
                                 </div>
-                                <button class="btn btn-info waves-effect waves-float waves-light float-right"
+                                <button class="btn btn-info waves-effect waves-float waves-light float-right ml-1"
                                         type="submit">Submit
                                 </button>
+                                <a href="{{ route('stores.index') }}" class="btn btn-success waves-effect waves-float waves-light float-right">Refresh</a>
                             </div>
                         </div>
                     </form>
@@ -182,6 +183,19 @@
                 ],
             });
         })
+        
+        var docType = $('select[name=doc_type]').val();
+            if (docType === 'factory') {
+                $('#factoryDropdown').prop('hidden', false)
+                $('#outletDropdown').prop('hidden', true)
+                $('select[name=doc_id]').val('')
+            } else if (docType === 'outlet') {
+                $('#factoryDropdown').prop('hidden', true)
+                $('#outletDropdown').prop('hidden', false)
+            } else {
+                $('#factoryDropdown').prop('hidden', true)
+                $('#outletDropdown').prop('hidden', true)
+            }
 
         $('select[name=doc_type]').on('select2:select', function (e) {
             const docType = e.params.data.id;
@@ -191,7 +205,7 @@
                 $('#outletDropdown').prop('hidden', true)
 
                 $('select[name=doc_id]').val('')
-            } else if (docType === 'factory') {
+            } else if (docType === 'outlet') {
                 $('#factoryDropdown').prop('hidden', true)
                 $('#outletDropdown').prop('hidden', false)
             } else {
