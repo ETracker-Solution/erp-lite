@@ -219,7 +219,7 @@ Route::middleware('auth')->group(function () {
     /*=========== Raw Materials Requisition Starts ===========*/
     Route::resource('rm-requisitions', \App\Http\Controllers\RMRequisitionController::class);
     Route::get('rm-requisition-pdf/{id}', [App\Http\Controllers\RMRequisitionController::class, 'pdfDownload'])->name('rm-requisition.pdf');
-    Route::get('fetch-requisition-by-id/{id}', [App\Http\Controllers\ApiController::class, 'fetchRequisitionById']);
+    Route::get('fetch-requisition-by-id/{id}/{store_id?}', [App\Http\Controllers\ApiController::class, 'fetchRequisitionById']);
     /*=========== Raw Materials Requisition Ends ===========*/
 
     /*=========== Raw Materials Requisition Delivery Starts ===========*/

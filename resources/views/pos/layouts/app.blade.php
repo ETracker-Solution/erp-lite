@@ -486,7 +486,7 @@
                             discount_type: this.total_discount_type,
                             discount_value: this.total_discount_value,
                             sub_total: this.total_bill,
-                            discount: this.total_discount_amount,
+                            discount: this.allDiscountAmount,
                             grand_total: this.total_payable_bill,
                             customer_number: this.customerNumber,
                             payment_methods: this.paymentMethods,
@@ -500,6 +500,7 @@
                             vm.customerNumber = '';
                             vm.total_discount_value = 0;
                             vm.total_discount_amount = 0;
+                            vm.allDiscountAmount = 0;
                             vm.getAllProducts()
                             vm.getAllOrders()
                             vm.paymentMenuShow = false
