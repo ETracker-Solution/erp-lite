@@ -2,11 +2,11 @@
     <form action="{{route('fg-inventory-adjustments.destroy', $row->id)}}" method="post">
         <input type="hidden" name="_method" value="DELETE">
         @csrf
-        <a href="{{ route('fg-inventory-adjustments.edit', $row->id) }}" class="btn btn-info btn-xs">
+        {{-- <a href="{{ route('fg-inventory-adjustments.edit', $row->id) }}" class="btn btn-info btn-xs">
             <i class="fas fa-pencil-alt">
             </i>
             Edit
-        </a>
+        </a> --}}
         <a href="{{ route('fg-inventory-adjustments.show', encrypt($row->id)) }}" class="btn btn-xs btn-primary">
             <i class="fas fa-folder">
             </i> Show
