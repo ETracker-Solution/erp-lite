@@ -128,8 +128,18 @@ class RMInventoryAdjustmentController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(InventoryAdjustment $fGInventoryAdjustment)
+    public function destroy($id)
     {
-        //
+        DB::beginTransaction();
+        try {
+            InventoryAdjustment::findOrFail($id)->delete();
+            DB::commit();
+        } catch (\Exception $error) {
+            DB::rollBack();
+            Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
+            return back();
+        }
+        Toastr::success('Inventory Adjustment Deleted Successfully!.', '', ["progressBar" => true]);
+        return redirect()->route('rm-inventory-adjustments.index');
     }
 }

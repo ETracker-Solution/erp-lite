@@ -135,7 +135,17 @@ class FGRequisitionDeliveryController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        DB::beginTransaction();
+        try {
+            RequisitionDelivery::findOrFail($id)->delete();
+            DB::commit();
+        } catch (\Exception $error) {
+            DB::rollBack();
+            Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
+            return back();
+        }
+        Toastr::success('FG Requisition Delivery Deleted Successfully!.', '', ["progressBar" => true]);
+        return redirect()->route('fg-requisition-deliveries.index');
     }
 
     public function pdfDownload($id)

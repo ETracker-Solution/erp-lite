@@ -127,8 +127,18 @@ class FGInventoryAdjustmentController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(InventoryAdjustment $fGInventoryAdjustment)
+    public function destroy($id)
     {
-        //
+        DB::beginTransaction();
+        try {
+            InventoryAdjustment::findOrFail($id)->delete();
+            DB::commit();
+        } catch (\Exception $error) {
+            DB::rollBack();
+            Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
+            return back();
+        }
+        Toastr::success('FG Inventory Transfer Deleted Successfully!.', '', ["progressBar" => true]);
+        return redirect()->route('fg-inventory-adjustments.index');
     }
 }
