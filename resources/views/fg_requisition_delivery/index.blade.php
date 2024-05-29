@@ -79,8 +79,8 @@
                 },
 
                     {
-                        data: "uid",
-                        title: "RMR No",
+                        data: "requisition.uid",
+                        title: "FGR No",
                         searchable: true,
                         "defaultContent": "Not Set"
                     }, {

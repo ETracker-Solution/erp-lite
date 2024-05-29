@@ -42,6 +42,7 @@ class StoreProductionRequest extends FormRequest
     public function prepareForValidation()
     {
         $this->merge([
+            'status' =>'completed',
             'created_by' => auth()->user()->id,
         ]);
     }

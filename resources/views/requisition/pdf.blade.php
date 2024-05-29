@@ -1,130 +1,138 @@
+
 <!DOCTYPE html>
 <html>
-<head>
-	<title>{{ $model->invoice_number ?? 'Invoice' }} </title>
-</head>
-<body>
-<h2 style="text-align:center; color: #4e73df; padding: 0px; margin: 0px; margin-left: 20px;" class="text-primary">
-	<strong> Company Name</strong>
-</h2>
-<p style="text-align:center;  font-size: 13px;"> Address : 17/1, 60 Feet, Mirpur, Dhaka-1215</p>
-<table width="100%" class="table" style="text-align: center;">
-    <tbody class="text-center">
-			<tr>
-			   <td>
-				 <h4 class="text-dark"><strong>Invoice No:- {{ $model->invoice_number }}</strong></h4>
-			    </td>
-			    <td>
-				 <h5 class="text-dark">
-				  <strong>Shop Owner Mobile:- 01710355789</strong></h5>
-			    </td>
-			    <td>
-				<h5 class="text-dark">
-					<strong>Shop Mobile:- 01871848137</strong>
-				</h5>
-			    </td>
-		</tr>
-	</tbody>
-</table>
-<hr>
-<table width="100%">
-	<tbody>
-		<tr>
-			<td width="100%" style="text-align: center; color: black;  padding: 10px 0px; font-size: 20px;"><h4><strong>Customer Information:-</strong></h4></td>
-		</tr>
-	</tbody>
-</table>
-<table width="100%">
-	<tbody>
-	  <tr>
-	  <td>
-		<h5 class="text-dark">
-		 <strong>Name:- {{ $invoice->payment->customer->name ?? '' }} </strong>
-		</h5>
-	  </td>
-		<td><h5 class="text-dark">
-		 <strong>Mobile:- {{ $invoice->payment->customer->mobile?? ''  }}</strong>
-		</h5>
-	    </td>
-		<td><h5 class="text-dark">
-		 <strong>Email:- {{ $invoice->payment->customer->email?? ''  }}</strong>
-		</h5>
-	    </td>
-		<td><h5 class="text-dark">
-		 <strong>Address:- {{ $invoice->payment->customer->address ?? '' }}</strong>
-		</h5>
-	    </td>
-	  </tr>
-	</tbody>
-</table>
-<hr>
-<table width="100%" style="text-align: center;">
-	<thead style="background:#cdced2;">
-        <tr>
-           <th>SL NO.</th>
-           <th>Category</th>
-           <th>Product Name</th>
-           <th>Quantity</th>
-           <th>Unit Price</th>
-           <th>Total Price</th>
-        </tr>
-    </thead>
-    <tbody>
-    	@php
-    	$subTotal = 0;
-    	@endphp
-		@foreach ($item_details as $key => $invoiceDetal)
 
-      <tr>
-    	<td>{{ $key+1 }}</td>
-    	<td>{{ $invoiceDetal->category_name ??'' }}</td>
-    	<td>{{ $invoiceDetal->name ??''}}</td>
-    	<td>{{ $invoiceDetal->item_quantity }}</td>
-    	<td>{{ $invoiceDetal->sale_price }}</td>
-    	<td style="text-align: right;">{{ $invoiceDetal->item_total ?? '' }}</td>
-      </tr>
-      @php
-      $subTotal += $invoiceDetal->item_total;
-      @endphp
-    @endforeach
-    <tr>
-    	<td colspan="5" style="text-align: right;">Sub Total:-</td>
-    	<td style="text-align: right;">{{ $subTotal }}</td>
-    </tr>
-    <tr>
-    	<td colspan="5" style="text-align: right;">Discount:-</td>
-    	<td style="text-align: right;">{{ $model->discount ??''}}</td>
-    </tr>
-    <tr>
-    	<td colspan="5" style="text-align: right;">Grant Total:-</td>
-    	<td style="text-align: right;">{{ $model->grandtotal ??''}}</td>
-    </tr>
-    <tr>
-    	<td colspan="5" style="text-align: right;">Receive :-</td>
-    	<td style="text-align: right;">{{ $model->receive_amount ??''}}</td>
-    </tr>
-    <tr>
-    	<td colspan="5" style="text-align: right;">Change :-</td>
-    	<td style="text-align: right;">{{ $model->change_amount ??''}}</td>
-    </tr>
-    </tbody>
-</table>
-@php
-$date = new DateTime('now', new DateTimezone('Asia/Dhaka'));
-@endphp
-<br>
-<strong>
-	Printing Time:- {{ $date->format('F j, Y, g:i a') }}
-</strong>
-<hr>
-<br>
-<table width="100%">
-	<tbody>
-		<tr>
-			<td style="text-align: left;">Customer Signature</td>
-			<td style="text-align: right;">Saller Signature</td>
-		</tr>
-	</tbody>
-</table>
-</body>
+<head>
+    <title>FG Requisiton Pdf </title>
+<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
+    <style>
+        @page {
+            header: page-header;
+            footer: page-footer;
+        }
+        body{margin-top:20px;
+        background:#eee;
+        }
+
+        /*Invoice*/
+        .invoice .top-left {
+            font-size:65px;
+            color:#3ba0ff;
+        }
+
+        .invoice .top-right {
+            text-align:right;
+            padding-right:20px;
+        }
+        @media(max-width:575px) {
+            .invoice .top-left,.invoice .top-right,.invoice .payment-details {
+                text-align:center;
+            }
+
+            .invoice .from,.invoice .to,.invoice .payment-details {
+                float:none;
+                width:100%;
+                text-align:center;
+                margin-bottom:25px;
+            }
+
+            .invoice p.lead,.invoice .from p.lead,.invoice .to p.lead,.invoice .payment-details p.lead {
+                font-size:22px;
+            }
+
+            .invoice .btn {
+                margin-top:10px;
+            }
+        }
+
+        @media print {
+            .invoice {
+                width:900px;
+                height:800px;
+            }
+        }
+    </style>
+</head>
+    <body>
+        <div class="container bootstrap snippets bootdeys">
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="panel panel-default invoice" id="invoice">
+                        <div class="panel-body">
+                            <div class="invoice-ribbon">
+                                <h2 style="text-align:center; color: #4e73df; padding: 0px; margin: 0px; margin-left: 20px;" class="text-primary">
+                                    <strong>Cake Twon</strong>
+                                </h2>
+                                <p style="text-align: center; padding: 0px; margin: 0px;"> Address: 157, Gias Uddin Tower, Distrilary Road, Katherpol, Dhaka 1204</p>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-6 top-right">
+                                    <span class="marginright">{{ \Carbon\Carbon::parse($requisition->created_at)->isoFormat('MMM Do, YYYY') }}</span>
+                                </div>
+                            </div>
+                            <hr>
+                            <table width="100%">
+								<tbody>
+									<tr>
+										<td style="text-align: left; padding:8px; line-height: 1.6">
+											<p><b>Requisition No :</b> {{ $requisition->uid }}</p>
+                                            <p><b>Date :</b> {{ $requisition->date }} </p>
+                                            <p><b>Sub Total :</b> {{ $requisition->subtotal }} </p>
+                                            <p><b>Status :</b> {!! showStatus($requisition->status) !!}</p>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+                            <table border="1"cellspacing="0" width="100%" style="text-align: center; margin-top:20px;">
+                                <thead style="background:#cdced2;">
+									<tr style="background-color: #cdced2;">
+										<th>#</th>
+                                        <th>Group</th>
+                                        <th>Item</th>
+                                        <th>Unit</th>
+                                        <th>Quantity</th>
+                                        <th>Rate</th>
+									</tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($requisition->items as $item)
+                                    <tr>
+                                        <td>{{ $loop->iteration }}</td>
+                                        <td>{{ $item->coi->parent->name ?? '' }}</td>
+                                        <td>{{ $item->coi->name ?? '' }}</td>
+                                        <td>{{ $item->coi->unit->name ?? '' }}</td>
+                                        <td>{{ $item->quantity ?? '' }}</td>
+                                        <td>{{ $item->rate ?? '' }} TK</td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                            <htmlpagefooter name="page-footer">
+                                @php
+                                    $date = new DateTime('now', new DateTimezone('Asia/Dhaka'));
+                                @endphp
+                                <br>
+                                <strong>
+                                    Printing Time:- {{ $date->format('F j, Y, g:i a') }}
+                                </strong>
+                                <hr>
+                                <br>
+                                <table width="100%">
+                                    <tbody>
+                                        <tr>
+                                            <td style="text-align: left;">Customer Signature</td>
+                                            <td style="text-align: right;">Saller Signature</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </htmlpagefooter>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+
 </html>
+

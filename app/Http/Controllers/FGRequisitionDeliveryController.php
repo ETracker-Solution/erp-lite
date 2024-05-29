@@ -14,6 +14,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Yajra\DataTables\Facades\DataTables;
+use niklasravnsborg\LaravelPdf\Facades\Pdf;
 
 class FGRequisitionDeliveryController extends Controller
 {
@@ -24,7 +25,7 @@ class FGRequisitionDeliveryController extends Controller
     {
 
         if (\request()->ajax()) {
-            $data = RequisitionDelivery::with('fromStore','toStore')->where('type', 'FG')->latest();
+            $data = RequisitionDelivery::with('fromStore','toStore','requisition')->where('type', 'FG')->latest();
             return DataTables::of($data)
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
@@ -109,7 +110,8 @@ class FGRequisitionDeliveryController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $fgRequisitionDelivery = RequisitionDelivery::with('toStore', 'fromStore','requisition')->find(decrypt($id));
+        return view('fg_requisition_delivery.show', compact('fgRequisitionDelivery'));
     }
 
     /**
@@ -134,5 +136,39 @@ class FGRequisitionDeliveryController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+
+    public function pdfDownload($id)
+    {
+        $data = [
+            'fgRequisitionDelivery' => RequisitionDelivery::with('toStore', 'fromStore','requisition')->find(decrypt($id)),
+        ];
+
+        $pdf = PDF::loadView(
+            'fg_requisition_delivery.pdf',
+            $data,
+            [],
+            [
+                'format' => 'A4-P',
+                'orientation' => 'P',
+                'margin-left' => 1,
+
+                '', // mode - default ''
+                '', // format - A4, for example, default ''
+                0, // font size - default 0
+                '', // default font family
+                1, // margin_left
+                1, // margin right
+                1, // margin top
+                1, // margin bottom
+                1, // margin header
+                1, // margin footer
+                'L', // L - landscape, P - portrait
+
+            ]
+        );
+        $name = \Carbon\Carbon::now()->format('d-m-Y');
+
+        return $pdf->stream($name . '.pdf');
     }
 }
