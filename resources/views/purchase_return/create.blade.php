@@ -85,7 +85,7 @@
                                                                 <option value="">Select Store</option>
                                                                 @foreach($stores as $row)
                                                                     <option
-                                                                        value="{{ $row->id }}" {{ old('store_id',$purchase->store_id) == $row->id ? 'selected' : '' }}>{{ $row->name }}</option>
+                                                                        value="{{ $row->id }}">{{ $row->name }}</option>
                                                                 @endforeach
                                                             </select>
                                                         </div>
@@ -134,7 +134,7 @@
                                                         <div class="form-group">
                                                             <label for="remark">Remark</label>
                                                             <textarea class="form-control" name="remark" rows="5"
-                                                                      placeholder="Enter Remark">{{$purchase->remark}}</textarea>
+                                                                      placeholder="Enter Remark"></textarea>
                                                         </div>
                                                     </div>
                                                 </div>
