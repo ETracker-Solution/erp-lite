@@ -24,7 +24,7 @@
                         @method('PUT')
                         <div class="card">
                             <div class="card-header bg-info">
-                                <h3 class="card-title">RM Requisition Entry</h3>
+                                <h3 class="card-title">FG Requisition Entry</h3>
                                 <div class="card-tools">
                                     <a href="{{route('requisitions.index')}}" class="btn btn-sm btn-primary">
                                         <i class="fa fa-list" aria-hidden="true"></i> &nbsp;FG Requisition List
