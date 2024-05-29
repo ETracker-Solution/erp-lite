@@ -188,7 +188,6 @@
             if (docType === 'factory') {
                 $('#factoryDropdown').prop('hidden', false)
                 $('#outletDropdown').prop('hidden', true)
-                $('select[name=doc_id]').val('')
             } else if (docType === 'outlet') {
                 $('#factoryDropdown').prop('hidden', true)
                 $('#outletDropdown').prop('hidden', false)
