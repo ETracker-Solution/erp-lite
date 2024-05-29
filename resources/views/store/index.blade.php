@@ -60,20 +60,20 @@
                                     </div>
                                     <div class="col-xl-12 col-md-12 col-12 mb-1">
                                         @php
-                                            $store_for = [
-         (object) [
-              'key'=>'ho',
-              'value'=>'Head Office'
-        ]      ,
-        (object)   [
-              'key'=>'factory',
-              'value'=>'Factory'
-        ]      ,
-       (object)    [
-              'key'=>'outlet',
-              'value'=>'Outlet'
-        ]      ,
-        ];
+                                            $store_for =[
+                                                (object)[
+                                                    'key'=>'ho',
+                                                    'value'=>'Head Office'
+                                                ],
+                                                (object)[
+                                                    'key'=>'factory',
+                                                    'value'=>'Factory'
+                                                ],
+                                                (object)[
+                                                    'key'=>'outlet',
+                                                    'value'=>'Outlet'
+                                                ],
+                                            ];
                                         @endphp
                                         <x-forms.select label="Store Of" inputName="doc_type" placeholder="Select One"
                                                         :isRequired='true' :isReadonly='false'
