@@ -81,15 +81,15 @@
                                                         :options="$store_for" optionId="key" optionValue="value"/>
                                     </div>
                                     <div class="col-xl-12 col-md-12 col-12 mb-1" id="outletDropdown" hidden>
-                                        <x-forms.select label="Outlet" inputName="doc_id" placeholder="Select One"
+                                        <x-forms.select label="Outlet" inputName="outlet_id" placeholder="Select One"
                                                         :isRequired='true' :isReadonly='false'
-                                                        :defaultValue="isset($store) ? $store->doc_id : ''"
+                                                        :defaultValue="isset($store) && $store->doc_type == 'outlet' ? $store->doc_id : ''"
                                                         :options="$outlets" optionId="id" optionValue="name"/>
                                     </div>
                                     <div class="col-xl-12 col-md-12 col-12 mb-1" id="factoryDropdown" hidden>
-                                        <x-forms.select label="Factory" inputName="doc_id" placeholder="Select One"
+                                        <x-forms.select label="Factory" inputName="factory_id" placeholder="Select One"
                                                         :isRequired='true' :isReadonly='false'
-                                                        :defaultValue="isset($store) ? $store->doc_id : ''"
+                                                        :defaultValue="isset($store) && $store->doc_type == 'factory'  ? $store->doc_id : ''"
                                                         :options="$factories" optionId="id" optionValue="name"/>
                                     </div>
 
@@ -97,7 +97,8 @@
                                 <button class="btn btn-info waves-effect waves-float waves-light float-right ml-1"
                                         type="submit">Submit
                                 </button>
-                                <a href="{{ route('stores.index') }}" class="btn btn-success waves-effect waves-float waves-light float-right">Refresh</a>
+                                <a href="{{ route('stores.index') }}"
+                                   class="btn btn-success waves-effect waves-float waves-light float-right">Refresh</a>
                             </div>
                         </div>
                     </form>
@@ -183,27 +184,26 @@
                 ],
             });
         })
-        
+
         var docType = $('select[name=doc_type]').val();
-            if (docType === 'factory') {
-                $('#factoryDropdown').prop('hidden', false)
-                $('#outletDropdown').prop('hidden', true)
-            } else if (docType === 'outlet') {
-                $('#factoryDropdown').prop('hidden', true)
-                $('#outletDropdown').prop('hidden', false)
-            } else {
-                $('#factoryDropdown').prop('hidden', true)
-                $('#outletDropdown').prop('hidden', true)
-            }
+        if (docType === 'factory') {
+            $('#factoryDropdown').prop('hidden', false)
+            $('#outletDropdown').prop('hidden', true)
+        } else if (docType === 'outlet') {
+            $('#factoryDropdown').prop('hidden', true)
+            $('#outletDropdown').prop('hidden', false)
+        } else {
+            $('#factoryDropdown').prop('hidden', true)
+            $('#outletDropdown').prop('hidden', true)
+        }
 
         $('select[name=doc_type]').on('select2:select', function (e) {
             const docType = e.params.data.id;
-            $('select[name=doc_id]').val('')
+            $('select[name=outlet_id]').val('')
+            $('select[name=factory_id]').val('')
             if (docType === 'factory') {
                 $('#factoryDropdown').prop('hidden', false)
                 $('#outletDropdown').prop('hidden', true)
-
-                $('select[name=doc_id]').val('')
             } else if (docType === 'outlet') {
                 $('#factoryDropdown').prop('hidden', true)
                 $('#outletDropdown').prop('hidden', false)
@@ -211,6 +211,14 @@
                 $('#factoryDropdown').prop('hidden', true)
                 $('#outletDropdown').prop('hidden', true)
             }
+        })
+        $('select[name=outlet_id]').on('select2:select', function (e) {
+            const docid = e.params.data.id;
+            $('select[name=outlet_id]').attr('name', 'doc_id')
+        })
+        $('select[name=factory_id]').on('select2:select', function (e) {
+            const docid = e.params.data.id;
+            $('select[name=factory_id]').attr('name', 'doc_id')
         })
 
     </script>
