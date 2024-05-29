@@ -138,7 +138,7 @@ class RMRequisitionController extends Controller
     {
         DB::beginTransaction();
         try {
-            Requisition::findOrFail(decrypt($id))->delete();
+            Requisition::findOrFail($id)->delete();
             DB::commit();
         } catch (\Exception $error) {
             DB::rollBack();

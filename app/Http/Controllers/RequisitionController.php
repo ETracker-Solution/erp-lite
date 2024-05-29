@@ -107,9 +107,19 @@ class RequisitionController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Requisition $requisition)
+    public function destroy($id)
     {
-        //
+        DB::beginTransaction();
+        try {
+            Requisition::findOrFail($id)->delete();
+            DB::commit();
+        } catch (\Exception $error) {
+            DB::rollBack();
+            Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
+            return back();
+        }
+        Toastr::success('Requisition Deleted Successfully!.', '', ["progressBar" => true]);
+        return redirect()->route('requisitions.index');
     }
 
     public function pdfDownload($id)
