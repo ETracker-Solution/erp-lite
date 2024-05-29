@@ -93,7 +93,7 @@ class StoreController extends Controller
      */
     public function update(UpdateStoreRequest $request, $id)
     {
-        return $validated = $request->validated();
+        $validated = $request->validated();
         DB::beginTransaction();
         try {
             Store::findOrFail($id)->update($validated);
