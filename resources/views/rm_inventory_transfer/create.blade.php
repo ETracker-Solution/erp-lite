@@ -60,7 +60,7 @@
                                                         <option value="">Select Store</option>
                                                         @foreach($stores as $row)
                                                             <option
-                                                                value="{{ $row->id }}">{{ $row->name }}</option>
+                                                                value="{{ $row->id }}">{{ $row->id }} - {{ $row->name }}</option>
                                                         @endforeach
                                                     </select>
                                                 </div>
@@ -75,7 +75,7 @@
                                                         <option value="">Select One</option>
                                                         @foreach($stores as $row)
                                                             <option
-                                                                value="{{ $row->id }}">{{ $row->name }}</option>
+                                                                value="{{ $row->id }}">{{ $row->id }} - {{ $row->name }}</option>
                                                         @endforeach
                                                     </select>
                                                 </div>
