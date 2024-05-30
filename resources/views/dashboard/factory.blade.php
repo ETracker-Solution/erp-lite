@@ -247,7 +247,7 @@
                                 @foreach($todayRequisitions as $row)
                                     <tr>
                                         <td>{{$loop->iteration}}</td>
-                                        <td> {{$row->outlet->name}}</td>
+                                        <td> {{$row->outlet->name ?? ''}}</td>
                                         <td>{!! showStatus($row->status) !!}</td>
                                         <td>{{$row->created_at->format('d-m-Y')}}</td>
                                         <td><a target="_blank" href="{{ route('factory.finish-requisitions.show',encrypt($row->id))}}" title="View">
