@@ -15,6 +15,7 @@ use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\ReceiveVoucherController;
 use App\Http\Controllers\SaleController;
 use App\Http\Controllers\SupplierPaymentVoucherController;
+use App\Http\Controllers\SystemSettingController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -87,6 +88,8 @@ Route::middleware('auth')->group(function () {
     Route::resource('member-points', \App\Http\Controllers\MemberPointController::class);
     Route::resource('memberships', \App\Http\Controllers\MembershipController::class);
     Route::resource('outlet-configs', \App\Http\Controllers\OuteletConfigController::class);
+    Route::resource('system-settings', SystemSettingController::class);
+
 
     //Promo Code
     Route::get('get-customer-by-type', [\App\Http\Controllers\PromoCodeController::class, 'getCustomers'])->name('promo-codes.customers');

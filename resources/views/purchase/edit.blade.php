@@ -35,120 +35,86 @@
                                     </a>
                                 </div>
                             </div>
-
                             <div class="card-body">
-
-                                <div class="card-box">
-                                    <hr>
-                                    <div id="">
-                                        <div class="row">
-                                            <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
-                                                <div class="row">
-                                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                                        <div class="form-group">
-                                                            <label for="serial_no">Purchase No</label>
-                                                            <div class="input-group">
-                                                                <input type="text" class="form-control input-sm"
-                                                                       value="{{$purchase->id}}" name="serial_no"
-                                                                       id="serial_no">
-                                                                <span class="input-group-append">
-                                                                    <button type="button"
-                                                                            class="btn btn-secondary btn-flat">Search</button>
-                                                                </span>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                                        <div class="form-group">
-                                                            <label for="reference_no">Reference No</label>
-                                                            <input type="text" class="form-control input-sm"
-                                                                   value="{{old('reference_no',$purchase->reference_no)}}"
-                                                                   name="reference_no">
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
-                                                <div class="row">
-
-                                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                                        <div class="form-group">
-                                                            <label for="date">Date</label>
-                                                            <vuejs-datepicker v-model="date" name="date"
-                                                                              placeholder="Select date"
-                                                                              format="yyyy-MM-dd"></vuejs-datepicker>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                                        <div class="form-group">
-                                                            <label for="store_id">Store</label>
-                                                            <select name="store_id" id="store_id"
-                                                                    class="form-control bSelect" required>
-                                                                <option value="">Select Store</option>
-                                                                @foreach($stores as $row)
-                                                                    <option
-                                                                        value="{{ $row->id }}" {{ old('store_id',$purchase->store_id) == $row->id ? 'selected' : '' }}>{{ $row->name }}</option>
-                                                                @endforeach
-                                                            </select>
-                                                        </div>
-                                                    </div>
-
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
-                                                <div class="row">
-                                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                                        <div class="form-group">
-                                                            <label for="supplier_id">Group</label>
-                                                            <select name="supplier_group_id" id="supplier_group_id"
-                                                                    class="form-control bSelect"
-                                                                    v-model="supplier_group_id"
-                                                                    @change="fetch_supplier">
-                                                                <option value="">Select Group</option>
-                                                                @foreach($supplier_groups as $row)
-                                                                    <option
-                                                                        value="{{ $row->id }}">{{ $row->name }}</option>
-                                                                @endforeach
-                                                            </select>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                                        <div class="form-group">
-                                                            <label for="supplier_id">Supplier</label>
-                                                            <select name="supplier_id" id="supplier_id"
-                                                                    class="form-control bSelect" v-model="supplier_id"
-                                                                    required>
-                                                                <option value="">Select Supplier</option>
-                                                                <option :value="row.id" v-for="row in suppliers"
-                                                                        v-html="row.name">
-                                                                </option>
-
-                                                            </select>
-                                                            </select>
-                                                        </div>
-                                                    </div>
-
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
-                                                <div class="row">
-                                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                                        <div class="form-group">
-                                                            <label for="remark">Remark</label>
-                                                            <textarea class="form-control" name="remark" rows="5"
-                                                                      placeholder="Enter Remark">{{$purchase->remark}}</textarea>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-
+                                <div class="row">
+                                    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+                                        <div class="form-group">
+                                            <label for="serial_no">Purchase No</label>
+                                            <input type="text" class="form-control input-sm"
+                                                   value="{{$purchase->id}}" name="serial_no"
+                                                   id="serial_no" readonly>
                                         </div>
                                     </div>
+                                    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+                                        <div class="form-group">
+                                            <label for="date">Date</label>
+                                            <vuejs-datepicker v-model="date" name="date"
+                                                              placeholder="Select date"
+                                                              format="yyyy-MM-dd"></vuejs-datepicker>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+                                        <div class="form-group">
+                                            <label for="store_id">Store</label>
+                                            <select name="store_id" id="store_id"
+                                                    class="form-control bSelect" required>
+                                                <option value="">Select Store</option>
+                                                @foreach($stores as $row)
+                                                    <option
+                                                        value="{{ $row->id }}" {{ old('store_id',$purchase->store_id) == $row->id ? 'selected' : '' }}>{{ $row->name }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+                                        <div class="form-group">
+                                            <label for="reference_no">Reference No</label>
+                                            <input type="text" class="form-control input-sm"
+                                                   value="{{old('reference_no',$purchase->reference_no)}}"
+                                                   name="reference_no">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+                                        <div class="form-group">
+                                            <label for="supplier_id">Group</label>
+                                            <select name="supplier_group_id" id="supplier_group_id"
+                                                    class="form-control bSelect"
+                                                    v-model="supplier_group_id"
+                                                    @change="fetch_supplier">
+                                                <option value="">Select Group</option>
+                                                @foreach($supplier_groups as $row)
+                                                    <option
+                                                        value="{{ $row->id }}">{{ $row->name }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+                                        <div class="form-group">
+                                            <label for="supplier_id">Supplier</label>
+                                            <select name="supplier_id" id="supplier_id"
+                                                    class="form-control bSelect" v-model="supplier_id"
+                                                    required>
+                                                <option value="">Select Supplier</option>
+                                                <option :value="row.id" v-for="row in suppliers"
+                                                        v-html="row.name">
+                                                </option>
+
+                                            </select>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+                                        <div class="form-group">
+                                            <label for="remark">Remark</label>
+                                            <textarea class="form-control" name="remark" rows="1"
+                                                      placeholder="Enter Remark">{{$purchase->remark}}</textarea>
+                                        </div>
+                                    </div>
+
+
                                 </div>
-
                             </div>
-
                         </div>
                         <div class="card">
                             <div class="card-header bg-info">
