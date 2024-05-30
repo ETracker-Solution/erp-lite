@@ -123,3 +123,12 @@ function getFileNameAfterImageUpload(UploadedFile $image){
     $image->move(public_path('/upload'), $filename);
     return $filename;
 }
+
+function getRequisitionQtyByProduct($product_id, $outlet_id){
+    $req =  \App\Models\Requisition::where('date',date('Y-m-d'))->where('production_house_id',auth('factory')->user()->production_house_id)
+        ->where(['model_type'=>\App\Models\Outlet::class,'model_id'=>$outlet_id])->first();
+    if ($req){
+        return $req->items()->where('product_id',$product_id)->sum('quantity');
+    }
+    return 0;
+}

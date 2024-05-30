@@ -90,9 +90,15 @@
                         "defaultContent": "Not Set"
                     },
                     {
-                        data: "store.name",
-                        title: "Store",
-                        searchable: false,
+                        data: "from_store.name",
+                        title: "From Store",
+                        searchable: false,orderable: false,
+                        "defaultContent": "Not Set"
+                    },
+                    {
+                        data: "to_store.name",
+                        title: "To Store",
+                        searchable: false,orderable: false,
                         "defaultContent": "Not Set"
                     },
                     {
