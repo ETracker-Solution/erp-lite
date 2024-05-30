@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Purchase;
 use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -32,6 +33,7 @@ class StorePurchaseRequest extends FormRequest
             'vat' => 'required',
             'remark' => 'nullable',
             'net_payable' => 'required',
+            'uid' => 'required',
             'created_by' => 'required',
         ];
     }
@@ -40,6 +42,7 @@ class StorePurchaseRequest extends FormRequest
     {
 
         $this->merge([
+            'uid' => getNextId(Purchase::class),
             'created_by' => auth()->user()->id,
             'date' => Carbon::parse($this->date)->format('Y-m-d'),
         ]);

@@ -40,10 +40,10 @@
                                     <div class="row">
                                         <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                             <div class="form-group">
-                                                <label for="serial_no">Purchase No</label>
+                                                <label for="uid">Purchase No</label>
                                                 <input type="text" class="form-control input-sm"
-                                                       value="{{$serial_no}}" name="serial_no"
-                                                       id="serial_no">
+                                                       value="{{$uid}}" name="uid"
+                                                       id="uid" readonly>
                                             </div>
                                         </div>
                                         <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">

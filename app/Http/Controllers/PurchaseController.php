@@ -55,14 +55,13 @@ class PurchaseController extends Controller
      */
     public function create()
     {
-        $serial_count = Purchase::latest()->first() ? Purchase::latest()->first()->id : 0;
-        $serial_no = $serial_count + 1;
+
         $data = [
             'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'RM'])->get(),
             'supplier_groups' => SupplierGroup::all(),
             'suppliers' => Supplier::all(),
             'stores' => Store::where(['type' => 'RM', 'doc_type' => 'ho', 'doc_id' => null])->get(),
-            'serial_no' => $serial_no,
+            'uid' => getNextId(Purchase::class),
 
         ];
 
