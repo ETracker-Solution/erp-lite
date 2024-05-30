@@ -244,10 +244,11 @@
                                 </tr>
                                 </thead>
                                 <tbody>
+                                    {{-- @dd($todayRequisitions); --}}
                                 @foreach($todayRequisitions as $row)
                                     <tr>
                                         <td>{{$loop->iteration}}</td>
-                                        <td> {{$row->store->name ?? ''}}</td>
+                                        <td> {{$row->fromStore->name ?? ''}}</td>
                                         <td>{!! showStatus($row->status) !!}</td>
                                         <td>{{$row->created_at->format('d-m-Y')}}</td>
                                         <td><a target="_blank" href="#" title="View">
@@ -290,7 +291,7 @@
                                 @foreach($monthlyRequisitions as $row)
                                     <tr>
                                         <td>{{$loop->iteration}}</td>
-                                        <td> {{$row->store->name ?? ''}}</td>
+                                        <td> {{$row->fromStore->name ?? ''}}</td>
                                         <td>{!! showStatus($row->status) !!}</td>
                                         <td>{{$row->created_at->format('d-m-Y')}}</td>
                                         <td><a target="_blank" href="#" title="View">
