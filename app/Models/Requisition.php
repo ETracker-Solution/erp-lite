@@ -11,7 +11,7 @@ class Requisition extends Model
 
     protected $guarded = ['id'];
 
-    protected $appends = ['outlet_id', 'factory_id'];
+    protected $appends = ['outlet_id', 'fg_factory_id', 'rm_factory_id'];
 
     public function getOutletIdAttribute()
     {
@@ -20,10 +20,17 @@ class Requisition extends Model
 
     }
 
-    public function getFactoryIdAttribute()
+    public function getFgFactoryIdAttribute()
     {
 
-        return $this->fromStore->doc_type == 'factory' ? $this->fromStore->doc_id : null;
+        return $this->toStore->doc_type == 'factory' ? $this->toStore->doc_id : null;
+
+    }
+
+    public function getRmFactoryIdAttribute()
+    {
+
+        return $this->fromStore->doc_type == 'factory'  ? $this->fromStore->doc_id : null;
 
     }
 
