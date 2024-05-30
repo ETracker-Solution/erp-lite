@@ -3,7 +3,8 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>@yield('title') | {{ config('app.name', 'Laravel') }}</title>
+    <title>@yield('title') | {{ config('app.name','Cake Town') }}</title>
+    <link rel="icon" type="image/x-icon" href="{{ asset('upload').'/'.getSettingValue('fav_icon') }}">
     <link rel="stylesheet" href="{{ asset('/assets/css/style.css') }}">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <meta name="csrf-token" content="{{ csrf_token() }}">
