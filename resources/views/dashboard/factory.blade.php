@@ -28,7 +28,7 @@
                         <h3 class="mb-75 mt-2 pt-50">
                             {{ $monthlyTotalRequisitions ??0 }}
                         </h3>
-                        {{-- <a href="{{route('factory.finish-requisitions.index')}}"> --}}
+                        <a href="{{route('rm-requisitions.index')}}">
                             <button type="button" class="btn btn-primary">View Requisition</button>
                         </a>
                         <img
@@ -247,10 +247,10 @@
                                 @foreach($todayRequisitions as $row)
                                     <tr>
                                         <td>{{$loop->iteration}}</td>
-                                        <td> {{$row->outlet->name ?? ''}}</td>
+                                        <td> {{$row->store->name ?? ''}}</td>
                                         <td>{!! showStatus($row->status) !!}</td>
                                         <td>{{$row->created_at->format('d-m-Y')}}</td>
-                                        <td><a target="_blank" href="" title="View">
+                                        <td><a target="_blank" href="#" title="View">
                                                 <i class="fas fa-eye ml-1"></i>
                                             </a></td>
                                     </tr>
@@ -290,10 +290,10 @@
                                 @foreach($monthlyRequisitions as $row)
                                     <tr>
                                         <td>{{$loop->iteration}}</td>
-                                        <td> {{$row->outlet->name ?? ''}}</td>
+                                        <td> {{$row->store->name ?? ''}}</td>
                                         <td>{!! showStatus($row->status) !!}</td>
                                         <td>{{$row->created_at->format('d-m-Y')}}</td>
-                                        <td><a target="_blank" href="" title="View">
+                                        <td><a target="_blank" href="#" title="View">
                                                 <i class="fas fa-eye ml-1"></i>
                                             </a></td>
                                     </tr>
