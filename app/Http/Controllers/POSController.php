@@ -248,8 +248,8 @@ class POSController extends Controller
     public function getProductByNameSkuBarCode(Request $request)
     {
         $searchString = $request->search_term;
-        $product = Product::where(['type' => 'finish', 'status' => 'active'])->where(function ($q) use ($searchString) {
-            $q->where('name', 'like', '%' . $searchString . '%')->orWhere('sku', 'like', '%' . $searchString . '%');
+        $product = ChartOfInventory::where(['rootAccountType' => 'FG', 'status' => 'active','type'=>'item'])->where(function ($q) use ($searchString) {
+            $q->where('name', 'like', '%' . $searchString . '%');
         });
         if ($product->count() == 1) {
             return $product->first();
