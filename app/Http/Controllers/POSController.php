@@ -232,8 +232,11 @@ class POSController extends Controller
         }
         $products = $products->get();
 
+        $outlet_id = \auth('web')->user()->employee->outlet_id;
+        $outlet = Outlet::find($outlet_id);
+        $store = Store::where(['doc_type' => 'outlet', 'doc_id' => $outlet->id])->first();
         foreach ($products as $product) {
-            $product->stock = availableInventoryBalance($product->id, 4);
+            $product->stock = availableInventoryBalance($product->id, $store->id);
         }
         return $products;
     }
