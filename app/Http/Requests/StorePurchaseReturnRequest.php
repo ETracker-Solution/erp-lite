@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StorePurchaseReturnRequest extends FormRequest
@@ -11,7 +12,7 @@ class StorePurchaseReturnRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +23,28 @@ class StorePurchaseReturnRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'purchase_id' => 'required',
+            'store_id' => 'required',
+            'supplier_id' => 'required',
+            'products' => 'array',
+            'date' => 'required',
+            'reference_no' => 'nullable',
+            'subtotal' => 'required',
+            'vat' => 'required',
+            'remark' => 'nullable',
+            'net_payable' => 'required',
+            'created_by' => 'required',
         ];
     }
+
+    public function prepareForValidation()
+    {
+
+        $this->merge([
+            'created_by' => auth()->user()->id,
+            'date' => Carbon::parse($this->date)->format('Y-m-d'),
+        ]);
+
+    }
 }
+
