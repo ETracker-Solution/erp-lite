@@ -43,10 +43,10 @@
             <!-- Statistics Card -->
             <div class="col-xl-8 col-md-6 col-12">
                 <div class="card card-statistics">
-                    <div class="card-header">
-                        <h4 class="card-title">Statistics</h4>
-                        <div class="d-flex align-items-center">
-                            <p class="card-text font-small-2 mr-25 mb-0">Updated 1 minute ago</p>
+                    <div class="card-header bg-info">
+                        <h3 class="card-title">Statistics</h3>
+                        <div class="card-tools">
+                            Updated 1 minute ago
                         </div>
                     </div>
                     <div class="card-body statistics-body">
@@ -106,15 +106,10 @@
 
                     <div class="col-xl-12 col-12">
                         <div class="card">
-                            <div
-                                class="card-header d-flex justify-content-between align-items-sm-center align-items-start flex-sm-row flex-column">
-                                <div class="header-left">
-                                    <h4 class="card-title">Delivery</h4>
-                                    <p>{{$monthlyTotalDeliveries}}</p>
-                                </div>
-                                <div class="header-right d-flex align-items-center mt-sm-0 mt-1">
-                                    {{--                            <i data-feather="calendar"></i>--}}
-                                    {{--                            <input type="text" class="form-control flat-picker border-0 shadow-none bg-transparent pr-0" placeholder="YYYY-MM-DD" />--}}
+                            <div class="card-header bg-info">
+                                <h3 class="card-title">Delivery</h3>
+                                <div class="card-tools">
+                                    {{$monthlyTotalDeliveries}}
                                 </div>
                             </div>
                             <div class="card-body">
@@ -128,17 +123,13 @@
             <!-- Revenue Report Card -->
             <div class="col-lg-8 col-12">
                 <div class="card card-revenue-budget">
-                    <div class="row mx-0">
-                        <div class="col-md-12 col-12 revenue-report-wrapper">
-                            <div class="d-sm-flex justify-content-between align-items-center mb-3">
-                                <div class="mb-sm-0">
-                                    <h4 class="card-title mb-sm-0">Total Stock</h4>
-                                    <p class="mb-50 mb-sm-0">Raw Stock Summary</p>
-                                </div>
-                            </div>
-                            <canvas id="attendanceChart"></canvas>
+                    <div class="card-header bg-info">
+                        <h3 class="card-title">Total Stock</h3>
+                        <div class="card-tools">
+                            Raw Stock Summary
                         </div>
                     </div>
+                    <canvas id="attendanceChart"></canvas>
                 </div>
             </div>
             <!--/ Revenue Report Card -->
