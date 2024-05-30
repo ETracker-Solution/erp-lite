@@ -80,9 +80,11 @@ Batch List
                                         </div>
 
                                     </div>
-                                    <button class="btn btn-info waves-effect waves-float waves-light float-right"
+                                    <button class="btn btn-info waves-effect waves-float waves-light float-right ml-1"
                                         type="submit">Submit
                                     </button>
+                                    <a href="{{ route('batches.index') }}"
+                                   class="btn btn-warning waves-effect waves-float waves-light float-right">Refresh</a>
                                 </div>
                             </div>
                         </form>

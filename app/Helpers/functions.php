@@ -3,6 +3,7 @@
 
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Http\UploadedFile;
 
 function getTimeByFormat($time, $format = 'g:i:s A')
 {
@@ -113,4 +114,11 @@ function storeValue($key, $value)
             'value' => $value ?? '',
         ]);
     }
+}
+
+function getFileNameAfterImageUpload(UploadedFile $image){
+    $filename = null;
+    $filename = date('Ymdmhs').uniqid() . '.' . $image->getClientOriginalExtension();
+    $image->move(public_path('/upload'), $filename);
+    return $filename;
 }
