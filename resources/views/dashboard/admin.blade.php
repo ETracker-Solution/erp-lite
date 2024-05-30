@@ -28,7 +28,7 @@
                         <h3 class="mb-75 mt-2 pt-50">
                             <a href="javascript:void(0);">{{ $totalSales }} BDT</a>
                         </h3>
-                        <a type="button" class="btn btn-primary" href="#">View Report</a>
+                        <a type="button" class="btn btn-primary" href="{{ route('sales.index') }}">View Sale</a>
                         <img
                             src="https://s3-alpha-sig.figma.com/img/546c/5a37/4c62faf89e51f8af3d964aefcde244b8?Expires=1711929600&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4&Signature=ZRnXfOLrptLQPS7zGcE~1WlhQu~ZynyRud0XimsBQrnAuUsMrVAafCC114I4xF6J7tL-N1thpB8CzZupobQ8KR8sN5bmd0evO9kZz16BQ-AO-G~5-jF9LSC-zDHcEJ-CAH6IegnAoeVGAPYUhCk4mc1rTk~3MhiCwbw-fJnDizSW-TZ9nZwnWm3oc2pNY6ac~u0q6NRiR1oi~4C0JOxFgZWb5LJAVcryH4Uh2FjHgyJ0H5uDMi0BH3pmB3YRCAPETM5F2fSyIqWqR5agcanHMPLKq8x4dx4zjxvexyZklARJ39G7ux2SenCLJ5pjALZDLYr-v8m00wvYGHTLQvZe3A__"
                             class="congratulation-medal" alt="Medal Pic"
@@ -254,7 +254,7 @@
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
-                            <table id="req-dataTable" class="table table-bordered">
+                            <table id="dataTable" class="table table-bordered">
                                 {{-- show from datatable --}}
                             </table>
                         </div>
@@ -379,6 +379,17 @@
 
     </section>
 @endsection
+@section('css')
+    <!-- DataTables -->
+    <link rel="stylesheet" href="{{ asset('assets/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css')}}">
+@endsection
+@section('js')
+    <!-- DataTables -->
+    <script src="{{ asset('assets/plugins/datatables/jquery.dataTables.min.js')}}"></script>
+    <script src="{{ asset('assets/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js')}}"></script>
+    <script src="{{ asset('assets/plugins/datatables-responsive/js/dataTables.responsive.min.js')}}"></script>
+    <script src="{{ asset('assets/plugins/datatables-responsive/js/responsive.bootstrap4.min.js')}}"></script>
+@endsection
 
 @push('script')
     <script src="{{asset('admin/app-assets/vendors/js/charts/apexcharts.min.js')}}"></script>
@@ -386,33 +397,47 @@
     {{--    <script src="{{asset('admin/app-assets/js/scripts/pages/dashboard-ecommerce.js')}}"></script>--}}
     <script>
         $(document).ready(function () {
-            $('#req-dataTable').dataTable({
+            $('#dataTable').dataTable({
                 stateSave: true,
                 responsive: true,
                 serverSide: true,
                 processing: true,
                 ajax: {
-                    url: "{{ route('dashboard') }}",
+                    url: "{{ route('requisitions.index') }}",
                 },
-                columns: [
+                columns: [{
+                    data: "DT_RowIndex",
+                    title: "SL",
+                    name: "DT_RowIndex",
+                    searchable: false,
+                    orderable: false
+                },
+
                     {
-                        data: "requisition_number",
-                        title: "#ID",
-                        searchable: true
+                        data: "uid",
+                        title: "FGR No",
+                        searchable: true,
+                        "defaultContent": "Not Set"
+                    }, {
+                        data: "date",
+                        title: "Date",
+                        searchable: true,
+                        "defaultContent": "Not Set"
                     },
                     {
-                        data: "type",
-                        title: "Req Type",
-                        searchable: true
+                        data: "store.name",
+                        title: "Store",
+                        searchable: false,
+                        "defaultContent": "Not Set"
                     },
                     {
                         data: "status",
-                        title: "status",
-                        searchable: false
+                        title: "Status",
+                        searchable: false, "defaultContent": "Not Set"
                     },
                     {
-                        data: "date",
-                        title: "Date",
+                        data: "created_at",
+                        title: "Created At",
                         searchable: true
                     },
                     {
