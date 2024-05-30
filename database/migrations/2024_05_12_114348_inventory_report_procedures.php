@@ -12,7 +12,7 @@ return new class extends Migration {
     public function up(): void
     {
         $procedure = "DROP PROCEDURE IF EXISTS `get_all_groups`;
-      CREATE PROCEDURE `get_all_groups`( IN `as_on_date` varchar(191), IN `ac_type` varchar(191))
+      CREATE PROCEDURE `get_all_groups`( IN `as_on_date` varchar(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci  , IN `ac_type` varchar(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci )
       BEGIN
     SELECT
     CIP.name as `Group Name`,
@@ -36,7 +36,7 @@ END;";
 
         $procedure = "DROP PROCEDURE IF EXISTS `get_all_items`;
 
-        CREATE PROCEDURE `get_all_items`( IN `as_on_date` varchar(191),IN `ac_type` varchar(191))
+        CREATE PROCEDURE `get_all_items`( IN `as_on_date` varchar(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci ,IN `ac_type` varchar(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci )
         BEGIN
 SELECT
     `Group Name`,
@@ -83,7 +83,7 @@ FROM (
 
         $procedure = "DROP PROCEDURE IF EXISTS `get_all_items_by_group`;
 
-        CREATE PROCEDURE `get_all_items_by_group`( IN `group_id` INT, IN `as_on_date` varchar(191), IN `ac_type` varchar(191))
+        CREATE PROCEDURE `get_all_items_by_group`( IN `group_id` INT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci , IN `as_on_date` varchar(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci , IN `ac_type` varchar(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci )
         BEGIN
 SELECT
     `Item ID`,
@@ -130,7 +130,7 @@ FROM (
 
         $procedure = "DROP PROCEDURE IF EXISTS `get_all_stores`;
 
-        CREATE PROCEDURE `get_all_stores`(IN `as_on_date` varchar(191),IN `ac_type` varchar(191))
+        CREATE PROCEDURE `get_all_stores`(IN `as_on_date` varchar(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci ,IN `ac_type` varchar(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci )
         BEGIN
 SELECT
     `Store Name`,
@@ -183,7 +183,7 @@ FROM (
 
         $procedure = "DROP PROCEDURE IF EXISTS `get_all_items_by_store`;
 
-        CREATE PROCEDURE `get_all_items_by_store`(IN `store_id` INT,IN `as_on_date` varchar(191),IN `ac_type` varchar(191))
+        CREATE PROCEDURE `get_all_items_by_store`(IN `store_id` INT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci ,IN `as_on_date` varchar(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci ,IN `ac_type` varchar(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci )
         BEGIN
 SELECT
     `Group Name`,
