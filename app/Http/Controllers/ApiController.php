@@ -148,7 +148,8 @@ class ApiController extends Controller
         $data = [
             'items' => $items,
             'date' => $requisition->date,
-            'store_id' => $requisition->store_id,
+            'from_store_id' => $requisition->from_store_id,
+            'to_store_id' => $requisition->to_store_id,
             'reference_no' => $requisition->reference_no,
             'remark' => $requisition->remark,
         ];

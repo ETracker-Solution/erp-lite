@@ -296,7 +296,11 @@ Route::group(['prefix' => 'reports', 'middleware' => 'auth'], function () {
     Route::get('daterangesummary-report', [App\Http\Controllers\ReportController::class, 'daterangeSummery'])->name('daterangesummery.report');
     Route::get('daterangesummary-data', [App\Http\Controllers\ReportController::class, 'fetchDaterangeSummary'])->name('fetchdaterangesummary.report');
 
+
+
 });
+Route::get('today-requisitions/{type}', [App\Http\Controllers\RequisitionController::class, 'exportRequisition'])->name('today.requisitions.export');
+Route::get('today-requisitions', [App\Http\Controllers\RequisitionController::class, 'todayRequisition'])->name('today.requisitions');
 
 
 require __DIR__ . '/auth.php';
