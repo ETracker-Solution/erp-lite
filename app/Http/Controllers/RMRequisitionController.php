@@ -24,7 +24,7 @@ class RMRequisitionController extends Controller
     public function index()
     {
         if (\request()->ajax()) {
-            $data = Requisition::with('store')->where('type', 'RM')->latest();
+            $data = Requisition::with('fromStore','toStore')->where('type', 'RM')->latest();
             return DataTables::of($data)
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
@@ -50,7 +50,8 @@ class RMRequisitionController extends Controller
 
         $data = [
             'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'RM'])->get(),
-            'stores' => Store::where(['type' => 'RM','doc_type'=>'factory'])->get(),
+            'from_stores' => Store::where(['type' => 'RM', 'doc_type' => 'factory'])->get(),
+            'to_stores' => Store::where(['type' => 'RM', 'doc_type' => 'ho'])->get(),
             'serial_no' => RequisitionNumber::serial_number()
         ];
         return view('rm_requisition.create', $data);
@@ -110,7 +111,7 @@ class RMRequisitionController extends Controller
         DB::beginTransaction();
         try {
             $validated = $request->validated();
-            $requisition= Requisition::find($id);
+            $requisition = Requisition::find($id);
             $requisition->update($validated);
             RequisitionItem::where('requisition_id', $requisition->id)->delete();
             $products = $request->get('products');

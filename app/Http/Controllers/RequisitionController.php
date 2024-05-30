@@ -8,6 +8,8 @@ use App\Http\Requests\UpdateRequisitionRequest;
 use App\Libraries\SaleUtil;
 use App\Models\ChartOfInventory;
 use App\Models\Customer;
+use App\Models\Outlet;
+use App\Models\Product;
 use App\Models\Requisition;
 use App\Models\RequisitionItem;
 use App\Models\Store;
@@ -24,7 +26,7 @@ class RequisitionController extends Controller
      */
     public function index()
     {
-        $data = Requisition::with('store')->where('type', 'FG')->latest();
+        $data = Requisition::with('fromStore','toStore')->where('type', 'FG')->latest();
         if (\request()->ajax()) {
             return DataTables::of($data)
                 ->addIndexColumn()
@@ -50,7 +52,8 @@ class RequisitionController extends Controller
     {
         $data = [
             'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'FG'])->get(),
-            'stores' => Store::where(['type' => 'FG', 'doc_type' => 'outlet'])->get(),
+            'from_stores' => Store::where(['type' => 'FG', 'doc_type' => 'outlet'])->get(),
+            'to_stores' => Store::where(['type' => 'FG', 'doc_type' => 'factory'])->get(),
             'serial_no' =>RequisitionNumber::serial_number()
         ];
         return view('requisition.create', $data);
@@ -181,5 +184,44 @@ class RequisitionController extends Controller
         $name = \Carbon\Carbon::now()->format('d-m-Y');
 
         return $pdf->stream($name . '.pdf');
+    }
+
+    public function todayRequisition()
+    {
+        $data = $this->getRequisitionData();
+        return view('requisition.today_requisition', $data);
+    }
+    public function getRequisitionData()
+    {
+        $headers = [
+            'Product',
+        ];
+        $outlets = Outlet::select('id','name')->get();
+        foreach ($outlets as $outlet) {
+            $headers[] = $outlet->name;
+        }
+
+        $headers[]='Total';
+
+        $values = [];
+        $products = ChartOfInventory::where(['type'=>'item','rootAccountType'=>'FG'])->get();
+
+        foreach ($products as $key=>$product){
+            $totalQty = 0;
+            $values[$key]['product_name']=$product->name;
+            foreach ($outlets as $outlet) {
+                $qty = getRequisitionQtyByProduct($product->id, $outlet->id);
+                $values[$key]['product_quantity'][]=$qty;
+                $totalQty +=$qty;
+            }
+            $values[$key]['total']=$totalQty;
+        }
+
+        return [
+            'products' => Product::where('type', 'finish')->get(),
+            'outlets' => Outlet::all(),
+            'headers'=>$headers,
+            'values'=>$values
+        ];
     }
 }

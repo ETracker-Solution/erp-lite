@@ -59,11 +59,13 @@
                                             <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                                 <div class="form-group">
                                                     <label for="from_store_id">From Store</label>
-                                                    <select name="from_store_id" id="from_store_id" class="form-control bSelect"
+                                                    <select name="from_store_id" id="from_store_id"
+                                                            class="form-control bSelect"
                                                             v-model="from_store_id" required @change="load_old">
                                                         <option value="">Select One</option>
                                                         @foreach($from_stores as $row)
-                                                            <option value="{{ $row->id }}">{{ $row->id }}-{{ $row->name }}</option>
+                                                            <option value="{{ $row->id }}">{{ $row->id }}
+                                                                -{{ $row->name }}</option>
                                                         @endforeach
                                                     </select>
                                                 </div>
@@ -71,11 +73,13 @@
                                             <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                                 <div class="form-group">
                                                     <label for="to_store_id">To Store</label>
-                                                    <select name="to_store_id" id="to_to_store_id" class="form-control bSelect"
+                                                    <select name="to_store_id" id="to_to_store_id"
+                                                            class="form-control bSelect"
                                                             v-model="to_store_id" required>
                                                         <option value="">Select One</option>
                                                         @foreach($to_stores as $row)
-                                                            <option value="{{ $row->id }}">{{ $row->id }}-{{ $row->name }}</option>
+                                                            <option value="{{ $row->id }}">{{ $row->id }}
+                                                                -{{ $row->name }}</option>
                                                         @endforeach
                                                     </select>
                                                 </div>
@@ -120,9 +124,15 @@
                                                             <th style="width: 15%">Group</th>
                                                             <th style="width:25%">Item</th>
                                                             <th style="width: 5%">Unit</th>
-                                                            <th style="width: 10%;vertical-align: middle">Balance Quantity</th>
-                                                            <th style="width: 10%;vertical-align: middle">Requisition Quantity</th>
-                                                            <th style="width: 10%;vertical-align: middle">Delivery Quantity</th>
+                                                            <th style="width: 10%;vertical-align: middle">Balance
+                                                                Quantity
+                                                            </th>
+                                                            <th style="width: 10%;vertical-align: middle">Requisition
+                                                                Quantity
+                                                            </th>
+                                                            <th style="width: 10%;vertical-align: middle">Delivery
+                                                                Quantity
+                                                            </th>
                                                             <th style="width: 5%"></th>
                                                         </tr>
                                                         </thead>
@@ -153,7 +163,8 @@
                                                                        :name="'products['+index+'][balance_quantity]'"
                                                                        class="form-control input-sm"
                                                                        required readonly>
-                                                            </td> <td style="vertical-align: middle" class="text-right">
+                                                            </td>
+                                                            <td style="vertical-align: middle" class="text-right">
                                                                 <input type="number" v-model="row.requisition_quantity"
                                                                        :name="'products['+index+'][requisition_quantity]'"
                                                                        class="form-control input-sm"
@@ -309,7 +320,8 @@
                                 vm.items.push(item[key]);
                             }
                             ;
-                            vm.to_store_id = response.data.store_id;
+                            vm.from_store_id = response.data.to_store_id;
+                            vm.to_store_id = response.data.from_store_id;
                             vm.date = response.data.date;
                             vm.reference_no = response.data.reference_no;
                             vm.remark = response.data.remark;
@@ -319,15 +331,15 @@
                     },
                     valid: function (index) {
 
-                        if(index.quantity > index.balance_quantity ){
+                        if (index.quantity > index.balance_quantity) {
                             console.log('1st');
-                            index.quantity = index.balance_quantity ;
+                            index.quantity = index.balance_quantity;
                         }
-                        if(index.requisition_quantity < index.quantity ){
+                        if (index.requisition_quantity < index.quantity) {
                             console.log('2');
-                            index.quantity=index.requisition_quantity;
+                            index.quantity = index.requisition_quantity;
                         }
-                        if(index.quantity <= 0){
+                        if (index.quantity <= 0) {
                             console.log('3');
                             index.quantity = '';
                         }

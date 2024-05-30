@@ -8,7 +8,24 @@ use Illuminate\Database\Eloquent\Model;
 class Requisition extends Model
 {
     use HasFactory;
+
     protected $guarded = ['id'];
+
+    protected $appends = ['outlet_id', 'factory_id'];
+
+    public function getOutletIdAttribute()
+    {
+
+        return $this->fromStore->doc_type == 'outlet' ? $this->fromStore->doc_id : null;
+
+    }
+
+    public function getFactoryIdAttribute()
+    {
+
+        return $this->fromStore->doc_type == 'factory' ? $this->fromStore->doc_id : null;
+
+    }
 
     public function scopeActive($query)
     {
@@ -24,9 +41,10 @@ class Requisition extends Model
     {
         return $this->hasMany(Delivery::class, 'requisition_id');
     }
+
     public static function availableRequisitions()
     {
-        $requisitions = \App\Models\Requisition::where('production_house_id',auth('factory')->user()->production_house_id)->where('status','=','approved')->get();
+        $requisitions = \App\Models\Requisition::where('production_house_id', auth('factory')->user()->production_house_id)->where('status', '=', 'approved')->get();
         $available_requisitions = [];
         foreach ($requisitions as $requisition) {
             $quantity = 0;
@@ -39,6 +57,7 @@ class Requisition extends Model
         }
         return $available_requisitions;
     }
+
     public function availableItems()
     {
         foreach ($this->items as $key => $item) {
@@ -74,16 +93,28 @@ class Requisition extends Model
 //        return $this->items;
 //    }
 
-    public function createdBy(){
-        return $this->morphTo('created_by','created_type','created_id');
+    public function createdBy()
+    {
+        return $this->morphTo('created_by', 'created_type', 'created_id');
     }
-    public function outlet(){
-        return $this->morphTo('outlet','model_type','model_id');
+
+    public function outlet()
+    {
+        return $this->morphTo('outlet', 'model_type', 'model_id');
     }
-    public function productionHouse(){
+
+    public function productionHouse()
+    {
         return $this->belongsTo(ProductionHouse::class);
     }
-    public function store(){
-        return $this->belongsTo(Store::class);
+
+    public function fromStore()
+    {
+        return $this->belongsTo(Store::class, 'from_store_id');
+    }
+
+    public function toStore()
+    {
+        return $this->belongsTo(Store::class, 'to_store_id');
     }
 }

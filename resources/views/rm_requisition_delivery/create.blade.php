@@ -25,7 +25,8 @@
                             <div class="card-header bg-info">
                                 <h3 class="card-title">RM Requisition Delivery Entry</h3>
                                 <div class="card-tools">
-                                    <a href="{{route('rm-requisition-deliveries.index')}}" class="btn btn-sm btn-primary">
+                                    <a href="{{route('rm-requisition-deliveries.index')}}"
+                                       class="btn btn-sm btn-primary">
                                         <i class="fa fa-list" aria-hidden="true"></i> &nbsp;RM Requisition Delivery List
                                     </a>
                                 </div>
@@ -125,9 +126,15 @@
                                                             <th style="width: 15%">Group</th>
                                                             <th style="width:25%">Item</th>
                                                             <th style="width: 5%">Unit</th>
-                                                            <th style="width: 10%;vertical-align: middle">Balance Quantity</th>
-                                                            <th style="width: 10%;vertical-align: middle">Requisition Quantity</th>
-                                                            <th style="width: 10%;vertical-align: middle">Delivery Quantity</th>
+                                                            <th style="width: 10%;vertical-align: middle">Balance
+                                                                Quantity
+                                                            </th>
+                                                            <th style="width: 10%;vertical-align: middle">Requisition
+                                                                Quantity
+                                                            </th>
+                                                            <th style="width: 10%;vertical-align: middle">Delivery
+                                                                Quantity
+                                                            </th>
                                                             <th style="width: 5%"></th>
                                                         </tr>
                                                         </thead>
@@ -157,13 +164,15 @@
                                                                 <input type="number" v-model="row.balance_quantity"
                                                                        :name="'products['+index+'][balance_quantity]'"
                                                                        class="form-control input-sm"
-                                                                      required readonly>
-                                                            </td> <td style="vertical-align: middle" class="text-right">
+                                                                       required readonly>
+                                                            </td>
+                                                            <td style="vertical-align: middle" class="text-right">
                                                                 <input type="number" v-model="row.requisition_quantity"
                                                                        :name="'products['+index+'][requisition_quantity]'"
                                                                        class="form-control input-sm"
-                                                                     required readonly>
-                                                            </td> <td style="vertical-align: middle" class="text-right">
+                                                                       required readonly>
+                                                            </td>
+                                                            <td style="vertical-align: middle" class="text-right">
                                                                 <input type="number" v-model="row.quantity"
                                                                        :name="'products['+index+'][quantity]'"
                                                                        class="form-control input-sm"
@@ -306,14 +315,15 @@
                         var vm = this;
                         var slug = vm.requisition_id;
                         vm.pageLoading = true;
-                        axios.get(this.config.get_old_items_data + '/' + slug+ '/' + vm.from_store_id).then(function (response) {
+                        axios.get(this.config.get_old_items_data + '/' + slug + '/' + vm.from_store_id).then(function (response) {
                             vm.items = [];
                             var item = response.data.items;
                             for (key in item) {
                                 vm.items.push(item[key]);
                             }
 
-                            vm.to_store_id = response.data.store_id;
+                            vm.from_store_id = response.data.to_store_id;
+                            vm.to_store_id = response.data.from_store_id;
                             vm.date = response.data.date;
                             vm.reference_no = response.data.reference_no;
                             vm.remark = response.data.remark;
@@ -323,15 +333,15 @@
                     },
 
                     valid: function (index) {
-                        if(index.quantity > index.balance_quantity ){
+                        if (index.quantity > index.balance_quantity) {
                             console.log('1st');
-                            index.quantity = index.balance_quantity ;
+                            index.quantity = index.balance_quantity;
                         }
-                        if(index.requisition_quantity < index.quantity ){
+                        if (index.requisition_quantity < index.quantity) {
                             console.log('2');
-                            index.quantity=index.requisition_quantity;
+                            index.quantity = index.requisition_quantity;
                         }
-                        if(index.quantity <= 0){
+                        if (index.quantity <= 0) {
                             console.log('3');
                             index.quantity = '';
                         }
