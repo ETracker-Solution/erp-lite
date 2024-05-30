@@ -83,7 +83,7 @@ FROM (
 
         $procedure = "DROP PROCEDURE IF EXISTS `get_all_items_by_group`;
 
-        CREATE PROCEDURE `get_all_items_by_group`( IN `group_id` INT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci, IN `as_on_date` varchar(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci, IN `ac_type` varchar(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci)
+        CREATE PROCEDURE `get_all_items_by_group`( IN `group_id` INT , IN `as_on_date` varchar(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci, IN `ac_type` varchar(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci)
         BEGIN
 SELECT
     `Item ID`,
@@ -183,7 +183,7 @@ FROM (
 
         $procedure = "DROP PROCEDURE IF EXISTS `get_all_items_by_store`;
 
-        CREATE PROCEDURE `get_all_items_by_store`(IN `store_id` INT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci,IN `as_on_date` varchar(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci,IN `ac_type` varchar(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci)
+        CREATE PROCEDURE `get_all_items_by_store`(IN `store_id` INT,IN `as_on_date` varchar(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci,IN `ac_type` varchar(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci)
         BEGIN
 SELECT
     `Group Name`,
