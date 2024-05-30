@@ -1,7 +1,7 @@
 <aside class="main-sidebar sidebar-dark-primary elevation-4">
     <!-- Brand Logo -->
     <a href="{{config('sidebar-menus.logo.url')}}" class="brand-link">
-        <img src="{{asset(config('sidebar-menus.logo.src'))}}" alt="{{ config('sidebar-menus.logo.alt') }}"
+        <img src="{{ asset('upload').'/'.getSettingValue('company_logo') }}" alt="{{ config('sidebar-menus.logo.alt') }}"
              class="brand-image img-circle elevation-3" style="opacity: .8">
         <span class="brand-text font-weight-light">{{ config('sidebar-menus.logo.text') }}</span>
     </a>

@@ -484,6 +484,19 @@ return [
                             'active_condition' => false,
                         ]
                     ],
+                ],
+                [
+                    'name' => 'System Setting',
+                    'url' => '#',
+                    'has_child' => true,
+                    'active_condition' => false,
+                    'child' => [
+                        [
+                            'name' => 'System Setting',
+                            'url' => '/system-settings/create',
+                            'active_condition' => false,
+                        ]
+                    ],
                 ]
             ],
             'permissions' => ['system-admin-admin', 'system-admin-operator', 'system-admin-viewer', 'system-admin-approver']
