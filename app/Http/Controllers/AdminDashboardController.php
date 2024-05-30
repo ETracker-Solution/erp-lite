@@ -3,11 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\ChartOfInventory;
 use App\Models\Customer;
 use App\Models\Expense;
 use App\Models\Outlet;
 use App\Models\Product;
 use App\Models\Purchase;
+use App\Models\Requisition;
 use App\Models\Sale;
 use App\Repository\Interfaces\AdminInterface;
 use Carbon\Carbon;
@@ -31,7 +33,7 @@ class AdminDashboardController extends Controller
         $outlets = Outlet::count();
         $customers = Customer::where('type', 'regular')->count();
         $wastage_amount = 0;
-        $products = Product::count();
+        $products = ChartOfInventory::where('type', 'item')->where('rootAccountType', 'FG')->count();
 
         $year = Carbon::now()->month == 1 ? Carbon::now()->subYear()->year : Carbon::now()->year;
         $lastMonth = Carbon::now()->subMonth();
@@ -97,29 +99,29 @@ class AdminDashboardController extends Controller
         $productWiseStock['products'] = [];
         $productWiseStock['stock'] = [];
         $totalStock = 0;
-        // $allProducts = Product::where('type', 'finish')->select('name', 'id')->get();
-        // foreach ($allProducts as $product) {
-        //     $stock = productStock($product->id);
-        //     $productWiseStock['products'][] = $product->name;
-        //     $productWiseStock['stock'][] = $stock;
-        //     $totalStock += $stock;
-        // }
+        $allProducts = Product::select('name', 'id')->get();
+        foreach ($allProducts as $product) {
+            $stock = 0;
+            $productWiseStock['products'][] = $product->name;
+            $productWiseStock['stock'][] = $stock;
+            $totalStock += $stock;
+        }
 
         $outletWiseExpense = [];
         $outletWiseOrders = [];
         $totalExpense = 0;
         $totalOrders = 0;
-        $allOutlets = 0;
+        $allOutlets = Outlet::all();
 
-        // foreach ($allOutlets as $ol) {
-        //     $expense = Expense::whereYear('created_at', $currentDate->year)->whereMonth('created_at', $currentDate->month)->where('expenseable_type', Outlet::class)->where('expenseable_id', $ol->id)->sum('amount');
-        //     $outletWiseExpense['outletName'][] = $ol->name;
-        //     $outletWiseExpense['expense'][] = $expense;
-        //     $totalExpense += $expense;
-        //     $order = Sale::whereYear('created_at', $currentDate->year)->whereMonth('created_at', $currentDate->month)->where('outlet_id', $ol->id)->count();
-        //     $outletWiseOrders[$ol->name] = $order;
-        //     $totalOrders += $order;
-        // }
+        foreach ($allOutlets as $ol) {
+            // $expense = Expense::whereYear('created_at', $currentDate->year)->whereMonth('created_at', $currentDate->month)->where('expenseable_type', Outlet::class)->where('expenseable_id', $ol->id)->sum('amount');
+            // $outletWiseExpense['outletName'][] = $ol->name;
+            // $outletWiseExpense['expense'][] = $expense;
+            // $totalExpense += $expense;
+            $order = Sale::whereYear('created_at', $currentDate->year)->whereMonth('created_at', $currentDate->month)->where('outlet_id', $ol->id)->count();
+            $outletWiseOrders[$ol->name] = $order;
+            $totalOrders += $order;
+        }
 
         $outletWiseSales = [];
         $totalSales = 0;
@@ -131,15 +133,17 @@ class AdminDashboardController extends Controller
             $totalSales += $sale;
         }
 
+        // return $requisitions = Requisition::get();
+
         if (\request()->ajax()) {
-            $requisitions = $this->getReq();
+            $requisitions = Requisition::all();
             return DataTables::of($requisitions)
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
-                    if ($row->type == 'outlet'){
-                        return view('admin.requisition.action-button', compact('row'));
+                    if ($row->type == 'FG'){
+                        return view('requisition.action', compact('row'));
                     }else{
-                        return view('admin.raw-requisition.action-button', compact('row'));
+                        return view('rm_requisition.action', compact('row'));
                     }
                 })
                 ->editColumn('status', function ($requisition) {
@@ -231,16 +235,16 @@ class AdminDashboardController extends Controller
         return view('dashboard.admin', $data);
     }
 
-    protected function getReq()
-    {
-        $q = DB::select(
-            "select id,requisition_number, status,date,created_at, 'outlet' as type
-from requisitions
-UNION ALL
-select id,requisition_number, status,date,created_at, 'factory' as type
-from raw_requisitions"
-        );
-        return $requisitions = collect($q)->sortByDesc('created_at')->values()->all();
+//     protected function getReq()
+//     {
+//         $q = DB::select(
+//             "select id,uid, status,date,created_at, 'FG' as type
+// from requisitions
+// UNION ALL
+// select id,uid, status,date,created_at, 'RM' as type
+// from requisitions"
+//         );
+//         return $requisitions = collect($q)->sortByDesc('created_at')->values()->all();
 
-    }
+//     }
 }
