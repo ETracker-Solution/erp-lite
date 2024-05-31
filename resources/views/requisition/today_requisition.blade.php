@@ -20,48 +20,17 @@ FG Requisition Details
                 <div class="card card-info">
                     <div class="card-header">
                         <h3 class="card-title">FG Requisition Details</h3>
-                        <a href="{{route('requisition.pdf',encrypt($requisition->id))}}"
-                            class="btn btn-sm btn-primary float-right" target="_blank"><i class="fa fa-download"></i> PDF</a>
+
                     </div>
                     <!-- Main content -->
                     <!-- Table row -->
                     <div class="row">
-                        <div class="col-12 table-responsive">
-                            <table class="table table-striped">
-                                <thead>
-                                    <tr>
-                                        <th>#</th>
-                                        <th>Group</th>
-                                        <th>Item</th>
-                                        <th>Unit</th>
-                                        <th>Quantity</th>
-                                        <th>Rate</th>
-                                    </tr>
-                                </thead>
-                            </table>
+                        <div class="table_sticky">
+                            @include('exports.today_requisition_table')
                         </div>
                         <!-- /.col -->
                     </div>
                     <!-- /.row -->
-
-                    <div class="row">
-                        <!-- accepted payments column -->
-                        <div class="col-8">
-
-                        </div>
-                        <!-- /.col -->
-                        <div class="col-4">
-                            <div class="table-responsive">
-                                <table class="table">
-                                    <tr>
-                                        <th style="width:50%">Subtotal:</th>
-                                        <td>{{ $requisition->subtotal }} TK</td>
-                                    </tr>
-                                </table>
-                            </div>
-                        </div>
-                        <!-- /.col -->
-                    </div>
                 </div>
                 <!-- /.row -->
             </div>

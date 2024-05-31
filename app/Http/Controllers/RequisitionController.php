@@ -218,7 +218,7 @@ class RequisitionController extends Controller
         }
 
         return [
-            'products' => Product::where('type', 'finish')->get(),
+            'products' => $products,
             'outlets' => Outlet::all(),
             'headers'=>$headers,
             'values'=>$values

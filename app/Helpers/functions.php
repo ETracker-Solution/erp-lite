@@ -117,18 +117,21 @@ function storeValue($key, $value)
     }
 }
 
-function getFileNameAfterImageUpload(UploadedFile $image){
+function getFileNameAfterImageUpload(UploadedFile $image)
+{
     $filename = null;
-    $filename = date('Ymdmhs').uniqid() . '.' . $image->getClientOriginalExtension();
+    $filename = date('Ymdmhs') . uniqid() . '.' . $image->getClientOriginalExtension();
     $image->move(public_path('/upload'), $filename);
     return $filename;
 }
 
-function getRequisitionQtyByProduct($product_id, $outlet_id){
-    $req =  \App\Models\Requisition::where('date',date('Y-m-d'))->where('production_house_id',auth('factory')->user()->production_house_id)
-        ->where(['model_type'=>\App\Models\Outlet::class,'model_id'=>$outlet_id])->first();
-    if ($req){
-        return $req->items()->where('product_id',$product_id)->sum('quantity');
+function getRequisitionQtyByProduct($product_id, $outlet_id)
+{
+     $req = \App\Models\Requisition::with('items')->where('date', date('Y-m-d'))->where('to_store_id', auth('web')->user()->employee->factory_id)
+        ->where(['from_store_id' => $outlet_id])->first();
+     dd($product_id);
+    if ($req) {
+        return $req->items()->where('coi_id', $product_id)->sum('quantity');
     }
     return 0;
 }
