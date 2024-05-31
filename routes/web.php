@@ -278,7 +278,7 @@ Route::middleware('auth')->group(function () {
 Route::group(['prefix' => 'reports', 'middleware' => 'auth'], function () {
 
 
-    Route::get('ledger-reports', [App\Http\Controllers\LedgerReportController::class, 'index']);
+    Route::get('ledger-reports', [App\Http\Controllers\LedgerReportController::class, 'index'])->name('ledger.reports');
 //    Route::
     //Report Route
     Route::get('daily-report', [App\Http\Controllers\ReportController::class, 'dailyReport'])->name('daily.report');
