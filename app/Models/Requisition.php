@@ -11,28 +11,6 @@ class Requisition extends Model
 
     protected $guarded = ['id'];
 
-    protected $appends = ['outlet_id', 'fg_factory_id', 'rm_factory_id'];
-
-    public function getOutletIdAttribute()
-    {
-
-        return $this->fromStore->doc_type == 'outlet' ? $this->fromStore->doc_id : null;
-
-    }
-
-    public function getFgFactoryIdAttribute()
-    {
-
-        return $this->toStore->doc_type == 'factory' ? $this->toStore->doc_id : null;
-
-    }
-
-    public function getRmFactoryIdAttribute()
-    {
-
-        return $this->fromStore->doc_type == 'factory'  ? $this->fromStore->doc_id : null;
-
-    }
 
     public function scopeActive($query)
     {

@@ -127,11 +127,14 @@ function getFileNameAfterImageUpload(UploadedFile $image)
 
 function getRequisitionQtyByProduct($product_id, $outlet_id)
 {
-     $req = \App\Models\Requisition::with('items')->where('date', date('Y-m-d'))->where('to_store_id', auth('web')->user()->employee->factory_id)
-        ->where(['from_store_id' => $outlet_id])->first();
-     dd($product_id);
+     $req = \App\Models\Requisition::with('items')->where('date', date('Y-m-d'))->where('to_factory_id', auth('web')->user()->employee->factory_id)
+        ->where(['outlet_id' => $outlet_id])->first();
     if ($req) {
         return $req->items()->where('coi_id', $product_id)->sum('quantity');
     }
     return 0;
+}
+function getStoreDocId($store_id)
+{
+    return \App\Models\Store::where(['id' => $store_id])->first()->doc_id;
 }

@@ -26,6 +26,7 @@ class StoreRMRequisitionRequest extends FormRequest
         return [
             'from_store_id' => 'required',
             'to_store_id' => 'required',
+            'from_factory_id' => 'required',
             'products' => 'array',
             'date' => 'required',
             'uid' => 'required',
@@ -42,6 +43,7 @@ class StoreRMRequisitionRequest extends FormRequest
     {
 
         $this->merge([
+            'from_factory_id'=>getStoreDocId($this->from_store_id),
             'uid' => RequisitionNumber::serial_number(),
             'type' => 'RM',
             'created_by' => auth()->user()->id,
