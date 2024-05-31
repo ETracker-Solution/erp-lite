@@ -8,10 +8,10 @@ FG Requisition Details
     @php
         $links = [
         'Home'=>route('dashboard'),
-        'FG Requisition Details'=>''
+        'Today FG Requisition'=>''
         ]
     @endphp
-<x-breadcrumb title='FG Requisition Details' :links="$links"/>
+<x-breadcrumb title='Today FG Requisition' :links="$links"/>
 
 <section class="content">
     <div class="container-fluid">
@@ -19,14 +19,17 @@ FG Requisition Details
             <div class="col-12">
                 <div class="card card-info">
                     <div class="card-header">
-                        <h3 class="card-title">FG Requisition Details</h3>
-
+                        <h3 class="card-title">All Outlet Requisitions</h3>
+                        <div class="card-tools">
+                            <x-button-pdf route="{{route('today.requisitions.export','pdf')}}"/>
+                            <x-button-excel route="{{route('today.requisitions.export','xlsx')}}"/>
+                        </div>
                     </div>
                     <!-- Main content -->
                     <!-- Table row -->
-                    <div class="row">
+                    <div class="card-body">
                         <div class="table_sticky">
-                            @include('exports.today_requisition_table')
+                            @include('exports.todays_requisition')
                         </div>
                         <!-- /.col -->
                     </div>
@@ -71,9 +74,13 @@ FG Requisition Details
         .table_sticky {
             overflow: auto;
             width: 100%;
-            height: 200px;
-        }
+            height: 800px;
 
+        }
+        td:not(:first-child){
+            color:green;
+            text-align: center;
+        }
         td,
         th {
             border: 1px solid #000;
@@ -83,6 +90,7 @@ FG Requisition Details
         th {
             background-color: #c7c7c7;
             font-weight: 700;
+            text-align: center;
         }
 
         table {
@@ -101,7 +109,9 @@ FG Requisition Details
             position: sticky;
             right: 0;
             z-index: 1;
-            background-color: #aaaaff;
+            background-color: #DFDFDF;
+            font-weight: bold;
+
         }
 
         thead tr th {

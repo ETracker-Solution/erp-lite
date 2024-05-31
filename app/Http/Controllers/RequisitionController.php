@@ -13,6 +13,7 @@ use App\Models\Product;
 use App\Models\Requisition;
 use App\Models\RequisitionItem;
 use App\Models\Store;
+use App\Services\ExportService;
 use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -21,9 +22,19 @@ use niklasravnsborg\LaravelPdf\Facades\Pdf;
 
 class RequisitionController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    protected $exportService;
+    public function __construct(ExportService $exportService)
+    {
+        $this->exportService = $exportService;
+    }
+    public function exportRequisition($type)
+    {
+        $exportableData = $this->getRequisitionData();
+        $viewFileName = 'todays_requisition';
+        $filenameToDownload = date('ymdHis').'_todays_requisition';
+        return $this->exportService->exportFile($type, $viewFileName, $exportableData,$filenameToDownload ,'L'); // L stands for Landscape, if Portrait needed, just remove this params
+
+    }
     public function index()
     {
         $data = Requisition::with('fromStore','toStore')->where('type', 'FG')->latest();
@@ -210,15 +221,16 @@ class RequisitionController extends Controller
             $totalQty = 0;
             $values[$key]['product_name']=$product->name;
             foreach ($outlets as $outlet) {
-                $qty = getRequisitionQtyByProduct($product->id, $outlet->id);
+                 $qty = getRequisitionQtyByProduct($product->id, $outlet->id);
+
                 $values[$key]['product_quantity'][]=$qty;
                 $totalQty +=$qty;
             }
+
             $values[$key]['total']=$totalQty;
         }
-
         return [
-            'products' => $products,
+            'products' => ChartOfInventory::where(['type'=>'item','rootAccountType'=>'FG'])->get(),
             'outlets' => Outlet::all(),
             'headers'=>$headers,
             'values'=>$values
