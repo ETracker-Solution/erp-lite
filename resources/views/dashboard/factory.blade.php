@@ -29,7 +29,7 @@
                             {{ $monthlyTotalRequisitions ??0 }}
                         </h3>
                         <a href="{{route('rm-requisitions.index')}}">
-                            <button type="button" class="btn btn-primary">View Requisition</button>
+                            <button type="button" class="btn btn-info">View Requisition</button>
                         </a>
                         <img
                             src="https://s3-alpha-sig.figma.com/img/06e9/a838/9504967120f836bf7c1a80eaeb742559?Expires=1711929600&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4&Signature=eHuLIto9PXADswFjFMxd3hhyQZHSwpGI58bMcNpk9jLpi9ywti9C4Tg12eejR49ijeljNCNyxsj0y6HCo0BzKnb~AUAtz63lBhlGDrpqjeVoNMsTOcIhwbkvjiPAa8O6M15HqPoXlZKKWplNlgnmw6ddp1hwUlH~VeQ50Vez9duv0Za9IBUOxYTMTHXQRMkyHShlA55urqI5c08GxUH9rCdiMndGD4Bw94ECU40TwcPNthXtjsfQuvKhoqq7eGJl-CD3Ol-p1URM66D2DfOgEBPfZ7Dj7PlGkV1gJ-NNlnT5KEe4h1Qo-0gS5Y~2KwfWdSro85n9i3NGtnMbO5qUNQ__"
@@ -81,9 +81,13 @@
                     <!-- Bar Chart - Orders -->
                     <div class="col-lg-6 col-md-3 col-6">
                         <div class="card">
+                            <div class="card-header bg-info">
+                                <h3 class="card-title">{{ $currentMonthExpense }}</h3>
+                                <div class="card-tools">
+                                    Expenses
+                                </div>
+                            </div>
                             <div class="card-body pb-50">
-                                <h3 class="font-weight-bolder mb-1">{{ $currentMonthExpense }} </h3>
-                                <p class="text-muted">Expenses</p>
                                 <div id="expense-radial-bar-chart" class="my-2"></div>
                                 <p>{{ $expenseMessage }}</p>
                             </div>
@@ -94,9 +98,13 @@
                     <!-- Line Chart - Profit -->
                     <div class="col-lg-6 col-md-3 col-6">
                         <div class="card card-tiny-line-stats">
+                            <div class="card-header bg-info">
+                                <h3 class="card-title">Wastage</h3>
+                                <div class="card-tools">
+                                    This Month
+                                </div>
+                            </div>
                             <div class="card-body pb-50">
-                                <h3 class="font-weight-bolder mb-1">Wastage</h3>
-                                <p class="text-muted">This Month</p>
                                 <div id="statistics-profit-chart"></div>
                                 <p>{{$thisMonthTotalWastages}}</p>
                             </div>
@@ -137,15 +145,10 @@
         <div class="row match-height">
             <div class="col-xl-8 col-12">
                 <div class="card">
-                    <div
-                        class="card-header d-flex justify-content-between align-items-sm-center align-items-start flex-sm-row flex-column">
-                        <div class="header-left">
-                            <h4 class="card-title">Total Stock</h4>
-                            <p>Monthly Stock Overview</p>
-                        </div>
-                        <div class="header-right d-flex align-items-center mt-sm-0 mt-1">
-                            {{--                            <i data-feather="calendar"></i>--}}
-                            {{--                            <input type="text" class="form-control flat-picker border-0 shadow-none bg-transparent pr-0" placeholder="YYYY-MM-DD" />--}}
+                    <div class="card-header bg-info">
+                        <h3 class="card-title">Total Stock</h3>
+                        <div class="card-tools">
+                            Monthly Stock Overview
                         </div>
                     </div>
                     <div class="card-body">
@@ -155,16 +158,8 @@
             </div>
             <div class="col-xl-4 col-12">
                 <div class="card">
-                    <div
-                        class="card-header d-flex justify-content-between align-items-sm-center align-items-start flex-sm-row flex-column">
-                        <div class="header-left">
-                            <h4 class="card-title">Total Wastage</h4>
-                            {{-- <p>Total {{$monthlyWastages->sum('total')}} wastage in this month</p> --}}
-                        </div>
-                        <div class="header-right d-flex align-items-center mt-sm-0 mt-1">
-                            {{--                            <i data-feather="calendar"></i>--}}
-                            {{--                            <input type="text" class="form-control flat-picker border-0 shadow-none bg-transparent pr-0" placeholder="YYYY-MM-DD" />--}}
-                        </div>
+                    <div class="card-header bg-info">
+                        <h3 class="card-title">Total Wastage</h3>
                     </div>
                     <div class="card-body">
                         <canvas height="350" id="sale-purchase-expense-chart"></canvas>
@@ -175,13 +170,9 @@
         <div class="row match-height">
             <div class="col-xl-4 col-12">
                 <div class="card">
-                    <div class="card-header">
-                        <div class="">
-                            <h4>
-                                Outlet Wise Delivery
-                            </h4>
-                            {{-- <p>Total {{$monthlyDeliveries->sum('total')}} Delivery in this Month</p> --}}
-                        </div>
+                    <div class="card-header bg-info">
+                        <h4 class="card-title">Outlet Wise Delivery</h4>
+                        {{-- <p>Total {{$monthlyDeliveries->sum('total')}} Delivery in this Month</p> --}}
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
@@ -214,12 +205,10 @@
             </div>
             <div class="col-xl-8 col-12">
                 <div class="card">
-                    <div class="card-header">
-                        <div class="">
-                            <h4>
-                                Today's Requisition
-                            </h4>
-                            <p>Total {{$todayRequisitions->count()}} Requisition Today</p>
+                    <div class="card-header bg-info">
+                        <h4 class="card-title">Today's Requisition</h4>
+                        <div class="card-tools">
+                            Total {{$todayRequisitions->count()}} Requisition Today
                         </div>
                     </div>
                     <div class="card-body">
@@ -258,12 +247,10 @@
         <div class="row match-height">
             <div class="col-xl-8 col-12">
                 <div class="card">
-                    <div class="card-header">
-                        <div class="">
-                            <h4>
-                                Outlet Requisition
-                            </h4>
-                            <p>Total {{$monthlyRequisitions->count()}} Requisition in this Month</p>
+                    <div class="card-header bg-info">
+                        <h3 class="card-title">Outlet Requisition</h3>
+                        <div class="card-tools">
+                            Total {{$monthlyRequisitions->count()}} Requisition in this Month
                         </div>
                     </div>
                     <div class="card-body">
