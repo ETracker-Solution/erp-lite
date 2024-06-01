@@ -898,10 +898,10 @@
                 },
                 transferToSell(order){
                     const vm = this;
-                    toastr.warning('Under Construction', {
-                        closeButton: true,
-                        progressBar: true,
-                    });
+                    // toastr.warning('Under Construction', {
+                    //     closeButton: true,
+                    //     progressBar: true,
+                    // });
                     vm.selectedPreOrderId = order.id
                     order.items.forEach(function(item){
                         vm.selectedProducts.push({
