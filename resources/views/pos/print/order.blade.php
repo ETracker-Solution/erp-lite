@@ -103,7 +103,7 @@
     <table style="border: 2px solid #fff;">
         <tr>
             <td class="tc bb-none company_name">
-                <img src="{{ public_path('admin/app-assets/images/logo/cake.svg') }}" alt="" style="width: 150px; height: 150px;">
+                <img src="{{ public_path('upload'.'/'.getSettingValue('company_logo')) }}" alt="" style="width: 150px; height: 150px;">
             </td>
         </tr>
         <tr>
