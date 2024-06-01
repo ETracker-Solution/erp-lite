@@ -22,7 +22,7 @@
 <body class="hold-transition register-page">
     <div class="register-box">
         <div class="register-logo">
-            <a href="#"><b>ERP</b>LITE</a>
+            <a href="#"><b>Cake</b>Town</a>
         </div>
         @yield('content')
 

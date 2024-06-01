@@ -3,7 +3,7 @@
     <a href="{{url('/dashboard')}}" class="brand-link">
         <img src="{{ asset('upload').'/'.getSettingValue('company_logo') }}" alt="{{ config('sidebar-menus.logo.alt') }}" alt="AdminLTE Logo"
              class="brand-image img-circle elevation-3" style="opacity: .8">
-        <span class="brand-text font-weight-light">AdminLTE 3</span>
+        <span class="brand-text font-weight-light">CakeTown</span>
     </a>
 
     <!-- Sidebar -->
@@ -92,7 +92,7 @@
                                 </li>
                             </ul>
                         </li>
-                        
+
                         <li class="nav-item">
                             <a href="{{ route('ledger.reports') }}" class="nav-link {{ (Request::segment(2) == 'ledger-reports' )?' active':''}}">
                                 <i class="far fa-circle nav-icon"></i>
