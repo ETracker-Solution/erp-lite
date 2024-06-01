@@ -29,8 +29,8 @@
                     <span class="invoiceNumber">#@{{ selectedInvoice.order_number }}</span>
                     <span class="float-right">@{{ selectedInvoice.customer && selectedInvoice.customer.type == 'regular' ? (selectedInvoice.customer.name + ' - ' + selectedInvoice.customer.mobile) : 'Walking Customer' }}</span>
                 </div>
-                <div class="m-2 mt-4" style="min-height: 50vh">
-                    <div class="row" style="max-height: 50vh; overflow-y: auto;">
+                <div class="m-2 mt-4" style="min-height:40vh">
+                    <div class="row" style="max-height: 40vh; overflow-y: auto;">
                         <div class="col-12 product-info mt-2"  v-if="selectedInvoice.items && selectedInvoice.items.length > 0" v-for="(row,index) in selectedInvoice.items">
                             <span class="productName"> @{{ row.product.name }}</span><br>
                             <span class="productPrice">TK.@{{ row.unit_price }} x @{{ row.quantity }}</span>

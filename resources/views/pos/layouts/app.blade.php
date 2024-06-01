@@ -291,7 +291,8 @@
                     comment:''
                 },
                 pre_orders: [],
-                selectedPreOrderId: null
+                selectedPreOrderId: null,
+                waiter_id: ''
             },
             mounted() {
                 this.getAllProducts();
@@ -490,7 +491,8 @@
                             grand_total: this.total_payable_bill,
                             customer_number: this.customerNumber,
                             payment_methods: this.paymentMethods,
-                            pre_order_id: this.selectedPreOrderId
+                            pre_order_id: this.selectedPreOrderId,
+                            waiter_id: this.waiter_id
                         }).then(function (response) {
                             // console.log(response)
                             // return
@@ -898,10 +900,10 @@
                 },
                 transferToSell(order){
                     const vm = this;
-                    toastr.warning('Under Construction', {
-                        closeButton: true,
-                        progressBar: true,
-                    });
+                    // toastr.warning('Under Construction', {
+                    //     closeButton: true,
+                    //     progressBar: true,
+                    // });
                     vm.selectedPreOrderId = order.id
                     order.items.forEach(function(item){
                         vm.selectedProducts.push({
