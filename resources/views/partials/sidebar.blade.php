@@ -42,6 +42,7 @@
                         <p>Dashboard</p>
                     </a>
                 </li>
+                @can('account-admin')
                 <li class="nav-item {{ (Request::segment(1) == 'reports'|| Request::segment(1) == 'financial-statements'|| Request::segment(1) == 'receive-vouchers'|| Request::segment(1) == 'payment-vouchers'|| Request::segment(1) == 'journal-vouchers'|| Request::segment(1) == 'fund-transfer-vouchers'|| Request::segment(1) == 'supplier-vouchers' )?'menu-open':''}}">
                     <a href="#" class="nav-link {{ (Request::segment(1) == 'reports'|| Request::segment(1) == 'financial-statements')?' active':''}}">
                         <i class="nav-icon fas fa-wrench"></i>
@@ -107,7 +108,9 @@
                         </li>
                     </ul>
                 </li>
-
+                @endcan
+                
+                @can('purchase-admin')
                 <li class="nav-item {{ (Request::segment(1) == 'purchases' )?'menu-open':''}}">
                     <a href="#" class="nav-link {{ (Request::segment(1) == 'purchases')?' active':''}}">
                         <i class="nav-icon fas fa-shopping-cart"></i>
@@ -136,8 +139,10 @@
                         </li>
                     </ul>
                 </li>
-
-                <li class="nav-item {{ (Request::segment(1) == 'rm-inventory-transfers'|| Request::segment(1) == 'rm-inventory-adjustments'|| Request::segment(1) == 'rm-requisitions'|| Request::segment(1) == 'rm-requisition-deliveries'|| Request::segment(1) == 'raw-materials-inventory-report' )?'menu-open':''}}">
+                @endcan
+                
+                @can('store-rm-admin')
+                    <li class="nav-item {{ (Request::segment(1) == 'rm-inventory-transfers'|| Request::segment(1) == 'rm-inventory-adjustments'|| Request::segment(1) == 'rm-requisitions'|| Request::segment(1) == 'rm-requisition-deliveries'|| Request::segment(1) == 'raw-materials-inventory-report' )?'menu-open':''}}">
                     <a href="#" class="nav-link {{ (Request::segment(1) == 'rm-inventory-transfers'|| Request::segment(1) == 'rm-inventory-adjustments'|| Request::segment(1) == 'rm-requisitions'|| Request::segment(1) == 'rm-requisition-deliveries'|| Request::segment(1) == 'raw-materials-inventory-report')?' active':''}}">
                         <i class="nav-icon fas fa-shopping-cart"></i>
                         <p>
@@ -211,7 +216,9 @@
                         </li>
                     </ul>
                 </li>
-
+                @endcan
+                
+                @can('production-admin')
                 <li class="nav-item {{ (Request::segment(1) == 'consumptions'|| Request::segment(1) == 'batches'|| Request::segment(1) == 'productions' )?'menu-open':''}}">
                     <a href="#" class="nav-link {{ (Request::segment(1) == 'consumptions'|| Request::segment(1) == 'batches'|| Request::segment(1) == 'productions')?' active':''}}">
                         <i class="nav-icon fas fa-tag"></i>
@@ -252,7 +259,9 @@
                         </li>
                     </ul>
                 </li>
-
+                @endcan
+                
+                @can('store-fg-admin')
                 <li class="nav-item {{ (Request::segment(1) == 'fg-inventory-transfers'|| Request::segment(1) == 'fg-inventory-adjustments'|| Request::segment(1) == 'requisitions'|| Request::segment(1) == 'fg-requisition-deliveries'|| Request::segment(1) == 'finish-goods-inventory-report' )?'menu-open':''}}">
                     <a href="#" class="nav-link {{ (Request::segment(1) == 'fg-inventory-transfers'|| Request::segment(1) == 'fg-inventory-adjustments'|| Request::segment(1) == 'requisitions'|| Request::segment(1) == 'fg-requisition-deliveries'|| Request::segment(1) == 'finish-goods-inventory-report')?' active':''}}">
                         <i class="nav-icon fas fa-shopping-cart"></i>
@@ -327,7 +336,10 @@
                         </li>
                     </ul>
                 </li>
+                @endcan
 
+                
+                @can('sales-admin')
                 <li class="nav-item {{ (Request::segment(1) == 'sales'||Request::segment(1) == 'sale-reports' )?'menu-open':''}}">
                     <a href="#" class="nav-link {{ (Request::segment(1) == 'sales'||Request::segment(1) == 'sale-reports')?' active':''}}">
                         <i class="nav-icon fas fa-shopping-cart"></i>
@@ -373,7 +385,9 @@
                         </li>
                     </ul>
                 </li>
-
+                @endcan
+                
+                @can('loyalty-admin')
                 <li class="nav-item {{ (Request::segment(1) == 'earn-points'||Request::segment(1) == 'redeem-points'||Request::segment(1) == 'member-points'||Request::segment(1) == 'memberships'||Request::segment(1) == 'member-types'||Request::segment(1) == 'promo-codes' )?'menu-open':''}}">
                     <a href="#" class="nav-link {{ (Request::segment(1) == 'earn-points'||Request::segment(1) == 'redeem-points'||Request::segment(1) == 'member-points'||Request::segment(1) == 'memberships'||Request::segment(1) == 'member-types'||Request::segment(1) == 'promo-codes')?' active':''}}">
                         <i class="nav-icon fa fa-trophy"></i>
@@ -442,7 +456,9 @@
                         </li>
                     </ul>
                 </li>
-
+                @endcan
+                
+                @can('data-admin-admin')
                 <li class="nav-item {{ (Request::segment(1) == 'chart-of-accounts'||Request::segment(1) == 'chart-of-inventories'|| Request::segment(1) == 'units' || Request::segment(1) == 'stores'|| Request::segment(1) == 'supplier-groups'|| Request::segment(1) == 'suppliers'|| Request::segment(1) == 'general-ledger-opening-balances'|| Request::segment(1) == 'raw-materials-opening-balances'||Request::segment(1) == 'finish-goods-opening-balances'||Request::segment(1) == 'customer-opening-balances' || Request::segment(1) == 'supplier-opening-balances'||Request::segment(1) == 'factories'||Request::segment(1) == 'outlets'||Request::segment(1) == 'designations'||Request::segment(1) == 'departments' )?'menu-open':''}}">
                     <a href="#" class="nav-link {{ (Request::segment(1) == 'chart-of-accounts'|| Request::segment(1) == 'chart-of-inventories'|| Request::segment(1) == 'units' || Request::segment(1) == 'stores'|| Request::segment(1) == 'supplier-groups'|| Request::segment(1) == 'suppliers'|| Request::segment(1) == 'general-ledger-opening-balances'|| Request::segment(1) == 'raw-materials-opening-balances'||Request::segment(1) == 'finish-goods-opening-balances'||Request::segment(1) == 'customer-opening-balances' || Request::segment(1) == 'supplier-opening-balances'||Request::segment(1) == 'factories'||Request::segment(1) == 'outlets'||Request::segment(1) == 'designations'||Request::segment(1) == 'departments')?' active':''}}">
                         <i class="nav-icon fas fa-wrench"></i>
@@ -601,7 +617,10 @@
                         </li>
                     </ul>
                 </li>
+                @endcan
+                
 
+                @can('system-admin-admin')
                 <li class="nav-item {{ (Request::segment(1) == 'users'||Request::segment(1) == 'employees'||Request::segment(1) == 'outlet-configs'||Request::segment(1) == 'system-settings' )?'menu-open':''}}">
                     <a href="#" class="nav-link {{ (Request::segment(1) == 'users'||Request::segment(1) == 'employees'||Request::segment(1) == 'outlet-configs'||Request::segment(1) == 'system-settings')?' active':''}}">
                         <i class="nav-icon fas fa-cog"></i>
@@ -670,6 +689,7 @@
                         </li>
                     </ul>
                 </li>
+                @endcan
 
             </ul>
         </nav>
