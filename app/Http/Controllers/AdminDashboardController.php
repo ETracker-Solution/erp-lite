@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\ChartOfInventory;
 use App\Models\Customer;
 use App\Models\Expense;
+use App\Models\InventoryAdjustment;
 use App\Models\Outlet;
 use App\Models\Product;
 use App\Models\Purchase;
@@ -32,7 +33,7 @@ class AdminDashboardController extends Controller
         $total_sales = Sale::whereDate('created_at', date('Y-m-d'))->sum('grand_total');
         $outlets = Outlet::count();
         $customers = Customer::where('type', 'regular')->count();
-        $wastage_amount = 0;
+        $wastage_amount = InventoryAdjustment::sum('subtotal');
         $products = ChartOfInventory::where('type', 'item')->where('rootAccountType', 'FG')->count();
 
         $year = Carbon::now()->month == 1 ? Carbon::now()->subYear()->year : Carbon::now()->year;
@@ -140,9 +141,9 @@ class AdminDashboardController extends Controller
             return DataTables::of($requisitions)
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
-                    if ($row->type == 'FG'){
+                    if ($row->type == 'FG') {
                         return view('requisition.action', compact('row'));
-                    }else{
+                    } else {
                         return view('rm_requisition.action', compact('row'));
                     }
                 })
@@ -156,39 +157,38 @@ class AdminDashboardController extends Controller
                 ->make(true);
         }
 
-        $customersWithPoint = Customer::whereHas('membership')->with('membership','sales')->get();
+        $customersWithPoint = Customer::whereHas('membership')->with('membership', 'sales')->get();
 
-        $todaySale = Sale::whereDate('created_at',Carbon::now()->format('Y-m-d'))->sum('grand_total');
-        $todayPurchase = Purchase::whereDate('date',Carbon::now()->format('Y-m-d'))->sum('grand_total');
+        $todaySale = Sale::whereDate('created_at', Carbon::now()->format('Y-m-d'))->sum('grand_total');
+        $todayPurchase = Purchase::whereDate('date', Carbon::now()->format('Y-m-d'))->sum('grand_total');
         // $todayExpense = Expense::whereDate('date',Carbon::now()->format('Y-m-d'))->sum('amount');
         $todayExpense = 0;
 
         $bestProducts = [];
-        $bestSellingProducts = Product::select('products.*', DB::raw('SUM(sale_items.quantity) as total_sold'))
-            ->join('sale_items', 'products.id', '=', 'sale_items.product_id')
+        $bestSellingProducts = ChartOfInventory::select('chart_of_inventories.*', DB::raw('SUM(sale_items.quantity) as total_sold'))
+            ->join('sale_items', 'chart_of_inventories.id', '=', 'sale_items.product_id')
             ->join('sales', 'sale_items.sale_id', '=', 'sales.id')
             ->whereYear('sales.created_at', '=', now()->year)
             ->whereMonth('sales.created_at', '=', now()->month)
-            ->groupBy('products.id')
+            ->groupBy('chart_of_inventories.id')
             ->orderByDesc('total_sold')
             ->get();
 
-        $slowSellingProducts = Product::select('products.*', DB::raw('COALESCE(SUM(sale_items.quantity), 0) as total_sold'))
+        $slowSellingProducts = ChartOfInventory::select('chart_of_inventories.*', DB::raw('COALESCE(SUM(sale_items.quantity), 0) as total_sold'))
             ->leftJoin('sale_items', function ($join) {
-                $join->on('products.id', '=', 'sale_items.product_id')
+                $join->on('chart_of_inventories.id', '=', 'sale_items.product_id')
                     ->join('sales', 'sale_items.sale_id', '=', 'sales.id')
                     ->whereYear('sales.created_at', '=', now()->year)
                     ->whereMonth('sales.created_at', '=', now()->month);
             })
-            ->groupBy('products.id')
+            ->groupBy('chart_of_inventories.id')
             ->orderBy('total_sold')
             ->limit(5)
             ->get();
 
-        foreach ($bestSellingProducts as $product)
-        {
-            $bestProducts['name'][]=$product->name;
-            $bestProducts['qty'][]=$product->total_sold;
+        foreach ($bestSellingProducts as $product) {
+            $bestProducts['name'][] = $product->name;
+            $bestProducts['qty'][] = $product->total_sold;
         }
 
         $data = [
@@ -224,12 +224,12 @@ class AdminDashboardController extends Controller
                 'total' => $totalOrders,
                 'outletWise' => $outletWiseOrders
             ],
-            'customersWithPoint'=>$customersWithPoint,
-            'todaySale'=>$todaySale,
-            'todayPurchase'=>$todayPurchase,
-            'todayExpense'=>$todayExpense,
-            'bestSellingProducts'=>$bestProducts,
-            'slowSellingProducts'=>$slowSellingProducts,
+            'customersWithPoint' => $customersWithPoint,
+            'todaySale' => $todaySale,
+            'todayPurchase' => $todayPurchase,
+            'todayExpense' => $todayExpense,
+            'bestSellingProducts' => $bestProducts,
+            'slowSellingProducts' => $slowSellingProducts,
         ];
 //        return $data;
         return view('dashboard.admin', $data);
