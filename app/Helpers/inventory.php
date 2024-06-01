@@ -56,12 +56,14 @@ function averageFGRate(int $item_id, int $store_id = null)
     return number_format(($data->totalQuantity != 0) ? $data->totalAmount / $data->totalQuantity : 0, 2);
 }
 
-function inventoryAmount(int $store_id = null, int $item_id = null)
+function inventoryAmount(int $outletId)
 {
 
-    $data1 = InventoryTransaction::where(['store_id' => $store_id, 'type' => 1])->sum('amount');
-    $data2 = InventoryTransaction::where(['store_id' => $store_id, 'type' => -1])->sum('amount');
-    return $data1 - $data2;
-
-
+    $totalStock = DB::table('inventory_transactions')
+        ->join('stores', 'inventory_transactions.store_id', '=', 'stores.id')
+        ->where('stores.doc_type', 'outlet')
+        ->where('stores.doc_id', $outletId)
+        ->select(DB::raw('SUM(inventory_transactions.amount * inventory_transactions.type) as total_stock'))
+        ->value('total_stock') ?? 0;
+    return $totalStock;
 }

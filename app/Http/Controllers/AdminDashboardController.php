@@ -102,7 +102,7 @@ class AdminDashboardController extends Controller
         $productWiseStock['products'] = [];
         $productWiseStock['stock'] = [];
         $totalStock = 0;
-        $allProducts = Store::select('name', 'id')->where(['type'=>'FG','doc_type'=>'outlet'])->get();
+        $allProducts = Outlet::select('name', 'id')->get();
         foreach ($allProducts as $product) {
             $stock = inventoryAmount($product->id);
             $productWiseStock['products'][] = $product->name;
