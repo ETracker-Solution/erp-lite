@@ -23,12 +23,12 @@
             <div class="col-xl-4 col-md-6 col-12">
                 <div class="card card-congratulation-medal">
                     <div class="card-body">
-                        <h5>Congratulations Outlet! 🎉 </h5>
+                        <h5 class="text-info">Congratulations Outlet! 🎉 </h5>
                         <p class="card-text font-small-3">Today's Sales Overview</p>
                         <h3 class="mb-75 mt-2 pt-50">
                             <a href="javascript:void(0);">{{ $todaySale }} BDT</a>
                         </h3>
-                        <button type="button" class="btn btn-primary">View Sales</button>
+                        {{-- <button type="button" class="btn btn-primary">View Sales</button> --}}
                         <img
                             src="https://s3-alpha-sig.figma.com/img/546c/5a37/4c62faf89e51f8af3d964aefcde244b8?Expires=1711929600&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4&Signature=ZRnXfOLrptLQPS7zGcE~1WlhQu~ZynyRud0XimsBQrnAuUsMrVAafCC114I4xF6J7tL-N1thpB8CzZupobQ8KR8sN5bmd0evO9kZz16BQ-AO-G~5-jF9LSC-zDHcEJ-CAH6IegnAoeVGAPYUhCk4mc1rTk~3MhiCwbw-fJnDizSW-TZ9nZwnWm3oc2pNY6ac~u0q6NRiR1oi~4C0JOxFgZWb5LJAVcryH4Uh2FjHgyJ0H5uDMi0BH3pmB3YRCAPETM5F2fSyIqWqR5agcanHMPLKq8x4dx4zjxvexyZklARJ39G7ux2SenCLJ5pjALZDLYr-v8m00wvYGHTLQvZe3A__"
                             class="congratulation-medal" alt="Medal Pic"
@@ -41,10 +41,10 @@
             <!-- Statistics Card -->
             <div class="col-xl-8 col-md-6 col-12">
                 <div class="card card-statistics">
-                    <div class="card-header">
-                        <h4 class="card-title">Statistics</h4>
-                        <div class="d-flex align-items-center">
-                            <p class="card-text font-small-2 mr-25 mb-0">Updated 1 minute ago</p>
+                    <div class="card-header bg-info">
+                        <h3 class="card-title">Statistics</h3>
+                        <div class="card-tools">
+                            Updated 1 minute ago
                         </div>
                     </div>
                     <div class="card-body statistics-body">
@@ -77,9 +77,13 @@
                     <!-- Bar Chart - Orders -->
                     <div class="col-lg-6 col-md-3 col-6">
                         <div class="card">
+                            <div class="card-header bg-info">
+                                <h3 class="card-title">{{ $currentMonthExpense }} BDT</h3>
+                                <div class="card-tools">
+                                    Expenses
+                                </div>
+                            </div>
                             <div class="card-body pb-50">
-                                <h3 class="font-weight-bolder mb-1">{{ $currentMonthExpense }} BDT</h3>
-                                <p class="text-muted">Expenses</p>
                                 <div id="expense-radial-bar-chart" class="my-2"></div>
                                 <p>{{ $expenseMessage }}</p>
                             </div>
@@ -90,9 +94,13 @@
                     <!-- Line Chart - Profit -->
                     <div class="col-lg-6 col-md-3 col-6">
                         <div class="card card-tiny-line-stats">
+                            <div class="card-header bg-info">
+                                <h3 class="card-title">Sales</h3>
+                                <div class="card-tools">
+                                    Last Month
+                                </div>
+                            </div>
                             <div class="card-body pb-50">
-                                <h3 class="font-weight-bolder mb-1">Sales</h3>
-                                <p class="text-muted">Last Month</p>
                                 <div id="statistics-profit-chart"></div>
                             </div>
                         </div>
@@ -102,11 +110,15 @@
                     <!-- Earnings Card -->
                     <div class="col-lg-12 col-md-6 col-12">
                         <div class="card earnings-card">
+                            <div class="card-header bg-info">
+                                <h3 class="card-title">Total Discount</h3>
+                                <div class="card-tools">
+                                    Monthly Report
+                                </div>
+                            </div>
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-6">
-                                        <h4 class="card-title mb-1">Total Discount</h4>
-                                        <div class="font-small-2">Monthly Report</div>
                                         <h5 class="mb-1">{{ $discount['thisMonth'] }}</h5>
                                     </div>
                                     <div class="col-6">
@@ -123,21 +135,11 @@
             <!-- Revenue Report Card -->
             <div class="col-lg-8 col-12">
                 <div class="card card-revenue-budget">
+                    <div class="card-header bg-info">
+                        <h3 class="card-title">Total Stock : {{ $stock['total'] }}</h3>
+                    </div>
                     <div class="row mx-0">
                         <div class="col-md-12 col-12 revenue-report-wrapper">
-                            <div class="d-sm-flex justify-content-between align-items-center mb-3">
-                                <h4 class="card-title mb-50 mb-sm-0">Total Stock : {{ $stock['total'] }}</h4>
-                                {{--                                <div class="d-flex align-items-center">--}}
-                                {{--                                    <div class="d-flex align-items-center mr-2">--}}
-                                {{--                                        <span class="bullet bullet-primary font-small-3 mr-50 cursor-pointer"></span>--}}
-                                {{--                                        <span>Earning</span>--}}
-                                {{--                                    </div>--}}
-                                {{--                                    <div class="d-flex align-items-center ml-75">--}}
-                                {{--                                        <span class="bullet bullet-warning font-small-3 mr-50 cursor-pointer"></span>--}}
-                                {{--                                        <span>Expense</span>--}}
-                                {{--                                    </div>--}}
-                                {{--                                </div>--}}
-                            </div>
                             <canvas id="stock-chart"></canvas>
                         </div>
                     </div>
@@ -148,7 +150,7 @@
         <div class="row match-height">
             <div class="col-xl-12 col-12">
                 <div class="card">
-                    <div class="card-header">
+                    <div class="card-header bg-info">
                         <h4 class="card-title">Latest 5 Invoices</h4>
                     </div>
                     <div class="table-responsive">
@@ -223,7 +225,7 @@
         <div class="row match-height">
             <div class="col-xl-6 col-12">
                 <div class="card">
-                    <div class="card-header">
+                    <div class="card-header bg-info">
                         <h4 class="card-title">Top Customers</h4>
                     </div>
                     <div class="table-responsive">
@@ -257,15 +259,8 @@
             </div>
             <div class="col-xl-6 col-12">
                 <div class="card">
-                    <div
-                        class="card-header d-flex justify-content-between align-items-sm-center align-items-start flex-sm-row flex-column">
-                        <div class="header-left">
-                            <h4 class="card-title">Sales, Expense</h4>
-                        </div>
-                        <div class="header-right d-flex align-items-center mt-sm-0 mt-1">
-                            {{--                            <i data-feather="calendar"></i>--}}
-                            {{--                            <input type="text" class="form-control flat-picker border-0 shadow-none bg-transparent pr-0" placeholder="YYYY-MM-DD" />--}}
-                        </div>
+                    <div class="card-header bg-info">
+                        <h3 class="card-title">Sales, Expense</h3>
                     </div>
                     <div class="card-body">
                         <canvas id="sale-expense-chart"></canvas>
@@ -276,15 +271,8 @@
         <div class="row match-height">
             <div class="col-xl-8 col-12">
                 <div class="card">
-                    <div
-                        class="card-header d-flex justify-content-between align-items-sm-center align-items-start flex-sm-row flex-column">
-                        <div class="header-left">
-                            <h4 class="card-title">Best Selling Products</h4>
-                        </div>
-                        <div class="header-right d-flex align-items-center mt-sm-0 mt-1">
-                            {{--                            <i data-feather="calendar"></i>--}}
-                            {{--                            <input type="text" class="form-control flat-picker border-0 shadow-none bg-transparent pr-0" placeholder="YYYY-MM-DD" />--}}
-                        </div>
+                    <div class="card-header bg-info">
+                        <h3 class="card-title">Best Selling Products</h3>
                     </div>
                     <div class="card-body">
                         <canvas id="best-selling-product-chart"></canvas>
@@ -293,8 +281,8 @@
             </div>
             <div class="col-xl-4 col-12">
                 <div class="card">
-                    <div class="card-header">
-                        <h2 class="fw-bolder mb-0">Top 5 Slow Products</h2>
+                    <div class="card-header bg-info">
+                        <h2 class="card-title">Top 5 Slow Products</h2>
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">

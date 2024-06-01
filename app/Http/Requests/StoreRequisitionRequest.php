@@ -26,6 +26,8 @@ class StoreRequisitionRequest extends FormRequest
         return [
             'from_store_id' => 'required',
             'to_store_id' => 'required',
+            'outlet_id' => 'required',
+            'to_factory_id' => 'required',
             'products' => 'array',
             'uid' => 'required',
             'date' => 'required',
@@ -41,6 +43,8 @@ class StoreRequisitionRequest extends FormRequest
     {
 
         $this->merge([
+            'outlet_id'=>getStoreDocId($this->from_store_id),
+            'to_factory_id'=>getStoreDocId($this->to_store_id),
             'uid' => RequisitionNumber::serial_number(),
             'created_by' => auth()->user()->id,
             'date' => Carbon::parse($this->date)->format('Y-m-d'),

@@ -154,7 +154,7 @@
                                                                 <input type="hidden"
                                                                        :name="'products['+index+'][rate]'"
                                                                        class="form-control input-sm"
-                                                                       v-bind:value="row.rate">
+                                                                       v-bind:value="row.rm_average_rate">
                                                                 @{{ row.name }}
                                                             </td>
                                                             <td style="vertical-align: middle">

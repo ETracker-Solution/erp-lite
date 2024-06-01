@@ -11,7 +11,12 @@
         <li class="nav-item d-none d-sm-inline-block">
             <a href="/pos" class="nav-link">POS</a>
         </li>
-            @endif
+        @endif
+        @if(\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->factory_id)
+            <li class="nav-item d-none d-sm-inline-block">
+                <a href="{{route('today.requisitions')}}" class="nav-link">Today Requisitions</a>
+            </li>
+        @endif
     </ul>
 
     <!-- Right navbar links -->

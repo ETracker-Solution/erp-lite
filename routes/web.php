@@ -145,6 +145,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/fetch-product-info-for-sale/{id}', [App\Http\Controllers\ApiController::class, 'fetch_product_sale'])->name('fetch-product-info-for-sale');
 //    new
     Route::get('/fetch-item-by-id-for-sale/{id}', [App\Http\Controllers\ApiController::class, 'fetchItemByIdForSale'])->name('fetch-item-by-id-for-sale');
+    Route::get('/fetch-item-by-id-for-rm-requisition/{id}', [App\Http\Controllers\ApiController::class, 'fetchItemByIdForRMRequisition']);
 
     Route::resource('stocks', App\Http\Controllers\StockController::class);
     Route::resource('label', App\Http\Controllers\LabelController::class);
@@ -278,7 +279,7 @@ Route::middleware('auth')->group(function () {
 Route::group(['prefix' => 'reports', 'middleware' => 'auth'], function () {
 
 
-    Route::get('ledger-reports', [App\Http\Controllers\LedgerReportController::class, 'index']);
+    Route::get('ledger-reports', [App\Http\Controllers\LedgerReportController::class, 'index'])->name('ledger.reports');
 //    Route::
     //Report Route
     Route::get('daily-report', [App\Http\Controllers\ReportController::class, 'dailyReport'])->name('daily.report');
@@ -297,10 +298,12 @@ Route::group(['prefix' => 'reports', 'middleware' => 'auth'], function () {
     Route::get('daterangesummary-data', [App\Http\Controllers\ReportController::class, 'fetchDaterangeSummary'])->name('fetchdaterangesummary.report');
 
 
+});
+Route::group(['middleware' => 'auth'], function () {
+    Route::get('today-requisitions/{type}', [App\Http\Controllers\RequisitionController::class, 'exportRequisition'])->name('today.requisitions.export');
+    Route::get('today-requisitions', [App\Http\Controllers\RequisitionController::class, 'todayRequisition'])->name('today.requisitions');
 
 });
-Route::get('today-requisitions/{type}', [App\Http\Controllers\RequisitionController::class, 'exportRequisition'])->name('today.requisitions.export');
-Route::get('today-requisitions', [App\Http\Controllers\RequisitionController::class, 'todayRequisition'])->name('today.requisitions');
 
 
 require __DIR__ . '/auth.php';

@@ -36,6 +36,7 @@ function showStatus($status)
         case 'active':
         case 'delivered':
         case 'completed':
+        case 'final':
             return '<span class="badge badge-success">' . ucfirst($status) . '</span>';
         case 'return':
             return '<span class="badge badge-light-danger">' . ucfirst($status) . '</span>';
@@ -116,18 +117,24 @@ function storeValue($key, $value)
     }
 }
 
-function getFileNameAfterImageUpload(UploadedFile $image){
+function getFileNameAfterImageUpload(UploadedFile $image)
+{
     $filename = null;
-    $filename = date('Ymdmhs').uniqid() . '.' . $image->getClientOriginalExtension();
+    $filename = date('Ymdmhs') . uniqid() . '.' . $image->getClientOriginalExtension();
     $image->move(public_path('/upload'), $filename);
     return $filename;
 }
 
-function getRequisitionQtyByProduct($product_id, $outlet_id){
-    $req =  \App\Models\Requisition::where('date',date('Y-m-d'))->where('production_house_id',auth('factory')->user()->production_house_id)
-        ->where(['model_type'=>\App\Models\Outlet::class,'model_id'=>$outlet_id])->first();
-    if ($req){
-        return $req->items()->where('product_id',$product_id)->sum('quantity');
+function getRequisitionQtyByProduct($product_id, $outlet_id)
+{
+     $req = \App\Models\Requisition::with('items')->where('date', date('Y-m-d'))->where('to_factory_id', auth('web')->user()->employee->factory_id)
+        ->where(['outlet_id' => $outlet_id])->first();
+    if ($req) {
+        return $req->items()->where('coi_id', $product_id)->sum('quantity');
     }
     return 0;
+}
+function getStoreDocId($store_id)
+{
+    return \App\Models\Store::where(['id' => $store_id])->first()->doc_id;
 }

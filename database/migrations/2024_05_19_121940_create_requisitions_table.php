@@ -23,6 +23,9 @@ return new class extends Migration {
             $table->foreignId('to_store_id')->nullable()->constrained('stores')->onDelete('cascade');
             $table->foreignId('from_store_id')->nullable()->constrained('stores')->onDelete('cascade');
             $table->unsignedBigInteger('created_by')->nullable();
+            $table->unsignedBigInteger('outlet_id')->nullable();
+            $table->unsignedBigInteger('to_factory_id')->nullable();
+            $table->unsignedBigInteger('from_factory_id')->nullable();
             $table->unsignedBigInteger('updated_by')->nullable();
             $table->unsignedBigInteger('approved_by')->nullable();
             $table->timestamps();
