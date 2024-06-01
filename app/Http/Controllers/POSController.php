@@ -7,6 +7,7 @@ use App\Http\Requests\StoreCustomerRequest;
 use App\Http\Requests\UpdateCustomerRequest;
 use App\Models\ChartOfInventory;
 use App\Models\CustomerPromoCode;
+use App\Models\Employee;
 use App\Models\Outlet;
 use App\Models\Payment;
 use App\Models\PreOrder;
@@ -40,7 +41,8 @@ class POSController extends Controller
             Toastr::error('You are not permitted to do this');
             return back();
         }
-        return view('pos.index');
+        $employees = Employee::where(['outlet_id'=>\auth()->user()->employee->outlet_id])->get();
+        return view('pos.index', compact('employees'));
     }
 
     /**
@@ -91,6 +93,13 @@ class POSController extends Controller
 
             $sale->payment_status = 'paid';
             $sale->outlet_id = $outlet_id;
+            if ($request->waiter_id){
+               $waiter =  Employee::find($request->waiter_id);
+               if($waiter){
+                   $sale->waiter_id = $waiter->id;
+                   $sale->waiter_name = $waiter->name;
+               }
+            }
             $sale->save();
 
             $products = $request->get('products');
