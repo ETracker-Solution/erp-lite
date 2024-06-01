@@ -62,9 +62,22 @@ class ApiController extends Controller
             'group' => $coi->parent->name,
             'name' => $coi->name,
             'unit' => $coi->unit->name ?? 'No Unit',
-            'price' => $coi->price,
+            'price' => averageRMRate($coi->id),
             'coi_id' => $id,
             'balance_qty' => 500,
+        ];
+        return $data;
+    }
+    public function fetchItemByIdForRMRequisition($id)
+    {
+
+        $coi = ChartOfInventory::findOrFail($id);
+        $data = [
+            'group' => $coi->parent->name,
+            'name' => $coi->name,
+            'unit' => $coi->unit->name ?? 'No Unit',
+            'price' => averageRMRate($coi->id),
+            'coi_id' => $id,
         ];
         return $data;
     }
@@ -139,7 +152,8 @@ class ApiController extends Controller
                 'unit' => $row->coi->unit->name ?? '',
                 'name' => $row->coi->name ?? '',
                 'group' => $row->coi->parent->name ?? '',
-                'rate' => $row->rate,
+                'rm_average_rate' => averageRMRate($row->coi_id, $store_id),
+                'fg_average_rate' => averageFGRate($row->coi_id, $store_id),
                 'balance_quantity' => availableInventoryBalance($row->coi_id, $store_id),
                 'requisition_quantity' => $row->quantity,
                 'quantity' => '',

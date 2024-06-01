@@ -291,7 +291,7 @@
                     config: {
 
                         get_items_info_by_group_id_url: "{{ url('fetch-items-by-group-id') }}",
-                        get_item_info_url: "{{ url('fetch-item-by-id-for-sale') }}",
+                        get_item_info_url: "{{ url('fetch-item-by-id-for-rm-requisition') }}",
                     },
                     date: new Date(),
                     serial_no: {{$serial_no}},
@@ -363,7 +363,8 @@
                             if (slug) {
                                 axios.get(this.config.get_item_info_url + '/' + slug).then(function (response) {
 
-                                    product_details = response.data;
+                                   let product_details = response.data;
+                                    console.log(product_details);
                                     vm.items.push({
                                         coi_id: product_details.coi_id,
                                         group: product_details.group,

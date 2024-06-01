@@ -145,6 +145,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/fetch-product-info-for-sale/{id}', [App\Http\Controllers\ApiController::class, 'fetch_product_sale'])->name('fetch-product-info-for-sale');
 //    new
     Route::get('/fetch-item-by-id-for-sale/{id}', [App\Http\Controllers\ApiController::class, 'fetchItemByIdForSale'])->name('fetch-item-by-id-for-sale');
+    Route::get('/fetch-item-by-id-for-rm-requisition/{id}', [App\Http\Controllers\ApiController::class, 'fetchItemByIdForRMRequisition']);
 
     Route::resource('stocks', App\Http\Controllers\StockController::class);
     Route::resource('label', App\Http\Controllers\LabelController::class);
