@@ -58,14 +58,10 @@ function averageFGRate(int $item_id, int $store_id = null)
 
 function inventoryAmount(int $store_id = null, int $item_id = null)
 {
-    if ($item_id) {
-        $data = InventoryTransaction::where(['coi_id' => $item_id, 'store_id' => $store_id, 'type' => 1])->select(DB::raw('SUM(amount) as totalAmount, SUM(quantity) as totalQuantity'))
-            ->first();
-    }
-    $data = InventoryTransaction::where(['coi_id' => $item_id])->select(DB::raw('SUM(amount) as totalAmount, SUM(quantity) as totalQuantity'))
-        ->first();
+
+    $data1 = InventoryTransaction::where(['store_id' => $store_id, 'type' => 1])->sum('amount');
+    $data2 = InventoryTransaction::where(['store_id' => $store_id, 'type' => -1])->sum('amount');
+    return $data1 - $data2;
 
 
-    // Calculate the average price
-    return number_format(($data->totalQuantity != 0) ? $data->totalAmount / $data->totalQuantity : 0, 2);
 }
