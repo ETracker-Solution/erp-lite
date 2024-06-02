@@ -7,11 +7,13 @@ use App\Models\ChartOfInventory;
 use App\Models\Customer;
 use App\Models\Expense;
 use App\Models\InventoryAdjustment;
+use App\Models\InventoryTransaction;
 use App\Models\Outlet;
 use App\Models\Product;
 use App\Models\Purchase;
 use App\Models\Requisition;
 use App\Models\Sale;
+use App\Models\Store;
 use App\Repository\Interfaces\AdminInterface;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
@@ -100,9 +102,9 @@ class AdminDashboardController extends Controller
         $productWiseStock['products'] = [];
         $productWiseStock['stock'] = [];
         $totalStock = 0;
-        $allProducts = Product::select('name', 'id')->get();
+        $allProducts = Outlet::select('name', 'id')->get();
         foreach ($allProducts as $product) {
-            $stock = 0;
+            $stock = inventoryAmount($product->id);
             $productWiseStock['products'][] = $product->name;
             $productWiseStock['stock'][] = $stock;
             $totalStock += $stock;

@@ -29,7 +29,6 @@ class CreateSalesTable extends Migration
             $table->text('remark')->nullable();
             $table->foreignId('customer_id')->nullable()->constrained('customers')->onDelete('cascade');
             $table->foreignId('outlet_id')->nullable()->constrained('outlets')->onDelete('cascade');
-            $table->foreignId('waiter_id')->nullable()->constrained('users')->onDelete('cascade');
             $table->foreignId('created_by')->nullable()->constrained('users')->onDelete('cascade');
             $table->foreignId('updated_by')->nullable()->constrained('users')->onDelete('cascade');
             $table->softDeletes();

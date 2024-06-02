@@ -329,7 +329,7 @@
                                 @forelse($slowSellingProducts as $product)
                                     <tr>
                                         <td>{{ $product->name }}</td>
-                                        <td>{{ $product->category->name }}</td>
+                                        <td>{{ $product->parent->name }}</td>
                                     </tr>
                                 @empty
                                     <tr>
@@ -403,7 +403,7 @@
                         "defaultContent": "Not Set"
                     },
                     {
-                        data: "store.name",
+                        data: "from_store.name",
                         title: "Store",
                         searchable: false,
                         "defaultContent": "Not Set"
