@@ -24,8 +24,6 @@ class StorePurchaseReturnRequest extends FormRequest
     {
         return [
             'purchase_id' => 'required',
-            'store_id' => 'required',
-            'supplier_id' => 'required',
             'products' => 'array',
             'date' => 'required',
             'reference_no' => 'nullable',
