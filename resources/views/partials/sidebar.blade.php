@@ -110,7 +110,7 @@
                 </li>
                 @endcan
                 
-                @can('purchase-admin')
+                @canany(['purchase-admin', 'purchase-operator', 'purchase-viewer', 'purchase-approver'])
                 <li class="nav-item {{ (Request::segment(1) == 'purchases' )?'menu-open':''}}">
                     <a href="#" class="nav-link {{ (Request::segment(1) == 'purchases')?' active':''}}">
                         <i class="nav-icon fas fa-shopping-cart"></i>
@@ -139,9 +139,9 @@
                         </li>
                     </ul>
                 </li>
-                @endcan
+                @endcanany
                 
-                @can('store-rm-admin')
+                @canany(['store-rm-admin', 'store-rm-operator', 'store-rm-viewer', 'store-rm-approver'])
                     <li class="nav-item {{ (Request::segment(1) == 'rm-inventory-transfers'|| Request::segment(1) == 'rm-inventory-adjustments'|| Request::segment(1) == 'rm-requisitions'|| Request::segment(1) == 'rm-requisition-deliveries'|| Request::segment(1) == 'raw-materials-inventory-report' )?'menu-open':''}}">
                     <a href="#" class="nav-link {{ (Request::segment(1) == 'rm-inventory-transfers'|| Request::segment(1) == 'rm-inventory-adjustments'|| Request::segment(1) == 'rm-requisitions'|| Request::segment(1) == 'rm-requisition-deliveries'|| Request::segment(1) == 'raw-materials-inventory-report')?' active':''}}">
                         <i class="nav-icon fas fa-shopping-cart"></i>
@@ -216,9 +216,9 @@
                         </li>
                     </ul>
                 </li>
-                @endcan
+                @endcanany
                 
-                @can('production-admin')
+                @canany(['production-admin', 'production-operator', 'production-viewer', 'production-approver'])
                 <li class="nav-item {{ (Request::segment(1) == 'consumptions'|| Request::segment(1) == 'batches'|| Request::segment(1) == 'productions' )?'menu-open':''}}">
                     <a href="#" class="nav-link {{ (Request::segment(1) == 'consumptions'|| Request::segment(1) == 'batches'|| Request::segment(1) == 'productions')?' active':''}}">
                         <i class="nav-icon fas fa-tag"></i>
@@ -259,7 +259,7 @@
                         </li>
                     </ul>
                 </li>
-                @endcan
+                @endcanany
                 
                 @can('store-fg-admin')
                 <li class="nav-item {{ (Request::segment(1) == 'fg-inventory-transfers'|| Request::segment(1) == 'fg-inventory-adjustments'|| Request::segment(1) == 'requisitions'|| Request::segment(1) == 'fg-requisition-deliveries'|| Request::segment(1) == 'finish-goods-inventory-report' )?'menu-open':''}}">
