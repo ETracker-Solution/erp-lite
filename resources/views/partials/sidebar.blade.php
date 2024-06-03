@@ -496,7 +496,6 @@
                     </li>
                 @endcanany
                 @canany(['loyalty-earn-point','loyalty-redeem-point','loyalty-point-setting','loyalty-membership','loyalty-membertype','loyalty-promo-code'])
-
                     <li class="nav-item {{ (Request::segment(1) == 'earn-points'||Request::segment(1) == 'redeem-points'||Request::segment(1) == 'member-points'||Request::segment(1) == 'memberships'||Request::segment(1) == 'member-types'||Request::segment(1) == 'promo-codes' )?'menu-open':''}}">
                         <a href="#"
                            class="nav-link {{ (Request::segment(1) == 'earn-points'||Request::segment(1) == 'redeem-points'||Request::segment(1) == 'member-points'||Request::segment(1) == 'memberships'||Request::segment(1) == 'member-types'||Request::segment(1) == 'promo-codes')?' active':''}}">
@@ -582,302 +581,320 @@
                         </ul>
                     </li>
                 @endcanany
-                <li class="nav-item {{ (Request::segment(1) == 'chart-of-accounts'||Request::segment(1) == 'chart-of-inventories'|| Request::segment(1) == 'units' || Request::segment(1) == 'stores'|| Request::segment(1) == 'supplier-groups'|| Request::segment(1) == 'suppliers'|| Request::segment(1) == 'general-ledger-opening-balances'|| Request::segment(1) == 'raw-materials-opening-balances'||Request::segment(1) == 'finish-goods-opening-balances'||Request::segment(1) == 'customer-opening-balances' || Request::segment(1) == 'supplier-opening-balances'||Request::segment(1) == 'factories'||Request::segment(1) == 'outlets'||Request::segment(1) == 'designations'||Request::segment(1) == 'departments' )?'menu-open':''}}">
-                    <a href="#"
-                       class="nav-link {{ (Request::segment(1) == 'chart-of-accounts'|| Request::segment(1) == 'chart-of-inventories'|| Request::segment(1) == 'units' || Request::segment(1) == 'stores'|| Request::segment(1) == 'supplier-groups'|| Request::segment(1) == 'suppliers'|| Request::segment(1) == 'general-ledger-opening-balances'|| Request::segment(1) == 'raw-materials-opening-balances'||Request::segment(1) == 'finish-goods-opening-balances'||Request::segment(1) == 'customer-opening-balances' || Request::segment(1) == 'supplier-opening-balances'||Request::segment(1) == 'factories'||Request::segment(1) == 'outlets'||Request::segment(1) == 'designations'||Request::segment(1) == 'departments')?' active':''}}">
-                        <i class="nav-icon fas fa-wrench"></i>
-                        <p>
-                            Data Admin Module
-                            <i class="right fas fa-angle-left"></i>
-                        </p>
-                    </a>
-                    <ul class="nav nav-treeview">
-                        <li class="nav-item {{ (Request::segment(1) == 'chart-of-accounts' )?'menu-open':''}}">
-                            <a href="#"
-                               class="nav-link {{ (Request::segment(1) == 'chart-of-accounts' )?' active':''}}">
-                                <i class="nav-icon fa fa-folder-open"></i>
-                                <p>
-                                    Account Setting
-                                    <i class="right fas fa-angle-left"></i>
-                                </p>
-                            </a>
-                            <ul class="nav nav-treeview">
-                                @can('data-admin-chart-of-accounts')
-                                    <li class="nav-item">
-                                        <a href="{{route('chart-of-accounts.index')}}"
-                                           class="nav-link {{ (Request::segment(1) == 'chart-of-accounts' )?' active':''}}">
-                                            <i class="far fa-circle nav-icon"></i>
-                                            <p>Chart Of Accounts</p>
-                                        </a>
-                                    </li>
-                                @endcan
-                            </ul>
-                        </li>
-                        <li class="nav-item {{ (Request::segment(1) == 'chart-of-inventories'|| Request::segment(1) == 'units' || Request::segment(1) == 'stores' )?'menu-open':''}}">
-                            <a href="#"
-                               class="nav-link {{ (Request::segment(1) == 'chart-of-inventories'|| Request::segment(1) == 'units' || Request::segment(1) == 'stores'  )?' active':''}}">
-                                <i class="nav-icon fa fa-folder-open"></i>
-                                <p>
-                                    Inventory Setting
-                                    <i class="right fas fa-angle-left"></i>
-                                </p>
-                            </a>
-                            <ul class="nav nav-treeview">
-                                @can('data-admin-inventory-item-list')
-                                    <li class="nav-item">
-                                        <a href="{{route('chart-of-inventories.index')}}"
-                                           class="nav-link {{ (Request::segment(1) == 'chart-of-inventories' )?' active':''}}">
-                                            <i class="far fa-circle nav-icon"></i>
-                                            <p>Inventory Item List</p>
-                                        </a>
-                                    </li>
-                                @endcan
-                                @can('data-admin-unit-list')
-                                    <li class="nav-item">
-                                        <a href="{{route('units.index')}}"
-                                           class="nav-link {{ (Request::segment(1) == 'units' )?' active':''}}">
-                                            <i class="far fa-circle nav-icon"></i>
-                                            <p>Unit List</p>
-                                        </a>
-                                    </li>
-                                @endcan
-                                @can('data-admin-store-list')
-                                    <li class="nav-item">
-                                        <a href="{{route('stores.index')}}"
-                                           class="nav-link {{ (Request::segment(1) == 'stores' )?' active':''}}">
-                                            <i class="far fa-circle nav-icon"></i>
-                                            <p>Store List</p>
-                                        </a>
-                                    </li>
-                                @endcan
-                            </ul>
-                        </li>
-                        <li class="nav-item {{ (Request::segment(1) == 'supplier-groups'|| Request::segment(1) == 'suppliers' )?'menu-open':''}}">
-                            <a href="#"
-                               class="nav-link {{ (Request::segment(1) == 'supplier-groups'|| Request::segment(1) == 'suppliers'  )?' active':''}}">
-                                <i class="nav-icon fa fa-folder-open"></i>
-                                <p>
-                                    Purchase Setting
-                                    <i class="right fas fa-angle-left"></i>
-                                </p>
-                            </a>
-                            <ul class="nav nav-treeview">
-                                @can('data-admin-supplier-group-list')
-                                    <li class="nav-item">
-                                        <a href="{{route('supplier-groups.index')}}"
-                                           class="nav-link {{ (Request::segment(1) == 'supplier-groups' )?' active':''}}">
-                                            <i class="far fa-circle nav-icon"></i>
-                                            <p>Supplier Group List</p>
-                                        </a>
-                                    </li>
-                                @endcan
-                                @can('data-admin-supplier-list')
-                                    <li class="nav-item">
-                                        <a href="{{route('suppliers.index')}}"
-                                           class="nav-link {{ (Request::segment(1) == 'suppliers' )?' active':''}}">
-                                            <i class="far fa-circle nav-icon"></i>
-                                            <p>Supplier List</p>
-                                        </a>
-                                    </li>
-                                @endcan
-                            </ul>
-                        </li>
-                        <li class="nav-item {{ (Request::segment(1) == 'general-ledger-opening-balances'|| Request::segment(1) == 'raw-materials-opening-balances'||Request::segment(1) == 'finish-goods-opening-balances'||Request::segment(1) == 'customer-opening-balances' || Request::segment(1) == 'supplier-opening-balances')?'menu-open':''}}">
-                            <a href="#"
-                               class="nav-link {{ (Request::segment(1) == 'general-ledger-opening-balances'|| Request::segment(1) == 'raw-materials-opening-balances' ||Request::segment(1) == 'finish-goods-opening-balances' ||Request::segment(1) == 'customer-opening-balances' || Request::segment(1) == 'supplier-opening-balances')?' active':''}}">
-                                <i class="nav-icon fa fa-folder-open"></i>
-                                <p>
-                                    Opening Balance
-                                    <i class="right fas fa-angle-left"></i>
-                                </p>
-                            </a>
-                            <ul class="nav nav-treeview">
-                                @can('data-admin-gl-account')
-                                    <li class="nav-item">
-                                        <a href="{{route('general-ledger-opening-balances.index')}}"
-                                           class="nav-link {{ (Request::segment(1) == 'general-ledger-opening-balances' )?' active':''}}">
-                                            <i class="far fa-circle nav-icon"></i>
-                                            <p>GL Account</p>
-                                        </a>
-                                    </li>
-                                @endcan
-                                @can('data-admin-raw-metarials')
-                                    <li class="nav-item">
-                                        <a href="{{route('raw-materials-opening-balances.index')}}"
-                                           class="nav-link {{ (Request::segment(1) == 'raw-materials-opening-balances' )?' active':''}}">
-                                            <i class="far fa-circle nav-icon"></i>
-                                            <p>Raw Materials</p>
-                                        </a>
-                                    </li>
-                                @endcan
-                                @can('data-admin-finish-goods')
-                                    <li class="nav-item">
-                                        <a href="{{route('finish-goods-opening-balances.index')}}"
-                                           class="nav-link {{ (Request::segment(1) == 'finish-goods-opening-balances' )?' active':''}}">
-                                            <i class="far fa-circle nav-icon"></i>
-                                            <p>Finish Goods</p>
-                                        </a>
-                                    </li>
-                                @endcan
-                                @can('data-admin-customer-ob')
-                                    <li class="nav-item">
-                                        <a href="{{route('customer-opening-balances.index')}}"
-                                           class="nav-link {{ (Request::segment(1) == 'customer-opening-balances' )?' active':''}}">
-                                            <i class="far fa-circle nav-icon"></i>
-                                            <p>Customer OB</p>
-                                        </a>
-                                    </li>
-                                @endcan
-                                @can('data-admin-supplier-ob')
-                                    <li class="nav-item">
-                                        <a href="{{route('supplier-opening-balances.index')}}"
-                                           class="nav-link {{ (Request::segment(1) == 'supplier-opening-balances' )?' active':''}}">
-                                            <i class="far fa-circle nav-icon"></i>
-                                            <p>Supplier OB</p>
-                                        </a>
-                                    </li>
-                                @endcan
-                            </ul>
-                        </li>
-                        @can('data-admin-create-factory')
-                            <li class="nav-item">
-                                <a href="{{route('factories.index')}}"
-                                   class="nav-link {{ (Request::segment(1) == 'factories' )?' active':''}}">
-                                    <i class="far fa-circle nav-icon"></i>
-                                    <p>Create Factory</p>
-                                </a>
-                            </li>
-                        @endcan
-                        @can('data-admin-create-outlet')
-                            <li class="nav-item">
-                                <a href="{{route('outlets.index')}}"
-                                   class="nav-link {{ (Request::segment(1) == 'outlets' )?' active':''}}">
-                                    <i class="far fa-circle nav-icon"></i>
-                                    <p>Create Outlet</p>
-                                </a>
-                            </li>
-                        @endcan
+                @canany(['data-admin-create-outlet','data-admin-create-factory','data-admin-designation','data-admin-department','data-admin-gl-account','data-admin-raw-metarials','data-admin-finish-goods','data-admin-customer-ob','data-admin-supplier-ob','data-admin-supplier-group-list','data-admin-supplier-list','data-admin-inventory-item-list','data-admin-unit-list','data-admin-store-list','data-admin-chart-of-accounts'])
+                    <li class="nav-item {{ (Request::segment(1) == 'chart-of-accounts'||Request::segment(1) == 'chart-of-inventories'|| Request::segment(1) == 'units' || Request::segment(1) == 'stores'|| Request::segment(1) == 'supplier-groups'|| Request::segment(1) == 'suppliers'|| Request::segment(1) == 'general-ledger-opening-balances'|| Request::segment(1) == 'raw-materials-opening-balances'||Request::segment(1) == 'finish-goods-opening-balances'||Request::segment(1) == 'customer-opening-balances' || Request::segment(1) == 'supplier-opening-balances'||Request::segment(1) == 'factories'||Request::segment(1) == 'outlets'||Request::segment(1) == 'designations'||Request::segment(1) == 'departments' )?'menu-open':''}}">
+                        <a href="#"
+                           class="nav-link {{ (Request::segment(1) == 'chart-of-accounts'|| Request::segment(1) == 'chart-of-inventories'|| Request::segment(1) == 'units' || Request::segment(1) == 'stores'|| Request::segment(1) == 'supplier-groups'|| Request::segment(1) == 'suppliers'|| Request::segment(1) == 'general-ledger-opening-balances'|| Request::segment(1) == 'raw-materials-opening-balances'||Request::segment(1) == 'finish-goods-opening-balances'||Request::segment(1) == 'customer-opening-balances' || Request::segment(1) == 'supplier-opening-balances'||Request::segment(1) == 'factories'||Request::segment(1) == 'outlets'||Request::segment(1) == 'designations'||Request::segment(1) == 'departments')?' active':''}}">
+                            <i class="nav-icon fas fa-wrench"></i>
+                            <p>
+                                Data Admin Module
+                                <i class="right fas fa-angle-left"></i>
+                            </p>
+                        </a>
+                        <ul class="nav nav-treeview">
+                            @canany(['data-admin-chart-of-accounts'])
+                                <li class="nav-item {{ (Request::segment(1) == 'chart-of-accounts' )?'menu-open':''}}">
+                                    <a href="#"
+                                       class="nav-link {{ (Request::segment(1) == 'chart-of-accounts' )?' active':''}}">
+                                        <i class="nav-icon fa fa-folder-open"></i>
+                                        <p>
+                                            Account Setting
+                                            <i class="right fas fa-angle-left"></i>
+                                        </p>
+                                    </a>
+                                    <ul class="nav nav-treeview">
+                                        @can('data-admin-chart-of-accounts')
+                                            <li class="nav-item">
+                                                <a href="{{route('chart-of-accounts.index')}}"
+                                                   class="nav-link {{ (Request::segment(1) == 'chart-of-accounts' )?' active':''}}">
+                                                    <i class="far fa-circle nav-icon"></i>
+                                                    <p>Chart Of Accounts</p>
+                                                </a>
+                                            </li>
+                                        @endcan
+                                    </ul>
+                                </li>
+                            @endcanany
+                            @canany(['data-admin-inventory-item-list','data-admin-unit-list','data-admin-store-list'])
+                                <li class="nav-item {{ (Request::segment(1) == 'chart-of-inventories'|| Request::segment(1) == 'units' || Request::segment(1) == 'stores' )?'menu-open':''}}">
+                                    <a href="#"
+                                       class="nav-link {{ (Request::segment(1) == 'chart-of-inventories'|| Request::segment(1) == 'units' || Request::segment(1) == 'stores'  )?' active':''}}">
+                                        <i class="nav-icon fa fa-folder-open"></i>
+                                        <p>
+                                            Inventory Setting
+                                            <i class="right fas fa-angle-left"></i>
+                                        </p>
+                                    </a>
+                                    <ul class="nav nav-treeview">
+                                        @can('data-admin-inventory-item-list')
+                                            <li class="nav-item">
+                                                <a href="{{route('chart-of-inventories.index')}}"
+                                                   class="nav-link {{ (Request::segment(1) == 'chart-of-inventories' )?' active':''}}">
+                                                    <i class="far fa-circle nav-icon"></i>
+                                                    <p>Inventory Item List</p>
+                                                </a>
+                                            </li>
+                                        @endcan
+                                        @can('data-admin-unit-list')
+                                            <li class="nav-item">
+                                                <a href="{{route('units.index')}}"
+                                                   class="nav-link {{ (Request::segment(1) == 'units' )?' active':''}}">
+                                                    <i class="far fa-circle nav-icon"></i>
+                                                    <p>Unit List</p>
+                                                </a>
+                                            </li>
+                                        @endcan
+                                        @can('data-admin-store-list')
+                                            <li class="nav-item">
+                                                <a href="{{route('stores.index')}}"
+                                                   class="nav-link {{ (Request::segment(1) == 'stores' )?' active':''}}">
+                                                    <i class="far fa-circle nav-icon"></i>
+                                                    <p>Store List</p>
+                                                </a>
+                                            </li>
+                                        @endcan
+                                    </ul>
+                                </li>
+                            @endcanany
+                            @canany(['data-admin-supplier-group-list','data-admin-supplier-list'])
+                                <li class="nav-item {{ (Request::segment(1) == 'supplier-groups'|| Request::segment(1) == 'suppliers' )?'menu-open':''}}">
+                                    <a href="#"
+                                       class="nav-link {{ (Request::segment(1) == 'supplier-groups'|| Request::segment(1) == 'suppliers'  )?' active':''}}">
+                                        <i class="nav-icon fa fa-folder-open"></i>
+                                        <p>
+                                            Purchase Setting
+                                            <i class="right fas fa-angle-left"></i>
+                                        </p>
+                                    </a>
+                                    <ul class="nav nav-treeview">
+                                        @can('data-admin-supplier-group-list')
+                                            <li class="nav-item">
+                                                <a href="{{route('supplier-groups.index')}}"
+                                                   class="nav-link {{ (Request::segment(1) == 'supplier-groups' )?' active':''}}">
+                                                    <i class="far fa-circle nav-icon"></i>
+                                                    <p>Supplier Group List</p>
+                                                </a>
+                                            </li>
+                                        @endcan
+                                        @can('data-admin-supplier-list')
+                                            <li class="nav-item">
+                                                <a href="{{route('suppliers.index')}}"
+                                                   class="nav-link {{ (Request::segment(1) == 'suppliers' )?' active':''}}">
+                                                    <i class="far fa-circle nav-icon"></i>
+                                                    <p>Supplier List</p>
+                                                </a>
+                                            </li>
+                                        @endcan
+                                    </ul>
+                                </li>
+                            @endcanany
 
-                        <li class="nav-item {{ (Request::segment(1) == 'designations'||Request::segment(1) == 'departments' )?'menu-open':''}}">
-                            <a href="#"
-                               class="nav-link {{ (Request::segment(1) == 'designations'||Request::segment(1) == 'departments'  )?' active':''}}">
-                                <i class="nav-icon fa fa-folder-open"></i>
-                                <p>
-                                    HR
-                                    <i class="right fas fa-angle-left"></i>
-                                </p>
-                            </a>
-                            <ul class="nav nav-treeview">
-                                @can('data-admin-designation')
-                                    <li class="nav-item">
-                                        <a href="{{route('designations.index')}}"
-                                           class="nav-link {{ (Request::segment(1) == 'designations' )?' active':''}}">
-                                            <i class="far fa-circle nav-icon"></i>
-                                            <p>Designation</p>
-                                        </a>
-                                    </li>
-                                @endcan
-                            </ul>
-                            <ul class="nav nav-treeview">
-                                @can('data-admin-department')
-                                    <li class="nav-item">
-                                        <a href="{{route('departments.index')}}"
-                                           class="nav-link {{ (Request::segment(1) == 'departments' )?' active':''}}">
-                                            <i class="far fa-circle nav-icon"></i>
-                                            <p>Department</p>
-                                        </a>
-                                    </li>
-                                @endcan
-                            </ul>
-                        </li>
-                    </ul>
-                </li>
+                            @canany(['data-admin-gl-account','data-admin-raw-metarials','data-admin-finish-goods','data-admin-customer-ob','data-admin-supplier-ob'])
+                                <li class="nav-item {{ (Request::segment(1) == 'general-ledger-opening-balances'|| Request::segment(1) == 'raw-materials-opening-balances'||Request::segment(1) == 'finish-goods-opening-balances'||Request::segment(1) == 'customer-opening-balances' || Request::segment(1) == 'supplier-opening-balances')?'menu-open':''}}">
+                                    <a href="#"
+                                       class="nav-link {{ (Request::segment(1) == 'general-ledger-opening-balances'|| Request::segment(1) == 'raw-materials-opening-balances' ||Request::segment(1) == 'finish-goods-opening-balances' ||Request::segment(1) == 'customer-opening-balances' || Request::segment(1) == 'supplier-opening-balances')?' active':''}}">
+                                        <i class="nav-icon fa fa-folder-open"></i>
+                                        <p>
+                                            Opening Balance
+                                            <i class="right fas fa-angle-left"></i>
+                                        </p>
+                                    </a>
+                                    <ul class="nav nav-treeview">
+                                        @can('data-admin-gl-account')
+                                            <li class="nav-item">
+                                                <a href="{{route('general-ledger-opening-balances.index')}}"
+                                                   class="nav-link {{ (Request::segment(1) == 'general-ledger-opening-balances' )?' active':''}}">
+                                                    <i class="far fa-circle nav-icon"></i>
+                                                    <p>GL Account</p>
+                                                </a>
+                                            </li>
+                                        @endcan
+                                        @can('data-admin-raw-metarials')
+                                            <li class="nav-item">
+                                                <a href="{{route('raw-materials-opening-balances.index')}}"
+                                                   class="nav-link {{ (Request::segment(1) == 'raw-materials-opening-balances' )?' active':''}}">
+                                                    <i class="far fa-circle nav-icon"></i>
+                                                    <p>Raw Materials</p>
+                                                </a>
+                                            </li>
+                                        @endcan
+                                        @can('data-admin-finish-goods')
+                                            <li class="nav-item">
+                                                <a href="{{route('finish-goods-opening-balances.index')}}"
+                                                   class="nav-link {{ (Request::segment(1) == 'finish-goods-opening-balances' )?' active':''}}">
+                                                    <i class="far fa-circle nav-icon"></i>
+                                                    <p>Finish Goods</p>
+                                                </a>
+                                            </li>
+                                        @endcan
+                                        @can('data-admin-customer-ob')
+                                            <li class="nav-item">
+                                                <a href="{{route('customer-opening-balances.index')}}"
+                                                   class="nav-link {{ (Request::segment(1) == 'customer-opening-balances' )?' active':''}}">
+                                                    <i class="far fa-circle nav-icon"></i>
+                                                    <p>Customer OB</p>
+                                                </a>
+                                            </li>
+                                        @endcan
+                                        @can('data-admin-supplier-ob')
+                                            <li class="nav-item">
+                                                <a href="{{route('supplier-opening-balances.index')}}"
+                                                   class="nav-link {{ (Request::segment(1) == 'supplier-opening-balances' )?' active':''}}">
+                                                    <i class="far fa-circle nav-icon"></i>
+                                                    <p>Supplier OB</p>
+                                                </a>
+                                            </li>
+                                        @endcan
+                                    </ul>
+                                </li>
+                            @endcanany
+                            @canany(['data-admin-designation','data-admin-department'])
+                                <li class="nav-item {{ (Request::segment(1) == 'designations'||Request::segment(1) == 'departments' )?'menu-open':''}}">
+                                    <a href="#"
+                                       class="nav-link {{ (Request::segment(1) == 'designations'||Request::segment(1) == 'departments'  )?' active':''}}">
+                                        <i class="nav-icon fa fa-folder-open"></i>
+                                        <p>
+                                            HR
+                                            <i class="right fas fa-angle-left"></i>
+                                        </p>
+                                    </a>
+                                    <ul class="nav nav-treeview">
+                                        @can('data-admin-designation')
+                                            <li class="nav-item">
+                                                <a href="{{route('designations.index')}}"
+                                                   class="nav-link {{ (Request::segment(1) == 'designations' )?' active':''}}">
+                                                    <i class="far fa-circle nav-icon"></i>
+                                                    <p>Designation</p>
+                                                </a>
+                                            </li>
+                                        @endcan
+                                        @can('data-admin-department')
+                                            <li class="nav-item">
+                                                <a href="{{route('departments.index')}}"
+                                                   class="nav-link {{ (Request::segment(1) == 'departments' )?' active':''}}">
+                                                    <i class="far fa-circle nav-icon"></i>
+                                                    <p>Department</p>
+                                                </a>
+                                            </li>
+                                        @endcan
+                                    </ul>
+                                </li>
+                            @endcanany
+                            @can('data-admin-create-factory')
+                                <li class="nav-item">
+                                    <a href="{{route('factories.index')}}"
+                                       class="nav-link {{ (Request::segment(1) == 'factories' )?' active':''}}">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Create Factory</p>
+                                    </a>
+                                </li>
+                            @endcan
 
-                <li class="nav-item {{ (Request::segment(1) == 'users'||Request::segment(1) == 'employees'||Request::segment(1) == 'outlet-configs'||Request::segment(1) == 'system-settings' )?'menu-open':''}}">
-                    <a href="#"
-                       class="nav-link {{ (Request::segment(1) == 'users'||Request::segment(1) == 'employees'||Request::segment(1) == 'outlet-configs'||Request::segment(1) == 'system-settings')?' active':''}}">
-                        <i class="nav-icon fas fa-cog"></i>
-                        <p>
-                            System Admin Module
-                            <i class="right fas fa-angle-left"></i>
-                        </p>
-                    </a>
-                    <ul class="nav nav-treeview">
-                        <li class="nav-item {{ (Request::segment(1) == 'users'||Request::segment(1) == 'employees')?'menu-open':''}}">
-                            <a href="#"
-                               class="nav-link {{ (Request::segment(1) == 'users'||Request::segment(1) == 'employees')?' active':''}}">
-                                <i class="nav-icon fa fa-folder-open"></i>
-                                <p>
-                                    Users
-                                    <i class="right fas fa-angle-left"></i>
-                                </p>
-                            </a>
-                            <ul class="nav nav-treeview">
-                                @can('system-admin-user-list')
-                                    <li class="nav-item">
-                                        <a href="{{route('users.index')}}"
-                                           class="nav-link {{ (Request::segment(1) == 'users' )?' active':''}}">
-                                            <i class="far fa-circle nav-icon"></i>
-                                            <p>User list</p>
-                                        </a>
-                                    </li>
-                                @endcan
-                                @can('system-admin-employees')
-                                    <li class="nav-item">
-                                        <a href="{{route('employees.index')}}"
-                                           class="nav-link {{ (Request::segment(1) == 'employees' )?' active':''}}">
-                                            <i class="far fa-circle nav-icon"></i>
-                                            <p>Employees</p>
-                                        </a>
-                                    </li>
-                                @endcan
-                            </ul>
-                        </li>
-                        <li class="nav-item {{ (Request::segment(1) == 'outlet-configs')?'menu-open':''}}">
-                            <a href="#"
-                               class="nav-link {{ (Request::segment(1) == 'outlet-configs')?' active':''}}">
-                                <i class="nav-icon fa fa-folder-open"></i>
-                                <p>
-                                    Outlet Config
-                                    <i class="right fas fa-angle-left"></i>
-                                </p>
-                            </a>
-                            <ul class="nav nav-treeview">
-                                @can('system-admin-outlet-payment')
-                                    <li class="nav-item">
-                                        <a href="{{route('outlet-configs.create')}}"
-                                           class="nav-link {{ (Request::segment(1) == 'outlet-configs' )?' active':''}}">
-                                            <i class="far fa-circle nav-icon"></i>
-                                            <p>Outlet Payment</p>
-                                        </a>
-                                    </li>
-                                @endcan
-                            </ul>
-                        </li>
-                        <li class="nav-item {{ (Request::segment(1) == 'system-settings')?'menu-open':''}}">
-                            <a href="#"
-                               class="nav-link {{ (Request::segment(1) == 'system-settings')?' active':''}}">
-                                <i class="nav-icon fa fa-folder-open"></i>
-                                <p>
-                                    System Setting
-                                    <i class="right fas fa-angle-left"></i>
-                                </p>
-                            </a>
-                            <ul class="nav nav-treeview">
-                                @can('system-admin-system-setting')
-                                    <li class="nav-item">
-                                        <a href="{{route('system-settings.create')}}"
-                                           class="nav-link {{ (Request::segment(1) == 'system-settings' )?' active':''}}">
-                                            <i class="far fa-circle nav-icon"></i>
-                                            <p>System Setting</p>
-                                        </a>
-                                    </li>
-                                @endcan
-                            </ul>
-                        </li>
-                    </ul>
-                </li>
+                            @can('data-admin-create-outlet')
+                                <li class="nav-item">
+                                    <a href="{{route('outlets.index')}}"
+                                       class="nav-link {{ (Request::segment(1) == 'outlets' )?' active':''}}">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Create Outlet</p>
+                                    </a>
+                                </li>
+                            @endcan
+                        </ul>
+                    </li>
+                @endcanany
+                @canany(['system-admin-user-list','system-admin-employees','system-admin-outlet-payment','system-admin-system-setting'])
+                    <li class="nav-item {{ (Request::segment(1) == 'users'||Request::segment(1) == 'employees'||Request::segment(1) == 'outlet-configs'||Request::segment(1) == 'system-settings' )?'menu-open':''}}">
+                        <a href="#"
+                           class="nav-link {{ (Request::segment(1) == 'users'||Request::segment(1) == 'employees'||Request::segment(1) == 'outlet-configs'||Request::segment(1) == 'system-settings')?' active':''}}">
+                            <i class="nav-icon fas fa-cog"></i>
+                            <p>
+                                System Admin Module
+                                <i class="right fas fa-angle-left"></i>
+                            </p>
+                        </a>
+                        <ul class="nav nav-treeview">
+                            @canany(['system-admin-user-list','system-admin-employees'])
+                                <li class="nav-item {{ (Request::segment(1) == 'users'||Request::segment(1) == 'employees')?'menu-open':''}}">
+                                    <a href="#"
+                                       class="nav-link {{ (Request::segment(1) == 'users'||Request::segment(1) == 'employees')?' active':''}}">
+                                        <i class="nav-icon fa fa-folder-open"></i>
+                                        <p>
+                                            Users
+                                            <i class="right fas fa-angle-left"></i>
+                                        </p>
+                                    </a>
+                                    <ul class="nav nav-treeview">
+                                        @can('system-admin-user-list')
+                                            <li class="nav-item">
+                                                <a href="{{route('users.index')}}"
+                                                   class="nav-link {{ (Request::segment(1) == 'users' )?' active':''}}">
+                                                    <i class="far fa-circle nav-icon"></i>
+                                                    <p>User list</p>
+                                                </a>
+                                            </li>
+                                        @endcan
+                                        @can('system-admin-employees')
+                                            <li class="nav-item">
+                                                <a href="{{route('employees.index')}}"
+                                                   class="nav-link {{ (Request::segment(1) == 'employees' )?' active':''}}">
+                                                    <i class="far fa-circle nav-icon"></i>
+                                                    <p>Employees</p>
+                                                </a>
+                                            </li>
+                                        @endcan
+                                    </ul>
+                                </li>
+                            @endcanany
+                            @canany(['system-admin-outlet-payment'])
+                                <li class="nav-item {{ (Request::segment(1) == 'outlet-configs')?'menu-open':''}}">
+                                    <a href="#"
+                                       class="nav-link {{ (Request::segment(1) == 'outlet-configs')?' active':''}}">
+                                        <i class="nav-icon fa fa-folder-open"></i>
+                                        <p>
+                                            Outlet Config
+                                            <i class="right fas fa-angle-left"></i>
+                                        </p>
+                                    </a>
+                                    <ul class="nav nav-treeview">
+                                        @can('system-admin-outlet-payment')
+                                            <li class="nav-item">
+                                                <a href="{{route('outlet-configs.create')}}"
+                                                   class="nav-link {{ (Request::segment(1) == 'outlet-configs' )?' active':''}}">
+                                                    <i class="far fa-circle nav-icon"></i>
+                                                    <p>Outlet Payment</p>
+                                                </a>
+                                            </li>
+                                        @endcan
+                                    </ul>
+                                </li>
+                            @endcanany
 
+                            @canany(['system-admin-system-setting'])
+                                <li class="nav-item {{ (Request::segment(1) == 'system-settings')?'menu-open':''}}">
+                                    <a href="#"
+                                       class="nav-link {{ (Request::segment(1) == 'system-settings')?' active':''}}">
+                                        <i class="nav-icon fa fa-folder-open"></i>
+                                        <p>
+                                            System Setting
+                                            <i class="right fas fa-angle-left"></i>
+                                        </p>
+                                    </a>
+                                    <ul class="nav nav-treeview">
+                                        @can('system-admin-system-setting')
+                                            <li class="nav-item">
+                                                <a href="{{route('system-settings.create')}}"
+                                                   class="nav-link {{ (Request::segment(1) == 'system-settings' )?' active':''}}">
+                                                    <i class="far fa-circle nav-icon"></i>
+                                                    <p>System Setting</p>
+                                                </a>
+                                            </li>
+                                        @endcan
+                                    </ul>
+                                </li>
+                            @endcanany
+                        </ul>
+                    </li>
+                @endcanany
             </ul>
         </nav>
         <!-- /.sidebar-menu -->
