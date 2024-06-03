@@ -27,8 +27,14 @@
                                             <label for="title">Fav Icon</label>
                                             <input type="file" class="form-control" id="image" name="settings[fav_icon]" value=""/>
                                             <p class="text-danger">Conpany Fav Icon must be 16X16</p>
-                                            <img class="p-4" height="150" width="200" id="showImage"
+                                            @if(getSettingValue('fav_icon') )
+                                                 <img src="{{ asset('upload').'/'.getSettingValue('fav_icon') }}" id="showImage" alt="AdminLTE Logo"
+                                                class="brand-image img-circle elevation-3" class="p-4" height="100" width="100">
+                                            @else
+                                            <img class="p-4" height="150" width="200"
                                                 src="{{ asset('admin/app-assets/dummy/dammy.jpg') }}" alt="">
+                                            @endif
+
                                         </div>
                                     </div>
                                     <div class="col-xl-4 col-md-4 col-12 mb-1">
@@ -36,8 +42,14 @@
                                             <label for="title">Conpany Logo</label>
                                             <input type="file" class="form-control" id="logoImage" name="settings[company_logo]" value=""/>
                                             <p class="text-danger">Conpany Logo must be 100X90</p>
-                                            <img class="p-4" height="150" width="200" id="logoShowImage"
+                                            @if(getSettingValue('company_logo') )
+                                                 <img src="{{ asset('upload').'/'.getSettingValue('company_logo') }}" id="logoShowImage" alt="AdminLTE Logo"
+                                                class="brand-image img-circle elevation-3" class="p-4" height="100" width="100">
+                                            @else
+                                            <img class="p-4" height="150" width="200"
                                                 src="{{ asset('admin/app-assets/dummy/dammy.jpg') }}" alt="">
+                                             @endif
+                                        
                                         </div>
                                     </div>
                                     <div class="col-xl-4 col-md-4 col-12 mb-1">
