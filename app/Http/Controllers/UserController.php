@@ -13,6 +13,8 @@ use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Permission;
 use Yajra\DataTables\Facades\DataTables;
 
+use function Laravel\Prompts\error;
+
 class UserController extends Controller
 {
     public function index()
@@ -42,7 +44,7 @@ class UserController extends Controller
     }
 
     public function store(StoreUserRequest $request)
-    {
+    { 
         $validated = $request->validated();
         DB::beginTransaction();
         try {
@@ -57,6 +59,7 @@ class UserController extends Controller
             DB::commit();
         } catch (\Exception $error) {
             DB::rollBack();
+            return $error;
             Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
             return back();
         }
