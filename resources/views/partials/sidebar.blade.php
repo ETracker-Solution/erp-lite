@@ -1,9 +1,8 @@
 <aside class="main-sidebar sidebar-dark-primary elevation-4">
     <!-- Brand Logo -->
     <a href="{{url('/dashboard')}}" class="brand-link">
-        <img src="{{ asset('upload').'/'.getSettingValue('company_logo') }}"
-             alt="{{ config('sidebar-menus.logo.alt') }}" alt="AdminLTE Logo"
-             class="brand-image img-circle elevation-3" style="opacity: .8">
+        <img src="{{ asset('upload').'/'.getSettingValue('company_logo') }}" alt="AdminLTE Logo"
+             class="brand-image img-circle elevation-3" style="opacity: .8; margin-top: 1px; width: 50px">
         <span class="brand-text font-weight-light">CakeTown</span>
     </a>
 
@@ -767,10 +766,7 @@
                             </li>
                         </ul>
                     </li>
-                {{-- @endcan --}}
 
-
-                {{-- @can('system-admin-admin') --}}
                     <li class="nav-item {{ (Request::segment(1) == 'users'||Request::segment(1) == 'employees'||Request::segment(1) == 'outlet-configs'||Request::segment(1) == 'system-settings' )?'menu-open':''}}">
                         <a href="#"
                            class="nav-link {{ (Request::segment(1) == 'users'||Request::segment(1) == 'employees'||Request::segment(1) == 'outlet-configs'||Request::segment(1) == 'system-settings')?' active':''}}">
@@ -855,7 +851,6 @@
                             </li>
                         </ul>
                     </li>
-                {{-- @endcan --}}
 
             </ul>
         </nav>

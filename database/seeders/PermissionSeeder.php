@@ -69,6 +69,7 @@ class PermissionSeeder extends Seeder
         }
         $user = User::where('is_super',true)->first();
         $user->syncPermissions(Permission::pluck('name'));
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
     }
     
