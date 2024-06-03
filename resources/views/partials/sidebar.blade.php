@@ -179,99 +179,107 @@
                         </ul>
                     </li>
                 @endcanany
-                <li class="nav-item {{ (Request::segment(1) == 'rm-inventory-transfers'|| Request::segment(1) == 'rm-inventory-adjustments'|| Request::segment(1) == 'rm-requisitions'|| Request::segment(1) == 'rm-requisition-deliveries'|| Request::segment(1) == 'raw-materials-inventory-report' )?'menu-open':''}}">
-                    <a href="#"
-                       class="nav-link {{ (Request::segment(1) == 'rm-inventory-transfers'|| Request::segment(1) == 'rm-inventory-adjustments'|| Request::segment(1) == 'rm-requisitions'|| Request::segment(1) == 'rm-requisition-deliveries'|| Request::segment(1) == 'raw-materials-inventory-report')?' active':''}}">
-                        <i class="nav-icon fas fa-shopping-cart"></i>
-                        <p>
-                            Store RM Module
-                            <i class="right fas fa-angle-left"></i>
-                        </p>
-                    </a>
-                    <ul class="nav nav-treeview">
-                        <li class="nav-item {{ (Request::segment(1) == 'rm-inventory-transfers'|| Request::segment(1) == 'rm-inventory-adjustments' )?'menu-open':''}}">
-                            <a href="#"
-                               class="nav-link {{ (Request::segment(1) == 'rm-inventory-transfers'|| Request::segment(1) == 'rm-inventory-adjustments' )?' active':''}}">
-                                <i class="nav-icon fa fa-folder-open"></i>
-                                <p>
-                                    Store RM Entry
-                                    <i class="right fas fa-angle-left"></i>
-                                </p>
-                            </a>
-                            <ul class="nav nav-treeview">
-                                @can('store-rm-rm-inventory-transfer')
-                                    <li class="nav-item">
-                                        <a href="{{route('rm-inventory-transfers.create')}}"
-                                           class="nav-link {{ (Request::segment(1) == 'rm-inventory-transfers' )?' active':''}}">
-                                            <i class="far fa-circle nav-icon"></i>
-                                            <p>RM Inventory Transfer</p>
-                                        </a>
-                                    </li>
-                                @endcan
-                                @can('store-rm-rm-inventory-adjustment')
-                                    <li class="nav-item">
-                                        <a href="{{route('rm-inventory-adjustments.create')}}"
-                                           class="nav-link {{ (Request::segment(1) == 'rm-inventory-adjustments' )?' active':''}}">
-                                            <i class="far fa-circle nav-icon"></i>
-                                            <p>RM Inventory Adjustment</p>
-                                        </a>
-                                    </li>
-                                @endcan
-                            </ul>
-                        </li>
-                        <li class="nav-item {{ (Request::segment(1) == 'rm-requisitions'|| Request::segment(1) == 'rm-requisition-deliveries' )?'menu-open':''}}">
-                            <a href="#"
-                               class="nav-link {{ (Request::segment(1) == 'rm-requisitions'|| Request::segment(1) == 'rm-requisition-deliveries'  )?' active':''}}">
-                                <i class="nav-icon fa fa-folder-open"></i>
-                                <p>
-                                    Store RM Requisition
-                                    <i class="right fas fa-angle-left"></i>
-                                </p>
-                            </a>
-                            <ul class="nav nav-treeview">
-                                @can('store-rm-create-rm-requisition')
-                                    <li class="nav-item">
-                                        <a href="{{route('rm-requisitions.create')}}"
-                                           class="nav-link {{ (Request::segment(1) == 'rm-requisitions' )?' active':''}}">
-                                            <i class="far fa-circle nav-icon"></i>
-                                            <p>Create RM Requisition</p>
-                                        </a>
-                                    </li>
-                                @endcan
-                                @can('store-rm-rm-requisition-delivery')
-                                    <li class="nav-item">
-                                        <a href="{{route('rm-requisition-deliveries.create')}}"
-                                           class="nav-link {{ (Request::segment(1) == 'rm-requisition-deliveries' )?' active':''}}">
-                                            <i class="far fa-circle nav-icon"></i>
-                                            <p>RM Requisition Delivery</p>
-                                        </a>
-                                    </li>
-                                @endcan
-                            </ul>
-                        </li>
-                        <li class="nav-item {{ (Request::segment(1) == 'raw-materials-inventory-report' )?'menu-open':''}}">
-                            <a href="#"
-                               class="nav-link {{ (Request::segment(1) == 'raw-materials-inventory-report'  )?' active':''}}">
-                                <i class="nav-icon fa fa-folder-open"></i>
-                                <p>
-                                    Store RM Report
-                                    <i class="right fas fa-angle-left"></i>
-                                </p>
-                            </a>
-                            <ul class="nav nav-treeview">
-                                @can('store-rm-rm-inventory-report')
-                                    <li class="nav-item">
-                                        <a href="{{route('raw-materials-inventory-report.index')}}"
-                                           class="nav-link {{ (Request::segment(1) == 'raw-materials-inventory-report' )?' active':''}}">
-                                            <i class="far fa-circle nav-icon"></i>
-                                            <p>RM Inventory Report</p>
-                                        </a>
-                                    </li>
-                                @endcan
-                            </ul>
-                        </li>
-                    </ul>
-                </li>
+                @canany(['store-rm-rm-inventory-adjustment','store-rm-rm-inventory-transfer','store-rm-create-rm-requisition','store-rm-rm-requisition-delivery','store-rm-rm-inventory-report'])
+                    <li class="nav-item {{ (Request::segment(1) == 'rm-inventory-transfers'|| Request::segment(1) == 'rm-inventory-adjustments'|| Request::segment(1) == 'rm-requisitions'|| Request::segment(1) == 'rm-requisition-deliveries'|| Request::segment(1) == 'raw-materials-inventory-report' )?'menu-open':''}}">
+                        <a href="#"
+                           class="nav-link {{ (Request::segment(1) == 'rm-inventory-transfers'|| Request::segment(1) == 'rm-inventory-adjustments'|| Request::segment(1) == 'rm-requisitions'|| Request::segment(1) == 'rm-requisition-deliveries'|| Request::segment(1) == 'raw-materials-inventory-report')?' active':''}}">
+                            <i class="nav-icon fas fa-shopping-cart"></i>
+                            <p>
+                                Store RM Module
+                                <i class="right fas fa-angle-left"></i>
+                            </p>
+                        </a>
+                        <ul class="nav nav-treeview">
+                            @canany(['store-rm-rm-inventory-adjustment','store-rm-rm-inventory-transfer'])
+                                <li class="nav-item {{ (Request::segment(1) == 'rm-inventory-transfers'|| Request::segment(1) == 'rm-inventory-adjustments' )?'menu-open':''}}">
+                                    <a href="#"
+                                       class="nav-link {{ (Request::segment(1) == 'rm-inventory-transfers'|| Request::segment(1) == 'rm-inventory-adjustments' )?' active':''}}">
+                                        <i class="nav-icon fa fa-folder-open"></i>
+                                        <p>
+                                            Store RM Entry
+                                            <i class="right fas fa-angle-left"></i>
+                                        </p>
+                                    </a>
+                                    <ul class="nav nav-treeview">
+                                        @can('store-rm-rm-inventory-transfer')
+                                            <li class="nav-item">
+                                                <a href="{{route('rm-inventory-transfers.create')}}"
+                                                   class="nav-link {{ (Request::segment(1) == 'rm-inventory-transfers' )?' active':''}}">
+                                                    <i class="far fa-circle nav-icon"></i>
+                                                    <p>RM Inventory Transfer</p>
+                                                </a>
+                                            </li>
+                                        @endcan
+                                        @can('store-rm-rm-inventory-adjustment')
+                                            <li class="nav-item">
+                                                <a href="{{route('rm-inventory-adjustments.create')}}"
+                                                   class="nav-link {{ (Request::segment(1) == 'rm-inventory-adjustments' )?' active':''}}">
+                                                    <i class="far fa-circle nav-icon"></i>
+                                                    <p>RM Inventory Adjustment</p>
+                                                </a>
+                                            </li>
+                                        @endcan
+                                    </ul>
+                                </li>
+                            @endcanany
+                            @canany(['store-rm-create-rm-requisition','store-rm-rm-requisition-delivery'])
+                                <li class="nav-item {{ (Request::segment(1) == 'rm-requisitions'|| Request::segment(1) == 'rm-requisition-deliveries' )?'menu-open':''}}">
+                                    <a href="#"
+                                       class="nav-link {{ (Request::segment(1) == 'rm-requisitions'|| Request::segment(1) == 'rm-requisition-deliveries'  )?' active':''}}">
+                                        <i class="nav-icon fa fa-folder-open"></i>
+                                        <p>
+                                            Store RM Requisition
+                                            <i class="right fas fa-angle-left"></i>
+                                        </p>
+                                    </a>
+                                    <ul class="nav nav-treeview">
+                                        @can('store-rm-create-rm-requisition')
+                                            <li class="nav-item">
+                                                <a href="{{route('rm-requisitions.create')}}"
+                                                   class="nav-link {{ (Request::segment(1) == 'rm-requisitions' )?' active':''}}">
+                                                    <i class="far fa-circle nav-icon"></i>
+                                                    <p>Create RM Requisition</p>
+                                                </a>
+                                            </li>
+                                        @endcan
+                                        @can('store-rm-rm-requisition-delivery')
+                                            <li class="nav-item">
+                                                <a href="{{route('rm-requisition-deliveries.create')}}"
+                                                   class="nav-link {{ (Request::segment(1) == 'rm-requisition-deliveries' )?' active':''}}">
+                                                    <i class="far fa-circle nav-icon"></i>
+                                                    <p>RM Requisition Delivery</p>
+                                                </a>
+                                            </li>
+                                        @endcan
+                                    </ul>
+                                </li>
+                            @endcanany
+                            @canany(['store-rm-rm-inventory-report'])
+                                <li class="nav-item {{ (Request::segment(1) == 'raw-materials-inventory-report' )?'menu-open':''}}">
+                                    <a href="#"
+                                       class="nav-link {{ (Request::segment(1) == 'raw-materials-inventory-report'  )?' active':''}}">
+                                        <i class="nav-icon fa fa-folder-open"></i>
+                                        <p>
+                                            Store RM Report
+                                            <i class="right fas fa-angle-left"></i>
+                                        </p>
+                                    </a>
+                                    <ul class="nav nav-treeview">
+                                        @can('store-rm-rm-inventory-report')
+                                            <li class="nav-item">
+                                                <a href="{{route('raw-materials-inventory-report.index')}}"
+                                                   class="nav-link {{ (Request::segment(1) == 'raw-materials-inventory-report' )?' active':''}}">
+                                                    <i class="far fa-circle nav-icon"></i>
+                                                    <p>RM Inventory Report</p>
+                                                </a>
+                                            </li>
+                                        @endcan
+                                    </ul>
+                                </li>
+                            @endcanany
+                        </ul>
+                    </li>
+                @endcanany
                 @canany(['production-batch-entry','production-rm-consumption','production-fg-production'])
                     <li class="nav-item {{ (Request::segment(1) == 'consumptions'|| Request::segment(1) == 'batches'|| Request::segment(1) == 'productions' )?'menu-open':''}}">
                         <a href="#"
@@ -327,242 +335,253 @@
                         </ul>
                     </li>
                 @endcanany
-                <li class="nav-item {{ (Request::segment(1) == 'fg-inventory-transfers'|| Request::segment(1) == 'fg-inventory-adjustments'|| Request::segment(1) == 'requisitions'|| Request::segment(1) == 'fg-requisition-deliveries'|| Request::segment(1) == 'finish-goods-inventory-report' )?'menu-open':''}}">
-                    <a href="#"
-                       class="nav-link {{ (Request::segment(1) == 'fg-inventory-transfers'|| Request::segment(1) == 'fg-inventory-adjustments'|| Request::segment(1) == 'requisitions'|| Request::segment(1) == 'fg-requisition-deliveries'|| Request::segment(1) == 'finish-goods-inventory-report')?' active':''}}">
-                        <i class="nav-icon fas fa-shopping-cart"></i>
-                        <p>
-                            Store FG Module
-                            <i class="right fas fa-angle-left"></i>
-                        </p>
-                    </a>
-                    <ul class="nav nav-treeview">
-                        <li class="nav-item {{ (Request::segment(1) == 'fg-inventory-transfers'|| Request::segment(1) == 'fg-inventory-adjustments' )?'menu-open':''}}">
-                            <a href="#"
-                               class="nav-link {{ (Request::segment(1) == 'fg-inventory-transfers'|| Request::segment(1) == 'fg-inventory-adjustments' )?' active':''}}">
-                                <i class="nav-icon fa fa-folder-open"></i>
-                                <p>
-                                    Store FG Entry
-                                    <i class="right fas fa-angle-left"></i>
-                                </p>
-                            </a>
-                            <ul class="nav nav-treeview">
-                                @can('store-fg-fg-inventory-transfer')
-                                    <li class="nav-item">
-                                        <a href="{{route('fg-inventory-transfers.create')}}"
-                                           class="nav-link {{ (Request::segment(1) == 'fg-inventory-transfers' )?' active':''}}">
-                                            <i class="far fa-circle nav-icon"></i>
-                                            <p>FG Inventory Transfer</p>
-                                        </a>
-                                    </li>
-                                @endcan
-                                @can('store-fg-fg-inventory-adjustment')
-                                    <li class="nav-item">
-                                        <a href="{{route('fg-inventory-adjustments.create')}}"
-                                           class="nav-link {{ (Request::segment(1) == 'fg-inventory-adjustments' )?' active':''}}">
-                                            <i class="far fa-circle nav-icon"></i>
-                                            <p>FG Inventory Adjustment</p>
-                                        </a>
-                                    </li>
-                                @endcan
-                            </ul>
-                        </li>
-                        <li class="nav-item {{ (Request::segment(1) == 'requisitions'|| Request::segment(1) == 'fg-requisition-deliveries' )?'menu-open':''}}">
-                            <a href="#"
-                               class="nav-link {{ (Request::segment(1) == 'requisitions'|| Request::segment(1) == 'fg-requisition-deliveries'  )?' active':''}}">
-                                <i class="nav-icon fa fa-folder-open"></i>
-                                <p>
-                                    Store FG Requisition
-                                    <i class="right fas fa-angle-left"></i>
-                                </p>
-                            </a>
-                            <ul class="nav nav-treeview">
-                                @can('store-fg-create-fg-requisition')
-                                    <li class="nav-item">
-                                        <a href="{{route('requisitions.create')}}"
-                                           class="nav-link {{ (Request::segment(1) == 'requisitions' )?' active':''}}">
-                                            <i class="far fa-circle nav-icon"></i>
-                                            <p>Create FG Requisition</p>
-                                        </a>
-                                    </li>
-                                @endcan
+                @canany(['store-fg-fg-inventory-transfer','store-fg-fg-inventory-adjustment','store-fg-create-fg-requisition','store-fg-fg-requisition-delivery','store-fg-fg-inventory-report'])
+                    <li class="nav-item {{ (Request::segment(1) == 'fg-inventory-transfers'|| Request::segment(1) == 'fg-inventory-adjustments'|| Request::segment(1) == 'requisitions'|| Request::segment(1) == 'fg-requisition-deliveries'|| Request::segment(1) == 'finish-goods-inventory-report' )?'menu-open':''}}">
+                        <a href="#"
+                           class="nav-link {{ (Request::segment(1) == 'fg-inventory-transfers'|| Request::segment(1) == 'fg-inventory-adjustments'|| Request::segment(1) == 'requisitions'|| Request::segment(1) == 'fg-requisition-deliveries'|| Request::segment(1) == 'finish-goods-inventory-report')?' active':''}}">
+                            <i class="nav-icon fas fa-shopping-cart"></i>
+                            <p>
+                                Store FG Module
+                                <i class="right fas fa-angle-left"></i>
+                            </p>
+                        </a>
+                        <ul class="nav nav-treeview">
+                            @canany(['store-fg-fg-inventory-transfer','store-fg-fg-inventory-adjustment'])
+                                <li class="nav-item {{ (Request::segment(1) == 'fg-inventory-transfers'|| Request::segment(1) == 'fg-inventory-adjustments' )?'menu-open':''}}">
+                                    <a href="#"
+                                       class="nav-link {{ (Request::segment(1) == 'fg-inventory-transfers'|| Request::segment(1) == 'fg-inventory-adjustments' )?' active':''}}">
+                                        <i class="nav-icon fa fa-folder-open"></i>
+                                        <p>
+                                            Store FG Entry
+                                            <i class="right fas fa-angle-left"></i>
+                                        </p>
+                                    </a>
+                                    <ul class="nav nav-treeview">
+                                        @can('store-fg-fg-inventory-transfer')
+                                            <li class="nav-item">
+                                                <a href="{{route('fg-inventory-transfers.create')}}"
+                                                   class="nav-link {{ (Request::segment(1) == 'fg-inventory-transfers' )?' active':''}}">
+                                                    <i class="far fa-circle nav-icon"></i>
+                                                    <p>FG Inventory Transfer</p>
+                                                </a>
+                                            </li>
+                                        @endcan
+                                        @can('store-fg-fg-inventory-adjustment')
+                                            <li class="nav-item">
+                                                <a href="{{route('fg-inventory-adjustments.create')}}"
+                                                   class="nav-link {{ (Request::segment(1) == 'fg-inventory-adjustments' )?' active':''}}">
+                                                    <i class="far fa-circle nav-icon"></i>
+                                                    <p>FG Inventory Adjustment</p>
+                                                </a>
+                                            </li>
+                                        @endcan
+                                    </ul>
+                                </li>
+                            @endcanany
+                            @canany(['store-fg-create-fg-requisition','store-fg-fg-requisition-delivery'])
+                                <li class="nav-item {{ (Request::segment(1) == 'requisitions'|| Request::segment(1) == 'fg-requisition-deliveries' )?'menu-open':''}}">
+                                    <a href="#"
+                                       class="nav-link {{ (Request::segment(1) == 'requisitions'|| Request::segment(1) == 'fg-requisition-deliveries'  )?' active':''}}">
+                                        <i class="nav-icon fa fa-folder-open"></i>
+                                        <p>
+                                            Store FG Requisition
+                                            <i class="right fas fa-angle-left"></i>
+                                        </p>
+                                    </a>
+                                    <ul class="nav nav-treeview">
+                                        @can('store-fg-create-fg-requisition')
+                                            <li class="nav-item">
+                                                <a href="{{route('requisitions.create')}}"
+                                                   class="nav-link {{ (Request::segment(1) == 'requisitions' )?' active':''}}">
+                                                    <i class="far fa-circle nav-icon"></i>
+                                                    <p>Create FG Requisition</p>
+                                                </a>
+                                            </li>
+                                        @endcan
+                                        @can('store-fg-fg-requisition-delivery')
+                                            <li class="nav-item">
+                                                <a href="{{route('fg-requisition-deliveries.create')}}"
+                                                   class="nav-link {{ (Request::segment(1) == 'fg-requisition-deliveries' )?' active':''}}">
+                                                    <i class="far fa-circle nav-icon"></i>
+                                                    <p>FG Requisition Delivery</p>
+                                                </a>
+                                            </li>
+                                        @endcan
+                                    </ul>
+                                </li>
+                            @endcanany
+                            @canany(['store-fg-fg-inventory-report'])
+                                <li class="nav-item {{ (Request::segment(1) == 'finish-goods-inventory-report' )?'menu-open':''}}">
+                                    <a href="#"
+                                       class="nav-link {{ (Request::segment(1) == 'finish-goods-inventory-report'  )?' active':''}}">
+                                        <i class="nav-icon fa fa-folder-open"></i>
+                                        <p>
+                                            Store FG Report
+                                            <i class="right fas fa-angle-left"></i>
+                                        </p>
+                                    </a>
+                                    <ul class="nav nav-treeview">
+                                        @can('store-fg-fg-inventory-report')
+                                            <li class="nav-item">
+                                                <a href="{{route('finish-goods-inventory-report.index')}}"
+                                                   class="nav-link {{ (Request::segment(1) == 'finish-goods-inventory-report' )?' active':''}}">
+                                                    <i class="far fa-circle nav-icon"></i>
+                                                    <p>FG Inventory Report</p>
+                                                </a>
+                                            </li>
+                                        @endcan
+                                    </ul>
+                                </li>
+                            @endcanany
+                        </ul>
+                    </li>
+                @endcanany
+                @canany(['sales-sales','sales-sales-report'])
+                    <li class="nav-item {{ (Request::segment(1) == 'sales'||Request::segment(1) == 'sale-reports' )?'menu-open':''}}">
+                        <a href="#"
+                           class="nav-link {{ (Request::segment(1) == 'sales'||Request::segment(1) == 'sale-reports')?' active':''}}">
+                            <i class="nav-icon fas fa-shopping-cart"></i>
+                            <p>
+                                Sales Module
+                                <i class="right fas fa-angle-left"></i>
+                            </p>
+                        </a>
+                        <ul class="nav nav-treeview">
+                            @canany(['sales-sales'])
+                                <li class="nav-item {{ (Request::segment(1) == 'sales')?'menu-open':''}}">
+                                    <a href="#" class="nav-link {{ (Request::segment(1) == 'sales')?' active':''}}">
+                                        <i class="nav-icon fa fa-folder-open"></i>
+                                        <p>
+                                            Sales Entry
+                                            <i class="right fas fa-angle-left"></i>
+                                        </p>
+                                    </a>
+                                    <ul class="nav nav-treeview">
+                                        @can('sales-sales')
+                                            <li class="nav-item">
+                                                <a href="{{route('sales.create')}}"
+                                                   class="nav-link {{ (Request::segment(1) == 'sales' )?' active':''}}">
+                                                    <i class="far fa-circle nav-icon"></i>
+                                                    <p>Sales</p>
+                                                </a>
+                                            </li>
+                                        @endcan
+                                    </ul>
+                                </li>
+                            @endcanany
+                            @canany(['sales-sales-report'])
+                                <li class="nav-item {{ (Request::segment(1) == 'sale-reports')?'menu-open':''}}">
+                                    <a href="#"
+                                       class="nav-link {{ (Request::segment(1) == 'sale-reports')?' active':''}}">
+                                        <i class="nav-icon fa fa-folder-open"></i>
+                                        <p>
+                                            Report
+                                            <i class="right fas fa-angle-left"></i>
+                                        </p>
+                                    </a>
+                                    <ul class="nav nav-treeview">
+                                        @can('sales-sales-report')
+                                            <li class="nav-item">
+                                                <a href="{{route('sale-reports.index')}}"
+                                                   class="nav-link {{ (Request::segment(1) == 'sale-reports' )?' active':''}}">
+                                                    <i class="far fa-circle nav-icon"></i>
+                                                    <p>Sales Report</p>
+                                                </a>
+                                            </li>
+                                        @endcan
+                                    </ul>
+                                </li>
+                            @endcanany
+                        </ul>
+                    </li>
+                @endcanany
+                @canany(['loyalty-earn-point','loyalty-redeem-point','loyalty-point-setting','loyalty-membership','loyalty-membertype','loyalty-promo-code'])
 
-                                @can('store-fg-fg-requisition-delivery')
-                                    <li class="nav-item">
-                                        <a href="{{route('fg-requisition-deliveries.create')}}"
-                                           class="nav-link {{ (Request::segment(1) == 'fg-requisition-deliveries' )?' active':''}}">
-                                            <i class="far fa-circle nav-icon"></i>
-                                            <p>FG Requisition Delivery</p>
-                                        </a>
-                                    </li>
-                                @endcan
-                            </ul>
-                        </li>
-                        <li class="nav-item {{ (Request::segment(1) == 'finish-goods-inventory-report' )?'menu-open':''}}">
-                            <a href="#"
-                               class="nav-link {{ (Request::segment(1) == 'finish-goods-inventory-report'  )?' active':''}}">
-                                <i class="nav-icon fa fa-folder-open"></i>
-                                <p>
-                                    Store FG Report
-                                    <i class="right fas fa-angle-left"></i>
-                                </p>
-                            </a>
-                            <ul class="nav nav-treeview">
-                                @can('store-fg-fg-inventory-report')
-                                    <li class="nav-item">
-                                        <a href="{{route('finish-goods-inventory-report.index')}}"
-                                           class="nav-link {{ (Request::segment(1) == 'finish-goods-inventory-report' )?' active':''}}">
-                                            <i class="far fa-circle nav-icon"></i>
-                                            <p>FG Inventory Report</p>
-                                        </a>
-                                    </li>
-                                @endcan
-                            </ul>
-                        </li>
-                    </ul>
-                </li>
-                <li class="nav-item {{ (Request::segment(1) == 'sales'||Request::segment(1) == 'sale-reports' )?'menu-open':''}}">
-                    <a href="#"
-                       class="nav-link {{ (Request::segment(1) == 'sales'||Request::segment(1) == 'sale-reports')?' active':''}}">
-                        <i class="nav-icon fas fa-shopping-cart"></i>
-                        <p>
-                            Sales Module
-                            <i class="right fas fa-angle-left"></i>
-                        </p>
-                    </a>
-                    <ul class="nav nav-treeview">
-                        <li class="nav-item {{ (Request::segment(1) == 'sales')?'menu-open':''}}">
-                            <a href="#" class="nav-link {{ (Request::segment(1) == 'sales')?' active':''}}">
-                                <i class="nav-icon fa fa-folder-open"></i>
-                                <p>
-                                    Sales Entry
-                                    <i class="right fas fa-angle-left"></i>
-                                </p>
-                            </a>
-                            <ul class="nav nav-treeview">
-                                @can('sales-sales')
-                                    <li class="nav-item">
-                                        <a href="{{route('sales.create')}}"
-                                           class="nav-link {{ (Request::segment(1) == 'sales' )?' active':''}}">
-                                            <i class="far fa-circle nav-icon"></i>
-                                            <p>Sales</p>
-                                        </a>
-                                    </li>
-                                @endcan
-                            </ul>
-                        </li>
-                        <li class="nav-item {{ (Request::segment(1) == 'sale-reports')?'menu-open':''}}">
-                            <a href="#" class="nav-link {{ (Request::segment(1) == 'sale-reports')?' active':''}}">
-                                <i class="nav-icon fa fa-folder-open"></i>
-                                <p>
-                                    Report
-                                    <i class="right fas fa-angle-left"></i>
-                                </p>
-                            </a>
-                            <ul class="nav nav-treeview">
-                                @can('sales-sales-report')
-                                    <li class="nav-item">
-                                        <a href="{{route('sale-reports.index')}}"
-                                           class="nav-link {{ (Request::segment(1) == 'sale-reports' )?' active':''}}">
-                                            <i class="far fa-circle nav-icon"></i>
-                                            <p>Sales Report</p>
-                                        </a>
-                                    </li>
-                                @endcan
-                            </ul>
-                        </li>
-                    </ul>
-                </li>
+                    <li class="nav-item {{ (Request::segment(1) == 'earn-points'||Request::segment(1) == 'redeem-points'||Request::segment(1) == 'member-points'||Request::segment(1) == 'memberships'||Request::segment(1) == 'member-types'||Request::segment(1) == 'promo-codes' )?'menu-open':''}}">
+                        <a href="#"
+                           class="nav-link {{ (Request::segment(1) == 'earn-points'||Request::segment(1) == 'redeem-points'||Request::segment(1) == 'member-points'||Request::segment(1) == 'memberships'||Request::segment(1) == 'member-types'||Request::segment(1) == 'promo-codes')?' active':''}}">
+                            <i class="nav-icon fa fa-trophy"></i>
+                            <p>
+                                Loyalty Module
+                                <i class="right fas fa-angle-left"></i>
+                            </p>
+                        </a>
+                        <ul class="nav nav-treeview">
+                            @canany(['loyalty-earn-point','loyalty-redeem-point','loyalty-point-setting','loyalty-membership','loyalty-membertype','loyalty-promo-code'])
+                                <li class="nav-item {{ (Request::segment(1) == 'earn-points'||Request::segment(1) == 'redeem-points'||Request::segment(1) == 'member-points'||Request::segment(1) == 'memberships'||Request::segment(1) == 'member-types'||Request::segment(1) == 'promo-codes')?'menu-open':''}}">
+                                    <a href="#"
+                                       class="nav-link {{ (Request::segment(1) == 'earn-points'||Request::segment(1) == 'redeem-points'||Request::segment(1) == 'member-points'||Request::segment(1) == 'memberships'||Request::segment(1) == 'member-types'||Request::segment(1) == 'promo-codes')?' active':''}}">
+                                        <i class="nav-icon fa fa-folder-open"></i>
+                                        <p>
+                                            Loyalty Entry
+                                            <i class="right fas fa-angle-left"></i>
+                                        </p>
+                                    </a>
+                                    <ul class="nav nav-treeview">
+                                        @can('loyalty-earn-point')
+                                            <li class="nav-item">
+                                                <a href="{{route('earn-points.index')}}"
+                                                   class="nav-link {{ (Request::segment(1) == 'earn-points' )?' active':''}}">
+                                                    <i class="far fa-circle nav-icon"></i>
+                                                    <p>Earn Point</p>
+                                                </a>
+                                            </li>
+                                        @endcan
 
-                <li class="nav-item {{ (Request::segment(1) == 'earn-points'||Request::segment(1) == 'redeem-points'||Request::segment(1) == 'member-points'||Request::segment(1) == 'memberships'||Request::segment(1) == 'member-types'||Request::segment(1) == 'promo-codes' )?'menu-open':''}}">
-                    <a href="#"
-                       class="nav-link {{ (Request::segment(1) == 'earn-points'||Request::segment(1) == 'redeem-points'||Request::segment(1) == 'member-points'||Request::segment(1) == 'memberships'||Request::segment(1) == 'member-types'||Request::segment(1) == 'promo-codes')?' active':''}}">
-                        <i class="nav-icon fa fa-trophy"></i>
-                        <p>
-                            Loyalty Module
-                            <i class="right fas fa-angle-left"></i>
-                        </p>
-                    </a>
-                    <ul class="nav nav-treeview">
-                        <li class="nav-item {{ (Request::segment(1) == 'earn-points'||Request::segment(1) == 'redeem-points'||Request::segment(1) == 'member-points'||Request::segment(1) == 'memberships'||Request::segment(1) == 'member-types'||Request::segment(1) == 'promo-codes')?'menu-open':''}}">
-                            <a href="#"
-                               class="nav-link {{ (Request::segment(1) == 'earn-points'||Request::segment(1) == 'redeem-points'||Request::segment(1) == 'member-points'||Request::segment(1) == 'memberships'||Request::segment(1) == 'member-types'||Request::segment(1) == 'promo-codes')?' active':''}}">
-                                <i class="nav-icon fa fa-folder-open"></i>
-                                <p>
-                                    Loyalty Entry
-                                    <i class="right fas fa-angle-left"></i>
-                                </p>
-                            </a>
-                            <ul class="nav nav-treeview">
-                                @can('loyalty-earn-point')
-                                    <li class="nav-item">
-                                        <a href="{{route('earn-points.index')}}"
-                                           class="nav-link {{ (Request::segment(1) == 'earn-points' )?' active':''}}">
-                                            <i class="far fa-circle nav-icon"></i>
-                                            <p>Earn Point</p>
-                                        </a>
-                                    </li>
-                                @endcan
-                            </ul>
-                            <ul class="nav nav-treeview">
-                                @can('loyalty-redeem-point')
-                                    <li class="nav-item">
-                                        <a href="{{route('redeem-points.index')}}"
-                                           class="nav-link {{ (Request::segment(1) == 'redeem-points' )?' active':''}}">
-                                            <i class="far fa-circle nav-icon"></i>
-                                            <p>Redeem Point</p>
-                                        </a>
-                                    </li>
-                                @endcan
-                            </ul>
-                            <ul class="nav nav-treeview">
-                                @can('loyalty-point-setting')
-                                    <li class="nav-item">
-                                        <a href="{{route('member-points.index')}}"
-                                           class="nav-link {{ (Request::segment(1) == 'member-points' )?' active':''}}">
-                                            <i class="far fa-circle nav-icon"></i>
-                                            <p>Point Setting</p>
-                                        </a>
-                                    </li>
-                                @endcan
-                            </ul>
-                            <ul class="nav nav-treeview">
-                                @can('loyalty-membership')
-                                    <li class="nav-item">
-                                        <a href="{{route('memberships.index')}}"
-                                           class="nav-link {{ (Request::segment(1) == 'memberships' )?' active':''}}">
-                                            <i class="far fa-circle nav-icon"></i>
-                                            <p>MemberShip</p>
-                                        </a>
-                                    </li>
-                                @endcan
-                            </ul>
-                            <ul class="nav nav-treeview">
-                                @can('loyalty-membertype')
-                                    <li class="nav-item">
-                                        <a href="{{route('member-types.index')}}"
-                                           class="nav-link {{ (Request::segment(1) == 'member-types' )?' active':''}}">
-                                            <i class="far fa-circle nav-icon"></i>
-                                            <p>MemberType</p>
-                                        </a>
-                                    </li>
-                                @endcan
-                            </ul>
-                            <ul class="nav nav-treeview">
-                                @can('loyalty-promo-code')
-                                    <li class="nav-item">
-                                        <a href="{{route('promo-codes.index')}}"
-                                           class="nav-link {{ (Request::segment(1) == 'promo-codes' )?' active':''}}">
-                                            <i class="far fa-circle nav-icon"></i>
-                                            <p>Promo Code</p>
-                                        </a>
-                                    </li>
-                                @endcan
-                            </ul>
-                        </li>
-                    </ul>
-                </li>
+                                        @can('loyalty-redeem-point')
+                                            <li class="nav-item">
+                                                <a href="{{route('redeem-points.index')}}"
+                                                   class="nav-link {{ (Request::segment(1) == 'redeem-points' )?' active':''}}">
+                                                    <i class="far fa-circle nav-icon"></i>
+                                                    <p>Redeem Point</p>
+                                                </a>
+                                            </li>
+                                        @endcan
 
+                                        @can('loyalty-point-setting')
+                                            <li class="nav-item">
+                                                <a href="{{route('member-points.index')}}"
+                                                   class="nav-link {{ (Request::segment(1) == 'member-points' )?' active':''}}">
+                                                    <i class="far fa-circle nav-icon"></i>
+                                                    <p>Point Setting</p>
+                                                </a>
+                                            </li>
+                                        @endcan
+
+                                        @can('loyalty-membership')
+                                            <li class="nav-item">
+                                                <a href="{{route('memberships.index')}}"
+                                                   class="nav-link {{ (Request::segment(1) == 'memberships' )?' active':''}}">
+                                                    <i class="far fa-circle nav-icon"></i>
+                                                    <p>MemberShip</p>
+                                                </a>
+                                            </li>
+                                        @endcan
+                                        @can('loyalty-membertype')
+                                            <li class="nav-item">
+                                                <a href="{{route('member-types.index')}}"
+                                                   class="nav-link {{ (Request::segment(1) == 'member-types' )?' active':''}}">
+                                                    <i class="far fa-circle nav-icon"></i>
+                                                    <p>MemberType</p>
+                                                </a>
+                                            </li>
+                                        @endcan
+
+                                        @can('loyalty-promo-code')
+                                            <li class="nav-item">
+                                                <a href="{{route('promo-codes.index')}}"
+                                                   class="nav-link {{ (Request::segment(1) == 'promo-codes' )?' active':''}}">
+                                                    <i class="far fa-circle nav-icon"></i>
+                                                    <p>Promo Code</p>
+                                                </a>
+                                            </li>
+                                        @endcan
+                                    </ul>
+                                </li>
+                            @endcanany
+                        </ul>
+                    </li>
+                @endcanany
                 <li class="nav-item {{ (Request::segment(1) == 'chart-of-accounts'||Request::segment(1) == 'chart-of-inventories'|| Request::segment(1) == 'units' || Request::segment(1) == 'stores'|| Request::segment(1) == 'supplier-groups'|| Request::segment(1) == 'suppliers'|| Request::segment(1) == 'general-ledger-opening-balances'|| Request::segment(1) == 'raw-materials-opening-balances'||Request::segment(1) == 'finish-goods-opening-balances'||Request::segment(1) == 'customer-opening-balances' || Request::segment(1) == 'supplier-opening-balances'||Request::segment(1) == 'factories'||Request::segment(1) == 'outlets'||Request::segment(1) == 'designations'||Request::segment(1) == 'departments' )?'menu-open':''}}">
                     <a href="#"
                        class="nav-link {{ (Request::segment(1) == 'chart-of-accounts'|| Request::segment(1) == 'chart-of-inventories'|| Request::segment(1) == 'units' || Request::segment(1) == 'stores'|| Request::segment(1) == 'supplier-groups'|| Request::segment(1) == 'suppliers'|| Request::segment(1) == 'general-ledger-opening-balances'|| Request::segment(1) == 'raw-materials-opening-balances'||Request::segment(1) == 'finish-goods-opening-balances'||Request::segment(1) == 'customer-opening-balances' || Request::segment(1) == 'supplier-opening-balances'||Request::segment(1) == 'factories'||Request::segment(1) == 'outlets'||Request::segment(1) == 'designations'||Request::segment(1) == 'departments')?' active':''}}">
