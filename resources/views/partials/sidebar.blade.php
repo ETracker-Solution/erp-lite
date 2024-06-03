@@ -2,7 +2,7 @@
     <!-- Brand Logo -->
     <a href="{{url('/dashboard')}}" class="brand-link">
         <img src="{{ asset('upload').'/'.getSettingValue('company_logo') }}" alt="AdminLTE Logo"
-             class="brand-image img-circle elevation-3" style="opacity: .8; margin-top: 1px; width: 50px">
+             class="brand-image img-circle elevation-3" style="opacity: .8; margin-top: 1px;">
         <span class="brand-text font-weight-light">CakeTown</span>
     </a>
 
