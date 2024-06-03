@@ -51,11 +51,6 @@ class PurchaseReturnController extends Controller
     public function create()
     {
         $data = [
-            'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'RM'])->get(),
-            'supplier_groups' => SupplierGroup::all(),
-            'suppliers' => Supplier::all(),
-            'stores' => Store::where(['type' => 'RM'])->get(),
-            'purchase' => Purchase::with('supplier')->find(1),
             'purchases' => Purchase::all()
         ];
         return view('purchase_return.create', $data);
@@ -66,7 +61,7 @@ class PurchaseReturnController extends Controller
      */
     public function store(StorePurchaseReturnRequest $request)
     {
-        //
+        dd($request->validated());
     }
 
     /**
