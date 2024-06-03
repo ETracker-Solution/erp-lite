@@ -26,9 +26,15 @@
                                         <div class="form-group">
                                             <label for="title">Fav Icon</label>
                                             <input type="file" class="form-control" id="image" name="settings[fav_icon]" value=""/>
-                                            <p class="text-danger">Conpany Fav Icon must be 100X90</p>
-                                            <img class="p-4" height="150" width="200" id="showImage"
+                                            <p class="text-danger">Conpany Fav Icon must be 16X16</p>
+                                            @if(getSettingValue('fav_icon') )
+                                                 <img src="{{ asset('upload').'/'.getSettingValue('fav_icon') }}" id="showImage" alt="AdminLTE Logo"
+                                                class="brand-image img-circle elevation-3" class="p-4" height="100" width="100">
+                                            @else
+                                            <img class="p-4" height="150" width="200"
                                                 src="{{ asset('admin/app-assets/dummy/dammy.jpg') }}" alt="">
+                                            @endif
+
                                         </div>
                                     </div>
                                     <div class="col-xl-4 col-md-4 col-12 mb-1">
@@ -36,8 +42,14 @@
                                             <label for="title">Conpany Logo</label>
                                             <input type="file" class="form-control" id="logoImage" name="settings[company_logo]" value=""/>
                                             <p class="text-danger">Conpany Logo must be 100X90</p>
-                                            <img class="p-4" height="150" width="200" id="logoShowImage"
+                                            @if(getSettingValue('company_logo') )
+                                                 <img src="{{ asset('upload').'/'.getSettingValue('company_logo') }}" id="logoShowImage" alt="AdminLTE Logo"
+                                                class="brand-image img-circle elevation-3" class="p-4" height="100" width="100">
+                                            @else
+                                            <img class="p-4" height="150" width="200"
                                                 src="{{ asset('admin/app-assets/dummy/dammy.jpg') }}" alt="">
+                                             @endif
+                                        
                                         </div>
                                     </div>
                                     <div class="col-xl-4 col-md-4 col-12 mb-1">
@@ -53,7 +65,7 @@
                                     <div class="col-xl-4 col-md-4 col-12 mb-1">
                                         <div class="form-group">
                                             <label for="company_address">Conpany Address</label>
-                                            <textarea name="settings[company_address]" id="editor" cols="30" rows="10">{{ getSettingValue('company_address') }}</textarea>
+                                            <textarea class="form-control" name="settings[company_address]" cols="30" rows="1">{{ getSettingValue('company_address') }}</textarea>
                                         </div>
                                     </div>
 
@@ -80,7 +92,7 @@
                                 </div>
                             </div>
                             <div class="card-footer">
-                                <button class="btn btn-primary waves-effect waves-float waves-light float-right"
+                                <button class="btn btn-info waves-effect waves-float waves-light float-right"
                                     type="submit">Submit</button>
                             </div>
                         </div>
@@ -91,18 +103,7 @@
     </section>
 @endsection
 @push('script')
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
-<script src="https://cdn.ckeditor.com/ckeditor5/41.1.0/classic/ckeditor.js"></script>
-    <script>
-        ClassicEditor
-            .create(document.querySelector('#editor'))
-            .then(editor => {
-                console.log(editor);
-            })
-            .catch(error => {
-                console.error(error);
-            });
-    </script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>    
     <script>
         $(document).ready(function() {
             $('#image').change(function() {
