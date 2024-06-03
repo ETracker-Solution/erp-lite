@@ -26,7 +26,7 @@
                                         <div class="form-group">
                                             <label for="title">Fav Icon</label>
                                             <input type="file" class="form-control" id="image" name="settings[fav_icon]" value=""/>
-                                            <p class="text-danger">Conpany Fav Icon must be 100X90</p>
+                                            <p class="text-danger">Conpany Fav Icon must be 16X16</p>
                                             <img class="p-4" height="150" width="200" id="showImage"
                                                 src="{{ asset('admin/app-assets/dummy/dammy.jpg') }}" alt="">
                                         </div>
