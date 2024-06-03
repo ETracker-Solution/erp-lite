@@ -53,7 +53,7 @@
                                     <div class="col-xl-4 col-md-4 col-12 mb-1">
                                         <div class="form-group">
                                             <label for="company_address">Conpany Address</label>
-                                            <textarea name="settings[company_address]" id="editor" cols="30" rows="10">{{ getSettingValue('company_address') }}</textarea>
+                                            <textarea class="form-control" name="settings[company_address]" cols="30" rows="1">{{ getSettingValue('company_address') }}</textarea>
                                         </div>
                                     </div>
 
@@ -91,18 +91,7 @@
     </section>
 @endsection
 @push('script')
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
-<script src="https://cdn.ckeditor.com/ckeditor5/41.1.0/classic/ckeditor.js"></script>
-    <script>
-        ClassicEditor
-            .create(document.querySelector('#editor'))
-            .then(editor => {
-                console.log(editor);
-            })
-            .catch(error => {
-                console.error(error);
-            });
-    </script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>    
     <script>
         $(document).ready(function() {
             $('#image').change(function() {
