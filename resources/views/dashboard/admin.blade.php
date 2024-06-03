@@ -174,29 +174,14 @@
                     </div>
                 </div>
             </div>
-            <div class="col-xl-4 col-12">
+            <div class="col-xl-6 col-12">
                 <div class="card">
                     <div class="card-header bg-info">
-                        <h4 class="card-title">Total Orders</h4>
-                        <div class="card-tools">Total {{ $order['total'] }} order this month</div>
+                        <h4 class="card-title">Total Pre Orders</h4>
+                        <div class="card-tools">Total {{ $order['total'] }} pre order this month</div>
                     </div>
                     <div class="card-body">
-                        <table class="table table-bordered">
-                            <thead>
-                            <tr>
-                                <th>Outlet</th>
-                                <th>Quantity</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            @foreach($order['outletWise'] as $key=>$value)
-                                <tr>
-                                    <td>{{$key}}</td>
-                                    <td>{{$value}}</td>
-                                </tr>
-                            @endforeach
-                            </tbody>
-                        </table>
+                        <div id="piechart"></div>
                     </div>
 
                 </div>
@@ -372,6 +357,7 @@
 @push('script')
     <script src="{{asset('admin/app-assets/vendors/js/charts/apexcharts.min.js')}}"></script>
     <script src="{{asset('admin/app-assets/js/core/app.js')}}"></script>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     {{--    <script src="{{asset('admin/app-assets/js/scripts/pages/dashboard-ecommerce.js')}}"></script>--}}
     <script>
         $(document).ready(function () {
@@ -988,4 +974,30 @@
         goalOverviewChart = new ApexCharts($goalOverviewChart, goalOverviewChartOptions);
         goalOverviewChart.render();
     </script>
+    <script type="text/javascript">
+        // Load google charts
+        google.charts.load('current', {'packages':['corechart']});
+        google.charts.setOnLoadCallback(drawChart);
+
+        // Draw the chart and set the chart values
+        function drawChart() {
+            var data = google.visualization.arrayToDataTable([
+                ['Task', 'Hours per Day'],
+                ['Work', 8],
+                ['Eat', 2],
+                ['TV', 4],
+                ['Gym', 2],
+                ['Sleep', 8],
+                ['Sleep', 12]
+            ]);
+
+            // Optional; add a title and set the width and height of the chart
+            var options = {'title':'Pre Order', 'width':550, 'height':400};
+
+            // Display the chart inside the <div> element with id="piechart"
+            var chart = new google.visualization.PieChart(document.getElementById('piechart'));
+            chart.draw(data, options);
+        }
+    </script>
+
 @endpush
