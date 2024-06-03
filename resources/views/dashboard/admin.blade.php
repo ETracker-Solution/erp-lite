@@ -329,7 +329,7 @@
                                 @forelse($slowSellingProducts as $product)
                                     <tr>
                                         <td>{{ $product->name }}</td>
-                                        <td>{{ $product->parent->name }}</td>
+                                        <td>{{ $product->parent->name ?? ''}}</td>
                                     </tr>
                                 @empty
                                     <tr>
