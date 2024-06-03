@@ -32,7 +32,7 @@ $links = [
             @csrf
             @method('put')
         <div class="row">
-            <div class="col-6">
+            <div class="col-5">
                 <div class="card card-info">
                     <div class="card-header">
                         <h3 class="card-title">User Entry</h3>
@@ -71,7 +71,7 @@ $links = [
                     </div>
                 </div>
             </div>
-            <div class="col-6">
+            <div class="col-7">
                 <div class="card card-info">
                     <div class="card-header">
                         <h3 class="card-title">User Access</h3>
@@ -83,12 +83,16 @@ $links = [
                                     <div class="form-group row callout callout-info align-items-center">
                                         <label for="inputEmail3" class="col-sm-2 col-form-label">{{ $module }}</label>
                                         <div class="col-sm-10">
-                                            @foreach($permissions as $permission)
-                                                <div class="form-check form-switch form-check-inline">
-                                                    <input class="form-check-input" type="checkbox" name="permissions[]" @if(in_array($permission->name, $userPermissions)) checked @endif value="{{ $permission->name }}">
-                                                    <label class="form-check-label" for="flexSwitchCheckDefault">{{ $permission->display_name }}</label>
-                                                </div>
-                                            @endforeach
+                                            <div class="row">
+                                                @foreach($permissions as $permission)
+                                                <div class="col-6">
+                                                    <div class="form-check form-switch form-check-inline">
+                                                        <input class="form-check-input" type="checkbox" name="permissions[]" @if(in_array($permission->name, $userPermissions)) checked @endif value="{{ $permission->name }}">
+                                                        <label class="form-check-label" for="flexSwitchCheckDefault">{{ $permission->display_name }}</label>
+                                                    </div>
+                                                </div>     
+                                                @endforeach
+                                            </div>
                                         </div>
                                     </div>
                                 @endforeach
