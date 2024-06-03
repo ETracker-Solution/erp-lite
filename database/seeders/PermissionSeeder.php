@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -17,6 +18,7 @@ class PermissionSeeder extends Seeder
     {
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
         Permission::truncate();
+        DB::table('model_has_permissions')->truncate();
 
         // $modules = ['purchase','store rm','production','data admin','system admin','account','store fg', 'sales','loyalty'];
         // $suffix = ['admin','operator','viewer','approver'];
@@ -65,5 +67,9 @@ class PermissionSeeder extends Seeder
 
             }
         }
+        $user = User::where('is_super',true)->first();
+        $user->syncPermissions(Permission::pluck('name'));
+
     }
+    
 }
