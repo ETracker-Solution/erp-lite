@@ -66,11 +66,11 @@ Purchase List
                                 <thead>
                                     <tr>
                                         <th>#</th>
-                                        <th>Group</th>
-                                        <th>Product</th>
-                                        <th>Unit</th>
+                                        <th>Pre Order No</th>
+                                        <th>Customer</th>
+                                        <th>Outlet</th>
+                                        <th>Rate</th>
                                         <th>Qty</th>
-                                        <th>Price</th>
                                         <th class="text-right">Item Total</th>
                                     </tr>
                                 </thead>
@@ -78,11 +78,11 @@ Purchase List
                                     @foreach ($model->items as $item)
                                     <tr>
                                         <td>{{ $loop->iteration }}</td>
-                                        <td>{{ $item->coi->parent->name?? '' }}</td>
-                                        <td>{{ $item->coi->name?? '' }}</td>
-                                        <td>{{ $item->coi->unit->name?? '' }}</td>
+                                        <td>{{ $model->order_number }}</td>
+                                        <td>{{ $model->customer->name }}</td>
+                                        <td>{{ $model->outlet->name }}</td>
+                                        <td>{{ $item->unit_price }}</td>
                                         <td>{{ $item->quantity?? '' }} {{ $item->product->unit->name?? '' }}</td>
-                                        <td>{{ $item->rate?? '' }}</td>
                                         <td class="text-right">{{ $item->rate * $item->quantity?? '' }}</td>
                                     </tr>
                                     @endforeach
