@@ -71,7 +71,8 @@ class PreOrderController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $pre_order = PreOrder::findOrFail($id);
+        return view('pre_order.show', compact('pre_order'));
     }
 
     /**
