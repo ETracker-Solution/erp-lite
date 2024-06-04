@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\ChartOfInventory;
+use App\Models\InventoryTransaction;
 use App\Models\Purchase;
 use App\Models\PurchaseReturn;
 use App\Http\Requests\StorePurchaseReturnRequest;
@@ -10,6 +11,9 @@ use App\Http\Requests\UpdatePurchaseReturnRequest;
 use App\Models\Store;
 use App\Models\Supplier;
 use App\Models\SupplierGroup;
+use App\Models\SupplierTransaction;
+use Brian2694\Toastr\Facades\Toastr;
+use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Facades\DataTables;
 
 class PurchaseReturnController extends Controller
@@ -19,8 +23,8 @@ class PurchaseReturnController extends Controller
      */
     public function index()
     {
-        $purchase_returns = PurchaseReturn::all();
         if (\request()->ajax()) {
+            $purchase_returns = PurchaseReturn::with('supplier','store')->latest();
             return DataTables::of($purchase_returns)
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
@@ -51,6 +55,10 @@ class PurchaseReturnController extends Controller
     public function create()
     {
         $data = [
+            'supplier_groups' => SupplierGroup::all(),
+            'suppliers' => Supplier::all(),
+            'stores' => Store::where(['type' => 'RM', 'doc_type' => 'ho', 'doc_id' => null])->get(),
+            'uid' => getNextId(PurchaseReturn::class),
             'purchases' => Purchase::all()
         ];
         return view('purchase_return.create', $data);
@@ -61,7 +69,55 @@ class PurchaseReturnController extends Controller
      */
     public function store(StorePurchaseReturnRequest $request)
     {
-        dd($request->validated());
+        $validated = $request->validated();
+//        DB::beginTransaction();
+//        try {
+            if (count($validated['products']) < 1) {
+                Toastr::info('At Least One Product Required.', '', ["progressBar" => true]);
+                return back();
+            }
+            $purchase_return = PurchaseReturn::query()->create($validated);
+            $purchase_return->amount = $purchase_return->net_payable;
+            foreach ($validated['products'] as $product) {
+                $purchase_return->items()->create($product);
+                // Inventory Transaction Effect
+                InventoryTransaction::query()->create([
+                    'store_id' => $purchase_return->store_id,
+                    'doc_type' => 'GPBR',
+                    'doc_id' => $purchase_return->id,
+                    'quantity' => $product['quantity'],
+                    'rate' => $product['rate'],
+                    'amount' => $product['quantity'] * $product['rate'],
+                    'date' => $purchase_return->date,
+                    'type' => -1,
+                    'coi_id' => $product['coi_id'],
+                ]);
+            }
+
+
+            // Accounts Transaction Effect
+
+            addAccountsTransaction('GPB', $purchase_return, 22, 15);
+
+            // Supplier Transaction Effect
+            SupplierTransaction::query()->create([
+                'supplier_id' => $purchase_return->supplier_id,
+                'doc_type' => 'GPB',
+                'doc_id' => $purchase_return->id,
+                'amount' => $purchase_return->net_payable,
+                'date' => $purchase_return->date,
+                'transaction_type' => -1,
+                'chart_of_account_id' => 12,
+                'description' => 'Purchase of goods',
+            ]);
+//            DB::commit();
+//        } catch (\Exception $exception) {
+//            DB::rollBack();
+//            Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
+//            return back();
+//        }
+        Toastr::success('Purchase Return Created Successfully!.', '', ["progressBar" => true]);
+        return redirect()->route('purchase-returns.index');
     }
 
     /**

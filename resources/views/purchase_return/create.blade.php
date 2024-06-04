@@ -62,6 +62,49 @@
                                     </div>
                                     <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                         <div class="form-group">
+                                            <label for="supplier_id">Group</label>
+                                            <select name="supplier_group_id" id="supplier_group_id"
+                                                    class="form-control bSelect"
+                                                    v-model="supplier_group_id"
+                                                    @change="fetch_supplier">
+                                                <option value="">Select Group</option>
+                                                @foreach($supplier_groups as $row)
+                                                    <option
+                                                        value="{{ $row->id }}">{{ $row->name }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+                                        <div class="form-group">
+                                            <label for="supplier_id">Supplier</label>
+                                            <select name="supplier_id" id="supplier_id"
+                                                    class="form-control bSelect" v-model="supplier_id"
+                                                    required>
+                                                <option value="">Select Supplier</option>
+                                                <option :value="row.id" v-for="row in suppliers"
+                                                        v-html="row.name">
+                                                </option>
+
+                                            </select>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+                                        <div class="form-group">
+                                            <label for="store_id">Store</label>
+                                            <select name="store_id" id="store_id"
+                                                    class="form-control bSelect" required>
+                                                <option value="">Select Store</option>
+                                                @foreach($stores as $row)
+                                                    <option
+                                                        value="{{ $row->id }}">{{ $row->name }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+                                        <div class="form-group">
                                             <label for="reference_no">Reference No</label>
                                             <input type="text" class="form-control input-sm"
                                                    value="{{old('reference_no')}}"
