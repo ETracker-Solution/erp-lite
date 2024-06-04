@@ -60,9 +60,11 @@
                         <div class="panel-body">
                             <div class="invoice-ribbon">
                                 <h2 style="text-align:center; color: #4e73df; padding: 0px; margin: 0px; margin-left: 20px;" class="text-primary">
-                                    <strong>Cake Twon</strong>
+                                    <strong> {{ getSettingValue('company_name') }}</strong>
                                 </h2>
-                                <p style="text-align: center; padding: 0px; margin: 0px;"> Address: 157, Gias Uddin Tower, Distrilary Road, Katherpol, Dhaka 1204</p>
+                                <p style="text-align: center; padding: 0px; margin: 0px;">Address : {{ getSettingValue('company_address') }}</p>
+                                <p style="text-align: center; padding: 0px; margin: 0px;">Email : {{ getSettingValue('company_email') }}</p>
+                                <p style="text-align: center; padding: 0px; margin: 0px;">Phone : {{ getSettingValue('company_phone') }}</p>
                             </div>
                             <div class="row">
 
