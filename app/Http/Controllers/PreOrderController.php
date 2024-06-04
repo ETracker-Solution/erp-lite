@@ -2,15 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StorePreOrderRequest;
 use App\Models\ChartOfInventory;
 use App\Models\Customer;
 use App\Models\Outlet;
 use App\Models\PreOrder;
-use App\Models\Purchase;
 use App\Models\Store;
 use App\Models\Supplier;
 use App\Models\SupplierGroup;
+use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Facades\DataTables;
 
 class PreOrderController extends Controller
@@ -61,9 +63,28 @@ class PreOrderController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StorePreOrderRequest $request)
     {
-        dd($request->all());
+        $validated = $request->validated();
+        DB::beginTransaction();
+        try {
+            if (count($validated['products']) < 1) {
+                Toastr::info('At Least One Product Required.', '', ["progressBar" => true]);
+                return back();
+            }
+            $purchase = PreOrder::query()->create($validated);
+            $purchase->amount = $purchase->net_payable;
+            foreach ($validated['products'] as $product) {
+                $purchase->items()->create($product);
+            }
+            DB::commit();
+        } catch (\Exception $exception) {
+            DB::rollBack();
+            Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
+            return back();
+        }
+        Toastr::success('Pre Order Created Successfully!.', '', ["progressBar" => true]);
+        return redirect()->route('pre-orders.index');
     }
 
     /**
