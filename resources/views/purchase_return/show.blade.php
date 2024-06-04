@@ -1,126 +1,130 @@
-@extends('admin.layouts.app')
-@section('title', 'Purchase Return')
+@extends('layouts.app')
+@section('title')
+Purchase Return
+@endsection
 @section('content')
-    <div class="content-wrapper">
-        @php
-            $links = [
-            'Home'=>route('dashboard'),
-            'Purchase Return'=>route('admin.purchase-returns.index'),
-            'Purchase Return Details'=>''
-            ]
-        @endphp
-        <x-bread-crumb-component title='Purchase Return Details' :links="$links"/>
-        <div class="content-body">
-            <!-- Basic Inputs start -->
-            <section id="basic-input">
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="card">
-                            <div class="card-header">
-                                <h4 class="card-title">Purchase Return Details</h4>
-                                <div class="text-right">
-                                    <a href="{{ route('admin.purchase.return.pdf',encrypt($purchaseReturn->id)) }}" class="btn btn-primary" target="_blank">
-                                        <i class="fa fa-download"></i> PDF</a>
-                                    @include('buttons.back', [
-                                        'route' => route('admin.purchase-returns.index'),
-                                    ])
-                                </div>
-                            </div>
-                            <div class="card-body">
-                                <table class="table table-bordered table-striped">
-                                    <tbody>
-                                        <tr>
-                                            <td style="text-align: left; padding:8px;" width="34%">
-                                                <p class="lead marginbottom payment-info"><b>Purchase Return Details</b></p>
-                                                <p><b>Purchase No :</b> {{ $purchaseReturn->purchase_return_number }} </p>
-                                                <p><b>Date :</b> {{ $purchaseReturn->created_at->format('Y-m-d') }} </p>
-                                                <p><b>Status :</b> {!! showStatus($purchaseReturn->status) !!} </p>
-                                            </td>
-                                            <td style="text-align: left; padding:8px;" width="33%">
-                                                <p class="lead marginbottom payment-info"><b>Purchase Return Details</b></p>
-                                                <p><b>Sub Total :</b> {{ $purchaseReturn->subtotal }} </p>
-                                                <p><b>Grand Total :</b> {{ $purchaseReturn->grand_total }} </p>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                                <p class="mt-1"><b>Remarks: </b>{{$purchaseReturn->remark}}</p>
-                            </div>
-                        </div>
-                        <div class="card" v-if="products.length > 0">
-                            <div class="card-header">
-                                <h4 class="card-title">Purchase Items</h4>
-                            </div>
-                            <div class="card-body">
-                                <div class="table-responsive">
-                                    <table class="table table-bordered">
-                                        <tr style="background-color: #80808021;">
-                                            <th>#</th>
-                                            <th>Name</th>
-                                            <th>Category</th>
-                                            <th>Unit</th>
-                                            <th>Unit Price</th>
-                                            <th>Quantity</th>
-                                            <th>Item Total</th>
-                                        </tr>
-                                        @forelse ($purchaseReturn->items as $row)
-                                            <tr>
-                                                <td>
-                                                    <b>1</b>
-                                                </td>
-                                                <td>
-                                                    <b>{{ $row->product->name }} </b>
-                                                </td>
-                                                <td>
-                                                    <b>{{ $row->product->category->name }} </b>
-                                                </td>
-                                                <td>
-                                                    <b>{{ $row->product->unit->name }} </b>
-                                                </td>
-                                                <td>
-                                                    <b>{{ $row->unit_price }} </b>
-                                                </td>
-                                                <td>
-                                                    <b>{{ $row->quantity }} </b>
-                                                </td>
-                                                <td>
-                                                    <b>{{ $row->unit_price * $row->quantity }} </b>
-                                                </td>
-                                            </tr>
-                                        @empty
-
-                                        @endforelse
-                                        <tr>
-                                            <td colspan="7" style="background-color: #eee;">
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td rowspan="5" colspan="5">
-
-                                            </td>
-                                            <td>Sub Total</td>
-                                            <td class="text-right">{{$purchaseReturn->subtotal}} </td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                Grand Total
-                                            </td>
-                                            <td class="text-right">{{$purchaseReturn->grand_total}} </td>
-                                        </tr>
-                                    </table>
-                                </div>
-                            </div>
-                            {{-- <div class="card-footer">
-                                <div class="float-right">
-                                    <a href="{{route('admin.purchases.index')}}" class="btn btn-primary"><i
-                                            class="fa fa-fw fa-lg fa-reply"></i>Back</a>
-                                </div>
-                            </div> --}}
-                        </div>
-                    </div>
-                </div>
-            </section>
-            <!-- Basic Inputs end -->
+<!-- Content Wrapper. Contains page content -->
+<!-- Content Header (Page header) -->
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2" style="background: #343A40; padding:8px; border-radius:6px; color:white">
+            <div class="col-sm-6">
+                <h1>Goods Purchase Return</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="#">Home</a></li>
+                    <li class="breadcrumb-item active">Invoice</li>
+                </ol>
+            </div>
         </div>
-    </div>
+    </div><!-- /.container-fluid -->
+</section>
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <!-- Main content -->
+                <div class="card card-info">
+                    <div class="card-header">
+                        <h3 class="card-title">Goods Purchase Return Details</h3>
+                        <a href="{{route('purchase_return.pdf',$model->id)}}"
+                            class="btn btn-sm btn-primary float-right" target="_blank"><i class="fa fa-download"></i> PDF</a>
+                    </div>
+                    <!-- title row -->
+                    <div class="row">
+                        <div class="col-12">
+                            <h4>
+                                <i class="fas fa-globe"></i> {{ getSettingValue('company_name') }}.
+                                <small class="float-right">Date:{{ $model->created_at }}</small>
+                            </h4>
+                        </div>
+                        <!-- /.col -->
+                    </div>
+                    <!-- info row -->
+                    <div class="row invoice-info">
+                        <div class="col-sm-4 invoice-col">
+                            <address>
+                                {{ getSettingValue('company_address') }} <br>
+                                Phone:  {{ getSettingValue('company_phone') }}<br>
+                                Email: {{ getSettingValue('company_email') }}
+                            </address>
+                        </div>
+                        <!-- /.col -->
+                        <div class="col-sm-4 invoice-col">
+
+                        </div>
+                        <!-- /.col -->
+                        <div class="col-sm-4 invoice-col">
+                            <b>Invoice: {{ $model->id }}</b>
+                        </div>
+                        <!-- /.col -->
+                    </div>
+                    <!-- /.row -->
+
+                    <!-- Table row -->
+                    <div class="row">
+                        <div class="col-12 table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Group</th>
+                                        <th>Product</th>
+                                        <th>Unit</th>
+                                        <th>Qty</th>
+                                        <th>Price</th>
+                                        <th class="text-right">Item Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($model->items as $item)
+                                    <tr>
+                                        <td>{{ $loop->iteration }}</td>
+                                        <td>{{ $item->coi->parent->name?? '' }}</td>
+                                        <td>{{ $item->coi->name?? '' }}</td>
+                                        <td>{{ $item->coi->unit->name?? '' }}</td>
+                                        <td>{{ $item->quantity?? '' }} {{ $item->product->unit->name?? '' }}</td>
+                                        <td>{{ $item->rate?? '' }}</td>
+                                        <td class="text-right">{{ $item->rate * $item->quantity?? '' }}</td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                        <!-- /.col -->
+                    </div>
+                    <!-- /.row -->
+
+                    <div class="row">
+                        <!-- accepted payments column -->
+                        <div class="col-8">
+
+                        </div>
+                        <!-- /.col -->
+                        <div class="col-4">
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <tr>
+                                        <th style="width:50%">Subtotal:</th>
+                                        <td class="text-right">{{ $model->subtotal }}</td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                        <!-- /.col -->
+                    </div>
+                    <!-- /.row -->
+
+                    <!-- this row will not appear when printing -->
+                </div>
+                <!-- /.invoice -->
+            </div><!-- /.col -->
+        </div><!-- /.row -->
+    </div><!-- /.container-fluid -->
+</section>
+<!-- /.content -->
+
+<!-- /.content-wrapper -->
 @endsection
