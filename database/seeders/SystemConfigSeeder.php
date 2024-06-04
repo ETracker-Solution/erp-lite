@@ -202,5 +202,45 @@ class SystemConfigSeeder extends Seeder
             'created_at'=>'2024-05-21 05:06:50',
             'updated_at'=>'2024-05-21 05:06:50'
             ] );
+
+            Systemconfig::create( [
+                'id'=>19,
+                'key'=>'company_name',
+                'value'=>'Cake Town',
+                'is_active'=>1,
+                'metadata'=>NULL,
+                'created_at'=>'2024-05-21 05:06:50',
+                'updated_at'=>'2024-05-21 05:06:50'
+            ] );
+
+            Systemconfig::create( [
+                'id'=>19,
+                'key'=>'company_address',
+                'value'=>'Maniknagar,Dhaka',
+                'is_active'=>1,
+                'metadata'=>NULL,
+                'created_at'=>'2024-05-21 05:06:50',
+                'updated_at'=>'2024-05-21 05:06:50'
+            ] );
+
+            Systemconfig::create( [
+                'id'=>19,
+                'key'=>'company_phone',
+                'value'=>'01700000000',
+                'is_active'=>1,
+                'metadata'=>NULL,
+                'created_at'=>'2024-05-21 05:06:50',
+                'updated_at'=>'2024-05-21 05:06:50'
+            ] );
+            
+            Systemconfig::create( [
+                'id'=>19,
+                'key'=>'company_email',
+                'value'=>'caketown@gmailcom',
+                'is_active'=>1,
+                'metadata'=>NULL,
+                'created_at'=>'2024-05-21 05:06:50',
+                'updated_at'=>'2024-05-21 05:06:50'
+            ] );
     }
 }
