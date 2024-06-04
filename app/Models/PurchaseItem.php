@@ -14,7 +14,8 @@ class PurchaseItem extends Model
 
         return $this->belongsTo('App\Models\Product', 'product_id');
 
-    } public function coi(){
+    } 
+    public function coi(){
 
         return $this->belongsTo('App\Models\ChartOfInventory', 'coi_id');
 

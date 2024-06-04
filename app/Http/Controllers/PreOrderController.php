@@ -90,10 +90,13 @@ class PreOrderController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(PreOrder $preOrder)
     {
-        $pre_order = PreOrder::findOrFail($id);
-        return view('pre_order.show', compact('pre_order'));
+        $data = [
+            'model' => $preOrder,
+        ];
+
+        return view('pre_order.show', $data);
     }
 
     /**
