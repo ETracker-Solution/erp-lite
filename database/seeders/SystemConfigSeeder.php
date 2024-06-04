@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\SystemConfig;
+use Carbon\Carbon;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -13,14 +14,17 @@ class SystemConfigSeeder extends Seeder
      */
     public function run(): void
     {
+        $createdDate = Carbon::now()->format('Y-m-d H:i:s');
+        $updatedDate = Carbon::now()->format('Y-m-d H:i:s');
+
         SystemConfig::create( [
             'id'=>1,
             'key'=>'goods_purchase_bill_debit_account',
             'value'=>'15',
             'is_active'=>1,
             'metadata'=>NULL,
-            'created_at'=>'2024-05-21 05:06:49',
-            'updated_at'=>'2024-05-21 05:06:49'
+            'created_at'=> $createdDate,
+            'updated_at'=> $updatedDate
             ] );
                         
             Systemconfig::create( [
@@ -29,8 +33,8 @@ class SystemConfigSeeder extends Seeder
             'value'=>'22',
             'is_active'=>1,
             'metadata'=>NULL,
-            'created_at'=>'2024-05-21 05:06:49',
-            'updated_at'=>'2024-05-21 05:06:49'
+            'created_at'=> $createdDate,
+            'updated_at'=> $updatedDate
             ] );
                         
             Systemconfig::create( [
@@ -39,8 +43,8 @@ class SystemConfigSeeder extends Seeder
             'value'=>'31',
             'is_active'=>1,
             'metadata'=>NULL,
-            'created_at'=>'2024-05-21 05:06:50',
-            'updated_at'=>'2024-05-21 05:06:50'
+            'created_at'=> $createdDate,
+            'updated_at'=> $updatedDate
             ] );
                         
             Systemconfig::create( [
@@ -49,8 +53,8 @@ class SystemConfigSeeder extends Seeder
             'value'=>'31',
             'is_active'=>1,
             'metadata'=>NULL,
-            'created_at'=>'2024-05-21 05:06:50',
-            'updated_at'=>'2024-05-21 05:06:50'
+            'created_at'=> $createdDate,
+            'updated_at'=> $updatedDate
             ] );
                         
             Systemconfig::create( [
@@ -59,8 +63,8 @@ class SystemConfigSeeder extends Seeder
             'value'=>'15',
             'is_active'=>1,
             'metadata'=>NULL,
-            'created_at'=>'2024-05-21 05:06:50',
-            'updated_at'=>'2024-05-21 05:06:50'
+            'created_at'=> $createdDate,
+            'updated_at'=> $updatedDate
             ] );
                         
             Systemconfig::create( [
@@ -69,8 +73,8 @@ class SystemConfigSeeder extends Seeder
             'value'=>'31',
             'is_active'=>1,
             'metadata'=>NULL,
-            'created_at'=>'2024-05-21 05:06:50',
-            'updated_at'=>'2024-05-21 05:06:50'
+            'created_at'=> $createdDate,
+            'updated_at'=> $updatedDate
             ] );
                         
             Systemconfig::create( [
@@ -79,8 +83,8 @@ class SystemConfigSeeder extends Seeder
             'value'=>'16',
             'is_active'=>1,
             'metadata'=>NULL,
-            'created_at'=>'2024-05-21 05:06:50',
-            'updated_at'=>'2024-05-21 05:06:50'
+            'created_at'=> $createdDate,
+            'updated_at'=> $updatedDate
             ] );
                         
             Systemconfig::create( [
@@ -89,8 +93,8 @@ class SystemConfigSeeder extends Seeder
             'value'=>'31',
             'is_active'=>1,
             'metadata'=>NULL,
-            'created_at'=>'2024-05-21 05:06:50',
-            'updated_at'=>'2024-05-21 05:06:50'
+            'created_at'=> $createdDate,
+            'updated_at'=> $updatedDate
             ] );
                         
             Systemconfig::create( [
@@ -99,8 +103,8 @@ class SystemConfigSeeder extends Seeder
             'value'=>'17',
             'is_active'=>1,
             'metadata'=>NULL,
-            'created_at'=>'2024-05-21 05:06:50',
-            'updated_at'=>'2024-05-21 05:06:50'
+            'created_at'=> $createdDate,
+            'updated_at'=> $updatedDate
             ] );
                         
             Systemconfig::create( [
@@ -109,8 +113,8 @@ class SystemConfigSeeder extends Seeder
             'value'=>'15',
             'is_active'=>1,
             'metadata'=>NULL,
-            'created_at'=>'2024-05-21 05:06:50',
-            'updated_at'=>'2024-05-21 05:06:50'
+            'created_at'=> $createdDate,
+            'updated_at'=> $updatedDate
             ] );
                         
             Systemconfig::create( [
@@ -119,8 +123,8 @@ class SystemConfigSeeder extends Seeder
             'value'=>'16',
             'is_active'=>1,
             'metadata'=>NULL,
-            'created_at'=>'2024-05-21 05:06:50',
-            'updated_at'=>'2024-05-21 05:06:50'
+            'created_at'=> $createdDate,
+            'updated_at'=> $updatedDate
             ] );
                         
             Systemconfig::create( [
@@ -129,8 +133,8 @@ class SystemConfigSeeder extends Seeder
             'value'=>'17',
             'is_active'=>1,
             'metadata'=>NULL,
-            'created_at'=>'2024-05-21 05:06:50',
-            'updated_at'=>'2024-05-21 05:06:50'
+            'created_at'=> $createdDate,
+            'updated_at'=> $updatedDate
             ] );
                         
             Systemconfig::create( [
@@ -139,8 +143,8 @@ class SystemConfigSeeder extends Seeder
             'value'=>'18',
             'is_active'=>1,
             'metadata'=>NULL,
-            'created_at'=>'2024-05-21 05:06:50',
-            'updated_at'=>'2024-05-21 05:06:50'
+            'created_at'=> $createdDate,
+            'updated_at'=> $updatedDate
             ] );
                         
             Systemconfig::create( [
@@ -149,8 +153,8 @@ class SystemConfigSeeder extends Seeder
             'value'=>'35',
             'is_active'=>1,
             'metadata'=>NULL,
-            'created_at'=>'2024-05-21 05:06:50',
-            'updated_at'=>'2024-05-21 05:06:50'
+            'created_at'=> $createdDate,
+            'updated_at'=> $updatedDate
             ] );
                         
             Systemconfig::create( [
@@ -159,8 +163,8 @@ class SystemConfigSeeder extends Seeder
             'value'=>'43',
             'is_active'=>1,
             'metadata'=>NULL,
-            'created_at'=>'2024-05-21 05:06:50',
-            'updated_at'=>'2024-05-21 05:06:50'
+            'created_at'=> $createdDate,
+            'updated_at'=> $updatedDate
             ] );
                         
             Systemconfig::create( [
@@ -169,8 +173,8 @@ class SystemConfigSeeder extends Seeder
             'value'=>'16',
             'is_active'=>1,
             'metadata'=>NULL,
-            'created_at'=>'2024-05-21 05:06:50',
-            'updated_at'=>'2024-05-21 05:06:50'
+            'created_at'=> $createdDate,
+            'updated_at'=> $updatedDate
             ] );
                         
             Systemconfig::create( [
@@ -179,8 +183,8 @@ class SystemConfigSeeder extends Seeder
             'value'=>'13',
             'is_active'=>1,
             'metadata'=>NULL,
-            'created_at'=>'2024-05-21 05:06:50',
-            'updated_at'=>'2024-05-21 05:06:50'
+            'created_at'=> $createdDate,
+            'updated_at'=> $updatedDate
             ] );
                         
             Systemconfig::create( [
@@ -189,8 +193,8 @@ class SystemConfigSeeder extends Seeder
             'value'=>'32',
             'is_active'=>1,
             'metadata'=>NULL,
-            'created_at'=>'2024-05-21 05:06:50',
-            'updated_at'=>'2024-05-21 05:06:50'
+            'created_at'=> $createdDate,
+            'updated_at'=> $updatedDate
             ] );
                         
             Systemconfig::create( [
@@ -199,8 +203,8 @@ class SystemConfigSeeder extends Seeder
             'value'=>'1000',
             'is_active'=>1,
             'metadata'=>NULL,
-            'created_at'=>'2024-05-21 05:06:50',
-            'updated_at'=>'2024-05-21 05:06:50'
+            'created_at'=> $createdDate,
+            'updated_at'=> $updatedDate
             ] );
 
             Systemconfig::create( [
@@ -209,8 +213,8 @@ class SystemConfigSeeder extends Seeder
                 'value'=>'Cake Town',
                 'is_active'=>1,
                 'metadata'=>NULL,
-                'created_at'=>'2024-05-21 05:06:50',
-                'updated_at'=>'2024-05-21 05:06:50'
+                'created_at'=> $createdDate,
+                'updated_at'=> $updatedDate
             ] );
 
             Systemconfig::create( [
@@ -219,8 +223,8 @@ class SystemConfigSeeder extends Seeder
                 'value'=>'Maniknagar,Dhaka',
                 'is_active'=>1,
                 'metadata'=>NULL,
-                'created_at'=>'2024-05-21 05:06:50',
-                'updated_at'=>'2024-05-21 05:06:50'
+                'created_at'=> $createdDate,
+                'updated_at'=> $updatedDate
             ] );
 
             Systemconfig::create( [
@@ -229,18 +233,18 @@ class SystemConfigSeeder extends Seeder
                 'value'=>'01700000000',
                 'is_active'=>1,
                 'metadata'=>NULL,
-                'created_at'=>'2024-05-21 05:06:50',
-                'updated_at'=>'2024-05-21 05:06:50'
+                'created_at'=> $createdDate,
+                'updated_at'=> $updatedDate
             ] );
-            
+
             Systemconfig::create( [
                 'id'=>19,
                 'key'=>'company_email',
                 'value'=>'caketown@gmailcom',
                 'is_active'=>1,
                 'metadata'=>NULL,
-                'created_at'=>'2024-05-21 05:06:50',
-                'updated_at'=>'2024-05-21 05:06:50'
+                'created_at'=> $createdDate,
+                'updated_at'=> $updatedDate
             ] );
     }
 }
