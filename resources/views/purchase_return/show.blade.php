@@ -35,8 +35,12 @@ Purchase Return
                     <!-- title row -->
                     <div class="row">
                         <div class="col-12">
-                            <h4>
-                                <i class="fas fa-globe"></i> {{ getSettingValue('company_name') }}.
+                            <h4 class="pl-3 pt-2">
+                                <i class="fas fa-globe"></i> @if(getSettingValue('company_name'))
+                                {{ getSettingValue('company_name') }}
+                                @else
+                                Set Company Name
+                                @endif
                                 <small class="float-right">Date:{{ $model->created_at }}</small>
                             </h4>
                         </div>
@@ -45,10 +49,10 @@ Purchase Return
                     <!-- info row -->
                     <div class="row invoice-info">
                         <div class="col-sm-4 invoice-col">
-                            <address>
-                                {{ getSettingValue('company_address') }} <br>
-                                Phone:  {{ getSettingValue('company_phone') }}<br>
-                                Email: {{ getSettingValue('company_email') }}
+                            <address class="pl-3">
+                                Address : {{ getSettingValue('company_address') }} <br>
+                                Phone :  {{ getSettingValue('company_phone') }}<br>
+                                Email : {{ getSettingValue('company_email') }}
                             </address>
                         </div>
                         <!-- /.col -->
