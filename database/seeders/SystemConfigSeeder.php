@@ -208,7 +208,7 @@ class SystemConfigSeeder extends Seeder
             ] );
 
             Systemconfig::create( [
-                'id'=>19,
+                'id'=>20,
                 'key'=>'company_name',
                 'value'=>'Cake Town',
                 'is_active'=>1,
@@ -218,7 +218,7 @@ class SystemConfigSeeder extends Seeder
             ] );
 
             Systemconfig::create( [
-                'id'=>19,
+                'id'=>21,
                 'key'=>'company_address',
                 'value'=>'Maniknagar,Dhaka',
                 'is_active'=>1,
@@ -228,7 +228,7 @@ class SystemConfigSeeder extends Seeder
             ] );
 
             Systemconfig::create( [
-                'id'=>19,
+                'id'=>22,
                 'key'=>'company_phone',
                 'value'=>'01700000000',
                 'is_active'=>1,
@@ -238,7 +238,7 @@ class SystemConfigSeeder extends Seeder
             ] );
 
             Systemconfig::create( [
-                'id'=>19,
+                'id'=>23,
                 'key'=>'company_email',
                 'value'=>'caketown@gmailcom',
                 'is_active'=>1,
