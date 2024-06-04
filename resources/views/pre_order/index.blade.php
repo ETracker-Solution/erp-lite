@@ -97,16 +97,6 @@
                         searchable: true
                     },
                     {
-                        data: "vat",
-                        title: "Vat Amount",
-                        searchable: true
-                    },
-                    {
-                        data: "net_payable",
-                        title: "Net Payable",
-                        searchable: true
-                    },
-                    {
                         data: "status",
                         title: "Status",
                         searchable: false
