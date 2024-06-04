@@ -15,12 +15,17 @@ class PreOrder extends Model
 
     public function items()
     {
-        return $this->hasMany(PreOrderItem::class,'pre_order_id');
+        return $this->hasMany(PreOrderItem::class, 'pre_order_id');
     }
 
     public function customer()
     {
-        return $this->belongsTo(Customer::class,'customer_id');
+        return $this->belongsTo(Customer::class, 'customer_id');
+    }
+
+    public function outlet()
+    {
+        return $this->belongsTo(Outlet::class, 'outlet_id');
     }
 
     public function getReadableSellDateTimeAttribute()

@@ -96,10 +96,14 @@ Route::middleware('auth')->group(function () {
     Route::get('get-customer-by-type', [\App\Http\Controllers\PromoCodeController::class, 'getCustomers'])->name('promo-codes.customers');
     Route::resource('promo-codes', \App\Http\Controllers\PromoCodeController::class);
 
-    //-----Supplier Payment Voucher---------
+    //-----Start Supplier Payment Voucher---------
     Route::resource('supplier-vouchers', SupplierPaymentVoucherController::class);
     Route::get('fetch-due-by-supplier-id/{id}', [App\Http\Controllers\ApiController::class, 'fetchSupplierDueById'])->name('supplier.due');
-    //-----Supplier Payment Voucher---------
+    //-----End Supplier Payment Voucher---------
+    //
+    // //-----Start Pre Order---------
+    Route::resource('pre-orders', \App\Http\Controllers\PreOrderController::class);
+    //-----End Pre Order---------
 
     Route::resource('consumptions', \App\Http\Controllers\ConsumptionController::class);
     Route::get('consumption-pdf/{id}', [App\Http\Controllers\ConsumptionController::class, 'consumptionPdf'])->name('consumptions.pdf');
