@@ -172,14 +172,14 @@
                                                             @{{ row.unit }}
                                                         </td>
                                                         <td>
-                                                            <input type="number" v-model="row.quantity"
+                                                            <input type="text" v-model="row.quantity"
                                                                    :name="'products['+index+'][quantity]'"
                                                                    class="form-control input-sm"
                                                                    @change="itemtotal(row);valid_quantity(row)"
                                                                    required>
                                                         </td>
                                                         <td>
-                                                            <input type="number" v-model="row.rate"
+                                                            <input type="text" v-model="row.rate"
                                                                    :name="'products['+index+'][rate]'"
                                                                    class="form-control input-sm"
                                                                    @change="itemtotal(row);valid_rate(row)"
@@ -203,9 +203,7 @@
                                                         </td>
                                                     </tr>
                                                     <tr>
-                                                        <td colspan="5">
-
-                                                        </td>
+                                                        <td colspan="5"></td>
                                                         <td style="vertical-align: middle">
                                                             Subtotal
                                                         </td>
@@ -217,9 +215,7 @@
                                                         <td></td>
                                                     </tr>
                                                     <tr>
-                                                        <td colspan="5">
-
-                                                        </td>
+                                                        <td colspan="5"></td>
                                                         <td style="vertical-align: middle">
                                                             Order Discount
                                                         </td>
@@ -231,9 +227,7 @@
                                                     </tr>
 
                                                     <tr>
-                                                        <td colspan="5">
-
-                                                        </td>
+                                                        <td colspan="5"></td>
                                                         <td style="vertical-align: middle">
                                                             Total Discount
                                                         </td>
@@ -244,9 +238,7 @@
                                                         <td></td>
                                                     </tr>
                                                     <tr>
-                                                        <td colspan="5">
-
-                                                        </td>
+                                                        <td colspan="5"></td>
                                                         <td style="vertical-align: middle">
                                                             Total Vat
                                                         </td>
@@ -257,15 +249,37 @@
                                                         <td></td>
                                                     </tr>
                                                     <tr>
-                                                        <td colspan="5">
-
-                                                        </td>
+                                                        <td colspan="5"></td>
                                                         <td style="vertical-align: middle">
                                                             Net Payable
                                                         </td>
                                                         <td>
                                                             <input type="text" class="form-control input-sm"
                                                                    name="net_payable" v-bind:value="net_payable"
+                                                                   readonly>
+                                                        </td>
+                                                        <td></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td colspan="5"></td>
+                                                        <td style="vertical-align: middle">
+                                                            Advance Amount
+                                                        </td>
+                                                        <td>
+                                                            <input type="text" class="form-control input-sm"
+                                                                   name="advance_amount" v-bind:value="advance_amount"
+                                                                   readonly>
+                                                        </td>
+                                                        <td></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td colspan="5"></td>
+                                                        <td style="vertical-align: middle">
+                                                            Due Amount
+                                                        </td>
+                                                        <td>
+                                                            <input type="text" class="form-control input-sm"
+                                                                   name="due_amount" v-bind:value="advance_amount"
                                                                    readonly>
                                                         </td>
                                                         <td></td>
@@ -320,6 +334,11 @@
             border-radius: .25rem;
             box-shadow: inset 0 0 0 transparent;
             transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+        }
+    </style>
+    <style>
+        .table td{
+            padding: 2px;
         }
     </style>
 
