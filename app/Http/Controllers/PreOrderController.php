@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StorePreOrderRequest;
 use App\Models\ChartOfInventory;
 use App\Models\Customer;
 use App\Models\Outlet;
@@ -61,9 +62,10 @@ class PreOrderController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StorePreOrderRequest $request)
     {
-        dd($request->all());
+        $data=$request->validated();
+        dd($data);
     }
 
     /**

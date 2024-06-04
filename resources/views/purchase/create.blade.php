@@ -10,15 +10,13 @@
         ]
     @endphp
     <x-breadcrumb title='Purchase' :links="$links"/>
-
-
     <!-- Main content -->
     <section class="content">
         <div class="container-fluid">
             <div class="row" id="vue_app">
                    <span v-if="pageLoading" class="categoryLoader">
-                            <img src="{{ asset('loading.gif') }}" alt="loading">
-                        </span>
+                       <img src="{{ asset('loading.gif') }}" alt="loading">
+                  </span>
                 <div class="col-lg-12 col-md-12">
                     <form action="{{ route('purchases.store') }}" method="POST" class="">
                         @csrf
@@ -114,173 +112,173 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="card">
-                                <div class="card-header bg-info">
-                                    <h3 class="card-title">Goods Purchase Line Item</h3>
-                                </div>
-                                <div class="card-body">
-                                    <div class="row">
-                                        <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
-                                            <div class="form-group">
-                                                <label for="group_id" class="control-label">Group</label>
-                                                <select class="form-control bSelect" name="group_id"
-                                                        v-model="group_id"
-                                                        @change="fetch_product">
-                                                    <option value="">Select One</option>
-                                                    @foreach ($groups as $row)
-                                                        <option value="{{ $row->id }}">{{ $row->name }}</option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
-                                            <div class="form-group">
-                                                <label for="item_id">Item</label>
-                                                <select name="item_id" id="item_id"
-                                                        class="form-control bSelect" v-model="item_id">
-                                                    <option value="">Select one</option>
-
-                                                    <option :value="row.id" v-for="row in items"
-                                                            v-html="row.name">
-                                                    </option>
-
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12"
-                                             style="margin-top: 30px;">
-                                            <button type="button" class="btn btn-info btn-block"
-                                                    @click="data_input">Add
-                                            </button>
+                        </div>
+                        <div class="card">
+                            <div class="card-header bg-info">
+                                <h3 class="card-title">Goods Purchase Line Item</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
+                                        <div class="form-group">
+                                            <label for="group_id" class="control-label">Group</label>
+                                            <select class="form-control bSelect" name="group_id"
+                                                    v-model="group_id"
+                                                    @change="fetch_product">
+                                                <option value="">Select One</option>
+                                                @foreach ($groups as $row)
+                                                    <option value="{{ $row->id }}">{{ $row->name }}</option>
+                                                @endforeach
+                                            </select>
                                         </div>
                                     </div>
-                                    <div class="row">
-                                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12"
-                                             v-if="selected_items.length>0">
+                                    <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
+                                        <div class="form-group">
+                                            <label for="item_id">Item</label>
+                                            <select name="item_id" id="item_id"
+                                                    class="form-control bSelect" v-model="item_id">
+                                                <option value="">Select one</option>
 
-                                            <hr>
-                                            <div class="table-responsive">
-                                                <table class="table table-bordered">
-                                                    <thead class="bg-secondary">
-                                                    <tr>
-                                                        <th style="width: 10px">#</th>
-                                                        <th style="width: 200px">Group</th>
-                                                        <th>Item</th>
-                                                        <th style="width: 50px">Unit</th>
-                                                        <th style="width: 180px">Qty</th>
-                                                        <th style="width: 180px">Rate</th>
-                                                        <th style="width: 180px">Value</th>
-                                                        <th style="width: 10px"></th>
-                                                    </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                    <tr v-for="(row, index) in selected_items">
-                                                        <td>
-                                                            @{{ ++index }}
-                                                        </td>
-                                                        <td>
-                                                            @{{ row.group }}
-                                                        </td>
-                                                        <td>
-                                                            @{{ row.name }}
-                                                            <input type="hidden"
-                                                                   :name="'products['+index+'][coi_id]'"
-                                                                   class="form-control input-sm"
-                                                                   v-bind:value="row.id">
+                                                <option :value="row.id" v-for="row in items"
+                                                        v-html="row.name">
+                                                </option>
 
-                                                        </td>
-                                                        <td>
-                                                            @{{ row.unit }}
-                                                        </td>
-                                                        <td>
-                                                            <input type="number" v-model="row.quantity"
-                                                                   :name="'products['+index+'][quantity]'"
-                                                                   class="form-control input-sm"
-                                                                   @change="itemtotal(row);valid_quantity(row)"
-                                                                   required>
-                                                        </td>
-                                                        <td>
-                                                            <input type="number" v-model="row.rate"
-                                                                   :name="'products['+index+'][rate]'"
-                                                                   class="form-control input-sm"
-                                                                   @change="itemtotal(row);valid_rate(row)"
-                                                                   required>
-                                                        </td>
-                                                        <td>
-                                                            <input type="text" class="form-control input-sm"
-                                                                   v-bind:value="itemtotal(row)" readonly>
-                                                        </td>
-                                                        <td>
-                                                            <button type="button" class="btn btn-sm btn-danger"
-                                                                    @click="delete_row(row)"><i
-                                                                    class="fa fa-trash"></i></button>
-                                                        </td>
-                                                    </tr>
-                                                    </tbody>
-                                                    <tfoot>
-                                                    <tr>
-                                                        <td colspan="8" style="background-color: #DDDCDC">
-
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td colspan="5">
-
-                                                        </td>
-                                                        <td>
-                                                            Subtotal
-                                                        </td>
-                                                        <td>
-                                                            <input type="text" class="form-control input-sm"
-                                                                   name="subtotal" v-bind:value="subtotal"
-                                                                   readonly>
-                                                        </td>
-                                                        <td></td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td colspan="5">
-
-                                                        </td>
-                                                        <td>
-                                                            Vat
-                                                        </td>
-                                                        <td>
-                                                            <input type="text" name="vat"
-                                                                   class="form-control input-sm" v-model="vat">
-                                                        </td>
-                                                        <td></td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td colspan="5">
-
-                                                        </td>
-                                                        <td>
-                                                            Net Payable
-                                                        </td>
-                                                        <td>
-                                                            <input type="text" class="form-control input-sm"
-                                                                   name="net_payable" v-bind:value="net_payable"
-                                                                   readonly>
-                                                        </td>
-                                                        <td></td>
-                                                    </tr>
-                                                    <tfoot>
-                                                </table>
-                                            </div>
+                                            </select>
                                         </div>
                                     </div>
+                                    <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12"
+                                         style="margin-top: 30px;">
+                                        <button type="button" class="btn btn-info btn-block"
+                                                @click="data_input">Add
+                                        </button>
+                                    </div>
                                 </div>
-                                <div class="card-footer" v-if="selected_items.length > 0">
-                                    <button class="float-right btn btn-primary" type="submit"><i
-                                            class="fa fa-fw fa-lg fa-check-circle"></i>Submit
-                                    </button>
+                                <div class="row">
+                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12"
+                                         v-if="selected_items.length>0">
+
+                                        <hr>
+                                        <div class="table-responsive">
+                                            <table class="table table-bordered">
+                                                <thead class="bg-secondary">
+                                                <tr>
+                                                    <th style="width: 10px">#</th>
+                                                    <th style="width: 200px">Group</th>
+                                                    <th>Item</th>
+                                                    <th style="width: 50px">Unit</th>
+                                                    <th style="width: 180px">Qty</th>
+                                                    <th style="width: 180px">Rate</th>
+                                                    <th style="width: 180px">Value</th>
+                                                    <th style="width: 10px"></th>
+                                                </tr>
+                                                </thead>
+                                                <tbody>
+                                                <tr v-for="(row, index) in selected_items">
+                                                    <td>
+                                                        @{{ ++index }}
+                                                    </td>
+                                                    <td>
+                                                        @{{ row.group }}
+                                                    </td>
+                                                    <td>
+                                                        @{{ row.name }}
+                                                        <input type="hidden"
+                                                               :name="'products['+index+'][coi_id]'"
+                                                               class="form-control input-sm"
+                                                               v-bind:value="row.id">
+
+                                                    </td>
+                                                    <td>
+                                                        @{{ row.unit }}
+                                                    </td>
+                                                    <td>
+                                                        <input type="number" v-model="row.quantity"
+                                                               :name="'products['+index+'][quantity]'"
+                                                               class="form-control input-sm"
+                                                               @change="itemtotal(row);valid_quantity(row)"
+                                                               required>
+                                                    </td>
+                                                    <td>
+                                                        <input type="number" v-model="row.rate"
+                                                               :name="'products['+index+'][rate]'"
+                                                               class="form-control input-sm"
+                                                               @change="itemtotal(row);valid_rate(row)"
+                                                               required>
+                                                    </td>
+                                                    <td>
+                                                        <input type="text" class="form-control input-sm"
+                                                               v-bind:value="itemtotal(row)" readonly>
+                                                    </td>
+                                                    <td>
+                                                        <button type="button" class="btn btn-sm btn-danger"
+                                                                @click="delete_row(row)"><i
+                                                                class="fa fa-trash"></i></button>
+                                                    </td>
+                                                </tr>
+                                                </tbody>
+                                                <tfoot>
+                                                <tr>
+                                                    <td colspan="8" style="background-color: #DDDCDC">
+
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td colspan="5">
+
+                                                    </td>
+                                                    <td>
+                                                        Subtotal
+                                                    </td>
+                                                    <td>
+                                                        <input type="text" class="form-control input-sm"
+                                                               name="subtotal" v-bind:value="subtotal"
+                                                               readonly>
+                                                    </td>
+                                                    <td></td>
+                                                </tr>
+                                                <tr>
+                                                    <td colspan="5">
+
+                                                    </td>
+                                                    <td>
+                                                        Vat
+                                                    </td>
+                                                    <td>
+                                                        <input type="text" name="vat"
+                                                               class="form-control input-sm" v-model="vat">
+                                                    </td>
+                                                    <td></td>
+                                                </tr>
+                                                <tr>
+                                                    <td colspan="5">
+
+                                                    </td>
+                                                    <td>
+                                                        Net Payable
+                                                    </td>
+                                                    <td>
+                                                        <input type="text" class="form-control input-sm"
+                                                               name="net_payable" v-bind:value="net_payable"
+                                                               readonly>
+                                                    </td>
+                                                    <td></td>
+                                                </tr>
+                                                <tfoot>
+                                            </table>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
+                            <div class="card-footer" v-if="selected_items.length > 0">
+                                <button class="float-right btn btn-primary" type="submit"><i
+                                        class="fa fa-fw fa-lg fa-check-circle"></i>Submit
+                                </button>
+                            </div>
+                        </div>
                     </form>
                 </div> <!-- end col -->
             </div>
             <!-- /.row -->
-
         </div><!-- /.container-fluid -->
     </section>
     <!-- /.content -->
