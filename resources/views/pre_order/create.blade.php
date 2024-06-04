@@ -48,7 +48,7 @@
                                         </div>
                                         <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                             <div class="form-group">
-                                                <label for="date">Date</label>
+                                                <label for="date">Delivery Date</label>
                                                 <vuejs-datepicker v-model="date" name="date"
                                                                   placeholder="Select date"
                                                                   format="yyyy-MM-dd"></vuejs-datepicker>
