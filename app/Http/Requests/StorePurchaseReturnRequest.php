@@ -23,6 +23,8 @@ class StorePurchaseReturnRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'supplier_id' => 'required',
+            'store_id' => 'required',
             'purchase_id' => 'required',
             'products' => 'array',
             'date' => 'required',
