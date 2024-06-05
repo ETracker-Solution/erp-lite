@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <title>Purchase Return </title>
+    <title>Pre Order </title>
 <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
     <style>
         @page {
@@ -68,6 +68,7 @@
                             </div>
                             
                             <hr>
+                            Description : {{ $model->remark }}
                             <table border="1"cellspacing="0" width="100%" style="text-align: center; margin-top:20px;">
                                 <thead style="background:#cdced2;">
                                     <tr style="background-color: #cdced2;">
