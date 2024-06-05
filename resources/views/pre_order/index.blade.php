@@ -79,7 +79,7 @@
                 },
                     {
                         data: "id",
-                        title: "Pre Order No",
+                        title: "Order No",
                         searchable: true
                     },
                     {
