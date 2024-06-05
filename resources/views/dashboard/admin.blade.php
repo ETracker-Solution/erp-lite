@@ -78,7 +78,7 @@
                                         Expenses
                                     </div>
                             </div>
-                            <div class="card-body pb-50">
+                            <div class="card-body pb-50" style="min-height: 300px;">
                                 <div id="expense-radial-bar-chart" class="my-2"></div>
                                 <p>{{ $expenseMessage }}</p>
                             </div>
@@ -95,7 +95,7 @@
                                         Last Month
                                     </div>
                             </div>
-                            <div class="card-body pb-50">
+                            <div class="card-body pb-50" style="min-height: 300px;">
                                 <div id="statistics-profit-chart"></div>
                             </div>
                         </div>
@@ -111,7 +111,7 @@
                                         Monthly Report
                                     </div>
                             </div>
-                            <div class="card-body">
+                            <div class="card-body" style="min-height: 300px;">
                                 <div class="row">
                                     <div class="col-6">
                                         <h5 class="mb-1">{{ $discount['thisMonth'] }}</h5>
@@ -169,7 +169,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-xl-6 col-12">
+            <div class="col-xl-4 col-12">
                 <div class="card">
                     <div class="card-header bg-info">
                         <h4 class="card-title">Total Pre Orders</h4>
