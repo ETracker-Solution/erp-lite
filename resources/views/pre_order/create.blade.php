@@ -26,11 +26,13 @@
                             <div class="card-header bg-info">
                                 <h3 class="card-title">Pre Order(PO) Entry</h3>
                                 <div class="card-tools">
-                                    <a href="{{route('pre-orders.index')}}" class="btn btn-sm btn-primary">
-                                        <i class="fas fa-bars"
-                                           aria-hidden="true"></i> &nbsp;
-                                        Pre Order List
-                                    </a>
+                                    @can('sales-pre-orders')
+                                        <a href="{{route('pre-orders.index')}}" class="btn btn-sm btn-primary">
+                                            <i class="fas fa-bars"
+                                            aria-hidden="true"></i> &nbsp;
+                                            Pre Order List
+                                        </a>
+                                    @endcan
                                 </div>
                             </div>
 

@@ -19,12 +19,14 @@
                         <div class="card-header bg-info">
                             <h3 class="card-title">Pre Order List</h3>
                             <div class="card-tools">
-                                <a href="{{route('pre-orders.create')}}">
-                                    <button class="btn btn-sm btn-primary"><i class="fa fa-plus-circle"
-                                                                              aria-hidden="true"></i> &nbsp;Add
-                                        Pre Order
-                                    </button>
-                                </a>
+                                @can('sales-pre-order-entry')
+                                    <a href="{{route('pre-orders.create')}}">
+                                        <button class="btn btn-sm btn-primary"><i class="fa fa-plus-circle"
+                                                                                aria-hidden="true"></i> &nbsp;Add
+                                            Pre Order
+                                        </button>
+                                    </a>
+                                @endcan
                             </div>
                         </div>
                         <!-- /.card-header -->

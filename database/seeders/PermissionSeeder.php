@@ -40,7 +40,7 @@ class PermissionSeeder extends Seeder
             'fg inventory transfer','fg inventory adjustment','create fg requisition','fg requisition delivery','fg inventory report'
         ],
         'sales'=>[
-            'sales','pre orders','sales report'
+            'pre orders list','pre order entry','sales','sales report'
         ],
         'loyalty'=>[
             'earn point','redeem point','point setting','membership','membertype','promo code'
