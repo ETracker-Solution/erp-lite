@@ -72,7 +72,7 @@
                                 <thead style="background:#cdced2;">
                                     <tr style="background-color: #cdced2;">
                                         <th>#</th>
-                                        <th>Pre Order No</th>
+                                        <th>Order No</th>
                                         <th>Customer</th>
                                         <th>Outlet</th>
                                         <th>Rate</th>
@@ -87,7 +87,7 @@
                                     @foreach ($model->items as $item)
                                     <tr>
                                         <td>{{ $loop->iteration }}</td>
-                                        <td>{{ $model->order_number }}</td>
+                                        <td>{{ $model->id }}</td>
                                         <td>{{ $model->customer->name }}</td>
                                         <td>{{ $model->outlet->name }}</td>
                                         <td>{{ $item->unit_price }}</td>
