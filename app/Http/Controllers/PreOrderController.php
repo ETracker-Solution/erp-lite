@@ -48,7 +48,7 @@ class PreOrderController extends Controller
     public function create()
     {
         $data = [
-            'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'RM'])->get(),
+            'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'FG'])->get(),
             'supplier_groups' => SupplierGroup::all(),
             'suppliers' => Supplier::all(),
             'customers' => Customer::all(),
