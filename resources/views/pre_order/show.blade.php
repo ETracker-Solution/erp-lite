@@ -45,7 +45,23 @@ Purchase List
                         </div>
                         <!-- /.col -->
                         <div class="col-sm-4 invoice-col">
-                            <img src="{{ asset('/upload/'.$model->image) }}" width="200" height="200" alt="tag">
+                            @if (isset($model->image))
+                                <a target="_blank" href="{{ asset('/upload/'.$model->image) }}"
+                                    class="badge-light-info" target="_self">
+                                    <img src="{{ asset('/upload/'.$model->image) }}" class="rounded"
+                                        alt="" width="40%">
+                                </a>
+                            @else
+                                <a target="_blank"
+                                    href="{{ asset('admin/app-assets/dummy/dammy.jpg') }}"
+                                    target="_self">
+                                    <span class="b-avatar-img">
+                                        <img src="{{ asset('admin/app-assets/dummy/dammy.jpg') }}"
+                                            width="40%" alt="">
+                                    </span>
+                                </a>
+                            @endif
+
                         </div>
                         <!-- /.col -->
                     </div>
@@ -56,7 +72,7 @@ Purchase List
                                 <thead>
                                     <tr>
                                         <th>#</th>
-                                        <th>Pre Order No</th>
+                                        <th>Order No</th>
                                         <th>Customer</th>
                                         <th>Outlet</th>
                                         <th>Rate</th>
@@ -68,7 +84,7 @@ Purchase List
                                     @foreach ($model->items as $item)
                                     <tr>
                                         <td>{{ $loop->iteration }}</td>
-                                        <td>{{ $model->order_number }}</td>
+                                        <td>{{ $model->id }}</td>
                                         <td>{{ $model->customer->name }}</td>
                                         <td>{{ $model->outlet->name }}</td>
                                         <td>{{ $item->unit_price }}</td>
