@@ -28,6 +28,7 @@ class StorePreOrderRequest extends FormRequest
             'products' => 'array',
             'date' => 'required',
             'remark' => 'required',
+            'image' => 'nullable',
             'created_by' => 'required',
         ];
     }

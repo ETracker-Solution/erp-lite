@@ -21,6 +21,7 @@ return new class extends Migration
             $table->double('grand_total', 15, 2);
             $table->double('advance_amount', 15, 2)->default(0);
             $table->text('remark')->nullable();
+            $table->string('image')->nullable();
             $table->string('order_from')->nullable();
             $table->string('paid_by')->nullable();
             $table->date('delivery_date')->nullable();

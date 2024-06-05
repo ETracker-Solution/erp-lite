@@ -9,7 +9,7 @@ Purchase List
     <div class="container-fluid">
         <div class="row mb-2" style="background: #343A40; padding:8px; border-radius:6px; color:white">
             <div class="col-sm-6">
-                <h1>Goods Purchase Bill</h1>
+                <h1>Pre Order</h1>
             </div>
             <div class="col-sm-6">
                 <ol class="breadcrumb float-sm-right">
@@ -26,26 +26,18 @@ Purchase List
         <div class="row">
             <div class="col-12">
                 <!-- Main content -->
-                <div class="invoice p-3 mb-3">
+                <div class="card card-info">
                     <!-- title row -->
-                    <div class="row">
-                        <div class="col-12">
-                            <h4>
-                                <i class="fas fa-globe"></i> Cake Town.
-                                <small class="float-right">Date:{{ $model->created_at }}</small>
-                            </h4>
-                        </div>
-                        <!-- /.col -->
+                    <div class="card-header">
+                        <h3 class="card-title">Pre Order Details</h3>
+                        <a href="{{route('pre-order.pdf',$model->id)}}"
+                            class="btn btn-sm btn-primary float-right" target="_blank"><i class="fa fa-download"></i> PDF</a>
                     </div>
                     <!-- info row -->
+                    <!-- /.row -->
                     <div class="row invoice-info">
-                        <div class="col-sm-4 invoice-col">
-                            <address>
-                            Address : 17/1, Monipuripara, Sangshad Avenue,
-                            <br>Dhaka-1215 Bangladesh<br>
-                                Phone:  +880 1977-722531<br>
-                                Email:info.emotobazar@gmail.com
-                            </address>
+                        <div class="col-sm-4 invoice-col pl-4 pt-4">
+                            <b>Description :</b> {{ $model->remark }}
                         </div>
                         <!-- /.col -->
                         <div class="col-sm-4 invoice-col">
@@ -53,12 +45,10 @@ Purchase List
                         </div>
                         <!-- /.col -->
                         <div class="col-sm-4 invoice-col">
-                            <b>Invoice: {{ $model->id }}</b>
+                            <img src="{{ asset('/upload/'.$model->image) }}" width="200" height="200" alt="tag">
                         </div>
                         <!-- /.col -->
                     </div>
-                    <!-- /.row -->
-
                     <!-- Table row -->
                     <div class="row">
                         <div class="col-12 table-responsive">
@@ -114,15 +104,6 @@ Purchase List
                     <!-- /.row -->
 
                     <!-- this row will not appear when printing -->
-                    <div class="row no-print">
-                        <div class="col-12">
-                            <a href="{{ route('purchase.pdf', $model->id) }}" target="_blank" class="btn btn-default float-right">
-                                <i class="fas fa-print"></i> Print</a>
-                            <a href="{{ route('purchase.pdf-download', $model->id) }}" class="btn btn-primary float-right">
-                                <i class="fas fa-download"></i> Generate PDF</a>
-
-                        </div>
-                    </div>
                 </div>
                 <!-- /.invoice -->
             </div><!-- /.col -->

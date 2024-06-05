@@ -104,6 +104,8 @@ Route::middleware('auth')->group(function () {
     //
     // //-----Start Pre Order---------
     Route::resource('pre-orders', \App\Http\Controllers\PreOrderController::class);
+    Route::get('pre-order-pdf/{id}', [App\Http\Controllers\PreOrderController::class, 'Pdf'])->name('pre-order.pdf');
+
     //-----End Pre Order---------
 
     Route::resource('consumptions', \App\Http\Controllers\ConsumptionController::class);
