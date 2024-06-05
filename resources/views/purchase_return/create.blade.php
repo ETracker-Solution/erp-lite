@@ -427,8 +427,8 @@
                                         quantity: '',
                                     });
                                     console.log(vm.selected_items);
-                                    vm.item_id = '';
-                                    vm.group_id = '';
+                                    // vm.item_id = '';
+                                    // vm.group_id = '';
                                     vm.pageLoading = false;
 
                                 }).catch(function (error) {

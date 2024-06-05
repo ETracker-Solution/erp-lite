@@ -369,8 +369,8 @@
 
                                     });
 
-                                    vm.item_id = '';
-                                    vm.category_id = '';
+                                    // vm.item_id = '';
+                                    // vm.category_id = '';
 
                                 }).catch(function (error) {
 

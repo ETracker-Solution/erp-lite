@@ -78,16 +78,16 @@
                                                     <option value="">Select One</option>
                                                     @foreach($customers as $row)
                                                         <option
-                                                            value="{{ $row->id }}">{{ $row->name }}</option>
+                                                            value="{{ $row->id }}">{{ $row->name }}-{{ $row->mobile }}</option>
                                                     @endforeach
                                                 </select>
                                             </div>
                                         </div>
                                         <div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
                                             <div class="form-group">
-                                                <label for="remark">Remark</label>
+                                                <label for="remark">Description</label>
                                                 <textarea class="form-control" name="remark" rows="2"
-                                                          placeholder="Enter Remark"></textarea>
+                                                          placeholder="Enter Description"></textarea>
                                             </div>
                                         </div>
                                         <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
@@ -480,8 +480,8 @@
                                         quantity: '',
                                     });
                                     console.log(vm.selected_items);
-                                    vm.item_id = '';
-                                    vm.group_id = '';
+                                    // vm.item_id = '';
+                                    // vm.group_id = '';
                                     vm.pageLoading = false;
 
                                 }).catch(function (error) {
