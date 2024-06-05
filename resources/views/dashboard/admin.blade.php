@@ -25,14 +25,9 @@
                     <div class="card-body">
                         <h5 class="text-info">Congratulations 🎉 Admin!</h5>
                         <p class="card-text font-small-3">Today's Sales Overview</p>
-                        <h3 class="mb-75 mt-2 pt-50">
+                        <h1 class="mb-75 mt-2 pt-50">
                             <a href="javascript:void(0);">{{ $totalSales }} BDT</a>
-                        </h3>
-                        <a type="button" class="btn btn-primary" href="{{ route('sales.index') }}">View Sale</a>
-                        <img
-                            src="https://s3-alpha-sig.figma.com/img/546c/5a37/4c62faf89e51f8af3d964aefcde244b8?Expires=1711929600&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4&Signature=ZRnXfOLrptLQPS7zGcE~1WlhQu~ZynyRud0XimsBQrnAuUsMrVAafCC114I4xF6J7tL-N1thpB8CzZupobQ8KR8sN5bmd0evO9kZz16BQ-AO-G~5-jF9LSC-zDHcEJ-CAH6IegnAoeVGAPYUhCk4mc1rTk~3MhiCwbw-fJnDizSW-TZ9nZwnWm3oc2pNY6ac~u0q6NRiR1oi~4C0JOxFgZWb5LJAVcryH4Uh2FjHgyJ0H5uDMi0BH3pmB3YRCAPETM5F2fSyIqWqR5agcanHMPLKq8x4dx4zjxvexyZklARJ39G7ux2SenCLJ5pjALZDLYr-v8m00wvYGHTLQvZe3A__"
-                            class="congratulation-medal" alt="Medal Pic"
-                            style="height: 200px; transform: rotateY(180deg)"/>
+                        </h1>
                     </div>
                 </div>
             </div>
