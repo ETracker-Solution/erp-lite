@@ -26,7 +26,13 @@ class StorePreOrderRequest extends FormRequest
             'customer_id' => ['required'],
             'outlet_id' => ['required'],
             'products' => 'array',
-            'date' => 'required',
+            'order_date' => 'required',
+            'delivery_date' => 'required',
+            'subtotal' => 'required',
+            'discount' => 'required',
+            'vat' => 'required',
+            'grand_total' => 'required',
+            'advance_amount' => 'required',
             'remark' => 'required',
             'image' => 'nullable',
             'created_by' => 'required',
@@ -38,7 +44,8 @@ class StorePreOrderRequest extends FormRequest
 
         $this->merge([
             'created_by' => auth()->user()->id,
-            'date' => Carbon::parse($this->date)->format('Y-m-d'),
+            'delivery_date' => Carbon::parse($this->date)->format('Y-m-d'),
+            'order_date' => Carbon::now()->format('Y-m-d'),
         ]);
 
     }
