@@ -436,7 +436,7 @@
                         </ul>
                     </li>
                 @endcanany
-                @canany(['sales-sales','sales-sales-report','sales-pre-orders'])
+                @canany(['sales-sales','sales-sales-report','sales-pre-orders-list','sales-pre-order-entry'])
                     <li class="nav-item {{ (Request::segment(1) == 'sales'||Request::segment(1) == 'sale-reports'||Request::segment(1) == 'pre-orders' )?'menu-open':''}}">
                         <a href="#"
                            class="nav-link {{ (Request::segment(1) == 'sales'||Request::segment(1) == 'sale-reports'||Request::segment(1) == 'pre-orders')?' active':''}}">
@@ -447,9 +447,41 @@
                             </p>
                         </a>
                         <ul class="nav nav-treeview">
-                            @canany(['sales-sales','sales-pre-orders'])
-                                <li class="nav-item {{ (Request::segment(1) == 'sales'||Request::segment(1) == 'pre-orders')?'menu-open':''}}">
-                                    <a href="#" class="nav-link {{ (Request::segment(1) == 'sales'||Request::segment(1) == 'pre-orders')?' active':''}}">
+                            @canany(['sales-pre-orders-list','sales-pre-order-entry'])
+                                <li class="nav-item {{ (Request::segment(1) == 'sale-reports'||Request::segment(1) == 'pre-orders')?'menu-open':''}}">
+                                    <a href="#"
+                                       class="nav-link {{ (Request::segment(1) == 'sale-reports'||Request::segment(1) == 'pre-orders')?' active':''}}">
+                                        <i class="nav-icon fa fa-folder-open"></i>
+                                        <p>
+                                            Pre Order Entry
+                                            <i class="right fas fa-angle-left"></i>
+                                        </p>
+                                    </a>
+                                    <ul class="nav nav-treeview">
+                                        @can('sales-pre-orders-list')
+                                            <li class="nav-item">
+                                                <a href="{{route('pre-orders.index')}}"
+                                                   class="nav-link {{ (Request::segment(1) == 'pre-orders' && Request::segment(2) != 'create' )?' active':''}}">
+                                                    <i class="far fa-circle nav-icon"></i>
+                                                    <p>Pre Order List</p>
+                                                </a>
+                                            </li>
+                                        @endcan
+                                        @can('sales-pre-order-entry')
+                                            <li class="nav-item">
+                                                <a href="{{route('pre-orders.create')}}"
+                                                   class="nav-link {{ (Request::segment(1) == 'pre-orders' && Request::segment(2) == 'create')?' active':''}}">
+                                                    <i class="far fa-circle nav-icon"></i>
+                                                    <p>Pre Order Entry</p>
+                                                </a>
+                                            </li>
+                                        @endcan
+                                    </ul>
+                                </li>
+                            @endcanany
+                            @canany(['sales-sales'])
+                                <li class="nav-item {{ (Request::segment(1) == 'sales')?'menu-open':''}}">
+                                    <a href="#" class="nav-link {{ (Request::segment(1) == 'sales')?' active':''}}">
                                         <i class="nav-icon fa fa-folder-open"></i>
                                         <p>
                                             Sales Entry
@@ -457,15 +489,6 @@
                                         </p>
                                     </a>
                                     <ul class="nav nav-treeview">
-                                        @can('sales-pre-orders')
-                                            <li class="nav-item">
-                                                <a href="{{route('pre-orders.index')}}"
-                                                   class="nav-link {{ (Request::segment(1) == 'pre-orders' )?' active':''}}">
-                                                    <i class="far fa-circle nav-icon"></i>
-                                                    <p>Pre Order</p>
-                                                </a>
-                                            </li>
-                                        @endcan
                                         @can('sales-sales')
                                             <li class="nav-item">
                                                 <a href="{{route('sales.create')}}"
@@ -478,6 +501,7 @@
                                     </ul>
                                 </li>
                             @endcanany
+
                             @canany(['sales-sales-report'])
                                 <li class="nav-item {{ (Request::segment(1) == 'sale-reports')?'menu-open':''}}">
                                     <a href="#"
