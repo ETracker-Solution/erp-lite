@@ -14,6 +14,7 @@ use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Facades\DataTables;
+use niklasravnsborg\LaravelPdf\Facades\Pdf;
 
 class PreOrderController extends Controller
 {
@@ -72,6 +73,14 @@ class PreOrderController extends Controller
                 Toastr::info('At Least One Product Required.', '', ["progressBar" => true]);
                 return back();
             }
+            $filename = '';
+            if ($request->hasfile('image')) {
+                $file = $request->file('image');
+                $filename = date('Ymdmhs') . '.' . $file->getClientOriginalExtension();
+                $file->move(public_path('/upload'), $filename);
+            }
+            $validated['image'] = $filename ?? null;
+
             $purchase = PreOrder::query()->create($validated);
             $purchase->amount = $purchase->net_payable;
             foreach ($validated['products'] as $product) {
@@ -121,5 +130,39 @@ class PreOrderController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+    public function pdf($id)
+    {
+        $data = [
+            'model' => PreOrder::find($id),
+
+        ];
+
+        $pdf = PDF::loadView(
+            'pre_order.pdf',
+            $data,
+            [],
+            [
+                'format' => 'A4-P',
+                'orientation' => 'P',
+                'margin-left' => 1,
+
+                '', // mode - default ''
+                '', // format - A4, for example, default ''
+                0, // font size - default 0
+                '', // default font family
+                1, // margin_left
+                1, // margin right
+                1, // margin top
+                1, // margin bottom
+                1, // margin header
+                1, // margin footer
+                'L', // L - landscape, P - portrait
+
+            ]
+        );
+        $name = \Carbon\Carbon::now()->format('d-m-Y');
+
+        return $pdf->stream($name . '.pdf');
     }
 }

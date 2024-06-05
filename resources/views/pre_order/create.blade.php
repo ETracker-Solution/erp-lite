@@ -20,7 +20,7 @@
                             <img src="{{ asset('loading.gif') }}" alt="loading">
                         </span>
                 <div class="col-lg-12 col-md-12">
-                    <form action="{{ route('pre-orders.store') }}" method="POST" class="">
+                    <form action="{{ route('pre-orders.store') }}" method="POST" class="" enctype="multipart/form-data">
                         @csrf
                         <div class="card">
                             <div class="card-header bg-info">
@@ -83,11 +83,17 @@
                                                 </select>
                                             </div>
                                         </div>
-                                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                        <div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
                                             <div class="form-group">
                                                 <label for="remark">Remark</label>
-                                                <textarea class="form-control" name="remark" rows="3"
+                                                <textarea class="form-control" name="remark" rows="2"
                                                           placeholder="Enter Remark"></textarea>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                                            <div class="form-group">
+                                                <label for="image">Attachment</label>
+                                                <input type="file" class="form-control" name="image">
                                             </div>
                                         </div>
                                     </div>
