@@ -54,6 +54,22 @@ class ApiController extends Controller
         return $data;
     }
 
+    public function fetchItemByIdForPreOrder($id)
+    {
+
+        $coi = ChartOfInventory::findOrFail($id);
+        $data = [
+            'group' => $coi->parent->name,
+            'name' => $coi->name,
+            'unit' => $coi->unit->name ?? 'No Unit',
+            'rate' => $coi->price > 0 ? $coi->price : null,
+            'discount' => '',
+            'coi_id' => $id,
+            'is_readonly' => $coi->price > 0 ? true : false,
+        ];
+        return $data;
+    }
+
     public function fetchItemByIdForSale($id)
     {
 
@@ -68,6 +84,7 @@ class ApiController extends Controller
         ];
         return $data;
     }
+
     public function fetchItemByIdForRMRequisition($id)
     {
 

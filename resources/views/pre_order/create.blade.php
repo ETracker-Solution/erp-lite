@@ -50,7 +50,7 @@
                                         </div>
                                         <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                             <div class="form-group">
-                                                <label for="date">Delivery Date</label>
+                                                <label for="date">Delivery Date <span class="text-danger">*</span></label>
                                                 <vuejs-datepicker v-model="date" name="date"
                                                                   placeholder="Select date"
                                                                   format="yyyy-MM-dd"></vuejs-datepicker>
@@ -58,7 +58,7 @@
                                         </div>
                                         <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                             <div class="form-group">
-                                                <label for="outlet_id">Outlet</label>
+                                                <label for="outlet_id">Outlet<span class="text-danger">*</span></label>
                                                 <select name="outlet_id" id="outlet_id"
                                                         class="form-control bSelect" required>
                                                     <option value="">Select One</option>
@@ -72,24 +72,25 @@
 
                                         <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                             <div class="form-group">
-                                                <label for="customer_id">Customer</label>
+                                                <label for="customer_id">Customer <span class="text-danger">*</span></label>
                                                 <select name="customer_id" id="customer_id"
                                                         class="form-control bSelect"
                                                         v-model="customer_id"
-                                                        @change="fetch_supplier">
+                                                        @change="fetch_supplier" required>
                                                     <option value="">Select One</option>
                                                     @foreach($customers as $row)
                                                         <option
-                                                            value="{{ $row->id }}">{{ $row->name }}-{{ $row->mobile }}</option>
+                                                            value="{{ $row->id }}">{{ $row->name }}
+                                                            -{{ $row->mobile }}</option>
                                                     @endforeach
                                                 </select>
                                             </div>
                                         </div>
                                         <div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
                                             <div class="form-group">
-                                                <label for="remark">Description</label>
+                                                <label for="remark">Description <span class="text-danger">*</span></label>
                                                 <textarea class="form-control" name="remark" rows="2"
-                                                          placeholder="Enter Description"></textarea>
+                                                          placeholder="Enter Description" required></textarea>
                                             </div>
                                         </div>
                                         <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
@@ -156,7 +157,8 @@
                                                     <th>Item</th>
                                                     <th style="width: 50px">Unit</th>
                                                     <th style="width: 180px">Qty</th>
-                                                    <th style="width: 180px">Rate</th>
+                                                    <th style="width: 180px">Selling Price</th>
+                                                    <th style="width: 180px">Discount</th>
                                                     <th style="width: 180px">Value</th>
                                                     <th style="width: 10px"></th>
                                                 </tr>
@@ -183,19 +185,31 @@
                                                     <td>
                                                         <input type="text" v-model="row.quantity"
                                                                :name="'products['+index+'][quantity]'"
-                                                               class="form-control input-sm"
+                                                               class="form-control input-sm text-right"
+                                                               placeholder="0.00"
                                                                @change="itemtotal(row);valid_quantity(row)"
                                                                required>
                                                     </td>
+
                                                     <td>
                                                         <input type="text" v-model="row.rate"
-                                                               :name="'products['+index+'][rate]'"
-                                                               class="form-control input-sm"
+                                                               :name="'products['+index+'][unit_price]'"
+                                                               v-bind:readonly="row.isReadonly"
+                                                               class="form-control input-sm text-right"
+                                                               placeholder="0.00"
                                                                @change="itemtotal(row);valid_rate(row)"
                                                                required>
                                                     </td>
                                                     <td>
-                                                        <input type="text" class="form-control input-sm"
+                                                        <input type="text" v-model="row.discount"
+                                                               :name="'products['+index+'][discount]'"
+                                                               class="form-control input-sm text-right"
+                                                               placeholder="0.00"
+                                                               @change="itemtotal(row);valid(row)"
+                                                               required>
+                                                    </td>
+                                                    <td>
+                                                        <input type="text" class="form-control input-sm text-right"
                                                                v-bind:value="itemtotal(row)" readonly>
                                                     </td>
                                                     <td>
@@ -207,88 +221,79 @@
                                                 </tbody>
                                                 <tfoot>
                                                 <tr>
-                                                    <td colspan="8" style="background-color: #DDDCDC">
+                                                    <td colspan="9" style="background-color: #DDDCDC">
 
                                                     </td>
                                                 </tr>
                                                 <tr>
-                                                    <td colspan="5"></td>
+                                                    <td colspan="6"></td>
                                                     <td style="vertical-align: middle">
                                                         Subtotal
                                                     </td>
                                                     <td>
-                                                        <input type="text" class="form-control input-sm"
+                                                        <input type="text" class="form-control input-sm text-right"
                                                                name="subtotal" v-bind:value="subtotal"
                                                                readonly>
                                                     </td>
                                                     <td></td>
                                                 </tr>
-                                                <tr>
-                                                    <td colspan="5"></td>
-                                                    <td style="vertical-align: middle">
-                                                        Order Discount
-                                                    </td>
-                                                    <td>
-                                                        <input type="text" name="vat"
-                                                               class="form-control input-sm" v-model="vat">
-                                                    </td>
-                                                    <td></td>
-                                                </tr>
+
 
                                                 <tr>
-                                                    <td colspan="5"></td>
+                                                    <td colspan="6"></td>
                                                     <td style="vertical-align: middle">
-                                                        Total Discount
+                                                        Discount
                                                     </td>
                                                     <td>
-                                                        <input type="text" name="vat"
-                                                               class="form-control input-sm" v-model="vat">
+                                                        <input type="text" name="discount"
+                                                               class="form-control input-sm text-right" v-model="discount"
+                                                               readonly>
                                                     </td>
                                                     <td></td>
                                                 </tr>
                                                 <tr>
-                                                    <td colspan="5"></td>
+                                                    <td colspan="6"></td>
                                                     <td style="vertical-align: middle">
                                                         Total Vat
                                                     </td>
                                                     <td>
                                                         <input type="text" name="vat"
-                                                               class="form-control input-sm" v-model="vat">
+                                                               class="form-control input-sm text-right" v-model="vat"
+                                                               placeholder="0.00">
                                                     </td>
                                                     <td></td>
                                                 </tr>
                                                 <tr>
-                                                    <td colspan="5"></td>
+                                                    <td colspan="6"></td>
                                                     <td style="vertical-align: middle">
-                                                        Net Payable
+                                                        Grand Total
                                                     </td>
                                                     <td>
-                                                        <input type="text" class="form-control input-sm"
-                                                               name="net_payable" v-bind:value="net_payable"
-                                                               readonly>
+                                                        <input type="text" class="form-control input-sm text-right"
+                                                               name="grand_total" v-bind:value="grand_total" readonly>
                                                     </td>
                                                     <td></td>
                                                 </tr>
                                                 <tr>
-                                                    <td colspan="5"></td>
+                                                    <td colspan="6"></td>
                                                     <td style="vertical-align: middle">
                                                         Advance Amount
                                                     </td>
                                                     <td>
-                                                        <input type="text" class="form-control input-sm"
-                                                               name="advance_amount" v-bind:value="advance_amount"
-                                                               readonly>
+                                                        <input type="text" class="form-control input-sm text-right"
+                                                               name="advance_amount" v-model="advance_amount"
+                                                               placeholder="0.00">
                                                     </td>
                                                     <td></td>
                                                 </tr>
                                                 <tr>
-                                                    <td colspan="5"></td>
+                                                    <td colspan="6"></td>
                                                     <td style="vertical-align: middle">
                                                         Due Amount
                                                     </td>
                                                     <td>
-                                                        <input type="text" class="form-control input-sm"
-                                                               name="due_amount" v-bind:value="advance_amount"
+                                                        <input type="text" class="form-control input-sm text-right"
+                                                               name="due_amount" v-bind:value="due_amount"
                                                                readonly>
                                                     </td>
                                                     <td></td>
@@ -371,10 +376,11 @@
 
                         get_suppliers_info_by_group_id_url: "{{ url('fetch-suppliers-by-group-id') }}",
                         get_items_info_by_group_id_url: "{{ url('fetch-items-by-group-id') }}",
-                        get_item_info_url: "{{ url('fetch-item-info') }}",
+                        get_item_info_url: "{{ url('fetch-item-by-id-for-pre-order') }}",
                     },
                     date: new Date(),
-                    vat: 0,
+                    advance_amount: null,
+                    vat: null,
                     supplier_group_id: '',
                     supplier_id: '',
                     customer_id: '',
@@ -395,9 +401,17 @@
                             return total + item.quantity * item.rate
                         }, 0)
                     },
-                    net_payable: function () {
-                        return this.subtotal + parseFloat(this.vat)
+                    discount: function () {
+                        return this.selected_items.reduce((total, item) => {
+                            return total + (item.discount ? parseFloat(item.discount) : 0)
+                        }, 0)
                     },
+                    grand_total: function () {
+                        return this.subtotal + (this.vat ? parseFloat(this.vat) : 0) - this.discount
+                    },
+                    due_amount: function () {
+                        return this.grand_total - (this.advance_amount ? parseFloat(this.advance_amount) : 0)
+                    }
                 },
                 methods: {
 
@@ -474,12 +488,14 @@
                                     let item_info = response.data;
                                     console.log(item_info);
                                     vm.selected_items.push({
-                                        id: item_info.id,
-                                        group: item_info.parent.name,
+                                        id: item_info.coi_id,
+                                        group: item_info.group,
                                         name: item_info.name,
-                                        unit: item_info.unit.name,
-                                        rate: '',
+                                        unit: item_info.unit,
+                                        discount: item_info.discount,
+                                        rate: item_info.rate,
                                         quantity: '',
+                                        isReadonly: item_info.is_readonly,
                                     });
                                     console.log(vm.selected_items);
                                     // vm.item_id = '';

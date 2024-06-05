@@ -151,6 +151,7 @@ Route::middleware('auth')->group(function () {
     //as soon as possible Remove
     Route::get('/fetch-product-info-for-sale/{id}', [App\Http\Controllers\ApiController::class, 'fetch_product_sale'])->name('fetch-product-info-for-sale');
 //    new
+    Route::get('/fetch-item-by-id-for-pre-order/{id}', [App\Http\Controllers\ApiController::class, 'fetchItemByIdForPreOrder'])->name('fetch-item-by-id-for-pre-order');
     Route::get('/fetch-item-by-id-for-sale/{id}', [App\Http\Controllers\ApiController::class, 'fetchItemByIdForSale'])->name('fetch-item-by-id-for-sale');
     Route::get('/fetch-item-by-id-for-rm-requisition/{id}', [App\Http\Controllers\ApiController::class, 'fetchItemByIdForRMRequisition']);
 
