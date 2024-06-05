@@ -129,7 +129,17 @@ class PreOrderController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        DB::beginTransaction();
+        try {
+            PreOrder::findOrFail(decrypt($id))->delete();
+            DB::commit();
+        } catch (\Exception $error) {
+            DB::rollBack();
+            Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
+            return back();
+        }
+        Toastr::success('Pre Order Deleted Successfully!.', '', ["progressBar" => true]);
+        return redirect()->route('pre-orders.index');
     }
     public function pdf($id)
     {

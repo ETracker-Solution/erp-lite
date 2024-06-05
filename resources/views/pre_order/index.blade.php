@@ -96,11 +96,11 @@
                         title: "Subtotal",
                         searchable: true
                     },
-                    {
-                        data: "status",
-                        title: "Status",
-                        searchable: false
-                    },
+                    // {
+                    //     data: "status",
+                    //     title: "Status",
+                    //     searchable: false
+                    // },
                     {
                         data: "created_at",
                         title: "Date",
