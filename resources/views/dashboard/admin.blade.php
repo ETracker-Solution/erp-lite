@@ -74,9 +74,9 @@
                         <div class="card">
                             <div class="card-header bg-info">
                                 <h3 class="card-title">{{ $currentMonthExpense }} BDT</h3>
-                                    <div class="card-tools">
-                                        Expenses
-                                    </div>
+                                <div class="card-tools">
+                                    Expenses
+                                </div>
                             </div>
                             <div class="card-body pb-50" style="min-height: 300px;">
                                 <div id="expense-radial-bar-chart" class="my-2"></div>
@@ -91,9 +91,9 @@
                         <div class="card card-tiny-line-stats">
                             <div class="card-header bg-info">
                                 <h3 class="card-title">Sales</h3>
-                                    <div class="card-tools">
-                                        Last Month
-                                    </div>
+                                <div class="card-tools">
+                                    Last Month
+                                </div>
                             </div>
                             <div class="card-body pb-50" style="min-height: 300px;">
                                 <div id="statistics-profit-chart"></div>
@@ -107,11 +107,11 @@
                         <div class="card earnings-card">
                             <div class="card-header bg-info">
                                 <h3 class="card-title">Total Discount</h3>
-                                    <div class="card-tools">
-                                        Monthly Report
-                                    </div>
+                                <div class="card-tools">
+                                    Monthly Report
+                                </div>
                             </div>
-                            <div class="card-body" style="min-height: 300px;">
+                            <div class="card-body" style="min-height: 215px;">
                                 <div class="row">
                                     <div class="col-6">
                                         <h5 class="mb-1">{{ $discount['thisMonth'] }}</h5>
@@ -147,9 +147,9 @@
                 <div class="card">
                     <div class="card-header bg-info">
                         <h3 class="card-title">{{ $expense['total'] }} BDT</h3>
-                            <div class="card-tools">
-                                Total Expense
-                            </div>
+                        <div class="card-tools">
+                            Total Expense
+                        </div>
                     </div>
                     <div class="card-body">
                         <canvas id="total-expense-chart"></canvas>
@@ -160,9 +160,9 @@
                 <div class="card">
                     <div class="card-header bg-info">
                         <h3 class="card-title">Sales</h3>
-                            <div class="card-tools">
-                                Total {{ $sales['total'] }} BDT this month
-                            </div>
+                        <div class="card-tools">
+                            Total {{ $sales['total'] }} BDT this month
+                        </div>
                     </div>
                     <div class="card-body">
                         <canvas id="outlet-wise-chart"></canvas>
@@ -325,15 +325,15 @@
                 </div>
             </div>
         </div>
-{{--        <div class="row match-height">--}}
-{{--            <div class="col-sm-12 col-xl-6 col-12">--}}
-{{--                <div class="card">--}}
-{{--                    <div class="card-body">--}}
-{{--                        <canvas id="ourOverChart"></canvas>--}}
-{{--                    </div>--}}
-{{--                </div>--}}
-{{--            </div>--}}
-{{--        </div>--}}
+        {{--        <div class="row match-height">--}}
+        {{--            <div class="col-sm-12 col-xl-6 col-12">--}}
+        {{--                <div class="card">--}}
+        {{--                    <div class="card-body">--}}
+        {{--                        <canvas id="ourOverChart"></canvas>--}}
+        {{--                    </div>--}}
+        {{--                </div>--}}
+        {{--            </div>--}}
+        {{--        </div>--}}
 
     </section>
 @endsection
@@ -971,7 +971,7 @@
     </script>
     <script type="text/javascript">
         // Load google charts
-        google.charts.load('current', {'packages':['corechart']});
+        google.charts.load('current', {'packages': ['corechart']});
         google.charts.setOnLoadCallback(drawChart);
 
         // Draw the chart and set the chart values
@@ -987,7 +987,7 @@
             ]);
 
             // Optional; add a title and set the width and height of the chart
-            var options = {'title':'Pre Order', 'width':550, 'height':400};
+            var options = {'title': 'Pre Order', 'width': 550, 'height': 400};
 
             // Display the chart inside the <div> element with id="piechart"
             var chart = new google.visualization.PieChart(document.getElementById('piechart'));
