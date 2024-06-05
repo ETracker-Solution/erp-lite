@@ -1393,5 +1393,14 @@ return [
             'unit_id' => 3,
             'price' => 120,
         ],
+        [
+            'id' => 173,
+            'parent_id' => 68,
+            'name' => 'custom',
+            'type' => 'item',
+            'rootAccountType' => 'FG',
+            'unit_id' => 2,
+            'price' => 0,
+        ],
     ]
 ];
