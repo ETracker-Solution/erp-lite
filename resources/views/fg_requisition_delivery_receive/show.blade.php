@@ -20,7 +20,7 @@ FG Requisition Details
                 <div class="card card-info">
                     <div class="card-header">
                         <h3 class="card-title">FG Requisition Delivery Details</h3>
-                        <a href="{{route('fg-requisition-delivery.pdf',encrypt($fgRequisitionDelivery->id))}}"
+                        <a href="{{route('fg-delivery-receive.pdf',encrypt($fgDeliveryReceive->id))}}"
                             class="btn btn-sm btn-primary float-right" target="_blank"><i class="fa fa-download"></i> PDF</a>
                     </div>
                     <!-- Main content -->
@@ -31,10 +31,10 @@ FG Requisition Details
                                     <tbody>
                                         <tr>
                                             <td style="text-align: left; padding:8px; line-height: 0.6">
-                                                <p><b>FGR No :</b> {{ $fgRequisitionDelivery->requisition ? $fgRequisitionDelivery->requisition->uid : 'Not Available' }}</p>
-                                                <p><b>Date :</b> {{ $fgRequisitionDelivery->date }} </p>
-                                                <p><b>Sub Total :</b> {{ $fgRequisitionDelivery->subtotal }} </p>
-                                                <p><b>Status :</b> {!! showStatus($fgRequisitionDelivery->status) !!}</p>
+                                                <p><b>FGR No :</b> {{ $fgDeliveryReceive->requisition ? $fgDeliveryReceive->requisition->uid : 'Not Available' }}</p>
+                                                <p><b>Date :</b> {{ $fgDeliveryReceive->date }} </p>
+                                                <p><b>Sub Total :</b> {{ $fgDeliveryReceive->subtotal }} </p>
+                                                <p><b>Status :</b> {!! showStatus($fgDeliveryReceive->status) !!}</p>
                                             </td> 
                                         </tr>
                                     </tbody>
@@ -42,7 +42,7 @@ FG Requisition Details
                             </div>
                             <!-- /.col -->
                             <div class="col-sm-4 invoice-col">
-                                <td><b>Customer :</b> {{ $fgRequisitionDelivery->customer->name??'Walking Customer'}}</td>
+                                <td><b>Customer :</b> {{ $fgDeliveryReceive->customer->name??'Walking Customer'}}</td>
                             </div>
                             <!-- /.col -->
                             <div class="col-sm-4 invoice-col">
@@ -68,7 +68,7 @@ FG Requisition Details
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @foreach ($fgRequisitionDelivery->items as $item)
+                                        @foreach ($fgDeliveryReceive->items as $item)
                                         <tr>
                                             <td>{{ $loop->iteration }}</td>
                                             <td>{{ $item->coi->parent->name ?? '' }}</td>
@@ -84,25 +84,6 @@ FG Requisition Details
                             <!-- /.col -->
                         </div>
                         <!-- /.row -->
-    
-                        <div class="row">
-                            <!-- accepted payments column -->
-                            <div class="col-8">
-    
-                            </div>
-                            <!-- /.col -->
-                            <div class="col-4">
-                                <div class="table-responsive">
-                                    <table class="table">
-                                        <tr>
-                                            <th style="width:50%">Subtotal:</th>
-                                            <td>{{ $fgRequisitionDelivery->subtotal }} TK</td>
-                                        </tr>
-                                    </table>
-                                </div>
-                            </div>
-                            <!-- /.col -->
-                        </div>
                         <!-- /.row -->
                     </div>
                 </div>

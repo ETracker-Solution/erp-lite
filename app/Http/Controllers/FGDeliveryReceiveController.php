@@ -14,6 +14,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Yajra\DataTables\Facades\DataTables;
+use niklasravnsborg\LaravelPdf\Facades\Pdf;
 
 class FGDeliveryReceiveController extends Controller
 {
@@ -106,9 +107,10 @@ class FGDeliveryReceiveController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(DeliveryReceive $deliveryReceive)
+    public function show($id)
     {
-        //
+        $fgDeliveryReceive = DeliveryReceive::with('toStore', 'fromStore','requisitionDelivery')->find(decrypt($id));
+        return view('fg_requisition_delivery_receive.show', compact('fgDeliveryReceive'));
     }
 
     /**
@@ -130,8 +132,52 @@ class FGDeliveryReceiveController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(DeliveryReceive $deliveryReceive)
+    public function destroy($id)
     {
-        //
+        DB::beginTransaction();
+        try {
+            DeliveryReceive::findOrFail($id)->delete();
+            DB::commit();
+        } catch (\Exception $error) {
+            DB::rollBack();
+            Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
+            return back();
+        }
+        Toastr::success('FG Delivery Receive Deleted Successfully!.', '', ["progressBar" => true]);
+        return redirect()->route('fg-delivery-receives.index');
+    }
+
+    public function pdf($id)
+    {
+        $data = [
+            'fgDeliveryReceive' => DeliveryReceive::with('toStore', 'fromStore','requisitionDelivery')->find(decrypt($id)),
+        ];
+
+        $pdf = PDF::loadView(
+            'fg_requisition_delivery_receive.pdf',
+            $data,
+            [],
+            [
+                'format' => 'A4-P',
+                'orientation' => 'P',
+                'margin-left' => 1,
+
+                '', // mode - default ''
+                '', // format - A4, for example, default ''
+                0, // font size - default 0
+                '', // default font family
+                1, // margin_left
+                1, // margin right
+                1, // margin top
+                1, // margin bottom
+                1, // margin header
+                1, // margin footer
+                'L', // L - landscape, P - portrait
+
+            ]
+        );
+        $name = \Carbon\Carbon::now()->format('d-m-Y');
+
+        return $pdf->stream($name . '.pdf');
     }
 }

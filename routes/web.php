@@ -250,6 +250,8 @@ Route::middleware('auth')->group(function () {
 
     /*=========== Finish Goods Delivery Receive Starts ===========*/
     Route::resource('fg-delivery-receives', \App\Http\Controllers\FGDeliveryReceiveController::class);
+    Route::get('fg-delivery-receive-pdf/{id}', [App\Http\Controllers\FGDeliveryReceiveController::class, 'pdf'])->name('fg-delivery-receive.pdf');
+
     /*=========== Finish Goods Delivery Receive Ends ===========*/
 
     /*=========== General ledger Opening Balance Api Starts ===========*/

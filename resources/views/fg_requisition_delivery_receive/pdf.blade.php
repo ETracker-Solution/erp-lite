@@ -3,7 +3,7 @@
 <html>
 
 <head>
-    <title>FG Requisiton Delivery Pdf </title>
+    <title>FG Delivery Receive Pdf </title>
 <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
     <style>
         @page {
@@ -69,7 +69,7 @@
                             </div>
                             <div class="row">
                                 <div class="col-sm-6 top-right">
-                                    <span class="marginright">{{ \Carbon\Carbon::parse($fgRequisitionDelivery->created_at)->isoFormat('MMM Do, YYYY') }}</span>
+                                    <span class="marginright">{{ \Carbon\Carbon::parse($fgDeliveryReceive->created_at)->isoFormat('MMM Do, YYYY') }}</span>
                                 </div>
                             </div>
                             <hr>
@@ -77,10 +77,9 @@
 								<tbody>
 									<tr>
 										<td style="text-align: left; padding:8px; line-height: 1.6">
-											<p><b>FGR No :</b> {{ $fgRequisitionDelivery->requisition ? $fgRequisitionDelivery->requisition->uid : 'Not Available' }}</p>
-											<p><b>Date :</b> {{ $fgRequisitionDelivery->date }} </p>
-											<p><b>Sub Total :</b> {{ $fgRequisitionDelivery->subtotal }} </p>
-											<p><b>Status :</b> {!! showStatus($fgRequisitionDelivery->status) !!}</p>
+											<p><b>FGR No :</b> {{ $fgDeliveryReceive->requisition ? $fgDeliveryReceive->requisition->uid : 'Not Available' }}</p>
+											<p><b>Date :</b> {{ $fgDeliveryReceive->date }} </p>
+											<p><b>Status :</b> {!! showStatus($fgDeliveryReceive->status) !!}</p>
 										</td>
 									</tr>
 								</tbody>
@@ -97,7 +96,7 @@
 									</tr>
                                 </thead>
                                 <tbody>
-                                    @foreach ($fgRequisitionDelivery->items as $item)
+                                    @foreach ($fgDeliveryReceive->items as $item)
                                         <tr>
                                             <td>{{ $loop->iteration }}</td>
                                             <td>{{ $item->coi->parent->name ?? '' }}</td>
