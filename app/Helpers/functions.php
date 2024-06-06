@@ -36,6 +36,7 @@ function showStatus($status)
         case 'active':
         case 'delivered':
         case 'completed':
+        case 'received':
         case 'final':
             return '<span class="badge badge-success">' . ucfirst($status) . '</span>';
         case 'return':
@@ -49,7 +50,6 @@ function showStatus($status)
         case 'hold':
             return '<span class="badge badge-light-warning">Hold</span>';
         case 'enable':
-        case 'received':
             return '<span class="badge badge-glow badge-success">Enable</span>';
         case 'disable':
             return '<span class="badge badge-glow badge-warning">Disable</span>';
