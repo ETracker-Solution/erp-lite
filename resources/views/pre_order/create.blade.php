@@ -64,12 +64,11 @@
                                                     <option value="">Select One</option>
                                                     @foreach($outlets as $row)
                                                         <option
-                                                            value="{{ $row->id }}">{{ $row->name }}</option>
+                                                            value="{{ $row->id }}" {{ $row->id==Auth::user()->employee->outlet_id ? 'selected' : '' }}>{{ $row->name }}</option>
                                                     @endforeach
                                                 </select>
                                             </div>
                                         </div>
-
                                         <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                             <div class="form-group">
                                                 <label for="customer_id">Customer <span class="text-danger">*</span></label>
