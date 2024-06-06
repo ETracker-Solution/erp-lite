@@ -4,11 +4,19 @@ namespace App\Http\Controllers;
 
 
 use App\Http\Controllers\Controller;
-
+use App\Models\ChartOfInventory;
+use App\Models\InventoryAdjustment;
+use App\Models\InventoryTransaction;
+use App\Models\Outlet;
 use App\Models\Product;
 use App\Models\Requisition;
+use App\Models\RequisitionDelivery;
+use App\Models\Store;
+use App\Models\User;
 use App\Repository\Interfaces\AdminInterface;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class FactoryDashboardController extends Controller
 {
@@ -24,14 +32,43 @@ class FactoryDashboardController extends Controller
     {
 
         //first Section
-        $monthlyTotalRequisitions = Requisition::whereMonth('created_at', Carbon::now()->month)->count();
-        $todayTotalStocks = 0;
-        $todayTotalRequisitions = Requisition::whereDate('created_at', Carbon::today())->count();
-        $todayTotalDeliveries = 0;
-        $todayTotalWastages = 0;
+        $factory_id = Auth::user()->employee->factory_id;
+        $store_ids = Store::where(['doc_type'=>'factory','doc_id'=> $factory_id])->pluck('id');
+
+
+        $monthlyTotalRequisitions = Requisition::where('to_factory_id',$factory_id)->whereMonth('created_at', Carbon::now()->month)->count();        
+
+        $productWiseStock = [];
+        $productWiseStock['products'] = [];
+        $productWiseStock['stock'] = [];
+        $totalStock = 0;
+        $allProducts = ChartOfInventory::where(['type'=>'item','rootAccountType'=>'RM'])->select('name', 'id')->get();
+        foreach ($allProducts as $product) {
+            $stock = InventoryTransaction::where('coi_id', $product->id)->sum(DB::raw('amount * type'));
+            $productWiseStock['products'][] = $product->name;
+            $productWiseStock['stock'][] = $stock;
+            $totalStock += $stock;
+        }
+
+        $fgProductWiseStock = [];
+        $fgProductWiseStock['products'] = [];
+        $fgProductWiseStock['stock'] = [];
+        $fgTotalStock = 0;
+        $allProducts = ChartOfInventory::where(['type'=>'item','rootAccountType'=>'FG'])->select('name', 'id')->get();
+        foreach ($allProducts as $product) {
+            $stock = InventoryTransaction::where('coi_id', $product->id)->sum(DB::raw('amount * type'));
+            $fgProductWiseStock['products'][] = $product->name;
+            $fgProductWiseStock['stock'][] = $stock;
+            $fgTotalStock += $stock;
+        }
+
+        $todayTotalRequisitions = Requisition::where('to_factory_id',$factory_id)->whereDate('created_at', Carbon::today())->count();
+        $todayTotalDeliveries = RequisitionDelivery::where(['type' => 'FG', 'date' => Carbon::today()])->count();
+        $todayTotalWastages = InventoryAdjustment::whereIn('store_id', $store_ids)->sum('subtotal');
 
         //2nd Section
-        $thisMonthTotalWastages = 0;
+        $thisMonthTotalWastages = InventoryAdjustment::whereIn('store_id', $store_ids)->whereMonth('created_at', Carbon::now()->month)->sum('subtotal');
+
 //Expenses
         $year = Carbon::now()->month == 1 ? Carbon::now()->subYear()->year : Carbon::now()->year;
         $lastMonth = Carbon::now()->subMonth();
@@ -101,21 +138,32 @@ class FactoryDashboardController extends Controller
             $monthlyTotalStock += $stock;
         }
 
-        $monthlyWastages = 0;
-        $outletWiseWastage = 0;
+        $monthlyWastages = InventoryAdjustment::whereIn('store_id', $store_ids)
+            ->whereMonth('created_at', Carbon::now()->month)
+            ->orderBy('total', 'DESC');
+
+        $outletWiseWastage = [];
+        foreach ($monthlyWastages as $row) {
+            $outletWiseWastage['outlet'][] = $row->outlet->name;
+            $outletWiseWastage['total'][] = $row->total;
+        }
         //4th Section
-        $monthlyDeliveries = 0;
-        $todayRequisitions = Requisition::whereDate('created_at', Carbon::today())->get();
+        $monthlyDeliveries = RequisitionDelivery::where('type', 'FG')->select('from_store_id', DB::raw('count(id) as total'))
+            ->whereMonth('created_at', Carbon::now()->month)
+            ->orderBy('total', 'DESC')
+            ->groupBy('from_store_id')
+            ->with('fromStore')
+            ->get();
+        $todayRequisitions = Requisition::where('to_factory_id',$factory_id)->whereDate('created_at', Carbon::today())->get();
 
 
         //5th Section
-        $monthlyRequisitions = Requisition::whereMonth('created_at', Carbon::now()->month)->get();
+        $monthlyRequisitions = Requisition::where('to_factory_id',$factory_id)->whereMonth('created_at', Carbon::now()->month)->get();
 
         $data = [
 
             //1st Section
             'monthlyTotalRequisitions' => $monthlyTotalRequisitions,
-            'todayTotalStocks' => $todayTotalStocks,
             'todayTotalRequisitions' => $todayTotalRequisitions,
             'todayTotalDeliveries' => $todayTotalDeliveries,
             'todayTotalWastages' => $todayTotalWastages,
@@ -132,6 +180,14 @@ class FactoryDashboardController extends Controller
             'monthlyRawProductWiseStock' => $monthlyRawProductWiseStock,
             'monthlyWastages' => $monthlyWastages,
             'outletWiseWastage' => $outletWiseWastage,
+            'stock' => [
+                'total' => $totalStock,
+                'productWise' => $productWiseStock
+            ],
+            'fgStock' => [
+                'total' => $fgTotalStock,
+                'productWise' => $fgProductWiseStock
+            ],
 
             //4th Section
             'todayRequisitions' => $todayRequisitions,

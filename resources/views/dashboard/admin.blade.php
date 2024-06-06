@@ -39,7 +39,7 @@
                     <div class="card-header bg-info">
                         <h4 class="card-title">Statistics</h4>
                         <div class="card-tools">
-                            Updated 1 minute ago
+                            {{-- Updated 1 minute ago --}}
                         </div>
                     </div>
                     <div class="card-body statistics-body">
@@ -143,7 +143,7 @@
             <!--/ Revenue Report Card -->
         </div>
         <div class="row match-height">
-            <div class="col-xl-4 col-12">
+            {{-- <div class="col-xl-4 col-12">
                 <div class="card">
                     <div class="card-header bg-info">
                         <h3 class="card-title">{{ $expense['total'] }} BDT</h3>
@@ -155,8 +155,8 @@
                         <canvas id="total-expense-chart"></canvas>
                     </div>
                 </div>
-            </div>
-            <div class="col-xl-4 col-12">
+            </div> --}}
+            <div class="col-xl-6 col-12">
                 <div class="card">
                     <div class="card-header bg-info">
                         <h3 class="card-title">Sales</h3>
@@ -169,7 +169,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-xl-4 col-12">
+            <div class="col-xl-6 col-12">
                 <div class="card">
                     <div class="card-header bg-info">
                         <h4 class="card-title">Total Pre Orders</h4>
@@ -272,7 +272,7 @@
             <div class="col-xl-6 col-12">
                 <div class="card">
                     <div class="card-header bg-info">
-                        <h4 class="card-title">Sales, Purchase, Expense</h4>
+                        <h4 class="card-title">Sales, Purchase</h4>
                     </div>
                     <div class="card-body">
                         <canvas id="sale-purchase-expense-chart"></canvas>
@@ -803,7 +803,7 @@
         new Chart("sale-purchase-expense-chart", {
             type: "doughnut",
             data: {
-                labels: ["Sale - ({{ $todaySale }})", "Purchase - ({{ $todayPurchase }})", "Expense - ({{ $todayExpense }})",],
+                labels: ["Sale - ({{ $todaySale }})", "Purchase - ({{ $todayPurchase }})"],
                 datasets: [{
                     backgroundColor: [
                         "#b91d47",
@@ -812,7 +812,7 @@
                         "#e8c3b9",
                         "#1e7145"
                     ],
-                    data: ["{{ $todaySale }}", "{{ $todayPurchase }}", "{{ $todayExpense }}"]
+                    data: ["{{ $todaySale }}", "{{ $todayPurchase }}"]
                 }]
             },
             options: {
@@ -976,18 +976,17 @@
 
         // Draw the chart and set the chart values
         function drawChart() {
-            var data = google.visualization.arrayToDataTable([
-                ['Task', 'Hours per Day'],
-                ['Work', 8],
-                ['Eat', 2],
-                ['TV', 4],
-                ['Gym', 2],
-                ['Sleep', 8],
-                ['Sleep', 12]
-            ]);
+            var rawData = <?= json_encode($order['outletWise']) ?>;
+            var dataArray = [['Outlet', 'Orders']];
+          for (var key in rawData) {
+              if (rawData.hasOwnProperty(key)) {
+                  dataArray.push([key, rawData[key]]);
+              }
+          }
+            var data = google.visualization.arrayToDataTable(dataArray);
 
             // Optional; add a title and set the width and height of the chart
-            var options = {'title': 'Pre Order', 'width': 550, 'height': 400};
+            var options = {'title': 'Pre Order', 'width': 550, 'height': 280};
 
             // Display the chart inside the <div> element with id="piechart"
             var chart = new google.visualization.PieChart(document.getElementById('piechart'));
