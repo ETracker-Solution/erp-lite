@@ -55,6 +55,7 @@ class PreOrderController extends Controller
             'customers' => Customer::all(),
             'stores' => Store::where(['type' => 'RM', 'doc_type' => 'ho', 'doc_id' => null])->get(),
             'outlets' => Outlet::where(['status' => 'active'])->get(),
+            // 'outlets' => Outlet::where(['status' => 'active'])->get(),
             'uid' => PreOrderNumber::serial_number(),
 
         ];
