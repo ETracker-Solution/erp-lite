@@ -31,10 +31,6 @@
                         <a href="{{route('rm-requisitions.index')}}">
                             <button type="button" class="btn btn-info">View Requisition</button>
                         </a>
-                        <img
-                            src="https://s3-alpha-sig.figma.com/img/06e9/a838/9504967120f836bf7c1a80eaeb742559?Expires=1711929600&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4&Signature=eHuLIto9PXADswFjFMxd3hhyQZHSwpGI58bMcNpk9jLpi9ywti9C4Tg12eejR49ijeljNCNyxsj0y6HCo0BzKnb~AUAtz63lBhlGDrpqjeVoNMsTOcIhwbkvjiPAa8O6M15HqPoXlZKKWplNlgnmw6ddp1hwUlH~VeQ50Vez9duv0Za9IBUOxYTMTHXQRMkyHShlA55urqI5c08GxUH9rCdiMndGD4Bw94ECU40TwcPNthXtjsfQuvKhoqq7eGJl-CD3Ol-p1URM66D2DfOgEBPfZ7Dj7PlGkV1gJ-NNlnT5KEe4h1Qo-0gS5Y~2KwfWdSro85n9i3NGtnMbO5qUNQ__"
-                            class="congratulation-medal" alt="Medal Pic"
-                            style="height: 200px; transform: rotateY(180deg)"/>
                     </div>
                 </div>
             </div>
@@ -46,13 +42,13 @@
                     <div class="card-header bg-info">
                         <h3 class="card-title">Statistics</h3>
                         <div class="card-tools">
-                            Updated 1 minute ago
+                            {{-- Updated 1 minute ago --}}
                         </div>
                     </div>
                     <div class="card-body statistics-body">
                         <div class="row">
                             <div class="col-xl-3 col-sm-6 col-12 mb-2 mb-xl-0">
-                                <x-card-statistics title="Total Stock" value="{{ $todayTotalStocks }}" icon="layers"
+                                <x-card-statistics title="Total Stock" value="{{ $fgStock['total'] }}" icon="layers"
                                                    colorClass="bg-light-primary"/>
                             </div>
                             <div class="col-xl-3 col-sm-6 col-12 mb-2 mb-xl-0">
@@ -132,7 +128,7 @@
             <div class="col-lg-8 col-12">
                 <div class="card card-revenue-budget">
                     <div class="card-header bg-info">
-                        <h3 class="card-title">Total Stock</h3>
+                        <h3 class="card-title">Total Stock : {{ $stock['total'] }}</h3>
                         <div class="card-tools">
                             Raw Stock Summary
                         </div>
@@ -143,26 +139,16 @@
             <!--/ Revenue Report Card -->
         </div>
         <div class="row match-height">
-            <div class="col-xl-8 col-12">
+            <div class="col-xl-12 col-12">
                 <div class="card">
                     <div class="card-header bg-info">
-                        <h3 class="card-title">Total Stock</h3>
+                        <h3 class="card-title">Total Stock : {{ $fgStock['total'] }}</h3>
                         <div class="card-tools">
-                            Monthly Stock Overview
+                            Finish Stock Summary
                         </div>
                     </div>
                     <div class="card-body">
                         <canvas id="total-expense-chart"></canvas>
-                    </div>
-                </div>
-            </div>
-            <div class="col-xl-4 col-12">
-                <div class="card">
-                    <div class="card-header bg-info">
-                        <h3 class="card-title">Total Wastage</h3>
-                    </div>
-                    <div class="card-body">
-                        <canvas height="350" id="sale-purchase-expense-chart"></canvas>
                     </div>
                 </div>
             </div>
@@ -184,15 +170,15 @@
                                 </tr>
                                 </thead>
                                 <tbody>
-                                {{-- @foreach($monthlyDeliveries as $row)
+                                @foreach($monthlyDeliveries as $row)
 
                                     <tr>
                                         <td>
-                                            <p>{{$row->outlet->name??'Not Found'}}</p>
+                                            <p>{{$row->fromStore->name??'Not Found'}}</p>
                                         </td>
                                         <td> {{$row->total??''}}</td>
                                     </tr>
-                                @endforeach --}}
+                                @endforeach
 
 
                                 </tbody>
@@ -220,7 +206,6 @@
                                     <th>Outlet</th>
                                     <th>Status</th>
                                     <th>Date</th>
-                                    <th>Actions</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -231,9 +216,7 @@
                                         <td> {{$row->fromStore->name ?? ''}}</td>
                                         <td>{!! showStatus($row->status) !!}</td>
                                         <td>{{$row->created_at->format('d-m-Y')}}</td>
-                                        <td><a target="_blank" href="#" title="View">
-                                                <i class="fas fa-eye ml-1"></i>
-                                            </a></td>
+                                        
                                     </tr>
                                 @endforeach
                                 </tbody>
@@ -245,7 +228,7 @@
             </div>
         </div>
         <div class="row match-height">
-            <div class="col-xl-8 col-12">
+            <div class="col-xl-12 col-12">
                 <div class="card">
                     <div class="card-header bg-info">
                         <h3 class="card-title">Outlet Requisition</h3>
@@ -262,7 +245,6 @@
                                     <th>Outlet</th>
                                     <th>Status</th>
                                     <th>Date</th>
-                                    <th>Actions</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -272,9 +254,6 @@
                                         <td> {{$row->fromStore->name ?? ''}}</td>
                                         <td>{!! showStatus($row->status) !!}</td>
                                         <td>{{$row->created_at->format('d-m-Y')}}</td>
-                                        <td><a target="_blank" href="#" title="View">
-                                                <i class="fas fa-eye ml-1"></i>
-                                            </a></td>
                                     </tr>
                                 @endforeach
                                 </tbody>
@@ -337,14 +316,14 @@
     <script>
 
         var barChartDataOrder = {
-            labels: JSON.parse('<?= json_encode($dailyRawProductWiseStock['products'] ?? '') ?>'),
+            labels: JSON.parse('<?= json_encode($stock['productWise']['products']) ?>'),
             datasets: [
                 {
                     label: "Stock Product",
-                    backgroundColor: "green",
+                    backgroundColor: ["green", "red", "blue", "orange", "brown", "green", "red", "blue", "orange", "brown"],
                     borderColor: "lightgreen",
                     borderWidth: 1,
-                    data: JSON.parse('<?= json_encode($dailyRawProductWiseStock['stock'] ?? '') ?>'),
+                    data: JSON.parse('<?= json_encode($stock['productWise']['stock']) ?>'),
                 },
             ]
         };
@@ -641,10 +620,10 @@
         new Chart("total-expense-chart", {
             type: "bar",
             data: {
-                labels: JSON.parse('<?= json_encode($monthlyRawProductWiseStock['products'] ?? '') ?>'),
+                labels: JSON.parse('<?= json_encode($fgStock['productWise']['products']) ?>'),
                 datasets: [{
                     backgroundColor: ["red", "green", "blue", "orange", "brown", "red", "green", "blue", "orange", "brown"],
-                    data: JSON.parse('<?= json_encode($monthlyRawProductWiseStock['stock'] ?? '') ?>'),
+                    data: JSON.parse('<?= json_encode($fgStock['productWise']['stock']) ?>'),
                 }]
             },
             options: {

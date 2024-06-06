@@ -14,4 +14,9 @@ class Employee extends Model
     {
         return $this->hasOne(User::class, 'employee_id');
     }
+
+    public function outlet()
+    {
+        return $this->belongsTo(Outlet::class);
+    }
 }
