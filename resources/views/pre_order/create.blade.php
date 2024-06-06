@@ -352,7 +352,7 @@
     </style>
     <style>
         .table td {
-            padding: 2px;
+            padding: 5px;
         }
     </style>
 
