@@ -1,34 +1,38 @@
 @extends('layouts.app')
-@section('title', 'Goods Purchase')
+@section('title', 'Pre Order')
 
 @section('content')
     <!-- Content Header (Page header) -->
     @php
         $links = [
         'Home'=>route('dashboard'),
-        'Purchase Entry'=>''
+        'Pre Order Entry'=>''
         ]
     @endphp
-    <x-breadcrumb title='Purchase' :links="$links"/>
+    <x-breadcrumb title='Pre Order' :links="$links"/>
+
+
     <!-- Main content -->
     <section class="content">
         <div class="container-fluid">
             <div class="row" id="vue_app">
-                   <span v-if="pageLoading" class="categoryLoader">
-                       <img src="{{ asset('loading.gif') }}" alt="loading">
-                  </span>
+                   <span v-if="pageLoading" class="pageLoader">
+                            <img src="{{ asset('loading.gif') }}" alt="loading">
+                        </span>
                 <div class="col-lg-12 col-md-12">
-                    <form action="{{ route('purchases.store') }}" method="POST" class="">
+                    <form action="{{ route('pre-orders.store') }}" method="POST" class="" enctype="multipart/form-data">
                         @csrf
                         <div class="card">
                             <div class="card-header bg-info">
-                                <h3 class="card-title">Goods Purchase Bill (GPB) Entry</h3>
+                                <h3 class="card-title">Pre Order(PO) Entry</h3>
                                 <div class="card-tools">
-                                    <a href="{{route('purchases.index')}}" class="btn btn-sm btn-primary">
-                                        <i class="fas fa-bars"
-                                           aria-hidden="true"></i> &nbsp;
-                                        Goods Purchase Bill List
-                                    </a>
+                                    @can('sales-pre-orders')
+                                        <a href="{{route('pre-orders.index')}}" class="btn btn-sm btn-primary">
+                                            <i class="fas fa-bars"
+                                            aria-hidden="true"></i> &nbsp;
+                                            Pre Order List
+                                        </a>
+                                    @endcan
                                 </div>
                             </div>
 
@@ -38,7 +42,7 @@
                                     <div class="row">
                                         <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                             <div class="form-group">
-                                                <label for="uid">Purchase No</label>
+                                                <label for="uid">Order Number</label>
                                                 <input type="text" class="form-control input-sm"
                                                        value="{{$uid}}" name="uid"
                                                        id="uid" readonly>
@@ -46,7 +50,7 @@
                                         </div>
                                         <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                             <div class="form-group">
-                                                <label for="date">Date</label>
+                                                <label for="date">Delivery Date <span class="text-danger">*</span></label>
                                                 <vuejs-datepicker v-model="date" name="date"
                                                                   placeholder="Select date"
                                                                   format="yyyy-MM-dd"></vuejs-datepicker>
@@ -54,59 +58,45 @@
                                         </div>
                                         <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                             <div class="form-group">
-                                                <label for="store_id">Store</label>
-                                                <select name="store_id" id="store_id"
+                                                <label for="outlet_id">Outlet<span class="text-danger">*</span></label>
+                                                <select name="outlet_id" id="outlet_id"
                                                         class="form-control bSelect" required>
-                                                    <option value="">Select Store</option>
-                                                    @foreach($stores as $row)
+                                                    <option value="">Select One</option>
+                                                    @foreach($outlets as $row)
                                                         <option
                                                             value="{{ $row->id }}">{{ $row->name }}</option>
                                                     @endforeach
                                                 </select>
                                             </div>
                                         </div>
-                                        <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
-                                            <div class="form-group">
-                                                <label for="reference_no">Reference No</label>
-                                                <input type="text" class="form-control input-sm"
-                                                       value="{{old('reference_no')}}" name="reference_no">
-                                            </div>
-                                        </div>
-                                        <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
-                                            <div class="form-group">
-                                                <label for="supplier_id">Group</label>
-                                                <select name="supplier_group_id" id="supplier_group_id"
-                                                        class="form-control bSelect"
-                                                        v-model="supplier_group_id"
-                                                        @change="fetch_supplier">
-                                                    <option value="">Select Group</option>
-                                                    @foreach($supplier_groups as $row)
-                                                        <option
-                                                            value="{{ $row->id }}">{{ $row->name }}</option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
-                                            <div class="form-group">
-                                                <label for="supplier_id">Supplier</label>
-                                                <select name="supplier_id" id="supplier_id"
-                                                        class="form-control bSelect" v-model="supplier_id"
-                                                        required>
-                                                    <option value="">Select Supplier</option>
-                                                    <option :value="row.id" v-for="row in suppliers"
-                                                            v-html="row.name">
-                                                    </option>
 
-                                                </select>
+                                        <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+                                            <div class="form-group">
+                                                <label for="customer_id">Customer <span class="text-danger">*</span></label>
+                                                <select name="customer_id" id="customer_id"
+                                                        class="form-control bSelect"
+                                                        v-model="customer_id"
+                                                        @change="fetch_supplier" required>
+                                                    <option value="">Select One</option>
+                                                    @foreach($customers as $row)
+                                                        <option
+                                                            value="{{ $row->id }}">{{ $row->name }}
+                                                            -{{ $row->mobile }}</option>
+                                                    @endforeach
                                                 </select>
                                             </div>
                                         </div>
-                                        <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+                                        <div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
                                             <div class="form-group">
-                                                <label for="remark">Remark</label>
-                                                <textarea class="form-control" name="remark" rows="1"
-                                                          placeholder="Enter Remark"></textarea>
+                                                <label for="remark">Description <span class="text-danger">*</span></label>
+                                                <textarea class="form-control" name="remark" rows="2"
+                                                          placeholder="Enter Description" required></textarea>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                                            <div class="form-group">
+                                                <label for="image">Attachment</label>
+                                                <input type="file" class="form-control" name="image">
                                             </div>
                                         </div>
                                     </div>
@@ -115,7 +105,7 @@
                         </div>
                         <div class="card">
                             <div class="card-header bg-info">
-                                <h3 class="card-title">Goods Purchase Line Item</h3>
+                                <h3 class="card-title">Pre Order Line Item</h3>
                             </div>
                             <div class="card-body">
                                 <div class="row">
@@ -167,20 +157,21 @@
                                                     <th>Item</th>
                                                     <th style="width: 50px">Unit</th>
                                                     <th style="width: 180px">Qty</th>
-                                                    <th style="width: 180px">Rate</th>
+                                                    <th style="width: 180px">Selling Price</th>
+                                                    <th style="width: 180px">Discount</th>
                                                     <th style="width: 180px">Value</th>
                                                     <th style="width: 10px"></th>
                                                 </tr>
                                                 </thead>
                                                 <tbody>
                                                 <tr v-for="(row, index) in selected_items">
-                                                    <td>
+                                                    <td style="vertical-align: middle">
                                                         @{{ ++index }}
                                                     </td>
-                                                    <td>
+                                                    <td style="vertical-align: middle">
                                                         @{{ row.group }}
                                                     </td>
-                                                    <td>
+                                                    <td style="vertical-align: middle">
                                                         @{{ row.name }}
                                                         <input type="hidden"
                                                                :name="'products['+index+'][coi_id]'"
@@ -188,25 +179,37 @@
                                                                v-bind:value="row.id">
 
                                                     </td>
-                                                    <td>
+                                                    <td style="vertical-align: middle">
                                                         @{{ row.unit }}
                                                     </td>
                                                     <td>
-                                                        <input type="number" v-model="row.quantity"
+                                                        <input type="text" v-model="row.quantity"
                                                                :name="'products['+index+'][quantity]'"
-                                                               class="form-control input-sm"
+                                                               class="form-control input-sm text-right"
+                                                               placeholder="0.00"
                                                                @change="itemtotal(row);valid_quantity(row)"
                                                                required>
                                                     </td>
+
                                                     <td>
-                                                        <input type="number" v-model="row.rate"
-                                                               :name="'products['+index+'][rate]'"
-                                                               class="form-control input-sm"
+                                                        <input type="text" v-model="row.rate"
+                                                               :name="'products['+index+'][unit_price]'"
+                                                               v-bind:readonly="row.isReadonly"
+                                                               class="form-control input-sm text-right"
+                                                               placeholder="0.00"
                                                                @change="itemtotal(row);valid_rate(row)"
                                                                required>
                                                     </td>
                                                     <td>
-                                                        <input type="text" class="form-control input-sm"
+                                                        <input type="text" v-model="row.discount"
+                                                               :name="'products['+index+'][discount]'"
+                                                               class="form-control input-sm text-right"
+                                                               placeholder="0.00"
+                                                               @change="itemtotal(row);valid(row)"
+                                                               required>
+                                                    </td>
+                                                    <td>
+                                                        <input type="text" class="form-control input-sm text-right"
                                                                v-bind:value="itemtotal(row)" readonly>
                                                     </td>
                                                     <td>
@@ -218,47 +221,79 @@
                                                 </tbody>
                                                 <tfoot>
                                                 <tr>
-                                                    <td colspan="8" style="background-color: #DDDCDC">
+                                                    <td colspan="9" style="background-color: #DDDCDC">
 
                                                     </td>
                                                 </tr>
                                                 <tr>
-                                                    <td colspan="5">
-
-                                                    </td>
-                                                    <td>
+                                                    <td colspan="6"></td>
+                                                    <td style="vertical-align: middle">
                                                         Subtotal
                                                     </td>
                                                     <td>
-                                                        <input type="text" class="form-control input-sm"
+                                                        <input type="text" class="form-control input-sm text-right"
                                                                name="subtotal" v-bind:value="subtotal"
                                                                readonly>
                                                     </td>
                                                     <td></td>
                                                 </tr>
-                                                <tr>
-                                                    <td colspan="5">
 
+
+                                                <tr>
+                                                    <td colspan="6"></td>
+                                                    <td style="vertical-align: middle">
+                                                        Discount
                                                     </td>
                                                     <td>
-                                                        Vat
-                                                    </td>
-                                                    <td>
-                                                        <input type="text" name="vat"
-                                                               class="form-control input-sm" v-model="vat">
+                                                        <input type="text" name="discount"
+                                                               class="form-control input-sm text-right" v-model="discount"
+                                                               readonly>
                                                     </td>
                                                     <td></td>
                                                 </tr>
                                                 <tr>
-                                                    <td colspan="5">
-
+                                                    <td colspan="6"></td>
+                                                    <td style="vertical-align: middle">
+                                                        Total Vat
                                                     </td>
                                                     <td>
-                                                        Net Payable
+                                                        <input type="text" name="vat"
+                                                               class="form-control input-sm text-right" v-model="vat"
+                                                               placeholder="0.00">
+                                                    </td>
+                                                    <td></td>
+                                                </tr>
+                                                <tr>
+                                                    <td colspan="6"></td>
+                                                    <td style="vertical-align: middle">
+                                                        Grand Total
                                                     </td>
                                                     <td>
-                                                        <input type="text" class="form-control input-sm"
-                                                               name="net_payable" v-bind:value="net_payable"
+                                                        <input type="text" class="form-control input-sm text-right"
+                                                               name="grand_total" v-bind:value="grand_total" readonly>
+                                                    </td>
+                                                    <td></td>
+                                                </tr>
+                                                <tr>
+                                                    <td colspan="6"></td>
+                                                    <td style="vertical-align: middle">
+                                                        Advance Amount
+                                                    </td>
+                                                    <td>
+                                                        <input type="text" class="form-control input-sm text-right"
+                                                               name="advance_amount" v-model="advance_amount"
+                                                               placeholder="0.00">
+                                                    </td>
+                                                    <td></td>
+                                                </tr>
+                                                <tr>
+                                                    <td colspan="6"></td>
+                                                    <td style="vertical-align: middle">
+                                                        Due Amount
+                                                    </td>
+                                                    <td>
+                                                        <input type="text" class="form-control input-sm text-right"
+                                                               name="due_amount" v-bind:value="due_amount"
                                                                readonly>
                                                     </td>
                                                     <td></td>
@@ -279,6 +314,7 @@
                 </div> <!-- end col -->
             </div>
             <!-- /.row -->
+
         </div><!-- /.container-fluid -->
     </section>
     <!-- /.content -->
@@ -288,7 +324,7 @@
 @endsection
 @push('style')
     <style>
-        .categoryLoader {
+        .pageLoader {
             position: absolute;
             top: 50%;
             right: 40%;
@@ -314,6 +350,11 @@
             transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
         }
     </style>
+    <style>
+        .table td {
+            padding: 5px;
+        }
+    </style>
 
     <link rel="stylesheet" href="{{ asset('vue-js/bootstrap-select/dist/css/bootstrap-select.min.css') }}">
 @endpush
@@ -335,12 +376,14 @@
 
                         get_suppliers_info_by_group_id_url: "{{ url('fetch-suppliers-by-group-id') }}",
                         get_items_info_by_group_id_url: "{{ url('fetch-items-by-group-id') }}",
-                        get_item_info_url: "{{ url('fetch-item-info') }}",
+                        get_item_info_url: "{{ url('fetch-item-by-id-for-pre-order') }}",
                     },
                     date: new Date(),
-                    vat: 0,
+                    advance_amount: null,
+                    vat: null,
                     supplier_group_id: '',
                     supplier_id: '',
+                    customer_id: '',
                     group_id: '',
                     item_id: '',
                     items: [],
@@ -358,9 +401,17 @@
                             return total + item.quantity * item.rate
                         }, 0)
                     },
-                    net_payable: function () {
-                        return this.subtotal + parseFloat(this.vat)
+                    discount: function () {
+                        return this.selected_items.reduce((total, item) => {
+                            return total + (item.discount ? parseFloat(item.discount) : 0)
+                        }, 0)
                     },
+                    grand_total: function () {
+                        return this.subtotal + (this.vat ? parseFloat(this.vat) : 0) - this.discount
+                    },
+                    due_amount: function () {
+                        return this.grand_total - (this.advance_amount ? parseFloat(this.advance_amount) : 0)
+                    }
                 },
                 methods: {
 
@@ -437,12 +488,14 @@
                                     let item_info = response.data;
                                     console.log(item_info);
                                     vm.selected_items.push({
-                                        id: item_info.id,
-                                        group: item_info.parent.name,
+                                        id: item_info.coi_id,
+                                        group: item_info.group,
                                         name: item_info.name,
-                                        unit: item_info.unit.name,
-                                        rate: '',
+                                        unit: item_info.unit,
+                                        discount: item_info.discount,
+                                        rate: item_info.rate,
                                         quantity: '',
+                                        isReadonly: item_info.is_readonly,
                                     });
                                     console.log(vm.selected_items);
                                     // vm.item_id = '';

@@ -25,14 +25,9 @@
                     <div class="card-body">
                         <h5 class="text-info">Congratulations 🎉 Admin!</h5>
                         <p class="card-text font-small-3">Today's Sales Overview</p>
-                        <h3 class="mb-75 mt-2 pt-50">
+                        <h1 class="mb-75 mt-2 pt-50">
                             <a href="javascript:void(0);">{{ $totalSales }} BDT</a>
-                        </h3>
-                        <a type="button" class="btn btn-primary" href="{{ route('sales.index') }}">View Sale</a>
-                        <img
-                            src="https://s3-alpha-sig.figma.com/img/546c/5a37/4c62faf89e51f8af3d964aefcde244b8?Expires=1711929600&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4&Signature=ZRnXfOLrptLQPS7zGcE~1WlhQu~ZynyRud0XimsBQrnAuUsMrVAafCC114I4xF6J7tL-N1thpB8CzZupobQ8KR8sN5bmd0evO9kZz16BQ-AO-G~5-jF9LSC-zDHcEJ-CAH6IegnAoeVGAPYUhCk4mc1rTk~3MhiCwbw-fJnDizSW-TZ9nZwnWm3oc2pNY6ac~u0q6NRiR1oi~4C0JOxFgZWb5LJAVcryH4Uh2FjHgyJ0H5uDMi0BH3pmB3YRCAPETM5F2fSyIqWqR5agcanHMPLKq8x4dx4zjxvexyZklARJ39G7ux2SenCLJ5pjALZDLYr-v8m00wvYGHTLQvZe3A__"
-                            class="congratulation-medal" alt="Medal Pic"
-                            style="height: 200px; transform: rotateY(180deg)"/>
+                        </h1>
                     </div>
                 </div>
             </div>
@@ -79,9 +74,9 @@
                         <div class="card">
                             <div class="card-header bg-info">
                                 <h3 class="card-title">{{ $currentMonthExpense }} BDT</h3>
-                                    <div class="card-tools">
-                                        Expenses
-                                    </div>
+                                <div class="card-tools">
+                                    Expenses
+                                </div>
                             </div>
                             <div class="card-body pb-50">
                                 <div id="expense-radial-bar-chart" class="my-2"></div>
@@ -96,9 +91,9 @@
                         <div class="card card-tiny-line-stats">
                             <div class="card-header bg-info">
                                 <h3 class="card-title">Sales</h3>
-                                    <div class="card-tools">
-                                        Last Month
-                                    </div>
+                                <div class="card-tools">
+                                    Last Month
+                                </div>
                             </div>
                             <div class="card-body pb-50">
                                 <div id="statistics-profit-chart"></div>
@@ -112,9 +107,9 @@
                         <div class="card earnings-card">
                             <div class="card-header bg-info">
                                 <h3 class="card-title">Total Discount</h3>
-                                    <div class="card-tools">
-                                        Monthly Report
-                                    </div>
+                                <div class="card-tools">
+                                    Monthly Report
+                                </div>
                             </div>
                             <div class="card-body">
                                 <div class="row">
@@ -152,9 +147,9 @@
                 <div class="card">
                     <div class="card-header bg-info">
                         <h3 class="card-title">{{ $expense['total'] }} BDT</h3>
-                            <div class="card-tools">
-                                Total Expense
-                            </div>
+                        <div class="card-tools">
+                            Total Expense
+                        </div>
                     </div>
                     <div class="card-body">
                         <canvas id="total-expense-chart"></canvas>
@@ -165,9 +160,9 @@
                 <div class="card">
                     <div class="card-header bg-info">
                         <h3 class="card-title">Sales</h3>
-                            <div class="card-tools">
-                                Total {{ $sales['total'] }} BDT this month
-                            </div>
+                        <div class="card-tools">
+                            Total {{ $sales['total'] }} BDT this month
+                        </div>
                     </div>
                     <div class="card-body">
                         <canvas id="outlet-wise-chart"></canvas>
@@ -177,26 +172,11 @@
             <div class="col-xl-4 col-12">
                 <div class="card">
                     <div class="card-header bg-info">
-                        <h4 class="card-title">Total Orders</h4>
-                        <div class="card-tools">Total {{ $order['total'] }} order this month</div>
+                        <h4 class="card-title">Total Pre Orders</h4>
+                        <div class="card-tools">Total {{ $order['total'] }} pre order this month</div>
                     </div>
                     <div class="card-body">
-                        <table class="table table-bordered">
-                            <thead>
-                            <tr>
-                                <th>Outlet</th>
-                                <th>Quantity</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            @foreach($order['outletWise'] as $key=>$value)
-                                <tr>
-                                    <td>{{$key}}</td>
-                                    <td>{{$value}}</td>
-                                </tr>
-                            @endforeach
-                            </tbody>
-                        </table>
+                        <div id="piechart"></div>
                     </div>
 
                 </div>
@@ -329,7 +309,7 @@
                                 @forelse($slowSellingProducts as $product)
                                     <tr>
                                         <td>{{ $product->name }}</td>
-                                        <td>{{ $product->category->name }}</td>
+                                        <td>{{ $product->parent->name ?? ''}}</td>
                                     </tr>
                                 @empty
                                     <tr>
@@ -345,15 +325,15 @@
                 </div>
             </div>
         </div>
-{{--        <div class="row match-height">--}}
-{{--            <div class="col-sm-12 col-xl-6 col-12">--}}
-{{--                <div class="card">--}}
-{{--                    <div class="card-body">--}}
-{{--                        <canvas id="ourOverChart"></canvas>--}}
-{{--                    </div>--}}
-{{--                </div>--}}
-{{--            </div>--}}
-{{--        </div>--}}
+        {{--        <div class="row match-height">--}}
+        {{--            <div class="col-sm-12 col-xl-6 col-12">--}}
+        {{--                <div class="card">--}}
+        {{--                    <div class="card-body">--}}
+        {{--                        <canvas id="ourOverChart"></canvas>--}}
+        {{--                    </div>--}}
+        {{--                </div>--}}
+        {{--            </div>--}}
+        {{--        </div>--}}
 
     </section>
 @endsection
@@ -372,6 +352,7 @@
 @push('script')
     <script src="{{asset('admin/app-assets/vendors/js/charts/apexcharts.min.js')}}"></script>
     <script src="{{asset('admin/app-assets/js/core/app.js')}}"></script>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     {{--    <script src="{{asset('admin/app-assets/js/scripts/pages/dashboard-ecommerce.js')}}"></script>--}}
     <script>
         $(document).ready(function () {
@@ -403,7 +384,7 @@
                         "defaultContent": "Not Set"
                     },
                     {
-                        data: "store.name",
+                        data: "from_store.name",
                         title: "Store",
                         searchable: false,
                         "defaultContent": "Not Set"
@@ -988,4 +969,30 @@
         goalOverviewChart = new ApexCharts($goalOverviewChart, goalOverviewChartOptions);
         goalOverviewChart.render();
     </script>
+    <script type="text/javascript">
+        // Load google charts
+        google.charts.load('current', {'packages': ['corechart']});
+        google.charts.setOnLoadCallback(drawChart);
+
+        // Draw the chart and set the chart values
+        function drawChart() {
+            var data = google.visualization.arrayToDataTable([
+                ['Task', 'Hours per Day'],
+                ['Work', 8],
+                ['Eat', 2],
+                ['TV', 4],
+                ['Gym', 2],
+                ['Sleep', 8],
+                ['Sleep', 12]
+            ]);
+
+            // Optional; add a title and set the width and height of the chart
+            var options = {'title': 'Pre Order', 'width': 550, 'height': 400};
+
+            // Display the chart inside the <div> element with id="piechart"
+            var chart = new google.visualization.PieChart(document.getElementById('piechart'));
+            chart.draw(data, options);
+        }
+    </script>
+
 @endpush

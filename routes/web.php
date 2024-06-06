@@ -66,6 +66,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('suppliers', App\Http\Controllers\SupplierController::class);
     Route::resource('customers', App\Http\Controllers\CustomerController::class);
     Route::resource('purchases', PurchaseController::class);
+    Route::get('purchase-return-pdf/{id}', [App\Http\Controllers\PurchaseReturnController::class, 'pdfDownload'])->name('purchase_return.pdf');
     Route::resource('purchase-returns', \App\Http\Controllers\PurchaseReturnController::class);
     Route::resource('sales', SaleController::class);
     Route::resource('requisitions', \App\Http\Controllers\RequisitionController::class);
@@ -96,10 +97,16 @@ Route::middleware('auth')->group(function () {
     Route::get('get-customer-by-type', [\App\Http\Controllers\PromoCodeController::class, 'getCustomers'])->name('promo-codes.customers');
     Route::resource('promo-codes', \App\Http\Controllers\PromoCodeController::class);
 
-    //-----Supplier Payment Voucher---------
+    //-----Start Supplier Payment Voucher---------
     Route::resource('supplier-vouchers', SupplierPaymentVoucherController::class);
     Route::get('fetch-due-by-supplier-id/{id}', [App\Http\Controllers\ApiController::class, 'fetchSupplierDueById'])->name('supplier.due');
-    //-----Supplier Payment Voucher---------
+    //-----End Supplier Payment Voucher---------
+    //
+    // //-----Start Pre Order---------
+    Route::resource('pre-orders', \App\Http\Controllers\PreOrderController::class);
+    Route::get('pre-order-pdf/{id}', [App\Http\Controllers\PreOrderController::class, 'Pdf'])->name('pre-order.pdf');
+
+    //-----End Pre Order---------
 
     Route::resource('consumptions', \App\Http\Controllers\ConsumptionController::class);
     Route::get('consumption-pdf/{id}', [App\Http\Controllers\ConsumptionController::class, 'consumptionPdf'])->name('consumptions.pdf');
@@ -144,6 +151,7 @@ Route::middleware('auth')->group(function () {
     //as soon as possible Remove
     Route::get('/fetch-product-info-for-sale/{id}', [App\Http\Controllers\ApiController::class, 'fetch_product_sale'])->name('fetch-product-info-for-sale');
 //    new
+    Route::get('/fetch-item-by-id-for-pre-order/{id}', [App\Http\Controllers\ApiController::class, 'fetchItemByIdForPreOrder'])->name('fetch-item-by-id-for-pre-order');
     Route::get('/fetch-item-by-id-for-sale/{id}', [App\Http\Controllers\ApiController::class, 'fetchItemByIdForSale'])->name('fetch-item-by-id-for-sale');
     Route::get('/fetch-item-by-id-for-rm-requisition/{id}', [App\Http\Controllers\ApiController::class, 'fetchItemByIdForRMRequisition']);
 

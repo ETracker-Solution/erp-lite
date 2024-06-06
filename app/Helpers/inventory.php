@@ -39,7 +39,7 @@ function averageRMRate(int $item_id, int $store_id = null)
 
 
     // Calculate the average price
-    return  number_format(($data->totalQuantity != 0) ? $data->totalAmount / $data->totalQuantity : 0,2);
+    return number_format(($data->totalQuantity != 0) ? $data->totalAmount / $data->totalQuantity : 0, 2);
 }
 
 function averageFGRate(int $item_id, int $store_id = null)
@@ -53,5 +53,17 @@ function averageFGRate(int $item_id, int $store_id = null)
 
 
     // Calculate the average price
-    return  number_format(($data->totalQuantity != 0) ? $data->totalAmount / $data->totalQuantity : 0,2);
+    return number_format(($data->totalQuantity != 0) ? $data->totalAmount / $data->totalQuantity : 0, 2);
+}
+
+function inventoryAmount(int $outletId)
+{
+
+    $totalStock = DB::table('inventory_transactions')
+        ->join('stores', 'inventory_transactions.store_id', '=', 'stores.id')
+        ->where('stores.doc_type', 'outlet')
+        ->where('stores.doc_id', $outletId)
+        ->select(DB::raw('SUM(inventory_transactions.amount * inventory_transactions.type) as total_stock'))
+        ->value('total_stock') ?? 0;
+    return $totalStock;
 }

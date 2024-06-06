@@ -1,9 +1,8 @@
-
 <!DOCTYPE html>
 <html>
 
 <head>
-    <title>FG Inventory Pdf </title>
+    <title>Pre Order </title>
 <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
     <style>
         @page {
@@ -67,47 +66,45 @@
                                 <p style="text-align: center; padding: 0px; margin: 0px;">Email : {{ getSettingValue('company_email') }}</p>
                                 <p style="text-align: center; padding: 0px; margin: 0px;">Phone : {{ getSettingValue('company_phone') }}</p>
                             </div>
-                            <div class="row">
-                                <div class="col-sm-6 top-right">
-                                    <span class="marginright">{{ \Carbon\Carbon::parse($FGInventoryTransfer->created_at)->isoFormat('MMM Do, YYYY') }}</span>
-                                </div>
-                            </div>
+                            
                             <hr>
-                            <table width="100%">
-								<tbody>
-									<tr>
-										<td style="text-align: left; padding:8px; line-height: 1.6">
-											<p><b>UID :</b> {{ $FGInventoryTransfer->uid }}</p>
-											<p><b>Date :</b> {{ $FGInventoryTransfer->date }} </p>
-											<p><b>Transfer From :</b> {{ $FGInventoryTransfer->fromStore->name }} </p>
-											<p><b>Transfer To :</b> {{ $FGInventoryTransfer->toStore->name }} </p>
-											<p><b>Status :</b> {!! showStatus($FGInventoryTransfer->status) !!}</p>
-										</td>
-									</tr>
-								</tbody>
-							</table>
+                            Description : {{ $model->remark }}
                             <table border="1"cellspacing="0" width="100%" style="text-align: center; margin-top:20px;">
                                 <thead style="background:#cdced2;">
-									<tr style="background-color: #cdced2;">
-										<th>#</th>
-										<th>Group</th>
-										<th>Name</th>
-										<th>Unit</th>
-										<th>Price</th>
-										<th>Quantity</th>
-									</tr>
+                                    <tr style="background-color: #cdced2;">
+                                        <th>#</th>
+                                        <th>Order No</th>
+                                        <th>Customer</th>
+                                        <th>Outlet</th>
+                                        <th>Rate</th>
+                                        <th>Qty</th>
+                                        <th class="text-right">Item Total</th>
+                                    </tr>
                                 </thead>
+                                @php
+                                    $i=1;
+                                @endphp
                                 <tbody>
-                                    @foreach ($items as $item)
-										<tr>
-											<td>{{ $loop->iteration }}</td>
-											<td>{{ $item->coi->parent ? $item->coi->parent->name : '' }}</td>
-											<td>{{ $item->coi ? $item->coi->name : '' }}</td>
-											<td>{{ $item->coi->unit->name }}</td>
-											<td>{{ $item->rate ?? '' }}</td>
-											<td>{{ $item->quantity ?? '' }}</td>
-										</tr>
-									@endforeach
+                                    @foreach ($model->items as $item)
+                                    <tr>
+                                        <td>{{ $loop->iteration }}</td>
+                                        <td>{{ $model->id }}</td>
+                                        <td>{{ $model->customer->name }}</td>
+                                        <td>{{ $model->outlet->name }}</td>
+                                        <td>{{ $item->unit_price }}</td>
+                                        <td>{{ $item->quantity?? '' }} {{ $item->product->unit->name?? '' }}</td>
+                                        <td class="text-right">{{ $item->rate * $item->quantity?? '' }}</td>
+                                    </tr>
+                                    @endforeach
+                                    
+                                    <tr>
+                                        <td colspan="5"></td>
+                                        <td class="text-left">
+                                            Sub Total
+                                        </td>
+                                        <td class="text-right">{{$model->subtotal}} </td>
+                                    </tr>
+
                                 </tbody>
                             </table>
                             <htmlpagefooter name="page-footer">

@@ -52,7 +52,7 @@
 @section('content')
 <div class="card">
     <div class="card-body login-card-body">
-        
+
         <x-auth-session-status class="mb-4" :status="session('status')" />
 
         <form action="{{ route('login') }}" method="post">
@@ -95,7 +95,7 @@
             @endif
         </p>
         <p class="mb-0">
-            <a href="{{ route('register') }}" class="text-center">Register a new membership</a>
+{{--            <a href="{{ route('register') }}" class="text-center">Register a new membership</a>--}}
         </p>
     </div>
 

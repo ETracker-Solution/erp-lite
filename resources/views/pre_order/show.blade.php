@@ -1,6 +1,6 @@
 @extends('layouts.app')
 @section('title')
-Purchase Return
+Purchase List
 @endsection
 @section('content')
 <!-- Content Wrapper. Contains page content -->
@@ -9,7 +9,7 @@ Purchase Return
     <div class="container-fluid">
         <div class="row mb-2" style="background: #343A40; padding:8px; border-radius:6px; color:white">
             <div class="col-sm-6">
-                <h1>Goods Purchase Return</h1>
+                <h1>Pre Order</h1>
             </div>
             <div class="col-sm-6">
                 <ol class="breadcrumb float-sm-right">
@@ -27,33 +27,17 @@ Purchase Return
             <div class="col-12">
                 <!-- Main content -->
                 <div class="card card-info">
+                    <!-- title row -->
                     <div class="card-header">
-                        <h3 class="card-title">Goods Purchase Return Details</h3>
-                        <a href="{{route('purchase_return.pdf',$model->id)}}"
+                        <h3 class="card-title">Pre Order Details</h3>
+                        <a href="{{route('pre-order.pdf',$model->id)}}"
                             class="btn btn-sm btn-primary float-right" target="_blank"><i class="fa fa-download"></i> PDF</a>
                     </div>
-                    <!-- title row -->
-                    <div class="row">
-                        <div class="col-12">
-                            <h4 class="pl-3 pt-2">
-                                <i class="fas fa-globe"></i> @if(getSettingValue('company_name'))
-                                {{ getSettingValue('company_name') }}
-                                @else
-                                Set Company Name
-                                @endif
-                                <small class="float-right">Date:{{ $model->created_at }}</small>
-                            </h4>
-                        </div>
-                        <!-- /.col -->
-                    </div>
                     <!-- info row -->
+                    <!-- /.row -->
                     <div class="row invoice-info">
-                        <div class="col-sm-4 invoice-col">
-                            <address class="pl-3">
-                                Address : {{ getSettingValue('company_address') }} <br>
-                                Phone :  {{ getSettingValue('company_phone') }}<br>
-                                Email : {{ getSettingValue('company_email') }}
-                            </address>
+                        <div class="col-sm-4 invoice-col pl-4 pt-4">
+                            <b>Description :</b> {{ $model->remark }}
                         </div>
                         <!-- /.col -->
                         <div class="col-sm-4 invoice-col">
@@ -61,12 +45,26 @@ Purchase Return
                         </div>
                         <!-- /.col -->
                         <div class="col-sm-4 invoice-col">
-                            <b>Invoice: {{ $model->id }}</b>
+                            @if (isset($model->image))
+                                <a target="_blank" href="{{ asset('/upload/'.$model->image) }}"
+                                    class="badge-light-info" target="_self">
+                                    <img src="{{ asset('/upload/'.$model->image) }}" class="rounded"
+                                        alt="" width="40%">
+                                </a>
+                            @else
+                                <a target="_blank"
+                                    href="{{ asset('admin/app-assets/dummy/dammy.jpg') }}"
+                                    target="_self">
+                                    <span class="b-avatar-img">
+                                        <img src="{{ asset('admin/app-assets/dummy/dammy.jpg') }}"
+                                            width="40%" alt="">
+                                    </span>
+                                </a>
+                            @endif
+
                         </div>
                         <!-- /.col -->
                     </div>
-                    <!-- /.row -->
-
                     <!-- Table row -->
                     <div class="row">
                         <div class="col-12 table-responsive">
@@ -74,11 +72,11 @@ Purchase Return
                                 <thead>
                                     <tr>
                                         <th>#</th>
-                                        <th>Group</th>
-                                        <th>Product</th>
-                                        <th>Unit</th>
+                                        <th>Order No</th>
+                                        <th>Customer</th>
+                                        <th>Outlet</th>
+                                        <th>Rate</th>
                                         <th>Qty</th>
-                                        <th>Price</th>
                                         <th class="text-right">Item Total</th>
                                     </tr>
                                 </thead>
@@ -86,11 +84,11 @@ Purchase Return
                                     @foreach ($model->items as $item)
                                     <tr>
                                         <td>{{ $loop->iteration }}</td>
-                                        <td>{{ $item->coi->parent->name?? '' }}</td>
-                                        <td>{{ $item->coi->name?? '' }}</td>
-                                        <td>{{ $item->coi->unit->name?? '' }}</td>
+                                        <td>{{ $model->id }}</td>
+                                        <td>{{ $model->customer->name }}</td>
+                                        <td>{{ $model->outlet->name }}</td>
+                                        <td>{{ $item->unit_price }}</td>
                                         <td>{{ $item->quantity?? '' }} {{ $item->product->unit->name?? '' }}</td>
-                                        <td>{{ $item->rate?? '' }}</td>
                                         <td class="text-right">{{ $item->rate * $item->quantity?? '' }}</td>
                                     </tr>
                                     @endforeach

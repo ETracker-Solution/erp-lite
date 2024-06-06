@@ -5,7 +5,7 @@ namespace App\Http\Requests;
 use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
 
-class StorePurchaseReturnRequest extends FormRequest
+class StorePreOrderRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,16 +23,18 @@ class StorePurchaseReturnRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'supplier_id' => 'required',
-            'store_id' => 'required',
-            'purchase_id' => 'required',
+            'customer_id' => ['required'],
+            'outlet_id' => ['required'],
             'products' => 'array',
-            'date' => 'required',
-            'reference_no' => 'nullable',
+            'order_date' => 'required',
+            'delivery_date' => 'required',
             'subtotal' => 'required',
+            'discount' => 'required',
             'vat' => 'required',
-            'remark' => 'nullable',
-            'net_payable' => 'required',
+            'grand_total' => 'required',
+            'advance_amount' => 'required',
+            'remark' => 'required',
+            'image' => 'nullable',
             'created_by' => 'required',
         ];
     }
@@ -42,9 +44,9 @@ class StorePurchaseReturnRequest extends FormRequest
 
         $this->merge([
             'created_by' => auth()->user()->id,
-            'date' => Carbon::parse($this->date)->format('Y-m-d'),
+            'delivery_date' => Carbon::parse($this->date)->format('Y-m-d'),
+            'order_date' => Carbon::now()->format('Y-m-d'),
         ]);
 
     }
 }
-

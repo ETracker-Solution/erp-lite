@@ -546,8 +546,8 @@
                                         product_discount: 0,
                                         subtotal: 0,
                                     });
-                                    vm.item_id = '';
-                                    vm.category_id = '';
+                                    // vm.item_id = '';
+                                    // vm.category_id = '';
 
                                 }).catch(function (error) {
                                     toastr.error('Something went to wrong', {

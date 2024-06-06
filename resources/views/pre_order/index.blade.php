@@ -1,31 +1,32 @@
 @extends('layouts.app')
 @section('title')
-    Purchase Return List
+    Pre Order List
 @endsection
 @section('content')
     @php
         $links = [
         'Home'=>route('dashboard'),
-        'Purchase Return list'=>''
+        'Pre Order list'=>''
         ]
     @endphp
-    <x-breadcrumb title='Goods Purchase Return' :links="$links"/>
+    <x-breadcrumb title='Pre Order' :links="$links"/>
     <!-- Main content -->
     <section class="content">
         <div class="container-fluid">
-
             <div class="row">
                 <div class="col-12">
                     <div class="card">
                         <div class="card-header bg-info">
-                            <h3 class="card-title">Goods Purchase Return List</h3>
+                            <h3 class="card-title">Pre Order List</h3>
                             <div class="card-tools">
-                                <a href="{{route('purchase-returns.create')}}">
-                                    <button class="btn btn-sm btn-primary"><i class="fa fa-plus-circle"
-                                                                              aria-hidden="true"></i> &nbsp;Add Goods
-                                        Purchase Return Bill
-                                    </button>
-                                </a>
+                                @can('sales-pre-order-entry')
+                                    <a href="{{route('pre-orders.create')}}">
+                                        <button class="btn btn-sm btn-primary"><i class="fa fa-plus-circle"
+                                                                                aria-hidden="true"></i> &nbsp;Add
+                                            Pre Order
+                                        </button>
+                                    </a>
+                                @endcan
                             </div>
                         </div>
                         <!-- /.card-header -->
@@ -69,7 +70,7 @@
                 serverSide: true,
                 processing: true,
                 ajax: {
-                    url: "{{ route('purchase-returns.index') }}",
+                    url: "{{ route('pre-orders.index') }}",
                 },
                 columns: [{
                     data: "DT_RowIndex",
@@ -80,16 +81,16 @@
                 },
                     {
                         data: "id",
-                        title: "Purchase No",
+                        title: "Order No",
                         searchable: true
                     },
                     {
-                        data: "supplier.name",
-                        title: "Supplier",
+                        data: "customer.name",
+                        title: "Customer",
                         searchable: true
                     }, {
-                        data: "store.name",
-                        title: "Store",
+                        data: "outlet.name",
+                        title: "Outlet",
                         searchable: true
                     },
                     {
@@ -97,21 +98,11 @@
                         title: "Subtotal",
                         searchable: true
                     },
-                    {
-                        data: "vat",
-                        title: "Vat Amount",
-                        searchable: true
-                    },
-                    {
-                        data: "net_payable",
-                        title: "Net Payable",
-                        searchable: true
-                    },
-                    {
-                        data: "status",
-                        title: "Status",
-                        searchable: false
-                    },
+                    // {
+                    //     data: "status",
+                    //     title: "Status",
+                    //     searchable: false
+                    // },
                     {
                         data: "created_at",
                         title: "Date",
