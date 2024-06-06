@@ -108,14 +108,14 @@ class OutletDashboardController extends Controller
         $productWiseStock = [];
         $productWiseStock['products'] = [];
         $productWiseStock['stock'] = [];
-        $totalStock = InventoryTransaction::whereIn('store_id', $store_ids)->sum(DB::raw('amount * type'));
+        $totalStock = 0;
         $allProducts = Product::select('name', 'id')->get();
-        // foreach ($allProducts as $product) {
-        //     $stock = factoryOrOutletStock($product->id,Outlet::class,authUser()->outlet_id);
-        //     $productWiseStock['products'][] = $product->name;
-        //     $productWiseStock['stock'][] = $stock;
-        //     $totalStock += $stock;
-        // }
+        foreach ($allProducts as $product) {
+            $stock = InventoryTransaction::whereIn('store_id', $store_ids)->sum(DB::raw('amount * type'));
+            $productWiseStock['products'][] = $product->name;
+            $productWiseStock['stock'][] = $stock;
+            $totalStock += $stock;
+        }
 
         $outletWiseExpense = [];
         $outletWiseOrders = [];
