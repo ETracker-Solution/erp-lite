@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Classes\PreOrderNumber;
 use App\Http\Requests\StorePreOrderRequest;
 use App\Models\ChartOfInventory;
 use App\Models\Customer;
@@ -54,7 +55,7 @@ class PreOrderController extends Controller
             'customers' => Customer::all(),
             'stores' => Store::where(['type' => 'RM', 'doc_type' => 'ho', 'doc_id' => null])->get(),
             'outlets' => Outlet::where(['status' => 'active'])->get(),
-            'uid' => 12,
+            'uid' => PreOrderNumber::serial_number(),
 
         ];
 

@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Classes\PreOrderNumber;
 use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -35,6 +36,8 @@ class StorePreOrderRequest extends FormRequest
             'advance_amount' => 'required',
             'remark' => 'required',
             'image' => 'nullable',
+            'order_from' => 'required',
+            'order_number' => 'required',
             'created_by' => 'required',
         ];
     }
@@ -46,6 +49,7 @@ class StorePreOrderRequest extends FormRequest
             'created_by' => auth()->user()->id,
             'delivery_date' => Carbon::parse($this->date)->format('Y-m-d'),
             'order_date' => Carbon::now()->format('Y-m-d'),
+            'order_number' => PreOrderNumber::serial_number(),
         ]);
 
     }
