@@ -408,7 +408,7 @@
                                             </li>
                                         @endcan
                                         <li class="nav-item">
-                                            <a href="{{route('fg-requisition-deliveries.create')}}"
+                                            <a href="{{route('fg-delivery-receives.create')}}"
                                                class="nav-link {{ (Request::segment(1) == 'fg-delivery-receives' )?' active':''}}">
                                                 <i class="far fa-circle nav-icon"></i>
                                                 <p>FG Delivery Receive</p>
