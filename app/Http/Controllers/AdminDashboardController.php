@@ -9,6 +9,7 @@ use App\Models\Expense;
 use App\Models\InventoryAdjustment;
 use App\Models\InventoryTransaction;
 use App\Models\Outlet;
+use App\Models\PreOrder;
 use App\Models\Product;
 use App\Models\Purchase;
 use App\Models\Requisition;
@@ -41,7 +42,10 @@ class AdminDashboardController extends Controller
         $year = Carbon::now()->month == 1 ? Carbon::now()->subYear()->year : Carbon::now()->year;
         $lastMonth = Carbon::now()->subMonth();
         $lastMonthExpense = 0;
-        $currentMonthExpense = 0;
+        // $lastMonthExpense = Expense::whereYear('date', $year)->whereMonth('date', $lastMonth->month)->sum('amount');
+
+        $currentMonthExpense = 29;
+        // $currentMonthExpense = Expense::whereYear('date', Carbon::now()->year)->whereMonth('date', Carbon::now()->month)->sum('amount');
         $expenseMessage = 'No Expense Added';
         if ($lastMonthExpense === 0) {
             $expensePercentage = 100;
@@ -116,13 +120,13 @@ class AdminDashboardController extends Controller
         $totalOrders = 0;
         $allOutlets = Outlet::all();
 
-        foreach ($allOutlets as $ol) {
+        foreach ($allOutlets as $outlet) {
             // $expense = Expense::whereYear('created_at', $currentDate->year)->whereMonth('created_at', $currentDate->month)->where('expenseable_type', Outlet::class)->where('expenseable_id', $ol->id)->sum('amount');
             // $outletWiseExpense['outletName'][] = $ol->name;
             // $outletWiseExpense['expense'][] = $expense;
             // $totalExpense += $expense;
-            $order = Sale::whereYear('created_at', $currentDate->year)->whereMonth('created_at', $currentDate->month)->where('outlet_id', $ol->id)->count();
-            $outletWiseOrders[$ol->name] = $order;
+            $order = PreOrder::whereYear('created_at', $currentDate->year)->whereMonth('created_at', $currentDate->month)->where('outlet_id', $outlet->id)->count();
+            $outletWiseOrders[$outlet->name] = $order;
             $totalOrders += $order;
         }
 
@@ -162,9 +166,9 @@ class AdminDashboardController extends Controller
         $customersWithPoint = Customer::whereHas('membership')->with('membership', 'sales')->get();
 
         $todaySale = Sale::whereDate('created_at', Carbon::now()->format('Y-m-d'))->sum('grand_total');
-        $todayPurchase = Purchase::whereDate('date', Carbon::now()->format('Y-m-d'))->sum('grand_total');
+        $todayPurchase = Purchase::whereDate('date', Carbon::now()->format('Y-m-d'))->sum('net_payable');
         // $todayExpense = Expense::whereDate('date',Carbon::now()->format('Y-m-d'))->sum('amount');
-        $todayExpense = 0;
+        // $todayExpense = 0;
 
         $bestProducts = [];
         $bestSellingProducts = ChartOfInventory::select('chart_of_inventories.*', DB::raw('SUM(sale_items.quantity) as total_sold'))
@@ -176,7 +180,7 @@ class AdminDashboardController extends Controller
             ->orderByDesc('total_sold')
             ->get();
 
-        $slowSellingProducts = ChartOfInventory::select('chart_of_inventories.*', DB::raw('COALESCE(SUM(sale_items.quantity), 0) as total_sold'))
+        $slowSellingProducts = ChartOfInventory::where(['type'=>'item','rootAccountType'=>'FG'])->select('chart_of_inventories.*', DB::raw('COALESCE(SUM(sale_items.quantity), 0) as total_sold'))
             ->leftJoin('sale_items', function ($join) {
                 $join->on('chart_of_inventories.id', '=', 'sale_items.product_id')
                     ->join('sales', 'sale_items.sale_id', '=', 'sales.id')
@@ -229,7 +233,7 @@ class AdminDashboardController extends Controller
             'customersWithPoint' => $customersWithPoint,
             'todaySale' => $todaySale,
             'todayPurchase' => $todayPurchase,
-            'todayExpense' => $todayExpense,
+            // 'todayExpense' => $todayExpense,
             'bestSellingProducts' => $bestProducts,
             'slowSellingProducts' => $slowSellingProducts,
         ];
