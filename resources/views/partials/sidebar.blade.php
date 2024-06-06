@@ -378,7 +378,7 @@
                                     </ul>
                                 </li>
                             @endcanany
-                            @canany(['store-fg-create-fg-requisition','store-fg-fg-requisition-delivery'])
+                            @canany(['store-fg-create-fg-requisition','store-fg-fg-requisition-delivery','store-fg-fg-delivery-receive'])
                                 <li class="nav-item {{ (Request::segment(1) == 'requisitions'|| Request::segment(1) == 'fg-requisition-deliveries'|| Request::segment(1) == 'fg-delivery-receives' )?'menu-open':''}}">
                                     <a href="#"
                                        class="nav-link {{ (Request::segment(1) == 'requisitions'|| Request::segment(1) == 'fg-requisition-deliveries'|| Request::segment(1) == 'fg-delivery-receives'  )?' active':''}}">
@@ -407,13 +407,15 @@
                                                 </a>
                                             </li>
                                         @endcan
-                                        <li class="nav-item">
-                                            <a href="{{route('fg-delivery-receives.create')}}"
-                                               class="nav-link {{ (Request::segment(1) == 'fg-delivery-receives' )?' active':''}}">
-                                                <i class="far fa-circle nav-icon"></i>
-                                                <p>FG Delivery Receive</p>
-                                            </a>
-                                        </li>
+                                        @can('store-fg-fg-delivery-receive')
+                                            <li class="nav-item">
+                                                <a href="{{route('fg-delivery-receives.create')}}"
+                                                class="nav-link {{ (Request::segment(1) == 'fg-delivery-receives' )?' active':''}}">
+                                                    <i class="far fa-circle nav-icon"></i>
+                                                    <p>FG Delivery Receive</p>
+                                                </a>
+                                            </li>
+                                        @endcan
                                     </ul>
                                 </li>
                             @endcanany
