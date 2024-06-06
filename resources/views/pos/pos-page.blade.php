@@ -277,6 +277,7 @@
                         <label for="">Order From</label>
                         <select name="order_from" id="" class="form-control" v-model="preOrderValues.order_from">
                             <option value="facebook" selected>Facebook</option>
+                            <option value="outlet" selected>Outlet</option>
                         </select>
                     </div>
                 </div>

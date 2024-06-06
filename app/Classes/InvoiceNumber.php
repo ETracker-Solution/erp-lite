@@ -59,7 +59,7 @@ class InvoiceNumber
         $old =  PreOrder::where('order_number','like',$prefix.'%')->first();
         $new_id = 0;
         if($old){
-            $new_id = substr($old->invoice_number,-($this->lastPartCount()));
+            $new_id = substr($old->order_number,-($this->lastPartCount()));
             $new_id = (int) $new_id;
         }
         return str_pad($new_id +1,$this->lastPartCount(),'0',STR_PAD_LEFT);
