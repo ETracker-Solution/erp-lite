@@ -233,6 +233,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('rm-requisitions', \App\Http\Controllers\RMRequisitionController::class);
     Route::get('rm-requisition-pdf/{id}', [App\Http\Controllers\RMRequisitionController::class, 'pdfDownload'])->name('rm-requisition.pdf');
     Route::get('fetch-requisition-by-id/{id}/{store_id?}', [App\Http\Controllers\ApiController::class, 'fetchRequisitionById']);
+    Route::get('fetch-requisition-delivery-by-id/{id}', [App\Http\Controllers\ApiController::class, 'fetchRequisitionDeliveryById']);
     /*=========== Raw Materials Requisition Ends ===========*/
 
     /*=========== Raw Materials Requisition Delivery Starts ===========*/
@@ -241,11 +242,15 @@ Route::middleware('auth')->group(function () {
 
     /*=========== Raw Materials Requisition Delivery Ends ===========*/
 
-    /*=========== Raw Materials Requisition Delivery Starts ===========*/
+    /*=========== Finish Goods Requisition Delivery Starts ===========*/
     Route::resource('fg-requisition-deliveries', \App\Http\Controllers\FGRequisitionDeliveryController::class);
     Route::get('fg-requisition-delivery-pdf/{id}', [App\Http\Controllers\FGRequisitionDeliveryController::class, 'pdfDownload'])->name('fg-requisition-delivery.pdf');
 
-    /*=========== Raw Materials Requisition Delivery Ends ===========*/
+    /*=========== Finish Goods Requisition Delivery Ends ===========*/
+
+    /*=========== Finish Goods Delivery Receive Starts ===========*/
+    Route::resource('fg-delivery-receives', \App\Http\Controllers\FGDeliveryReceiveController::class);
+    /*=========== Finish Goods Delivery Receive Ends ===========*/
 
     /*=========== General ledger Opening Balance Api Starts ===========*/
     Route::get('general-ledger-opening-balances-list', [\App\Http\Controllers\Api\Web\GLOpeningBalanceController::class, 'list']);

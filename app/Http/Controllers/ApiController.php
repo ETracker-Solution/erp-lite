@@ -9,6 +9,7 @@ use App\Models\Product;
 use App\Models\Production;
 use App\Models\Purchase;
 use App\Models\Requisition;
+use App\Models\RequisitionDelivery;
 use App\Models\Supplier;
 use App\Models\PurchaseItem;
 use App\Models\SupplierTransaction;
@@ -183,6 +184,32 @@ class ApiController extends Controller
             'to_store_id' => $requisition->to_store_id,
             'reference_no' => $requisition->reference_no,
             'remark' => $requisition->remark,
+        ];
+        return response()->json($data);
+    }
+    public function fetchRequisitionDeliveryById($id)
+    {
+        $requisitionDelivery = RequisitionDelivery::with('items')->where('id', $id)->first();
+        $items = [];
+        foreach ($requisitionDelivery->items as $row) {
+            $items[] = [
+                'requisition_id' => $id,
+                'coi_id' => $row->coi_id,
+                'unit' => $row->coi->unit->name ?? '',
+                'name' => $row->coi->name ?? '',
+                'group' => $row->coi->parent->name ?? '',
+                'fg_average_rate' => averageFGRate($row->coi_id),
+                'delivery_quantity' => $row->quantity,
+                'quantity' => '',
+            ];
+        }
+        $data = [
+            'items' => $items,
+            'date' => $requisitionDelivery->date,
+            'from_store_id' => $requisitionDelivery->from_store_id,
+            'to_store_id' => $requisitionDelivery->to_store_id,
+            'reference_no' => $requisitionDelivery->reference_no,
+            'remark' => $requisitionDelivery->remark,
         ];
         return response()->json($data);
     }

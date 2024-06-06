@@ -69,29 +69,6 @@ class FGRequisitionDeliveryController extends Controller
             $products = $request->get('products');
             foreach ($products as $product) {
                 $requisition_delivery->items()->create($product);
-                // Inventory Transaction Effect
-                InventoryTransaction::query()->create([
-                    'store_id' => $requisition_delivery->from_store_id,
-                    'doc_type' => 'FGRD',
-                    'doc_id' => $requisition_delivery->id,
-                    'quantity' => $product['quantity'],
-                    'rate' => $product['rate'],
-                    'amount' => $product['quantity'] * $product['rate'],
-                    'date' => $requisition_delivery->date,
-                    'type' => -1,
-                    'coi_id' => $product['coi_id'],
-                ]);
-                InventoryTransaction::query()->create([
-                    'store_id' => $requisition_delivery->to_store_id,
-                    'doc_type' => 'FGRD',
-                    'doc_id' => $requisition_delivery->id,
-                    'quantity' => $product['quantity'],
-                    'rate' => $product['rate'],
-                    'amount' => $product['quantity'] * $product['rate'],
-                    'date' => $requisition_delivery->date,
-                    'type' => 1,
-                    'coi_id' => $product['coi_id'],
-                ]);
             }
             Requisition::where('id', $data['requisition_id'])->update(['status' => 'completed']);
             DB::commit();
