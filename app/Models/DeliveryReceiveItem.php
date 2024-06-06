@@ -10,4 +10,9 @@ class DeliveryReceiveItem extends Model
     use HasFactory;
 
     protected $guarded = ['id'];
+
+    public function coi(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(ChartOfInventory::class, 'coi_id');
+    }
 }
