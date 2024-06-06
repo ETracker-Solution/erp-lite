@@ -335,7 +335,7 @@
                         </ul>
                     </li>
                 @endcanany
-                @canany(['store-fg-fg-inventory-transfer','store-fg-fg-inventory-adjustment','store-fg-create-fg-requisition','store-fg-fg-requisition-delivery','store-fg-fg-inventory-report'])
+                @canany(['store-fg-fg-inventory-transfer','store-fg-fg-inventory-adjustment','store-fg-create-fg-requisition','store-fg-fg-requisition-delivery','store-fg-fg-inventory-report','store-fg-fg-delivery-receive'])
                     <li class="nav-item {{ (Request::segment(1) == 'fg-inventory-transfers'|| Request::segment(1) == 'fg-inventory-adjustments'|| Request::segment(1) == 'requisitions'|| Request::segment(1) == 'fg-requisition-deliveries'|| Request::segment(1) == 'fg-delivery-receives'|| Request::segment(1) == 'finish-goods-inventory-report' )?'menu-open':''}}">
                         <a href="#"
                            class="nav-link {{ (Request::segment(1) == 'fg-inventory-transfers'|| Request::segment(1) == 'fg-inventory-adjustments'|| Request::segment(1) == 'requisitions'|| Request::segment(1) == 'fg-requisition-deliveries'|| Request::segment(1) == 'fg-delivery-receives'|| Request::segment(1) == 'finish-goods-inventory-report')?' active':''}}">
