@@ -80,9 +80,10 @@
                     orderable: false
                 },
                     {
-                        data: "id",
+                        data: "order_number",
                         title: "Order No",
-                        searchable: true
+                        searchable: true,
+                        "defaultContent": '<span class="text-danger">N/A</span>'
                     },
                     {
                         data: "customer.name",

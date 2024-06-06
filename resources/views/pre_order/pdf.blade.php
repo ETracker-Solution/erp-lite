@@ -88,7 +88,7 @@
                                     @foreach ($model->items as $item)
                                     <tr>
                                         <td>{{ $loop->iteration }}</td>
-                                        <td>{{ $model->id }}</td>
+                                        <td>{{ $model->order_number }}</td>
                                         <td>{{ $model->customer->name }}</td>
                                         <td>{{ $model->outlet->name }}</td>
                                         <td>{{ $item->unit_price }}</td>

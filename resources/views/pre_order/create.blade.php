@@ -86,14 +86,24 @@
                                                 </select>
                                             </div>
                                         </div>
-                                        <div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
+                                        <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+                                            <div class="form-group">
+                                                <label for="order_from">Order From<span class="text-danger">*</span></label>
+                                                <select name="order_from" id="order_from"
+                                                        class="form-control bSelect" required>
+                                                    <option value="outlet">Outlet</option>
+                                                    <option value="facebook">Facebook</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                             <div class="form-group">
                                                 <label for="remark">Description <span class="text-danger">*</span></label>
                                                 <textarea class="form-control" name="remark" rows="2"
                                                           placeholder="Enter Description" required></textarea>
                                             </div>
                                         </div>
-                                        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                                        <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                             <div class="form-group">
                                                 <label for="image">Attachment</label>
                                                 <input type="file" class="form-control" name="image">
