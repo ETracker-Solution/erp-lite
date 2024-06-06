@@ -414,7 +414,7 @@
             labels: JSON.parse('<?= json_encode($stock['productWise']['products']) ?>'),
             datasets: [
                 {
-                    backgroundColor: "green",
+                    backgroundColor: ["green", "red", "blue", "orange", "brown", "green", "red", "blue", "orange", "brown"],
                     borderColor: "lightgreen",
                     borderWidth: 1,
                     data: JSON.parse('<?= json_encode($stock['productWise']['stock']) ?>'),
