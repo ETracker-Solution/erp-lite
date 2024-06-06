@@ -1,6 +1,6 @@
 @extends('layouts.app')
 @section('title')
-FG Requisition Details
+FG Delivery Receive Details
 @endsection
 @section('content')
 <!-- Content Wrapper. Contains page content -->
@@ -8,10 +8,10 @@ FG Requisition Details
     @php    
         $links = [
         'Home'=>route('dashboard'),
-        'FG Requisition Details'=>''
+        'FG Delivery Receive Details'=>''
         ]
     @endphp
-<x-breadcrumb title='FG Requisition Delivery Details' :links="$links"/>
+<x-breadcrumb title='FG Delivery Receive Details' :links="$links"/>
 
 <section class="content">
     <div class="container-fluid">
@@ -19,7 +19,7 @@ FG Requisition Details
             <div class="col-12">
                 <div class="card card-info">
                     <div class="card-header">
-                        <h3 class="card-title">FG Requisition Delivery Details</h3>
+                        <h3 class="card-title">FG Delivery Receive Details</h3>
                         <a href="{{route('fg-delivery-receive.pdf',encrypt($fgDeliveryReceive->id))}}"
                             class="btn btn-sm btn-primary float-right" target="_blank"><i class="fa fa-download"></i> PDF</a>
                     </div>
