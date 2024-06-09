@@ -53,6 +53,10 @@ Route::middleware('auth')->group(function () {
     Route::resource('stores', \App\Http\Controllers\StoreController::class);
     Route::resource('chart-of-inventories', ChartOfInventoryController::class);
 
+    Route::get('/update-profile',[ProfileController::class,'profile'])->name('profile');
+    Route::post('/update-profile',[ProfileController::class,'updateProfile'])->name('profile.update-admin');
+
+
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');

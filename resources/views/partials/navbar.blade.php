@@ -149,7 +149,7 @@
             </div>
 
             <div class="dropdown-menu dropdown-menu dropdown-menu-right mt-2">
-                <a href="#" class="dropdown-item"><i class="fa fa-user"></i> Profile</a>
+                <a href="{{ route('profile') }}" class="dropdown-item"><i class="fa fa-user"></i> Profile</a>
                 <div class="dropdown-divider"></div>
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
