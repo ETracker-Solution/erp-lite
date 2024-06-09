@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
 
 class StoreFundTransferVoucherRequest extends FormRequest
 {
@@ -28,18 +29,23 @@ class StoreFundTransferVoucherRequest extends FormRequest
             'uid' => 'required',
             'date' => 'required',
             'amount' => 'required',
-            'credit_account_id' => ['required','different:debit_account_id'],
+            'created_by' => 'required',
+            'credit_account_id' => ['required', 'different:debit_account_id'],
             'debit_account_id' => ['required', 'different:credit_account_id'],
             'narration' => 'nullable',
             'reference_no' => 'nullable',
         ];
     }
+
     public function prepareForValidation()
     {
 
-        //
+        $this->merge([
+            'created_by' => auth()->user()->id,
+        ]);
 
     }
+
     public function messages()
     {
         return [
