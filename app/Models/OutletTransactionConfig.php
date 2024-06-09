@@ -10,4 +10,9 @@ class OutletTransactionConfig extends Model
     use HasFactory;
 
     protected $guarded = ['id'];
+
+    public function coa()
+    {
+        return $this->belongsTo(ChartOfAccount::class, 'coa_id', 'id');
+    }
 }

@@ -7,6 +7,7 @@ use App\Models\FundTransferVoucher;
 use App\Http\Requests\StoreFundTransferVoucherRequest;
 use App\Http\Requests\UpdateFundTransferVoucherRequest;
 use App\Models\ChartOfAccount;
+use App\Models\OutletTransactionConfig;
 use App\Models\Transaction;
 use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Http\Request;
@@ -46,14 +47,26 @@ class FundTransferVoucherController extends Controller
      */
     public function create()
     {
-        $chartOfAccounts = ChartOfAccount::where(['is_bank_cash' => 'yes', 'type' => 'ledger', 'status' => 'active'])->get();
+        if (\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->outlet_id) {
+
+            $cons = OutletTransactionConfig::with('coa')->where('outlet_id', \auth()->user()->employee->outlet_id)->get();
+            foreach ($cons as $con) {
+                $chartOfAccounts[] = $con->coa;
+            }
+
+        } else {
+            $chartOfAccounts = ChartOfAccount::where(['is_bank_cash' => 'yes', 'type' => 'ledger', 'status' => 'active'])->get();
+
+        }
+        $toChartOfAccounts = ChartOfAccount::where(['is_bank_cash' => 'yes', 'type' => 'ledger', 'status' => 'active'])->get();
+
         $lastValue = FundTransferVoucher::latest()->pluck('uid')->first();
         if ($lastValue !== null) {
             $FTVno = (int)$lastValue + 1;
         } else {
             $FTVno = 1; // Set the default value to 1
         }
-        return view('fund_transfer_voucher.create', compact('chartOfAccounts', 'FTVno'));
+        return view('fund_transfer_voucher.create', compact('chartOfAccounts', 'FTVno','toChartOfAccounts'));
     }
 
     /**
@@ -102,7 +115,7 @@ class FundTransferVoucherController extends Controller
     {
         $chartOfAccounts = ChartOfAccount::where(['is_bank_cash' => 'yes', 'type' => 'ledger', 'status' => 'active'])->get();
         $fundTransferVoucher = FundTransferVoucher::findOrFail(decrypt($id));
-        return view('fund_transfer_voucher.edit',compact('fundTransferVoucher','chartOfAccounts'));
+        return view('fund_transfer_voucher.edit', compact('fundTransferVoucher', 'chartOfAccounts'));
     }
 
     /**
@@ -119,7 +132,7 @@ class FundTransferVoucherController extends Controller
         try {
             $fundTransferVoucher->update($validated);
             // Accounts Effect
-            AccountTransaction::where('doc_type','FTV')->where('doc_id',$fundTransferVoucher->id)->delete();
+            AccountTransaction::where('doc_type', 'FTV')->where('doc_id', $fundTransferVoucher->id)->delete();
             addAccountsTransaction('FTV', $fundTransferVoucher, $validated['debit_account_id'], $validated['credit_account_id']);
             DB::commit();
         } catch (\Exception $error) {
