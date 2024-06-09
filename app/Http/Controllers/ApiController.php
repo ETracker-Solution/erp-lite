@@ -139,7 +139,7 @@ class ApiController extends Controller
 
     public function fetchPurchaseById($id)
     {
-        $purchase = Purchase::with('items')->where('id', $id)->first();
+        $purchase = Purchase::with('items','supplier')->where('id', $id)->first();
         $items = [];
         foreach ($purchase->items as $row) {
             $items[] = [
@@ -149,6 +149,7 @@ class ApiController extends Controller
                 'name' => $row->coi->name ?? '',
                 'group' => $row->coi->parent->name ?? '',
                 'quantity' => $row->quantity,
+                'purchase_quantity' => $row->quantity,
                 'rate' => $row->rate
             ];
         }

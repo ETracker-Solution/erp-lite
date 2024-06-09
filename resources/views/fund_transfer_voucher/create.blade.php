@@ -69,7 +69,7 @@
                                                                     @endforeach
                                                                 </select>
                                                             </div>
-                                                        </div>                                             
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -95,7 +95,7 @@
                                                                     <select class="form-control select2" name="debit_account_id"
                                                                         id="debit_account_id">
                                                                         <option value="">---Select Account---</option>
-                                                                        @foreach ($chartOfAccounts as $row)
+                                                                        @foreach ($toChartOfAccounts as $row)
                                                                             <option value="{{ $row->id }}" {{ old('debit_account_id') == $row->id ? 'selected' : '' }}>{{ $row->name }}
                                                                             </option>
                                                                         @endforeach

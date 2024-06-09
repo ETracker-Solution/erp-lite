@@ -25,7 +25,7 @@ class PurchaseReturnController extends Controller
     public function index()
     {
         if (\request()->ajax()) {
-            $purchase_returns = PurchaseReturn::with('supplier','store')->latest();
+            $purchase_returns = PurchaseReturn::with('supplier', 'store')->latest();
             return DataTables::of($purchase_returns)
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
@@ -60,7 +60,7 @@ class PurchaseReturnController extends Controller
             'suppliers' => Supplier::all(),
             'stores' => Store::where(['type' => 'RM', 'doc_type' => 'ho', 'doc_id' => null])->get(),
             'uid' => getNextId(PurchaseReturn::class),
-            'purchases' => Purchase::all()
+            'purchases' => Purchase::where('status', '!=', 'returned')->get(),
         ];
         return view('purchase_return.create', $data);
     }
@@ -70,47 +70,48 @@ class PurchaseReturnController extends Controller
      */
     public function store(StorePurchaseReturnRequest $request)
     {
-        $validated = $request->validated();
+        $data = $request->validated();
 //        DB::beginTransaction();
 //        try {
-            if (count($validated['products']) < 1) {
-                Toastr::info('At Least One Product Required.', '', ["progressBar" => true]);
-                return back();
-            }
-            $purchase_return = PurchaseReturn::query()->create($validated);
-            $purchase_return->amount = $purchase_return->net_payable;
-            foreach ($validated['products'] as $product) {
-                $purchase_return->items()->create($product);
-                // Inventory Transaction Effect
-                InventoryTransaction::query()->create([
-                    'store_id' => $purchase_return->store_id,
-                    'doc_type' => 'GPBR',
-                    'doc_id' => $purchase_return->id,
-                    'quantity' => $product['quantity'],
-                    'rate' => $product['rate'],
-                    'amount' => $product['quantity'] * $product['rate'],
-                    'date' => $purchase_return->date,
-                    'type' => -1,
-                    'coi_id' => $product['coi_id'],
-                ]);
-            }
-
-
-            // Accounts Transaction Effect
-
-            addAccountsTransaction('GPB', $purchase_return, 22, 15);
-
-            // Supplier Transaction Effect
-            SupplierTransaction::query()->create([
-                'supplier_id' => $purchase_return->supplier_id,
-                'doc_type' => 'GPB',
+        if (count($data['products']) < 1) {
+            Toastr::info('At Least One Product Required.', '', ["progressBar" => true]);
+            return back();
+        }
+        $purchase_return = PurchaseReturn::query()->create($data);
+        Purchase::where('id', $data['purchase_id'])->update(['status' => 'returned']);
+        $purchase_return->amount = $purchase_return->net_payable;
+        foreach ($data['products'] as $product) {
+            $purchase_return->items()->create($product);
+            // Inventory Transaction Effect
+            InventoryTransaction::query()->create([
+                'store_id' => $purchase_return->store_id,
+                'doc_type' => 'GPBR',
                 'doc_id' => $purchase_return->id,
-                'amount' => $purchase_return->net_payable,
+                'quantity' => $product['quantity'],
+                'rate' => $product['rate'],
+                'amount' => $product['quantity'] * $product['rate'],
                 'date' => $purchase_return->date,
-                'transaction_type' => -1,
-                'chart_of_account_id' => 12,
-                'description' => 'Purchase of goods',
+                'type' => -1,
+                'coi_id' => $product['coi_id'],
             ]);
+        }
+
+
+        // Accounts Transaction Effect
+
+        addAccountsTransaction('GPB', $purchase_return, 22, 15);
+
+        // Supplier Transaction Effect
+        SupplierTransaction::query()->create([
+            'supplier_id' => $purchase_return->supplier_id,
+            'doc_type' => 'GPB',
+            'doc_id' => $purchase_return->id,
+            'amount' => $purchase_return->net_payable,
+            'date' => $purchase_return->date,
+            'transaction_type' => -1,
+            'chart_of_account_id' => 12,
+            'description' => 'Purchase of goods',
+        ]);
 //            DB::commit();
 //        } catch (\Exception $exception) {
 //            DB::rollBack();
