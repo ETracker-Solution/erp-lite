@@ -139,7 +139,7 @@ class ApiController extends Controller
 
     public function fetchPurchaseById($id)
     {
-        $purchase = Purchase::with('items')->where('id', $id)->first();
+        $purchase = Purchase::with('items','supplier')->where('id', $id)->first();
         $items = [];
         foreach ($purchase->items as $row) {
             $items[] = [

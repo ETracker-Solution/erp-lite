@@ -66,7 +66,7 @@
                                             <select name="supplier_group_id" id="supplier_group_id"
                                                     class="form-control bSelect"
                                                     v-model="supplier_group_id"
-                                                    @change="fetch_supplier">
+                                                    @change="fetch_supplier" disabled>
                                                 <option value="">Select Group</option>
                                                 @foreach($supplier_groups as $row)
                                                     <option
@@ -80,7 +80,7 @@
                                             <label for="supplier_id">Supplier</label>
                                             <select name="supplier_id" id="supplier_id"
                                                     class="form-control bSelect" v-model="supplier_id"
-                                                    required>
+                                                    disabled>
                                                 <option value="">Select Supplier</option>
                                                 <option :value="row.id" v-for="row in suppliers"
                                                         v-html="row.name">
@@ -93,8 +93,8 @@
                                     <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                         <div class="form-group">
                                             <label for="store_id">Store</label>
-                                            <select name="store_id" id="store_id"
-                                                    class="form-control bSelect" required>
+                                            <select name="store_id" id="store_id" v-model="store_id"
+                                                    class="form-control bSelect" disabled>
                                                 <option value="">Select Store</option>
                                                 @foreach($stores as $row)
                                                     <option
@@ -183,7 +183,7 @@
                                                         <input type="number" v-model="row.rate"
                                                                :name="'products['+index+'][rate]'"
                                                                class="form-control input-sm"
-                                                               @change="itemtotal(row)" required>
+                                                               @change="itemtotal(row)" required readonly>
                                                     </td>
                                                     <td>
                                                         <input type="text" class="form-control input-sm"
@@ -319,6 +319,7 @@
                     },
 
                     purchase_id: '',
+                    store_id: '',
                     date: '',
                     vat: '',
                     supplier_group_id: '',
@@ -457,7 +458,11 @@
                         vm.selected_items = [];
                         axios.get(this.config.get_old_items_data + '/' + slug).then(function (response) {
                             let item = response.data.items;
+                            vm.store_id = response.data.purchase.store_id;
                             vm.vat = response.data.purchase.vat;
+                            vm.supplier_group_id = response.data.purchase.supplier.supplier_group_id;
+                            vm.supplier_id = response.data.purchase.supplier_id;
+                            vm.fetch_supplier();
                             for (key in item) {
                                 vm.selected_items.push(item[key]);
                             }
@@ -465,14 +470,13 @@
                         vm.pageLoading = false;
                     },
                     itemtotal: function (index) {
-                        console.log(index.quantity * index.rate);
                         return index.quantity * index.rate;
                     },
 
                 },
                 beforeMount() {
-                    this.load_old();
-                    this.fetch_supplier();
+                    // this.load_old();
+                    // this.fetch_supplier();
                 },
                 updated() {
                     $('.bSelect').selectpicker('refresh');
