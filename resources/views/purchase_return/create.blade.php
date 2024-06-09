@@ -43,6 +43,10 @@
                                             <input type="text" class="form-control input-sm"
                                                    value="{{$uid??0}}" name="uid"
                                                    id="uid" readonly>
+                                            <input type="hidden" name="supplier_id"
+                                                   class="form-control input-sm" :value="supplier_id">
+                                            <input type="hidden" name="store_id"
+                                                   class="form-control input-sm" :value="store_id">
                                         </div>
                                     </div>
                                     <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
