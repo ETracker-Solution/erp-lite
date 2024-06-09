@@ -151,7 +151,8 @@
                                                     <th style="width: 200px">Group</th>
                                                     <th>Item</th>
                                                     <th style="width: 50px">Unit</th>
-                                                    <th style="width: 180px">Qty</th>
+                                                    <th style="width: 180px">Purchase Qty</th>
+                                                    <th style="width: 180px">Return Qty</th>
                                                     <th style="width: 180px">Rate</th>
                                                     <th style="width: 180px">Value</th>
                                                     <th style="width: 10px"></th>
@@ -178,6 +179,11 @@
                                                         @{{ row.unit }}
                                                     </td>
                                                     <td>
+                                                        <input type="number" v-model="row.purchase_quantity"
+                                                               :name="'products['+index+'][purchase_quantity]'"
+                                                               class="form-control input-sm" readonly>
+                                                    </td>
+                                                    <td>
                                                         <input type="number" v-model="row.quantity"
                                                                :name="'products['+index+'][quantity]'"
                                                                class="form-control input-sm"
@@ -202,10 +208,10 @@
                                                 </tbody>
                                                 <tfoot>
                                                 <tr>
-                                                    <td colspan="8" style="background-color: #DDDCDC"></td>
+                                                    <td colspan="9" style="background-color: #DDDCDC"></td>
                                                 </tr>
                                                 <tr>
-                                                    <td colspan="5">
+                                                    <td colspan="6">
 
                                                     </td>
                                                     <td>
@@ -218,7 +224,7 @@
                                                     <td></td>
                                                 </tr>
                                                 <tr>
-                                                    <td colspan="5">
+                                                    <td colspan="6">
 
                                                     </td>
                                                     <td>
@@ -231,7 +237,7 @@
                                                     <td></td>
                                                 </tr>
                                                 <tr>
-                                                    <td colspan="5">
+                                                    <td colspan="6">
 
                                                     </td>
                                                     <td>

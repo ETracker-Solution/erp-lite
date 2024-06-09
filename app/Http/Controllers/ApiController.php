@@ -149,6 +149,7 @@ class ApiController extends Controller
                 'name' => $row->coi->name ?? '',
                 'group' => $row->coi->parent->name ?? '',
                 'quantity' => $row->quantity,
+                'purchase_quantity' => $row->quantity,
                 'rate' => $row->rate
             ];
         }
