@@ -10,8 +10,9 @@
                 <div class="card card-primary card-outline">
                     <div class="card-body box-profile">
                         <div class="text-center">
-                            @if (isset(Auth::guard('web')->employee()->image) && file_exists('upload/'.Auth::guard('web')->employee()->image))
-                                    <img src="{{ asset('/upload/'.Auth::guard('web')->employee()->image) }}" class="profile-user-img img-fluid img-circle"
+                            {{-- @dd(Auth::guard('web')->user()->employee->image); --}}
+                            @if (isset(Auth::guard('web')->user()->employee->image) && file_exists('upload/'.Auth::guard('web')->user()->employee->image))
+                                    <img src="{{ asset('/upload/'.Auth::guard('web')->user()->employee->image) }}" class="profile-user-img img-fluid img-circle"
                                     alt="">
                             @else
                                 <img src="{{ asset('admin/app-assets/dummy/dammy.jpg') }}"
