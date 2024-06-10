@@ -140,8 +140,16 @@
         <li class="nav-item dropdown">
             <div class="user-panel d-flex" data-toggle="dropdown">
                 <div class="image">
-                    <img src="{{ asset('assets/dist/img/user2-160x160.jpg') }}" class="img-circle elevation-2"
-                         alt="User Image">
+                    @if (isset(Auth::guard('web')->user()->employee->image) && file_exists('upload/'.Auth::guard('web')->user()->employee->image))
+                            <img src="{{ asset('/upload/'.Auth::guard('web')->user()->employee->image) }}" class="img-circle elevation-2"
+                            alt="User Image" style="height: 40px">
+                    @else
+                        <img src="{{ asset('admin/app-assets/dummy/dammy.jpg') }}"
+                        class="img-circle elevation-2" alt="User Image">
+                    @endif
+
+                    {{-- <img src="{{ asset('assets/dist/img/user2-160x160.jpg') }}" class="img-circle elevation-2"
+                         alt="User Image"> --}}
                 </div>
                 <div class="info">
                     <a href="#" class="d-block">{{ Auth::user()->name }}</a>

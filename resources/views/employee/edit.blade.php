@@ -31,7 +31,7 @@
                             </div>
                         </div>
                     </div>
-                    <form action="{{ route('employees.update',$employee->id) }}" method="POST" class="" id="employeeForm">
+                    <form action="{{ route('employees.update',$employee->id) }}" method="POST" class="" id="employeeForm" enctype="multipart/form-data">
                         @csrf
                         @method('put')
                         <!-- Horizontal Form -->
@@ -44,8 +44,8 @@
                                             <label for="employee_id">Employee ID</label>
                                             <div class="input-group">
                                                 <input type="text" class="form-control input-sm"
-                                                       value="{{ $employee->employee_id }}" name="employee_id"
-                                                       id="employee_id">
+                                                       value="{{ $employee->employee_id }}"
+                                                       id="employee_id" readonly>
                                                 <span class="input-group-append">
                                                     <button type="button"
                                                             class="btn btn-info btn-flat" onclick="getEmployeeData()">Search</button>

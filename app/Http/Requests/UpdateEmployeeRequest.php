@@ -23,7 +23,7 @@ class UpdateEmployeeRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'employee_id' => ['nullable', 'unique:' . app(Employee::class)->getTable() . ',employee_id'],
+            // 'employee_id' => ['nullable', 'unique:' . app(Employee::class)->getTable() . ',employee_id'],
             'name' => 'required',
             'image' => ['nullable', 'exclude_if:image,null'],
             'father_name' => 'nullable',
