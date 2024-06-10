@@ -459,12 +459,20 @@
         });
     </script>
     <script>
+        function generateColors(numColors) {
+            var colors = ["green", "red", "blue", "orange", "brown", "purple", "yellow", "cyan", "magenta", "lime"];
+            var dynamicColors = [];
+            for (var i = 0; i < numColors; i++) {
+                dynamicColors.push(colors[i % colors.length]);
+            }
+            return dynamicColors;
+        }
 
         var barChartDataOrder = {
             labels: JSON.parse('<?= json_encode($stock['productWise']['products']) ?>'),
             datasets: [
                 {
-                    backgroundColor: "green",
+                    backgroundColor: generateColors(<?= count($stock['productWise']['products']) ?>),
                     borderColor: "lightgreen",
                     borderWidth: 1,
                     data: JSON.parse('<?= json_encode($formatted_stocks) ?>').map(function(value) {

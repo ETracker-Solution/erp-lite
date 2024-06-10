@@ -44,7 +44,7 @@ class FactoryDashboardController extends Controller
         $totalStock = 0;
         $allProducts = ChartOfInventory::where(['type'=>'item','rootAccountType'=>'RM'])->select('name', 'id')->get();
         foreach ($allProducts as $product) {
-            $stock = InventoryTransaction::where('coi_id', $product->id)->sum(DB::raw('amount * type'));
+            $stock = InventoryTransaction::whereIn('store_id', $store_ids)->where('coi_id', $product->id)->sum(DB::raw('amount * type'));
             $productWiseStock['products'][] = $product->name;
             $productWiseStock['stock'][] = $stock;
             $totalStock += $stock;
