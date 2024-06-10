@@ -10,10 +10,9 @@
                 <div class="card card-primary card-outline">
                     <div class="card-body box-profile">
                         <div class="text-center">
-                            {{-- @dd(Auth::guard('web')->user()->employee->image); --}}
                             @if (isset(Auth::guard('web')->user()->employee->image) && file_exists('upload/'.Auth::guard('web')->user()->employee->image))
                                     <img src="{{ asset('/upload/'.Auth::guard('web')->user()->employee->image) }}" class="profile-user-img img-fluid img-circle"
-                                    alt="">
+                                    alt="" style="height: 100px">
                             @else
                                 <img src="{{ asset('admin/app-assets/dummy/dammy.jpg') }}"
                                 class="profile-user-img img-fluid img-circle" alt="">
@@ -22,14 +21,14 @@
                         <h3 class="profile-username text-center">{{ $adminProfile->name }}</h3>
                         <ul class="list-group list-group-unbordered mb-3">
                             <li class="list-group-item">
-                                <b>Email</b> <a class="float-right">{{ $adminProfile->email }}</a>
-                            </li>
-                            {{-- <li class="list-group-item">
-                                <b>Following</b> <a class="float-right">543</a>
+                                <b>Phone</b> <a class="float-right">{{ Auth::guard('web')->user()->employee->phone }}</a>
                             </li>
                             <li class="list-group-item">
-                                <b>Friends</b> <a class="float-right">13,287</a>
-                            </li> --}}
+                                <b>Email</b> <a class="float-right">{{ $adminProfile->email }}</a>
+                            </li>
+                            <li class="list-group-item">
+                                <b>Address</b> <a class="float-right">{{ Auth::guard('web')->user()->employee->present_address }}</a>
+                            </li>
                         </ul>
                         {{-- <a href="#" class="btn btn-primary btn-block"><b>Follow</b></a> --}}
                     </div>
@@ -57,10 +56,17 @@
                                     </div>
                                 </div>
                                 <div class="form-group row">
-                                    <label for="inputSkills" class="col-sm-2 col-form-label"> Password</label>
+                                    <label for="inputPassword" class="col-sm-2 col-form-label"> Password</label>
                                     <div class="col-sm-10">
-                                        <input type="password" id="inputSkills" class="form-control" placeholder="Password" value=""
+                                        <input type="password" id="inputPassword" class="form-control" placeholder="Enter Password" value=""
                                             name="password">
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label for="inputRepassword" class="col-sm-2 col-form-label"> Retype Password</label>
+                                    <div class="col-sm-10">
+                                        <input type="password" id="inputRepassword" class="form-control" placeholder="Enter Password" value=""
+                                            name="password_confirmation">
                                     </div>
                                 </div>
                                 <div class="form-group row">

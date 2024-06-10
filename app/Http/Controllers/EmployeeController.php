@@ -106,6 +106,7 @@ class EmployeeController extends Controller
      */
     public function update(UpdateEmployeeRequest $request, $id)
     {
+        // dd($request->all());
         $validated = $request->validated();
         DB::beginTransaction();
         try {

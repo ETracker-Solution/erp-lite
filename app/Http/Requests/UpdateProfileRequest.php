@@ -27,6 +27,7 @@ class UpdateProfileRequest extends FormRequest
             // 'mobile' => 'required|unique:admins,mobile,'.$this->id,
             // 'email' => 'required',
             'password' => ['nullable', 'exclude_if:password,null'],
+            'password_confirmation' => 'required_with:password|same:password',
             // 'image' => ['nullable','exclude_if:image,null'],
         ];
     }
