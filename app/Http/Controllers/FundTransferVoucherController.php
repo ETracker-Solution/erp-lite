@@ -25,7 +25,12 @@ class FundTransferVoucherController extends Controller
     public function index()
     {
         if (\request()->ajax()) {
-            $fundTransferVouchers = FundTransferVoucher::with('creditAccount', 'debitAccount')->latest();
+            if (\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->outlet_id) {
+                $fundTransferVouchers = FundTransferVoucher::where('created_by', \auth()->user()->id)->with('creditAccount', 'debitAccount')->latest();
+
+            } else {
+                $fundTransferVouchers = FundTransferVoucher::with('creditAccount', 'debitAccount')->latest();
+            }
             return DataTables::of($fundTransferVouchers)
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
@@ -66,7 +71,7 @@ class FundTransferVoucherController extends Controller
         } else {
             $FTVno = 1; // Set the default value to 1
         }
-        return view('fund_transfer_voucher.create', compact('chartOfAccounts', 'FTVno','toChartOfAccounts'));
+        return view('fund_transfer_voucher.create', compact('chartOfAccounts', 'FTVno', 'toChartOfAccounts'));
     }
 
     /**
@@ -113,9 +118,20 @@ class FundTransferVoucherController extends Controller
      */
     public function edit($id)
     {
-        $chartOfAccounts = ChartOfAccount::where(['is_bank_cash' => 'yes', 'type' => 'ledger', 'status' => 'active'])->get();
+        if (\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->outlet_id) {
+
+            $cons = OutletTransactionConfig::with('coa')->where('outlet_id', \auth()->user()->employee->outlet_id)->get();
+            foreach ($cons as $con) {
+                $chartOfAccounts[] = $con->coa;
+            }
+
+        } else {
+            $chartOfAccounts = ChartOfAccount::where(['is_bank_cash' => 'yes', 'type' => 'ledger', 'status' => 'active'])->get();
+
+        }
+        $toChartOfAccounts = ChartOfAccount::where(['is_bank_cash' => 'yes', 'type' => 'ledger', 'status' => 'active'])->get();
         $fundTransferVoucher = FundTransferVoucher::findOrFail(decrypt($id));
-        return view('fund_transfer_voucher.edit', compact('fundTransferVoucher', 'chartOfAccounts'));
+        return view('fund_transfer_voucher.edit', compact('fundTransferVoucher', 'chartOfAccounts', 'toChartOfAccounts'));
     }
 
     /**

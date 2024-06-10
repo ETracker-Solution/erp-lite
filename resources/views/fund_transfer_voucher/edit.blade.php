@@ -93,7 +93,7 @@
                                                                     <select class="form-control select2" name="debit_account_id"
                                                                         id="debit_account_id">
                                                                         <option value="">---Select Account---</option>
-                                                                        @foreach ($chartOfAccounts as $row)
+                                                                        @foreach ($toChartOfAccounts as $row)
                                                                             <option value="{{ $row->id }}"
                                                                                 {{ $row->id == $fundTransferVoucher->debit_account_id ? 'selected' : '' }}>
                                                                                 {{ $row->name }}
@@ -103,7 +103,7 @@
                                                                 </div>
                                                             </div>
                                                         </div>
-                                                        
+
                                                     </div>
                                                     <div class="row">
                                                         <div class="col-md-6">
