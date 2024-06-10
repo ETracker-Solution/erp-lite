@@ -83,7 +83,8 @@ $links = [
                     {
                         data: "name",
                         title: "Name",
-                        searchable: true
+                        searchable: true,
+                        "defaultContent": "N/A"
                     },
                     {
                         data: "email",
