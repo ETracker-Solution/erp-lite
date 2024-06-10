@@ -337,6 +337,13 @@
 
     </section>
 @endsection
+<?php
+    $stocks = $stock['productWise']['stock'];
+    // Format each number in the stock array
+    $formatted_stocks = array_map(function($num) {
+        return number_format($num, 2);
+    }, $stocks);
+?>
 @section('css')
     <!-- DataTables -->
     <link rel="stylesheet" href="{{ asset('assets/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css')}}">
@@ -460,7 +467,9 @@
                     backgroundColor: "green",
                     borderColor: "lightgreen",
                     borderWidth: 1,
-                    data: JSON.parse('<?= json_encode($stock['productWise']['stock']) ?>'),
+                    data: JSON.parse('<?= json_encode($formatted_stocks) ?>').map(function(value) {
+                        return parseFloat(value.replace(/,/g, ''));
+                    }),
                 },
             ]
         };
