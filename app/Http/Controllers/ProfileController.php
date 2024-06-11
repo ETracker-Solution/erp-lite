@@ -24,31 +24,33 @@ class ProfileController extends Controller
         $validated = $request->validated();
 
         $adminProfile = Auth::guard('web')->user();
-        // if($request->hasfile('image'))
-        // {
-        //     $path = str_replace('\\', '/', public_path('/upload/' . $adminProfile->image));
-        //     if(File::exists($path))
-        //     {
-        //         File::delete($path);
-        //     }
+        $employeeProfile = Auth::guard('web')->user()->employee;
+        if($request->hasfile('image'))
+        {
+            $path = str_replace('\\', '/', public_path('/upload/' . $employeeProfile->image));
+            if(File::exists($path))
+            {
+                File::delete($path);
+            }
 
-        //     $filename = '';
-        //     if ($request->hasfile('image')) {
-        //         $file = $request->file('image');
-        //         $filename = date('Ymdmhs') . '.' . $file->getClientOriginalExtension();
-        //         $file->move(public_path('/upload'), $filename);
-        //     }
-        // }
-        // $validated['image'] = $filename ?? null;
-        // if(isset($validated['image'])){
-        //     $validated['image'] = $filename ?? null;
-        // }
+            $filename = '';
+            if ($request->hasfile('image')) {
+                $file = $request->file('image');
+                $filename = date('Ymdmhs') . '.' . $file->getClientOriginalExtension();
+                $file->move(public_path('/upload'), $filename);
+            }
+        }
+
         if (isset($validated['password'])) {
             $validated['password'] = bcrypt($validated['password']);
         }
         // if (isset($validated['mobile'])) {
         //     $validated['mobile'] = $validated['mobile'];
         // }
+        $employeeProfile->update([
+            'image' => $filename ?? $employeeProfile->image
+        ]);
+        
         $adminProfile->update($validated);
         Toastr::success('Profile Updated Successfully!.', '', ["progressBar" => true]);
         return redirect()->back();

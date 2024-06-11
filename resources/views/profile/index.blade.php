@@ -40,7 +40,7 @@
                 <div class="card">
                     <div class="card-body">
                         <div class="tab-pane" id="settings">
-                            <form action="{{ route('profile.update-admin') }}" method="POST" class="form-horizontal">
+                            <form action="{{ route('profile.update-admin') }}" method="POST" class="form-horizontal" enctype="multipart/form-data">
                                 @csrf
                                 <div class="form-group row">
                                     <label for="inputName" class="col-sm-2 col-form-label">Name</label>
@@ -53,6 +53,12 @@
                                     <div class="col-sm-10">
                                         <input type="email" class="form-control" Value="{{ $adminProfile->email ?? '' }}" id="inputEmail"
                                             placeholder="Email" readonly>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label for="inputImage" class="col-sm-2 col-form-label">Image</label>
+                                    <div class="col-sm-10">
+                                        <input type="file" class="form-control" id="image" name="image">
                                     </div>
                                 </div>
                                 <div class="form-group row">
@@ -71,7 +77,7 @@
                                 </div>
                                 <div class="form-group row">
                                     <div class="offset-sm-2 col-sm-10">
-                                        <button type="submit" class="btn btn-danger">Submit</button>
+                                        <button type="submit" class="btn btn-info waves-effect waves-float waves-light float-right ml-1">Submit</button>
                                     </div>
                                 </div>
                             </form>
