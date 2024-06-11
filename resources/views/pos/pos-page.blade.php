@@ -118,7 +118,7 @@
                 </div>
                 <div class="container text-center btn-group btn-group-justified mt-2" style="gap: 10px">
                     <button class="btn pause-button" @click="openOnHoldModal">On Hold</button>
-                    <button class="btn pause-button"  @click="openPreOrderModal">Pre-Order</button>
+{{--                    <button class="btn pause-button"  @click="openPreOrderModal">Pre-Order</button>--}}
                 </div>
                 <div class=" payment-button mt-2 p-3" style="cursor: pointer" @click="openPaymentModal">
                     <div>
