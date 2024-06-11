@@ -148,9 +148,10 @@ FROM (
         IF(Subgroup_ID IS NULL, '', IFNULL(Subgroup_Name, '')) AS `Item Name`,
         `Balance Qty`,
         IF(Subgroup_ID IS NULL, '', IFNULL(IF(`AllQ` = 0, NULL,format( `AllA` / `AllQ`,2)), ''))  AS `Rate`,
-        `Value`,
+      IF(Subgroup_ID IS NULL,format(@total_a,2),format(`Value`,2)) as`Value`,
         @prev_group := Group_Name,
-        @prev_store:= Store_Name
+        @prev_store:= Store_Name,
+        @total_a := @total_a + `Value`
     FROM (
         SELECT
 			ST.id AS Store_ID,
@@ -161,7 +162,7 @@ FROM (
             SUM(IT.quantity * IT.type) AS `Balance Qty`,
             SUM(CASE WHEN IT.type = 1 THEN IT.quantity ELSE 0 END) as `AllQ`,
             SUM(CASE WHEN IT.type = 1 THEN IT.amount ELSE 0 END) as `AllA`,
-            SUM(IT.amount) AS `Value`
+            SUM(IT.quantity * IT.type) * (SUM(CASE WHEN IT.type = 1 THEN IT.amount ELSE 0 END)/SUM(CASE WHEN IT.type = 1 THEN IT.quantity ELSE 0 END)) AS `Value`
         FROM
             inventory_transactions IT
         JOIN
@@ -176,7 +177,7 @@ FROM (
         GROUP BY
             CI.id WITH ROLLUP
     ) AS subquery,
-    (SELECT @prev_group := null, @prev_store:= null) AS prev
+    (SELECT @prev_group := null, @prev_store:= null, @total_a :=0) AS prev
 ) AS result;
         END;";
         DB::unprepared($procedure);
@@ -200,9 +201,10 @@ FROM (
         IF(Subgroup_ID IS NULL, '', IFNULL(Subgroup_Name, '')) AS `Item Name`,
         `Balance Qty`,
         IF(Subgroup_ID IS NULL, '', IFNULL(IF(`AllQ` = 0, NULL,format( `AllA` / `AllQ`,2)), ''))  AS `Rate`,
-        `Value`,
+       IF(Subgroup_ID IS NULL,format(@total_a,2),format(`Value`,2)) as`Value`,
         @prev_group := Group_Name,
-        @prev_store:= Store_Name
+         @prev_store:= Store_Name,
+        @total_a := @total_a + `Value`
     FROM (
         SELECT
 			ST.id AS Store_ID,
@@ -213,7 +215,7 @@ FROM (
             SUM(IT.quantity * IT.type) AS `Balance Qty`,
             SUM(CASE WHEN IT.type = 1 THEN IT.quantity ELSE 0 END) as `AllQ`,
             SUM(CASE WHEN IT.type = 1 THEN IT.amount ELSE 0 END) as `AllA`,
-            SUM(IT.amount) AS `Value`
+            SUM(IT.quantity * IT.type) * (SUM(CASE WHEN IT.type = 1 THEN IT.amount ELSE 0 END)/SUM(CASE WHEN IT.type = 1 THEN IT.quantity ELSE 0 END)) AS `Value`
         FROM
             inventory_transactions IT
         JOIN
@@ -229,7 +231,7 @@ FROM (
         GROUP BY
              CI.id WITH ROLLUP
     ) AS subquery,
-    (SELECT @prev_group := null, @prev_store:= null) AS prev
+    (SELECT @prev_group := null, @prev_store:= null, @total_a :=0) AS prev
 ) AS result;
 
         END;";

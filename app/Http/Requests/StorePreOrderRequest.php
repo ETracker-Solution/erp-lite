@@ -31,9 +31,9 @@ class StorePreOrderRequest extends FormRequest
             'delivery_date' => 'required',
             'subtotal' => 'required',
             'discount' => 'required',
-            'vat' => 'required',
+            'vat' => 'nullable',
             'grand_total' => 'required',
-            'advance_amount' => 'required',
+            'advance_amount' => 'nullable',
             'remark' => 'required',
             'image' => 'nullable',
             'order_from' => 'required',
@@ -46,6 +46,7 @@ class StorePreOrderRequest extends FormRequest
     {
 
         $this->merge([
+            'advance_amount' => $this->advance_amount ?? 0,
             'created_by' => auth()->user()->id,
             'delivery_date' => Carbon::parse($this->date)->format('Y-m-d'),
             'order_date' => Carbon::now()->format('Y-m-d'),
