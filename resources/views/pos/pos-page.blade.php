@@ -23,7 +23,7 @@
                         <div class="m-2 mt-3 d-flex">
                             <h4 style="margin-right: 10px">Products</h4>
                             <input type="text" class="form-control" placeholder="Search Product by Title, SKU"
-                                   v-model="search_string" @keypress="getProductBySearchString()">
+                                   v-model="search_string" @keyup="getProductBySearchString()">
                         </div>
                         <div>
                             <table class="table table-scroll" width="100%">
@@ -95,9 +95,8 @@
 {{--                                                <a class="dropdown-item" href="#">TK</a>--}}
 {{--                                            </div>--}}
                                         </div>
-
+                                        <button class="btn btn-sm btn-danger" @click="delete_selected_product(product)">X</button>
                                     </div>
-
                                 </div>
                             </div>
                         </div>
@@ -115,11 +114,11 @@
                 <div class="container text-center btn-group btn-group-justified" style="gap: 10px">
                     <button class="btn discount-button" @click="openCouponModal">Coupon</button>
                     <button class="btn discount-button" @click="openDiscountModal">% Discount</button>
-                    <button class="btn discount-button" @click="addSpecialDiscount">@{{ special_discount_value }}% Special Discount</button>
+                    <button class="btn discount-button" @click="addSpecialDiscount" :class="selectedSpecialDiscount ? 'text-danger' : ''">@{{ special_discount_value }}% Special Discount</button>
                 </div>
                 <div class="container text-center btn-group btn-group-justified mt-2" style="gap: 10px">
                     <button class="btn pause-button" @click="openOnHoldModal">On Hold</button>
-                    <button class="btn pause-button"  @click="openPreOrderModal">Pre-Order</button>
+{{--                    <button class="btn pause-button"  @click="openPreOrderModal">Pre-Order</button>--}}
                 </div>
                 <div class=" payment-button mt-2 p-3" style="cursor: pointer" @click="openPaymentModal">
                     <div>
@@ -163,7 +162,7 @@
                    class="form-control">
         </div>
         <b-button class="mt-3" variant="outline-danger" @click="closeDiscountModal">Close</b-button>
-        <b-button class="mt-3" variant="outline-info" :disabled="total_discount_value < 1" v-on:click="updateDiscount">
+        <b-button class="mt-3" variant="outline-info" v-on:click="updateDiscount">
             Apply
         </b-button>
     </b-modal>

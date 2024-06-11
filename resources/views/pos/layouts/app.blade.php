@@ -283,16 +283,17 @@
                 onHoldIdentifier: '',
                 holdOrders: [],
                 selectedOnHoldOrderToPos: null,
-                preOrderValues:{
+                preOrderValues: {
                     delivery_date: new Date(),
                     order_from: '',
                     advance_payment: 0,
                     paid_by: '',
-                    comment:''
+                    comment: ''
                 },
                 pre_orders: [],
                 selectedPreOrderId: null,
-                waiter_id: ''
+                waiter_id: '',
+                selectedSpecialDiscount: false
             },
             mounted() {
                 this.getAllProducts();
@@ -749,7 +750,13 @@
                 },
                 addSpecialDiscount() {
                     var vm = this
-                    vm.special_discount_amount = (vm.total_bill * vm.special_discount_value) / 100
+                    if (vm.selectedSpecialDiscount) {
+                        vm.selectedSpecialDiscount = false
+                        vm.special_discount_amount = 0
+                    } else {
+                        vm.selectedSpecialDiscount = true
+                        vm.special_discount_amount = (vm.total_bill * vm.special_discount_value) / 100
+                    }
                 },
                 updateProductDiscount() {
                     this.selectedProducts.some(function (product) {
@@ -845,7 +852,7 @@
                     var vm = this
                     vm.$refs['pre-order-modal'].hide()
                 },
-                storePreOrder(){
+                storePreOrder() {
                     if (this.selectedProducts.length < 1) {
                         toastr.error('No Product Added to Sell', {
                             closeButton: true,
@@ -885,7 +892,7 @@
                         });
                     }
                 },
-                getAllPreOrders(){
+                getAllPreOrders() {
                     var vm = this;
                     axios.get(this.config.get_all_pre_orders_url)
                         .then(function (response) {
@@ -898,14 +905,14 @@
                         return false;
                     });
                 },
-                transferToSell(order){
+                transferToSell(order) {
                     const vm = this;
                     // toastr.warning('Under Construction', {
                     //     closeButton: true,
                     //     progressBar: true,
                     // });
                     vm.selectedPreOrderId = order.id
-                    order.items.forEach(function(item){
+                    order.items.forEach(function (item) {
                         vm.selectedProducts.push({
                             id: item.product.id,
                             name: item.product.name,
@@ -919,11 +926,11 @@
                             discountAmount: 0,
                         })
                     })
-                    if(order.advance_amount){
+                    if (order.advance_amount) {
                         vm.paymentMethods.length = 0
                         vm.paymentMethods.push({
-                           amount: order.advance_amount,
-                           method: order.paid_by
+                            amount: order.advance_amount,
+                            method: order.paid_by
                         })
                     }
                     vm.customerNumber = order.customer_number
