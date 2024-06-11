@@ -214,8 +214,7 @@
                                                                :name="'products['+index+'][discount]'"
                                                                class="form-control input-sm text-right"
                                                                placeholder="0.00"
-                                                               @change="itemtotal(row);valid(row)"
-                                                               required>
+                                                               @change="itemtotal(row);valid(row)">
                                                     </td>
                                                     <td>
                                                         <input type="text" class="form-control input-sm text-right"

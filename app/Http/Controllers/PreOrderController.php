@@ -143,6 +143,7 @@ class PreOrderController extends Controller
         Toastr::success('Pre Order Deleted Successfully!.', '', ["progressBar" => true]);
         return redirect()->route('pre-orders.index');
     }
+
     public function pdf($id)
     {
         $data = [
