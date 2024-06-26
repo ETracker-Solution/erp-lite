@@ -77,6 +77,7 @@ Purchase List
                                         <th>Outlet</th>
                                         <th>Rate</th>
                                         <th>Qty</th>
+                                        <th>Discount</th>
                                         <th class="text-right">Item Total</th>
                                     </tr>
                                 </thead>
@@ -89,7 +90,10 @@ Purchase List
                                         <td>{{ $model->outlet->name }}</td>
                                         <td>{{ $item->unit_price }}</td>
                                         <td>{{ $item->quantity?? '' }} {{ $item->product->unit->name?? '' }}</td>
-                                        <td class="text-right">{{ $item->rate * $item->quantity?? '' }}</td>
+                                        <td>{{ $item->discount }}</td>
+                                        <td class="text-right">
+                                            <b>{{ $item->unit_price * $item->quantity }} </b>
+                                        </td>
                                     </tr>
                                     @endforeach
                                 </tbody>
@@ -111,6 +115,15 @@ Purchase List
                                     <tr>
                                         <th style="width:50%">Subtotal:</th>
                                         <td class="text-right">{{ $model->subtotal }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th style="width:50%">Discount:</th>
+                                        <td class="text-right">{{ $item->discount }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th style="width:50%">Grand Total</th>
+                                        <td class="text-right">{{ $model->grand_total - ($item->discount * $item->quantity)}}</td>
+                                        
                                     </tr>
                                 </table>
                             </div>

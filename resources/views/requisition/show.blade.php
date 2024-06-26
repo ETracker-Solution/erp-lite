@@ -32,7 +32,7 @@ FG Requisition Details
                                         <td style="text-align: left; padding:8px; line-height: 0.6">
                                             <p><b>Requisition No :</b> {{ $requisition->uid }}</p>
                                             <p><b>Date :</b> {{ $requisition->date }} </p>
-                                            <p><b>Sub Total :</b> {{ $requisition->subtotal }} </p>
+                                            {{-- <p><b>Sub Total :</b> {{ $requisition->subtotal }} </p> --}}
                                             <p><b>Status :</b> {!! showStatus($requisition->status) !!}</p>
                                         </td> 
                                     </tr>
@@ -63,7 +63,6 @@ FG Requisition Details
                                         <th>Item</th>
                                         <th>Unit</th>
                                         <th>Quantity</th>
-                                        <th>Rate</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -74,7 +73,6 @@ FG Requisition Details
                                         <td>{{ $item->coi->name ?? '' }}</td>
                                         <td>{{ $item->coi->unit->name ?? '' }}</td>
                                         <td>{{ $item->quantity ?? '' }}</td>
-                                        <td>{{ $item->rate ?? '' }} TK</td>
                                     </tr>
                                     @endforeach
                                 </tbody>
@@ -83,25 +81,6 @@ FG Requisition Details
                         <!-- /.col -->
                     </div>
                     <!-- /.row -->
-    
-                    <div class="row">
-                        <!-- accepted payments column -->
-                        <div class="col-8">
-    
-                        </div>
-                        <!-- /.col -->
-                        <div class="col-4">
-                            <div class="table-responsive">
-                                <table class="table">
-                                    <tr>
-                                        <th style="width:50%">Subtotal:</th>
-                                        <td>{{ $requisition->subtotal }} TK</td>
-                                    </tr>
-                                </table>
-                            </div>
-                        </div>
-                        <!-- /.col -->
-                    </div>
                 </div>
                 <!-- /.row -->
             </div>

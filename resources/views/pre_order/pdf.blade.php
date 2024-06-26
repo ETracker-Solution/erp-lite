@@ -78,6 +78,7 @@
                                         <th>Outlet</th>
                                         <th>Rate</th>
                                         <th>Qty</th>
+                                        <th>Discount</th>
                                         <th class="text-right">Item Total</th>
                                     </tr>
                                 </thead>
@@ -93,16 +94,26 @@
                                         <td>{{ $model->outlet->name }}</td>
                                         <td>{{ $item->unit_price }}</td>
                                         <td>{{ $item->quantity?? '' }} {{ $item->product->unit->name?? '' }}</td>
-                                        <td class="text-right">{{ $item->rate * $item->quantity?? '' }}</td>
+                                        <td>{{ $item->discount }}</td>
+                                        <td class="text-right">{{ $item->unit_price * $item->quantity }}</td>
                                     </tr>
                                     @endforeach
                                     
                                     <tr>
-                                        <td colspan="5"></td>
-                                        <td class="text-left">
-                                            Sub Total
-                                        </td>
+                                        <td colspan="6"></td>
+                                        <td class="text-left">Sub Total:</td>
                                         <td class="text-right">{{$model->subtotal}} </td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="6"></td>
+                                        <td class="text-left">Discount:</td>
+                                        <td class="text-right">{{ $item->discount }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="6"></td>
+                                        <td class="text-left">Grand Total:</td>
+                                        <td class="text-right">{{ $model->grand_total - ($item->discount * $item->quantity)}}</td>
+                                        
                                     </tr>
 
                                 </tbody>
@@ -117,14 +128,14 @@
                                 </strong>
                                 <hr>
                                 <br>
-                                <table width="100%">
+                                {{-- <table width="100%">
                                     <tbody>
                                         <tr>
                                             <td style="text-align: left;">Customer Signature</td>
                                             <td style="text-align: right;">Saller Signature</td>
                                         </tr>
                                     </tbody>
-                                </table>
+                                </table> --}}
                             </htmlpagefooter>
 
                         </div>
