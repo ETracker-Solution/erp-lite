@@ -23,21 +23,28 @@ use niklasravnsborg\LaravelPdf\Facades\Pdf;
 class RequisitionController extends Controller
 {
     protected $exportService;
+
     public function __construct(ExportService $exportService)
     {
         $this->exportService = $exportService;
     }
+
     public function exportRequisition($type)
     {
         $exportableData = $this->getRequisitionData();
         $viewFileName = 'todays_requisition';
-        $filenameToDownload = date('ymdHis').'_todays_requisition';
-        return $this->exportService->exportFile($type, $viewFileName, $exportableData,$filenameToDownload ,'L'); // L stands for Landscape, if Portrait needed, just remove this params
+        $filenameToDownload = date('ymdHis') . '_todays_requisition';
+        return $this->exportService->exportFile($type, $viewFileName, $exportableData, $filenameToDownload, 'L'); // L stands for Landscape, if Portrait needed, just remove this params
 
     }
+
     public function index()
     {
-        $data = Requisition::with('fromStore','toStore')->where('type', 'FG')->latest();
+        if (\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->outlet_id) {
+            $data = Requisition::with('fromStore', 'toStore')->where(['type' => 'FG', 'outlet_id' => \auth()->user()->employee->outlet_id])->latest();
+        } else {
+            $data = Requisition::with('fromStore', 'toStore')->where('type', 'FG')->latest();
+        }
         if (\request()->ajax()) {
             return DataTables::of($data)
                 ->addIndexColumn()
@@ -61,11 +68,17 @@ class RequisitionController extends Controller
      */
     public function create()
     {
+        if (\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->outlet_id) {
+            $from_stores = Store::where(['type' => 'FG', 'doc_type' => 'outlet', 'doc_id' => \auth()->user()->employee->outlet_id])->get();
+        } else {
+            $from_stores = Store::where(['type' => 'FG', 'doc_type' => 'outlet'])->get();
+        }
+
         $data = [
             'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'FG'])->get(),
-            'from_stores' => Store::where(['type' => 'FG', 'doc_type' => 'outlet'])->get(),
+            'from_stores' => $from_stores,
             'to_stores' => Store::where(['type' => 'FG', 'doc_type' => 'factory'])->get(),
-            'serial_no' =>RequisitionNumber::serial_number()
+            'serial_no' => RequisitionNumber::serial_number()
         ];
         return view('requisition.create', $data);
     }
@@ -125,7 +138,7 @@ class RequisitionController extends Controller
         DB::beginTransaction();
         try {
             $validated = $request->validated();
-            $requisition= Requisition::find($id);
+            $requisition = Requisition::find($id);
             $requisition->update($validated);
             RequisitionItem::where('requisition_id', $requisition->id)->delete();
             $products = $request->get('products');
@@ -203,38 +216,39 @@ class RequisitionController extends Controller
         $data = $this->getRequisitionData();
         return view('requisition.today_requisition', $data);
     }
+
     public function getRequisitionData()
     {
         $headers = [
             'Product',
         ];
-        $outlets = Outlet::select('id','name')->get();
+        $outlets = Outlet::select('id', 'name')->get();
         foreach ($outlets as $outlet) {
             $headers[] = $outlet->name;
         }
 
-        $headers[]='Total';
+        $headers[] = 'Total';
 
         $values = [];
-        $products = ChartOfInventory::where(['type'=>'item','rootAccountType'=>'FG'])->get();
+        $products = ChartOfInventory::where(['type' => 'item', 'rootAccountType' => 'FG'])->get();
 
-        foreach ($products as $key=>$product){
+        foreach ($products as $key => $product) {
             $totalQty = 0;
-            $values[$key]['product_name']=$product->name;
+            $values[$key]['product_name'] = $product->name;
             foreach ($outlets as $outlet) {
-                 $qty = getRequisitionQtyByProduct($product->id, $outlet->id);
+                $qty = getRequisitionQtyByProduct($product->id, $outlet->id);
 
-                $values[$key]['product_quantity'][]=$qty;
-                $totalQty +=$qty;
+                $values[$key]['product_quantity'][] = $qty;
+                $totalQty += $qty;
             }
 
-            $values[$key]['total']=$totalQty;
+            $values[$key]['total'] = $totalQty;
         }
         return [
-            'products' => ChartOfInventory::where(['type'=>'item','rootAccountType'=>'FG'])->get(),
+            'products' => ChartOfInventory::where(['type' => 'item', 'rootAccountType' => 'FG'])->get(),
             'outlets' => Outlet::all(),
-            'headers'=>$headers,
-            'values'=>$values
+            'headers' => $headers,
+            'values' => $values
         ];
     }
 }

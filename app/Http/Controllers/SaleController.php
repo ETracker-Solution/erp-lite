@@ -28,9 +28,13 @@ class SaleController extends Controller
      */
     public function index()
     {
-        $sales = Sale::all();
+        if (\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->outlet_id) {
+            $data = Sale::where(['outlet_id' => \auth()->user()->employee->outlet_id])->latest();
+        } else {
+            $data = Sale::latest();
+        }
         if (\request()->ajax()) {
-            return DataTables::of($sales)
+            return DataTables::of($data)
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
                     return view('sale.action', compact('row'));
@@ -54,17 +58,17 @@ class SaleController extends Controller
     {
         $serial_no = null;
         $user_store = null;
-        if (!auth()->user()->is_super){
-            $user_store = Store::where(['doc_type'=>'outlet','doc_id'=>\auth()->user()->employee->outlet_id])->first();
+        if (!auth()->user()->is_super) {
+            $user_store = Store::where(['doc_type' => 'outlet', 'doc_id' => \auth()->user()->employee->outlet_id])->first();
             $serial_no = InvoiceNumber::generateInvoiceNumber(\auth()->user()->employee->outlet_id);
         }
         $data = [
             'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'FG'])->get(),
-            'stores' => Store::where(['type' => 'FG','doc_type'=>'outlet'])->get(),
+            'stores' => Store::where(['type' => 'FG', 'doc_type' => 'outlet'])->get(),
             'serial_no' => $serial_no,
             'customers' => Customer::where('status', 'active')->get(),
-            'user_store'=>$user_store,
-            'invoice_number'=>$serial_no
+            'user_store' => $user_store,
+            'invoice_number' => $serial_no
 
         ];
 //        return $data;
@@ -101,7 +105,7 @@ class SaleController extends Controller
             $outlet = Outlet::find($store->doc_id);
             $outlet_id = $outlet->id;
             $sale = new Sale();
-            $sale->invoice_number =$request->invoice_number ?? InvoiceNumber::generateInvoiceNumber($outlet_id,$selectedDate);
+            $sale->invoice_number = $request->invoice_number ?? InvoiceNumber::generateInvoiceNumber($outlet_id, $selectedDate);
             $sale->subtotal = $request->subtotal;
             $sale->discount = $request->discount ?? 0;
             $sale->grand_total = $request->grandtotal;
@@ -122,7 +126,7 @@ class SaleController extends Controller
             foreach ($products as $row) {
                 $row['product_id'] = $row['item_id'];
                 $row['unit_price'] = $row['sale_price'];
-                $currentStock = availableInventoryBalance($row['product_id'],$store->id);
+                $currentStock = availableInventoryBalance($row['product_id'], $store->id);
                 if ($currentStock < $row['quantity']) {
                     Toastr::error('Quantity cannot more then ' . $currentStock . ' !', '', ["progressBar" => true]);
                     return back();
@@ -148,15 +152,15 @@ class SaleController extends Controller
                     'amount' => $paymentMethod['amount'],
                 ]);
                 $sale->amount = $paymentMethod['amount'];
-                if ($paymentMethod['method'] == 'bkash'){
-                        addAccountsTransaction('POS',$sale, outletTransactionAccount($outlet_id,'bkash'), getAccountsReceiveableGLId());
+                if ($paymentMethod['method'] == 'bkash') {
+                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'bkash'), getAccountsReceiveableGLId());
                 }
-                if ($paymentMethod['method'] == 'cash'){
-                        addAccountsTransaction('POS',$sale, outletTransactionAccount($outlet_id,), getAccountsReceiveableGLId());
+                if ($paymentMethod['method'] == 'cash') {
+                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id,), getAccountsReceiveableGLId());
                 }
                 if ($paymentMethod['method'] == 'point') {
                     redeemPoint($sale->id, $customer_id, $paymentMethod['amount']);
-                    addAccountsTransaction('POS',$sale, getRewardGLID(), getAccountsReceiveableGLId());
+                    addAccountsTransaction('POS', $sale, getRewardGLID(), getAccountsReceiveableGLId());
                 }
                 unset($sale->amount);
             }
@@ -168,9 +172,9 @@ class SaleController extends Controller
             pointEarnAndUpgradeMember($sale->id, $customer_id ?? null, $request->grandtotal);
             //End Loyalty Effect
             $sale->amount = $salesAmount;
-            addAccountsTransaction('POS',$sale, getAccountsReceiveableGLId(), getIncomeFromSalesGLId());
+            addAccountsTransaction('POS', $sale, getAccountsReceiveableGLId(), getIncomeFromSalesGLId());
             $sale->amount = $avgProductionPrice;
-            addAccountsTransaction('POS',$sale, getCOGSGLId(), getFGInventoryGLId());
+            addAccountsTransaction('POS', $sale, getCOGSGLId(), getFGInventoryGLId());
 //            $sale->amount = $salesAmount;
 //            addAccountsTransaction('POS',$sale, getCashGLID(), getAccountsReceiveableGLId());
             DB::commit();
@@ -333,6 +337,6 @@ class SaleController extends Controller
     public function getInvoiceByOutlet(Request $request, $store_id)
     {
         $store = Store::find($store_id);
-        return InvoiceNumber::generateInvoiceNumber($store->doc_id,$request->date);
+        return InvoiceNumber::generateInvoiceNumber($store->doc_id, $request->date);
     }
 }

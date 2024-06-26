@@ -391,10 +391,10 @@
                                     <ul class="nav nav-treeview">
                                         @can('store-fg-create-fg-requisition')
                                             <li class="nav-item">
-                                                <a href="{{route('requisitions.create')}}"
+                                                <a href="{{route('requisitions.index')}}"
                                                    class="nav-link {{ (Request::segment(1) == 'requisitions' )?' active':''}}">
                                                     <i class="far fa-circle nav-icon"></i>
-                                                    <p>Create FG Requisition</p>
+                                                    <p>FG Requisition List</p>
                                                 </a>
                                             </li>
                                         @endcan
