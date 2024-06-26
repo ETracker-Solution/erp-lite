@@ -110,7 +110,8 @@ class RequisitionController extends Controller
     {
         $data = [
             'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'FG'])->get(),
-            'stores' => Store::where(['type' => 'FG'])->get(),
+            'from_stores' => Store::where(['type' => 'FG', 'doc_type' => 'outlet'])->get(),
+            'to_stores' => Store::where(['type' => 'FG', 'doc_type' => 'factory'])->get(),
             'requisition' => Requisition::find(decrypt($id))
         ];
         return view('requisition.edit', $data);
