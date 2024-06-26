@@ -21,12 +21,14 @@
                         <div class="card-header">
                             <h3 class="card-title">FG Requisition List</h3>
                             <div class="card-tools">
-                                <a href="{{route('requisitions.create')}}">
-                                    <button class="btn btn-sm btn-primary"><i class="fa fa-plus-circle"
-                                                                              aria-hidden="true"></i> &nbsp;Add FG
-                                        Requisition
-                                    </button>
-                                </a>
+                                @can('store-fg-create-fg-requisition')
+                                    <a href="{{route('requisitions.create')}}">
+                                        <button class="btn btn-sm btn-primary"><i class="fa fa-plus-circle"
+                                                                                aria-hidden="true"></i> &nbsp;Add FG
+                                            Requisition
+                                        </button>
+                                    </a>
+                                @endcan
                             </div>
                         </div>
                         <!-- /.card-header -->
