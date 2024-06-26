@@ -58,11 +58,26 @@
                                             </div>
                                             <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                                 <div class="form-group">
-                                                    <label for="store_id">Store</label>
-                                                    <select name="store_id" id="store_id" class="form-control bSelect"
-                                                            v-model="store_id" required>
+                                                    <label for="from_store_id"> from Store</label>
+                                                    <select name="from_store_id" id="from_store_id"
+                                                            class="form-control bSelect"
+                                                            v-model="from_store_id" required>
                                                         <option value="">Select One</option>
-                                                        @foreach($stores as $row)
+                                                        @foreach($from_stores as $row)
+                                                            <option value="{{ $row->id }}">{{ $row->name }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+                                                <div class="form-group">
+                                                    <label for="to_store_id">To Store</label>
+                                                    <select name="to_store_id" id="to_store_id"
+                                                            class="form-control bSelect"
+                                                            v-model="to_store_id" required>
+                                                        <option value="">Select One</option>
+                                                        @foreach($to_stores as $row)
                                                             <option value="{{ $row->id }}">{{ $row->name }}</option>
                                                         @endforeach
                                                     </select>
@@ -172,7 +187,7 @@
                                                                 @{{ row.unit }}
                                                             </td>
                                                             <td style="vertical-align: middle" class="text-right">
-                                                                <input type="number" v-model="row.quantity"
+                                                                <input type="number" v-model="row.requisition_quantity"
                                                                        :name="'products['+index+'][quantity]'"
                                                                        class="form-control input-sm"
                                                                        @change="valid(row)" required>
@@ -285,7 +300,8 @@
                     reference_no:'',
                     remark:'',
                     serial_no: {{$requisition->uid}},
-                    store_id:  {{$requisition->store_id}},
+                    from_store_id:  {{$requisition->from_store_id}},
+                    to_store_id:  {{$requisition->to_store_id}},
                     group_id: '',
                     item_id: '',
                     products: [],
@@ -300,7 +316,7 @@
 
                     total_quantity: function () {
                         return this.items.reduce((total, item) => {
-                            return total + parseFloat(item.quantity ? item.quantity : 0)
+                            return total + parseFloat(item.requisition_quantity ? item.requisition_quantity : 0)
                         }, 0)
                     },
 
@@ -352,6 +368,7 @@
                                 axios.get(this.config.get_item_info_url + '/' + slug).then(function (response) {
 
                                     product_details = response.data;
+                                    console.log(product_details);
                                     vm.items.push({
                                         coi_id: product_details.coi_id,
                                         group: product_details.group,
@@ -359,7 +376,7 @@
                                         unit: product_details.unit,
                                         balance_qty: product_details.balance_qty,
                                         price: product_details.price,
-                                        quantity: '',
+                                        quantity: product_details.quantity,
 
                                     });
 

@@ -83,10 +83,10 @@ class PreOrderController extends Controller
             }
             $validated['image'] = $filename ?? null;
 
-            $purchase = PreOrder::query()->create($validated);
-            $purchase->amount = $purchase->net_payable;
+            $pre_order = PreOrder::query()->create($validated);
+            $pre_order->amount = $pre_order->net_payable;
             foreach ($validated['products'] as $product) {
-                $purchase->items()->create($product);
+                $pre_order->items()->create($product);
             }
             DB::commit();
         } catch (\Exception $exception) {
