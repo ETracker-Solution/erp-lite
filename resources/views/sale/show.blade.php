@@ -59,7 +59,7 @@ Sales Details
                                     <tr>
                                         <th>#</th>
                                         <th>Invoice No</th>
-                                        <th>Product</th>
+                                        <th>Item</th>
                                         <th>Unit</th>
                                         <th>Quantity</th>
                                         <th>Discount</th>
@@ -72,7 +72,7 @@ Sales Details
                                         <tr>
                                             <td>{{ $loop->iteration }}</td>
                                             <td>{{ $sale->invoice_number }}</td>
-                                            <td>{{ $item->product->name ?? '' }}</td>
+                                            <td>{{ $item->coi->name ?? '' }}</td>
                                             <td>{{ $item->unit_price ?? '' }}</td>
                                             <td>{{ $item->quantity ?? '' }}</td>
                                             <td>{{ $sale->discount }}</td>
@@ -103,7 +103,7 @@ Sales Details
                                     </tr>
                                     <tr>
                                         <th style="width:50%">Grand Total</th>
-                                        <td class="text-right">{{ $sale->grand_total - ($sale->discount * $item->quantity)}}</td>
+                                        <td class="text-right">{{ $sale->grand_total }}</td>
                                     </tr>
                                 </table>
                             </div>

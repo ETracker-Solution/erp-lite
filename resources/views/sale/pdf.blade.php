@@ -73,7 +73,7 @@
                                     <tr style="background-color: #cdced2;">
                                         <th>#</th>
                                         <th>Invoice No</th>
-                                        <th>Product</th>
+                                        <th>Item</th>
                                         <th>Unit</th>
                                         <th>Quantity</th>
                                         <th>Discount</th>
@@ -88,7 +88,7 @@
                                         <tr>
                                             <td>{{ $loop->iteration }}</td>
                                             <td>{{ $sale->invoice_number }}</td>
-                                            <td>{{ $item->product->name ?? '' }}</td>
+                                            <td>{{ $item->coi->name ?? '' }}</td>
                                             <td>{{ $item->unit_price ?? '' }}</td>
                                             <td>{{ $item->quantity ?? '' }}</td>
                                             <td>{{ $sale->discount }}</td>
