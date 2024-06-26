@@ -78,4 +78,7 @@ class Sale extends Model
     {
         return $this->hasOne(MembershipPointHistory::class,'sale_id');
     }
+    public function product(){
+        return $this->belongsTo(Product::class);
+    }
 }

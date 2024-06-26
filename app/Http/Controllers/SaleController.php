@@ -193,22 +193,10 @@ class SaleController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Sale $sale)
+    public function show($id)
     {
-        $item_details = DB::table('sale_items')
-            ->join('products', 'sale_items.product_id', '=', 'products.id')
-            ->select(DB::raw('sale_items.*,products.name,products.sku,sum(sale_items.sale_price * sale_items.quantity) as item_total,sum(sale_items.quantity) as item_quantity'))
-            ->where('sale_items.sale_id', $sale->id)
-            ->groupBy('sale_items.product_id')
-            ->get();
-
-        $data = [
-            'model' => $sale,
-            'item_details' => $item_details,
-
-        ];
-        //  return $data;
-        return view('sale.show', $data);
+        $sale = Sale::findOrFail(decrypt($id));
+        return view('sale.show', compact('sale'));
     }
 
     /**
@@ -249,61 +237,10 @@ class SaleController extends Controller
         return $data;
     }
 
-    public function pdf($id)
-    {
-        $item_details = DB::table('sale_items')
-            ->join('products', 'sale_items.product_id', '=', 'products.id')
-            ->join('categories', 'products.category_id', '=', 'categories.id')
-            ->select(DB::raw('sale_items.*,categories.name as category_name,products.name,products.sku,sum(sale_items.sale_price * sale_items.quantity) as item_total,sum(sale_items.quantity) as item_quantity'))
-            ->where('sale_items.sale_id', $id)
-            ->groupBy('sale_items.product_id')
-            ->get();
-        $data = [
-            'model' => Sale::find($id),
-            'item_details' => $item_details,
-
-        ];
-        $config = ['instanceConfigurator' => function ($mpdf) {
-            $mpdf->SetWatermarkText('Emotobazar');
-            $mpdf->showWatermarkText = true;
-            $mpdf->watermarkTextAlpha = 0.05;
-            //         $mpdf->SetWatermarkImage('images/1.png');
-            //         $mpdf->showWatermarkImage = true;
-            //         $mpdf->watermarkImageAlpha = 0.02;
-
-        }];
-        $pdf = PDF::loadHtml(
-            view('sale.pdf', $data),
-            $config,
-            [
-                'format' => 'A4-P',
-                'orientation' => 'P',
-                'margin-left' => 1,
-
-                '', // mode - default ''
-                '', // format - A4, for example, default ''
-                0, // font size - default 0
-                '', // default font family
-                1, // margin_left
-                1, // margin right
-                1, // margin top
-                1, // margin bottom
-                1, // margin header
-                1, // margin footer
-                'L', // L - landscape, P - portrait
-
-            ]
-        );
-        $name = \Carbon\Carbon::now()->format('d-m-Y');
-
-        return $pdf->stream($name . '.pdf');
-    }
-
     public function pdfDownload($id)
     {
         $data = [
-            'model' => Sale::find($id),
-
+            'sale' => Sale::findOrFail(decrypt($id)),
         ];
 
         $pdf = PDF::loadView(
@@ -331,7 +268,7 @@ class SaleController extends Controller
         );
         $name = \Carbon\Carbon::now()->format('d-m-Y');
 
-        return $pdf->download($name . '.pdf');
+        return $pdf->stream($name . '.pdf');
     }
 
     public function getInvoiceByOutlet(Request $request, $store_id)
