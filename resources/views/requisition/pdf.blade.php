@@ -79,7 +79,6 @@
 										<td style="text-align: left; padding:8px; line-height: 1.6">
 											<p><b>Requisition No :</b> {{ $requisition->uid }}</p>
                                             <p><b>Date :</b> {{ $requisition->date }} </p>
-                                            <p><b>Sub Total :</b> {{ $requisition->subtotal }} </p>
                                             <p><b>Status :</b> {!! showStatus($requisition->status) !!}</p>
 										</td>
 									</tr>
@@ -93,7 +92,6 @@
                                         <th>Item</th>
                                         <th>Unit</th>
                                         <th>Quantity</th>
-                                        <th>Rate</th>
 									</tr>
                                 </thead>
                                 <tbody>
@@ -104,7 +102,6 @@
                                         <td>{{ $item->coi->name ?? '' }}</td>
                                         <td>{{ $item->coi->unit->name ?? '' }}</td>
                                         <td>{{ $item->quantity ?? '' }}</td>
-                                        <td>{{ $item->rate ?? '' }} TK</td>
                                     </tr>
                                     @endforeach
                                 </tbody>
@@ -122,8 +119,8 @@
                                 <table width="100%">
                                     <tbody>
                                         <tr>
-                                            <td style="text-align: left;">Customer Signature</td>
-                                            <td style="text-align: right;">Saller Signature</td>
+                                            <td style="text-align: left;">Factory Signature</td>
+                                            <td style="text-align: right;">Seller Signature</td>
                                         </tr>
                                     </tbody>
                                 </table>
