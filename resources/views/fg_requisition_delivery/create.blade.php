@@ -335,10 +335,10 @@
                             console.log('1st');
                             index.quantity = index.balance_quantity;
                         }
-                        if (index.requisition_quantity < index.quantity) {
-                            console.log('2');
-                            index.quantity = index.requisition_quantity;
-                        }
+                        // if (index.requisition_quantity < index.quantity) {
+                        //     console.log('2');
+                        //     index.quantity = index.requisition_quantity;
+                        // }
                         if (index.quantity <= 0) {
                             console.log('3');
                             index.quantity = '';
