@@ -16,9 +16,9 @@ class PermissionSeeder extends Seeder
      */
     public function run(): void
     {
-//      DB::statement('SET FOREIGN_KEY_CHECKS=0;');
-//      Permission::truncate();
-//      DB::table('model_has_permissions')->truncate();
+    //  DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+    //  Permission::truncate();
+    //  DB::table('model_has_permissions')->truncate();
 
         // $modules = ['purchase','store rm','production','data admin','system admin','account','store fg', 'sales','loyalty'];
         // $suffix = ['admin','operator','viewer','approver'];
@@ -49,7 +49,7 @@ class PermissionSeeder extends Seeder
             'chart of accounts','inventory item list','unit list','store list','supplier group list','supplier list','gl account','raw metarials','finish goods','customer ob','supplier ob','create factory','create outlet','designation','department'
         ],
         'system admin'=>[
-            'user list','employees','outlet payment','system setting'
+            'user list','employees','outlet payment','system setting','system config'
         ]
     ];
 
@@ -67,9 +67,9 @@ class PermissionSeeder extends Seeder
 
             }
         }
-//      $user = User::where('is_super',true)->first();
-//      $user->syncPermissions(Permission::pluck('name'));
-//      DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+    //  $user = User::where('is_super',true)->first();
+    //  $user->syncPermissions(Permission::pluck('name'));
+    //  DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
     }
 

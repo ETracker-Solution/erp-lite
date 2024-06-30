@@ -844,10 +844,10 @@
                         </ul>
                     </li>
                 @endcanany
-                @canany(['system-admin-user-list','system-admin-employees','system-admin-outlet-payment','system-admin-system-setting'])
-                    <li class="nav-item {{ (Request::segment(1) == 'users'||Request::segment(1) == 'employees'||Request::segment(1) == 'outlet-configs'||Request::segment(1) == 'system-settings' )?'menu-open':''}}">
+                @canany(['system-admin-user-list','system-admin-employees','system-admin-outlet-payment','system-admin-system-setting','system-admin-system-config'])
+                    <li class="nav-item {{ (Request::segment(1) == 'users'||Request::segment(1) == 'employees'||Request::segment(1) == 'outlet-configs'||Request::segment(1) == 'system-settings' ||Request::segment(1) == 'system-config' )?'menu-open':''}}">
                         <a href="#"
-                           class="nav-link {{ (Request::segment(1) == 'users'||Request::segment(1) == 'employees'||Request::segment(1) == 'outlet-configs'||Request::segment(1) == 'system-settings')?' active':''}}">
+                           class="nav-link {{ (Request::segment(1) == 'users'||Request::segment(1) == 'employees'||Request::segment(1) == 'outlet-configs'||Request::segment(1) == 'system-settings' ||Request::segment(1) == 'system-config')?' active':''}}">
                             <i class="nav-icon fas fa-cog"></i>
                             <p>
                                 System Admin Module
@@ -911,10 +911,10 @@
                                 </li>
                             @endcanany
 
-                            @canany(['system-admin-system-setting'])
-                                <li class="nav-item {{ (Request::segment(1) == 'system-settings')?'menu-open':''}}">
+                            @canany(['system-admin-system-setting','system-admin-system-config'])
+                                <li class="nav-item {{ (Request::segment(1) == 'system-settings' || Request::segment(1) == 'system-config')?'menu-open':''}}">
                                     <a href="#"
-                                       class="nav-link {{ (Request::segment(1) == 'system-settings')?' active':''}}">
+                                       class="nav-link {{ (Request::segment(1) == 'system-settings' || Request::segment(1) == 'system-config')?' active':''}}">
                                         <i class="nav-icon fa fa-folder-open"></i>
                                         <p>
                                             System Setting
@@ -928,6 +928,15 @@
                                                    class="nav-link {{ (Request::segment(1) == 'system-settings' )?' active':''}}">
                                                     <i class="far fa-circle nav-icon"></i>
                                                     <p>System Setting</p>
+                                                </a>
+                                            </li>
+                                        @endcan
+                                        @can('system-admin-system-config')
+                                            <li class="nav-item">
+                                                <a href="{{route('system-config.index')}}"
+                                                   class="nav-link {{ (Request::segment(1) == 'system-config' )?' active':''}}">
+                                                    <i class="far fa-circle nav-icon"></i>
+                                                    <p>System Config</p>
                                                 </a>
                                             </li>
                                         @endcan
