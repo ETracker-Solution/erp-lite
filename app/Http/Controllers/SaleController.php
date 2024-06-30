@@ -60,7 +60,9 @@ class SaleController extends Controller
         $user_store = null;
         if (!auth()->user()->is_super) {
             $user_store = Store::where(['doc_type' => 'outlet', 'doc_id' => \auth()->user()->employee->outlet_id])->first();
-            $serial_no = InvoiceNumber::generateInvoiceNumber(\auth()->user()->employee->outlet_id);
+            $outletName = $user_store->doc_id;
+            $serial_no = generateInvoiceCode($outletName);
+            // $serial_no = InvoiceNumber::generateInvoiceNumber(\auth()->user()->employee->outlet_id);
         }
         $data = [
             'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'FG'])->get(),
@@ -105,7 +107,8 @@ class SaleController extends Controller
             $outlet = Outlet::find($store->doc_id);
             $outlet_id = $outlet->id;
             $sale = new Sale();
-            $sale->invoice_number = $request->invoice_number ?? InvoiceNumber::generateInvoiceNumber($outlet_id, $selectedDate);
+            $sale->invoice_number = generateInvoiceCode($outlet_id);
+            // $sale->invoice_number = $request->invoice_number ?? InvoiceNumber::generateInvoiceNumber($outlet_id, $selectedDate);
             $sale->subtotal = $request->subtotal;
             $sale->discount = $request->discount ?? 0;
             $sale->grand_total = $request->grandtotal;
@@ -274,6 +277,6 @@ class SaleController extends Controller
     public function getInvoiceByOutlet(Request $request, $store_id)
     {
         $store = Store::find($store_id);
-        return InvoiceNumber::generateInvoiceNumber($store->doc_id, $request->date);
+        return generateInvoiceCode($store->doc_id, $request->date);
     }
 }
