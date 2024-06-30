@@ -144,7 +144,7 @@ function generateInvoiceCode($storeName)
 {
     $outlet = Outlet::find($storeName);
     $storeName = str_replace(',',' ',trim($outlet->name));
-    $words = $storeName;
+    $words = strtoupper($storeName);
     $acronym = "";
 
     $acronym .= mb_substr($words, 0, 3).mb_substr($words, -1);
