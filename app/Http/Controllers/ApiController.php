@@ -81,7 +81,7 @@ class ApiController extends Controller
             'unit' => $coi->unit->name ?? 'No Unit',
             'price' => averageRMRate($coi->id),
             'coi_id' => $id,
-            'balance_qty' => 500,
+            'balance_qty' => availableInventoryBalance($id, request()->store_id),
         ];
         return $data;
     }

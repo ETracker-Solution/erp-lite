@@ -1,6 +1,7 @@
 <?php
 
-
+use App\Models\Outlet;
+use App\Models\Sale;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\UploadedFile;
@@ -137,4 +138,28 @@ function getRequisitionQtyByProduct($product_id, $outlet_id)
 function getStoreDocId($store_id)
 {
     return \App\Models\Store::where(['id' => $store_id])->first()->doc_id;
+}
+
+function generateInvoiceCode($storeName)
+{
+    $outlet = Outlet::find($storeName);
+    $storeName = str_replace(',',' ',trim($outlet->name));
+    $words = strtoupper($storeName);
+    $acronym = "";
+
+    $acronym .= mb_substr($words, 0, 3).mb_substr($words, -1);
+
+    $nameWithDate = $acronym.date('ym');
+    $lastCode = Sale::where('invoice_number','like','%'.$nameWithDate.'%')->orderBy('invoice_number','DESC')->first();
+    if ($lastCode){
+        $last3Digits = substr($lastCode->invoice_number,-3)+1;
+    }else{
+        $last3Digits = 001;
+    }
+    $code = $acronym.date('ym').str_pad($last3Digits, 3, 0, STR_PAD_LEFT);
+
+    if (Sale::where('invoice_number',$code)->exists()){
+        generateInvoiceCode($storeName);
+    }
+    return $code;
 }

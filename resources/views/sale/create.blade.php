@@ -523,6 +523,13 @@
                     },
                     data_input() {
                         var vm = this;
+                        if (!vm.store_id) {
+                            toastr.error('Please Select Store', {
+                                closeButton: true,
+                                progressBar: true,
+                            });
+                            return false;
+                        }
                         if (!vm.item_id) {
                             toastr.error('Enter product', {
                                 closeButton: true,
@@ -532,7 +539,11 @@
                         } else {
                             var slug = vm.item_id;
                             if (slug) {
-                                axios.get(this.config.get_product_info_url + '/' + slug).then(function (response) {
+                                axios.get(this.config.get_product_info_url + '/' + slug, {
+                                    params:{
+                                        store_id: vm.store_id
+                                    }
+                                }).then(function (response) {
                                     product_details = response.data;
                                     vm.items.push({
                                         item_id: vm.item_id,
