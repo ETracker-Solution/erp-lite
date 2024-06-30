@@ -179,6 +179,40 @@
             </div>
         </div>
         <div class="row match-height">
+            <div class="col-xl-12 col-12">
+                <div class="card">
+                    <div class="card-header bg-info">
+                        <h4 class="card-title">Receivable Delivery</h4>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped">
+                            <thead>
+                            <tr>
+                                <th>Delivery No</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            @forelse($requisition_deliveries as $row)
+                                <tr>
+                                    <td>{{ $row->uid }}</td>
+                                    <td>{!! showStatus( $row->status) !!} </td>
+                                    <td>{{ \Carbon\Carbon::parse($row->created_at)->format('M d Y')}}</td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="4"> No Data Found</td>
+                                </tr>
+                            @endforelse
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row match-height">
             {{--            <div class="col-xl-4 col-12">--}}
             {{--                <div class="card">--}}
             {{--                    <div class="card-header">--}}
