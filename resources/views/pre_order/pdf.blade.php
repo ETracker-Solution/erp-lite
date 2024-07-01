@@ -112,7 +112,7 @@
                                     <tr>
                                         <td colspan="6"></td>
                                         <td class="text-left">Grand Total:</td>
-                                        <td class="text-right">{{ $model->grand_total - ($item->discount * $item->quantity)}}</td>
+                                        <td class="text-right">{{ $model->grand_total - $item->discount }}</td>
                                         
                                     </tr>
 

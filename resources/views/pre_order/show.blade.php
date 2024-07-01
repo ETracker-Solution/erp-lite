@@ -122,7 +122,7 @@ Purchase List
                                     </tr>
                                     <tr>
                                         <th style="width:50%">Grand Total</th>
-                                        <td class="text-right">{{ $model->grand_total - ($item->discount * $item->quantity)}}</td>
+                                        <td class="text-right">{{ $model->grand_total - $item->discount }}</td>
                                         
                                     </tr>
                                 </table>
