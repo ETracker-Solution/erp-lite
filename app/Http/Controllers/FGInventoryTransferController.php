@@ -46,7 +46,8 @@ class FGInventoryTransferController extends Controller
         $serial_no = $serial_count + 1;
         $data = [
             'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'FG'])->get(),
-            'stores' => Store::where(['type' => 'FG'])->get(),
+            'stores' => \auth()->user() && \auth()->user()->employee && \auth()->user()->employee->outlet_id ? Store::query()->whereType('FG')->where(['doc_type'=>'outlet', 'doc_id'=>\auth()->user()->employee->outlet_id])->get() : Store::query()->whereType('FG')->get(),
+            'to_stores' => \auth()->user() && \auth()->user()->employee && \auth()->user()->employee->outlet_id ? Store::query()->whereType('FG')->where(['doc_type'=>'outlet'])->where('doc_id','!=',\auth()->user()->employee->outlet_id)->get() : Store::query()->whereType('FG')->get(),
             'serial_no' => $serial_no,
         ];
         return view('fg_inventory_transfer.create', $data);

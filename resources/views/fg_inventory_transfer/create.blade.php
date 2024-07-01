@@ -73,7 +73,7 @@
                                                             class="form-control bSelect"
                                                             v-model="to_store_id" required>
                                                         <option value="">Select One</option>
-                                                        @foreach($stores as $row)
+                                                        @foreach($to_stores as $row)
                                                             <option
                                                                 value="{{ $row->id }}">{{ $row->id }} - {{ $row->name }}</option>
                                                         @endforeach
