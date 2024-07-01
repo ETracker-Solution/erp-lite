@@ -306,6 +306,6 @@ class PurchaseController extends Controller
         );
         $name = \Carbon\Carbon::now()->format('d-m-Y');
 
-        return $pdf->download($name . '.pdf');
+        return $pdf->stream($name . '.pdf');
     }
 }

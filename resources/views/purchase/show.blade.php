@@ -26,7 +26,12 @@ Purchase List
         <div class="row">
             <div class="col-12">
                 <!-- Main content -->
-                <div class="invoice p-3 mb-3">
+                <div class="card card-info">
+                    <div class="card-header">
+                        <h3 class="card-title">Goods Purchase Details</h3>
+                        <a href="{{ route('purchase.pdf-download', $model->id) }}"
+                            class="btn btn-sm btn-primary float-right" target="_blank"><i class="fa fa-download"></i> PDF</a>
+                    </div>
                     <!-- title row -->
                     <div class="row">
                         <div class="col-12">
@@ -40,11 +45,10 @@ Purchase List
                     <!-- info row -->
                     <div class="row invoice-info">
                         <div class="col-sm-4 invoice-col">
-                            <address>
-                            Address : 17/1, Monipuripara, Sangshad Avenue,
-                            <br>Dhaka-1215 Bangladesh<br>
-                                Phone:  +880 1977-722531<br>
-                                Email:info.emotobazar@gmail.com
+                            <address class="pl-3">
+                                Address : {{ getSettingValue('company_address') }} <br>
+                                Phone :  {{ getSettingValue('company_phone') }}<br>
+                                Email : {{ getSettingValue('company_email') }}
                             </address>
                         </div>
                         <!-- /.col -->
@@ -53,7 +57,9 @@ Purchase List
                         </div>
                         <!-- /.col -->
                         <div class="col-sm-4 invoice-col">
-                            <b>Invoice: {{ $model->id }}</b>
+                            Invoice : {{ $model->id }} <br>
+                            Name : {{ $model->supplier->name }} <br>
+                            Address :  {{ $model->supplier->address }}<br>
                         </div>
                         <!-- /.col -->
                     </div>
@@ -114,15 +120,6 @@ Purchase List
                     <!-- /.row -->
 
                     <!-- this row will not appear when printing -->
-                    <div class="row no-print">
-                        <div class="col-12">
-                            <a href="{{ route('purchase.pdf', $model->id) }}" target="_blank" class="btn btn-default float-right">
-                                <i class="fas fa-print"></i> Print</a>
-                            <a href="{{ route('purchase.pdf-download', $model->id) }}" class="btn btn-primary float-right">
-                                <i class="fas fa-download"></i> Generate PDF</a>
-
-                        </div>
-                    </div>
                 </div>
                 <!-- /.invoice -->
             </div><!-- /.col -->
