@@ -66,6 +66,12 @@
                                 <p style="text-align: center; padding: 0px; margin: 0px;">Email : {{ getSettingValue('company_email') }}</p>
                                 <p style="text-align: center; padding: 0px; margin: 0px;">Phone : {{ getSettingValue('company_phone') }}</p>
                             </div>
+                            <br>
+                            <div class="col-sm-4 invoice-col">
+                                <b>Invoice :</b> {{ $model->id }},
+                                <b>Name :</b> {{ $model->supplier->name }},
+                                <b>Address :</b>  {{ $model->supplier->address }}.
+                            </div>
                             
                             <hr>
                             <table border="1"cellspacing="0" width="100%" style="text-align: center; margin-top:20px;">
@@ -115,7 +121,7 @@
                                     Printing Time:- {{ $date->format('F j, Y, g:i a') }}
                                 </strong>
                                 <hr>
-                                <br>
+                                {{-- <br>
                                 <table width="100%">
                                     <tbody>
                                         <tr>
@@ -123,7 +129,7 @@
                                             <td style="text-align: right;">Saller Signature</td>
                                         </tr>
                                     </tbody>
-                                </table>
+                                </table> --}}
                             </htmlpagefooter>
 
                         </div>

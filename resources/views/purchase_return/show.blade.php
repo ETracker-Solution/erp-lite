@@ -59,9 +59,10 @@ Purchase Return
                         <div class="col-sm-4 invoice-col">
 
                         </div>
-                        <!-- /.col -->
                         <div class="col-sm-4 invoice-col">
-                            <b>Invoice: {{ $model->id }}</b>
+                            Invoice : {{ $model->id }} <br>
+                            Name : {{ $model->supplier->name }} <br>
+                            Address :  {{ $model->supplier->address }}<br>
                         </div>
                         <!-- /.col -->
                     </div>
