@@ -7,7 +7,7 @@
             </i>
             Edit
         </a>
-        <a href="{{ route('purchases.show', $row->id) }}" class="btn btn-xs btn-primary">
+        <a href="{{ route('purchases.show', encrypt($row->id)) }}" class="btn btn-xs btn-primary">
             <i class="fas fa-folder">
             </i> Show
         </a>

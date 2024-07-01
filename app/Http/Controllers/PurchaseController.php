@@ -128,10 +128,10 @@ class PurchaseController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Purchase $purchase)
+    public function show($id)
     {
         $data = [
-            'model' => $purchase,
+            'model' => Purchase::findOrFail(decrypt($id)),
 
         ];
 
@@ -277,7 +277,7 @@ class PurchaseController extends Controller
     public function pdfDownload($id)
     {
         $data = [
-            'model' => Purchase::find($id),
+            'model' => Purchase::find(decrypt($id)),
 
         ];
 
