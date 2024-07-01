@@ -84,8 +84,10 @@ class SaleReportController extends Controller
     public function getAllSaleQuery($from_date, $to_date)
     {
         return "
-                select SS.invoice_number as 'Invoice Number', SS.date as 'Date', SS.subtotal as 'Amount', SS.discount as 'Discount', ATT.amount as 'COGS'
+                select SS.invoice_number as 'Invoice Number',US.name as 'Seller', ifnull(SS.waiter_name, '')  as 'Waiter', SS.date as 'Date', SS.subtotal as 'Amount', SS.discount as 'Discount', ATT.amount as 'COGS'
                 from sales SS
+                left join users US
+                on SS.created_by = US.id
                 join account_transactions ATT
                 on ATT.doc_id = SS.id
                 where ATT.doc_type='POS'
@@ -94,6 +96,8 @@ class SaleReportController extends Controller
                 AND SS.date <= '$to_date'
                 UNION ALL
                 SELECT
+                    '' as'Seller',
+                 '' as'Waiter',
                     'Total' AS 'Invoice Number',
                     '' AS 'Date',
                     SUM(SS.subtotal) AS 'Amount',

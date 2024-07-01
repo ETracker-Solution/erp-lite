@@ -79,9 +79,9 @@
                                     </div>
                                     <div class="col-6 input-group" style="gap: 5px">
                                         <input type="text" class="form-control"
-                                               aria-label="Text input with dropdown button" style="height: 25px;font-size: x-small"  v-model="product.discountValue" @keyup="updateProductDiscount(product)">
+                                               aria-label="Text input with dropdown button" style="height: 25px;font-size: x-small"  v-model="product.discountValue" @keyup="updateProductDiscount(product)" :disabled="!product.discountable">
                                         <div class="input-group-append">
-                                            <select name="" id="" class="form-control"  style="height: 25px;font-size: x-small"  v-model="product.discountType" @change="updateProductDiscount(product)">
+                                            <select name="" id="" class="form-control"  style="height: 25px;font-size: x-small"  v-model="product.discountType" @change="updateProductDiscount(product)" :disabled="!product.discountable">
                                                 <option value="">Discount</option>
                                                 <option value="p">%</option>
                                                 <option value="f">TK</option>
@@ -113,8 +113,8 @@
                 </div>
                 <div class="container text-center btn-group btn-group-justified" style="gap: 10px">
                     <button class="btn discount-button" @click="openCouponModal">Coupon</button>
-                    <button class="btn discount-button" @click="openDiscountModal">% Discount</button>
-                    <button class="btn discount-button" @click="addSpecialDiscount" :class="selectedSpecialDiscount ? 'text-danger' : ''">@{{ special_discount_value }}% Special Discount</button>
+                    <button class="btn discount-button" @click="openDiscountModal" :disabled="selectedNotDiscountableProduct" :style="selectedNotDiscountableProduct ? {cursor: 'not-allowed'} : ''">% Discount</button>
+                    <button class="btn discount-button" @click="addSpecialDiscount" :class="selectedSpecialDiscount ? 'text-danger' : ''"  :disabled="selectedNotDiscountableProduct" :style="selectedNotDiscountableProduct ? {cursor: 'not-allowed'} : ''">@{{ special_discount_value }}% Special Discount</button>
                 </div>
                 <div class="container text-center btn-group btn-group-justified mt-2" style="gap: 10px">
                     <button class="btn pause-button" @click="openOnHoldModal">On Hold</button>

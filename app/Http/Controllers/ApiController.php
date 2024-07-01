@@ -279,4 +279,9 @@ class ApiController extends Controller
         ];
         return response()->json($data);
     }
+
+    public function fetch_req_by_store_id($store_id)
+    {
+        return response()->json(['requisitions'=>Requisition::where(['type' => 'FG', 'status' => 'pending','from_store_id'=>$store_id])->get()]);
+    }
 }

@@ -140,11 +140,11 @@ function getStoreDocId($store_id)
     return \App\Models\Store::where(['id' => $store_id])->first()->doc_id;
 }
 
-function generateInvoiceCode($storeName)
+function generateInvoiceCode($store_id)
 {
-    $outlet = Outlet::find($storeName);
-    $storeName = str_replace(',',' ',trim($outlet->name));
-    $words = strtoupper($storeName);
+    $outlet = Outlet::find($store_id);
+    $outlet_name = str_replace(',',' ',trim($outlet->name));
+    $words = strtoupper($outlet_name);
     $acronym = "";
 
     $acronym .= mb_substr($words, 0, 3).mb_substr($words, -1);
@@ -152,14 +152,38 @@ function generateInvoiceCode($storeName)
     $nameWithDate = $acronym.date('ym');
     $lastCode = Sale::where('invoice_number','like','%'.$nameWithDate.'%')->orderBy('invoice_number','DESC')->first();
     if ($lastCode){
-        $last3Digits = substr($lastCode->invoice_number,-3)+1;
+        $last3Digits = (int) (substr($lastCode->invoice_number,-3))+1;
     }else{
         $last3Digits = 001;
     }
     $code = $acronym.date('ym').str_pad($last3Digits, 3, 0, STR_PAD_LEFT);
 
     if (Sale::where('invoice_number',$code)->exists()){
-        generateInvoiceCode($storeName);
+        generateInvoiceCode($outlet_name);
+    }
+    return $code;
+}
+
+function generateUniqueUUID($store_id, $model, $column_name)
+{
+    $outlet = Outlet::find($store_id);
+    $outlet_name = str_replace(',',' ',trim($outlet->name));
+    $words = strtoupper($outlet_name);
+    $acronym = "";
+
+    $acronym .= mb_substr($words, 0, 3).mb_substr($words, -1);
+
+    $nameWithDate = $acronym.date('ym');
+    $lastCode = $model::where($column_name,'like','%'.$nameWithDate.'%')->orderBy($column_name,'DESC')->first();
+    if ($lastCode){
+        $last3Digits = (int) (substr($lastCode->$column_name,-3))+1;
+    }else{
+        $last3Digits = 001;
+    }
+    $code = $acronym.date('ym').str_pad($last3Digits, 3, 0, STR_PAD_LEFT);
+
+    if ($model::where($column_name,$code)->exists()){
+        generateInvoiceCode($outlet_name);
     }
     return $code;
 }

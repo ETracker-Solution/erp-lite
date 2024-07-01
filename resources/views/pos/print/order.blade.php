@@ -154,7 +154,7 @@
     @forelse($sale->items as $item)
         <tr>
             <td class="tc bl-none br-none">{{ $loop->iteration }}</td>
-            <td class="tc bl-none br-none">{{ $item->product->name }}</td>
+            <td class="tc bl-none br-none">{{ $item->coi->name }}</td>
             <td class="tc bl-none br-none">{{ $item->unit_price }}</td>
             <td class="tc bl-none br-none">{{ $item->quantity }}</td>
             <td class="tc bl-none br-none tr">{{ $item->unit_price * $item->quantity }}</td>

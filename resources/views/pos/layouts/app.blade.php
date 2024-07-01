@@ -319,7 +319,7 @@
                 // },
                 total_payable_bill: function () {
                     var vm = this
-                    return (this.total_bill - vm.couponCodeDiscountAmount - this.allDiscountAmount)
+                    return Math.round(this.total_bill - vm.couponCodeDiscountAmount - this.allDiscountAmount)
                 },
                 total_due: function () {
                     return this.total_payable_bill
@@ -343,6 +343,13 @@
                 allDiscountAmount: function () {
                     var vm = this
                     return Number(vm.total_discount_amount) + Number(vm.special_discount_amount) + Number(this.productWiseDiscount)
+                },
+                selectedNotDiscountableProduct: function(){
+                    return this.selectedProducts.reduce((index,item) => {
+                        if (item.discountable === false){
+                            return true
+                        }
+                    }, false)
                 }
             },
             methods: {
@@ -414,6 +421,7 @@
                             discountType: '',
                             discountValue: 0,
                             discountAmount: 0,
+                            discountable: product.parent_id !== 73
                         })
                     }
                 },
@@ -501,9 +509,13 @@
                             vm.customer = {};
                             vm.discount_type = '';
                             vm.customerNumber = '';
+                            vm.total_discount_type = '';
                             vm.total_discount_value = 0;
                             vm.total_discount_amount = 0;
+                            vm.special_discount_amount = 0;
                             vm.allDiscountAmount = 0;
+                            vm.couponCodeDiscountValue = 0;
+                            vm.couponCodeDiscountAmount = 0;
                             vm.getAllProducts()
                             vm.getAllOrders()
                             vm.paymentMenuShow = false
