@@ -129,9 +129,7 @@ class PurchaseReturnController extends Controller
     {
         $data = [
             'model' => $purchaseReturn,
-
         ];
-
         return view('purchase_return.show', $data);
     }
 
