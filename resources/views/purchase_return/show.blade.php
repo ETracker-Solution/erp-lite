@@ -29,7 +29,7 @@ Purchase Return
                 <div class="card card-info">
                     <div class="card-header">
                         <h3 class="card-title">Goods Purchase Return Details</h3>
-                        <a href="{{route('purchase_return.pdf',$model->id)}}"
+                        <a href="{{route('purchase_return.pdf',encrypt($model->id))}}"
                             class="btn btn-sm btn-primary float-right" target="_blank"><i class="fa fa-download"></i> PDF</a>
                     </div>
                     <!-- title row -->

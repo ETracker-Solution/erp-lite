@@ -125,10 +125,10 @@ class PurchaseReturnController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(PurchaseReturn $purchaseReturn)
+    public function show($id)
     {
         $data = [
-            'model' => $purchaseReturn,
+            'model' => PurchaseReturn::findOrFail(decrypt($id)),
         ];
         return view('purchase_return.show', $data);
     }
@@ -160,7 +160,7 @@ class PurchaseReturnController extends Controller
     public function pdfDownload($id)
     {
         $data = [
-            'model' => PurchaseReturn::findOrFail($id),
+            'model' => PurchaseReturn::findOrFail(decrypt($id)),
         ];
 
         $pdf = PDF::loadView(
