@@ -396,7 +396,11 @@
                             var slug = vm.item_id;
 
                             if (slug) {
-                                axios.get(this.config.get_item_info_url + '/' + slug).then(function (response) {
+                                axios.get(this.config.get_item_info_url + '/' + slug,{
+                                    params:{
+                                        store_id: vm.from_store_id
+                                    }
+                                }).then(function (response) {
 
                                     product_details = response.data;
                                     vm.items.push({
