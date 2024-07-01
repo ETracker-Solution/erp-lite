@@ -183,7 +183,7 @@ class FGOpeningBalanceController extends Controller
         return response()->json([
             'next_id' => getNextId(FinishGoodsOpeningBalance::class),
             'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'FG'])->get(),
-            'stores' => Store::query()->whereType('FG')->get(),
+            'stores' => \auth()->user() && \auth()->user()->employee && \auth()->user()->employee->outlet_id ? Store::query()->whereType('FG')->where(['doc_type'=>'outlet', 'doc_id'=>\auth()->user()->employee->outlet_id])->get() : Store::query()->whereType('FG')->get(),
             'success' => true
         ]);
     }

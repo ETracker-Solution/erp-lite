@@ -37,19 +37,6 @@
                                         <div class="row">
                                             <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                                 <div class="form-group">
-                                                    <label for="requisition_id">FGR No</label>
-                                                    <select name="requisition_id" id="requisition_id"
-                                                            class="form-control bSelect"
-                                                            v-model="requisition_id" required @change="load_old">
-                                                        <option value="">Select One</option>
-                                                        @foreach($requisitions as $row)
-                                                            <option value="{{ $row->id }}">{{ $row->uid }}</option>
-                                                        @endforeach
-                                                    </select>
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
-                                                <div class="form-group">
                                                     <label for="date">Date</label>
                                                     <vuejs-datepicker v-model="date" name="date"
                                                                       placeholder="Select date"
@@ -61,7 +48,7 @@
                                                     <label for="from_store_id">From Store</label>
                                                     <select name="from_store_id" id="from_store_id"
                                                             class="form-control bSelect"
-                                                            v-model="from_store_id" required @change="load_old">
+                                                            v-model="from_store_id" required>
                                                         <option value="">Select One</option>
                                                         @foreach($from_stores as $row)
                                                             <option value="{{ $row->id }}">{{ $row->id }}
@@ -75,7 +62,8 @@
                                                     <label for="to_store_id">To Store</label>
                                                     <select name="to_store_id" id="to_to_store_id"
                                                             class="form-control bSelect"
-                                                            v-model="to_store_id" required>
+                                                            v-model="to_store_id" required
+                                                            @change="getPendingRequisitions">
                                                         <option value="">Select One</option>
                                                         @foreach($to_stores as $row)
                                                             <option value="{{ $row->id }}">{{ $row->id }}
@@ -84,7 +72,20 @@
                                                     </select>
                                                 </div>
                                             </div>
-
+                                            <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+                                                <div class="form-group">
+                                                    <label for="requisition_id">FGR No</label>
+                                                    <select name="requisition_id" id="requisition_id"
+                                                            class="form-control bSelect"
+                                                            v-model="requisition_id" required @change="load_old">
+                                                        <option value="">Select One</option>
+                                                        <option :value="requisition.id" v-for="requisition in requisitions">@{{ requisition.uid }}</option>
+{{--                                                        @foreach($requisitions as $row)--}}
+{{--                                                            <option value="{{ $row->id }}">{{ $row->uid }}</option>--}}
+{{--                                                        @endforeach--}}
+                                                    </select>
+                                                </div>
+                                            </div>
                                             <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                                 <div class="form-group">
                                                     <label for="reference_no">Reference No</label>
@@ -291,6 +292,7 @@
                     products: [],
                     items: [],
                     pageLoading: false,
+                    requisitions: []
 
                 },
                 components: {
@@ -343,7 +345,15 @@
                             console.log('3');
                             index.quantity = '';
                         }
-                    }
+                    },
+                    getPendingRequisitions() {
+                        var vm = this;
+                       axios.get('/fetch-requisitions-by-store-id/'+vm.to_store_id)
+                           .then(function (res){
+                               vm.requisitions = res.data.requisitions
+                               vm.items = [];
+                           })
+                    },
                 },
 
                 updated() {

@@ -3,6 +3,9 @@
 namespace App\Http\Requests;
 
 use App\Classes\RequisitionNumber;
+use App\Models\Outlet;
+use App\Models\Requisition;
+use App\Models\Store;
 use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -41,10 +44,11 @@ class StoreRMRequisitionRequest extends FormRequest
 
     public function prepareForValidation()
     {
-
+        Outlet::find(Store::find($this->from_store_id)->doc_id);
         $this->merge([
             'from_factory_id'=>getStoreDocId($this->from_store_id),
-            'uid' => RequisitionNumber::serial_number(),
+//            'uid' => RequisitionNumber::serial_number(),
+            'uid' => generateUniqueUUID(Outlet::find(Store::find($this->from_store_id)->doc_id)->id, Requisition::class,'uid'),
             'type' => 'RM',
             'created_by' => auth()->user()->id,
             'date' => Carbon::parse($this->date)->format('Y-m-d'),

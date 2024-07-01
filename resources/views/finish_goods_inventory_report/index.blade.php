@@ -98,9 +98,11 @@
                             <div class="row">
                                 <div class="col-12">
                                     <div class="text-center">
+                                        @if(\auth()->user() && \auth()->user()->employee && !\auth()->user()->employee->outlet_id)
                                         <button class="btn btn-sm btn-dark w-50 mb-2" @click="showReport('all_groups')">
                                             Show All Groups Quantity Summary
                                         </button>
+
                                         <button class="btn btn-sm btn-dark w-50 mb-2"
                                                 @click="showReport('single_group_item')">Show Single Group Item Quantity
                                             Summary
@@ -114,6 +116,7 @@
                                         <button class="btn btn-sm btn-dark w-50 mb-2"
                                                 @click="showReport('store_group')">Show All Store Quantity Summary
                                         </button>
+                                        @endif
                                         <button class="btn btn-sm btn-dark w-50 mb-2"
                                                 @click="showReport('store_group_item')">Show Single Store + Group + Item
                                             Quantity Summary

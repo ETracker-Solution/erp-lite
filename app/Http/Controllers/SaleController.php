@@ -60,8 +60,8 @@ class SaleController extends Controller
         $user_store = null;
         if (!auth()->user()->is_super) {
             $user_store = Store::where(['doc_type' => 'outlet', 'doc_id' => \auth()->user()->employee->outlet_id])->first();
-            $outletName = $user_store->doc_id;
-            $serial_no = generateInvoiceCode($outletName);
+            $outlet_id = $user_store->doc_id;
+            $serial_no = generateUniqueUUID($outlet_id, Sale::class,'invoice_number');
             // $serial_no = InvoiceNumber::generateInvoiceNumber(\auth()->user()->employee->outlet_id);
         }
         $data = [
@@ -107,7 +107,7 @@ class SaleController extends Controller
             $outlet = Outlet::find($store->doc_id);
             $outlet_id = $outlet->id;
             $sale = new Sale();
-            $sale->invoice_number = generateInvoiceCode($outlet_id);
+            $sale->invoice_number = generateUniqueUUID($outlet_id, Sale::class,'invoice_number');
             // $sale->invoice_number = $request->invoice_number ?? InvoiceNumber::generateInvoiceNumber($outlet_id, $selectedDate);
             $sale->subtotal = $request->subtotal;
             $sale->discount = $request->discount ?? 0;
