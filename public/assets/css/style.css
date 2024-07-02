@@ -17,3 +17,15 @@
 .select2-container{
     width: 100% !important;
 }
+
+.second-child{
+    margin-left: 10px;
+}
+
+.second-child .nav-link{
+    width: unset !important;
+}
+
+.third-child{
+    margin-left: 20px;
+}

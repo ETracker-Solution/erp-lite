@@ -53,7 +53,7 @@
                                 <i class="right fas fa-angle-left"></i>
                             </p>
                         </a>
-                        <ul class="nav nav-treeview">
+                        <ul class="nav nav-treeview second-child">
                             @canany(['accounts-receive-voucher','accounts-payment-voucher','accounts-journal-voucher','accounts-ft-voucher','supplier-voucher'])
                                 <li class="nav-item {{ (Request::segment(1) == 'receive-vouchers'|| Request::segment(1) == 'payment-vouchers'|| Request::segment(1) == 'journal-vouchers'|| Request::segment(1) == 'fund-transfer-vouchers'|| Request::segment(1) == 'supplier-vouchers' )?'menu-open':''}}">
                                     <a href="#"
@@ -64,7 +64,7 @@
                                             <i class="right fas fa-angle-left"></i>
                                         </p>
                                     </a>
-                                    <ul class="nav nav-treeview">
+                                    <ul class="nav nav-treeview third-child">
                                         @can('accounts-receive-voucher')
                                             <li class="nav-item">
                                                 <a href="{{route('receive-vouchers.index')}}"
@@ -144,7 +144,7 @@
                                 <i class="right fas fa-angle-left"></i>
                             </p>
                         </a>
-                        <ul class="nav nav-treeview">
+                        <ul class="nav nav-treeview second-child">
                             @canany(['purchase-goods-purchase-bill','purchase-purchase-return-bill'])
                                 <li class="nav-item {{ (Request::segment(1) == 'purchases'||Request::segment(1) == 'purchase-returns')?'menu-open':''}}">
                                     <a href="#" class="nav-link {{ (Request::segment(1) == 'purchases')?' active':''}}">
@@ -154,7 +154,7 @@
                                             <i class="right fas fa-angle-left"></i>
                                         </p>
                                     </a>
-                                    <ul class="nav nav-treeview">
+                                    <ul class="nav nav-treeview third-child">
                                         @can('purchase-goods-purchase-bill')
                                             <li class="nav-item">
                                                 <a href="{{route('purchases.create')}}"
@@ -189,7 +189,7 @@
                                 <i class="right fas fa-angle-left"></i>
                             </p>
                         </a>
-                        <ul class="nav nav-treeview">
+                        <ul class="nav nav-treeview second-child">
                             @canany(['store-rm-rm-inventory-adjustment','store-rm-rm-inventory-transfer'])
                                 <li class="nav-item {{ (Request::segment(1) == 'rm-inventory-transfers'|| Request::segment(1) == 'rm-inventory-adjustments' )?'menu-open':''}}">
                                     <a href="#"
@@ -200,7 +200,7 @@
                                             <i class="right fas fa-angle-left"></i>
                                         </p>
                                     </a>
-                                    <ul class="nav nav-treeview">
+                                    <ul class="nav nav-treeview third-child">
                                         @can('store-rm-rm-inventory-transfer')
                                             <li class="nav-item">
                                                 <a href="{{route('rm-inventory-transfers.create')}}"
@@ -232,7 +232,7 @@
                                             <i class="right fas fa-angle-left"></i>
                                         </p>
                                     </a>
-                                    <ul class="nav nav-treeview">
+                                    <ul class="nav nav-treeview third-child">
                                         @can('store-rm-create-rm-requisition')
                                             <li class="nav-item">
                                                 <a href="{{route('rm-requisitions.create')}}"
@@ -264,7 +264,7 @@
                                             <i class="right fas fa-angle-left"></i>
                                         </p>
                                     </a>
-                                    <ul class="nav nav-treeview">
+                                    <ul class="nav nav-treeview third-child">
                                         @can('store-rm-rm-inventory-report')
                                             <li class="nav-item">
                                                 <a href="{{route('raw-materials-inventory-report.index')}}"
@@ -290,7 +290,7 @@
                                 <i class="right fas fa-angle-left"></i>
                             </p>
                         </a>
-                        <ul class="nav nav-treeview">
+                        <ul class="nav nav-treeview second-child">
                             @canany(['production-batch-entry','production-rm-consumption','production-fg-production'])
                                 <li class="nav-item {{ (Request::segment(1) == 'consumptions' || Request::segment(1) == 'batches'|| Request::segment(1) == 'productions')?'menu-open':''}}">
                                     <a href="#"
@@ -301,7 +301,7 @@
                                             <i class="right fas fa-angle-left"></i>
                                         </p>
                                     </a>
-                                    <ul class="nav nav-treeview">
+                                    <ul class="nav nav-treeview third-child">
                                         @can('production-batch-entry')
                                             <li class="nav-item">
                                                 <a href="{{route('batches.index')}}"
@@ -345,7 +345,7 @@
                                 <i class="right fas fa-angle-left"></i>
                             </p>
                         </a>
-                        <ul class="nav nav-treeview">
+                        <ul class="nav nav-treeview second-child">
                             @canany(['store-fg-fg-inventory-transfer','store-fg-fg-inventory-adjustment'])
                                 <li class="nav-item {{ (Request::segment(1) == 'fg-inventory-transfers'|| Request::segment(1) == 'fg-inventory-adjustments' )?'menu-open':''}}">
                                     <a href="#"
@@ -356,7 +356,7 @@
                                             <i class="right fas fa-angle-left"></i>
                                         </p>
                                     </a>
-                                    <ul class="nav nav-treeview">
+                                    <ul class="nav nav-treeview third-child">
                                         @can('store-fg-fg-inventory-transfer')
                                             <li class="nav-item">
                                                 <a href="{{route('fg-inventory-transfers.create')}}"
@@ -388,7 +388,7 @@
                                             <i class="right fas fa-angle-left"></i>
                                         </p>
                                     </a>
-                                    <ul class="nav nav-treeview">
+                                    <ul class="nav nav-treeview second-child">
                                         @can('store-fg-fg-requisition-list')
                                             <li class="nav-item">
                                                 <a href="{{route('requisitions.index')}}"
@@ -410,7 +410,7 @@
                                         @can('store-fg-fg-delivery-receive')
                                             <li class="nav-item">
                                                 <a href="{{route('fg-delivery-receives.create')}}"
-                                                class="nav-link {{ (Request::segment(1) == 'fg-delivery-receives' )?' active':''}}">
+                                                   class="nav-link {{ (Request::segment(1) == 'fg-delivery-receives' )?' active':''}}">
                                                     <i class="far fa-circle nav-icon"></i>
                                                     <p>FG Delivery Receive</p>
                                                 </a>
@@ -429,7 +429,7 @@
                                             <i class="right fas fa-angle-left"></i>
                                         </p>
                                     </a>
-                                    <ul class="nav nav-treeview">
+                                    <ul class="nav nav-treeview second-child">
                                         @can('store-fg-fg-inventory-report')
                                             <li class="nav-item">
                                                 <a href="{{route('finish-goods-inventory-report.index')}}"
@@ -455,7 +455,7 @@
                                 <i class="right fas fa-angle-left"></i>
                             </p>
                         </a>
-                        <ul class="nav nav-treeview">
+                        <ul class="nav nav-treeview second-child">
                             @canany(['sales-pre-orders-list','sales-pre-order-entry'])
                                 <li class="nav-item {{ (Request::segment(1) == 'sale-reports'||Request::segment(1) == 'pre-orders')?'menu-open':''}}">
                                     <a href="#"
@@ -466,7 +466,7 @@
                                             <i class="right fas fa-angle-left"></i>
                                         </p>
                                     </a>
-                                    <ul class="nav nav-treeview">
+                                    <ul class="nav nav-treeview third-child">
                                         @can('sales-pre-orders-list')
                                             <li class="nav-item">
                                                 <a href="{{route('pre-orders.index')}}"
@@ -497,7 +497,7 @@
                                             <i class="right fas fa-angle-left"></i>
                                         </p>
                                     </a>
-                                    <ul class="nav nav-treeview">
+                                    <ul class="nav nav-treeview third-child">
                                         @can('sales-sales')
                                             <li class="nav-item">
                                                 <a href="{{route('sales.create')}}"
@@ -521,7 +521,7 @@
                                             <i class="right fas fa-angle-left"></i>
                                         </p>
                                     </a>
-                                    <ul class="nav nav-treeview">
+                                    <ul class="nav nav-treeview third-child">
                                         @can('sales-sales-report')
                                             <li class="nav-item">
                                                 <a href="{{route('sale-reports.index')}}"
@@ -547,7 +547,7 @@
                                 <i class="right fas fa-angle-left"></i>
                             </p>
                         </a>
-                        <ul class="nav nav-treeview">
+                        <ul class="nav nav-treeview second-child">
                             @canany(['loyalty-earn-point','loyalty-redeem-point','loyalty-point-setting','loyalty-membership','loyalty-membertype','loyalty-promo-code'])
                                 <li class="nav-item {{ (Request::segment(1) == 'earn-points'||Request::segment(1) == 'redeem-points'||Request::segment(1) == 'member-points'||Request::segment(1) == 'memberships'||Request::segment(1) == 'member-types'||Request::segment(1) == 'promo-codes')?'menu-open':''}}">
                                     <a href="#"
@@ -558,7 +558,7 @@
                                             <i class="right fas fa-angle-left"></i>
                                         </p>
                                     </a>
-                                    <ul class="nav nav-treeview">
+                                    <ul class="nav nav-treeview third-child">
                                         @can('loyalty-earn-point')
                                             <li class="nav-item">
                                                 <a href="{{route('earn-points.index')}}"
@@ -633,7 +633,7 @@
                                 <i class="right fas fa-angle-left"></i>
                             </p>
                         </a>
-                        <ul class="nav nav-treeview">
+                        <ul class="nav nav-treeview second-child">
                             @canany(['data-admin-chart-of-accounts'])
                                 <li class="nav-item {{ (Request::segment(1) == 'chart-of-accounts' )?'menu-open':''}}">
                                     <a href="#"
@@ -644,7 +644,7 @@
                                             <i class="right fas fa-angle-left"></i>
                                         </p>
                                     </a>
-                                    <ul class="nav nav-treeview">
+                                    <ul class="nav nav-treeview third-child">
                                         @can('data-admin-chart-of-accounts')
                                             <li class="nav-item">
                                                 <a href="{{route('chart-of-accounts.index')}}"
@@ -667,7 +667,7 @@
                                             <i class="right fas fa-angle-left"></i>
                                         </p>
                                     </a>
-                                    <ul class="nav nav-treeview">
+                                    <ul class="nav nav-treeview third-child">
                                         @can('data-admin-inventory-item-list')
                                             <li class="nav-item">
                                                 <a href="{{route('chart-of-inventories.index')}}"
@@ -708,7 +708,7 @@
                                             <i class="right fas fa-angle-left"></i>
                                         </p>
                                     </a>
-                                    <ul class="nav nav-treeview">
+                                    <ul class="nav nav-treeview third-child">
                                         @can('data-admin-supplier-group-list')
                                             <li class="nav-item">
                                                 <a href="{{route('supplier-groups.index')}}"
@@ -741,7 +741,7 @@
                                             <i class="right fas fa-angle-left"></i>
                                         </p>
                                     </a>
-                                    <ul class="nav nav-treeview">
+                                    <ul class="nav nav-treeview third-child">
                                         @can('data-admin-gl-account')
                                             <li class="nav-item">
                                                 <a href="{{route('general-ledger-opening-balances.index')}}"
@@ -800,7 +800,7 @@
                                             <i class="right fas fa-angle-left"></i>
                                         </p>
                                     </a>
-                                    <ul class="nav nav-treeview">
+                                    <ul class="nav nav-treeview third-child">
                                         @can('data-admin-designation')
                                             <li class="nav-item">
                                                 <a href="{{route('designations.index')}}"
@@ -854,7 +854,7 @@
                                 <i class="right fas fa-angle-left"></i>
                             </p>
                         </a>
-                        <ul class="nav nav-treeview">
+                        <ul class="nav nav-treeview second-child">
                             @canany(['system-admin-user-list','system-admin-employees'])
                                 <li class="nav-item {{ (Request::segment(1) == 'users'||Request::segment(1) == 'employees')?'menu-open':''}}">
                                     <a href="#"
@@ -865,7 +865,7 @@
                                             <i class="right fas fa-angle-left"></i>
                                         </p>
                                     </a>
-                                    <ul class="nav nav-treeview">
+                                    <ul class="nav nav-treeview third-child">
                                         @can('system-admin-user-list')
                                             <li class="nav-item">
                                                 <a href="{{route('users.index')}}"
@@ -897,7 +897,7 @@
                                             <i class="right fas fa-angle-left"></i>
                                         </p>
                                     </a>
-                                    <ul class="nav nav-treeview">
+                                    <ul class="nav nav-treeview third-child">
                                         @can('system-admin-outlet-payment')
                                             <li class="nav-item">
                                                 <a href="{{route('outlet-configs.create')}}"
@@ -921,7 +921,7 @@
                                             <i class="right fas fa-angle-left"></i>
                                         </p>
                                     </a>
-                                    <ul class="nav nav-treeview">
+                                    <ul class="nav nav-treeview third-child">
                                         @can('system-admin-system-setting')
                                             <li class="nav-item">
                                                 <a href="{{route('system-settings.create')}}"
