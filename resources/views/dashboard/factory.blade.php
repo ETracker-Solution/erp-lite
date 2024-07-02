@@ -206,6 +206,7 @@
                                     <th>Outlet</th>
                                     <th>Status</th>
                                     <th>Date</th>
+                                    <th>Action</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -216,7 +217,7 @@
                                         <td> {{$row->fromStore->name ?? ''}}</td>
                                         <td>{!! showStatus($row->status) !!}</td>
                                         <td>{{$row->created_at->format('d-m-Y')}}</td>
-                                        
+                                        <td><a href="{{ route('requisitions.show', encrypt($row->id)) }}" class="btn btn-primary btn-sm"><i class="fa fa-eye"></i></a></td>   
                                     </tr>
                                 @endforeach
                                 </tbody>
@@ -245,6 +246,7 @@
                                     <th>Outlet</th>
                                     <th>Status</th>
                                     <th>Date</th>
+                                    <th>Action</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -254,6 +256,7 @@
                                         <td> {{$row->fromStore->name ?? ''}}</td>
                                         <td>{!! showStatus($row->status) !!}</td>
                                         <td>{{$row->created_at->format('d-m-Y')}}</td>
+                                        <td><a href="{{ route('requisitions.show', encrypt($row->id)) }}" class="btn btn-primary btn-sm"><i class="fa fa-eye"></i></a></td>
                                     </tr>
                                 @endforeach
                                 </tbody>
@@ -271,6 +274,7 @@
     <script src="{{asset('admin/app-assets/vendors/js/charts/apexcharts.min.js')}}"></script>
     <script src="{{asset('admin/app-assets/js/core/app.js')}}"></script>
     {{--    <script src="{{asset('admin/app-assets/js/scripts/pages/dashboard-ecommerce.js')}}"></script>--}}
+
     <script>
 
 
