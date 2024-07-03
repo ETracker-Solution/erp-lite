@@ -139,7 +139,7 @@ class ApiController extends Controller
 
     public function fetchPurchaseById($id)
     {
-        $purchase = Purchase::with('items','supplier')->where('id', $id)->first();
+        $purchase = Purchase::with('items', 'supplier')->where('id', $id)->first();
         $items = [];
         foreach ($purchase->items as $row) {
             $items[] = [
@@ -163,20 +163,24 @@ class ApiController extends Controller
     public function fetchRequisitionById($id, $store_id = null)
     {
         $requisition = Requisition::with('items')->where('id', $id)->first();
+        $r_items = $requisition->availableItems();
         $items = [];
-        foreach ($requisition->items as $row) {
-            $items[] = [
-                'requisition_id' => $id,
-                'coi_id' => $row->coi_id,
-                'unit' => $row->coi->unit->name ?? '',
-                'name' => $row->coi->name ?? '',
-                'group' => $row->coi->parent->name ?? '',
-                'rm_average_rate' => averageRMRate($row->coi_id, $store_id),
-                'fg_average_rate' => averageFGRate($row->coi_id, $store_id),
-                'balance_quantity' => availableInventoryBalance($row->coi_id, $store_id),
-                'requisition_quantity' => $row->quantity,
-                'quantity' => '',
-            ];
+
+        foreach ($r_items as $row) {
+            if ($row->quantity > 0) {
+                $items[] = [
+                    'requisition_id' => $id,
+                    'coi_id' => $row->coi_id,
+                    'unit' => $row->coi->unit->name ?? '',
+                    'name' => $row->coi->name ?? '',
+                    'group' => $row->coi->parent->name ?? '',
+                    'rm_average_rate' => averageRMRate($row->coi_id, $store_id),
+                    'fg_average_rate' => averageFGRate($row->coi_id, $store_id),
+                    'balance_quantity' => availableInventoryBalance($row->coi_id, $store_id),
+                    'requisition_quantity' => $row->quantity,
+                    'quantity' => '',
+                ];
+            }
         }
         $data = [
             'items' => $items,
@@ -188,6 +192,7 @@ class ApiController extends Controller
         ];
         return response()->json($data);
     }
+
     public function fetchRequisitionDeliveryById($id)
     {
         $requisitionDelivery = RequisitionDelivery::with('items')->where('id', $id)->first();
@@ -282,6 +287,7 @@ class ApiController extends Controller
 
     public function fetch_req_by_store_id($store_id)
     {
-        return response()->json(['requisitions'=>Requisition::where(['type' => 'FG', 'status' => 'pending','from_store_id'=>$store_id])->get()]);
+        $requisitions = Requisition::availableRequisitions('FG', $store_id);
+        return response()->json(['requisitions' => $requisitions]);
     }
 }
