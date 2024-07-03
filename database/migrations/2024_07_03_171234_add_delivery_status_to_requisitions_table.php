@@ -11,7 +11,7 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::table('requisitions', function (Blueprint $table) {
-            $table->string('delivery_status')->nullable();
+            $table->string('delivery_status')->default('pending');
         });
     }
 

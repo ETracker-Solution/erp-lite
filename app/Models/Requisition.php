@@ -55,7 +55,7 @@ class Requisition extends Model
 
     public static function availableRequisitions($type, $store_id)
     {
-        $requisitions = \App\Models\Requisition::where(['from_store_id' => $store_id])->where(['type' => $type, 'status' => 'approved'])->get();
+        $requisitions = \App\Models\Requisition::where(['from_store_id' => $store_id])->where(['type' => $type, 'status' => 'approved'])->whereIn('delivery_status', ['pending', 'partial'])->get();
         $available_requisitions = [];
         foreach ($requisitions as $requisition) {
             $quantity = 0;
