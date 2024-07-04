@@ -366,6 +366,13 @@
                                                 </a>
                                             </li>
                                         @endcan
+                                            <li class="nav-item">
+                                                <a href="{{route('fg-transfer-receives.create')}}"
+                                                   class="nav-link {{ (Request::segment(1) == 'fg-transfer-receives' )?' active':''}}">
+                                                    <i class="far fa-circle nav-icon"></i>
+                                                    <p>FG Inventory Transfer Receive</p>
+                                                </a>
+                                            </li>
                                         @can('store-fg-fg-inventory-adjustment')
                                             <li class="nav-item">
                                                 <a href="{{route('fg-inventory-adjustments.create')}}"

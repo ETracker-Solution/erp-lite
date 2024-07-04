@@ -39,7 +39,7 @@ function averageRMRate(int $item_id, int $store_id = null)
 
 
     // Calculate the average price
-    return number_format(($data->totalQuantity != 0) ? $data->totalAmount / $data->totalQuantity : 0, 2);
+    return ($data->totalQuantity != 0) ? $data->totalAmount / $data->totalQuantity : 0;
 }
 
 function averageFGRate(int $item_id, int $store_id = null)
@@ -53,7 +53,7 @@ function averageFGRate(int $item_id, int $store_id = null)
 
 
     // Calculate the average price
-    return number_format(($data->totalQuantity != 0) ? $data->totalAmount / $data->totalQuantity : 0, 2);
+    return ($data->totalQuantity != 0) ? $data->totalAmount / $data->totalQuantity : 0;
 }
 
 function inventoryAmount(int $outletId)
