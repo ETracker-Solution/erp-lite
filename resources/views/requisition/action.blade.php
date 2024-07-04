@@ -1,4 +1,13 @@
-<div class="project-actions text-right">
+<div class="project-actions text-right" style="display: ruby">
+    @if($row->status == 'pending')
+        <form action="{{ route('requisitions.status-update', $row->id) }}" method="POST">
+            @csrf
+            @method('PUT')
+            <input type="hidden" name="status" value="approved">
+            <button id="btnDelete" class="btn btn-success btn-xs"> <i class="fas fa-check-circle">
+                </i> Approve</button>
+        </form>
+    @endif
     <form action="{{route('requisitions.destroy', $row->id)}}" method="post">
         <input type="hidden" name="_method" value="DELETE">
         @csrf

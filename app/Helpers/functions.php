@@ -32,6 +32,7 @@ function showStatus($status)
         case 'draft':
             return '<span class="badge badge-primary">' . ucfirst($status) . '</span>';
         case 'assigned':
+        case 'approved':
             return '<span class="badge badge-info">' . ucfirst($status) . '</span>';
         case 'accepted':
         case 'active':

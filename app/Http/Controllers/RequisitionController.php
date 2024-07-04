@@ -15,6 +15,7 @@ use App\Models\RequisitionItem;
 use App\Models\Store;
 use App\Services\ExportService;
 use Brian2694\Toastr\Facades\Toastr;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Yajra\DataTables\Facades\DataTables;
@@ -250,5 +251,13 @@ class RequisitionController extends Controller
             'headers' => $headers,
             'values' => $values
         ];
+    }
+
+    public function updateStatus(Request $request, $id)
+    {
+        $req = Requisition::findOrFail($id);
+        $req->update(['status'=>$request->status]);
+        Toastr::success('Requisition Approved Successfully!.', '', ["progressBar" => true]);
+        return redirect()->route('requisitions.index');
     }
 }

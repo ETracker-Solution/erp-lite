@@ -73,6 +73,8 @@ Route::middleware('auth')->group(function () {
     Route::get('purchase-return-pdf/{id}', [App\Http\Controllers\PurchaseReturnController::class, 'pdfDownload'])->name('purchase_return.pdf');
     Route::resource('purchase-returns', \App\Http\Controllers\PurchaseReturnController::class);
     Route::resource('sales', SaleController::class);
+
+    Route::put('requisitions.status-update/{id}',[\App\Http\Controllers\RequisitionController::class, 'updateStatus'])->name('requisitions.status-update');
     Route::resource('requisitions', \App\Http\Controllers\RequisitionController::class);
     Route::get('requisition-pdf/{id}', [App\Http\Controllers\RequisitionController::class, 'pdfDownload'])->name('requisition.pdf');
     Route::resource('productions', \App\Http\Controllers\ProductionController::class);
