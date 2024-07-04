@@ -43,7 +43,7 @@
                     </a>
                 </li>
 
-                @canany(['accounts-receive-voucher','accounts-payment-voucher','accounts-journal-voucher','accounts-ft-voucher','supplier-voucher','accounts-leger-report','accounts-financial-report'])
+                @canany(['accounts-receive-voucher','accounts-payment-voucher','accounts-journal-voucher','accounts-ft-voucher','supplier-voucher','accounts-ledger-report','accounts-financial-report'])
                     <li class="nav-item {{ (Request::segment(1) == 'reports'|| Request::segment(1) == 'financial-statements'|| Request::segment(1) == 'receive-vouchers'|| Request::segment(1) == 'payment-vouchers'|| Request::segment(1) == 'journal-vouchers'|| Request::segment(1) == 'fund-transfer-vouchers'|| Request::segment(1) == 'supplier-vouchers' )?'menu-open':''}}">
                         <a href="#"
                            class="nav-link {{ (Request::segment(1) == 'reports'|| Request::segment(1) == 'financial-statements')?' active':''}}">
@@ -113,12 +113,12 @@
                                     </ul>
                                 </li>
                             @endcanany
-                            @can('accounts-leger-report')
+                            @can('accounts-ledger-report')
                                 <li class="nav-item">
                                     <a href="{{ route('ledger.reports') }}"
                                        class="nav-link {{ (Request::segment(2) == 'ledger-reports' )?' active':''}}">
                                         <i class="far fa-circle nav-icon"></i>
-                                        <p>Leger Report</p>
+                                        <p>Ledger Report</p>
                                     </a>
                                 </li>
                             @endcan
