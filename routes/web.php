@@ -226,7 +226,7 @@ Route::middleware('auth')->group(function () {
 
     /*=========== Finish Goods Delivery Receive Starts ===========*/
     Route::resource('fg-transfer-receives', \App\Http\Controllers\FGTransferReceiveController::class);
-    Route::get('fg-transfer-receive-pdf/{id}', [App\Http\Controllers\FGDeliveryReceiveController::class, 'pdf'])->name('fg-delivery-receive.pdf');
+    Route::get('fg-transfer-receive-pdf/{id}', [App\Http\Controllers\FGTransferReceiveController::class, 'pdf'])->name('fg-transfer-receive.pdf');
 
     /*=========== Finish Goods Delivery Receive Ends ===========*/
 
