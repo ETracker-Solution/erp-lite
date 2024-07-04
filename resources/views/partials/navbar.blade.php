@@ -14,7 +14,7 @@
         @endif
         @if(\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->factory_id)
             <li class="nav-item d-none d-sm-inline-block">
-                <a href="{{route('today.requisitions')}}" class="nav-link">Today Requisitions</a>
+                <a href="{{route('today.requisitions')}}" class="nav-link">Requisitions</a>
             </li>
         @endif
     </ul>

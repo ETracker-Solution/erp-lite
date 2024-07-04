@@ -103,4 +103,22 @@ class Requisition extends Model
     {
         return $this->belongsTo(Store::class, 'to_store_id');
     }
+
+    public static function todayFGAvailableRequisitions($to_factory_id)
+    {
+        $requisitions = \App\Models\Requisition::where(['to_factory_id' => $to_factory_id])
+            ->where(['type' => 'FG', 'status' => 'approved'])
+            ->whereIn('delivery_status', ['pending', 'partial'])->get();
+        $available_requisitions = [];
+        foreach ($requisitions as $requisition) {
+            $quantity = 0;
+            foreach ($requisition->deliveries as $delivery) {
+                $quantity += $delivery->items->sum('quantity');
+            }
+            if ($requisition->items->sum('quantity') > $quantity) {
+                $available_requisitions[] = $requisition;
+            }
+        }
+        return $available_requisitions;
+    }
 }

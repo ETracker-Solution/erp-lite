@@ -19,4 +19,9 @@ class Employee extends Model
     {
         return $this->belongsTo(Outlet::class);
     }
+
+    public function factory()
+    {
+        return $this->belongsTo(Factory::class);
+    }
 }

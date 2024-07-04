@@ -423,9 +423,9 @@
                                         id: item_info.id,
                                         group: item_info.parent.name,
                                         name: item_info.name,
-                                        unit: item_info.unit.name,
+                                        unit: item_info?.unit?.name,
                                         rate: item_info.price,
-                                        quantity: '',
+                                        quantity: item_info?.quantity,
                                     });
                                     console.log(vm.selected_items);
                                     // vm.item_id = '';
@@ -433,7 +433,6 @@
                                     vm.pageLoading = false;
 
                                 }).catch(function (error) {
-
                                     toastr.error('Something went to wrong', {
                                         closeButton: true,
                                         progressBar: true,

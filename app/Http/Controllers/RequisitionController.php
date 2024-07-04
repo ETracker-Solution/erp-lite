@@ -220,34 +220,70 @@ class RequisitionController extends Controller
 
     public function getRequisitionData()
     {
+
+        $all_requisitions = \App\Models\Requisition::todayFGAvailableRequisitions(auth('web')->user()->employee->factory_id);
+
+        $requisition_ids = collect($all_requisitions)->pluck('id')->toArray();
+        $outlet_ids = collect($all_requisitions)->pluck('outlet_id')->toArray();
+
+        $product_ids = RequisitionItem::whereIn('requisition_id', $requisition_ids)->pluck('coi_id')->toArray();
+
         $headers = [
             'Product',
         ];
-        $outlets = Outlet::select('id', 'name')->get();
+        $outlets = Outlet::select('id', 'name')->whereIn('id', $outlet_ids)->get();
         foreach ($outlets as $outlet) {
             $headers[] = $outlet->name;
         }
-
         $headers[] = 'Total';
+        $headers[] = 'Current Stock';
+        $headers[] = 'Production';
 
         $values = [];
-        $products = ChartOfInventory::where(['type' => 'item', 'rootAccountType' => 'FG'])->get();
+        $products = ChartOfInventory::where(['type' => 'item', 'rootAccountType' => 'FG'])->whereIn('id', $product_ids)->get();
 
         foreach ($products as $key => $product) {
             $totalQty = 0;
+            $current_stock = 0;
+            $req_qty = 0;
+            $delivered_qty = 0;
             $values[$key]['product_name'] = $product->name;
             foreach ($outlets as $outlet) {
-                $qty = getRequisitionQtyByProduct($product->id, $outlet->id);
 
-                $values[$key]['product_quantity'][] = $qty;
-                $totalQty += $qty;
+                $single_outlet_reqs = $outlet->requisitions()->where(['type' => 'FG', 'status' => 'approved'])
+                    ->whereIn('delivery_status', ['pending', 'partial'])->get();
+
+                foreach ($single_outlet_reqs as $req) {
+                    $req_qty += $req->items()->where('coi_id', $product->id)->sum('quantity');
+//                    $req_qty += $req->items()->where('coi_id', $product->id)->sum('quantity');
+                    foreach ($req->deliveries as $delivery) {
+                        $delivered_qty += $delivery->items()->where('coi_id', $product->id)->sum('quantity');
+//                        $delivered_qty += $delivery->items->sum('quantity');
+                    }
+                }
+                foreach (auth()->user()->employee->factory->stores as $store) {
+                    $current_stock += availableInventoryBalance($product->id, $store->id);
+                }
+
+//                $qty = getRequisitionQtyByProduct($product->id, $outlet->id);
+
+                $values[$key]['product_quantity'][] = $req_qty - $delivered_qty;
+
+                $totalQty += ($req_qty - $delivered_qty);
             }
+            $diff = $req_qty - $current_stock;
 
             $values[$key]['total'] = $totalQty;
+            $values[$key]['current_stock'][] = $current_stock - $delivered_qty;
+            $values[$key]['productionable'][] = max($diff, 0);
+
+            if (($req_qty - $delivered_qty) == 0) {
+                unset($values[$key]);
+            }
         }
         return [
-            'products' => ChartOfInventory::where(['type' => 'item', 'rootAccountType' => 'FG'])->get(),
-            'outlets' => Outlet::all(),
+            'products' => $products,
+            'outlets' => $outlets,
             'headers' => $headers,
             'values' => $values
         ];
@@ -256,7 +292,7 @@ class RequisitionController extends Controller
     public function updateStatus(Request $request, $id)
     {
         $req = Requisition::findOrFail($id);
-        $req->update(['status'=>$request->status]);
+        $req->update(['status' => $request->status]);
         Toastr::success('Requisition Approved Successfully!.', '', ["progressBar" => true]);
         return redirect()->route('requisitions.index');
     }
