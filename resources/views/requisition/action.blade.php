@@ -1,5 +1,5 @@
 <div class="project-actions text-right" style="display: ruby">
-    @if($row->status == 'pending')
+    @if($row->status == 'pending' && auth()->user()->employee->user_of != 'outlet')
         <form action="{{ route('requisitions.status-update', $row->id) }}" method="POST">
             @csrf
             @method('PUT')

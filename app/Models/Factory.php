@@ -9,4 +9,8 @@ class Factory extends Model
 {
     use HasFactory;
     protected $guarded = ['id'];
+
+    public function stores(){
+        return $this->hasMany(Store::class,'doc_id')->where('doc_type','factory');
+    }
 }

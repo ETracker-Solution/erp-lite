@@ -99,6 +99,16 @@
                                                               placeholder="Enter Remark" v-model="remark"></textarea>
                                                 </div>
                                             </div>
+                                            <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+                                                <div class="form-group">
+                                                    <label for="delivery_status">Delivery Status</label>
+                                                    <select name="delivery_status" id="delivery_status" class="form-control">
+                                                        <option value="full">Full Delivery</option>
+                                                        <option value="close">Partial & Close</option>
+                                                        <option value="partial">Partial</option>
+                                                    </select>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

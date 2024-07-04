@@ -70,7 +70,9 @@ class FGRequisitionDeliveryController extends Controller
                 $product['requisition_id']=$data['requisition_id'];
                 $requisition_delivery->items()->create($product);
             }
-            Requisition::where('id', $data['requisition_id'])->update(['status' => 'completed']);
+            Requisition::where('id', $data['requisition_id'])->update([
+                'delivery_status'=>$request->delivery_status
+            ]);
             DB::commit();
             Toastr::success('FG Requisition Delivery Entry Successful!.', '', ["progressBar" => true]);
             return redirect()->route('fg-requisition-deliveries.index');

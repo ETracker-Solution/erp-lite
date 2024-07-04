@@ -12,6 +12,11 @@ class Outlet extends Model
     protected $guarded = ['id'];
 
     public function stores(){
-        return $this->hasMany(Store::class);
+        return $this->hasMany(Store::class,'doc_id')->where('doc_type','outlet');
+    }
+
+    public function requisitions()
+    {
+        return $this->hasMany(Requisition::class,'outlet_id');
     }
 }

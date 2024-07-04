@@ -4,16 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\ChartOfInventory;
 use App\Models\Consumption;
-use App\Models\ConsumptionItem;
 use App\Models\Product;
 use App\Models\Production;
 use App\Models\Purchase;
 use App\Models\Requisition;
 use App\Models\RequisitionDelivery;
 use App\Models\Supplier;
-use App\Models\PurchaseItem;
 use App\Models\SupplierTransaction;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class ApiController extends Controller
@@ -26,7 +23,26 @@ class ApiController extends Controller
 
     public function fetchItemById($id)
     {
-        return ChartOfInventory::with('unit', 'parent')->findOrFail($id);
+        $coi =  ChartOfInventory::with('unit', 'parent')->findOrFail($id);
+
+        if (auth()->user()->employee->user_of == 'factory') {
+            $single_outlet_reqs = Requisition::where(['type' => 'FG', 'status' => 'approved'])
+                ->whereIn('delivery_status', ['pending', 'partial'])->get();
+
+            $req_qty = 0;
+            $current_stock = 0;
+            foreach ($single_outlet_reqs as $req) {
+                $req_qty += $req->items()->where('coi_id', $coi->id)->sum('quantity');
+            }
+
+            foreach (auth()->user()->employee->factory->stores as $store) {
+                $current_stock += availableInventoryBalance($coi->id, $store->id);
+            }
+            $diff = $req_qty - $current_stock;
+
+            $coi->quantity = max($diff, 0);
+        }
+        return $coi;
     }
 
     public function fetchItemInfoRMConsumption($item_id, $store_id = null)
