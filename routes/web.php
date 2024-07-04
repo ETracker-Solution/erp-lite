@@ -224,6 +224,12 @@ Route::middleware('auth')->group(function () {
     Route::get('fg-inventory-transfers-pdf/{id}', [App\Http\Controllers\FGInventoryTransferController::class, 'pdfDownload'])->name('fg-inventory-transfers.pdf');
     /*=========== Finish Goods Inventory Transfer Ends ===========*/
 
+    /*=========== Finish Goods Delivery Receive Starts ===========*/
+    Route::resource('fg-transfer-receives', \App\Http\Controllers\FGTransferReceiveController::class);
+    Route::get('fg-transfer-receive-pdf/{id}', [App\Http\Controllers\FGDeliveryReceiveController::class, 'pdf'])->name('fg-delivery-receive.pdf');
+
+    /*=========== Finish Goods Delivery Receive Ends ===========*/
+
     /*=========== Finish Goods Inventory Adjustment Starts ===========*/
     Route::resource('fg-inventory-adjustments', \App\Http\Controllers\FGInventoryAdjustmentController::class);
     /*=========== Finish Goods Inventory Adjustment Ends ===========*/
@@ -241,6 +247,7 @@ Route::middleware('auth')->group(function () {
     Route::get('rm-requisition-pdf/{id}', [App\Http\Controllers\RMRequisitionController::class, 'pdfDownload'])->name('rm-requisition.pdf');
     Route::get('fetch-requisition-by-id/{id}/{store_id?}', [App\Http\Controllers\ApiController::class, 'fetchRequisitionById']);
     Route::get('fetch-requisition-delivery-by-id/{id}', [App\Http\Controllers\ApiController::class, 'fetchRequisitionDeliveryById']);
+    Route::get('fetch-inventory-transfer-by-id/{id}', [App\Http\Controllers\ApiController::class, 'fetchInventoryTransferById']);
     /*=========== Raw Materials Requisition Ends ===========*/
 
     /*=========== Raw Materials Requisition Delivery Starts ===========*/

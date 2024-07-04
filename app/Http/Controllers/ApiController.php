@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\ChartOfInventory;
 use App\Models\Consumption;
 use App\Models\ConsumptionItem;
+use App\Models\InventoryTransfer;
 use App\Models\Product;
 use App\Models\Production;
 use App\Models\Purchase;
@@ -206,6 +207,32 @@ class ApiController extends Controller
                 'group' => $row->coi->parent->name ?? '',
                 'fg_average_rate' => averageFGRate($row->coi_id),
                 'delivery_quantity' => $row->quantity,
+                'quantity' => '',
+            ];
+        }
+        $data = [
+            'items' => $items,
+            'date' => $requisitionDelivery->date,
+            'from_store_id' => $requisitionDelivery->from_store_id,
+            'to_store_id' => $requisitionDelivery->to_store_id,
+            'reference_no' => $requisitionDelivery->reference_no,
+            'remark' => $requisitionDelivery->remark,
+        ];
+        return response()->json($data);
+    }
+    public function fetchInventoryTransferById($id)
+    {
+        $requisitionDelivery = InventoryTransfer::with('items')->where('id', $id)->first();
+        $items = [];
+        foreach ($requisitionDelivery->items as $row) {
+            $items[] = [
+                'inventory_transfer_id' => $id,
+                'coi_id' => $row->coi_id,
+                'unit' => $row->coi->unit->name ?? '',
+                'name' => $row->coi->name ?? '',
+                'group' => $row->coi->parent->name ?? '',
+                'fg_average_rate' => averageFGRate($row->coi_id),
+                'transfer_quantity' => $row->quantity,
                 'quantity' => '',
             ];
         }
