@@ -25,7 +25,7 @@
                             <div class="card-header bg-info">
                                 <h3 class="card-title">FG Inventory Transfer Receive Entry</h3>
                                 <div class="card-tools">
-                                    <a href="{{route('fg-delivery-receives.index')}}"
+                                    <a href="{{route('fg-transfer-receives.index')}}"
                                        class="btn btn-sm btn-primary">
                                         <i class="fa fa-list" aria-hidden="true"></i> &nbsp;FG Inventory Transfer
                                         Receive List

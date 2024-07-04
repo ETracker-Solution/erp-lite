@@ -3,7 +3,7 @@
 <html>
 
 <head>
-    <title>FG Delivery Receive Pdf </title>
+    <title>FG Inventory Transfer Receive Pdf </title>
 <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
     <style>
         @page {
@@ -69,7 +69,7 @@
                             </div>
                             <div class="row">
                                 <div class="col-sm-6 top-right">
-                                    <span class="marginright">{{ \Carbon\Carbon::parse($fgDeliveryReceive->created_at)->isoFormat('MMM Do, YYYY') }}</span>
+                                    <span class="marginright">{{ \Carbon\Carbon::parse($fgTransferReceive->created_at)->isoFormat('MMM Do, YYYY') }}</span>
                                 </div>
                             </div>
                             <hr>
@@ -77,9 +77,9 @@
 								<tbody>
 									<tr>
 										<td style="text-align: left; padding:8px; line-height: 1.6">
-											<p><b>FGR No :</b> {{ $fgDeliveryReceive->requisition ? $fgDeliveryReceive->requisition->uid : 'Not Available' }}</p>
-											<p><b>Date :</b> {{ $fgDeliveryReceive->date }} </p>
-											<p><b>Status :</b> {!! showStatus($fgDeliveryReceive->status) !!}</p>
+											<p><b>IRT No :</b> {{ $fgTransferReceive->inventoryTransfer->id ? $fgTransferReceive->inventoryTransfer->id : 'Not Available' }}</p>
+											<p><b>Date :</b> {{ $fgTransferReceive->date }} </p>
+											<p><b>Status :</b> {!! showStatus($fgTransferReceive->status) !!}</p>
 										</td>
 									</tr>
 								</tbody>
@@ -88,24 +88,24 @@
                                 <thead style="background:#cdced2;">
 									<tr style="background-color: #cdced2;">
 										<th>#</th>
-										<th>Group</th>
-										<th>Item</th>
-										<th>Unit</th>
-										<th>Quantity</th>
-										<th>Rate</th>
+                                        <th>Date</th>
+                                        <th>From Store</th>
+                                        <th>To Store</th>
+                                        <th>Quantity</th>
+                                        <th>Rate</th>
 									</tr>
                                 </thead>
                                 <tbody>
-                                    @foreach ($fgDeliveryReceive->items as $item)
+                                    @foreach ($fgTransferReceive->items as $item)
                                         <tr>
                                             <td>{{ $loop->iteration }}</td>
-                                            <td>{{ $item->coi->parent->name ?? '' }}</td>
-                                            <td>{{ $item->coi->name ?? '' }}</td>
-                                            <td>{{ $item->coi->unit->name ?? '' }}</td>
+                                            <td>{{ $fgTransferReceive->date }}</td>
+                                            <td>{{ $fgTransferReceive->fromStore->name ?? '' }}</td>
+                                            <td>{{ $fgTransferReceive->toStore->name ?? '' }}</td>
                                             <td>{{ $item->quantity ?? '' }}</td>
                                             <td>{{ $item->rate ?? '' }} TK</td>
                                         </tr>
-                                    @endforeach
+                                        @endforeach
                                 </tbody>
                             </table>
                             <htmlpagefooter name="page-footer">
@@ -117,7 +117,7 @@
                                     Printing Time:- {{ $date->format('F j, Y, g:i a') }}
                                 </strong>
                                 <hr>
-                                <br>
+                                {{-- <br>
                                 <table width="100%">
                                     <tbody>
                                         <tr>
@@ -125,7 +125,7 @@
                                             <td style="text-align: right;">Saller Signature</td>
                                         </tr>
                                     </tbody>
-                                </table>
+                                </table> --}}
                             </htmlpagefooter>
 
                         </div>
