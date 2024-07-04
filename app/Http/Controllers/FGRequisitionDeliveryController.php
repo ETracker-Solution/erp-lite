@@ -52,7 +52,6 @@ class FGRequisitionDeliveryController extends Controller
             'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'FG'])->get(),
             'from_stores' => Store::where(['type' => 'FG', 'doc_type' => 'factory'])->get(),
             'to_stores' => Store::where(['type' => 'FG', 'doc_type' => 'outlet'])->get(),
-            'requisitions' => Requisition::where(['type' => 'FG', 'status' => 'pending'])->get()
         ];
         return view('fg_requisition_delivery.create', $data);
     }
@@ -68,6 +67,7 @@ class FGRequisitionDeliveryController extends Controller
             $requisition_delivery = RequisitionDelivery::query()->create($data);
             $products = $request->get('products');
             foreach ($products as $product) {
+                $product['requisition_id']=$data['requisition_id'];
                 $requisition_delivery->items()->create($product);
             }
             Requisition::where('id', $data['requisition_id'])->update(['status' => 'completed']);

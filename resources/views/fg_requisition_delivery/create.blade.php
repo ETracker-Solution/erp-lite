@@ -80,9 +80,6 @@
                                                             v-model="requisition_id" required @change="load_old">
                                                         <option value="">Select One</option>
                                                         <option :value="requisition.id" v-for="requisition in requisitions">@{{ requisition.uid }}</option>
-{{--                                                        @foreach($requisitions as $row)--}}
-{{--                                                            <option value="{{ $row->id }}">{{ $row->uid }}</option>--}}
-{{--                                                        @endforeach--}}
                                                     </select>
                                                 </div>
                                             </div>
