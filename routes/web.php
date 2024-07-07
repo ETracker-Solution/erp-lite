@@ -8,6 +8,7 @@ use App\Http\Controllers\DesignationController;
 use App\Http\Controllers\FactoryController;
 use App\Http\Controllers\FundTransferVoucherController;
 use App\Http\Controllers\JournalVoucherController;
+use App\Http\Controllers\OthersOutletSaleController;
 use App\Http\Controllers\PaymentVoucherController;
 use App\Http\Controllers\POSController;
 use App\Http\Controllers\ProfileController;
@@ -73,6 +74,10 @@ Route::middleware('auth')->group(function () {
     Route::get('purchase-return-pdf/{id}', [App\Http\Controllers\PurchaseReturnController::class, 'pdfDownload'])->name('purchase_return.pdf');
     Route::resource('purchase-returns', \App\Http\Controllers\PurchaseReturnController::class);
     Route::resource('sales', SaleController::class);
+
+    Route::resource('others-outlet-sales', OthersOutletSaleController::class);
+    Route::get('others-outlet-sale-pdf/{id}', [App\Http\Controllers\OthersOutletSaleController::class, 'pdfDownload'])->name('others.outlet.pdf-download');
+
 
     Route::put('requisitions.status-update/{id}',[\App\Http\Controllers\RequisitionController::class, 'updateStatus'])->name('requisitions.status-update');
     Route::resource('requisitions', \App\Http\Controllers\RequisitionController::class);
