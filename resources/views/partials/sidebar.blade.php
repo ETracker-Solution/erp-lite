@@ -516,6 +516,15 @@
                                                 </a>
                                             </li>
                                         @endcan
+                                        {{-- @can('sales-sales') --}}
+                                            <li class="nav-item">
+                                                <a href="{{route('others-outlet-sales.create')}}"
+                                                   class="nav-link {{ (Request::segment(1) == 'others-outlet-sales' )?' active':''}}">
+                                                    <i class="far fa-circle nav-icon"></i>
+                                                    <p>OO Sales</p>
+                                                </a>
+                                            </li>
+                                        {{-- @endcan --}}
                                     </ul>
                                 </li>
                             @endcanany
