@@ -52,9 +52,9 @@ class FGDeliveryReceiveController extends Controller
                 $query->where(['outlet_id' => \auth()->user()->employee->outlet_id]);
             })->where(['type' => 'FG', 'status' => 'completed'])->get();
         } else {
-            $requisition_deliveries = RequisitionDelivery::where(['type' => 'FG', 'status' => 'completed'])->get();
+            $requisition_deliveries = RequisitionDelivery::with('requisition')->where(['type' => 'FG', 'status' => 'completed'])->get();
         }
-        $data = [
+       $data = [
             'from_stores' => Store::where(['type' => 'FG', 'doc_type' => 'factory'])->get(),
             'to_stores' => Store::where(['type' => 'FG', 'doc_type' => 'outlet'])->get(),
             'requisition_deliveries' => $requisition_deliveries

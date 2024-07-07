@@ -45,7 +45,7 @@
                                                             @change="load_old">
                                                         <option value="">Select One</option>
                                                         @foreach($requisition_deliveries as $row)
-                                                            <option value="{{ $row->id }}">{{ $row->uid }}</option>
+                                                            <option value="{{ $row->id }}">{{ $row->requisition->uid }}</option>
                                                         @endforeach
                                                     </select>
                                                 </div>
