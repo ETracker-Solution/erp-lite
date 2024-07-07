@@ -115,6 +115,9 @@
 
                                 </tbody>
                             </table>
+                            <div class="invoice-ribbon">
+                                <p><b>Delivery Point :</b> {{ $otherOutletSale->deliveryPoint->name }}</p>
+                            </div>
                             <htmlpagefooter name="page-footer">
                                 @php
                                     $date = new DateTime('now', new DateTimezone('Asia/Dhaka'));

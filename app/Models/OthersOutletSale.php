@@ -45,4 +45,9 @@ class OthersOutletSale extends Model
     {
         return $this->hasOne(MembershipPointHistory::class,'sale_id');
     }
+
+    public function deliveryPoint()
+    {
+        return $this->belongsTo(Outlet::class,'delivery_point_id');
+    }
 }
