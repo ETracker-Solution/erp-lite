@@ -82,14 +82,10 @@
                         searchable: true
                     },
                     {
-                        data: "subtotal",
-                        title: "Subtotal",
-                        searchable: true
-                    },
-                    {
-                        data: "discount",
-                        title: "Discount",
-                        searchable: true
+                        data: "delivery_point.name",
+                        title: "Delivery Point",
+                        searchable: true,
+                        "defaultContent": "N/A"
                     },
                     {
                         data: "grand_total",

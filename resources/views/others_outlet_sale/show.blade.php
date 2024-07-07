@@ -31,6 +31,7 @@ Other Outlet Sales Details
                                     <tr>
                                         <td style="text-align: left; padding:8px; line-height: 0.6">
                                             <p><b>Invoice No :</b> {{ $otherOutletSale->invoice_number }}</p>
+                                            <p><b>Delivery Point :</b> {{ $otherOutletSale->deliveryPoint->name }}</p>
                                             <p><b>Date :</b> {{ $otherOutletSale->date }} </p>
                                             <p><b>Sub Total :</b> {{ $otherOutletSale->subtotal }} </p>
                                             <p><b>Status :</b> {!! showStatus($otherOutletSale->status) !!}</p>

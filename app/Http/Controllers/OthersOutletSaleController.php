@@ -27,9 +27,9 @@ class OthersOutletSaleController extends Controller
     public function index()
     {
         if (\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->outlet_id) {
-            $data = OthersOutletSale::where(['outlet_id' => \auth()->user()->employee->outlet_id])->latest();
+            $data = OthersOutletSale::with('deliveryPoint')->where(['outlet_id' => \auth()->user()->employee->outlet_id])->latest();
         } else {
-            $data = OthersOutletSale::latest();
+            $data = OthersOutletSale::with('deliveryPoint')->latest();
         }
         if (\request()->ajax()) {
             return DataTables::of($data)
@@ -112,6 +112,7 @@ class OthersOutletSaleController extends Controller
             $sale->receive_amount = $request->receive_amount ?? 0;
             $sale->change_amount = $request->change_amount ?? 0;
             $sale->customer_id = $customer_id;
+            $sale->status = 'pending';
             $sale->date = $selectedDate;
 //            $sale->description = $request->description;
             $sale->created_by = Auth::id();
