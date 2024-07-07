@@ -80,6 +80,9 @@
                                     <i
                                         class="fa fa-check-circle"></i>Submit
                                 </button>
+                                <button class="btn btn-sm btn-primary" type="button" @click="backAsStarting(true)"><i
+                                        class="fa fa-retweet"></i>Refresh
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -331,7 +334,7 @@
                         vm.amount = row.amount
                         vm.remarks = row.remarks
                     },
-                    backAsStarting() {
+                    backAsStarting(reset=false) {
                         var vm = this;
                         vm.isEditMode = false
                         vm.date = new Date()
@@ -340,6 +343,9 @@
                         vm.pageLoading = false
                         vm.remarks = ''
                         vm.editableItem = ''
+                        if(reset){
+                            vm.get_initial_data()
+                        }
                     },
                     update_balance() {
                         const vm = this;

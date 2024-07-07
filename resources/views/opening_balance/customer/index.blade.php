@@ -72,13 +72,18 @@
                                         v-if="isEditMode"><i
                                         class="fa fa-save"></i>Update
                                 </button>
-                                <button class="btn btn-sm btn-danger" type="button" @click="delete_balance" v-if="isEditMode">
+                                <button class="btn btn-sm btn-danger" type="button" @click="delete_balance"
+                                        v-if="isEditMode">
                                     <i
                                         class="fa fa-trash"></i>Delete
                                 </button>
-                                <button class="btn btn-sm btn-info" type="button" @click="store_balance" v-if="!isEditMode">
+                                <button class="btn btn-sm btn-info" type="button" @click="store_balance"
+                                        v-if="!isEditMode">
                                     <i
                                         class="fa fa-check-circle"></i>Submit
+                                </button>
+                                <button class="btn btn-sm btn-primary" type="button" @click="backAsStarting(true)"><i
+                                        class="fa fa-retweet"></i>Refresh
                                 </button>
                             </div>
                         </div>
@@ -117,13 +122,14 @@
                                             <li :class="!previousPageUrl ? 'page-item disabled' : 'page-item'">
                                                 <span class="page-link" @click="handlePageChange(--currentPage)">Previous</span>
                                             </li>
-{{--                                            <li class="page-item"><a class="page-link" href="#">1</a></li>--}}
-{{--                                            <li class="page-item active" aria-current="page">--}}
-{{--                                                <a class="page-link" href="#">2</a>--}}
-{{--                                            </li>--}}
-{{--                                            <li class="page-item"><a class="page-link" href="#">3</a></li>--}}
+                                            {{--                                            <li class="page-item"><a class="page-link" href="#">1</a></li>--}}
+                                            {{--                                            <li class="page-item active" aria-current="page">--}}
+                                            {{--                                                <a class="page-link" href="#">2</a>--}}
+                                            {{--                                            </li>--}}
+                                            {{--                                            <li class="page-item"><a class="page-link" href="#">3</a></li>--}}
                                             <li :class="!nextPageUrl ? 'page-item disabled' : 'page-item'">
-                                                <span class="page-link"  @click="handlePageChange(++currentPage)">Next</span>
+                                                <span class="page-link"
+                                                      @click="handlePageChange(++currentPage)">Next</span>
                                             </li>
                                         </ul>
                                     </nav>
@@ -271,13 +277,13 @@
                                     amount: vm.amount,
                                 })
                                     .then(function (response) {
-                                        if(response.data.success){
+                                        if (response.data.success) {
                                             vm.get_initial_data()
                                             toastr.success(response.data.message, {
                                                 closeButton: true,
                                                 progressBar: true,
                                             });
-                                        }else{
+                                        } else {
                                             toastr.error(response.data.message, {
                                                 closeButton: true,
                                                 progressBar: true,
@@ -300,7 +306,7 @@
                     get_balances() {
                         var vm = this;
                         vm.pageLoading = true;
-                        axios.get(this.config.get_balances_url,{
+                        axios.get(this.config.get_balances_url, {
                             params: {
                                 page: vm.currentPage,
                             },
@@ -331,7 +337,7 @@
                         vm.amount = row.amount
                         vm.remarks = row.remarks
                     },
-                    backAsStarting() {
+                    backAsStarting(reset=false) {
                         var vm = this;
                         vm.isEditMode = false
                         vm.date = new Date()
@@ -341,6 +347,9 @@
                         vm.remarks = ''
                         vm.amount = 0
                         vm.editableItem = ''
+                        if(reset){
+                            vm.get_initial_data()
+                        }
                     },
                     update_balance() {
                         const vm = this;
@@ -361,13 +370,13 @@
                                     amount: vm.amount,
                                 })
                                     .then(function (response) {
-                                        if(response.data.success){
+                                        if (response.data.success) {
                                             vm.get_initial_data()
                                             toastr.success(response.data.message, {
                                                 closeButton: true,
                                                 progressBar: true,
                                             });
-                                        }else{
+                                        } else {
                                             toastr.error(response.data.message, {
                                                 closeButton: true,
                                                 progressBar: true,
@@ -410,13 +419,13 @@
                                         vm.pageLoading = true;
                                         axios.delete(this.config.COBUrl + '/' + slug)
                                             .then(function (response) {
-                                                if(response.data.success){
+                                                if (response.data.success) {
                                                     vm.get_initial_data()
                                                     toastr.success(response.data.message, {
                                                         closeButton: true,
                                                         progressBar: true,
                                                     });
-                                                }else{
+                                                } else {
                                                     toastr.error(response.data.message, {
                                                         closeButton: true,
                                                         progressBar: true,
@@ -455,8 +464,8 @@
                             return false;
                         });
                     },
-                    handlePageChange(){
-                        const vm= this
+                    handlePageChange() {
+                        const vm = this
                         vm.get_balances()
                     }
                 },
