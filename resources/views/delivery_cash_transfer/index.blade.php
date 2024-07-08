@@ -84,7 +84,7 @@
                 },
                 {
                     data: "invoice_number",
-                    title: "Others Outlet Invoice",
+                    title: "Delivery Invoice",
                     searchable: true
                 },
                 {

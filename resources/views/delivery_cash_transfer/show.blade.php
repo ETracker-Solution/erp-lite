@@ -1,17 +1,17 @@
 @extends('layouts.app')
 
-@section('title', 'Fund Transfer Voucher')
+@section('title', 'Delivery Cash Transfer')
 @section('content')
 @push('style')
 @endpush
     @php
     $links = [
     'Home'=>route('dashboard'),
-    'Fund Transfer Voucher'=>route('fund-transfer-vouchers.index'),
-    'Fund Transfer Voucher Details'=>'',
+    'Delivery Cash Transfer'=>route('fund-transfer-vouchers.index'),
+    'Delivery Cash Transfer Details'=>'',
     ]
     @endphp
-    <x-breadcrumb title='Fund Transfer Voucher' :links="$links"/>
+    <x-breadcrumb title='Delivery Cash Transfer' :links="$links"/>
     <!-- Basic Inputs start -->
     <section class="content">
         <div class="container-fluid">
@@ -19,7 +19,7 @@
                 <div class="col-md-12">
                     <div class="card">
                         <div class="card-header">
-                            <h4 class="card-title">Fund Transfer Voucher Details</h4>
+                            <h4 class="card-title">Delivery Cash Transfer Details</h4>
                             <div class="text-right">
                                 {{-- <a href="{{ route('fund-transfer-voucher.pdf', encrypt($fundTransferVoucher->id)) }}" class="btn btn-primary" target="_blank"><i class="fa fa-download"></i> PDF</a> --}}
                             </div>
@@ -29,31 +29,35 @@
                                 <thead>
                                     <tr>
                                         <th><strong>Date :</strong></th>
-                                        <td>{{ $fundTransferVoucher->date }}</td>
+                                        <td>{{ $deliveryCashTransfer->date }}</td>
                                     </tr>
                                     <tr>
-                                        <th><strong>FTV No :</strong></th>
-                                        <td>{{ $fundTransferVoucher->uid }}</td>
+                                        <th><strong>Delivery Invoice :</strong></th>
+                                        <td>{{ $deliveryCashTransfer->invoice_number }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th><strong>Other Outlet :</strong></th>
+                                        <td>{{ $deliveryCashTransfer->otherOutlet ? $deliveryCashTransfer->otherOutlet->outlet->name : '' }}</td>
                                     </tr>
                                     <tr>
                                         <th><strong>Transfer From Account  :</strong></th>
-                                        <td>{{ $fundTransferVoucher->debitAccount->name }}</td>
+                                        <td>{{ $deliveryCashTransfer->debitAccount->name }}</td>
                                     </tr>
                                     <tr>
                                         <th><strong>Transfer To Account  :</strong></th>
-                                        <td>{{ $fundTransferVoucher->creditAccount->name }}</td>
+                                        <td>{{ $deliveryCashTransfer->creditAccount->name }}</td>
                                     </tr>
                                     <tr>
                                         <th><strong>Amount :</strong></th>
-                                        <td>{{ $fundTransferVoucher->amount }}</td>
+                                        <td>{{ $deliveryCashTransfer->amount }}</td>
                                     </tr>
                                     <tr>
                                         <th><strong>Description :</strong></th>
-                                        <td>{{ $fundTransferVoucher->narration }}</td>
+                                        <td>{{ $deliveryCashTransfer->narration }}</td>
                                     </tr>
                                     <tr>
                                         <th><strong>Referance :</strong></th>
-                                        <td>{{ $fundTransferVoucher->reference_no }}</td>
+                                        <td>{{ $deliveryCashTransfer->reference_no }}</td>
                                     </tr>
                                     
                                 </thead>

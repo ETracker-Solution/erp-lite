@@ -52,14 +52,18 @@ class DeliveryCashTransferController extends Controller
             foreach ($cons as $con) {
                 $chartOfAccounts[] = $con->coa;
             }
+            $othersOutlets = OthersOutletSale::where('payment_status', 'paid')->get();
+
 
         } else {
             $chartOfAccounts = ChartOfAccount::where(['is_bank_cash' => 'yes', 'type' => 'ledger', 'status' => 'active'])->get();
+            $othersOutlets = OthersOutletSale::where('payment_status', 'paid')->get();
+
 
         }
         $toChartOfAccounts = ChartOfAccount::where(['is_bank_cash' => 'yes', 'type' => 'ledger', 'status' => 'active'])->get();
         
-        $othersOutlets = OthersOutletSale::where('payment_status', 'payment')->get();
+        // $othersOutlets = OthersOutletSale::where('payment_status', 'payable')->get();
         return view('delivery_cash_transfer.create', compact('othersOutlets','chartOfAccounts','toChartOfAccounts'));
     }
 
@@ -82,16 +86,17 @@ class DeliveryCashTransferController extends Controller
             Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
             return back();
         }
-        Toastr::success('Fund Transfer Voucher Created Successfully!.', '', ["progressBar" => true]);
-        return redirect()->route('fund-transfer-vouchers.index');
+        Toastr::success('Delivery Cash Transfer Created Successfully!.', '', ["progressBar" => true]);
+        return redirect()->route('delivery-cash-transfers.index');
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(DeliveryCashTransfer $deliveryCashTransfer)
+    public function show($id)
     {
-        //
+        $deliveryCashTransfer = DeliveryCashTransfer::with('otherOutlet')->findOrFail(decrypt($id));
+        return view('delivery_cash_transfer.show', compact('deliveryCashTransfer'));
     }
 
     /**
@@ -113,8 +118,18 @@ class DeliveryCashTransferController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(DeliveryCashTransfer $deliveryCashTransfer)
+    public function destroy($id)
     {
-        //
+        DB::beginTransaction();
+        try {
+            DeliveryCashTransfer::findOrFail(decrypt($id))->delete();
+            DB::commit();
+        } catch (\Exception $error) {
+            DB::rollBack();
+            Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
+            return back();
+        }
+        Toastr::success('Delivery Cash Transfer Deleted Successfully!.', '', ["progressBar" => true]);
+        return redirect()->route('delivery-cash-transfers.index');
     }
 }

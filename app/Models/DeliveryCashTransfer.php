@@ -16,4 +16,7 @@ class DeliveryCashTransfer extends Model
     public function debitAccount(){
         return $this->belongsTo(ChartOfAccount::class,'debit_account_id');
     }
+    public function otherOutlet(){
+        return $this->belongsTo(OthersOutletSale::class,'other_outlet_sale_id');
+    }
 }

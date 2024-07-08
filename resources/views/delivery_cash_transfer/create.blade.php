@@ -36,7 +36,7 @@
                                                                 <label for="uid">Others Outlet Invoice</label>
                                                                 <select class="form-control select2"
                                                                     id="invoice_number">
-                                                                    <option value="">---Select Account---</option>
+                                                                    <option value="">---Select One---</option>
                                                                     @foreach ($othersOutlets as $row)
                                                                         <option value="{{ $row }}" {{ old('invoice_number') == $row->id ? 'selected' : '' }}>{{ $row->invoice_number }}
                                                                         </option>
@@ -144,7 +144,7 @@
                                     </div>
                                     <div class="card-footer">
                                         <button class="float-right btn btn-info waves-effect waves-float waves-light"
-                                            type="submit">Save</button>
+                                            type="submit" onclick="return confirm('Are you sure?');">Save</button>
                                     </div>
                                 </div>
                             </form>
