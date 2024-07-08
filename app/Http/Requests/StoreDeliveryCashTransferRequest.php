@@ -24,7 +24,6 @@ class StoreDeliveryCashTransferRequest extends FormRequest
         return [
             'date' => 'required',
             'amount' => 'required',
-            // 'created_by' => 'required',
             'credit_account_id' => ['required', 'different:debit_account_id'],
             'debit_account_id' => ['required', 'different:credit_account_id'],
             'narration' => 'nullable',

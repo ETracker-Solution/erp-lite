@@ -52,7 +52,7 @@ class DeliveryCashTransferController extends Controller
             foreach ($cons as $con) {
                 $chartOfAccounts[] = $con->coa;
             }
-            $othersOutlets = OthersOutletSale::where('payment_status', 'paid')->get();
+            $othersOutlets = OthersOutletSale::where('payment_status', 'paid')->where('outlet_id', \auth()->user()->employee->outlet_id)->get();
 
 
         } else {
@@ -61,6 +61,9 @@ class DeliveryCashTransferController extends Controller
 
 
         }
+        $chartOfAccounts = ChartOfAccount::where(['type' => 'ledger', 'status' => 'active'])->where(function ($q){
+            return $q->where('name','like','%bkash%')->orWhere('name','like','%bank%')->orWhere('name','like','%cash%');
+        })->get();
         $toChartOfAccounts = ChartOfAccount::where(['type' => 'ledger', 'status' => 'active'])->where(function ($q){
             return $q->where('name','like','%bkash%')->orWhere('name','like','%bank%')->orWhere('name','like','%cash%');
         })->get();
@@ -80,6 +83,8 @@ class DeliveryCashTransferController extends Controller
            $otherOutlet = OthersOutletSale::find($request->sale_id);
             $validated['other_outlet_sale_id']=$otherOutlet->id;
             $validated['invoice_number']=$otherOutlet->invoice_number;
+            $validated['from_outlet']=$otherOutlet->delivery_point_id;
+            $validated['to_outlet']=$otherOutlet->outlet_id;
             DeliveryCashTransfer::create($validated);
             DB::commit();
         } catch (\Exception $error) {
