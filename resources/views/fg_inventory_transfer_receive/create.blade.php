@@ -1,16 +1,16 @@
 @extends('layouts.app')
 @section('title')
-    FG Requisition Delivery Receive
+    FG Inventory Transfer Receive
 @endsection
 @section('content')
     <!-- Content Header (Page header) -->
     @php
         $links = [
         'Home'=>route('dashboard'),
-        'FG Requisition Delivery Receive list'=>''
+        'FG Inventory Transfer Receive list'=>''
         ]
     @endphp
-    <x-breadcrumb title='FG Requisition Delivery Receive Entry' :links="$links"/>
+    <x-breadcrumb title='FG Inventory Transfer Receive Entry' :links="$links"/>
     <!-- Main content -->
     <section class="content">
         <div class="container-fluid">
@@ -19,15 +19,15 @@
                             <img src="{{ asset('loading.gif') }}" alt="loading">
                         </span>
                 <div class="col-lg-12 col-md-12">
-                    <form action="{{ route('fg-delivery-receives.store') }}" method="POST" class="">
+                    <form action="{{ route('fg-transfer-receives.store') }}" method="POST" class="">
                         @csrf
                         <div class="card">
                             <div class="card-header bg-info">
-                                <h3 class="card-title">FG Requisition Delivery Receive Entry</h3>
+                                <h3 class="card-title">FG Inventory Transfer Receive Entry</h3>
                                 <div class="card-tools">
-                                    <a href="{{route('fg-delivery-receives.index')}}"
+                                    <a href="{{route('fg-transfer-receives.index')}}"
                                        class="btn btn-sm btn-primary">
-                                        <i class="fa fa-list" aria-hidden="true"></i> &nbsp;FG Requisition Delivery
+                                        <i class="fa fa-list" aria-hidden="true"></i> &nbsp;FG Inventory Transfer
                                         Receive List
                                     </a>
                                 </div>
@@ -38,13 +38,13 @@
                                         <div class="row">
                                             <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                                 <div class="form-group">
-                                                    <label for="requisition_delivery_id">Delivery No</label>
-                                                    <select name="requisition_delivery_id" id="requisition_delivery_id"
+                                                    <label for="inventory_transfer_id">Inventory Transfer No</label>
+                                                    <select name="inventory_transfer_id" id="inventory_transfer_id"
                                                             class="form-control bSelect"
-                                                            v-model="requisition_delivery_id" required
+                                                            v-model="inventory_transfer_id" required
                                                             @change="load_old">
                                                         <option value="">Select One</option>
-                                                        @foreach($requisition_deliveries as $row)
+                                                        @foreach($inventory_transfers as $row)
                                                             <option value="{{ $row->id }}">{{ $row->id }}</option>
                                                         @endforeach
                                                     </select>
@@ -126,7 +126,7 @@
                                                             <th style="width: 15%">Group</th>
                                                             <th style="width:25%">Item</th>
                                                             <th style="width: 5%">Unit</th>
-                                                            <th style="width: 10%;vertical-align: middle">Delivery
+                                                            <th style="width: 10%;vertical-align: middle">Transfer
                                                                 Quantity
                                                             </th>
                                                             <th style="width: 10%;vertical-align: middle">Receive
@@ -158,8 +158,8 @@
                                                                 @{{ row.unit }}
                                                             </td>
                                                             <td style="vertical-align: middle" class="text-right">
-                                                                <input type="number" v-model="row.delivery_quantity"
-                                                                       :name="'products['+index+'][delivery_quantity]'"
+                                                                <input type="number" v-model="row.transfer_quantity"
+                                                                       :name="'products['+index+'][transfer_quantity]'"
                                                                        class="form-control input-sm"
                                                                        required readonly>
                                                             </td>
@@ -268,9 +268,9 @@
                 data: {
                     config: {
 
-                        get_old_items_data: "{{ url('fetch-requisition-delivery-by-id') }}",
+                        get_old_items_data: "{{ url('fetch-inventory-transfer-by-id') }}",
                     },
-                    requisition_delivery_id: '',
+                    inventory_transfer_id: '',
                     date: '',
                     reference_no: '',
                     remark: '',
@@ -302,7 +302,7 @@
                     },
                     load_old() {
                         var vm = this;
-                        var slug = vm.requisition_delivery_id;
+                        var slug = vm.inventory_transfer_id;
                         vm.pageLoading = true;
                         axios.get(this.config.get_old_items_data + '/' + slug).then(function (response) {
                             vm.items = [];
@@ -325,9 +325,9 @@
                     valid: function (index) {
 
 
-                        if (index.delivery_quantity < index.quantity) {
+                        if (index.transfer_quantity < index.quantity) {
                             console.log('2');
-                            index.quantity = index.delivery_quantity;
+                            index.quantity = index.transfer_quantity;
                         }
                         if (index.quantity <= 0) {
                             console.log('3');

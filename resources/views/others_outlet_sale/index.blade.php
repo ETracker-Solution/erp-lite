@@ -1,15 +1,15 @@
 @extends('layouts.app')
 @section('title')
-    Sales List
+    Others Outlet Sales List
 @endsection
 @section('content')
     @php
         $links = [
         'Home'=>route('dashboard'),
-        'Sales list'=>''
+        'Others Outlet Sales list'=>''
         ]
     @endphp
-    <x-breadcrumb title='Sales' :links="$links"/>
+    <x-breadcrumb title='Others Outlet Sales' :links="$links"/>
 
     <!-- Main content -->
     <section class="content">
@@ -19,11 +19,11 @@
                 <div class="col-12">
                     <div class="card card-info">
                         <div class="card-header">
-                            <h3 class="card-title">Sales List</h3>
+                            <h3 class="card-title">Others Outlet Sales List</h3>
                             <div class="card-tools">
-                                <a href="{{route('sales.create')}}">
+                                <a href="{{route('others-outlet-sales.create')}}">
                                     <button class="btn btn-sm btn-primary"><i class="fa fa-plus-circle"
-                                                                              aria-hidden="true"></i> &nbsp;Add Sale
+                                                                              aria-hidden="true"></i> &nbsp;Add Others Outlet Sale
                                     </button>
                                 </a>
                             </div>
@@ -67,7 +67,7 @@
                 serverSide: true,
                 processing: true,
                 ajax: {
-                    url: "{{ route('sales.index') }}",
+                    url: "{{ route('others-outlet-sales.index') }}",
                 },
                 columns: [{
                     data: "DT_RowIndex",
@@ -82,14 +82,10 @@
                         searchable: true
                     },
                     {
-                        data: "subtotal",
-                        title: "Subtotal",
-                        searchable: true
-                    },
-                    {
-                        data: "discount",
-                        title: "Discount",
-                        searchable: true
+                        data: "delivery_point.name",
+                        title: "Delivery Point",
+                        searchable: true,
+                        "defaultContent": "N/A"
                     },
                     {
                         data: "grand_total",

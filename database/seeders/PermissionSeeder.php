@@ -25,7 +25,7 @@ class PermissionSeeder extends Seeder
 
         $newModule = [
         'accounts'=>[
-            'receive voucher','payment voucher','journal voucher','ft voucher','supplier voucher','leger report','financial report'
+            'receive voucher','payment voucher','journal voucher','ft voucher','supplier voucher','ledger report','financial report'
         ],
         'purchase'=>[
             'goods purchase bill','purchase return bill'
@@ -37,7 +37,7 @@ class PermissionSeeder extends Seeder
             'batch entry','rm consumption','fg production'
         ],
         'store fg'=>[
-            'fg inventory transfer','fg inventory adjustment','create fg requisition','fg requisition list','fg requisition delivery','fg delivery receive','fg inventory report'
+            'fg inventory transfer','fg inventory transfer receive','fg inventory adjustment','create fg requisition','fg requisition list','fg requisition delivery','fg delivery receive','fg inventory report'
         ],
         'sales'=>[
             'pre orders list','pre order entry','sales','sales report'

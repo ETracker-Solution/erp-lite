@@ -3,12 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreFGDeliveryReceiveRequest;
+use App\Http\Requests\StoreFGTransferReceiveRequest;
 use App\Models\ChartOfInventory;
 use App\Models\DeliveryReceive;
 use App\Models\InventoryTransaction;
+use App\Models\InventoryTransfer;
 use App\Models\Requisition;
 use App\Models\RequisitionDelivery;
 use App\Models\Store;
+use App\Models\TransferReceive;
 use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -16,7 +19,7 @@ use Illuminate\Support\Facades\Log;
 use Yajra\DataTables\Facades\DataTables;
 use niklasravnsborg\LaravelPdf\Facades\Pdf;
 
-class FGDeliveryReceiveController extends Controller
+class FGTransferReceiveController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -24,11 +27,11 @@ class FGDeliveryReceiveController extends Controller
     public function index()
     {
         if (\request()->ajax()) {
-            $data = DeliveryReceive::with('fromStore', 'toStore', 'requisitionDelivery')->where('type', 'FG')->latest();
+            $data = TransferReceive::with('fromStore', 'toStore', 'inventoryTransfer')->where('type', 'FG')->latest();
             return DataTables::of($data)
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
-                    return view('fg_requisition_delivery_receive.action', compact('row'));
+                    return view('fg_inventory_transfer_receive.action', compact('row'));
                 })
                 ->addColumn('created_at', function ($row) {
                     return view('common.created_at', compact('row'));
@@ -39,7 +42,7 @@ class FGDeliveryReceiveController extends Controller
                 ->rawColumns(['action', 'created_at', 'status'])
                 ->make(true);
         }
-        return view('fg_requisition_delivery_receive.index');
+        return view('fg_inventory_transfer_receive.index');
     }
 
     /**
@@ -48,60 +51,60 @@ class FGDeliveryReceiveController extends Controller
     public function create()
     {
         if (\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->outlet_id) {
-            $requisition_deliveries = RequisitionDelivery::whereHas('requisition', function ($query) {
-                $query->where(['outlet_id' => \auth()->user()->employee->outlet_id]);
-            })->where(['type' => 'FG', 'status' => 'completed'])->get();
+            $inventory_transfers = InventoryTransfer::whereHas('toStore', function ($query) {
+                $query->where(['doc_type' => 'outlet', 'doc_id' => \auth()->user()->employee->outlet_id]);
+            })->where(['type' => 'FG', 'status' => 'pending'])->get();
         } else {
-            $requisition_deliveries = RequisitionDelivery::with('requisition')->where(['type' => 'FG', 'status' => 'completed'])->get();
+            $inventory_transfers = InventoryTransfer::where(['type' => 'FG', 'status' => 'pending'])->get();
         }
-       $data = [
-            'from_stores' => Store::where(['type' => 'FG', 'doc_type' => 'factory'])->get(),
+        $data = [
+            'from_stores' => Store::where(['type' => 'FG', 'doc_type' => 'outlet'])->get(),
             'to_stores' => Store::where(['type' => 'FG', 'doc_type' => 'outlet'])->get(),
-            'requisition_deliveries' => $requisition_deliveries
+            'inventory_transfers' => $inventory_transfers
         ];
-        return view('fg_requisition_delivery_receive.create', $data);
+        return view('fg_inventory_transfer_receive.create', $data);
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreFGDeliveryReceiveRequest $request)
+    public function store(StoreFGTransferReceiveRequest $request)
     {
 //        try {
 //            DB::beginTransaction();
         $data = $request->validated();
-        $requisition_delivery = DeliveryReceive::query()->create($data);
+        $fGInventoryTransfer = TransferReceive::query()->create($data);
         $products = $request->get('products');
         foreach ($products as $product) {
-            $requisition_delivery->items()->create($product);
+            $fGInventoryTransfer->items()->create($product);
             // Inventory Transaction Effect
             InventoryTransaction::query()->create([
-                'store_id' => $requisition_delivery->from_store_id,
-                'doc_type' => 'FGRD',
-                'doc_id' => $requisition_delivery->id,
+                'store_id' => $fGInventoryTransfer->from_store_id,
+                'doc_type' => 'FGIT',
+                'doc_id' => $fGInventoryTransfer->id,
                 'quantity' => $product['quantity'],
                 'rate' => $product['rate'],
                 'amount' => $product['quantity'] * $product['rate'],
-                'date' => $requisition_delivery->date,
+                'date' => $fGInventoryTransfer->date,
                 'type' => -1,
                 'coi_id' => $product['coi_id'],
             ]);
             InventoryTransaction::query()->create([
-                'store_id' => $requisition_delivery->to_store_id,
-                'doc_type' => 'FGRD',
-                'doc_id' => $requisition_delivery->id,
+                'store_id' => $fGInventoryTransfer->to_store_id,
+                'doc_type' => 'FGIT',
+                'doc_id' => $fGInventoryTransfer->id,
                 'quantity' => $product['quantity'],
                 'rate' => $product['rate'],
                 'amount' => $product['quantity'] * $product['rate'],
-                'date' => $requisition_delivery->date,
+                'date' => $fGInventoryTransfer->date,
                 'type' => 1,
                 'coi_id' => $product['coi_id'],
             ]);
         }
-        RequisitionDelivery::where('id', $data['requisition_delivery_id'])->update(['status' => 'received']);
+        InventoryTransfer::where('id', $data['inventory_transfer_id'])->update(['status' => 'received']);
         //   DB::commit();
-        Toastr::success('FG Delivery Requisition Entry Successful!.', '', ["progressBar" => true]);
-        return redirect()->route('fg-delivery-receives.index');
+        Toastr::success('FG Transfer Receive Entry Successful!.', '', ["progressBar" => true]);
+        return redirect()->route('fg-transfer-receives.index');
 //        } catch (\Exception $e) {
 //            DB::rollBack();
 //            Log::emergency("File:" . $e->getFile() . "Line:" . $e->getLine() . "Message:" . $e->getMessage());
@@ -116,8 +119,8 @@ class FGDeliveryReceiveController extends Controller
      */
     public function show($id)
     {
-        $fgDeliveryReceive = DeliveryReceive::with('toStore', 'fromStore')->find(decrypt($id));
-        return view('fg_requisition_delivery_receive.show', compact('fgDeliveryReceive'));
+        $fgTransferReceive = TransferReceive::with('toStore', 'fromStore')->find(decrypt($id));
+        return view('fg_inventory_transfer_receive.show', compact('fgTransferReceive'));
     }
 
     /**
@@ -157,11 +160,11 @@ class FGDeliveryReceiveController extends Controller
     public function pdf($id)
     {
         $data = [
-            'fgDeliveryReceive' => DeliveryReceive::with('toStore', 'fromStore')->find(decrypt($id)),
+            'fgTransferReceive' => TransferReceive::with('toStore', 'fromStore')->find(decrypt($id)),
         ];
 
         $pdf = PDF::loadView(
-            'fg_requisition_delivery_receive.pdf',
+            'fg_inventory_transfer_receive.pdf',
             $data,
             [],
             [

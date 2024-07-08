@@ -8,6 +8,7 @@ use App\Http\Controllers\DesignationController;
 use App\Http\Controllers\FactoryController;
 use App\Http\Controllers\FundTransferVoucherController;
 use App\Http\Controllers\JournalVoucherController;
+use App\Http\Controllers\OthersOutletSaleController;
 use App\Http\Controllers\PaymentVoucherController;
 use App\Http\Controllers\POSController;
 use App\Http\Controllers\ProfileController;
@@ -73,6 +74,10 @@ Route::middleware('auth')->group(function () {
     Route::get('purchase-return-pdf/{id}', [App\Http\Controllers\PurchaseReturnController::class, 'pdfDownload'])->name('purchase_return.pdf');
     Route::resource('purchase-returns', \App\Http\Controllers\PurchaseReturnController::class);
     Route::resource('sales', SaleController::class);
+
+    Route::resource('others-outlet-sales', OthersOutletSaleController::class);
+    Route::get('others-outlet-sale-pdf/{id}', [App\Http\Controllers\OthersOutletSaleController::class, 'pdfDownload'])->name('others.outlet.pdf-download');
+
 
     Route::put('requisitions.status-update/{id}',[\App\Http\Controllers\RequisitionController::class, 'updateStatus'])->name('requisitions.status-update');
     Route::resource('requisitions', \App\Http\Controllers\RequisitionController::class);
@@ -224,6 +229,12 @@ Route::middleware('auth')->group(function () {
     Route::get('fg-inventory-transfers-pdf/{id}', [App\Http\Controllers\FGInventoryTransferController::class, 'pdfDownload'])->name('fg-inventory-transfers.pdf');
     /*=========== Finish Goods Inventory Transfer Ends ===========*/
 
+    /*=========== Finish Goods Delivery Receive Starts ===========*/
+    Route::resource('fg-transfer-receives', \App\Http\Controllers\FGTransferReceiveController::class);
+    Route::get('fg-transfer-receive-pdf/{id}', [App\Http\Controllers\FGTransferReceiveController::class, 'pdf'])->name('fg-transfer-receive.pdf');
+
+    /*=========== Finish Goods Delivery Receive Ends ===========*/
+
     /*=========== Finish Goods Inventory Adjustment Starts ===========*/
     Route::resource('fg-inventory-adjustments', \App\Http\Controllers\FGInventoryAdjustmentController::class);
     /*=========== Finish Goods Inventory Adjustment Ends ===========*/
@@ -241,6 +252,7 @@ Route::middleware('auth')->group(function () {
     Route::get('rm-requisition-pdf/{id}', [App\Http\Controllers\RMRequisitionController::class, 'pdfDownload'])->name('rm-requisition.pdf');
     Route::get('fetch-requisition-by-id/{id}/{store_id?}', [App\Http\Controllers\ApiController::class, 'fetchRequisitionById']);
     Route::get('fetch-requisition-delivery-by-id/{id}', [App\Http\Controllers\ApiController::class, 'fetchRequisitionDeliveryById']);
+    Route::get('fetch-inventory-transfer-by-id/{id}', [App\Http\Controllers\ApiController::class, 'fetchInventoryTransferById']);
     /*=========== Raw Materials Requisition Ends ===========*/
 
     /*=========== Raw Materials Requisition Delivery Starts ===========*/

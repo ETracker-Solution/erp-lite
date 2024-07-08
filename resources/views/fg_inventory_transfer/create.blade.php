@@ -60,7 +60,8 @@
                                                         <option value="">Select Store</option>
                                                         @foreach($stores as $row)
                                                             <option
-                                                                value="{{ $row->id }}">{{ $row->id }} - {{ $row->name }}</option>
+                                                                value="{{ $row->id }}">{{ $row->id }}
+                                                                - {{ $row->name }}</option>
                                                         @endforeach
                                                     </select>
                                                 </div>
@@ -75,7 +76,8 @@
                                                         <option value="">Select One</option>
                                                         @foreach($to_stores as $row)
                                                             <option
-                                                                value="{{ $row->id }}">{{ $row->id }} - {{ $row->name }}</option>
+                                                                value="{{ $row->id }}">{{ $row->id }}
+                                                                - {{ $row->name }}</option>
                                                         @endforeach
                                                     </select>
                                                 </div>
@@ -121,9 +123,9 @@
                                         <div class="row">
                                             <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
                                                 <div class="form-group">
-                                                    <label for="category_id" class="control-label">Group</label>
-                                                    <select class="form-control bSelect" name="category_id"
-                                                            v-model="category_id" @change="fetch_item">
+                                                    <label for="group_id" class="control-label">Group</label>
+                                                    <select class="form-control bSelect" name="group_id"
+                                                            v-model="group_id" @change="fetch_item">
                                                         <option value="">Select One</option>
                                                         @foreach ($groups as $category)
                                                             <option
@@ -212,10 +214,10 @@
                                                                 <input type="number" v-model="row.quantity"
                                                                        :name="'products['+index+'][quantity]'"
                                                                        class="form-control input-sm"
-                                                                       @change="valid(row);item_total(row)" required>
+                                                                       @change="valid(row);itemtotal(row)" required>
                                                             </td>
                                                             <td class="text-right">
-                                                                @{{ item_total(row) }}
+                                                                @{{ itemtotal(row) }}
                                                             </td>
                                                             <td>
                                                                 <button type="button" class="btn btn-danger"
@@ -324,20 +326,13 @@
                     },
 
                     date: new Date(),
-                    customer_id: '',
                     from_store_id: '',
                     to_store_id: '',
-                    category_id: '',
+                    group_id: '',
                     item_id: '',
                     products: [],
                     items: [],
-                    quantity: '',
-                    Stock_quantity: 0,
-                    price: 0,
-                    discount: 0,
-                    product_discount: 0,
-                    receive_amount: 0,
-                    selling_price: 0,
+                    pageLoading: false
 
                 },
                 components: {
@@ -358,7 +353,7 @@
 
                         var vm = this;
 
-                        var slug = vm.category_id;
+                        var slug = vm.group_id;
                         //    alert(slug);
                         if (slug) {
                             axios.get(this.config.get_items_info_by_group_id_url + '/' + slug).then(function (response) {
@@ -396,26 +391,24 @@
                             var slug = vm.item_id;
 
                             if (slug) {
-                                axios.get(this.config.get_item_info_url + '/' + slug,{
-                                    params:{
+                                axios.get(this.config.get_item_info_url + '/' + slug, {
+                                    params: {
                                         store_id: vm.from_store_id
                                     }
                                 }).then(function (response) {
-
-                                    product_details = response.data;
+                                   let  item_info = response.data;
                                     vm.items.push({
-                                        coi_id: product_details.coi_id,
-                                        group: product_details.group,
-                                        name: product_details.name,
-                                        unit: product_details.unit,
-                                        balance_qty: product_details.balance_qty,
-                                        price: product_details.price,
+                                        coi_id: item_info.coi_id,
+                                        group: item_info.group,
+                                        name: item_info.name,
+                                        unit: item_info.unit,
+                                        balance_qty: item_info.balance_qty,
+                                        price: item_info.price,
                                         quantity: '',
-                                        item_total: 0,
                                     });
 
                                     // vm.item_id = '';
-                                    // vm.category_id = '';
+                                    // vm.group_id = '';
 
                                 }).catch(function (error) {
 
@@ -423,7 +416,6 @@
                                         closeButton: true,
                                         progressBar: true,
                                     });
-
                                     return false;
 
                                 });
@@ -436,23 +428,15 @@
                     delete_row: function (row) {
                         this.items.splice(this.items.indexOf(row), 1);
                     },
-                    item_total: function (index) {
+                    itemtotal: function (row) {
+                        console.log(row);
+                        return row.quantity * row.price;
 
-                        //   console.log(index.quantity * index.price);
-                        return (index.quantity * index.price);
-
-
-                        //   alert(quantity);
-                        //  var total= row.quantity);
-                        //  row.item_total=total;
                     },
                     valid: function (index) {
-                        console.log(index.stock);
-                        console.log(index.quantity);
-
-                        if (index.quantity > index.stock) {
+                        if (index.quantity > index.balance_qty) {
                             //console.log('2');
-                            index.quantity = index.stock;
+                            index.quantity = index.balance_qty;
                         }
                         if (index.quantity <= 0) {
                             //console.log('3');

@@ -1,15 +1,15 @@
 @extends('layouts.app')
 @section('title')
-    Sales List
+    FG Inventory Transfer Receive List
 @endsection
 @section('content')
     @php
         $links = [
         'Home'=>route('dashboard'),
-        'Sales list'=>''
+        'FG Inventory Transfer Receive list'=>''
         ]
     @endphp
-    <x-breadcrumb title='Sales' :links="$links"/>
+    <x-breadcrumb title='FG Inventory Transfer Receive' :links="$links"/>
 
     <!-- Main content -->
     <section class="content">
@@ -19,11 +19,12 @@
                 <div class="col-12">
                     <div class="card card-info">
                         <div class="card-header">
-                            <h3 class="card-title">Sales List</h3>
+                            <h3 class="card-title">FG Inventory Transfer Receive List</h3>
                             <div class="card-tools">
-                                <a href="{{route('sales.create')}}">
+                                <a href="{{route('fg-transfer-receives.create')}}">
                                     <button class="btn btn-sm btn-primary"><i class="fa fa-plus-circle"
-                                                                              aria-hidden="true"></i> &nbsp;Add Sale
+                                                                              aria-hidden="true"></i> &nbsp;Add FG
+                                        Inventory Transfer Receive
                                     </button>
                                 </a>
                             </div>
@@ -67,7 +68,7 @@
                 serverSide: true,
                 processing: true,
                 ajax: {
-                    url: "{{ route('sales.index') }}",
+                    url: "{{ route('fg-transfer-receives.index') }}",
                 },
                 columns: [{
                     data: "DT_RowIndex",
@@ -76,34 +77,38 @@
                     searchable: false,
                     orderable: false
                 },
+
                     {
-                        data: "invoice_number",
-                        title: "Invoice No",
-                        searchable: true
+                        data: "inventory_transfer.id",
+                        title: "ITR No",
+                        searchable: true,
+                        "defaultContent": "Not Set"
+                    }, {
+                        data: "date",
+                        title: "Date",
+                        searchable: true,
+                        "defaultContent": "Not Set"
                     },
                     {
-                        data: "subtotal",
-                        title: "Subtotal",
-                        searchable: true
+                        data: "from_store.name",
+                        title: "From Store",
+                        searchable: true,
+                        "defaultContent": "Not Set"
                     },
                     {
-                        data: "discount",
-                        title: "Discount",
-                        searchable: true
-                    },
-                    {
-                        data: "grand_total",
-                        title: "Grand Total",
-                        searchable: true
+                        data: "to_store.name",
+                        title: "To Store",
+                        searchable: true,
+                        "defaultContent": "Not Set"
                     },
                     {
                         data: "status",
                         title: "Status",
-                        searchable: false
+                        searchable: false, "defaultContent": "Not Set"
                     },
                     {
                         data: "created_at",
-                        title: "Date",
+                        title: "Created At",
                         searchable: true
                     },
                     {
