@@ -61,8 +61,10 @@ class DeliveryCashTransferController extends Controller
 
 
         }
-        $toChartOfAccounts = ChartOfAccount::where(['is_bank_cash' => 'yes', 'type' => 'ledger', 'status' => 'active'])->get();
-        
+        $toChartOfAccounts = ChartOfAccount::where(['type' => 'ledger', 'status' => 'active'])->where(function ($q){
+            return $q->where('name','like','%bkash%')->orWhere('name','like','%bank%')->orWhere('name','like','%cash%');
+        })->get();
+
         // $othersOutlets = OthersOutletSale::where('payment_status', 'payable')->get();
         return view('delivery_cash_transfer.create', compact('othersOutlets','chartOfAccounts','toChartOfAccounts'));
     }

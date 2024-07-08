@@ -33,7 +33,6 @@ class DatabaseSeeder extends Seeder
         $this->call(OutletSeeder::class);
         $this->call(BatchSeeder::class);
         $this->call(EmployeeSeeder::class);
-        $this->call(PermissionSeeder::class);
         $this->call(SystemConfigSeeder::class);
         $this->call(DepartmentSeeder::class);
         $this->call(DesignationSeeder::class);
@@ -48,6 +47,7 @@ class DatabaseSeeder extends Seeder
             'password' => bcrypt('12345678'),
             'is_super'=>true
         ]);
-        $user->syncPermissions(Permission::pluck('name'));
+        $this->call(PermissionSeeder::class);
+//        $user->syncPermissions(Permission::pluck('name'));
     }
 }

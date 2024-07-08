@@ -311,6 +311,10 @@ Route::middleware('auth')->group(function () {
     /*=========== Sale Report Api Ends ===========*/
 
 
+    Route::get('fetch-data-by-sale-id-for-sale/{id}',[\App\Http\Controllers\SalesDeliveryController::class,'getItemData']);
+    Route::resource('sales-deliveries', \App\Http\Controllers\SalesDeliveryController::class);
+
+
     //delivery cash transfer
     Route::resource('delivery-cash-transfers', \App\Http\Controllers\DeliveryCashTransferController::class);
 

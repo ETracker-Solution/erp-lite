@@ -533,6 +533,13 @@
                                                     <p>OO Sales</p>
                                                 </a>
                                             </li>
+                                            <li class="nav-item">
+                                                <a href="{{route('sales-deliveries.index')}}"
+                                                   class="nav-link {{ (Request::segment(1) == 'sales-delivery' )?' active':''}}">
+                                                    <i class="far fa-circle nav-icon"></i>
+                                                    <p>Sales Delivery</p>
+                                                </a>
+                                            </li>
                                         {{-- @endcan --}}
                                     </ul>
                                 </li>

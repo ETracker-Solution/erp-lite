@@ -1,15 +1,15 @@
 @extends('layouts.app')
 @section('title')
-    Others Outlet Sales List
+    Sales Delivery
 @endsection
 @section('content')
     @php
         $links = [
         'Home'=>route('dashboard'),
-        'Others Outlet Sales list'=>''
+        'Sales Delivery'=>''
         ]
     @endphp
-    <x-breadcrumb title='Others Outlet Sales' :links="$links"/>
+    <x-breadcrumb title='Sales Delivery' :links="$links"/>
 
     <!-- Main content -->
     <section class="content">
@@ -19,11 +19,11 @@
                 <div class="col-12">
                     <div class="card card-info">
                         <div class="card-header">
-                            <h3 class="card-title">Others Outlet Sales List</h3>
+                            <h3 class="card-title">Sales Delivery List</h3>
                             <div class="card-tools">
-                                <a href="{{route('others-outlet-sales.create')}}">
+                                <a href="{{route('sales-deliveries.create')}}">
                                     <button class="btn btn-sm btn-primary"><i class="fa fa-plus-circle"
-                                                                              aria-hidden="true"></i> &nbsp;Add Others Outlet Sale
+                                                                              aria-hidden="true"></i> &nbsp;Make Delivery
                                     </button>
                                 </a>
                             </div>
@@ -47,7 +47,6 @@
     <!-- /.content -->
 @endsection
 @section('css')
-    <!-- DataTables -->
     <link rel="stylesheet" href="{{ asset('assets/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css')}}">
 @endsection
 @section('js')
@@ -67,7 +66,7 @@
                 serverSide: true,
                 processing: true,
                 ajax: {
-                    url: "{{ route('others-outlet-sales.index') }}",
+                    url: "{{ route('sales-deliveries.index') }}",
                 },
                 columns: [{
                     data: "DT_RowIndex",
@@ -82,8 +81,8 @@
                         searchable: true
                     },
                     {
-                        data: "delivery_point.name",
-                        title: "Delivery Point",
+                        data: "outlet.name",
+                        title: "Order From",
                         searchable: true,
                         "defaultContent": "N/A"
                     },
