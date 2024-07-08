@@ -41,8 +41,7 @@
                                     <div class="form-group">
                                         <label for="item_id">Customers</label>
                                         <select name="item_id" id="item_id"
-                                                class="form-control bSelect" v-model="item_id"
-                                                @change="get_product_info">
+                                                class="form-control bSelect" v-model="item_id">
                                             <option value="">Select one</option>
                                             <option :value="row.id" v-for="row in items"
                                             >@{{ row.id + ' - ' + row.name }}
@@ -187,8 +186,6 @@
                     config: {
                         COBUrl: "{{ url('customer-opening-balances') }}",
                         initial_info_url: "{{ url('customer-opening-balances-initial-info') }}",
-                        get_items_info_by_group_id_url: "{{ url('fetch-items-by-group-id') }}",
-                        get_item_info_url: "{{ url('fetch-item-info') }}",
                         get_balances_url: "{{ url('customer-opening-balances-list') }}",
                     },
                     next_id: "",
@@ -214,50 +211,6 @@
                     vuejsDatepicker,
                 },
                 methods: {
-                    fetch_product() {
-                        var vm = this;
-                        var slug = vm.group_id;
-                        if (slug) {
-                            vm.pageLoading = true;
-                            axios.get(this.config.get_items_info_by_group_id_url + '/' + slug).then(function (response) {
-                                vm.items = response.data.products;
-                                vm.pageLoading = false;
-                            }).catch(function (error) {
-                                toastr.error('Something went to wrong', {
-                                    closeButton: true,
-                                    progressBar: true,
-                                });
-                                return false;
-                            });
-                        }
-                    },
-                    get_product_info() {
-                        const vm = this;
-                        if (!vm.item_id) {
-                            toastr.error('Please Select Item', {
-                                closeButton: true,
-                                progressBar: true,
-                            });
-                            return false;
-                        } else {
-                            const slug = vm.item_id;
-                            if (slug) {
-                                vm.pageLoading = true;
-                                axios.get(this.config.get_item_info_url + '/' + slug).then(function (response) {
-                                    let item_info = response.data;
-                                    vm.pageLoading = false;
-                                }).catch(function (error) {
-                                    toastr.error('Something went to wrong', {
-                                        closeButton: true,
-                                        progressBar: true,
-                                    });
-                                    return false;
-                                });
-                            }
-
-                        }
-
-                    },
                     store_balance() {
                         const vm = this;
                         if (!vm.item_id) {

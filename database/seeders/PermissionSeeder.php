@@ -40,7 +40,7 @@ class PermissionSeeder extends Seeder
             'fg inventory transfer','fg inventory transfer receive','fg inventory adjustment','create fg requisition','fg requisition list','fg requisition delivery','fg delivery receive','fg inventory report'
         ],
         'sales'=>[
-            'pre orders list','pre order entry','sales','sales report'
+            'pre orders list','pre order entry','sales','sales report', 'other outlet sales', 'sales delivery'
         ],
         'loyalty'=>[
             'earn point','redeem point','point setting','membership','membertype','promo code'
@@ -62,13 +62,14 @@ class PermissionSeeder extends Seeder
                 $permission['module_name'] = ucwords($module);
                 $permission['created_at'] = Carbon::now()->format('Y-m-d H:i:s');
                 $permission['updated_at'] = Carbon::now()->format('Y-m-d H:i:s');
-
-                Permission::insert($permission);
-
+                $exists = Permission::whereName($permission['name'])->first();
+                if (!$exists) {
+                    Permission::insert($permission);
+                }
             }
         }
-    //  $user = User::where('is_super',true)->first();
-    //  $user->syncPermissions(Permission::pluck('name'));
+      $user = User::where('is_super',true)->first();
+      $user->syncPermissions(Permission::pluck('name'));
     //  DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
     }

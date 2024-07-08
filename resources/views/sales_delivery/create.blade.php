@@ -1,16 +1,16 @@
 @extends('layouts.app')
 @section('title')
-    Others Outlet Sale Entry
+    Sales Delivery
 @endsection
 @section('content')
     <!-- Content Header (Page header) -->
     @php
         $links = [
         'Home'=>route('dashboard'),
-        'Others Outlet Sale list'=>''
+        'Sales Delivery'=>''
         ]
     @endphp
-    <x-breadcrumb title='Others Outlet Sale Entry' :links="$links"/>
+    <x-breadcrumb title='Sales Delivery' :links="$links"/>
 
 
 
@@ -21,18 +21,18 @@
                 <div class="col-lg-12 col-md-12">
                     <div class="card card-info">
                         <div class="card-header">
-                            <h3 class="card-title">Others Outlet Sale Entry</h3>
+                            <h3 class="card-title">Sales Delivery</h3>
                             <div class="card-tools">
-                                <a href="{{route('others-outlet-sales.index')}}">
+                                <a href="{{route('sales-deliveries.index')}}">
                                     <button class="btn btn-sm btn-primary">
-                                        <i class="fa fa-list" aria-hidden="true"></i> &nbsp;Others Outlet Sale List
+                                        <i class="fa fa-list" aria-hidden="true"></i> &nbsp;Sales Delivery List
                                     </button>
                                 </a>
                             </div>
                         </div>
 
 
-                        <form action="{{ route('others-outlet-sales.store') }}" method="POST" class="">
+                        <form action="{{ route('sales-deliveries.store') }}" method="POST" class="">
                             @csrf
                             <div class="card-body">
                                 <div class="card-box">
@@ -55,109 +55,44 @@
                                                             v-model="store_id">
                                                         <option value="">None</option>
                                                         @foreach($stores as $store)
-                                                            <option value="{{$store->id}}" {{ $user_store ?($user_store->id == $store->id ? 'selected' : '') :'' }}>{{ $store->name }}</option>
+                                                            <option
+                                                                value="{{$store->id}}" {{ $user_store ?($user_store->id == $store->id ? 'selected' : '') :'' }}>{{ $store->name }}</option>
                                                         @endforeach
                                                     </select>
                                                 </div>
                                             </div>
                                             <div class="col-3">
                                                 <div class="form-group">
-                                                    <label for="">Delivery Point</label>
-                                                    <select name="delivery_point_id" id="" class="form-control"
-
-                                                            v-model="delivery_point_id">
+                                                    <label for="">Delivery Invoice Number</label>
+                                                    <select name="sale_id" id="" class="form-control" v-model="sale_id"
+                                                            @change="getAllData">
                                                         <option value="">None</option>
-                                                        @foreach($delivery_points as $delivery_point)
-                                                            <option value="{{$delivery_point->id}}">{{ $delivery_point->name }}</option>
+                                                        @foreach($sales as $sale)
+                                                            <option
+                                                                value="{{$sale->id}}">{{ $sale->invoice_number }}</option>
                                                         @endforeach
                                                     </select>
                                                 </div>
                                             </div>
-                                        </div>
-                                        <div class="row">
-                                            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                                                <div class="form-group">
-                                                    <label for="customer_id">Invoice Number</label>
-                                                    <input type="text" class="form-control"
-                                                           placeholder="Enter Invoice Number" v-model="invoice_number">
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                                            <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                                 <div class="form-group">
                                                     <label for="customer_id">Customer Number</label>
                                                     <input type="text" class="form-control"
                                                            placeholder="Enter Customer Number and Press Enter"
                                                            v-model="customerNumber"
                                                            @keydown.enter="getCustomerInfo" name="customer_number">
-                                                    {{--                                                    <select name="customer_id" id="customer_id"--}}
-                                                    {{--                                                            class="form-control bSelect" v-model="customer_id">--}}
-                                                    {{--                                                        <option value="">Select One</option>--}}
-                                                    {{--                                                        @foreach($customers as $customer)--}}
-                                                    {{--                                                            <option--}}
-                                                    {{--                                                                value="{{ $customer->id }}">{{ $customer->name }}</option>--}}
-                                                    {{--                                                        @endforeach--}}
-                                                    {{--                                                    </select>--}}
                                                 </div>
                                             </div>
-                                            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                                            <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                                 <div class="form-group">
                                                     <label for="store_id">Customer Name</label>
                                                     <input type="text" v-model="customer.name" class="form-control"
                                                            disabled>
-                                                    {{--                                                    <select name="store_id" id="store_id"--}}
-                                                    {{--                                                            class="form-control bSelect"--}}
-                                                    {{--                                                            v-model="store_id" required>--}}
-                                                    {{--                                                        <option value="">Select One</option>--}}
-                                                    {{--                                                        @foreach($stores as $row)--}}
-                                                    {{--                                                            <option--}}
-                                                    {{--                                                                value="{{ $row->id }}">{{ $row->name }}</option>--}}
-                                                    {{--                                                        @endforeach--}}
-                                                    {{--                                                    </select>--}}
                                                 </div>
                                             </div>
                                         </div>
                                         <div class="row">
-                                            <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
-                                                <div class="form-group">
-                                                    <label for="category_id" class="control-label">Group</label>
-                                                    <select class="form-control bSelect" name="category_id"
-                                                            v-model="category_id" @change="fetch_item">
-                                                        <option value="">Select One</option>
-                                                        @foreach ($groups as $category)
-                                                            <option
-                                                                    value="{{ $category->id }}">{{ $category->name }}</option>
-                                                        @endforeach
-                                                    </select>
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
-                                                <div class="form-group">
-                                                    <label for="item_id">Item</label>
-                                                    <select name="item_id" id="item_id"
-                                                            class="form-control bSelect" v-model="item_id">
-                                                        <option value="">Select one</option>
-
-                                                        <option :value="row.id" v-for="row in products"
-                                                                v-html="row.name">
-                                                        </option>
-
-                                                    </select>
-                                                </div>
-                                            </div>
-
-                                            <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12" style="margin-top: 26px;">
-                                                <button type="button" class="btn btn-info btn-block"
-                                                        @click="data_input">Add
-                                                </button>
-                                            </div>
-
-                                            <br>
-                                            <br>
-                                            <br>
-                                            <br>
-
                                             <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-
                                                 <hr>
                                                 <div class="table-responsive">
                                                     <table class="table table-bordered">
@@ -179,7 +114,7 @@
                                                             <td>
                                                                 <button type="button" class="btn btn-danger"
                                                                         @click="delete_row(row)"><i
-                                                                            class="fa fa-trash"></i></button>
+                                                                        class="fa fa-trash"></i></button>
                                                             </td>
                                                             <td>
                                                                 @{{ row.group }}
@@ -268,7 +203,32 @@
                                                                 <input type="text" name="grandtotal"
                                                                        class="form-control input-sm"
                                                                        v-bind:value="total_payable_bill" readonly>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td colspan="7">
 
+                                                            </td>
+                                                            <td>
+                                                               Paid
+                                                            </td>
+                                                            <td>
+                                                                <input type="text"
+                                                                       class="form-control input-sm"
+                                                                       v-bind:value="oldPaid" readonly>
+                                                            </td>
+                                                        </tr>
+                                                        <tr style>
+                                                            <td colspan="7">
+
+                                                            </td>
+                                                            <td style="background-color: black; color: white; font-weight: 700; font-size: 20px">
+                                                                Due
+                                                            </td>
+                                                            <td>
+                                                                <input type="text"
+                                                                       class="form-control input-sm"
+                                                                       v-bind:value="receivable_amount" readonly>
                                                             </td>
                                                         </tr>
                                                         <tfoot>
@@ -291,7 +251,7 @@
                                                                     <td>
                                                                         <button type="button" class="btn btn-danger"
                                                                                 @click="deletePaymentMethod(payment)"><i
-                                                                                    class="fa fa-trash"></i></button>
+                                                                                class="fa fa-trash"></i></button>
                                                                     </td>
                                                                     <td>
                                                                         <select v-model="payment.method"
@@ -368,7 +328,7 @@
                             </div>
                             <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 text-right" v-if="items.length > 0">
                                 <button class="float-right btn btn-primary" type="submit"><i
-                                            class="fa fa-fw fa-lg fa-check-circle"></i>Submit
+                                        class="fa fa-fw fa-lg fa-check-circle"></i>Submit
                                 </button>
                             </div>
                         </form>
@@ -429,9 +389,11 @@
                         get_items_info_by_group_id_url: "{{ url('fetch-items-by-group-id') }}",
                         get_product_info_url: "{{ url('fetch-item-by-id-for-sale') }}",
                         get_customer_url: "{{ url('pos-customer-by-number') }}",
+                        get_data_by_invoice: "{{ url('fetch-data-by-sale-id-for-sale') }}"
                     },
                     customer_id: '',
                     store_id: "",
+                    sale_id: "",
                     delivery_point_id: '',
                     category_id: '',
                     item_id: '',
@@ -456,13 +418,16 @@
                     couponCodeDiscountAmount: 0,
                     special_discount_amount: 0,
                     total_discount_amount: 0,
+                    oldPaid : 0,
+                    receivable_amount: 0
 
                 },
                 components: {
                     vuejsDatepicker
                 },
+
                 mounted: function (){
-                  this.setStoreId()
+                    this.setStoreId()
                 },
                 computed: {
                     subtotal: function () {
@@ -504,10 +469,10 @@
                     },
                     total_payable_bill: function () {
                         var vm = this
-                        return (this.total_bill - vm.couponCodeDiscountAmount - this.allDiscountAmount)
+                        return Math.round(this.total_bill - vm.couponCodeDiscountAmount - this.allDiscountAmount)
                     },
                     total_due: function () {
-                        return this.total_payable_bill
+                        return this.receivable_amount
                     },
                     productWiseDiscount: function () {
                         return this.items.reduce((total, item) => {
@@ -520,13 +485,32 @@
                     }
                 },
                 methods: {
-                    fetch_item() {
+                    getAllData() {
                         var vm = this;
-                        var slug = vm.category_id;
+                        if(!vm.store_id){
+                            toastr.warning('Please Select Store', {
+                                closeButton: true,
+                                progressBar: true,
+                            });
+                            return false;
+                            vm.sale_id= ''
+                        }
+                        var slug = vm.sale_id;
+
                         if (slug) {
-                            axios.get(this.config.get_items_info_by_group_id_url + '/' + slug).then(function (response) {
-                                vm.products = response.data.products;
-                                vm.pageLoading = false;
+                            axios.get(this.config.get_data_by_invoice + '/' + slug).then(function (response) {
+                                const resData = response.data;
+                                vm.products = resData.items;
+                                vm.products.map((product) => {
+                                    vm.fetch_item(product.product_id, product.quantity)
+                                })
+                                if (response.data.customer){
+                                    vm.customerNumber = resData.customer.mobile
+                                    vm.getCustomerInfo()
+                                }
+                                vm.oldPaid = resData.receive_amount
+                                vm.receivable_amount = resData.grand_total - resData.receive_amount
+                                vm.receivable_amount = Math.round(vm.receivable_amount)
                             }).catch(function (error) {
                                 toastr.error('Something went to wrong', {
                                     closeButton: true,
@@ -536,33 +520,12 @@
                             });
                         }
                     },
-                    data_input() {
+                    fetch_item(slug, qty) {
                         var vm = this;
-                        if (!vm.store_id) {
-                            toastr.error('Please Select Store', {
-                                closeButton: true,
-                                progressBar: true,
-                            });
-                            return false;
-                        }
-                        if (!vm.delivery_point_id) {
-                            toastr.error('Please Select Delivery Point', {
-                                closeButton: true,
-                                progressBar: true,
-                            });
-                            return false;
-                        }
-                        if (!vm.item_id) {
-                            toastr.error('Enter product', {
-                                closeButton: true,
-                                progressBar: true,
-                            });
-                            return false;
-                        } else {
-                            var slug = vm.item_id;
+                        {
                             if (slug) {
                                 axios.get(this.config.get_product_info_url + '/' + slug, {
-                                    params:{
+                                    params: {
                                         store_id: vm.store_id
                                     }
                                 }).then(function (response) {
@@ -575,7 +538,7 @@
                                         stock: product_details.balance_qty,
                                         price: product_details.price,
                                         sale_price: product_details.price,
-                                        quantity: '',
+                                        quantity: qty,
                                         product_discount: 0,
                                         subtotal: 0,
                                     });
@@ -643,8 +606,8 @@
                                 date: vm.date
                             }
                         }).then((response) => {
-                                vm.invoice_number = response.data
-                            })
+                            vm.invoice_number = response.data
+                        })
                     },
                     deletePaymentMethod: function (row) {
                         this.paymentMethods.splice(this.paymentMethods.indexOf(row), 1);

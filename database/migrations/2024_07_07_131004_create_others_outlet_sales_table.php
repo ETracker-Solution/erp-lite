@@ -31,6 +31,7 @@ return new class extends Migration
             $table->foreignId('delivery_point_id')->nullable()->constrained('outlets')->onDelete('cascade');
             $table->foreignId('created_by')->nullable()->constrained('users')->onDelete('cascade');
             $table->foreignId('updated_by')->nullable()->constrained('users')->onDelete('cascade');
+            $table->json('payment_methods')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });

@@ -43,6 +43,9 @@ class OthersOutletSaleController extends Controller
                 ->editColumn('status', function ($row) {
                     return showStatus($row->status);
                 })
+                ->addColumn('due', function ($row) {
+                    return number_format(($row->grand_total - ($row->receive_amount + $row->delivery_point_receive_amount)),2);
+                })
                 ->rawColumns(['action', 'created_at', 'status'])
                 ->make(true);
         }
@@ -80,6 +83,7 @@ class OthersOutletSaleController extends Controller
      */
     public function store(StoreOthersOutletSaleRequest $request)
     {
+//        return $request->all();
         $request->validate([
             'products' => 'array',
             'description' => 'nullable',
@@ -128,11 +132,11 @@ class OthersOutletSaleController extends Controller
             foreach ($products as $row) {
                 $row['product_id'] = $row['item_id'];
                 $row['unit_price'] = $row['sale_price'];
-                $currentStock = availableInventoryBalance($row['product_id'], $store->id);
-                if ($currentStock < $row['quantity']) {
-                    Toastr::error('Quantity cannot more then ' . $currentStock . ' !', '', ["progressBar" => true]);
-                    return back();
-                }
+//                $currentStock = availableInventoryBalance($row['product_id'], $store->id);
+//                if ($currentStock < $row['quantity']) {
+//                    Toastr::error('Quantity cannot more then ' . $currentStock . ' !', '', ["progressBar" => true]);
+//                    return back();
+//                }
 
                 $sale_item = $sale->items()->create($row);
                 $sale_item['date'] = date('Y-m-d');
@@ -145,10 +149,11 @@ class OthersOutletSaleController extends Controller
             $receive_amount = 0;
             foreach ($request->payment_methods as $paymentMethod) {
                 $receive_amount += $paymentMethod['amount'];
-                
+
             }
             $sale->receive_amount = $receive_amount;
-            $sale->change_amount = $receive_amount - $sale->grand_total;
+            $sale->change_amount =  $sale->grand_total -  $receive_amount;
+            $sale->payment_methods = json_encode($request->payment_methods);
             $sale->save();
             DB::commit();
 

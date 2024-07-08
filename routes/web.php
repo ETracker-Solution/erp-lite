@@ -309,6 +309,10 @@ Route::middleware('auth')->group(function () {
     Route::get('get-all-fg-stores', [\App\Http\Controllers\Api\Web\SaleReportController::class, 'getAllFGStores']);
     Route::resource('sale-reports', \App\Http\Controllers\Api\Web\SaleReportController::class);
     /*=========== Sale Report Api Ends ===========*/
+
+
+    Route::get('fetch-data-by-sale-id-for-sale/{id}',[\App\Http\Controllers\SalesDeliveryController::class,'getItemData']);
+    Route::resource('sales-deliveries', \App\Http\Controllers\SalesDeliveryController::class);
 });
 Route::group(['prefix' => 'reports', 'middleware' => 'auth'], function () {
 

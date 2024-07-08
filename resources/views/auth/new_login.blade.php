@@ -4,7 +4,7 @@
 
 <head>
 
-    <title>Login and Registration Form</title>
+    <title>Login Form</title>
 
     <link rel="stylesheet" href="style.css">
     <style>
