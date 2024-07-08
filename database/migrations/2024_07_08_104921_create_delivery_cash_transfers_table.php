@@ -17,6 +17,9 @@ return new class extends Migration
             $table->string('other_outlet_sale_id');
             $table->date('date');
             $table->double('amount',16,2);
+            $table->string('status')->default('pending');
+            $table->string('from_outlet');
+            $table->string('to_outlet');
             $table->foreignId('credit_account_id')->comment('chart_of_account_id,from')->constrained('chart_of_accounts')->onDelete('cascade');
             $table->foreignId('debit_account_id')->comment('chart_of_account_id,to')->constrained('chart_of_accounts')->onDelete('cascade');
             $table->longText('narration')->nullable();
