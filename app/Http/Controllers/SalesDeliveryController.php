@@ -107,6 +107,7 @@ class SalesDeliveryController extends Controller
 
             $mail_outlet_store_id = $main_outlet->stores()->first()->id;
 
+
             $receiveData = [];
             $tq = 0;
             // transfer Stock
@@ -120,6 +121,11 @@ class SalesDeliveryController extends Controller
 //                'created_by' => 'required',
             ];
             foreach ($originalSaleItems as $item) {
+                $currentStock = availableInventoryBalance($item->product_id, $store->id);
+                if ($currentStock < $item->quantity) {
+                    Toastr::error('Quantity cannot more then ' . $currentStock ?? 0 . ' !', '', ["progressBar" => true]);
+                    return back();
+                }
                 $transferData['products'][] = [
                     'coi_id' => $item->product_id,
                     'rate' => averageFGRate($item->product_id),

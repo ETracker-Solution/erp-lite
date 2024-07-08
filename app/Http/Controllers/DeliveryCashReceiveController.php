@@ -7,13 +7,13 @@ use App\Http\Requests\UpdateDeliveryCashTransferRequest;
 use App\Models\ChartOfAccount;
 use App\Models\DeliveryCashTransfer;
 use App\Models\OthersOutletSale;
-use App\Models\Outlet;
 use App\Models\OutletTransactionConfig;
 use Brian2694\Toastr\Facades\Toastr;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Facades\DataTables;
 
-class DeliveryCashTransferController extends Controller
+class DeliveryCashReceiveController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -22,7 +22,7 @@ class DeliveryCashTransferController extends Controller
     {
         if (\request()->ajax()) {
             if (\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->outlet_id) {
-                $dcTransfers = DeliveryCashTransfer::with('creditAccount', 'debitAccount')->where(['from_outlet'=>\auth()->user()->employee->outlet_id])->latest();
+                $dcTransfers = DeliveryCashTransfer::with('creditAccount', 'debitAccount')->where(['to_outlet'=>\auth()->user()->employee->outlet_id])->latest();
 
             } else {
                 $dcTransfers = DeliveryCashTransfer::with('creditAccount', 'debitAccount')->latest();
@@ -30,7 +30,7 @@ class DeliveryCashTransferController extends Controller
             return DataTables::of($dcTransfers)
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
-                    return view('delivery_cash_transfer.action-button', compact('row'));
+                    return view('delivery_cash_receive.action-button', compact('row'));
                 })
                 ->addColumn('created_at', function ($row) {
                     return view('common.created_at', compact('row'));
@@ -38,7 +38,7 @@ class DeliveryCashTransferController extends Controller
                 ->rawColumns(['action'])
                 ->make(true);
         }
-        return view('delivery_cash_transfer.index');
+        return view('delivery_cash_receive.index');
     }
 
     /**
@@ -80,7 +80,7 @@ class DeliveryCashTransferController extends Controller
         $validated = $request->validated();
         DB::beginTransaction();
         try {
-           $otherOutlet = OthersOutletSale::find($request->sale_id);
+            $otherOutlet = OthersOutletSale::find($request->sale_id);
             $validated['other_outlet_sale_id']=$otherOutlet->id;
             $validated['invoice_number']=$otherOutlet->invoice_number;
             $validated['from_outlet']=$otherOutlet->delivery_point_id;
@@ -103,7 +103,7 @@ class DeliveryCashTransferController extends Controller
     public function show($id)
     {
         $deliveryCashTransfer = DeliveryCashTransfer::with('otherOutlet')->findOrFail(decrypt($id));
-        return view('delivery_cash_transfer.show', compact('deliveryCashTransfer'));
+        return view('delivery_cash_receive.show', compact('deliveryCashTransfer'));
     }
 
     /**
@@ -117,9 +117,20 @@ class DeliveryCashTransferController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateDeliveryCashTransferRequest $request, DeliveryCashTransfer $deliveryCashTransfer)
+    public function update(UpdateDeliveryCashTransferRequest $request, $id )
     {
-        //
+        $deliveryCashTransfer = DeliveryCashTransfer::find(decrypt($id));
+        try {
+            addAccountsTransaction('DCT', $deliveryCashTransfer, $deliveryCashTransfer->debit_account_id, $deliveryCashTransfer->credit_account_id);
+            $deliveryCashTransfer->update([
+                'status'=>'received'
+            ]);
+        }catch (\Exception $exception){
+            Toastr::error('Something went wrong!.', '', ["progressBar" => true]);
+            return redirect()->route('delivery-cash-receives.index');
+        }
+        Toastr::success('Delivery Cash Received Successfully!.', '', ["progressBar" => true]);
+        return redirect()->route('delivery-cash-receives.index');
     }
 
     /**

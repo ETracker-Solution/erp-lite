@@ -317,6 +317,7 @@ Route::middleware('auth')->group(function () {
 
     //delivery cash transfer
     Route::resource('delivery-cash-transfers', \App\Http\Controllers\DeliveryCashTransferController::class);
+    Route::resource('delivery-cash-receives', \App\Http\Controllers\DeliveryCashReceiveController::class);
 
 
 
