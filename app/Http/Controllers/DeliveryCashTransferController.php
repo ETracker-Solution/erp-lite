@@ -52,7 +52,7 @@ class DeliveryCashTransferController extends Controller
             foreach ($cons as $con) {
                 $chartOfAccounts[] = $con->coa;
             }
-            $othersOutlets = OthersOutletSale::where('payment_status', 'paid')->get();
+            $othersOutlets = OthersOutletSale::where('payment_status', 'paid')->where('outlet_id', \auth()->user()->employee->outlet_id)->get();
 
 
         } else {
