@@ -472,10 +472,10 @@
                         </ul>
                     </li>
                 @endcanany
-                @canany(['sales-sales','sales-sales-report','sales-pre-orders-list','sales-pre-order-entry'])
-                    <li class="nav-item {{ (Request::segment(1) == 'sales'||Request::segment(1) == 'sale-reports'||Request::segment(1) == 'pre-orders' )?'menu-open':''}}">
+                @canany(['sales-sales','sales-sales-report','sales-pre-orders-list','sales-pre-order-entry','sales-other-outlet-sales','sales-sales-delivery'])
+                    <li class="nav-item {{ (Request::segment(1) == 'sales'|| Request::segment(1) == 'others-outlet-sales'||Request::segment(1) == 'sales-deliveries' ||Request::segment(1) == 'sale-reports'||Request::segment(1) == 'pre-orders' )?'menu-open':''}}">
                         <a href="#"
-                           class="nav-link {{ (Request::segment(1) == 'sales'||Request::segment(1) == 'sale-reports'||Request::segment(1) == 'pre-orders')?' active':''}}">
+                           class="nav-link {{ (Request::segment(1) == 'sales'|| Request::segment(1) == 'others-outlet-sales'||Request::segment(1) == 'sales-deliveries' ||Request::segment(1) == 'sale-reports'||Request::segment(1) == 'pre-orders')?' active':''}}">
                             <i class="nav-icon fas fa-shopping-cart"></i>
                             <p>
                                 Sales Module
@@ -515,9 +515,9 @@
                                     </ul>
                                 </li>
                             @endcanany
-                            @canany(['sales-sales'])
-                                <li class="nav-item {{ (Request::segment(1) == 'sales')?'menu-open':''}}">
-                                    <a href="#" class="nav-link {{ (Request::segment(1) == 'sales')?' active':''}}">
+                            @canany(['sales-sales','sales-other-outlet-sales','sales-sales-delivery'])
+                                <li class="nav-item {{ (Request::segment(1) == 'sales' || Request::segment(1) == 'others-outlet-sales'||Request::segment(1) == 'sales-deliveries')?'menu-open':''}}">
+                                    <a href="#" class="nav-link {{ (Request::segment(1) == 'sales' || Request::segment(1) == 'others-outlet-sales'||Request::segment(1) == 'sales-deliveries')?' active':''}}">
                                         <i class="nav-icon fa fa-folder-open"></i>
                                         <p>
                                             Sales Entry
@@ -534,7 +534,7 @@
                                                 </a>
                                             </li>
                                         @endcan
-                                        {{-- @can('sales-sales') --}}
+                                        @can('sales-other-outlet-sales')
                                             <li class="nav-item">
                                                 <a href="{{route('others-outlet-sales.create')}}"
                                                    class="nav-link {{ (Request::segment(1) == 'others-outlet-sales' )?' active':''}}">
@@ -542,13 +542,17 @@
                                                     <p>OO Sales</p>
                                                 </a>
                                             </li>
+                                        @endcan
+                                        @can('sales-sales-delivery')
                                             <li class="nav-item">
                                                 <a href="{{route('sales-deliveries.index')}}"
-                                                   class="nav-link {{ (Request::segment(1) == 'sales-delivery' )?' active':''}}">
+                                                   class="nav-link {{ (Request::segment(1) == 'sales-deliveries' )?' active':''}}">
                                                     <i class="far fa-circle nav-icon"></i>
                                                     <p>Sales Delivery</p>
                                                 </a>
                                             </li>
+                                        @endcan
+                                        {{-- @can('') --}}
                                             <li class="nav-item">
                                                 <a href="{{route('sales-exchanges.index')}}"
                                                    class="nav-link {{ (Request::segment(1) == 'sales-exchanges' )?' active':''}}">
