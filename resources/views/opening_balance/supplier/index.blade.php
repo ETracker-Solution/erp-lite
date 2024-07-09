@@ -120,11 +120,6 @@
                                             <li :class="!previousPageUrl ? 'page-item disabled' : 'page-item'">
                                                 <span class="page-link" @click="handlePageChange(--currentPage)">Previous</span>
                                             </li>
-{{--                                            <li class="page-item"><a class="page-link" href="#">1</a></li>--}}
-{{--                                            <li class="page-item active" aria-current="page">--}}
-{{--                                                <a class="page-link" href="#">2</a>--}}
-{{--                                            </li>--}}
-{{--                                            <li class="page-item"><a class="page-link" href="#">3</a></li>--}}
                                             <li :class="!nextPageUrl ? 'page-item disabled' : 'page-item'">
                                                 <span class="page-link"  @click="handlePageChange(++currentPage)">Next</span>
                                             </li>
@@ -184,8 +179,6 @@
                     config: {
                         SOBUrl: "{{ url('supplier-opening-balances') }}",
                         initial_info_url: "{{ url('supplier-opening-balances-initial-info') }}",
-                        get_items_info_by_group_id_url: "{{ url('fetch-items-by-group-id') }}",
-                        get_item_info_url: "{{ url('fetch-item-info') }}",
                         get_balances_url: "{{ url('supplier-opening-balances-list') }}",
                     },
                     next_id: "",
@@ -211,50 +204,6 @@
                     vuejsDatepicker,
                 },
                 methods: {
-                    fetch_product() {
-                        var vm = this;
-                        var slug = vm.group_id;
-                        if (slug) {
-                            vm.pageLoading = true;
-                            axios.get(this.config.get_items_info_by_group_id_url + '/' + slug).then(function (response) {
-                                vm.items = response.data.products;
-                                vm.pageLoading = false;
-                            }).catch(function (error) {
-                                toastr.error('Something went to wrong', {
-                                    closeButton: true,
-                                    progressBar: true,
-                                });
-                                return false;
-                            });
-                        }
-                    },
-                    get_product_info() {
-                        const vm = this;
-                        if (!vm.item_id) {
-                            toastr.error('Please Select Item', {
-                                closeButton: true,
-                                progressBar: true,
-                            });
-                            return false;
-                        } else {
-                            const slug = vm.item_id;
-                            if (slug) {
-                                vm.pageLoading = true;
-                                axios.get(this.config.get_item_info_url + '/' + slug).then(function (response) {
-                                    let item_info = response.data;
-                                    vm.pageLoading = false;
-                                }).catch(function (error) {
-                                    toastr.error('Something went to wrong', {
-                                        closeButton: true,
-                                        progressBar: true,
-                                    });
-                                    return false;
-                                });
-                            }
-
-                        }
-
-                    },
                     store_balance() {
                         const vm = this;
                         if (!vm.item_id) {
