@@ -23,6 +23,7 @@ class UpdateDesignationRequest extends FormRequest
     {
         return [
             'name' => 'required',
+            'status' => ['in:active,inactive'],
         ];
     }
 }
