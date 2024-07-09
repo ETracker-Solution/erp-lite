@@ -23,6 +23,7 @@ class UpdateDepartmentRequest extends FormRequest
     {
         return [
             'name' => 'required',
+            'status' => ['in:active,inactive'],
         ];
     }
 }
