@@ -549,6 +549,13 @@
                                                     <p>Sales Delivery</p>
                                                 </a>
                                             </li>
+                                            <li class="nav-item">
+                                                <a href="{{route('sales-exchanges.index')}}"
+                                                   class="nav-link {{ (Request::segment(1) == 'sales-exchanges' )?' active':''}}">
+                                                    <i class="far fa-circle nav-icon"></i>
+                                                    <p>Sales Exchange</p>
+                                                </a>
+                                            </li>
                                         {{-- @endcan --}}
                                     </ul>
                                 </li>
@@ -881,6 +888,15 @@
                                        class="nav-link {{ (Request::segment(1) == 'outlets' )?' active':''}}">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Create Outlet</p>
+                                    </a>
+                                </li>
+                            @endcan
+                            @can('data-admin-create-outlet')
+                                <li class="nav-item">
+                                    <a href="{{route('customers.index')}}"
+                                       class="nav-link {{ (Request::segment(1) == 'customers' )?' active':''}}">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Customer list</p>
                                     </a>
                                 </li>
                             @endcan
