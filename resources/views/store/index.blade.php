@@ -92,6 +92,11 @@
                                                         :defaultValue="isset($store) && $store->doc_type == 'factory'  ? $store->doc_id : ''"
                                                         :options="$factories" optionId="id" optionValue="name"/>
                                     </div>
+                                    @if(isset($store))
+                                    <div class="col-xl-12 col-md-12 col-12 mb-1">
+                                        <x-forms.static-select label="Status" inputName="status" placeholder="Select One" :isRequired='true'  :isReadonly='false' :defaultValue="isset($store) ? $store->status : ''" :options="['active','inactive']"/>
+                                    </div>
+                                @endif
 
                                 </div>
                                 <button class="btn btn-info waves-effect waves-float waves-light float-right ml-1"
@@ -177,7 +182,7 @@
                     },
                     {
                         data: "action",
-                        title: "",
+                        title: "Action",
                         orderable: false,
                         searchable: false
                     },

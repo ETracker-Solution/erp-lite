@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreOutletRequest;
 use App\Http\Requests\UpdateOutletRequest;
+use App\Models\ChartOfAccount;
 use App\Models\Outlet;
+use App\Models\OutletTransactionConfig;
 use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Facades\DataTables;
@@ -54,7 +56,33 @@ class OutletController extends Controller
 
         DB::beginTransaction();
         try {
-            Outlet::create($validated);
+            $outlet = Outlet::create($validated);
+
+            $methods = ['Cash', 'Bkash'];
+                foreach ($methods as $method) {
+                    $exists = ChartOfAccount::where('name', $method)->first();
+                    if (!$exists) {
+                        $exists = ChartOfAccount::create([
+                            'name' => $method,
+                            'type' => 'group',
+                            'account_type' => 'debit',
+                            'root_account_type' => 'as',
+                            'parent_id' => $exists->id
+                        ]);
+                    }
+                    $account = $exists->subChartOfAccounts()->create([
+                        'name' => $method . ' ' . $outlet->name,
+                        'type' => 'ledger',
+                        'account_type' => 'debit',
+                        'root_account_type' => 'as',
+                    ]);
+
+                    OutletTransactionConfig::create([
+                        'outlet_id' => $outlet->id,
+                        'coa_id' => $account->id,
+                        'type' => $method
+                    ]);
+                }
             DB::commit();
         } catch (\Exception $error) {
             DB::rollBack();
@@ -108,10 +136,17 @@ class OutletController extends Controller
     {
         DB::beginTransaction();
         try {
-            Outlet::findOrFail(decrypt($id))->delete();
+            $outletTrans = OutletTransactionConfig::where('outlet_id',decrypt($id))->get();
+            foreach($outletTrans as $outletTran) {
+                $outletTran->coa->delete();
+                $outletTran->delete();
+            }     
+            $outlet = Outlet::findOrFail(decrypt($id));
+            $outlet->delete();
             DB::commit();
         } catch (\Exception $error) {
             DB::rollBack();
+            // return $error;
             Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
             return back();
         }

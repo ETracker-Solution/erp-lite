@@ -58,6 +58,8 @@ class StoreController extends Controller
 
         DB::beginTransaction();
         try {
+            $validated['name'] = 'Store '. $request->type.' ' . $request->name;
+            
             Store::create($validated);
             DB::commit();
         } catch (\Exception $error) {
