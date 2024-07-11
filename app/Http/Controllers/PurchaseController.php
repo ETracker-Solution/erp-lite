@@ -217,6 +217,9 @@ class PurchaseController extends Controller
     {
         DB::beginTransaction();
         try {
+            AccountTransaction::where('doc_type', 'GPB')->where('doc_id', decrypt($id))->delete();
+            InventoryTransaction::where('doc_type', 'GPB')->where('doc_id', decrypt($id))->delete();
+            SupplierTransaction::where(['doc_type' => 'GPB', 'doc_id' => decrypt($id)])->delete();
             Purchase::findOrFail(decrypt($id))->delete();
             DB::commit();
         } catch (\Exception $error) {
