@@ -28,6 +28,7 @@ class StoreRMInventoryAdjustmentRequest extends FormRequest
             'date' => 'required',
             'reference_no' => 'nullable',
             'remark' => 'nullable',
+            'status' => 'nullable',
             'created_by' => 'required',
             'transaction_type' => 'required',
             'subtotal' => 'required',
@@ -39,6 +40,7 @@ class StoreRMInventoryAdjustmentRequest extends FormRequest
 
         $this->merge([
             'type'=>'RM',
+            'status'=>'adjusted',
             'created_by' => auth()->user()->id,
             'date' => Carbon::parse($this->date)->format('Y-m-d'),
         ]);
