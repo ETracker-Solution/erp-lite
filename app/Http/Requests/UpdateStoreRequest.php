@@ -27,7 +27,8 @@ class UpdateStoreRequest extends FormRequest
             'type' => 'required',
             'doc_type' => 'required',
             'doc_id' => 'nullable',
-            'updated_by' => 'required'
+            'updated_by' => 'required',
+            'status' => ['in:active,inactive']
         ];
     }
     public function prepareForValidation(): void
