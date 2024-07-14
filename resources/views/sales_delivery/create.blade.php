@@ -146,12 +146,12 @@
                                                                 <input type="number" v-model="row.quantity"
                                                                        :name="'products['+index+'][quantity]'"
                                                                        class="form-control input-sm"
-                                                                       @change="valid(row)" required>
+                                                                       @change="valid(row)" readonly>
                                                             </td>
                                                             <td>
                                                                 <input type="number" v-model="row.product_discount"
                                                                        :name="'products['+index+'][product_discount]'"
-                                                                       class="form-control input-sm" required>
+                                                                       class="form-control input-sm" readonly>
                                                             </td>
                                                             <td>
                                                                 <input type="text" class="form-control input-sm"
@@ -498,6 +498,7 @@
                         var slug = vm.sale_id;
 
                         if (slug) {
+
                             axios.get(this.config.get_data_by_invoice + '/' + slug).then(function (response) {
                                 const resData = response.data;
                                 vm.products = resData.items;
@@ -530,6 +531,7 @@
                                     }
                                 }).then(function (response) {
                                     product_details = response.data;
+                                    vm.items=[];
                                     vm.items.push({
                                         item_id: vm.item_id,
                                         group: product_details.group,
