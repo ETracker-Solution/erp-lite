@@ -238,7 +238,6 @@ class RequisitionController extends Controller
         $headers[] = 'Total';
         $headers[] = 'Current Stock';
         $headers[] = 'Production';
-
         $values = [];
         $products = ChartOfInventory::where(['type' => 'item', 'rootAccountType' => 'FG'])->whereIn('id', $product_ids)->get();
 
@@ -249,16 +248,15 @@ class RequisitionController extends Controller
             $delivered_qty = 0;
             $values[$key]['product_name'] = $product->name;
             foreach ($outlets as $outlet) {
-
+                $outlet_req_qty = 0;
                 $single_outlet_reqs = $outlet->requisitions()->where(['type' => 'FG', 'status' => 'approved'])
                     ->whereIn('delivery_status', ['pending', 'partial'])->get();
 
                 foreach ($single_outlet_reqs as $req) {
                     $req_qty += $req->items()->where('coi_id', $product->id)->sum('quantity');
-//                    $req_qty += $req->items()->where('coi_id', $product->id)->sum('quantity');
+                    $outlet_req_qty += $req->items()->where('coi_id', $product->id)->sum('quantity');
                     foreach ($req->deliveries as $delivery) {
                         $delivered_qty += $delivery->items()->where('coi_id', $product->id)->sum('quantity');
-//                        $delivered_qty += $delivery->items->sum('quantity');
                     }
                 }
                 foreach (auth()->user()->employee->factory->stores as $store) {
@@ -267,9 +265,9 @@ class RequisitionController extends Controller
 
 //                $qty = getRequisitionQtyByProduct($product->id, $outlet->id);
 
-                $values[$key]['product_quantity'][] = $req_qty - $delivered_qty;
+                $values[$key]['product_quantity'][] = $outlet_req_qty - $delivered_qty;
 
-                $totalQty += ($req_qty - $delivered_qty);
+                $totalQty += ($outlet_req_qty - $delivered_qty);
             }
             $diff = $req_qty - $current_stock;
 
