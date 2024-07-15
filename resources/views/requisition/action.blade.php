@@ -11,7 +11,7 @@
     <form action="{{route('requisitions.destroy', $row->id)}}" method="post">
         <input type="hidden" name="_method" value="DELETE">
         @csrf
-        @if($row->status != 'completed')
+        @if($row->status != 'approved' && $row->status != 'completed')
             <a href="{{ route('requisitions.edit', encrypt($row->id)) }}" class="btn btn-info btn-xs">
                 <i class="fas fa-pencil-alt">
                 </i>
@@ -22,7 +22,10 @@
             <i class="fas fa-folder">
             </i> Show
         </a>
-        <button id="btnDelete" class="btn btn-danger btn-xs"> <i class="fas fa-trash">
+        @if($row->status != 'approved' && $row->status != 'completed')
+            <button id="btnDelete" class="btn btn-danger btn-xs"> <i class="fas fa-trash">
             </i> Delete</button>
+        @endif
+        
     </form>
 </div>
