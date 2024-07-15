@@ -41,19 +41,29 @@ Sales Details
                         </div>
                         <!-- /.col -->
                         <div class="col-sm-4 invoice-col">
+                            <table width="100%">
+                                <tbody>
+                                    <tr>
+                                        <td style="text-align: left; padding:8px; line-height: 0.6">
+                                            <p><b>Outlet :</b> {{ $sale->outlet->name }}</p>
+                                            <p><b>Address :</b> {{ $sale->outlet->address }}</p>
+                                        </td> 
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                         <!-- /.col -->
                         <div class="col-sm-4 invoice-col">
                             <table width="100%">
                                 <tbody>
-                                <tr>
-                                    <td style="text-align: left; padding:8px; line-height: 0.6">
-                                        <p><b>Invoice No :</b> {{ $sale->invoice_number }}</p>
-                                        <p><b>Date :</b> {{ $sale->date }} </p>
-                                        <p><b>Sub Total :</b> {{ $sale->subtotal }} </p>
-                                        {{--                                            <p><b>Status :</b> {!! showStatus($sale->status) !!}</p>--}}
-                                    </td>
-                                </tr>
+                                    <tr>
+                                        <td style="text-align: left; padding:8px; line-height: 0.6">
+                                            <p><b>Customer :</b> {{ $sale->customer->name }}</p>
+                                            <p><b>email :</b> {{ $sale->customer->email }} </p>
+                                            <p><b>Phone :</b> {{ $sale->customer->mobile }} </p>
+                                            <p><b>Address :</b> {{ $sale->customer->address }}</p>
+                                        </td> 
+                                    </tr>
                                 </tbody>
                             </table>
                         </div>

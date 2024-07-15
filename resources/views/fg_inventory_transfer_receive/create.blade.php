@@ -61,10 +61,11 @@
                                             <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                                 <div class="form-group">
                                                     <label for="from_store_id">From Store</label>
+                                                    <input type="hidden" name="from_store_id" v-model="from_store_id">
                                                     <select name="from_store_id" id="from_store_id"
                                                             class="form-control bSelect"
-                                                            v-model="from_store_id" required>
-                                                        <option value="">Select One</option>
+                                                            v-model="from_store_id" disabled>
+                                                        {{-- <option value="">Select One</option> --}}
                                                         @foreach($from_stores as $row)
                                                             <option value="{{ $row->id }}">{{ $row->id }}
                                                                 -{{ $row->name }}</option>
@@ -75,10 +76,11 @@
                                             <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                                 <div class="form-group">
                                                     <label for="to_store_id">To Store</label>
+                                                    <input type="hidden" name="to_store_id" v-model="to_store_id">
                                                     <select name="to_store_id" id="to_store_id"
                                                             class="form-control bSelect"
-                                                            v-model="to_store_id" required>
-                                                        <option value="">Select One</option>
+                                                            v-model="to_store_id" :disabled="true">
+                                                        {{-- <option value="">Select One</option> --}}
                                                         @foreach($to_stores as $row)
                                                             <option value="{{ $row->id }}">{{ $row->id }}
                                                                 -{{ $row->name }}</option>
@@ -314,6 +316,7 @@
                             }
                             ;
                             vm.from_store_id = response.data.from_store_id;
+                            console.log(vm.from_store_id)
                             vm.to_store_id = response.data.to_store_id;
                             vm.date = response.data.date;
                             vm.reference_no = response.data.reference_no;

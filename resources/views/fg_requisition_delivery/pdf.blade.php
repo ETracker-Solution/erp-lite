@@ -95,7 +95,7 @@
 										<th>Item</th>
 										<th>Unit</th>
 										<th>Quantity</th>
-										<th>Rate</th>
+										{{-- <th>Rate</th> --}}
 									</tr>
                                 </thead>
                                 <tbody>
@@ -106,7 +106,7 @@
                                             <td>{{ $item->coi->name ?? '' }}</td>
                                             <td>{{ $item->coi->unit->name ?? '' }}</td>
                                             <td>{{ $item->quantity ?? '' }}</td>
-                                            <td>{{ $item->rate ?? '' }} TK</td>
+                                            {{-- <td>{{ $item->rate ?? '' }} TK</td> --}}
                                         </tr>
                                     @endforeach
                                 </tbody>

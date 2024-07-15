@@ -70,28 +70,21 @@
                                     : {{ getSettingValue('company_phone') }}</p>
                             </div>
                             <hr>
-                            <div class="row invoice-info">
-                                <div class="col-sm-4 invoice-col">
-                                    <table width="100%">
-                                        <tbody>
-                                        <tr>
-                                            <td style="text-align: left; padding:8px;">
-                                                <p><b>Date :</b> {{ $sale->date }}</p>
-                                                <p><b>Outlet :</b> {{ $sale->outlet->name }}</p>
-                                                <p><b>Customer Name
-                                                        :</b> {{ $sale->customer ? $sale->customer->name : 'N/A' }} </p>
-                                                <p><b>Customer Number
-                                                        :</b> {{ $sale->customer ? $sale->customer->mobile ?? 'N/A' : 'N/A' }}
-                                                </p>
-                                                {{--                                            <p><b>Status :</b> {!! showStatus($sale->status) !!}</p>--}}
-                                            </td>
-                                        </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                            <hr>
-                            <table border="1" cellspacing="0" width="100%" style="text-align: center; margin-top:20px;">
+                            <table width="100%">
+								<tbody>
+									<tr>
+										<td style="text-align: left; padding:8px; line-height: 1.6">
+                                            <p><b>Outlet :</b> {{ $sale->outlet->name }}</p>
+                                            <p><b>Address :</b> {{ $sale->outlet->address }}</p>
+											<p><b>Customer :</b> {{ $sale->customer->name }}</p>
+                                            <p><b>email :</b> {{ $sale->customer->email }} </p>
+                                            <p><b>Phone :</b> {{ $sale->customer->mobile }} </p>
+                                            <p><b>Address :</b> {{ $sale->customer->address }}</p>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+                            <table border="1"cellspacing="0" width="100%" style="text-align: center; margin-top:20px;">
                                 <thead style="background:#cdced2;">
                                 <tr style="background-color: #cdced2;">
                                     <th>#</th>
