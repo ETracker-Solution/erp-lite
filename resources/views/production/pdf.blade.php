@@ -73,7 +73,7 @@
                                 </div>
 
                                 <div class="col-sm-6 top-right">
-                                    <h3 class="marginright">Production No:{{ $production->production_no }}</h3>
+                                    <h3 class="marginright">Production No:{{ $production->uid }}</h3>
                                     <span class="marginright">{{ \Carbon\Carbon::parse($production->created_at)->isoFormat('MMM Do, YYYY') }}</span>
                                 </div>
 
@@ -85,6 +85,7 @@
                                         <td style="text-align: left">
                                             <p class="lead marginbottom payment-info"><b> Production Details</b></p>
                                             <p><b>Date :</b> {{ $production->created_at->format('Y-m-d') }}</p>
+                                            <p><b>Batch No : </b> {{ $production->batch->batch_no }} </p>
                                             <p><b>Status :</b> {{ $production->status }}</p>
                                             <p><b>Reference :</b> {{ $production->reference_no }}</p>
                                             <p><b>Grand Total :</b> BDT {{ $production->grand_total }} </p>

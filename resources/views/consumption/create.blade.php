@@ -45,7 +45,7 @@
 
                                                             <div class="input-group">
                                                                 <input type="text" class="form-control input-sm"
-                                                                       value="{{$serial_no}}" name="serial_no"
+                                                                       value="{{$serial_no}}" name=""
                                                                        id="serial_no" v-model="serial_no">
                                                                 <span class="input-group-append">
                     <button type="button" class="btn btn-info btn-flat" @click="data_edit">Search</button>
