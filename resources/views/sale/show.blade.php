@@ -5,7 +5,7 @@ Sales Details
 @section('content')
 <!-- Content Wrapper. Contains page content -->
 <!-- Content Header (Page header) -->
-    @php    
+    @php
         $links = [
         'Home'=>route('dashboard'),
         'Sales Details'=>''
@@ -30,11 +30,11 @@ Sales Details
                                 <tbody>
                                     <tr>
                                         <td style="text-align: left; padding:8px; line-height: 0.6">
-                                            <p><b>Invoice No :</b> {{ $sale->invoice_number }}</p>
-                                            <p><b>Date :</b> {{ $sale->date }} </p>
-                                            <p><b>Sub Total :</b> {{ $sale->subtotal }} </p>
-                                            <p><b>Status :</b> {!! showStatus($sale->status) !!}</p>
-                                        </td> 
+                                            <p><b>Outlet :</b> {{ $sale->outlet->name }}</p>
+                                            <p><b>Customer Name :</b> {{ $sale->customer ? $sale->customer->name : 'N/A' }} </p>
+                                            <p><b>Customer Number :</b> {{ $sale->customer ? $sale->customer->mobile ?? 'N/A' : 'N/A' }} </p>
+{{--                                            <p><b>Status :</b> {!! showStatus($sale->status) !!}</p>--}}
+                                        </td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -44,13 +44,24 @@ Sales Details
                         </div>
                         <!-- /.col -->
                         <div class="col-sm-4 invoice-col">
-                                
+                            <table width="100%">
+                                <tbody>
+                                <tr>
+                                    <td style="text-align: left; padding:8px; line-height: 0.6">
+                                        <p><b>Invoice No :</b> {{ $sale->invoice_number }}</p>
+                                        <p><b>Date :</b> {{ $sale->date }} </p>
+                                        <p><b>Sub Total :</b> {{ $sale->subtotal }} </p>
+                                        {{--                                            <p><b>Status :</b> {!! showStatus($sale->status) !!}</p>--}}
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
                         </div>
                         <!-- /.col -->
                     </div>
-    
+
                     <!-- /.row -->
-    
+
                     <!-- Table row -->
                     <div class="row">
                         <div class="col-12 table-responsive">
@@ -63,7 +74,7 @@ Sales Details
                                         <th>Unit</th>
                                         <th>Quantity</th>
                                         <th>Discount</th>
-                                        <th class="text-right">Grand Total</th>    
+                                        <th class="text-right">Grand Total</th>
 
                                     </tr>
                                 </thead>
@@ -76,7 +87,7 @@ Sales Details
                                             <td>{{ $item->unit_price ?? '' }}</td>
                                             <td>{{ $item->quantity ?? '' }}</td>
                                             <td>{{ $sale->discount }}</td>
-                                            <td class="text-right">{{ $sale->grand_total }}</td>    
+                                            <td class="text-right">{{ $sale->grand_total }}</td>
                                         </tr>
                                     @endforeach
                                 </tbody>
