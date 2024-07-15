@@ -79,7 +79,7 @@
                 },
 
                     {
-                        data: "inventory_transfer.id",
+                        data: "uid",
                         title: "ITR No",
                         searchable: true,
                         "defaultContent": "Not Set"
