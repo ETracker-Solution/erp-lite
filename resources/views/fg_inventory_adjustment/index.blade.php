@@ -84,7 +84,7 @@
                     },
                     {
                         data: "uid",
-                        title: "UID",
+                        title: "FGID No",
                         searchable: true,
                         "defaultContent":"Not Set"
                     },
