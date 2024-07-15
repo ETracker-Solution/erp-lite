@@ -77,7 +77,7 @@
 								<tbody>
 									<tr>
 										<td style="text-align: left; padding:8px; line-height: 1.6">
-											<p><b>IRT No :</b> {{ $fgTransferReceive->uid }}</p>
+											<p><b>FGITR No :</b> {{ $fgTransferReceive->uid }}</p>
 											<p><b>Date :</b> {{ $fgTransferReceive->date }} </p>
 											<p><b>Status :</b> {!! showStatus($fgTransferReceive->status) !!}</p>
 										</td>
