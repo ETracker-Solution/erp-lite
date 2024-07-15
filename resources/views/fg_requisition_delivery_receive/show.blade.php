@@ -31,9 +31,8 @@ FG Delivery Receive Details
                                     <tbody>
                                         <tr>
                                             <td style="text-align: left; padding:8px; line-height: 0.6">
-                                                <p><b>FGR No :</b> {{ $fgDeliveryReceive->requisition ? $fgDeliveryReceive->requisition->uid : 'Not Available' }}</p>
+                                                <p><b>FGR No :</b> {{ $fgDeliveryReceive->requisitionDelivery ? $fgDeliveryReceive->requisitionDelivery->uid : 'Not Available' }}</p>
                                                 <p><b>Date :</b> {{ $fgDeliveryReceive->date }} </p>
-                                                <p><b>Sub Total :</b> {{ $fgDeliveryReceive->subtotal }} </p>
                                                 <p><b>Status :</b> {!! showStatus($fgDeliveryReceive->status) !!}</p>
                                             </td> 
                                         </tr>
@@ -42,7 +41,7 @@ FG Delivery Receive Details
                             </div>
                             <!-- /.col -->
                             <div class="col-sm-4 invoice-col">
-                                <td><b>Customer :</b> {{ $fgDeliveryReceive->customer->name??'Walking Customer'}}</td>
+                                
                             </div>
                             <!-- /.col -->
                             <div class="col-sm-4 invoice-col">
@@ -64,7 +63,7 @@ FG Delivery Receive Details
                                             <th>Item</th>
                                             <th>Unit</th>
                                             <th>Quantity</th>
-                                            <th>Rate</th>
+                                            {{-- <th>Rate</th> --}}
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -75,7 +74,7 @@ FG Delivery Receive Details
                                             <td>{{ $item->coi->name ?? '' }}</td>
                                             <td>{{ $item->coi->unit->name ?? '' }}</td>
                                             <td>{{ $item->quantity ?? '' }}</td>
-                                            <td>{{ $item->rate ?? '' }} TK</td>
+                                            {{-- <td>{{ $item->rate ?? '' }} TK</td> --}}
                                         </tr>
                                         @endforeach
                                     </tbody>

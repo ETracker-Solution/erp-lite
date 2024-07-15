@@ -77,7 +77,7 @@
 								<tbody>
 									<tr>
 										<td style="text-align: left; padding:8px; line-height: 1.6">
-											<p><b>FGR No :</b> {{ $fgDeliveryReceive->requisition ? $fgDeliveryReceive->requisition->uid : 'Not Available' }}</p>
+											<p><b>FGR No :</b> {{ $fgDeliveryReceive->requisitionDelivery ? $fgDeliveryReceive->requisitionDelivery->uid : 'Not Available' }}</p>
 											<p><b>Date :</b> {{ $fgDeliveryReceive->date }} </p>
 											<p><b>Status :</b> {!! showStatus($fgDeliveryReceive->status) !!}</p>
 										</td>
@@ -92,7 +92,7 @@
 										<th>Item</th>
 										<th>Unit</th>
 										<th>Quantity</th>
-										<th>Rate</th>
+										{{-- <th>Rate</th> --}}
 									</tr>
                                 </thead>
                                 <tbody>
@@ -103,7 +103,7 @@
                                             <td>{{ $item->coi->name ?? '' }}</td>
                                             <td>{{ $item->coi->unit->name ?? '' }}</td>
                                             <td>{{ $item->quantity ?? '' }}</td>
-                                            <td>{{ $item->rate ?? '' }} TK</td>
+                                            {{-- <td>{{ $item->rate ?? '' }} TK</td> --}}
                                         </tr>
                                     @endforeach
                                 </tbody>
@@ -117,7 +117,7 @@
                                     Printing Time:- {{ $date->format('F j, Y, g:i a') }}
                                 </strong>
                                 <hr>
-                                <br>
+                                {{-- <br>
                                 <table width="100%">
                                     <tbody>
                                         <tr>
@@ -125,7 +125,7 @@
                                             <td style="text-align: right;">Saller Signature</td>
                                         </tr>
                                     </tbody>
-                                </table>
+                                </table> --}}
                             </htmlpagefooter>
 
                         </div>
