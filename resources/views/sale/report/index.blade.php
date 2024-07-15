@@ -25,21 +25,22 @@
                         </div>
                         <div class="card-body">
                             <div class="row">
-{{--                                <div class="col-12">--}}
-{{--                                    <div class="form-group">--}}
-{{--                                        <label for="store_id">Outlet</label>--}}
-{{--                                        <select name="store_id" id="store_id" class="form-control" v-model="store_id">--}}
-{{--                                            <option value="">Select a Outlet</option>--}}
-{{--                                            <option :value="row.id" v-for="row in stores"--}}
-{{--                                            >@{{ row.id + ' - ' + row.name }}--}}
-{{--                                            </option>--}}
-{{--                                        </select>--}}
-{{--                                    </div>--}}
-{{--                                </div>--}}
+                                {{--                                <div class="col-12">--}}
+                                {{--                                    <div class="form-group">--}}
+                                {{--                                        <label for="store_id">Outlet</label>--}}
+                                {{--                                        <select name="store_id" id="store_id" class="form-control" v-model="store_id">--}}
+                                {{--                                            <option value="">Select a Outlet</option>--}}
+                                {{--                                            <option :value="row.id" v-for="row in stores"--}}
+                                {{--                                            >@{{ row.id + ' - ' + row.name }}--}}
+                                {{--                                            </option>--}}
+                                {{--                                        </select>--}}
+                                {{--                                    </div>--}}
+                                {{--                                </div>--}}
                                 <div class="col-12">
                                     <div class="form-group">
                                         <label for="group_id">Group</label>
-                                        <select name="group_id" id="group_id" class="form-control" v-model="group_id" @change="getItemsByGroup">
+                                        <select name="group_id" id="group_id" class="form-control" v-model="group_id"
+                                                @change="getItemsByGroup">
                                             <option value="">Select a Group</option>
                                             <option :value="row.id" v-for="row in groups"
                                             >@{{ row.id + ' - ' + row.name }}
@@ -61,7 +62,8 @@
                                 <div class="col-12 border-bottom mb-3">
                                     <div class="form-group">
                                         <label for="customer_id">Customer</label>
-                                        <select name="customer_id" id="customer_id" class="form-control" v-model="customer_id">
+                                        <select name="customer_id" id="customer_id" class="form-control"
+                                                v-model="customer_id">
                                             <option value="">Select a Customer</option>
                                             <option :value="row.id" v-for="row in customers"
                                             >@{{ row.id + ' - ' + row.name }}
@@ -85,13 +87,13 @@
                                     </div>
                                 </div>
                                 <hr>
-{{--                                <div class="col-12">--}}
-{{--                                    <div class="form-group">--}}
-{{--                                        <label for="">As On Date</label>--}}
-{{--                                        <vuejs-datepicker v-model="as_on_date" name="as_on_date"--}}
-{{--                                                          placeholder="Select date"></vuejs-datepicker>--}}
-{{--                                    </div>--}}
-{{--                                </div>--}}
+                                {{--                                <div class="col-12">--}}
+                                {{--                                    <div class="form-group">--}}
+                                {{--                                        <label for="">As On Date</label>--}}
+                                {{--                                        <vuejs-datepicker v-model="as_on_date" name="as_on_date"--}}
+                                {{--                                                          placeholder="Select date"></vuejs-datepicker>--}}
+                                {{--                                    </div>--}}
+                                {{--                                </div>--}}
                             </div>
                         </div>
                     </div>
@@ -105,26 +107,34 @@
                             <div class="row">
                                 <div class="col-12">
                                     <div class="text-center">
-                                        <button class="btn btn-sm btn-dark w-50 mb-2" @click="showReport('All Sales Record')">
-                                           Show All Sales Record
+                                        <button class="btn btn-sm btn-dark w-50 mb-2"
+                                                @click="showReport('All Sales Record')">
+                                            Show All Sales Record
                                         </button>
                                         <button class="btn btn-sm btn-dark w-50 mb-2"
-                                                @click="showReport('Item Wise Sales Summary')">Show Item Wise Sales Summary
+                                                @click="showReport('Item Wise Sales Summary')">Show Item Wise Sales
+                                            Summary
                                         </button>
-                                        <button class="btn btn-sm btn-dark w-50 mb-2" @click="showReport('Outlet Wise Sales Summary')">
-                                          Show Outlet Wise Sales Summary
+                                        @if(auth()->user()->is_super)
+                                            <button class="btn btn-sm btn-dark w-50 mb-2"
+                                                    @click="showReport('Outlet Wise Sales Summary')">
+                                                Show Outlet Wise Sales Summary
+                                            </button>
+                                        @endif
+                                        <button class="btn btn-sm btn-dark w-50 mb-2"
+                                                @click="showReport('All Customer Sales Details')">
+                                            Show All Customer Sales Details
                                         </button>
-                                        <button class="btn btn-sm btn-dark w-50 mb-2" @click="showReport('All Customer Sales Details')">
-                                          Show All Customer Sales Details
+                                        {{--                                        <button class="btn btn-sm btn-dark w-50 mb-2" @click="showReport('trial_balance')">--}}
+                                        {{--                                          Show Customer Wise Sales Details--}}
+                                        {{--                                        </button>--}}
+                                        <button class="btn btn-sm btn-dark w-50 mb-2"
+                                                @click="showReport('Single Item Sales Details')">
+                                            Show Single Item Sales Details
                                         </button>
-{{--                                        <button class="btn btn-sm btn-dark w-50 mb-2" @click="showReport('trial_balance')">--}}
-{{--                                          Show Customer Wise Sales Details--}}
-{{--                                        </button>--}}
-                                        <button class="btn btn-sm btn-dark w-50 mb-2" @click="showReport('Single Item Sales Details')">
-                                          Show Single Item Sales Details
-                                        </button>
-                                        <button class="btn btn-sm btn-dark w-50 mb-2" @click="showReport('Single Customer Details')">
-                                          Show Single Customer Details
+                                        <button class="btn btn-sm btn-dark w-50 mb-2"
+                                                @click="showReport('Single Customer Details')">
+                                            Show Single Customer Details
                                         </button>
                                     </div>
                                 </div>
@@ -188,8 +198,8 @@
                     as_on_date: new Date(),
                     pageLoading: false,
                     stores: [],
-                    groups:[],
-                    items:[],
+                    groups: [],
+                    items: [],
                     store_id: '',
                     group_id: '',
                     item_id: '',
@@ -200,7 +210,7 @@
                 components: {
                     vuejsDatepicker,
                 },
-                mounted: function(){
+                mounted: function () {
                     this.getStores()
                     this.getGroups()
                     this.getCustomers()
@@ -261,7 +271,7 @@
                             return false;
                         });
                     },
-                    getStores(){
+                    getStores() {
                         const vm = this;
                         axios.get('/get-all-fg-stores').then(function (response) {
                             console.log(response)
@@ -274,7 +284,7 @@
                             return false;
                         });
                     },
-                    getGroups(){
+                    getGroups() {
                         const vm = this;
                         axios.get(this.config.get_all_categories_url).then(function (response) {
                             vm.groups = response.data;
@@ -286,7 +296,7 @@
                             return false;
                         });
                     },
-                    getCustomers(){
+                    getCustomers() {
                         const vm = this;
                         axios.get('/get-all-customers').then(function (response) {
                             vm.customers = response.data;
