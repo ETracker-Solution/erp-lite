@@ -60,9 +60,11 @@
                         <div class="panel-body">
                             <div class="invoice-ribbon">
                                 <h2 style="text-align:center; color: #4e73df; padding: 0px; margin: 0px; margin-left: 20px;" class="text-primary">
-                                    <strong> {{ Auth::guard('web')->user()->company->name ?? 'Company Name' }}</strong>
+                                    <strong> {{ getSettingValue('company_name') }}</strong>
                                 </h2>
-                                <p style="text-align: center; padding: 0px; margin: 0px;"> {{ Auth::guard('web')->user()->company->address ?? 'Address' }}</p>
+                                <p style="text-align: center; padding: 0px; margin: 0px;">Address : {{ getSettingValue('company_address') }}</p>
+                                <p style="text-align: center; padding: 0px; margin: 0px;">Email : {{ getSettingValue('company_email') }}</p>
+                                <p style="text-align: center; padding: 0px; margin: 0px;">Phone : {{ getSettingValue('company_phone') }}</p>
                             </div>
                             <div class="row">
 
@@ -71,7 +73,7 @@
                                 </div>
 
                                 <div class="col-sm-6 top-right">
-                                    <h3 class="marginright">Consumption No-{{ $stock_adjust->consumption_no }}</h3>
+                                    <h3 class="marginright">Consumption No-{{ $stock_adjust->serial_no }}</h3>
                                     <span class="marginright">{{ \Carbon\Carbon::parse($stock_adjust->created_at)->isoFormat('MMM Do, YYYY') }}</span>
                                 </div>
 
@@ -83,8 +85,8 @@
                                         <td style="text-align: left">
                                             <p class="lead margin bottom payment-info"><b> Consumption Details</b></p>
                                             <p><b>Date :</b> {{ $stock_adjust->created_at->format('Y-m-d') }}</p>
+                                            <p><b>Batch No : </b> {{ $stock_adjust->batch->batch_no }} </p>
                                             <p><b>Status :</b> {{ $stock_adjust->status }}</p>
-                                            <p><b>Grand Total :</b> BDT {{ $stock_adjust->grand_total }} </p>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -115,9 +117,7 @@
 
                                     @endforelse
                                     <tr>
-                                        <td colspan="5">
-                                            <b>Remark: </b>{{$stock_adjust->remark}}
-                                        </td>
+                                        <td colspan="5"><b>Remark: </b>{{$stock_adjust->remark}}</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -130,7 +130,7 @@
                                     Printing Time:- {{ $date->format('F j, Y, g:i a') }}
                                 </strong>
                                 <hr>
-                                <br>
+                                {{-- <br>
                                 <table width="100%">
                                     <tbody>
                                         <tr>
@@ -138,7 +138,7 @@
                                             <td style="text-align: right;">Saller Signature</td>
                                         </tr>
                                     </tbody>
-                                </table>
+                                </table> --}}
                             </htmlpagefooter>
                         </div>
                     </div>

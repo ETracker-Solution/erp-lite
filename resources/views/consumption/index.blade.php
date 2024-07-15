@@ -76,7 +76,7 @@
                     orderable: false
                 },
                     {
-                        data: "id",
+                        data: "serial_no",
                         title: "RMC No",
                         searchable: true
                     },

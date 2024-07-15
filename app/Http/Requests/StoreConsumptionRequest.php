@@ -34,7 +34,7 @@ class StoreConsumptionRequest extends FormRequest
             'remark' => ['nullable'],
             'subtotal' => ['nullable'],
             'reference_no' => ['nullable'],
-            'serial_no' => ['required'],
+            // 'serial_no' => ['required'],
             'batch_id' => ['required'],
             'store_id' => ['required'],
         ];
