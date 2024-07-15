@@ -27,7 +27,8 @@
                                     <tbody>
                                         <tr>
                                             <td style="text-align: left; padding:8px;" width="50%">
-                                              <p><b>Consumption No : </b> {{ $consumption->consumption_no }} </p>
+                                              <p><b>Consumption No : </b> {{ $consumption->serial_no }} </p>
+                                              <p><b>Batch No : </b> {{ $consumption->batch->batch_no }} </p>
                                               <p><b>Date : </b> {{ $consumption->created_at->format('Y-m-d') }} </p>
                                             </td>
                                             <td style="text-align: left; padding:8px;" width="50%">

@@ -83,6 +83,7 @@ class ConsumptionController extends Controller
             Toastr::info('At Least One Product Required.', '', ["progressBar" => true]);
             return back();
         }
+        $validated['serial_no'] = generateUniqueUUID($validated['store_id'], Consumption::class, 'serial_no');
         $consumption = Consumption::query()->create($validated);
         Batch::where('id', $validated['batch_id'])->update(['is_consumption' => true]);
         InventoryTransaction::where(['doc_id' => $consumption->id, 'doc_type' => 'RMC'])->delete();
