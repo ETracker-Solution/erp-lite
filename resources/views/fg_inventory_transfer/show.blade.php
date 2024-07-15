@@ -30,7 +30,7 @@ FG Inventory Transfer Details
                                     <tbody>
                                         <tr>
                                             <td style="text-align: left; padding:8px; line-height: 0.6">
-                                                <p><b>UID :</b> {{ $fGInventoryTransfer->uid }}</p>
+                                                <p><b>FGIT No :</b> {{ $fGInventoryTransfer->uid }}</p>
                                                 <p><b>Date :</b> {{ $fGInventoryTransfer->date }} </p>
                                                 <p><b>Transfer From :</b> {{ $fGInventoryTransfer->fromStore->name }} </p>
                                                 <p><b>Transfer To :</b> {{ $fGInventoryTransfer->toStore->name }} </p>

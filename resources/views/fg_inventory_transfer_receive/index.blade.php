@@ -80,7 +80,7 @@
 
                     {
                         data: "uid",
-                        title: "ITR No",
+                        title: "FGITR No",
                         searchable: true,
                         "defaultContent": "Not Set"
                     }, {
