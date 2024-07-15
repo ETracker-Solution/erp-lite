@@ -59,8 +59,9 @@ class RMInventoryTransferController extends Controller
     public function store(StoreRMInventoryTransferRequest $request)
     {
         $data = $request->validated();
-//        DB::beginTransaction();
-//        try {
+       DB::beginTransaction();
+       try {
+        $data['uid'] = generateUniqueUUID($data['from_store_id'], InventoryTransfer::class, 'uid');
         $fGInventoryTransfer = InventoryTransfer::create($data);
         foreach ($data['products'] as $product) {
             $fGInventoryTransfer->items()->create($product);
@@ -89,12 +90,12 @@ class RMInventoryTransferController extends Controller
             ]);
 
         }
-//            DB::commit();
-//        } catch (\Exception $error) {
-//            DB::rollBack();
-//            Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
-//            return back();
-//        }
+           DB::commit();
+       } catch (\Exception $error) {
+           DB::rollBack();
+           Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
+           return back();
+       }
         Toastr::success('RM Inventory Transfer Successful!.', '', ["progressBar" => true]);
         return redirect()->route('rm-inventory-transfers.index');
     }
