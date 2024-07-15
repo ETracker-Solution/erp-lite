@@ -574,6 +574,7 @@
                 },
                 addToSelectedInvoice(invoice) {
                     this.selectedInvoice = invoice
+                    console.log(this.selectedInvoice)
                 },
                 addMorePaymentMethod() {
                     this.paymentMethods.push({amount: 0, method: 'cash'})
