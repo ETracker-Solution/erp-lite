@@ -62,11 +62,13 @@
                                 <h2 style="text-align:center; color: #4e73df; padding: 0px; margin: 0px; margin-left: 20px;" class="text-primary">
                                     <strong> {{ getSettingValue('company_name') }}</strong>
                                 </h2>
-                                <p style="text-align: center; padding: 0px; margin: 0px;">Address : {{ getSettingValue('company_address') }}</p>
-                                <p style="text-align: center; padding: 0px; margin: 0px;">Email : {{ getSettingValue('company_email') }}</p>
-                                <p style="text-align: center; padding: 0px; margin: 0px;">Phone : {{ getSettingValue('company_phone') }}</p>
+                                <p style="text-align: center; padding: 0px; margin: 0px;">Address
+                                    : {{ getSettingValue('company_address') }}</p>
+                                <p style="text-align: center; padding: 0px; margin: 0px;">Email
+                                    : {{ getSettingValue('company_email') }}</p>
+                                <p style="text-align: center; padding: 0px; margin: 0px;">Phone
+                                    : {{ getSettingValue('company_phone') }}</p>
                             </div>
-                            
                             <hr>
                             <table width="100%">
 								<tbody>
@@ -84,48 +86,48 @@
 							</table>
                             <table border="1"cellspacing="0" width="100%" style="text-align: center; margin-top:20px;">
                                 <thead style="background:#cdced2;">
-                                    <tr style="background-color: #cdced2;">
-                                        <th>#</th>
-                                        <th>Invoice No</th>
-                                        <th>Item</th>
-                                        <th>Unit</th>
-                                        <th>Quantity</th>
-                                        <th>Discount</th>
-                                        <th class="text-right">Grand Total</th> 
-                                    </tr>
+                                <tr style="background-color: #cdced2;">
+                                    <th>#</th>
+                                    <th>Invoice No</th>
+                                    <th>Item</th>
+                                    <th>Unit</th>
+                                    <th>Quantity</th>
+                                    <th>Discount</th>
+                                    <th class="text-right">Grand Total</th>
+                                </tr>
                                 </thead>
                                 @php
                                     $i=1;
                                 @endphp
                                 <tbody>
-                                    @foreach ($sale->items as $item)
-                                        <tr>
-                                            <td>{{ $loop->iteration }}</td>
-                                            <td>{{ $sale->invoice_number }}</td>
-                                            <td>{{ $item->coi->name ?? '' }}</td>
-                                            <td>{{ $item->unit_price ?? '' }}</td>
-                                            <td>{{ $item->quantity ?? '' }}</td>
-                                            <td>{{ $sale->discount }}</td>
-                                            <td class="text-right">{{ $sale->grand_total }}</td>    
-                                        </tr>
-                                    @endforeach
-                                    
+                                @foreach ($sale->items as $item)
                                     <tr>
-                                        <td colspan="5"></td>
-                                        <td class="text-left">Sub Total:</td>
-                                        <td class="text-right">{{ $sale->subtotal }} </td>
+                                        <td>{{ $loop->iteration }}</td>
+                                        <td>{{ $sale->invoice_number }}</td>
+                                        <td>{{ $item->coi->name ?? '' }}</td>
+                                        <td>{{ $item->unit_price ?? '' }}</td>
+                                        <td>{{ $item->quantity ?? '' }}</td>
+                                        <td>{{ $sale->discount }}</td>
+                                        <td class="text-right">{{ $sale->grand_total }}</td>
                                     </tr>
-                                    <tr>
-                                        <td colspan="5"></td>
-                                        <td class="text-left">Discount:</td>
-                                        <td class="text-right">{{ $sale->discount }}</td>
-                                    </tr>
-                                    <tr>
-                                        <td colspan="5"></td>
-                                        <td class="text-left">Grand Total:</td>
-                                        <td class="text-right">{{ $sale->grand_total - ($sale->discount * $item->quantity)}}</td>
-                                        
-                                    </tr>
+                                @endforeach
+
+                                <tr>
+                                    <td colspan="5"></td>
+                                    <td class="text-left">Sub Total:</td>
+                                    <td class="text-right">{{ $sale->subtotal }} </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="5"></td>
+                                    <td class="text-left">Discount:</td>
+                                    <td class="text-right">{{ $sale->discount }}</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="5"></td>
+                                    <td class="text-left">Grand Total:</td>
+                                    <td class="text-right">{{ $sale->grand_total - ($sale->discount * $item->quantity)}}</td>
+
+                                </tr>
 
                                 </tbody>
                             </table>
