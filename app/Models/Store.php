@@ -10,4 +10,8 @@ class Store extends Model
     use HasFactory;
 
     protected $guarded = ['id'];
+
+    public function outlet(){
+        return $this->belongsTo(Outlet::class,'doc_id');
+    }
 }

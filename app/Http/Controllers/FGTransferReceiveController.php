@@ -8,6 +8,7 @@ use App\Models\ChartOfInventory;
 use App\Models\DeliveryReceive;
 use App\Models\InventoryTransaction;
 use App\Models\InventoryTransfer;
+use App\Models\Outlet;
 use App\Models\Requisition;
 use App\Models\RequisitionDelivery;
 use App\Models\Store;
@@ -70,9 +71,11 @@ class FGTransferReceiveController extends Controller
      */
     public function store(StoreFGTransferReceiveRequest $request)
     {
-//        try {
-//            DB::beginTransaction();
+        //        try {
+        //            DB::beginTransaction();
         $data = $request->validated();
+        $store = Store::find($data['to_store_id']);
+        $data['uid'] = generateUniqueUUID($store->outlet->id, TransferReceive::class, 'uid');
         $fGInventoryTransfer = TransferReceive::query()->create($data);
         $products = $request->get('products');
         foreach ($products as $product) {
@@ -105,12 +108,12 @@ class FGTransferReceiveController extends Controller
         //   DB::commit();
         Toastr::success('FG Transfer Receive Entry Successful!.', '', ["progressBar" => true]);
         return redirect()->route('fg-transfer-receives.index');
-//        } catch (\Exception $e) {
-//            DB::rollBack();
-//            Log::emergency("File:" . $e->getFile() . "Line:" . $e->getLine() . "Message:" . $e->getMessage());
-//            Toastr::info('Something went wrong!.', '', ["progressbar" => true]);
-//            return back();
-//        }
+        //        } catch (\Exception $e) {
+        //            DB::rollBack();
+        //            Log::emergency("File:" . $e->getFile() . "Line:" . $e->getLine() . "Message:" . $e->getMessage());
+        //            Toastr::info('Something went wrong!.', '', ["progressbar" => true]);
+        //            return back();
+        //        }
 
     }
 

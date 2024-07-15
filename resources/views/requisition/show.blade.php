@@ -32,7 +32,6 @@ FG Requisition Details
                                         <td style="text-align: left; padding:8px; line-height: 0.6">
                                             <p><b>Requisition No :</b> {{ $requisition->uid }}</p>
                                             <p><b>Date :</b> {{ $requisition->date }} </p>
-                                            {{-- <p><b>Sub Total :</b> {{ $requisition->subtotal }} </p> --}}
                                             <p><b>Status :</b> {!! showStatus($requisition->status) !!}</p>
                                         </td> 
                                     </tr>
@@ -41,7 +40,16 @@ FG Requisition Details
                         </div>
                         <!-- /.col -->
                         <div class="col-sm-4 invoice-col">
-                            {{-- <td><b>Customer :</b> {{ $requisition->customer->name??'Walking Customer'}}</td> --}}
+                            <table width="100%">
+                                <tbody>
+                                    <tr>
+                                        <td style="text-align: left; padding:8px; line-height: 0.6">
+                                            <p><b>Outlet :</b> {{ $requisition->outlet->name }}</p>
+                                            <p><b>Address :</b> {{ $requisition->outlet->address }} </p>
+                                        </td> 
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                         <!-- /.col -->
                         <div class="col-sm-4 invoice-col">

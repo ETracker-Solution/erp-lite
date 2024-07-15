@@ -73,7 +73,7 @@ FG Requisition Details
                                             <th>Item</th>
                                             <th>Unit</th>
                                             <th>Quantity</th>
-                                            <th>Rate</th>
+                                            {{-- <th>Rate</th> --}}
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -84,7 +84,7 @@ FG Requisition Details
                                             <td>{{ $item->coi->name ?? '' }}</td>
                                             <td>{{ $item->coi->unit->name ?? '' }}</td>
                                             <td>{{ $item->quantity ?? '' }}</td>
-                                            <td>{{ $item->rate ?? '' }} TK</td>
+                                            {{-- <td>{{ $item->rate ?? '' }} TK</td> --}}
                                         </tr>
                                         @endforeach
                                     </tbody>
@@ -101,14 +101,14 @@ FG Requisition Details
                             </div>
                             <!-- /.col -->
                             <div class="col-4">
-                                <div class="table-responsive">
+                                {{-- <div class="table-responsive">
                                     <table class="table">
                                         <tr>
                                             <th style="width:50%">Subtotal:</th>
                                             <td>{{ $fgRequisitionDelivery->subtotal }} TK</td>
                                         </tr>
                                     </table>
-                                </div>
+                                </div> --}}
                             </div>
                             <!-- /.col -->
                         </div>

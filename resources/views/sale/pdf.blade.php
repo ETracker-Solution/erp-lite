@@ -68,6 +68,20 @@
                             </div>
                             
                             <hr>
+                            <table width="100%">
+								<tbody>
+									<tr>
+										<td style="text-align: left; padding:8px; line-height: 1.6">
+                                            <p><b>Outlet :</b> {{ $sale->outlet->name }}</p>
+                                            <p><b>Address :</b> {{ $sale->outlet->address }}</p>
+											<p><b>Customer :</b> {{ $sale->customer->name }}</p>
+                                            <p><b>email :</b> {{ $sale->customer->email }} </p>
+                                            <p><b>Phone :</b> {{ $sale->customer->mobile }} </p>
+                                            <p><b>Address :</b> {{ $sale->customer->address }}</p>
+										</td>
+									</tr>
+								</tbody>
+							</table>
                             <table border="1"cellspacing="0" width="100%" style="text-align: center; margin-top:20px;">
                                 <thead style="background:#cdced2;">
                                     <tr style="background-color: #cdced2;">

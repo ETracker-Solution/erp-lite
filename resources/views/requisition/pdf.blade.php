@@ -80,10 +80,13 @@
 											<p><b>Requisition No :</b> {{ $requisition->uid }}</p>
                                             <p><b>Date :</b> {{ $requisition->date }} </p>
                                             <p><b>Status :</b> {!! showStatus($requisition->status) !!}</p>
+                                            <p><b>Outlet :</b> {{ $requisition->outlet->name }}</p>
+                                            <p><b>Address :</b> {{ $requisition->outlet->address }} </p>
 										</td>
 									</tr>
 								</tbody>
 							</table>
+                            
                             <table border="1"cellspacing="0" width="100%" style="text-align: center; margin-top:20px;">
                                 <thead style="background:#cdced2;">
 									<tr style="background-color: #cdced2;">
