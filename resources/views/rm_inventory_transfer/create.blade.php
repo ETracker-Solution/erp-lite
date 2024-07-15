@@ -38,15 +38,15 @@
                                         <div class="row">
                                             <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                                 <div class="form-group">
-                                                    <label for="serial_no">RMIT No</label>
+                                                    <label for="serial_no">ID</label>
                                                     <div class="input-group">
                                                         <input type="text" class="form-control input-sm"
                                                                value="{{$serial_no}}" name="serial_no"
                                                                id="serial_no">
-                                                        <span class="input-group-append">
+                                                        {{-- <span class="input-group-append">
                                                                     <button type="button"
                                                                             class="btn btn-info btn-flat">Search</button>
-                                                                </span>
+                                                                </span> --}}
                                                     </div>
                                                 </div>
                                             </div>
