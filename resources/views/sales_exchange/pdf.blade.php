@@ -1,9 +1,8 @@
-
 <!DOCTYPE html>
 <html>
 
 <head>
-    <title>FG Requisiton Delivery Pdf </title>
+    <title>Others Outlet Sale </title>
 <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
     <style>
         @page {
@@ -67,50 +66,58 @@
                                 <p style="text-align: center; padding: 0px; margin: 0px;">Email : {{ getSettingValue('company_email') }}</p>
                                 <p style="text-align: center; padding: 0px; margin: 0px;">Phone : {{ getSettingValue('company_phone') }}</p>
                             </div>
-                            <div class="row">
-                                <div class="col-sm-6 top-right">
-                                    <span class="marginright">{{ \Carbon\Carbon::parse($fgRequisitionDelivery->created_at)->isoFormat('MMM Do, YYYY') }}</span>
-                                </div>
-                            </div>
+                            
                             <hr>
-                            <table width="100%">
-                                <tbody>
-                                    <tr>
-                                        <td style="text-align: left; padding:8px; line-height: 1.6">
-                                            <p><b>FGR No :</b> {{ $fgRequisitionDelivery->requisition ? $fgRequisitionDelivery->requisition->uid : 'Not Available' }}</p>
-                                            <p><b>Date :</b> {{ $fgRequisitionDelivery->date }} </p>
-                                            <p><b>Status :</b> {!! showStatus($fgRequisitionDelivery->status) !!}</p>
-                                            <p><b>Outlet :</b> {{ $fgRequisitionDelivery->requisition->outlet->name ?? ''}}</p>
-                                            <p><b>Store :</b> {{ $fgRequisitionDelivery->toStore->name ?? ''}}</p>
-                                            <p><b>Address :</b> {{ $fgRequisitionDelivery->requisition->outlet->address }}</p>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
                             <table border="1"cellspacing="0" width="100%" style="text-align: center; margin-top:20px;">
                                 <thead style="background:#cdced2;">
-									<tr style="background-color: #cdced2;">
-										<th>#</th>
-										<th>Group</th>
-										<th>Item</th>
-										<th>Unit</th>
-										<th>Quantity</th>
-										<th>Rate</th>
-									</tr>
+                                    <tr style="background-color: #cdced2;">
+                                        <th>#</th>
+                                        <th>Invoice No</th>
+                                        <th>Item</th>
+                                        <th>Unit</th>
+                                        <th>Quantity</th>
+                                        <th>Discount</th>
+                                        <th class="text-right">Grand Total</th> 
+                                    </tr>
                                 </thead>
+                                @php
+                                    $i=1;
+                                @endphp
                                 <tbody>
-                                    @foreach ($fgRequisitionDelivery->items as $item)
+                                    @foreach ($otherOutletSale->items as $item)
                                         <tr>
                                             <td>{{ $loop->iteration }}</td>
-                                            <td>{{ $item->coi->parent->name ?? '' }}</td>
+                                            <td>{{ $otherOutletSale->invoice_number }}</td>
                                             <td>{{ $item->coi->name ?? '' }}</td>
-                                            <td>{{ $item->coi->unit->name ?? '' }}</td>
+                                            <td>{{ $item->unit_price ?? '' }}</td>
                                             <td>{{ $item->quantity ?? '' }}</td>
-                                            <td>{{ $item->rate ?? '' }} TK</td>
+                                            <td>{{ $otherOutletSale->discount }}</td>
+                                            <td class="text-right">{{ $otherOutletSale->grand_total }}</td>    
                                         </tr>
                                     @endforeach
+                                    
+                                    <tr>
+                                        <td colspan="5"></td>
+                                        <td class="text-left">Sub Total:</td>
+                                        <td class="text-right">{{ $otherOutletSale->subtotal }} </td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="5"></td>
+                                        <td class="text-left">Discount:</td>
+                                        <td class="text-right">{{ $otherOutletSale->discount }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="5"></td>
+                                        <td class="text-left">Grand Total:</td>
+                                        <td class="text-right">{{ $otherOutletSale->grand_total - ($otherOutletSale->discount * $item->quantity)}}</td>
+                                        
+                                    </tr>
+
                                 </tbody>
                             </table>
+                            <div class="invoice-ribbon">
+                                <p><b>Delivery Point :</b> {{ $otherOutletSale->deliveryPoint->name }}</p>
+                            </div>
                             <htmlpagefooter name="page-footer">
                                 @php
                                     $date = new DateTime('now', new DateTimezone('Asia/Dhaka'));
@@ -120,8 +127,8 @@
                                     Printing Time:- {{ $date->format('F j, Y, g:i a') }}
                                 </strong>
                                 <hr>
-                                {{-- <br>
-                                <table width="100%">
+                                <br>
+                                {{-- <table width="100%">
                                     <tbody>
                                         <tr>
                                             <td style="text-align: left;">Customer Signature</td>

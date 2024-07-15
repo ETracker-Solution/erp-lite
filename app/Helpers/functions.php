@@ -28,7 +28,7 @@ function getTimeByFormat($time, $format = 'g:i:s A')
 function showStatus($status)
 {
     switch ($status) {
-        case 'picked':
+        case 'adjusted':
         case 'draft':
             return '<span class="badge badge-primary">' . ucfirst($status) . '</span>';
         case 'assigned':

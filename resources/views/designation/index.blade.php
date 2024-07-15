@@ -46,6 +46,12 @@ Designation List
                                     <x-forms.text label="Name" inputName="name" placeholder="Enter Name"
                                         :isRequired='true' :isReadonly='false' :defaultValue="isset($designation) ? $designation->name : ''" />
                                 </div>
+                                @if(isset($designation))
+                                    <div class="col-xl-12 col-md-12 col-12 mb-1">
+                                        <x-forms.static-select label="Status" inputName="status" placeholder="Select One" :isRequired='true'  :isReadonly='false' :defaultValue="isset($designation) ? $designation->status : ''" :options="['active','inactive']"/>
+                                    </div>
+                                @endif
+                                
                             </div>
                             <button class="btn btn-info waves-effect waves-float waves-light float-right"
                                 type="submit">Submit

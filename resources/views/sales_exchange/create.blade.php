@@ -1,16 +1,16 @@
 @extends('layouts.app')
 @section('title')
-    Sales Delivery
+    Sales Exchange
 @endsection
 @section('content')
     <!-- Content Header (Page header) -->
     @php
         $links = [
         'Home'=>route('dashboard'),
-        'Sales Delivery'=>''
+        'Sales Exchange'=>''
         ]
     @endphp
-    <x-breadcrumb title='Sales Delivery' :links="$links"/>
+    <x-breadcrumb title='Sales Exchange' :links="$links"/>
 
 
 
@@ -21,18 +21,18 @@
                 <div class="col-lg-12 col-md-12">
                     <div class="card card-info">
                         <div class="card-header">
-                            <h3 class="card-title">Sales Delivery</h3>
+                            <h3 class="card-title">Sales Exchange</h3>
                             <div class="card-tools">
-                                <a href="{{route('sales-deliveries.index')}}">
+                                <a href="{{route('sales-exchanges.index')}}">
                                     <button class="btn btn-sm btn-primary">
-                                        <i class="fa fa-list" aria-hidden="true"></i> &nbsp;Sales Delivery List
+                                        <i class="fa fa-list" aria-hidden="true"></i> &nbsp;Sales Exchange List
                                     </button>
                                 </a>
                             </div>
                         </div>
 
 
-                        <form action="{{ route('sales-deliveries.store') }}" method="POST" class="">
+                        <form action="{{ route('sales-exchanges.store') }}" method="POST" class="">
                             @csrf
                             <div class="card-body">
                                 <div class="card-box">
@@ -49,6 +49,19 @@
                                             </div>
                                             <div class="col-3">
                                                 <div class="form-group">
+                                                    <label for="">Invoice Number</label>
+                                                    <select name="sale_id" id="" class="form-control" v-model="sale_id"
+                                                            @change="getAllData">
+                                                        <option value="">None</option>
+                                                        @foreach($sales as $sale)
+                                                            <option
+                                                                value="{{$sale->id}}">{{ $sale->invoice_number }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="col-3">
+                                                <div class="form-group">
                                                     <label for="">Current Store</label>
                                                     <select name="store_id" id="" class="form-control"
                                                             @if($user_store) readonly @endif @change="getStoreData()"
@@ -61,19 +74,7 @@
                                                     </select>
                                                 </div>
                                             </div>
-                                            <div class="col-3">
-                                                <div class="form-group">
-                                                    <label for="">Delivery Invoice Number</label>
-                                                    <select name="sale_id" id="" class="form-control" v-model="sale_id"
-                                                            @change="getAllData">
-                                                        <option value="">None</option>
-                                                        @foreach($sales as $sale)
-                                                            <option
-                                                                value="{{$sale->id}}">{{ $sale->invoice_number }}</option>
-                                                        @endforeach
-                                                    </select>
-                                                </div>
-                                            </div>
+                                            
                                             <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                                 <div class="form-group">
                                                     <label for="customer_id">Customer Number</label>
@@ -146,12 +147,12 @@
                                                                 <input type="number" v-model="row.quantity"
                                                                        :name="'products['+index+'][quantity]'"
                                                                        class="form-control input-sm"
-                                                                       @change="valid(row)" readonly>
+                                                                       @change="valid(row)" required>
                                                             </td>
                                                             <td>
                                                                 <input type="number" v-model="row.product_discount"
                                                                        :name="'products['+index+'][product_discount]'"
-                                                                       class="form-control input-sm" readonly>
+                                                                       class="form-control input-sm" required>
                                                             </td>
                                                             <td>
                                                                 <input type="text" class="form-control input-sm"
@@ -487,18 +488,17 @@
                 methods: {
                     getAllData() {
                         var vm = this;
-                        if(!vm.store_id){
-                            toastr.warning('Please Select Store', {
-                                closeButton: true,
-                                progressBar: true,
-                            });
-                            return false;
-                            vm.sale_id= ''
-                        }
-                        var slug = vm.sale_id;
+                        //if(!vm.store_id){
+                           // toastr.warning('Please Select Store', {
+                               // closeButton: true,
+                               // progressBar: true,
+                           // });
+                           // return false;
+                           // vm.sale_id= ''
+                        //}
+                        //var slug = vm.sale_id;
 
                         if (slug) {
-
                             axios.get(this.config.get_data_by_invoice + '/' + slug).then(function (response) {
                                 const resData = response.data;
                                 vm.products = resData.items;
@@ -531,7 +531,6 @@
                                     }
                                 }).then(function (response) {
                                     product_details = response.data;
-                                    vm.items=[];
                                     vm.items.push({
                                         item_id: vm.item_id,
                                         group: product_details.group,

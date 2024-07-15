@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreFGInventoryAdjustmentRequest;
 use App\Http\Requests\StoreRMInventoryAdjustmentRequest;
 use App\Http\Requests\UpdateFGInventoryAdjustmentRequest;
+use App\Models\AccountTransaction;
 use App\Models\ChartOfInventory;
 use App\Models\InventoryAdjustment;
 use App\Models\InventoryAdjustmentItem;
@@ -21,17 +22,20 @@ class RMInventoryAdjustmentController extends Controller
      */
     public function index()
     {
-        $fGInventoryAdjustments = InventoryAdjustment::with('store')->where('type','RM')->latest();
+        $fGInventoryAdjustments = InventoryAdjustment::with('store')->where('type', 'RM')->latest();
         if (\request()->ajax()) {
             return DataTables::of($fGInventoryAdjustments)
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
                     return view('rm_inventory_adjustment.action', compact('row'));
                 })
+                ->editColumn('status', function ($row) {
+                    return showStatus($row->status);
+                })
                 ->addColumn('created_at', function ($row) {
                     return view('common.created_at', compact('row'));
                 })
-                ->rawColumns(['action', 'amount_info'])
+                ->rawColumns(['action', 'amount_info', 'status'])
                 ->make(true);
         }
         return view('rm_inventory_adjustment.index');
@@ -70,7 +74,7 @@ class RMInventoryAdjustmentController extends Controller
                 $type = $data['transaction_type'] === 'increase' ? 1 : -1;
                 InventoryTransaction::query()->create([
                     'store_id' => $adjustment->store_id,
-                    'doc_type' => 'FGIA',
+                    'doc_type' => 'RMIA',
                     'doc_id' => $adjustment->id,
                     'quantity' => $product['quantity'],
                     'rate' => $product['rate'],
@@ -132,6 +136,8 @@ class RMInventoryAdjustmentController extends Controller
     {
         DB::beginTransaction();
         try {
+            AccountTransaction::where('doc_type', 'RMIA')->where('doc_id', $id)->delete();
+            InventoryTransaction::where('doc_type', 'RMIA')->where('doc_id', $id)->delete();
             InventoryAdjustment::findOrFail($id)->delete();
             DB::commit();
         } catch (\Exception $error) {

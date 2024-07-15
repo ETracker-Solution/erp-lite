@@ -86,7 +86,7 @@ class Requisition extends Model
 
     public function outlet()
     {
-        return $this->morphTo('outlet', 'model_type', 'model_id');
+        return $this->belongsTo(Outlet::class, 'outlet_id');
     }
 
     public function productionHouse()
