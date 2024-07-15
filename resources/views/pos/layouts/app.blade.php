@@ -344,13 +344,10 @@
                     var vm = this
                     return Number(vm.total_discount_amount) + Number(vm.special_discount_amount) + Number(this.productWiseDiscount)
                 },
-                selectedNotDiscountableProduct: function(){
-                    return this.selectedProducts.reduce((index,item) => {
-                        if (item.discountable === false){
-                            return true
-                        }
-                    }, false)
+                selectedNotDiscountableProduct: function() {
+                    return this.selectedProducts.some(item => !item.discountable);
                 }
+
             },
             methods: {
                 getAllOrders() {
