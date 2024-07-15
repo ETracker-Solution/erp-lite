@@ -114,6 +114,7 @@ Route::middleware('auth')->group(function () {
     //-----End Supplier Payment Voucher---------
     //
     // //-----Start Pre Order---------
+    Route::put('pre-orders.status-update/{id}',[\App\Http\Controllers\PreOrderController::class, 'updateStatus'])->name('pre-orders.status-update');
     Route::resource('pre-orders', \App\Http\Controllers\PreOrderController::class);
     Route::get('pre-order-pdf/{id}', [App\Http\Controllers\PreOrderController::class, 'Pdf'])->name('pre-order.pdf');
 
