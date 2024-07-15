@@ -2,7 +2,7 @@
     <form action="{{route('batches.destroy', encrypt($row->id))}}" method="post">
         <input type="hidden" name="_method" value="DELETE">
         @csrf
-        @if($row->is_consumption != 1 && $row->is_production != 1)
+        @if(!$row->is_consumption  && !$row->is_production )
             <a href="{{ route('batches.edit',encrypt($row->id))}}" class="btn btn-info btn-xs">
                 <i class="fas fa-pencil-alt">
                 </i>
