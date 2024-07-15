@@ -25,7 +25,7 @@ class PreOrderController extends Controller
     public function index()
     {
         if (\request()->ajax()) {
-            $pre_orders = PreOrder::with('customer', 'outlet')->latest();
+            $pre_orders = $this->getFilteredData();
             return DataTables::of($pre_orders)
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
@@ -40,7 +40,34 @@ class PreOrderController extends Controller
                 ->rawColumns(['action', 'created_at', 'status'])
                 ->make(true);
         }
-        return view('pre_order.index');
+        $outlets = Outlet::all();
+        return view('pre_order.index',compact('outlets'));
+    }
+
+    protected function getFilteredData()
+    {
+        if (auth()->user()->employee && auth()->user()->employee->outlet_id){
+            $outlet_id = auth()->user()->employee->outlet_id;
+            $orders =  PreOrder::with('customer', 'outlet')->where('delivery_point_id', $outlet_id)->orWhere('outlet_id', $outlet_id)->latest();
+        }else{
+            $orders =  PreOrder::with('customer', 'outlet')->latest();
+        }
+        if (\request()->filled('outlet_id')) {
+            $orders->where('delivery_point_id',\request()->outlet_id);
+        }
+        if (\request()->filled('status')) {
+            $orders->where('status',\request()->status);
+        }
+        if (\request()->filled('filter_by')) {
+            if (\request()->filter_by == 'delivery_today'){
+                $orders->whereDate('delivery_date',now()->format('Y-m-d'));
+            }
+            if (\request()->filter_by == 'order_today'){
+                $orders->whereDate('created_at',now()->format('Y-m-d'));
+            }
+
+        }
+        return $orders;
     }
 
     /**
@@ -177,5 +204,13 @@ class PreOrderController extends Controller
         $name = \Carbon\Carbon::now()->format('d-m-Y');
 
         return $pdf->stream($name . '.pdf');
+    }
+
+    public function updateStatus(Request $request, $id)
+    {
+        $req = PreOrder::findOrFail($id);
+        $req->update(['status' => $request->status]);
+        Toastr::success('Pre Order Approved Successfully!.', '', ["progressBar" => true]);
+        return redirect()->route('pre-orders.index');
     }
 }

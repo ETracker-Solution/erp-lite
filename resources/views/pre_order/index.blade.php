@@ -22,7 +22,7 @@
                                 @can('sales-pre-order-entry')
                                     <a href="{{route('pre-orders.create')}}">
                                         <button class="btn btn-sm btn-primary"><i class="fa fa-plus-circle"
-                                                                                aria-hidden="true"></i> &nbsp;Add
+                                                                                  aria-hidden="true"></i> &nbsp;Add
                                             Pre Order
                                         </button>
                                     </a>
@@ -31,6 +31,40 @@
                         </div>
                         <!-- /.card-header -->
                         <div class="card-body table-responsive">
+                            <div class="row">
+                                <div class="col-3">
+                                    <div class="form-group">
+                                        <label for="">Filter By</label>
+                                        <select name="filter_by" id="" class="form-control">
+                                            <option value="">All</option>
+                                            <option value="delivery_today">Todays Delivery</option>
+                                            <option value="order_today">Todays Ordered</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-3">
+                                    <div class="form-group">
+                                        <label for="">Status</label>
+                                        <select name="status" id="" class="form-control">
+                                            <option value="">All</option>
+                                            <option value="pending">Pending</option>
+                                            <option value="approved">Approved</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-3">
+                                    <div class="form-group">
+                                        <label for="">Outlet</label>
+                                        <select name="outlet_id" id="" class="form-control">
+                                            <option value="">All</option>
+                                            @foreach($outlets as $outlet)
+                                            <option value="{{ $outlet->id }}">{{ $outlet->name }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <button class="btn btn-primary mb-2" type="button" id="search-btn">Search</button>
                             <table id="dataTable" class="table table-bordered">
                                 {{-- show from datatable--}}
                             </table>
@@ -71,6 +105,11 @@
                 processing: true,
                 ajax: {
                     url: "{{ route('pre-orders.index') }}",
+                    data: function (d) {
+                        d.filter_by = $('select[name="filter_by"]').val();
+                        d.status = $('select[name="status"]').val();
+                        d.outlet_id = $('select[name="outlet_id"]').val();
+                    }
                 },
                 columns: [{
                     data: "DT_RowIndex",
@@ -99,14 +138,14 @@
                         title: "Subtotal",
                         searchable: true
                     },
-                    // {
-                    //     data: "status",
-                    //     title: "Status",
-                    //     searchable: false
-                    // },
                     {
-                        data: "created_at",
-                        title: "Date",
+                        data: "status",
+                        title: "Status",
+                        searchable: false
+                    },
+                    {
+                        data: "delivery_date",
+                        title: "delivery date",
                         searchable: true
                     },
                     {
@@ -118,5 +157,13 @@
                 ],
             });
         })
+
+        $('#search-btn').on('click', function () {
+            recallDatatable();
+        });
+
+        function recallDatatable() {
+            $('#dataTable').DataTable().draw(true);
+        }
     </script>
 @endpush
