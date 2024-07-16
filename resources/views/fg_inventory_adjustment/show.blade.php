@@ -25,7 +25,7 @@ FGInventory Adjustment Details
                                 <tbody>
                                     <tr>
                                         <td style="text-align: left; padding:8px; line-height: 0.6">
-                                            <p><b>UID :</b> {{ $fGInventoryAdjustment->uid }}</p>
+                                            <p><b>FGID No :</b> {{ $fGInventoryAdjustment->uid }}</p>
                                             <p><b>Date :</b> {{ $fGInventoryAdjustment->date }} </p>
                                             <p><b>Store :</b> {{ $fGInventoryAdjustment->store->name }} </p>
                                             <p><b>Status :</b> {!! showStatus($fGInventoryAdjustment->status) !!}</p>

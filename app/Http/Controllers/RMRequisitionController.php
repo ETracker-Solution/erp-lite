@@ -97,7 +97,8 @@ class RMRequisitionController extends Controller
     {
         $data = [
             'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'RM'])->get(),
-            'stores' => Store::where(['type' => 'RM'])->get(),
+            'from_stores' => Store::where(['type' => 'RM', 'doc_type' => 'factory'])->get(),
+            'to_stores' => Store::where(['type' => 'RM', 'doc_type' => 'ho'])->get(),
             'requisition' => Requisition::find(decrypt($id))
         ];
         return view('rm_requisition.edit', $data);
