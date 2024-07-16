@@ -2,8 +2,7 @@
     <!-- Brand Logo -->
     <a href="{{url('/dashboard')}}" class="brand-link">
         <img src="{{ asset('upload').'/'.getSettingValue('company_logo') }}" alt="Logo"
-             class="brand-image img-circle elevation-3" style="opacity: .8; margin-top: 1px;">
-        <span class="brand-text font-weight-light">CakeTown</span>
+             class="brand-image elevation-3" style="opacity: .8; margin-top: 1px; border-radius: 5px; float: unset">
     </a>
 
     <!-- Sidebar -->
