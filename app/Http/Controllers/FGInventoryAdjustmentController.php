@@ -59,6 +59,7 @@ class FGInventoryAdjustmentController extends Controller
         $data = $request->validated();
         DB::beginTransaction();
         try {
+            $data['uid'] = generateUniqueUUID($data['store_id'], InventoryAdjustment::class, 'uid');
             $adjustment = InventoryAdjustment::create($data);
             $adjustment->amount = $adjustment->subtotal;
             foreach ($data['products'] as $product) {
