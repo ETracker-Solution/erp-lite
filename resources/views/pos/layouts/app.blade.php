@@ -344,7 +344,7 @@
                     var vm = this
                     return Number(vm.total_discount_amount) + Number(vm.special_discount_amount) + Number(this.productWiseDiscount)
                 },
-                selectedNotDiscountableProduct: function() {
+                selectedNotDiscountableProduct: function () {
                     return this.selectedProducts.some(item => !item.discountable);
                 }
 
@@ -574,6 +574,7 @@
                 },
                 addToSelectedInvoice(invoice) {
                     this.selectedInvoice = invoice
+                    console.log(this.selectedInvoice)
                 },
                 addMorePaymentMethod() {
                     this.paymentMethods.push({amount: 0, method: 'cash'})
@@ -751,7 +752,16 @@
                 },
                 openDiscountModal() {
                     var vm = this
-                    vm.$refs['discount-modal'].show()
+                    if (vm.productWiseDiscount > 0) {
+                        if (confirm("Single Product Discount Applied, Sure to add Total Discount ?")) {
+                            vm.$refs['discount-modal'].show()
+                        } else {
+                            return false;
+                        }
+                    }else{
+                        vm.$refs['discount-modal'].show()
+                    }
+
                 },
                 closeDiscountModal() {
                     var vm = this
@@ -759,24 +769,51 @@
                 },
                 addSpecialDiscount() {
                     var vm = this
-                    if (vm.selectedSpecialDiscount) {
-                        vm.selectedSpecialDiscount = false
-                        vm.special_discount_amount = 0
-                    } else {
-                        vm.selectedSpecialDiscount = true
-                        vm.special_discount_amount = (vm.total_bill * vm.special_discount_value) / 100
+                    if (vm.productWiseDiscount > 0) {
+                        if (confirm("Single Product Discount Applied, Sure to add Total Discount ?")) {
+                            if (vm.selectedSpecialDiscount) {
+                                vm.selectedSpecialDiscount = false
+                                vm.special_discount_amount = 0
+                            } else {
+                                vm.selectedSpecialDiscount = true
+                                vm.special_discount_amount = (vm.total_bill * vm.special_discount_value) / 100
+                            }
+                        } else {
+                            return false;
+                        }
                     }
+
                 },
-                updateProductDiscount() {
-                    this.selectedProducts.some(function (product) {
-                        var total_cost = (product.quantity * product.price);
-                        if (product.discountType == 'p') {
-                            product.discountAmount = (total_cost * product.discountValue) / 100;
+                updateProductDiscount(sp) {
+                    var vm = this
+                    if (vm.total_discount_amount > 0) {
+                        if (confirm("Total Discount Applied, Sure to add Total Discount Single Product Discount?")) {
+                            this.selectedProducts.some(function (product) {
+                                var total_cost = (product.quantity * product.price);
+                                if (product.discountType == 'p') {
+                                    product.discountAmount = (total_cost * product.discountValue) / 100;
+                                }
+                                if (product.discountType == 'f') {
+                                    product.discountAmount = product.discountValue;
+                                }
+                            });
+                        } else {
+                            sp.discountType = ''
+                            sp.discountValue = 0
+                            return false;
                         }
-                        if (product.discountType == 'f') {
-                            product.discountAmount = product.discountValue;
-                        }
-                    });
+                    }else{
+                        this.selectedProducts.some(function (product) {
+                            var total_cost = (product.quantity * product.price);
+                            if (product.discountType == 'p') {
+                                product.discountAmount = (total_cost * product.discountValue) / 100;
+                            }
+                            if (product.discountType == 'f') {
+                                product.discountAmount = product.discountValue;
+                            }
+                        });
+                    }
+
                 },
                 openPaymentModal() {
                     var vm = this

@@ -58,11 +58,26 @@
                                             </div>
                                             <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                                 <div class="form-group">
-                                                    <label for="store_id">Store</label>
-                                                    <select name="store_id" id="store_id" class="form-control bSelect"
-                                                            v-model="store_id" required>
+                                                    <label for="from_store_id"> from Store</label>
+                                                    <select name="from_store_id" id="from_store_id"
+                                                            class="form-control bSelect"
+                                                            v-model="from_store_id" required>
                                                         <option value="">Select One</option>
-                                                        @foreach($stores as $row)
+                                                        @foreach($from_stores as $row)
+                                                            <option value="{{ $row->id }}">{{ $row->name }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+                                                <div class="form-group">
+                                                    <label for="to_store_id">To Store</label>
+                                                    <select name="to_store_id" id="to_store_id"
+                                                            class="form-control bSelect"
+                                                            v-model="to_store_id" required>
+                                                        <option value="">Select One</option>
+                                                        @foreach($to_stores as $row)
                                                             <option value="{{ $row->id }}">{{ $row->name }}</option>
                                                         @endforeach
                                                     </select>
@@ -172,7 +187,7 @@
                                                                 @{{ row.unit }}
                                                             </td>
                                                             <td style="vertical-align: middle" class="text-right">
-                                                                <input type="number" v-model="row.quantity"
+                                                                <input type="number" v-model="row.requisition_quantity"
                                                                        :name="'products['+index+'][quantity]'"
                                                                        class="form-control input-sm"
                                                                        @change="valid(row)" required>
@@ -284,8 +299,9 @@
                     date:'',
                     reference_no:'',
                     remark:'',
-                    serial_no: {{$requisition->uid}},
-                    store_id:  {{$requisition->store_id}},
+                    serial_no: "{{$requisition->uid}}",
+                    from_store_id:  {{$requisition->from_store_id}},
+                    to_store_id:  {{$requisition->to_store_id}},
                     group_id: '',
                     item_id: '',
                     products: [],
@@ -300,7 +316,7 @@
 
                     total_quantity: function () {
                         return this.items.reduce((total, item) => {
-                            return total + parseFloat(item.quantity ? item.quantity : 0)
+                            return total + parseFloat(item.requisition_quantity ? item.requisition_quantity : 0)
                         }, 0)
                     },
 
@@ -309,9 +325,9 @@
 
                     fetch_item() {
 
-                        var vm = this;
+                        let vm = this;
 
-                        var slug = vm.group_id;
+                        let slug = vm.group_id;
                         //    alert(slug);
                         if (slug) {
                             axios.get(this.config.get_items_info_by_group_id_url + '/' + slug).then(function (response) {
@@ -334,7 +350,7 @@
                     },
                     data_input() {
 
-                        var vm = this;
+                        let vm = this;
                         if (!vm.item_id) {
 
                             toastr.error('Enter product', {
@@ -346,12 +362,12 @@
 
                         } else {
 
-                            var slug = vm.item_id;
+                            let slug = vm.item_id;
 
                             if (slug) {
                                 axios.get(this.config.get_item_info_url + '/' + slug).then(function (response) {
 
-                                    product_details = response.data;
+                                   let product_details = response.data;
                                     vm.items.push({
                                         coi_id: product_details.coi_id,
                                         group: product_details.group,
@@ -394,7 +410,8 @@
                             for (key in item) {
                                 vm.items.push(item[key]);
                             };
-                            vm.store_id=response.data.store_id;
+                            vm.from_store_id=response.data.from_store_id;
+                            vm.to_store_id=response.data.to_store_id;
                             vm.date=response.data.date;
                             vm.reference_no=response.data.reference_no;
                             vm.remark=response.data.remark;
@@ -404,10 +421,10 @@
                     },
                     valid: function (index) {
 
-                        console.log(index.quantity);
-                        if (index.quantity <= 0) {
+                        console.log(index.requisition_quantity);
+                        if (index.requisition_quantity <= 0) {
                             //console.log('3');
-                            index.quantity = '';
+                            index.requisition_quantity = '';
                         }
                     }
                 },
