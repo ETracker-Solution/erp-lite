@@ -84,7 +84,7 @@
                     },
                     {
                         data: "uid",
-                        title: "UID",
+                        title: "FGIT No",
                         searchable: true,
                         "defaultContent":"Not Set"
                     },

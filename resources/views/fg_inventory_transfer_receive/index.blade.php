@@ -79,8 +79,8 @@
                 },
 
                     {
-                        data: "inventory_transfer.id",
-                        title: "ITR No",
+                        data: "uid",
+                        title: "FGITR No",
                         searchable: true,
                         "defaultContent": "Not Set"
                     }, {

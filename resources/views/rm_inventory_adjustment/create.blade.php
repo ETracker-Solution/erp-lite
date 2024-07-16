@@ -166,6 +166,7 @@
                                                             <th style="width: 20%">Group</th>
                                                             <th style="width: 36%">Item</th>
                                                             <th style="width: 5%">Unit</th>
+                                                            <th style="width: 15%">Balance Qty</th>
                                                             <th style="width: 8%">Rate</th>
                                                             <th style="width: 15%">Quantity</th>
                                                             <th style="width: 8%;vertical-align: middle">Value</th>
@@ -189,6 +190,13 @@
                                                             </td>
                                                             <td>
                                                                 @{{ row.unit }}
+                                                            </td>
+                                                            <td>
+                                                                @{{ row.balance_qty }}
+                                                                <input type="hidden"
+                                                                       :name="'products['+index+'][balance_qty]'"
+                                                                       class="form-control input-sm"
+                                                                       v-bind:value="row.balance_qty" readonly>
                                                             </td>
                                                             <td class="text-right">
                                                                 @{{ row.price }}
@@ -216,10 +224,10 @@
                                                         </tbody>
                                                         <tfoot>
                                                         <tr>
-                                                            <td colspan="8" style="background-color: #DDDCDC"></td>
+                                                            <td colspan="9" style="background-color: #DDDCDC"></td>
                                                         </tr>
                                                         <tr>
-                                                            <td colspan="5"></td>
+                                                            <td colspan="6"></td>
                                                             <td class="text-right">
                                                                 SubTotal
                                                             </td>
@@ -385,7 +393,7 @@
                             if (slug) {
                                 axios.get(this.config.get_item_info_url + '/' + slug).then(function (response) {
 
-                                    product_details = response.data;
+                                    let product_details = response.data;
                                     vm.items.push({
                                         coi_id: product_details.coi_id,
                                         group: product_details.group,

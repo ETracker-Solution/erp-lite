@@ -77,7 +77,7 @@
 								<tbody>
 									<tr>
 										<td style="text-align: left; padding:8px; line-height: 1.6">
-											<p><b>UID :</b> {{ $FGInventoryTransfer->uid }}</p>
+											<p><b>FGIT No :</b> {{ $FGInventoryTransfer->uid }}</p>
 											<p><b>Date :</b> {{ $FGInventoryTransfer->date }} </p>
 											<p><b>Transfer From :</b> {{ $FGInventoryTransfer->fromStore->name }} </p>
 											<p><b>Transfer To :</b> {{ $FGInventoryTransfer->toStore->name }} </p>
