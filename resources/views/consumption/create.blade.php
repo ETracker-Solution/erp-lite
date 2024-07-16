@@ -468,7 +468,7 @@
                                         name: data.item.name,
                                         unit: data.item.unit.name,
                                         balance: data.balance,
-                                        rate: data.average_rate,
+                                        rate: data.average_rate.toFixed(2),
                                         quantity: '',
                                     });
                                     vm.balance = '';
