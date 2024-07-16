@@ -55,7 +55,8 @@
                                                             v-model="store_id">
                                                         <option value="">None</option>
                                                         @foreach($stores as $store)
-                                                            <option value="{{$store->id}}" {{ $user_store ?($user_store->id == $store->id ? 'selected' : '') :'' }}>{{ $store->name }}</option>
+                                                            <option
+                                                                value="{{$store->id}}" {{ $user_store ?($user_store->id == $store->id ? 'selected' : '') :'' }}>{{ $store->name }}</option>
                                                         @endforeach
                                                     </select>
                                                 </div>
@@ -112,7 +113,7 @@
                                                         <option value="">Select One</option>
                                                         @foreach ($groups as $category)
                                                             <option
-                                                                    value="{{ $category->id }}">{{ $category->name }}</option>
+                                                                value="{{ $category->id }}">{{ $category->name }}</option>
                                                         @endforeach
                                                     </select>
                                                 </div>
@@ -166,7 +167,7 @@
                                                             <td>
                                                                 <button type="button" class="btn btn-danger"
                                                                         @click="delete_row(row)"><i
-                                                                            class="fa fa-trash"></i></button>
+                                                                        class="fa fa-trash"></i></button>
                                                             </td>
                                                             <td>
                                                                 @{{ row.group }}
@@ -278,7 +279,7 @@
                                                                     <td>
                                                                         <button type="button" class="btn btn-danger"
                                                                                 @click="deletePaymentMethod(payment)"><i
-                                                                                    class="fa fa-trash"></i></button>
+                                                                                class="fa fa-trash"></i></button>
                                                                     </td>
                                                                     <td>
                                                                         <select v-model="payment.method"
@@ -355,7 +356,7 @@
                             </div>
                             <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 text-right" v-if="items.length > 0">
                                 <button class="float-right btn btn-primary" type="submit"><i
-                                            class="fa fa-fw fa-lg fa-check-circle"></i>Submit
+                                        class="fa fa-fw fa-lg fa-check-circle"></i>Submit
                                 </button>
                             </div>
                         </form>
@@ -446,8 +447,8 @@
                 components: {
                     vuejsDatepicker
                 },
-                mounted: function (){
-                  this.setStoreId()
+                mounted: function () {
+                    this.setStoreId()
                 },
                 computed: {
                     subtotal: function () {
@@ -537,36 +538,47 @@
                             });
                             return false;
                         } else {
-                            var slug = vm.item_id;
-                            if (slug) {
-                                axios.get(this.config.get_product_info_url + '/' + slug, {
-                                    params:{
-                                        store_id: vm.store_id
-                                    }
-                                }).then(function (response) {
-                                    product_details = response.data;
-                                    vm.items.push({
-                                        item_id: vm.item_id,
-                                        group: product_details.group,
-                                        product_name: product_details.name,
-                                        unit: product_details.unit,
-                                        stock: product_details.balance_qty,
-                                        price: product_details.price,
-                                        sale_price: product_details.price,
-                                        quantity: '',
-                                        product_discount: 0,
-                                        subtotal: 0,
-                                    });
-                                    // vm.item_id = '';
-                                    // vm.category_id = '';
+                            let slug = vm.item_id;
+                            let exists = vm.items.some(function (field) {
+                                return field.item_id == slug
+                            });
 
-                                }).catch(function (error) {
-                                    toastr.error('Something went to wrong', {
-                                        closeButton: true,
-                                        progressBar: true,
-                                    });
-                                    return false;
+                            if (exists) {
+                                toastr.info('Item Already Selected', {
+                                    closeButton: true,
+                                    progressBar: true,
                                 });
+                            } else {
+                                if (slug) {
+                                    axios.get(this.config.get_product_info_url + '/' + slug, {
+                                        params: {
+                                            store_id: vm.store_id
+                                        }
+                                    }).then(function (response) {
+                                        let product_details = response.data;
+                                        vm.items.push({
+                                            item_id: vm.item_id,
+                                            group: product_details.group,
+                                            product_name: product_details.name,
+                                            unit: product_details.unit,
+                                            stock: product_details.balance_qty,
+                                            price: product_details.price,
+                                            sale_price: product_details.price,
+                                            quantity: '',
+                                            product_discount: 0,
+                                            subtotal: 0,
+                                        });
+                                        // vm.item_id = '';
+                                        // vm.category_id = '';
+
+                                    }).catch(function (error) {
+                                        toastr.error('Something went to wrong', {
+                                            closeButton: true,
+                                            progressBar: true,
+                                        });
+                                        return false;
+                                    });
+                                }
                             }
                         }
                     },
@@ -621,8 +633,8 @@
                                 date: vm.date
                             }
                         }).then((response) => {
-                                vm.invoice_number = response.data
-                            })
+                            vm.invoice_number = response.data
+                        })
                     },
                     deletePaymentMethod: function (row) {
                         this.paymentMethods.splice(this.paymentMethods.indexOf(row), 1);
@@ -630,8 +642,8 @@
                     addMorePaymentMethod() {
                         this.paymentMethods.push({amount: 0, method: ''})
                     },
-                    setStoreId(){
-                        const vm=this
+                    setStoreId() {
+                        const vm = this
                         vm.store_id = "{{ $user_store ?  $user_store->id : ''}}"
                     }
                 },

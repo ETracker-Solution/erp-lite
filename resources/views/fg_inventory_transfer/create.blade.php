@@ -351,9 +351,9 @@
 
                     fetch_item() {
 
-                        var vm = this;
+                        let vm = this;
 
-                        var slug = vm.group_id;
+                        let slug = vm.group_id;
                         //    alert(slug);
                         if (slug) {
                             axios.get(this.config.get_items_info_by_group_id_url + '/' + slug).then(function (response) {
@@ -376,9 +376,9 @@
                     },
                     data_input() {
 
-                        var vm = this;
-                        if (!vm.item_id) {
+                        let vm = this;
 
+                        if (!vm.item_id) {
                             toastr.error('Enter product', {
                                 closeButton: true,
                                 progressBar: true,
@@ -388,39 +388,49 @@
 
                         } else {
 
-                            var slug = vm.item_id;
+                            let slug = vm.item_id;
+                            let exists = vm.items.some(function (field) {
+                                return field.coi_id == slug
+                            });
 
-                            if (slug) {
-                                axios.get(this.config.get_item_info_url + '/' + slug, {
-                                    params: {
-                                        store_id: vm.from_store_id
-                                    }
-                                }).then(function (response) {
-                                   let  item_info = response.data;
-                                    vm.items.push({
-                                        coi_id: item_info.coi_id,
-                                        group: item_info.group,
-                                        name: item_info.name,
-                                        unit: item_info.unit,
-                                        balance_qty: item_info.balance_qty,
-                                        price: item_info.price,
-                                        quantity: '',
-                                    });
-
-                                    // vm.item_id = '';
-                                    // vm.group_id = '';
-
-                                }).catch(function (error) {
-
-                                    toastr.error('Something went to wrong', {
-                                        closeButton: true,
-                                        progressBar: true,
-                                    });
-                                    return false;
-
+                            if (exists) {
+                                toastr.info('Item Already Selected', {
+                                    closeButton: true,
+                                    progressBar: true,
                                 });
-                            }
+                            } else {
+                                if (slug) {
+                                    axios.get(this.config.get_item_info_url + '/' + slug, {
+                                        params: {
+                                            store_id: vm.from_store_id
+                                        }
+                                    }).then(function (response) {
+                                        let item_info = response.data;
+                                        vm.items.push({
+                                            coi_id: item_info.coi_id,
+                                            group: item_info.group,
+                                            name: item_info.name,
+                                            unit: item_info.unit,
+                                            balance_qty: item_info.balance_qty,
+                                            price: item_info.price,
+                                            quantity: '',
+                                        });
 
+                                        // vm.item_id = '';
+                                        // vm.group_id = '';
+
+                                    }).catch(function (error) {
+
+                                        toastr.error('Something went to wrong', {
+                                            closeButton: true,
+                                            progressBar: true,
+                                        });
+                                        return false;
+
+                                    });
+                                }
+
+                            }
                         }
 
                     },

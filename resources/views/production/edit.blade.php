@@ -45,7 +45,8 @@
                                                         <div class="form-group">
                                                             <label for="serial_no">FGP No</label>
                                                             <input type="text" class="form-control input-sm"
-                                                                   value="{{old('serial_no',$production)}}" name="serial_no" v-model="serial_no">
+                                                                   value="{{old('serial_no',$production)}}"
+                                                                   name="serial_no" v-model="serial_no">
                                                         </div>
                                                     </div>
                                                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
@@ -112,14 +113,16 @@
                                                         <div class="form-group">
                                                             <label for="reference_no">Reference No</label>
                                                             <input type="text" class="form-control input-sm"
-                                                                   value="{{old('reference_no')}}" name="reference_no" v-model="reference_no">
+                                                                   value="{{old('reference_no')}}" name="reference_no"
+                                                                   v-model="reference_no">
                                                         </div>
                                                     </div>
                                                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                         <div class="form-group">
                                                             <label for="remark">Remark</label>
                                                             <textarea class="form-control" name="remark" rows="1"
-                                                                      placeholder="Enter Remark" v-model="remark"></textarea>
+                                                                      placeholder="Enter Remark"
+                                                                      v-model="remark"></textarea>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -341,7 +344,7 @@
                         get_item_info_url: "{{ url('fetch-item-info') }}",
                         get_edit_data_url: "{{ url('fetch-production-by-id') }}",
                     },
-                    date:{{$production->date}},
+                    date: {{$production->date}},
                     serial_no: {{$production->id}},
                     production_id: {{$production->id}},
                     factory_id: '{{$production->factory_id}}',
@@ -376,9 +379,9 @@
 
                     fetch_product() {
 
-                        var vm = this;
+                        let vm = this;
 
-                        var slug = vm.group_id;
+                        let slug = vm.group_id;
 
                         if (slug) {
                             vm.pageLoading = true;
@@ -403,7 +406,7 @@
 
                     data_input() {
 
-                        var vm = this;
+                        let vm = this;
                         if (!vm.item_id) {
                             toastr.error('Please Select Item', {
                                 closeButton: true,
@@ -412,38 +415,48 @@
                             return false;
                         } else {
 
-                            var slug = vm.item_id;
+                            let slug = vm.item_id;
+                            let exists = vm.selected_items.some(function (field) {
+                                return field.id == slug
+                            });
 
-                            if (slug) {
-                                vm.pageLoading = true;
-                                axios.get(this.config.get_item_info_url + '/' + slug).then(function (response) {
-                                    let item_info = response.data;
-                                    console.log(item_info);
-                                    vm.selected_items.push({
-                                        id: item_info.id,
-                                        group: item_info.parent.name,
-                                        name: item_info.name,
-                                        unit: item_info.unit.name,
-                                        rate: item_info.price,
-                                        quantity: '',
-                                    });
-                                    console.log(vm.selected_items);
-                                    vm.item_id = '';
-                                    vm.group_id = '';
-                                    vm.pageLoading = false;
-
-                                }).catch(function (error) {
-
-                                    toastr.error('Something went to wrong', {
-                                        closeButton: true,
-                                        progressBar: true,
-                                    });
-
-                                    return false;
-
+                            if (exists) {
+                                toastr.info('Item Already Selected', {
+                                    closeButton: true,
+                                    progressBar: true,
                                 });
-                            }
+                            } else {
+                                if (slug) {
+                                    vm.pageLoading = true;
+                                    axios.get(this.config.get_item_info_url + '/' + slug).then(function (response) {
+                                        let item_info = response.data;
+                                        console.log(item_info);
+                                        vm.selected_items.push({
+                                            id: item_info.id,
+                                            group: item_info.parent.name,
+                                            name: item_info.name,
+                                            unit: item_info.unit.name,
+                                            rate: item_info.price,
+                                            quantity: '',
+                                        });
+                                        console.log(vm.selected_items);
+                                        vm.item_id = '';
+                                        vm.group_id = '';
+                                        vm.pageLoading = false;
 
+                                    }).catch(function (error) {
+
+                                        toastr.error('Something went to wrong', {
+                                            closeButton: true,
+                                            progressBar: true,
+                                        });
+
+                                        return false;
+
+                                    });
+                                }
+
+                            }
                         }
 
                     },
