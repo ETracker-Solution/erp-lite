@@ -1,6 +1,6 @@
 @extends('layouts.app')
 @section('title')
-Requisition Details
+RM Requisition Details
 @endsection
 @section('content')
 <!-- Content Wrapper. Contains page content -->
@@ -8,10 +8,10 @@ Requisition Details
     @php    
         $links = [
         'Home'=>route('dashboard'),
-        'Requisition Details'=>''
+        'RM Requisition Details'=>''
         ]
     @endphp
-<x-breadcrumb title='Requisition Details' :links="$links"/>
+<x-breadcrumb title='RM Requisition Details' :links="$links"/>
 
 <section class="content">
     <div class="container-fluid">
@@ -19,7 +19,7 @@ Requisition Details
             <div class="col-12">
                 <div class="card card-info">
                     <div class="card-header">
-                        <h3 class="card-title">RM Inventory Transfer Details</h3>
+                        <h3 class="card-title">RM Requisition Details</h3>
                         <a href="{{route('rm-requisition.pdf',$requisition->id)}}"
                             class="btn btn-sm btn-primary float-right" target="_blank"><i class="fa fa-download"></i> PDF</a>
                     </div>
