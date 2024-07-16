@@ -438,38 +438,47 @@
                             return false;
                         } else {
 
-                            var slug = vm.item_id;
-
-                            if (slug) {
-                                vm.pageLoading = true;
-                                axios.get(this.config.get_item_info_url + '/' + slug).then(function (response) {
-                                    let item_info = response.data;
-                                    console.log(item_info);
-                                    vm.selected_items.push({
-                                        id: item_info.id,
-                                        unit: item_info.unit.name,
-                                        group: item_info.parent.name,
-                                        name: item_info.name,
-                                        rate: '',
-                                        quantity: '',
-                                    });
-                                    console.log(vm.selected_items);
-                                    vm.item_id = '';
-                                    vm.group_id = '';
-                                    vm.pageLoading = false;
-
-                                }).catch(function (error) {
-
-                                    toastr.error('Something went to wrong', {
-                                        closeButton: true,
-                                        progressBar: true,
-                                    });
-
-                                    return false;
-
+                            let slug = vm.item_id;
+                            let exists = vm.selected_items.some(function (field) {
+                                return field.id == slug
+                            });
+                            if (exists) {
+                                toastr.info('Item Already Selected', {
+                                    closeButton: true,
+                                    progressBar: true,
                                 });
-                            }
+                            } else {
+                                if (slug) {
+                                    vm.pageLoading = true;
+                                    axios.get(this.config.get_item_info_url + '/' + slug).then(function (response) {
+                                        let item_info = response.data;
+                                        console.log(item_info);
+                                        vm.selected_items.push({
+                                            id: item_info.id,
+                                            unit: item_info.unit.name,
+                                            group: item_info.parent.name,
+                                            name: item_info.name,
+                                            rate: '',
+                                            quantity: '',
+                                        });
+                                        console.log(vm.selected_items);
+                                        vm.item_id = '';
+                                        vm.group_id = '';
+                                        vm.pageLoading = false;
 
+                                    }).catch(function (error) {
+
+                                        toastr.error('Something went to wrong', {
+                                            closeButton: true,
+                                            progressBar: true,
+                                        });
+
+                                        return false;
+
+                                    });
+                                }
+
+                            }
                         }
 
                     },
