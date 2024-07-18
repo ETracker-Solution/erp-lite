@@ -31,15 +31,18 @@ class StoreFGInventoryAdjustmentRequest extends FormRequest
             'created_by' => 'required',
             'transaction_type' => 'required',
             'subtotal' => 'required',
+            'status' => 'required',
         ];
     }
     public function prepareForValidation()
     {
 
         $this->merge([
+            'status'=>'adjusted',
             'created_by' => auth()->user()->id,
             'date' => Carbon::parse($this->date)->format('Y-m-d'),
         ]);
 
     }
+    
 }

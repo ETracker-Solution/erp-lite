@@ -60,7 +60,8 @@
                                                         <option value="">Select Store</option>
                                                         @foreach($stores as $row)
                                                             <option
-                                                                value="{{ $row->id }}">{{ $row->id }} - {{ $row->name }}</option>
+                                                                value="{{ $row->id }}">{{ $row->id }}
+                                                                - {{ $row->name }}</option>
                                                         @endforeach
                                                     </select>
                                                 </div>
@@ -75,7 +76,8 @@
                                                         <option value="">Select One</option>
                                                         @foreach($stores as $row)
                                                             <option
-                                                                value="{{ $row->id }}">{{ $row->id }} - {{ $row->name }}</option>
+                                                                value="{{ $row->id }}">{{ $row->id }}
+                                                                - {{ $row->name }}</option>
                                                         @endforeach
                                                     </select>
                                                 </div>
@@ -381,7 +383,7 @@
                     },
                     data_input() {
 
-                        var vm = this;
+                        let vm = this;
                         if (!vm.item_id) {
 
                             toastr.error('Enter product', {
@@ -393,38 +395,48 @@
 
                         } else {
 
-                            var slug = vm.item_id;
+                            let slug = vm.item_id;
+                            let exists = vm.items.some(function (field) {
+                                return field.coi_id == slug
+                            });
 
-                            if (slug) {
-                                axios.get(this.config.get_item_info_url + '/' + slug).then(function (response) {
-
-                                    product_details = response.data;
-                                    vm.items.push({
-                                        coi_id: product_details.coi_id,
-                                        group: product_details.group,
-                                        name: product_details.name,
-                                        unit: product_details.unit,
-                                        balance_qty: product_details.balance_qty,
-                                        price: product_details.price,
-                                        quantity: '',
-                                        item_total: 0,
-                                    });
-
-                                    // vm.item_id = '';
-                                    // vm.category_id = '';
-
-                                }).catch(function (error) {
-
-                                    toastr.error('Something went to wrong', {
-                                        closeButton: true,
-                                        progressBar: true,
-                                    });
-
-                                    return false;
-
+                            if (exists) {
+                                toastr.info('Item Already Selected', {
+                                    closeButton: true,
+                                    progressBar: true,
                                 });
-                            }
+                            } else {
+                                if (slug) {
+                                    axios.get(this.config.get_item_info_url + '/' + slug).then(function (response) {
 
+                                        let product_details = response.data;
+                                        vm.items.push({
+                                            coi_id: product_details.coi_id,
+                                            group: product_details.group,
+                                            name: product_details.name,
+                                            unit: product_details.unit,
+                                            balance_qty: product_details.balance_qty,
+                                            price: product_details.price,
+                                            quantity: '',
+                                            item_total: 0,
+                                        });
+
+                                        // vm.item_id = '';
+                                        // vm.category_id = '';
+
+                                    }).catch(function (error) {
+
+                                        toastr.error('Something went to wrong', {
+                                            closeButton: true,
+                                            progressBar: true,
+                                        });
+
+                                        return false;
+
+                                    });
+                                }
+
+                            }
                         }
 
                     },

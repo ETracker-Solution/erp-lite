@@ -103,7 +103,8 @@
                                                                 <option value="">Select One</option>
                                                                 @foreach($stores as $row)
                                                                     <option
-                                                                        value="{{ $row->id }}">{{ $row->id }}-{{ $row->name }}</option>
+                                                                        value="{{ $row->id }}">{{ $row->id }}
+                                                                        -{{ $row->name }}</option>
                                                                 @endforeach
                                                             </select>
                                                         </div>
@@ -376,9 +377,9 @@
 
                     fetch_product() {
 
-                        var vm = this;
+                        let vm = this;
 
-                        var slug = vm.group_id;
+                        let slug = vm.group_id;
 
                         if (slug) {
                             vm.pageLoading = true;
@@ -403,7 +404,7 @@
 
                     data_input() {
 
-                        var vm = this;
+                        let vm = this;
                         if (!vm.item_id) {
                             toastr.error('Please Select Item', {
                                 closeButton: true,
@@ -412,37 +413,47 @@
                             return false;
                         } else {
 
-                            var slug = vm.item_id;
+                            let slug = vm.item_id;
+                            let exists = vm.selected_items.some(function (field) {
+                                return field.id == slug
+                            });
 
-                            if (slug) {
-                                vm.pageLoading = true;
-                                axios.get(this.config.get_item_info_url + '/' + slug).then(function (response) {
-                                    let item_info = response.data;
-                                    console.log(item_info);
-                                    vm.selected_items.push({
-                                        id: item_info.id,
-                                        group: item_info.parent.name,
-                                        name: item_info.name,
-                                        unit: item_info?.unit?.name,
-                                        rate: item_info.price,
-                                        quantity: item_info?.quantity,
-                                    });
-                                    console.log(vm.selected_items);
-                                    // vm.item_id = '';
-                                    // vm.group_id = '';
-                                    vm.pageLoading = false;
-
-                                }).catch(function (error) {
-                                    toastr.error('Something went to wrong', {
-                                        closeButton: true,
-                                        progressBar: true,
-                                    });
-
-                                    return false;
-
+                            if (exists) {
+                                toastr.info('Item Already Selected', {
+                                    closeButton: true,
+                                    progressBar: true,
                                 });
-                            }
+                            } else {
+                                if (slug) {
+                                    vm.pageLoading = true;
+                                    axios.get(this.config.get_item_info_url + '/' + slug).then(function (response) {
+                                        let item_info = response.data;
+                                        console.log(item_info);
+                                        vm.selected_items.push({
+                                            id: item_info.id,
+                                            group: item_info.parent.name,
+                                            name: item_info.name,
+                                            unit: item_info?.unit?.name,
+                                            rate: item_info.price,
+                                            quantity: item_info?.quantity,
+                                        });
+                                        console.log(vm.selected_items);
+                                        // vm.item_id = '';
+                                        // vm.group_id = '';
+                                        vm.pageLoading = false;
 
+                                    }).catch(function (error) {
+                                        toastr.error('Something went to wrong', {
+                                            closeButton: true,
+                                            progressBar: true,
+                                        });
+
+                                        return false;
+
+                                    });
+                                }
+
+                            }
                         }
 
                     },

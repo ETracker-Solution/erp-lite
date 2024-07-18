@@ -86,8 +86,10 @@
                                             <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                                 <div class="form-group">
                                                     <label for="reference_no">Reference No</label>
-                                                    <input type="text" class="form-control input-sm"   placeholder="Enter Reference No"
-                                                           value="{{old('reference_no')}}" name="reference_no" v-model="reference_no">
+                                                    <input type="text" class="form-control input-sm"
+                                                           placeholder="Enter Reference No"
+                                                           value="{{old('reference_no')}}" name="reference_no"
+                                                           v-model="reference_no">
                                                 </div>
                                             </div>
                                             <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
@@ -296,17 +298,17 @@
                         get_old_items_data: "{{ url('fetch-requisition-by-id') }}",
                     },
                     requisition_id: {{$requisition->id}},
-                    date:'',
-                    reference_no:'',
-                    remark:'',
+                    date: '',
+                    reference_no: '',
+                    remark: '',
                     serial_no: "{{$requisition->uid}}",
-                    from_store_id:  {{$requisition->from_store_id}},
-                    to_store_id:  {{$requisition->to_store_id}},
+                    from_store_id: {{$requisition->from_store_id}},
+                    to_store_id: {{$requisition->to_store_id}},
                     group_id: '',
                     item_id: '',
                     products: [],
                     items: [],
-                    pageLoading:false,
+                    pageLoading: false,
 
                 },
                 components: {
@@ -363,37 +365,47 @@
                         } else {
 
                             let slug = vm.item_id;
+                            let exists = vm.items.some(function (field) {
+                                return field.coi_id == slug
+                            });
 
-                            if (slug) {
-                                axios.get(this.config.get_item_info_url + '/' + slug).then(function (response) {
-
-                                   let product_details = response.data;
-                                    vm.items.push({
-                                        coi_id: product_details.coi_id,
-                                        group: product_details.group,
-                                        name: product_details.name,
-                                        unit: product_details.unit,
-                                        balance_qty: product_details.balance_qty,
-                                        price: product_details.price,
-                                        quantity: '',
-
-                                    });
-
-                                    vm.item_id = '';
-                                    vm.group_id = '';
-
-                                }).catch(function (error) {
-
-                                    toastr.error('Something went to wrong', {
-                                        closeButton: true,
-                                        progressBar: true,
-                                    });
-
-                                    return false;
-
+                            if (exists) {
+                                toastr.info('Item Already Selected', {
+                                    closeButton: true,
+                                    progressBar: true,
                                 });
-                            }
+                            } else {
+                                if (slug) {
+                                    axios.get(this.config.get_item_info_url + '/' + slug).then(function (response) {
 
+                                        let product_details = response.data;
+                                        vm.items.push({
+                                            coi_id: product_details.coi_id,
+                                            group: product_details.group,
+                                            name: product_details.name,
+                                            unit: product_details.unit,
+                                            balance_qty: product_details.balance_qty,
+                                            price: product_details.price,
+                                            quantity: '',
+
+                                        });
+
+                                        // vm.item_id = '';
+                                        // vm.group_id = '';
+
+                                    }).catch(function (error) {
+
+                                        toastr.error('Something went to wrong', {
+                                            closeButton: true,
+                                            progressBar: true,
+                                        });
+
+                                        return false;
+
+                                    });
+                                }
+
+                            }
                         }
 
                     },
@@ -409,12 +421,13 @@
                             var item = response.data.items;
                             for (key in item) {
                                 vm.items.push(item[key]);
-                            };
-                            vm.from_store_id=response.data.from_store_id;
-                            vm.to_store_id=response.data.to_store_id;
-                            vm.date=response.data.date;
-                            vm.reference_no=response.data.reference_no;
-                            vm.remark=response.data.remark;
+                            }
+                            ;
+                            vm.from_store_id = response.data.from_store_id;
+                            vm.to_store_id = response.data.to_store_id;
+                            vm.date = response.data.date;
+                            vm.reference_no = response.data.reference_no;
+                            vm.remark = response.data.remark;
                             vm.pageLoading = false;
                         })
 

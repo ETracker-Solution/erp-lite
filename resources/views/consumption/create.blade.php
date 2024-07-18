@@ -427,9 +427,9 @@
 
                     data_input() {
 
-                        var vm = this;
-                        var slug = vm.item_id;
-                        var store_id = vm.store_id;
+                        let vm = this;
+                        let slug = vm.item_id;
+                        let store_id = vm.store_id;
 
                         if (!store_id) {
                             toastr.error('Please Select Store', {
@@ -446,7 +446,7 @@
                             return false;
                         }
 
-                        var exists = vm.selected_items.some(function (field) {
+                        let exists = vm.selected_items.some(function (field) {
                             return field.id == slug
                         });
                         if (exists) {
@@ -468,7 +468,7 @@
                                         name: data.item.name,
                                         unit: data.item.unit.name,
                                         balance: data.balance,
-                                        rate: data.average_rate,
+                                        rate: data.average_rate.toFixed(2),
                                         quantity: '',
                                     });
                                     vm.balance = '';

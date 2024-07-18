@@ -368,9 +368,9 @@
 
                     fetch_product() {
 
-                        var vm = this;
+                        let vm = this;
 
-                        var slug = vm.group_id;
+                        let slug = vm.group_id;
 
                         if (slug) {
                             vm.item_id = '';
@@ -397,10 +397,10 @@
                     },
                     fetch_item_balance() {
 
-                        var vm = this;
+                        let vm = this;
 
-                        var store_id = vm.store_id;
-                        var item_id = vm.item_id;
+                        let store_id = vm.store_id;
+                        let item_id = vm.item_id;
                         if (!vm.store_id) {
                             toastr.error('Please Select Store', {
                                 closeButton: true,
@@ -430,8 +430,8 @@
 
                     data_input() {
 
-                        var vm = this;
-                        var slug = vm.item_id;
+                        let vm = this;
+                        let slug = vm.item_id;
 
                         if (!vm.store_id) {
                             toastr.error('Please Select Store', {
@@ -448,7 +448,7 @@
                             return false;
                         }
 
-                        var exists = vm.selected_items.some(function (field) {
+                        let exists = vm.selected_items.some(function (field) {
                             return field.id == slug
                         });
                         if (exists) {

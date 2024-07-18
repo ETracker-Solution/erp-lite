@@ -28,6 +28,7 @@ FGInventory Adjustment Details
                                             <p><b>FGID No :</b> {{ $fGInventoryAdjustment->uid }}</p>
                                             <p><b>Date :</b> {{ $fGInventoryAdjustment->date }} </p>
                                             <p><b>Store :</b> {{ $fGInventoryAdjustment->store->name }} </p>
+                                            <p><b>Transaction Type :</b> {{ $fGInventoryAdjustment->transaction_type }}</p>
                                             <p><b>Status :</b> {!! showStatus($fGInventoryAdjustment->status) !!}</p>
                                         </td> 
                                     </tr>
