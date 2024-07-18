@@ -7,7 +7,7 @@
     @php
         $links = [
         'Home'=>route('dashboard'),
-        'RM Requisition list'=>''
+        'RM Requisition Entry'=>''
         ]
     @endphp
     <x-breadcrumb title='RM Requisition Entry' :links="$links"/>
@@ -39,7 +39,7 @@
                                                     <label for="requisition_no">RMR No</label>
                                                     <div class="input-group">
                                                         <input type="text" class="form-control input-sm"
-                                                               value="{{$serial_no}}" name="serial_no"
+                                                               name="serial_no"
                                                                id="serial_no" v-model="serial_no">
                                                         <span class="input-group-append">
                                                                     <button type="button" class="btn btn-info btn-flat">Search</button>
@@ -60,7 +60,7 @@
                                                     <label for="from_store_id"> from Store</label>
                                                     <select name="from_store_id" id="from_store_id"
                                                             class="form-control bSelect"
-                                                            v-model="from_store_id" required>
+                                                            v-model="from_store_id" required @change="getUUID">
                                                         <option value="">Select One</option>
                                                         @foreach($from_stores as $row)
                                                             <option value="{{ $row->id }}">{{ $row->name }}</option>
@@ -294,7 +294,7 @@
                         get_item_info_url: "{{ url('fetch-item-by-id-for-rm-requisition') }}",
                     },
                     date: new Date(),
-                    serial_no: {{$serial_no}},
+                    serial_no: "{{$serial_no ?? 'Please Select Store First'}}",
                     customer_id: '',
                     from_store_id: '',
                     to_store_id: '',
@@ -405,6 +405,25 @@
                             //console.log('3');
                             index.quantity = '';
                         }
+                    },
+                    getUUID(){
+                        const vm = this
+                        if (!vm.from_store_id) {
+                            vm.serial_no = 'Please Select Store First'
+                            toastr.error('Please Select valid Store', {
+                                closeButton: true,
+                                progressBar: true,
+                            });
+                        }
+                        axios.get('/get-uuid/' + vm.from_store_id, {
+                            params: {
+                                model: "requisition",
+                                column:'uid',
+                                is_factory: true
+                            }
+                        }).then((response) => {
+                            vm.serial_no = response.data
+                        })
                     }
                 },
 

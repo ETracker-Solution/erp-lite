@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Classes\RequisitionNumber;
 use App\Http\Requests\StoreRMRequisitionRequest;
 use App\Http\Requests\UpdateRMRequisitionRequest;
 use App\Models\ChartOfInventory;
@@ -10,11 +9,10 @@ use App\Models\Requisition;
 use App\Models\RequisitionItem;
 use App\Models\Store;
 use Brian2694\Toastr\Facades\Toastr;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Yajra\DataTables\Facades\DataTables;
 use niklasravnsborg\LaravelPdf\Facades\Pdf;
+use Yajra\DataTables\Facades\DataTables;
 
 class RMRequisitionController extends Controller
 {
@@ -24,7 +22,7 @@ class RMRequisitionController extends Controller
     public function index()
     {
         if (\request()->ajax()) {
-            $data = Requisition::with('fromStore','toStore')->where('type', 'RM')->latest();
+            $data = Requisition::with('fromStore', 'toStore')->where('type', 'RM')->latest();
             return DataTables::of($data)
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
@@ -48,11 +46,19 @@ class RMRequisitionController extends Controller
     public function create()
     {
 
+        $serial_no = null;
+        if (!auth()->user()->is_super) {
+            $doc_id = \auth()->user()->employee->outlet_id ?? \auth()->user()->employee->factory_id;
+            $doc_type = \auth()->user()->employee->outlet_id ? 'outlet' : 'factory';
+            $user_store = Store::where(['doc_type' => $doc_type, 'doc_id' => $doc_id])->first();
+            $outlet_id = $user_store->doc_id;
+            $serial_no = generateUniqueUUID($outlet_id, Requisition::class, 'uid',\auth()->user()->employee->factory_id);
+        }
         $data = [
             'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'RM'])->get(),
             'from_stores' => Store::where(['type' => 'RM', 'doc_type' => 'factory'])->get(),
             'to_stores' => Store::where(['type' => 'RM', 'doc_type' => 'ho'])->get(),
-            'serial_no' => RequisitionNumber::serial_number()
+            'serial_no' => $serial_no
         ];
         return view('rm_requisition.create', $data);
     }

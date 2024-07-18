@@ -321,6 +321,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('delivery-cash-receives', \App\Http\Controllers\DeliveryCashReceiveController::class);
     Route::resource('sales-exchanges', \App\Http\Controllers\SalesExchangeController::class);
 
+    Route::get('get-uuid/{store_id}',[\App\Http\Controllers\ApiController::class, 'getUUIDbyStore']);
 
 
 });

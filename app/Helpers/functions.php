@@ -165,9 +165,9 @@ function generateInvoiceCode($store_id)
     return $code;
 }
 
-function generateUniqueUUID($store_id, $model, $column_name)
+function generateUniqueUUID($store_id, $model, $column_name, $is_factory = false)
 {
-    $outlet = Outlet::find($store_id);
+    $outlet = $is_factory ?  \App\Models\Factory::find($store_id) : Outlet::find($store_id);
     $outlet_name = str_replace(',',' ',trim($outlet->name));
     $words = strtoupper($outlet_name);
     $acronym = "";

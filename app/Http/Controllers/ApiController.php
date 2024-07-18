@@ -11,8 +11,10 @@ use App\Models\Production;
 use App\Models\Purchase;
 use App\Models\Requisition;
 use App\Models\RequisitionDelivery;
+use App\Models\Store;
 use App\Models\Supplier;
 use App\Models\SupplierTransaction;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class ApiController extends Controller
@@ -334,5 +336,15 @@ class ApiController extends Controller
     {
         $requisitions = Requisition::availableRequisitions('FG', $store_id);
         return response()->json(['requisitions' => $requisitions]);
+    }
+
+    public function getUUIDbyStore(Request $request, $store_id)
+    {
+        $modelNamespace = 'App\\Models\\';
+        $modelName = ucfirst($request->input('model')); // Capitalize the first letter
+        $modelClass = $modelNamespace . $modelName;
+        $is_factory = $request->is_factory ?? false;
+        $store = Store::find($store_id);
+        return generateUniqueUUID($store->doc_id, $modelClass, $request->column, $is_factory);
     }
 }
