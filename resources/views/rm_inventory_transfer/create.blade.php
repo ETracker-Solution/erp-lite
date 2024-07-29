@@ -455,16 +455,16 @@
                         //  row.item_total=total;
                     },
                     valid: function (index) {
-                        console.log(index.stock);
-                        console.log(index.quantity);
-
-                        if (index.quantity > index.stock) {
-                            //console.log('2');
-                            index.quantity = index.stock;
-                        }
                         if (index.quantity <= 0) {
-                            //console.log('3');
+                            toastr.error('Quantity 0 or Negative not Allow', {
+                                closeButton: true,
+                                progressBar: true,
+                            });
                             index.quantity = '';
+                        }
+                        if (index.balance_qty < index.quantity) {
+                            console.log('2');
+                            index.quantity = index.balance_qty;
                         }
                     },
 

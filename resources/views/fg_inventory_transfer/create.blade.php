@@ -444,13 +444,16 @@
 
                     },
                     valid: function (index) {
-                        if (index.quantity > index.balance_qty) {
-                            //console.log('2');
-                            index.quantity = index.balance_qty;
-                        }
                         if (index.quantity <= 0) {
-                            //console.log('3');
+                            toastr.error('Quantity 0 or Negative not Allow', {
+                                closeButton: true,
+                                progressBar: true,
+                            });
                             index.quantity = '';
+                        }
+                        if (index.balance_qty < index.quantity) {
+                            console.log('2');
+                            index.quantity = index.balance_qty;
                         }
                     },
 
