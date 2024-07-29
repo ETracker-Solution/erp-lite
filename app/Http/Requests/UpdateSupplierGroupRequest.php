@@ -24,6 +24,7 @@ class UpdateSupplierGroupRequest extends FormRequest
         return [
             'name' => 'required',
             'code' => 'required',
+            'status' => ['in:active,inactive'],
         ];
     }
 }

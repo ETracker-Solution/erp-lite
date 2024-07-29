@@ -12,6 +12,8 @@ Supplier
 @php
 $links = [
 'Home'=>route('dashboard'),
+'Data Admin Module'=>'',
+'Purchase Setting'=>'',
 'Supplier Details'=>''
 ]
 @endphp

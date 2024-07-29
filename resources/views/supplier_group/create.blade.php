@@ -11,6 +11,8 @@
     @php
         $links = [
             'Home' => route('dashboard'),
+            'Data Admin Module'=>'',
+            'Purchase Setting'=>'',
             'Supllier Group' . (isset($supplierGroup) ? ' Edit' : ' Entry') => '',
         ];
     @endphp
@@ -64,6 +66,9 @@
                                     <div class="col-xl-4 col-md-4 col-12 mb-1">
                                         <x-forms.text label="Code" inputName="code" placeholder="Enter Code"
                                             :isRequired='true' :isReadonly='false' :defaultValue="isset($supplierGroup) ? $supplierGroup->code : ''" />
+                                    </div>
+                                    <div class="col-xl-4 col-md-4 col-12 mb-1">
+                                        <x-forms.static-select label="Status" inputName="status" placeholder="Select One" :isRequired='true'  :isReadonly='false' :defaultValue="isset($supplierGroup) ? $supplierGroup->status : ''" :options="['active','inactive']"/>
                                     </div>
                                 </div>
                             </div>

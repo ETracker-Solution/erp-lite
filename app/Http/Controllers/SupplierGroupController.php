@@ -26,7 +26,10 @@ class SupplierGroupController extends Controller
                 ->addColumn('created_at', function ($row) {
                     return view('common.created_at', compact('row'));
                 })
-                ->rawColumns(['action'])
+                ->addColumn('status', function ($row) {
+                    return showStatus($row->status);
+                })
+                ->rawColumns(['action','status'])
                 ->make(true);
         }
         return view('supplier_group.index');

@@ -7,6 +7,8 @@ Department List
     @php
     $links = [
     'Home'=>route('dashboard'),
+    'Data Admin Module'=>'',
+    'HR'=>'',
     'Department list'=>''
     ]
     @endphp
@@ -46,15 +48,17 @@ Department List
                                     <x-forms.text label="Name" inputName="name" placeholder="Enter Name"
                                         :isRequired='true' :isReadonly='false' :defaultValue="isset($department) ? $department->name : ''" />
                                 </div>
-                                @if(isset($department))
+                                {{-- @if(isset($department)) --}}
                                     <div class="col-xl-12 col-md-12 col-12 mb-1">
                                         <x-forms.static-select label="Status" inputName="status" placeholder="Select One" :isRequired='true'  :isReadonly='false' :defaultValue="isset($department) ? $department->status : ''" :options="['active','inactive']"/>
                                     </div>
-                                @endif
+                                {{-- @endif --}}
                             </div>
-                            <button class="btn btn-info waves-effect waves-float waves-light float-right"
+                            <button class="btn btn-info waves-effect waves-float waves-light float-right ml-1"
                                 type="submit">Submit
                             </button>
+                            <a href="{{ route('departments.index') }}"
+                                   class="btn btn-warning waves-effect waves-float waves-light float-right">Refresh</a>
                         </div>
                     </div>
                 </form>

@@ -24,6 +24,7 @@ class StoreSupplierGroupRequest extends FormRequest
         return [
             'name' => 'required',
             'code' => 'required',
+            'status' => 'required',
         ];
     }
 }
