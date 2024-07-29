@@ -24,6 +24,7 @@ class UpdateFactoryRequest extends FormRequest
         return [
             'name' => 'required',
             'address' => 'required',
+            'status' => ['in:active,inactive'],
         ];
     }
 }

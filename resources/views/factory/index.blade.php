@@ -7,6 +7,7 @@ Factory List
     @php
     $links = [
     'Home'=>route('dashboard'),
+    'Data Admin Module'=>'',
     'Factory list'=>''
     ]
     @endphp
@@ -49,11 +50,16 @@ Factory List
                                         placeholder="Enter Short Name" :isRequired='true' :isReadonly='false'
                                         :defaultValue="isset($factory) ? $factory->address : ''" />
                                 </div>
+                                <div class="col-xl-12 col-md-12 col-12 mb-1">
+                                    <x-forms.static-select label="Status" inputName="status" placeholder="Select One" :isRequired='true'  :isReadonly='false' :defaultValue="isset($factory) ? $factory->status : ''" :options="['active','inactive']"/>
+                                </div>
 
                             </div>
-                            <button class="btn btn-info waves-effect waves-float waves-light float-right"
+                            <button class="btn btn-info waves-effect waves-float waves-light float-right ml-1"
                                 type="submit">Submit
                             </button>
+                            <a href="{{ route('factories.index') }}"
+                                   class="btn btn-warning waves-effect waves-float waves-light float-right">Refresh</a>
                         </div>
                     </div>
                 </form>
@@ -118,6 +124,12 @@ Factory List
                 {
                     data: "address",
                     title: "Address",
+                    searchable: true,
+                    orderable: true
+                },
+                {
+                    data: "status",
+                    title: "Status",
                     searchable: true,
                     orderable: true
                 },
