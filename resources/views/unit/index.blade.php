@@ -7,6 +7,8 @@ Unit List
     @php
     $links = [
     'Home'=>route('dashboard'),
+    'Data Admin Module'=>'',
+    'Inventory Setting'=>'',
     'Unit list'=>''
     ]
     @endphp
@@ -52,6 +54,9 @@ Unit List
                                     <x-forms.text label="Short Name" inputName="short_name"
                                         placeholder="Enter Short Name" :isRequired='true' :isReadonly='false'
                                         :defaultValue="isset($unit) ? $unit->short_name : ''" />
+                                </div>
+                                <div class="col-xl-12 col-md-12 col-12 mb-1">
+                                    <x-forms.static-select label="Status" inputName="status" placeholder="Select One" :isRequired='true'  :isReadonly='false' :defaultValue="isset($unit) ? $unit->status : ''" :options="['active','inactive']"/>
                                 </div>
 
                             </div>

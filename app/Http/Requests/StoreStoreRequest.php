@@ -26,6 +26,7 @@ class StoreStoreRequest extends FormRequest
             'type' => 'required',
             'doc_type' => 'required',
             'doc_id' => 'nullable',
+            'status' => 'required',
             'created_by' => 'required',
         ];
     }

@@ -26,6 +26,7 @@ class UpdateUnitRequest extends FormRequest
         return [
             'name' => 'required',
             'short_name' => 'required',
+            'status' => ['in:active,inactive'],
             'updated_by' => 'required'
         ];
     }
