@@ -79,9 +79,9 @@
                                 <div class="row callout callout-info" id="additionalInfo" hidden>
                                     <div class="col-xl-12 col-md-12 col-12">
                                         <x-forms.select label="Unit of Measurement" inputName="unit"
-                                                               placeholder="Select Unit" :isRequired='true'
-                                                               :isReadonly='false' defaultValue=""
-                                                               :options="$units" optionId="id" optionValue="name"/>
+                                                        placeholder="Select Unit" :isRequired='true'
+                                                        :isReadonly='false' defaultValue=""
+                                                        :options="$units" optionId="id" optionValue="name"/>
                                     </div>
                                     <div class="col-xl-12 col-md-12 col-12">
                                         <x-forms.text label="Selling Price" inputName="price"
@@ -122,7 +122,7 @@
 @push('script')
     <script>
 
-        $(document).ready(function (){
+        $(document).ready(function () {
             getInventoryItems()
         })
 
@@ -133,31 +133,37 @@
         let updateButton = $('#updateButton')
         let deleteButton = $('#deleteButton')
 
-        let additionalInfoDiv =  $('#additionalInfo')
-        let addNewDiv =  $('#addNewForm')
+        let additionalInfoDiv = $('#additionalInfo')
+        let addNewDiv = $('#addNewForm')
 
         let itemIdInput = $("input[name=item_id]")
         let itemNameInput = $("input[name=item_name]")
         let itemTypeInput = $("input[name=item_type]")
         let groupNameInput = $("input[name=group_name]")
         let accountTypeInput = $("input[name=account_type]")
-        let itemUnitInput =  $("select[name=unit]")
-        let itemPriceInput =$("input[name=price]")
+        let itemUnitInput = $("select[name=unit]")
+        let itemPriceInput = $("input[name=price]")
         let newItemNameInput = $("input[name=new_item_name]")
         let newItemTypeInput = $("select[name=new_item_type]")
 
-        function makeHidden(element){
-             element.prop('hidden', true)
-        }
-        function makeVisible(element){
-             element.prop('hidden', false)
+        function makeHidden(element) {
+            element.prop('hidden', true)
         }
 
-        function setValue(element, value){
-            element.val(value)
+        function makeVisible(element) {
+            element.prop('hidden', false)
         }
-        function getValue(element){
-           return element.val()
+
+        function setValue(element, value) {
+            if (element == itemUnitInput) {
+                element.val(value).trigger('change')
+            } else {
+                element.val(value)
+            }
+        }
+
+        function getValue(element) {
+            return element.val()
         }
 
         function changeChart(id) {
@@ -168,22 +174,22 @@
                     'X-CSRF-TOKEN': csrfToken
                 },
                 success: function (result) {
-                    setValue(itemIdInput,result.item_id)
-                    setValue(itemNameInput,result.item_name)
-                    setValue(itemTypeInput,result.item_type)
-                    setValue(groupNameInput,result.group_name)
-                    setValue(accountTypeInput,result.account_type)
-                    setValue(itemUnitInput,'')
-                    setValue(itemPriceInput,'')
+                    setValue(itemIdInput, result.item_id)
+                    setValue(itemNameInput, result.item_name)
+                    setValue(itemTypeInput, result.item_type)
+                    setValue(groupNameInput, result.group_name)
+                    setValue(accountTypeInput, result.account_type)
+                    setValue(itemUnitInput, '')
+                    setValue(itemPriceInput, '')
                     makeVisible(updateButton)
                     makeVisible(addButton)
                     makeVisible(deleteButton)
-                    if (result.item_type === 'item'){
+                    if (result.item_type === 'item') {
                         makeVisible(additionalInfoDiv)
-                        setValue(itemUnitInput,result.unit_id)
-                        setValue(itemPriceInput,result.price)
+                        setValue(itemUnitInput, result.unit_id)
+                        setValue(itemPriceInput, result.price)
                         makeHidden(addButton)
-                    }else{
+                    } else {
                         makeHidden(additionalInfoDiv)
                     }
 
@@ -309,10 +315,11 @@
                         }
                     });
                 }
-            });;
+            });
+            ;
         }
 
-        function getInventoryItems(){
+        function getInventoryItems() {
             $.ajax({
                 url: "/inventory-items/",
                 headers: {
@@ -320,15 +327,15 @@
                 },
                 success: function (result) {
                     $('#inventoryItems').html(result)
-                    setValue(newItemNameInput,'')
-                    setValue(newItemTypeInput,'')
-                    setValue(itemIdInput,'')
-                    setValue(itemNameInput,'')
-                    setValue(itemTypeInput,'')
-                    setValue(groupNameInput,'')
-                    setValue(accountTypeInput,'')
-                    setValue(itemUnitInput,'')
-                    setValue(itemPriceInput,0)
+                    setValue(newItemNameInput, '')
+                    setValue(newItemTypeInput, '')
+                    setValue(itemIdInput, '')
+                    setValue(itemNameInput, '')
+                    setValue(itemTypeInput, '')
+                    setValue(groupNameInput, '')
+                    setValue(accountTypeInput, '')
+                    setValue(itemUnitInput, '')
+                    setValue(itemPriceInput, 0)
 
                     makeHidden(addNewDiv)
                     makeHidden(additionalInfoDiv)
@@ -336,10 +343,10 @@
             });
         }
 
-        newItemTypeInput.on('change', function (){
-            if ($(this).val() === 'item'){
+        newItemTypeInput.on('change', function () {
+            if ($(this).val() === 'item') {
                 makeVisible(additionalInfoDiv)
-            }else{
+            } else {
                 makeHidden(additionalInfoDiv)
             }
         })
