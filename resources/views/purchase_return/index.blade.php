@@ -80,7 +80,7 @@
                 },
                     {
                         data: "id",
-                        title: "Purchase No",
+                        title: "Purchase Return No",
                         searchable: true
                     },
                     {

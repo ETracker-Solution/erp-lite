@@ -60,7 +60,7 @@ Purchase Return
 
                         </div>
                         <div class="col-sm-4 invoice-col">
-                            Invoice : {{ $model->id }} <br>
+                            Purchase Return No : {{ $model->id }} <br>
                             Name : {{ $model->supplier->name }} <br>
                             Address :  {{ $model->supplier->address }}<br>
                         </div>
