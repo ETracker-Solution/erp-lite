@@ -23,6 +23,9 @@
                     <div class="card card-info">
                         <div class="card-header">
                             <div class="card-title">Finish Goods Opening Balance Details</div>
+                            <button class="btn btn-primary float-right" data-toggle="modal" data-target="#rmobModal">
+                                Bulk Upload
+                            </button>
                         </div>
                         <div class="card-body">
                             <div class="row">
@@ -190,6 +193,33 @@
             </div>
         </div>
     </section>
+    <!-- Modal -->
+    <div class="modal fade" id="rmobModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <form action="{{ route('fgob.sample.upload') }}" method="post" enctype="multipart/form-data">
+                @csrf
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Bulk Upload</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="file" name="file" id="file"
+                               accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
+                        <br>
+                        <a href="{{ route('fgob.sample') }}">Sample Download <i class="fa fa-download"></i> </a>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Upload <i class="fa fa-upload"></i></button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
 @endsection
 @push('style')
     <style>
