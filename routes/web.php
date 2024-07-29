@@ -248,6 +248,11 @@ Route::middleware('auth')->group(function () {
     Route::get('rm-inventory-transfers-pdf/{id}', [App\Http\Controllers\RMInventoryTransferController::class, 'pdfDownload'])->name('rm-inventory-transfers.pdf');
     /*=========== RM Inventory Transfer Ends ===========*/
 
+    /*=========== RM Transfer Receive Starts ===========*/
+    Route::resource('rm-transfer-receives', \App\Http\Controllers\RMTransferReceiveController::class);
+    Route::get('rm-transfer-receive-pdf/{id}', [App\Http\Controllers\RMTransferReceiveController::class, 'pdf'])->name('rm-transfer-receive.pdf');
+    /*=========== RM Transfer Receive Ends ===========*/
+
     /*=========== Raw Materials Requisition Starts ===========*/
     Route::resource('rm-requisitions', \App\Http\Controllers\RMRequisitionController::class);
     Route::get('rm-requisition-pdf/{id}', [App\Http\Controllers\RMRequisitionController::class, 'pdfDownload'])->name('rm-requisition.pdf');

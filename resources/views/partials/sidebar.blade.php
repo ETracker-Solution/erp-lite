@@ -227,6 +227,13 @@
                                                 </a>
                                             </li>
                                         @endcan
+                                            <li class="nav-item">
+                                                <a href="{{route('rm-transfer-receives.create')}}"
+                                                   class="nav-link {{ (Request::segment(1) == 'rm-transfer-receives' )?' active':''}}">
+                                                    <i class="far fa-circle nav-icon"></i>
+                                                    <p>RM Inventory Transfer Receive</p>
+                                                </a>
+                                            </li>
                                         @can('store-rm-rm-inventory-adjustment')
                                             <li class="nav-item">
                                                 <a href="{{route('rm-inventory-adjustments.create')}}"

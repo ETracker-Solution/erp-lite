@@ -65,30 +65,6 @@ class RMInventoryTransferController extends Controller
         $fGInventoryTransfer = InventoryTransfer::create($data);
         foreach ($data['products'] as $product) {
             $fGInventoryTransfer->items()->create($product);
-            // Inventory Transaction Effect
-            InventoryTransaction::query()->create([
-                'store_id' => $fGInventoryTransfer->from_store_id,
-                'doc_type' => 'RMIT',
-                'doc_id' => $fGInventoryTransfer->id,
-                'quantity' => $product['quantity'],
-                'rate' => $product['rate'],
-                'amount' => $product['quantity'] * $product['rate'],
-                'date' => $fGInventoryTransfer->date,
-                'type' => -1,
-                'coi_id' => $product['coi_id'],
-            ]);
-            InventoryTransaction::query()->create([
-                'store_id' => $fGInventoryTransfer->to_store_id,
-                'doc_type' => 'RMIT',
-                'doc_id' => $fGInventoryTransfer->id,
-                'quantity' => $product['quantity'],
-                'rate' => $product['rate'],
-                'amount' => $product['quantity'] * $product['rate'],
-                'date' => $fGInventoryTransfer->date,
-                'type' => 1,
-                'coi_id' => $product['coi_id'],
-            ]);
-
         }
            DB::commit();
        } catch (\Exception $error) {
