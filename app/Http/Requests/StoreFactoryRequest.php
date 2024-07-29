@@ -25,6 +25,7 @@ class StoreFactoryRequest extends FormRequest
             'uid' => 'required',
             'name' => 'required',
             'address' => 'required',
+            'status' => 'required',
         ];
     }
 }
