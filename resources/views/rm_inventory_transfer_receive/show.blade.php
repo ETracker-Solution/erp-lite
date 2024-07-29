@@ -1,6 +1,6 @@
 @extends('layouts.app')
 @section('title')
-FG Inventory Transfer Receive Details
+RM Inventory Transfer Receive Details
 @endsection
 @section('content')
 <!-- Content Wrapper. Contains page content -->
@@ -8,10 +8,10 @@ FG Inventory Transfer Receive Details
     @php    
         $links = [
         'Home'=>route('dashboard'),
-        'FG Inventory Transfer Receive Details'=>''
+        'RM Inventory Transfer Receive Details'=>''
         ]
     @endphp
-<x-breadcrumb title='FG Inventory Transfer Receive Details' :links="$links"/>
+<x-breadcrumb title='RM Inventory Transfer Receive Details' :links="$links"/>
 
 <section class="content">
     <div class="container-fluid">
@@ -19,8 +19,8 @@ FG Inventory Transfer Receive Details
             <div class="col-12">
                 <div class="card card-info">
                     <div class="card-header">
-                        <h3 class="card-title">FG Inventory Transfer Receive Details</h3>
-                        <a href="{{route('fg-transfer-receive.pdf',encrypt($fgTransferReceive->id))}}"
+                        <h3 class="card-title">RM Inventory Transfer Receive Details</h3>
+                        <a href="{{route('rm-transfer-receive.pdf',encrypt($rmTransferReceive->id))}}"
                             class="btn btn-sm btn-primary float-right" target="_blank"><i class="fa fa-download"></i> PDF</a>
                     </div>
                     <!-- Main content -->
@@ -31,9 +31,9 @@ FG Inventory Transfer Receive Details
                                     <tbody>
                                         <tr>
                                             <td style="text-align: left; padding:8px; line-height: 0.6">
-                                                <p><b>FGITR No :</b> {{ $fgTransferReceive->uid }}</p>
-                                                <p><b>Date :</b> {{ $fgTransferReceive->date }} </p>
-                                                <p><b>Status :</b> {!! showStatus($fgTransferReceive->status) !!}</p>
+                                                <p><b>RMITR No :</b> {{ $rmTransferReceive->uid }}</p>
+                                                <p><b>Date :</b> {{ $rmTransferReceive->date }} </p>
+                                                <p><b>Status :</b> {!! showStatus($rmTransferReceive->status) !!}</p>
                                             </td> 
                                         </tr>
                                     </tbody>
@@ -41,7 +41,7 @@ FG Inventory Transfer Receive Details
                             </div>
                             <!-- /.col -->
                             <div class="col-sm-4 invoice-col">
-                                {{-- <td><b>Customer :</b> {{ $fgTransferReceive->customer->name??'Walking Customer'}}</td> --}}
+                                {{-- <td><b>Customer :</b> {{ $rmTransferReceive->customer->name??'Walking Customer'}}</td> --}}
                             </div>
                             <!-- /.col -->
                             <div class="col-sm-4 invoice-col">
@@ -67,12 +67,12 @@ FG Inventory Transfer Receive Details
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @foreach ($fgTransferReceive->items as $item)
+                                        @foreach ($rmTransferReceive->items as $item)
                                         <tr>
                                             <td>{{ $loop->iteration }}</td>
-                                            <td>{{ $fgTransferReceive->date }}</td>
-                                            <td>{{ $fgTransferReceive->fromStore->name ?? '' }}</td>
-                                            <td>{{ $fgTransferReceive->toStore->name ?? '' }}</td>
+                                            <td>{{ $rmTransferReceive->date }}</td>
+                                            <td>{{ $rmTransferReceive->fromStore->name ?? '' }}</td>
+                                            <td>{{ $rmTransferReceive->toStore->name ?? '' }}</td>
                                             <td>{{ $item->quantity ?? '' }}</td>
                                             <td>{{ $item->rate ?? '' }} TK</td>
                                         </tr>
