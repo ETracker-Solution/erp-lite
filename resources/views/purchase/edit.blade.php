@@ -202,13 +202,13 @@
                                                                 <input type="number" v-model="row.quantity"
                                                                        :name="'products['+index+'][quantity]'"
                                                                        class="form-control input-sm"
-                                                                       @change="itemtotal(row)" required>
+                                                                       @change="itemtotal(row);valid_quantity(row)" required>
                                                             </td>
                                                             <td>
                                                                 <input type="number" v-model="row.rate"
                                                                        :name="'products['+index+'][rate]'"
                                                                        class="form-control input-sm"
-                                                                       @change="itemtotal(row)" required>
+                                                                       @change="itemtotal(row);valid_rate(row)" required>
                                                             </td>
                                                             <td>
                                                                 <input type="text" class="form-control input-sm"
@@ -506,7 +506,24 @@
                         //  var total= row.quantity);
                         //  row.itemtotal=total;
                     },
-
+                    valid_quantity: function (index) {
+                        if (index.quantity <= 0) {
+                            toastr.error('Quantity 0 or Negative not Allow', {
+                                closeButton: true,
+                                progressBar: true,
+                            });
+                            index.quantity = '';
+                        }
+                    },
+                    valid_rate: function (index) {
+                        if (index.rate <= 0) {
+                            toastr.error('Rate 0 or Negative not Allow', {
+                                closeButton: true,
+                                progressBar: true,
+                            });
+                            index.rate = '';
+                        }
+                    },
                 },
                 beforeMount() {
                     this.load_old();

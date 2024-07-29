@@ -59,7 +59,7 @@
                                                 <option value="">Select One</option>
                                                 @foreach($purchases as $row)
                                                     <option
-                                                        value="{{ $row->id }}">{{ $row->id }}</option>
+                                                        value="{{ $row->id }}">{{ $row->uid }}</option>
                                                 @endforeach
                                             </select>
                                         </div>
@@ -187,7 +187,7 @@
                                                         <input type="number" v-model="row.quantity"
                                                                :name="'products['+index+'][quantity]'"
                                                                class="form-control input-sm"
-                                                               @change="itemtotal(row)" required>
+                                                               @change="itemtotal(row);valid_quantity(row)" required>
                                                     </td>
                                                     <td>
                                                         <input type="number" v-model="row.rate"
@@ -482,7 +482,19 @@
                     itemtotal: function (index) {
                         return index.quantity * index.rate;
                     },
-
+                    valid_quantity: function (index) {
+                        if (index.quantity <= 0) {
+                            toastr.error('Quantity 0 or Negative not Allow', {
+                                closeButton: true,
+                                progressBar: true,
+                            });
+                            index.quantity = '';
+                        }
+                        if (index.purchase_quantity < index.quantity) {
+                            console.log('2');
+                            index.quantity = index.purchase_quantity;
+                        }
+                    },
                 },
                 beforeMount() {
                     // this.load_old();
