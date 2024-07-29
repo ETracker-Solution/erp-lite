@@ -206,6 +206,8 @@ Route::middleware('auth')->group(function () {
     /*=========== Raw Materials Opening Balance Api Starts ===========*/
     Route::get('raw-materials-opening-balances-list', [\App\Http\Controllers\Api\Web\RMOpeningBalanceController::class, 'list']);
     Route::get('raw-materials-opening-balances-initial-info', [\App\Http\Controllers\Api\Web\RMOpeningBalanceController::class, 'initialInfo']);
+    Route::get('raw-materials-opening-balances-excel-sample', [\App\Http\Controllers\Api\Web\RMOpeningBalanceController::class, 'sampleDownload'])->name('rmob.sample');
+    Route::post('raw-materials-opening-balances-excel-upload', [\App\Http\Controllers\Api\Web\RMOpeningBalanceController::class, 'sampleUpload'])->name('rmob.sample.upload');
     Route::resource('raw-materials-opening-balances', \App\Http\Controllers\Api\Web\RMOpeningBalanceController::class);
     /*=========== Raw Materials Opening Balance Api Ends ===========*/
 

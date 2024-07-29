@@ -23,6 +23,9 @@
                     <div class="card card-info">
                         <div class="card-header">
                             <div class="card-title">Raw Material Opening Balance Details</div>
+                            <button class="btn btn-primary float-right" data-toggle="modal" data-target="#rmobModal">
+                                Bulk Upload
+                            </button>
                         </div>
                         <div class="card-body">
                             <div class="row">
@@ -114,11 +117,13 @@
                                         v-if="isEditMode"><i
                                         class="fa fa-save"></i>Update
                                 </button>
-                                <button class="btn btn-sm btn-danger" type="button" @click="delete_balance" v-if="isEditMode">
+                                <button class="btn btn-sm btn-danger" type="button" @click="delete_balance"
+                                        v-if="isEditMode">
                                     <i
                                         class="fa fa-trash"></i>Delete
                                 </button>
-                                <button class="btn btn-sm btn-info" type="button" @click="store_balance" v-if="!isEditMode">
+                                <button class="btn btn-sm btn-info" type="button" @click="store_balance"
+                                        v-if="!isEditMode">
                                     <i
                                         class="fa fa-check-circle"></i>Submit
                                 </button>
@@ -172,13 +177,14 @@
                                             <li :class="!previousPageUrl ? 'page-item disabled' : 'page-item'">
                                                 <span class="page-link" @click="handlePageChange(--currentPage)">Previous</span>
                                             </li>
-{{--                                            <li class="page-item"><a class="page-link" href="#">1</a></li>--}}
-{{--                                            <li class="page-item active" aria-current="page">--}}
-{{--                                                <a class="page-link" href="#">2</a>--}}
-{{--                                            </li>--}}
-{{--                                            <li class="page-item"><a class="page-link" href="#">3</a></li>--}}
+                                            {{--                                            <li class="page-item"><a class="page-link" href="#">1</a></li>--}}
+                                            {{--                                            <li class="page-item active" aria-current="page">--}}
+                                            {{--                                                <a class="page-link" href="#">2</a>--}}
+                                            {{--                                            </li>--}}
+                                            {{--                                            <li class="page-item"><a class="page-link" href="#">3</a></li>--}}
                                             <li :class="!nextPageUrl ? 'page-item disabled' : 'page-item'">
-                                                <span class="page-link"  @click="handlePageChange(++currentPage)">Next</span>
+                                                <span class="page-link"
+                                                      @click="handlePageChange(++currentPage)">Next</span>
                                             </li>
                                         </ul>
                                     </nav>
@@ -190,6 +196,34 @@
             </div>
         </div>
     </section>
+
+    <!-- Modal -->
+    <div class="modal fade" id="rmobModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <form action="{{ route('rmob.sample.upload') }}" method="post" enctype="multipart/form-data">
+                @csrf
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Bulk Upload</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="file" name="file" id="file"
+                               accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
+                        <br>
+                        <a href="{{ route('rmob.sample') }}">Sample Download <i class="fa fa-download"></i> </a>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Upload <i class="fa fa-upload"></i></button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
 @endsection
 @push('style')
     <style>
@@ -261,7 +295,7 @@
                     isEditMode: false,
                     editableItem: '',
                     groups: [],
-                    stores:[]
+                    stores: []
 
                 },
                 components: {
@@ -339,13 +373,13 @@
                                     remarks: vm.remarks,
                                 })
                                     .then(function (response) {
-                                        if(response.data.success){
+                                        if (response.data.success) {
                                             vm.get_initial_data()
                                             toastr.success(response.data.message, {
                                                 closeButton: true,
                                                 progressBar: true,
                                             });
-                                        }else{
+                                        } else {
                                             toastr.error(response.data.message, {
                                                 closeButton: true,
                                                 progressBar: true,
@@ -368,7 +402,7 @@
                     get_balances() {
                         var vm = this;
                         vm.pageLoading = true;
-                        axios.get(this.config.get_balances_url,{
+                        axios.get(this.config.get_balances_url, {
                             params: {
                                 page: vm.currentPage,
                             },
@@ -403,7 +437,7 @@
                         vm.rate = row.rate
                         vm.remarks = row.remarks
                     },
-                    backAsStarting(reset=false) {
+                    backAsStarting(reset = false) {
                         var vm = this;
                         vm.isEditMode = false
                         vm.date = new Date()
@@ -417,7 +451,7 @@
                         vm.pageLoading = false
                         vm.remarks = ''
                         vm.editableItem = ''
-                        if(reset){
+                        if (reset) {
                             vm.get_initial_data()
                         }
                     },
@@ -442,13 +476,13 @@
                                     remarks: vm.remarks,
                                 })
                                     .then(function (response) {
-                                        if(response.data.success){
+                                        if (response.data.success) {
                                             vm.get_initial_data()
                                             toastr.success(response.data.message, {
                                                 closeButton: true,
                                                 progressBar: true,
                                             });
-                                        }else{
+                                        } else {
                                             toastr.error(response.data.message, {
                                                 closeButton: true,
                                                 progressBar: true,
@@ -491,13 +525,13 @@
                                         vm.pageLoading = true;
                                         axios.delete(this.config.RMOBUrl + '/' + slug)
                                             .then(function (response) {
-                                                if(response.data.success){
+                                                if (response.data.success) {
                                                     vm.get_initial_data()
                                                     toastr.success(response.data.message, {
                                                         closeButton: true,
                                                         progressBar: true,
                                                     });
-                                                }else{
+                                                } else {
                                                     toastr.error(response.data.message, {
                                                         closeButton: true,
                                                         progressBar: true,
@@ -537,8 +571,8 @@
                             return false;
                         });
                     },
-                    handlePageChange(){
-                        const vm= this
+                    handlePageChange() {
+                        const vm = this
                         vm.get_balances()
                     }
                 },
