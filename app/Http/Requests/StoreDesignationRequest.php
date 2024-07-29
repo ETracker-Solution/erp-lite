@@ -24,6 +24,7 @@ class StoreDesignationRequest extends FormRequest
         return [
             'uid' => 'required',
             'name' => 'required',
+            'status' => 'required',
         ];
     }
 }

@@ -7,6 +7,8 @@
     @php
     $links = [
     'Home'=>route('dashboard'),
+    'Data Admin Module'=>'',
+    'Purchase Setting'=>'',
     'Supplier Group List'=>''
     ]
     @endphp
@@ -90,6 +92,11 @@
                         data: "code",
                         title: "Code",
                         searchable: true
+                    },
+                    {
+                        data: "status",
+                        title: "Status",
+                        searchable: true 
                     },
                     {
                         data: "created_at",

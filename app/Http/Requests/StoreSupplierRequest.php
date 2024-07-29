@@ -30,6 +30,7 @@ class StoreSupplierRequest extends FormRequest
             'email' => 'required',
             'supplier_group_id' => 'required',
             'website' => 'nullable',
+            'status' => 'required',
             'created_by' => 'required',
         ];
     }

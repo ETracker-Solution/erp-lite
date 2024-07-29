@@ -30,6 +30,7 @@ class UpdateSupplierRequest extends FormRequest
             'email' => 'required',
             'supplier_group_id' => 'required',
             'website' => 'nullable',
+            'status' => ['in:active,inactive'],
             'updated_by' => 'required',
         ];
     }
