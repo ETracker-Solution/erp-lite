@@ -196,10 +196,10 @@
                         </ul>
                     </li>
                 @endcanany
-                @canany(['store-rm-rm-inventory-adjustment','store-rm-rm-inventory-transfer','store-rm-create-rm-requisition','store-rm-rm-requisition-delivery','store-rm-rm-inventory-report'])
-                    <li class="nav-item {{ (Request::segment(1) == 'rm-inventory-transfers'|| Request::segment(1) == 'rm-inventory-adjustments'|| Request::segment(1) == 'rm-requisitions'|| Request::segment(1) == 'rm-requisition-deliveries'|| Request::segment(1) == 'raw-materials-inventory-report' )?'menu-open':''}}">
+                @canany(['store-rm-rm-inventory-adjustment','store-rm-rm-inventory-transfer','store-rm-rm-inventory-transfer-receive','store-rm-create-rm-requisition','store-rm-rm-requisition-delivery','store-rm-rm-inventory-report'])
+                    <li class="nav-item {{ (Request::segment(1) == 'rm-inventory-transfers'|| Request::segment(1) == 'rm-transfer-receives' || Request::segment(1) == 'rm-inventory-adjustments'|| Request::segment(1) == 'rm-requisitions'|| Request::segment(1) == 'rm-requisition-deliveries'|| Request::segment(1) == 'raw-materials-inventory-report' )?'menu-open':''}}">
                         <a href="#"
-                           class="nav-link {{ (Request::segment(1) == 'rm-inventory-transfers'|| Request::segment(1) == 'rm-inventory-adjustments'|| Request::segment(1) == 'rm-requisitions'|| Request::segment(1) == 'rm-requisition-deliveries'|| Request::segment(1) == 'raw-materials-inventory-report')?' active':''}}">
+                           class="nav-link {{ (Request::segment(1) == 'rm-inventory-transfers'|| Request::segment(1) == 'rm-transfer-receives' || Request::segment(1) == 'rm-inventory-adjustments'|| Request::segment(1) == 'rm-requisitions'|| Request::segment(1) == 'rm-requisition-deliveries'|| Request::segment(1) == 'raw-materials-inventory-report')?' active':''}}">
                             <i class="nav-icon fas fa-shopping-cart"></i>
                             <p>
                                 Store RM Module
@@ -207,10 +207,10 @@
                             </p>
                         </a>
                         <ul class="nav nav-treeview second-child">
-                            @canany(['store-rm-rm-inventory-adjustment','store-rm-rm-inventory-transfer'])
-                                <li class="nav-item {{ (Request::segment(1) == 'rm-inventory-transfers'|| Request::segment(1) == 'rm-inventory-adjustments' )?'menu-open':''}}">
+                            @canany(['store-rm-rm-inventory-adjustment','store-rm-rm-inventory-transfer','store-rm-rm-inventory-transfer-receive'])
+                                <li class="nav-item {{ (Request::segment(1) == 'rm-inventory-transfers'|| Request::segment(1) == 'rm-transfer-receives' || Request::segment(1) == 'rm-inventory-adjustments' )?'menu-open':''}}">
                                     <a href="#"
-                                       class="nav-link {{ (Request::segment(1) == 'rm-inventory-transfers'|| Request::segment(1) == 'rm-inventory-adjustments' )?' active':''}}">
+                                       class="nav-link {{ (Request::segment(1) == 'rm-inventory-transfers'|| Request::segment(1) == 'rm-transfer-receives' || Request::segment(1) == 'rm-inventory-adjustments' )?' active':''}}">
                                         <i class="nav-icon fa fa-folder-open"></i>
                                         <p>
                                             Store RM Entry
@@ -227,13 +227,16 @@
                                                 </a>
                                             </li>
                                         @endcan
+                                        @can('store-rm-rm-inventory-transfer-receive')
                                             <li class="nav-item">
                                                 <a href="{{route('rm-transfer-receives.create')}}"
-                                                   class="nav-link {{ (Request::segment(1) == 'rm-transfer-receives' )?' active':''}}">
+                                                class="nav-link {{ (Request::segment(1) == 'rm-transfer-receives' )?' active':''}}">
                                                     <i class="far fa-circle nav-icon"></i>
                                                     <p>RM Inventory Transfer Receive</p>
                                                 </a>
                                             </li>
+                                        @endcan
+                                            
                                         @can('store-rm-rm-inventory-adjustment')
                                             <li class="nav-item">
                                                 <a href="{{route('rm-inventory-adjustments.create')}}"

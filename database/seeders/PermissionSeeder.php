@@ -31,7 +31,7 @@ class PermissionSeeder extends Seeder
             'goods purchase bill','purchase return bill'
         ],
         'store rm'=>[
-            'rm inventory transfer','rm inventory adjustment','create rm requisition','rm requisition delivery','rm inventory report'
+            'rm inventory transfer','rm inventory transfer receive','rm inventory adjustment','create rm requisition','rm requisition delivery','rm inventory report'
         ],
         'production'=>[
             'batch entry','rm consumption','fg production'
