@@ -26,6 +26,7 @@ class StoreUnitRequest extends FormRequest
         return [
             'name' => 'required',
             'short_name' => 'required',
+            'status' => 'required',
             'created_by' => 'required',
         ];
     }
