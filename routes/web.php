@@ -219,6 +219,8 @@ Route::middleware('auth')->group(function () {
     /*=========== Finish Goods Opening Balance Api Starts ===========*/
     Route::get('finish-goods-opening-balances-list', [\App\Http\Controllers\Api\Web\FGOpeningBalanceController::class, 'list']);
     Route::get('finish-goods-opening-balances-initial-info', [\App\Http\Controllers\Api\Web\FGOpeningBalanceController::class, 'initialInfo']);
+    Route::get('finish-goods-opening-balances-excel-sample', [\App\Http\Controllers\Api\Web\FGOpeningBalanceController::class, 'sampleDownload'])->name('fgob.sample');
+    Route::post('finish-goods-opening-balances-excel-upload', [\App\Http\Controllers\Api\Web\FGOpeningBalanceController::class, 'sampleUpload'])->name('fgob.sample.upload');
     Route::resource('finish-goods-opening-balances', \App\Http\Controllers\Api\Web\FGOpeningBalanceController::class);
     /*=========== Finish Goods Opening Balance Api Ends ===========*/
 
