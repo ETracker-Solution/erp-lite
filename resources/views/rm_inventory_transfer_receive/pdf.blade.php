@@ -3,7 +3,7 @@
 <html>
 
 <head>
-    <title>FG Inventory Transfer Receive Pdf </title>
+    <title>RM Inventory Transfer Receive Pdf </title>
 <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
     <style>
         @page {
@@ -69,7 +69,7 @@
                             </div>
                             <div class="row">
                                 <div class="col-sm-6 top-right">
-                                    <span class="marginright">{{ \Carbon\Carbon::parse($fgTransferReceive->created_at)->isoFormat('MMM Do, YYYY') }}</span>
+                                    <span class="marginright">{{ \Carbon\Carbon::parse($rmTransferReceive->created_at)->isoFormat('MMM Do, YYYY') }}</span>
                                 </div>
                             </div>
                             <hr>
@@ -77,9 +77,9 @@
 								<tbody>
 									<tr>
 										<td style="text-align: left; padding:8px; line-height: 1.6">
-											<p><b>FGITR No :</b> {{ $fgTransferReceive->uid }}</p>
-											<p><b>Date :</b> {{ $fgTransferReceive->date }} </p>
-											<p><b>Status :</b> {!! showStatus($fgTransferReceive->status) !!}</p>
+											<p><b>RMITR No :</b> {{ $rmTransferReceive->uid }}</p>
+											<p><b>Date :</b> {{ $rmTransferReceive->date }} </p>
+											<p><b>Status :</b> {!! showStatus($rmTransferReceive->status) !!}</p>
 										</td>
 									</tr>
 								</tbody>
@@ -96,12 +96,12 @@
 									</tr>
                                 </thead>
                                 <tbody>
-                                    @foreach ($fgTransferReceive->items as $item)
+                                    @foreach ($rmTransferReceive->items as $item)
                                         <tr>
                                             <td>{{ $loop->iteration }}</td>
-                                            <td>{{ $fgTransferReceive->date }}</td>
-                                            <td>{{ $fgTransferReceive->fromStore->name ?? '' }}</td>
-                                            <td>{{ $fgTransferReceive->toStore->name ?? '' }}</td>
+                                            <td>{{ $rmTransferReceive->date }}</td>
+                                            <td>{{ $rmTransferReceive->fromStore->name ?? '' }}</td>
+                                            <td>{{ $rmTransferReceive->toStore->name ?? '' }}</td>
                                             <td>{{ $item->quantity ?? '' }}</td>
                                             <td>{{ $item->rate ?? '' }} TK</td>
                                         </tr>
