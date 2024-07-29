@@ -92,8 +92,8 @@
                         searchable: true
                     },
                     {
-                        data: "created_at",
-                        title: "Created at",
+                        data: "status",
+                        title: "status",
                         searchable: true
                     },
                     {

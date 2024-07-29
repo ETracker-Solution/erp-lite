@@ -16,3 +16,6 @@
             </i> Delete</button>
     </form>
 </div>
+<script>
+    confirmAlert('#btnDelete')
+</script>

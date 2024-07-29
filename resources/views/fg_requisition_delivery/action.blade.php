@@ -17,3 +17,6 @@
         @endif
     </form>
 </div>
+<script>
+    confirmAlert('#btnDelete')
+</script>

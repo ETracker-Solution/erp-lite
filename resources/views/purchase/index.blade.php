@@ -79,7 +79,7 @@
                     orderable: false
                 },
                     {
-                        data: "id",
+                        data: "uid",
                         title: "Purchase No",
                         searchable: true
                     },

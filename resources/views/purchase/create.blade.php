@@ -40,7 +40,7 @@
                                             <div class="form-group">
                                                 <label for="uid">Purchase No</label>
                                                 <input type="text" class="form-control input-sm"
-                                                       value="{{$uid}}" name="uid"
+                                                       name="uid" v-model="uid"
                                                        id="uid" readonly>
                                             </div>
                                         </div>
@@ -56,7 +56,7 @@
                                             <div class="form-group">
                                                 <label for="store_id">Store</label>
                                                 <select name="store_id" id="store_id"
-                                                        class="form-control bSelect" required>
+                                                        class="form-control bSelect" @change="getUUID" v-model="store_id" required>
                                                     <option value="">Select Store</option>
                                                     @foreach($stores as $row)
                                                         <option
@@ -346,7 +346,9 @@
                     items: [],
                     suppliers: [],
                     selected_items: [],
-                    pageLoading: false
+                    pageLoading: false,
+                    uid: "{{$uid}}",
+                    store_id: ''
                 },
                 components: {
                     vuejsDatepicker
@@ -500,6 +502,25 @@
                             index.rate = '';
                         }
                     },
+                    getUUID(){
+                        const vm = this
+                        if (!vm.store_id) {
+                            vm.uid = 'Please Select Store First'
+                            toastr.error('Please Select valid Store', {
+                                closeButton: true,
+                                progressBar: true,
+                            });
+                        }
+                        axios.get('/get-uuid/' + vm.store_id, {
+                            params: {
+                                model: "purchase",
+                                column:'uid',
+                                is_headOffice: false
+                            }
+                        }).then((response) => {
+                            vm.uid = response.data
+                        })
+                    }
                 },
 
                 updated() {

@@ -68,11 +68,11 @@
                             </div>
                             <br>
                             <div class="col-sm-4 invoice-col">
-                                <b>Invoice :</b> {{ $model->id }},
+                                <b>GPB No :</b> {{ $model->uid }},
                                 <b>Name :</b> {{ $model->supplier->name }},
                                 <b>Address :</b>  {{ $model->supplier->address }}.
                             </div>
-                            
+
                             <hr>
                             <table border="1"cellspacing="0" width="100%" style="text-align: center; margin-top:20px;">
                                 <thead style="background:#cdced2;">
@@ -98,7 +98,7 @@
                                         <td class="text-right">{{ $item->rate * $item->quantity?? '' }}</td>
                                     </tr>
                                     @endforeach
-                                    
+
                                     <tr>
                                         <td colspan="5"></td>
                                         <td class="text-left">

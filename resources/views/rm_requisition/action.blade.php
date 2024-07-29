@@ -2,7 +2,7 @@
     <form action="{{route('rm-requisitions.destroy', $row->id)}}" method="post">
         <input type="hidden" name="_method" value="DELETE">
         @csrf
-        
+
         <a href="{{ route('rm-requisitions.show', encrypt($row->id)) }}" class="btn btn-xs btn-primary">
             <i class="fas fa-folder">
             </i> Show
@@ -16,6 +16,9 @@
             <button id="btnDelete" class="btn btn-danger btn-xs"> <i class="fas fa-trash">
                 </i> Delete</button>
         @endif
-        
+
     </form>
 </div>
+<script>
+    confirmAlert('#btnDelete')
+</script>

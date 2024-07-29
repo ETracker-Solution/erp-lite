@@ -10,6 +10,7 @@ use App\Models\Purchase;
 use App\Http\Requests\StorePurchaseRequest;
 use App\Http\Requests\UpdatePurchaseRequest;
 use App\Models\PurchaseItem;
+use App\Models\Requisition;
 use App\Models\Store;
 use App\Models\Supplier;
 use App\Models\SupplierGroup;
@@ -55,13 +56,20 @@ class PurchaseController extends Controller
      */
     public function create()
     {
-
+        $serial_no = null;
+        if (!auth()->user()->is_super) {
+            $doc_id = \auth()->user()->employee->outlet_id ?? \auth()->user()->employee->factory_id;
+            $doc_type = \auth()->user()->employee->outlet_id ? 'outlet' : 'factory';
+            $user_store = Store::where(['doc_type' => $doc_type, 'doc_id' => $doc_id])->first();
+            $outlet_id = $user_store->doc_id;
+            $serial_no = generateUniqueUUID($outlet_id, Purchase::class, 'uid',\auth()->user()->employee->factory_id);
+        }
         $data = [
             'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'RM'])->get(),
             'supplier_groups' => SupplierGroup::all(),
             'suppliers' => Supplier::all(),
             'stores' => Store::where(['type' => 'RM', 'doc_type' => 'ho', 'doc_id' => null])->get(),
-            'uid' => getNextId(Purchase::class),
+            'uid' => $serial_no,
 
         ];
 

@@ -33,5 +33,31 @@
 <!-- REQUIRED SCRIPTS -->
 @include('partials.script')
 
+<script>
+    function confirmAlert(element, message = "You won't be able to revert this!", buttonText = 'Yes, delete it!', title = 'Are you sure?') {
+        $(document).on('click', element, function (event) {
+            var form = $(this).closest("form");
+            event.preventDefault();
+            Swal.fire({
+                title: title,
+                text: message,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: buttonText,
+                customClass: {
+                    confirmButton: 'btn btn-primary',
+                    cancelButton: 'btn btn-outline-danger ml-1'
+                },
+                buttonsStyling: false
+            }).then(function (result) {
+                if (result.value) {
+                    if (result.isConfirmed) {
+                        form.submit();
+                    }
+                }
+            });
+        });
+    }
+</script>
 </body>
 </html>

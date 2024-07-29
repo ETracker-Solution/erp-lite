@@ -41,7 +41,7 @@
                                         <div class="form-group">
                                             <label for="serial_no">Purchase No</label>
                                             <input type="text" class="form-control input-sm"
-                                                   value="{{$purchase->id}}" name="serial_no"
+                                                   value="{{$purchase->uid}}" name="serial_no"
                                                    id="serial_no" readonly>
                                         </div>
                                     </div>

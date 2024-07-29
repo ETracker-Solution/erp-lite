@@ -42,12 +42,11 @@ function showStatus($status)
         case 'final':
             return '<span class="badge badge-success">' . ucfirst($status) . '</span>';
         case 'return':
+        case 'inactive':
         case 'returned':
             return '<span class="badge badge-danger">' . ucfirst($status) . '</span>';
         case 'cancelled':
             return '<span class="badge badge-glow badge-danger">' . ucfirst($status) . '</span>';
-        case 'inactive':
-            return '<span class="badge badge-danger">' . ucfirst($status) . '</span>';
         case 'pending':
             return '<span class="badge badge-warning">Pending</span>';
         case 'hold':
@@ -130,13 +129,14 @@ function getFileNameAfterImageUpload(UploadedFile $image)
 
 function getRequisitionQtyByProduct($product_id, $outlet_id)
 {
-     $req = \App\Models\Requisition::with('items')->where('date', date('Y-m-d'))->where('to_factory_id', auth('web')->user()->employee->factory_id)
+    $req = \App\Models\Requisition::with('items')->where('date', date('Y-m-d'))->where('to_factory_id', auth('web')->user()->employee->factory_id)
         ->where(['outlet_id' => $outlet_id])->first();
     if ($req) {
         return $req->items()->where('coi_id', $product_id)->sum('quantity');
     }
     return 0;
 }
+
 function getStoreDocId($store_id)
 {
     return \App\Models\Store::where(['id' => $store_id])->first()->doc_id;
@@ -145,46 +145,51 @@ function getStoreDocId($store_id)
 function generateInvoiceCode($store_id)
 {
     $outlet = Outlet::find($store_id);
-    $outlet_name = str_replace(',',' ',trim($outlet->name));
+    $outlet_name = str_replace(',', ' ', trim($outlet->name));
     $words = strtoupper($outlet_name);
     $acronym = "";
 
-    $acronym .= mb_substr($words, 0, 3).mb_substr($words, -1);
+    $acronym .= mb_substr($words, 0, 3) . mb_substr($words, -1);
 
-    $nameWithDate = $acronym.date('ym');
-    $lastCode = Sale::where('invoice_number','like','%'.$nameWithDate.'%')->orderBy('invoice_number','DESC')->first();
-    if ($lastCode){
-        $last3Digits = (int) (substr($lastCode->invoice_number,-3))+1;
-    }else{
+    $nameWithDate = $acronym . date('ym');
+    $lastCode = Sale::where('invoice_number', 'like', '%' . $nameWithDate . '%')->orderBy('invoice_number', 'DESC')->first();
+    if ($lastCode) {
+        $last3Digits = (int)(substr($lastCode->invoice_number, -3)) + 1;
+    } else {
         $last3Digits = 001;
     }
-    $code = $acronym.date('ym').str_pad($last3Digits, 3, 0, STR_PAD_LEFT);
+    $code = $acronym . date('ym') . str_pad($last3Digits, 3, 0, STR_PAD_LEFT);
 
-    if (Sale::where('invoice_number',$code)->exists()){
+    if (Sale::where('invoice_number', $code)->exists()) {
         generateInvoiceCode($outlet_name);
     }
     return $code;
 }
 
-function generateUniqueUUID($store_id, $model, $column_name, $is_factory = false)
+function generateUniqueUUID($store_id, $model, $column_name, $is_factory = false, $is_headOffice = false)
 {
-    $outlet = $is_factory ?  \App\Models\Factory::find($store_id) : Outlet::find($store_id);
-    $outlet_name = str_replace(',',' ',trim($outlet->name));
+    if (!$is_headOffice) {
+        $outlet = $is_factory ? \App\Models\Factory::find($store_id) : Outlet::find($store_id);
+        $outlet_name = str_replace(',', ' ', trim($outlet->name));
+    } else {
+        $outlet_name = 'HO';
+    }
+
     $words = strtoupper($outlet_name);
     $acronym = "";
 
-    $acronym .= mb_substr($words, 0, 3).mb_substr($words, -1);
+    $acronym .= mb_substr($words, 0, 3) . mb_substr($words, -1);
 
-    $nameWithDate = $acronym.date('ym');
-    $lastCode = $model::where($column_name,'like','%'.$nameWithDate.'%')->orderBy($column_name,'DESC')->first();
-    if ($lastCode){
-        $last3Digits = (int) (substr($lastCode->$column_name,-3))+1;
-    }else{
+    $nameWithDate = $acronym . date('ym');
+    $lastCode = $model::where($column_name, 'like', '%' . $nameWithDate . '%')->orderBy($column_name, 'DESC')->first();
+    if ($lastCode) {
+        $last3Digits = (int)(substr($lastCode->$column_name, -3)) + 1;
+    } else {
         $last3Digits = 001;
     }
-    $code = $acronym.date('ym').str_pad($last3Digits, 3, 0, STR_PAD_LEFT);
+    $code = $acronym . date('ym') . str_pad($last3Digits, 3, 0, STR_PAD_LEFT);
 
-    if ($model::where($column_name,$code)->exists()){
+    if ($model::where($column_name, $code)->exists()) {
         generateInvoiceCode($outlet_name);
     }
     return $code;

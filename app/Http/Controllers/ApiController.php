@@ -27,7 +27,7 @@ class ApiController extends Controller
 
     public function fetchItemById($id)
     {
-        $coi =  ChartOfInventory::with('unit', 'parent')->findOrFail($id);
+        $coi = ChartOfInventory::with('unit', 'parent')->findOrFail($id);
 
         if (auth()->user()->employee->user_of == 'factory') {
             $single_outlet_reqs = Requisition::where(['type' => 'FG', 'status' => 'approved'])
@@ -240,6 +240,7 @@ class ApiController extends Controller
         ];
         return response()->json($data);
     }
+
     public function fetchInventoryTransferById($id)
     {
         $requisitionDelivery = InventoryTransfer::with('items')->where('id', $id)->first();
@@ -344,7 +345,8 @@ class ApiController extends Controller
         $modelName = ucfirst($request->input('model')); // Capitalize the first letter
         $modelClass = $modelNamespace . $modelName;
         $is_factory = $request->is_factory ?? false;
+        $is_headOffice = $request->is_headOffice ?? false;
         $store = Store::find($store_id);
-        return generateUniqueUUID($store->doc_id, $modelClass, $request->column, $is_factory);
+        return generateUniqueUUID($store->doc_id, $modelClass, $request->column, $is_factory, $is_headOffice);
     }
 }

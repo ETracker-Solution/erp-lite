@@ -65,6 +65,13 @@
                                         <x-forms.text label="Address" inputName="address" placeholder="Enter Address"
                                             :isRequired='true' :isReadonly='false' :defaultValue="isset($outlet) ? $outlet->address : ''" />
                                     </div>
+                                    <div class="col-xl-4 col-md-4 col-12 mb-1">
+                                        <label for="status">Status</label>
+                                        <select name="status" id="status" class="form-control">
+                                            <option value="active" {{ old('status', isset($outlet) ? $outlet->status : '') == 'active' ? 'selected' : '' }}>Active</option>
+                                            <option value="inactive" {{ old('status', isset($outlet) ? $outlet->status : '') == 'inactive' ? 'selected' : '' }}>In Active</option>
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
 

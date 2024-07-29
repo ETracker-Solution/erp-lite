@@ -28,10 +28,13 @@ class OutletController extends Controller
                 ->editColumn('type', function ($row) {
                     return strtoupper($row->type);
                 })
+                ->editColumn('status', function ($row) {
+                    return showStatus($row->status);
+                })
                 ->addColumn('created_at', function ($row) {
                     return view('common.created_at', compact('row'));
                 })
-                ->rawColumns(['action'])
+                ->rawColumns(['action','status'])
                 ->make(true);
         }
         return view('outlet.index');
@@ -140,7 +143,7 @@ class OutletController extends Controller
             foreach($outletTrans as $outletTran) {
                 $outletTran->coa->delete();
                 $outletTran->delete();
-            }     
+            }
             $outlet = Outlet::findOrFail(decrypt($id));
             $outlet->delete();
             DB::commit();
