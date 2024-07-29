@@ -72,6 +72,12 @@
                                             <option value="inactive" {{ old('status', isset($outlet) ? $outlet->status : '') == 'inactive' ? 'selected' : '' }}>In Active</option>
                                         </select>
                                     </div>
+                                    <div class="col-xl-4 col-md-4 col-12 mb-1">
+                                        <label for="prefix">Prefix</label>
+                                        <input type="text" class="form-control" id="prefix" name="prefix"
+                                               placeholder="CT-"
+                                               value="{{ old('prefix', isset($outlet) ? $outlet->prefix : '') }}">
+                                    </div>
                                 </div>
                             </div>
 

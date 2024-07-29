@@ -25,6 +25,7 @@ class UpdateOutletRequest extends FormRequest
             'name' => 'required',
             'address' => 'required',
             'status' => ['required', 'in:active,inactive'],
+            'prefix' =>['nullable'],
         ];
     }
 }
