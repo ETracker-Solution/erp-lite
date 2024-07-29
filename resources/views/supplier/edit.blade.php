@@ -11,6 +11,8 @@ Supplier Edit
 @php
 $links = [
 'Home'=>route('dashboard'),
+'Data Admin Module'=>'',
+'Purchase Setting'=>'',
 'Supplier Edit'=>''
 ]
 @endphp
@@ -54,7 +56,10 @@ $links = [
                                 </div>
                                 <div class="col-xl-4 col-md-4 col-12 mb-1">
                                   <x-forms.select label="Suppllier Group" inputName="supplier_group_id" placeholder="Select One" :isRequired='true'  :isReadonly='false' :defaultValue="$supplier->supplier_group_id" :options="$supplier_groups" optionId="id" optionValue="name"/>
-                              </div>
+                                </div>
+                                <div class="col-xl-4 col-md-4 col-12 mb-1">
+                                    <x-forms.static-select label="Status" inputName="status" placeholder="Select One" :isRequired='true'  :isReadonly='false' :defaultValue="$supplier ? $supplier->status : ''" :options="['active','inactive']"/>
+                                </div>
                             </div>
                             <button class="btn btn-info waves-effect waves-float waves-light float-right" type="submit">Update
                             </button>

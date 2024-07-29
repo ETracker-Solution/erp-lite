@@ -11,6 +11,8 @@
 @php
 $links = [
 'Home'=>route('dashboard'),
+'Data Admin Module'=>'',
+'Purchase Setting'=>'',
 'Supplier Entry'=>''
 ]
 @endphp
@@ -91,6 +93,11 @@ $links = [
                                     </div>
                                     <div class="col-xl-4 col-md-4 col-12 mb-1">
                                         <x-forms.select label="Suppllier Group" inputName="supplier_group_id" placeholder="Select One" :isRequired='true'  :isReadonly='false' defaultValue="" :options="$supplier_groups" optionId="id" optionValue="name"/>
+                                    </div>
+                                    <div class="col-xl-4 col-md-4 col-12 mb-1">
+                                        <x-forms.static-select label="Status" inputName="status" placeholder="Select One"
+                                            :isRequired='true' :isReadonly='false' defaultValue=""
+                                            :options="['Active','Inactive']" />
                                     </div>
                                 </div>
                             </div>
