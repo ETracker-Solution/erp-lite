@@ -130,8 +130,10 @@ class OthersOutletSaleController extends Controller
             $avgProductionPrice = 0;
 
             foreach ($products as $row) {
+                // dd($row);
                 $row['product_id'] = $row['item_id'];
                 $row['unit_price'] = $row['sale_price'];
+                $row['discount'] = $row['product_discount'];
 //                $currentStock = availableInventoryBalance($row['product_id'], $store->id);
 //                if ($currentStock < $row['quantity']) {
 //                    Toastr::error('Quantity cannot more then ' . $currentStock . ' !', '', ["progressBar" => true]);

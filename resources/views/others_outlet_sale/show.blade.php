@@ -78,7 +78,7 @@
                                             <td>{{ $item->coi->name ?? '' }}</td>
                                             <td>{{ $item->unit_price ?? '' }}</td>
                                             <td>{{ $item->quantity ?? '' }}</td>
-                                            <td>{{ $otherOutletSale->discount }}</td>
+                                            <td>{{ $item->discount ? $item->discount : 0 }}</td>
                                             <td class="text-right">{{ $otherOutletSale->grand_total }}</td>
                                         </tr>
                                     @endforeach
