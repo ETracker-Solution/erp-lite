@@ -59,14 +59,17 @@ class OthersOutletSaleController extends Controller
     {
         $serial_no = null;
         $user_store = null;
+        $stores = Store::where(['type' => 'FG', 'doc_type' => 'outlet'])->get();
         if (!auth()->user()->is_super) {
             $user_store = Store::where(['doc_type' => 'outlet', 'doc_id' => \auth()->user()->employee->outlet_id])->first();
             $outlet_id = $user_store->doc_id;
             $serial_no = generateUniqueUUID($outlet_id, OthersOutletSale::class,'invoice_number');
+            $stores = Store::where(['type' => 'FG', 'doc_type' => 'outlet', 'doc_id' => \auth()->user()->employee->outlet_id])->get();
         }
+
         $data = [
             'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'FG'])->get(),
-            'stores' => Store::where(['type' => 'FG', 'doc_type' => 'outlet'])->get(),
+            'stores' => $stores,
             'delivery_points' => Outlet::all(),
             'serial_no' => $serial_no,
             'customers' => Customer::where('status', 'active')->get(),
