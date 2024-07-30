@@ -24,6 +24,10 @@ class ApiController extends Controller
     {
         return SupplierTransaction::where('supplier_id', $id)->sum(DB::raw('amount * transaction_type'));
     }
+    public function fetchCustomerDueById($id)
+    {
+        return CustomerTransaction::where('customer_id', $id)->sum(DB::raw('amount * transaction_type'));
+    }
 
     public function fetchItemById($id)
     {

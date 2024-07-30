@@ -3,7 +3,7 @@
         <div class="text-center">
             <div class="row">
                 <div class="col-4">
-                    <img src="{{ asset('upload').'/'.getSettingValue('company_logo') }}" alt="Cake Town Logo" width="70%" height="55px">
+                    <img src="{{ asset('upload').'/'.getSettingValue('company_logo') }}" alt="Logo" width="70%" height="55px">
                 </div>
                 <div class="col-8">
                     <div class="m-2 text-center">

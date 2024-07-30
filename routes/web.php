@@ -331,7 +331,10 @@ Route::middleware('auth')->group(function () {
     Route::resource('sales-exchanges', \App\Http\Controllers\SalesExchangeController::class);
 
     Route::get('get-uuid/{store_id}',[\App\Http\Controllers\ApiController::class, 'getUUIDbyStore']);
-
+    //-----Start Customer Receive Voucher---------
+    Route::resource('customer-receive-vouchers', \App\Http\Controllers\CustomerReceiveVoucherController::class);
+    Route::get('fetch-due-by-customer-id/{id}', [App\Http\Controllers\ApiController::class, 'fetchSupplierDueById'])->name('customer.due');
+    //-----End Customer Receive Voucher---------
 
 });
 Route::group(['prefix' => 'reports', 'middleware' => 'auth'], function () {
