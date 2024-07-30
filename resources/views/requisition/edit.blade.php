@@ -434,10 +434,13 @@
                     },
                     valid: function (index) {
 
-                        console.log(index.quantity);
-                        if (index.quantity <= 0) {
-                            //console.log('3');
-                            index.quantity = '';
+                        console.log(index.requisition_quantity);
+                        if (index.requisition_quantity <= 0) {
+                            toastr.error('Quantity 0 or Negative not Allow', {
+                                closeButton: true,
+                                progressBar: true,
+                            });
+                            index.requisition_quantity = '';
                         }
                     }
                 },
