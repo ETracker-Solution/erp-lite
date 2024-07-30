@@ -59,8 +59,8 @@ class FGTransferReceiveController extends Controller
             $inventory_transfers = InventoryTransfer::where(['type' => 'FG', 'status' => 'pending'])->get();
         }
         $data = [
-            'from_stores' => Store::where(['type' => 'FG', 'doc_type' => 'outlet'])->get(),
-            'to_stores' => Store::where(['type' => 'FG', 'doc_type' => 'outlet'])->get(),
+            'from_stores' => Store::where(['type' => 'FG'])->get(),
+            'to_stores' => Store::where(['type' => 'FG'])->get(),
             'inventory_transfers' => $inventory_transfers
         ];
         return view('fg_inventory_transfer_receive.create', $data);

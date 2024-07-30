@@ -377,7 +377,15 @@
                     data_input() {
 
                         let vm = this;
+                        if (!vm.from_store_id) {
+                            toastr.error('Enter Store', {
+                                closeButton: true,
+                                progressBar: true,
+                            });
 
+                            return false;
+
+                        }
                         if (!vm.item_id) {
                             toastr.error('Enter product', {
                                 closeButton: true,
