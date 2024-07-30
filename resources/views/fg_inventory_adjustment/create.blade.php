@@ -371,6 +371,15 @@
                     data_input() {
 
                         let vm = this;
+                        if (!vm.store_id) {
+                            toastr.error('Enter Store', {
+                                closeButton: true,
+                                progressBar: true,
+                            });
+
+                            return false;
+
+                        }
                         if (!vm.item_id) {
 
                             toastr.error('Enter product', {
@@ -394,7 +403,11 @@
                                 });
                             } else {
                                 if (slug) {
-                                    axios.get(this.config.get_item_info_url + '/' + slug).then(function (response) {
+                                    axios.get(this.config.get_item_info_url + '/' + slug,{
+                                        params: {
+                                            store_id: vm.store_id
+                                        }
+                                    }).then(function (response) {
 
                                         let product_details = response.data;
                                         vm.items.push({
