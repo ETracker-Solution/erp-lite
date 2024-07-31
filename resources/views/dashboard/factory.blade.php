@@ -26,10 +26,10 @@
                         <h5>Welcome to the Dashboard !🎉 </h5>
                         <p class="card-text font-small-3">Complete Requisition in the Month</p>
                         <h3 class="mb-75 mt-2 pt-50">
-                            {{ $monthlyTotalRequisitions ??0 }}
+                            {{ $TotalNewRequisitions }}
                         </h3>
-                        <a href="{{route('rm-requisitions.index')}}">
-                            <button type="button" class="btn btn-info">View Requisition</button>
+                        <a href="{{route('requisitions.index')}}">
+                            <button type="button" class="btn btn-info">View FG Requisition</button>
                         </a>
                     </div>
                 </div>

@@ -62,6 +62,8 @@ class FactoryDashboardController extends Controller
             $fgTotalStock += $stock;
         }
 
+        $TotalNewRequisitions = Requisition::where('to_factory_id',$factory_id)->whereType('FG')->whereIn('status',['pending','approved'])->count();
+
         $todayTotalRequisitions = Requisition::where('to_factory_id',$factory_id)->whereDate('created_at', Carbon::today())->count();
         $todayTotalDeliveries = RequisitionDelivery::where(['type' => 'FG', 'date' => Carbon::today()])->count();
         $todayTotalWastages = InventoryAdjustment::whereIn('store_id', $store_ids)->sum('subtotal');
@@ -162,6 +164,7 @@ class FactoryDashboardController extends Controller
 
         $data = [
 
+            'TotalNewRequisitions' => $TotalNewRequisitions,
             //1st Section
             'monthlyTotalRequisitions' => $monthlyTotalRequisitions,
             'todayTotalRequisitions' => $todayTotalRequisitions,
