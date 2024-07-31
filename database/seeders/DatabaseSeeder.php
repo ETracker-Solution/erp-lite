@@ -40,7 +40,7 @@ class DatabaseSeeder extends Seeder
         $this->call(MembershipSeeder::class);
         $this->call(MemberPointSeeder::class);
 
-        $user = \App\Models\User::factory()->create([
+        $user = \App\Models\User::create([
             'name' => 'Super Admin',
             'email' => 'admin@gmail.com',
             'employee_id' => 1,
