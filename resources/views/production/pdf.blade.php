@@ -97,8 +97,8 @@
                                 <thead style="background:#cdced2;">
                                     <tr style="background-color: #cdced2;">
                                         <th>#</th>
-                                        <th>Name</th>
-                                        <th>Category</th>
+                                        <th>Group</th>
+                                        <th>Item</th>
                                         <th>Unit</th>
                                         <th>Unit Price</th>
                                         <th>Quantity</th>
@@ -112,8 +112,8 @@
                                     @forelse ($production->items as $row)
                                     <tr>
                                         <td>{{ $i++ }}</td>
+                                        <td>{{ $row->coi->parent ? $row->coi->parent->name : '' }}</td>
                                         <td>{{ $row->coi ? $row->coi->name : '' }}</td>
-                                        <td>{{ $row->coi->group ? $row->coi->group->name : '' }}</td>
                                         <td>{{ $row->coi->unit ? $row->coi->unit->name : '' }}</td>
                                         <td>{{ $row->rate }}</td>
                                         <td>{{ $row->quantity }}</td>

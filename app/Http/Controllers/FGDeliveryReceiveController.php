@@ -55,8 +55,8 @@ class FGDeliveryReceiveController extends Controller
             $requisition_deliveries = RequisitionDelivery::with('requisition')->where(['type' => 'FG', 'status' => 'completed'])->get();
         }
        $data = [
-            'from_stores' => Store::where(['type' => 'FG', 'doc_type' => 'factory'])->get(),
-            'to_stores' => Store::where(['type' => 'FG', 'doc_type' => 'outlet'])->get(),
+            'from_stores' => Store::where(['type' => 'FG', 'doc_type' => 'factory','status'=>'active'])->get(),
+            'to_stores' => Store::where(['type' => 'FG', 'doc_type' => 'outlet','status'=>'active'])->get(),
             'requisition_deliveries' => $requisition_deliveries
         ];
         return view('fg_requisition_delivery_receive.create', $data);
