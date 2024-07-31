@@ -46,10 +46,10 @@ $links = [
                                         <div class="input-group">
                                             <input type="text" class="form-control input-sm"
                                                 value="{{ old('employee_id') }}" name="employee_id" id="employee_id">
-                                            <span class="input-group-append">
+                                            {{-- <span class="input-group-append">
                                                 <button type="button" class="btn btn-info btn-flat"
                                                     onclick="getEmployeeData()">Search</button>
-                                            </span>
+                                            </span> --}}
                                         </div>
                                     </div>
                                 </div>

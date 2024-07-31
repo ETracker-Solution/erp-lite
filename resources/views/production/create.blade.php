@@ -46,8 +46,8 @@
                                                                        value="{{$serial_no}}" name="serial_no"
                                                                        id="serial_no" v-model="serial_no">
                                                                 <span class="input-group-append">
-                                                                    <button type="button" class="btn btn-info btn-flat"
-                                                                            @click="data_edit">Search</button>
+                                                                    {{-- <button type="button" class="btn btn-info btn-flat"
+                                                                            @click="data_edit">Search</button> --}}
                                                                 </span>
                                                             </div>
                                                         </div>
