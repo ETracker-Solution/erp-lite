@@ -42,7 +42,7 @@ class SupplierController extends Controller
      */
     public function create()
     {
-        $supplier_groups = SupplierGroup::all();
+        $supplier_groups = SupplierGroup::where('status','active')->get();
         $serial_count = Supplier::latest()->first() ? Supplier::latest()->first()->id : 0;
         $serial_no = $serial_count + 1;
         return view('supplier.create', compact('serial_no','supplier_groups'));

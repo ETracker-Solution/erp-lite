@@ -42,7 +42,7 @@ class SupplierPaymentVoucherController extends Controller
      */
     public function create()
     {
-        $supplier_groups = SupplierGroup::all();
+        $supplier_groups = SupplierGroup::where('status','active')->get();
         $paymentAccounts = ChartOfAccount::where(['is_bank_cash' => 'yes', 'type' => 'ledger', 'status' => 'active'])->get();
 
         $serial_count = SupplierPaymentVoucher::latest()->first() ? SupplierPaymentVoucher::latest()->first()->id : 0;
