@@ -357,7 +357,7 @@
 
                     subtotal: function () {
                         return this.selected_items.reduce((total, item) => {
-                            return total + (item.quantity * item.rate)
+                            return parseFloat((total + (item.quantity * item.rate)).toFixed(2));
                         }, 0)
                     }
                 },

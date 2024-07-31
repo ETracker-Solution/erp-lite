@@ -50,7 +50,7 @@ class RMInventoryAdjustmentController extends Controller
         $serial_no = $serial_count + 1;
         $data = [
             'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'RM'])->get(),
-            'stores' => Store::where(['type' => 'RM'])->get(),
+            'stores' =>\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->factory_id ? Store::query()->whereType('RM')->where(['doc_type'=>'factory', 'doc_id'=>\auth()->user()->employee->factory_id])->get() : Store::query()->whereType('RM')->get(),
             'serial_no' => $serial_no,
         ];
         return view('rm_inventory_adjustment.create', $data);
