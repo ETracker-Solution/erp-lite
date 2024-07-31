@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ChartOfAccount;
 use App\Models\CustomerReceiveVoucher;
 use App\Http\Requests\StoreCustomerReceiveVoucherRequest;
 use App\Http\Requests\UpdateCustomerReceiveVoucherRequest;
+use App\Models\SupplierGroup;
 
 class CustomerReceiveVoucherController extends Controller
 {
@@ -13,7 +15,12 @@ class CustomerReceiveVoucherController extends Controller
      */
     public function index()
     {
-        //
+        $supplier_groups = SupplierGroup::where('status','active')->get();
+        $paymentAccounts = ChartOfAccount::where(['is_bank_cash' => 'yes', 'type' => 'ledger', 'status' => 'active'])->get();
+
+        $serial_count =CustomerReceiveVoucher::latest()->first() ? CustomerReceiveVoucher::latest()->first()->id : 0;
+        $uid = $serial_count + 1;
+        return view('customer_receive_voucher.create', compact('paymentAccounts', 'uid', 'supplier_groups'));
     }
 
     /**
