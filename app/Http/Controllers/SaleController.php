@@ -70,11 +70,12 @@ class SaleController extends Controller
             'serial_no' => $serial_no,
             'customers' => Customer::where('status', 'active')->get(),
             'user_store' => $user_store,
-            'invoice_number' => $serial_no
+            'invoice_number' => $serial_no,
+            'delivery_points' => Outlet::all(),
 
         ];
 //        return $data;
-        return view('sale.create', $data);
+        return view('sale.create2', $data);
     }
 
     /**
@@ -82,6 +83,7 @@ class SaleController extends Controller
      */
     public function store(StoreSaleRequest $request)
     {
+        return $request->all();
         $request->validate([
             'products' => 'array',
             'description' => 'nullable',
@@ -106,6 +108,8 @@ class SaleController extends Controller
             $store = Store::find($request->store_id);
             $outlet = Outlet::find($store->doc_id);
             $outlet_id = $outlet->id;
+
+
             $sale = new Sale();
             $sale->invoice_number = generateUniqueUUID($outlet_id, Sale::class,'invoice_number');
             // $sale->invoice_number = $request->invoice_number ?? InvoiceNumber::generateInvoiceNumber($outlet_id, $selectedDate);
@@ -176,6 +180,9 @@ class SaleController extends Controller
             //End Loyalty Effect
             $sale->amount = $salesAmount;
             addAccountsTransaction('POS', $sale, getAccountsReceiveableGLId(), getIncomeFromSalesGLId());
+            if ($salesAmount > $receive_amount){
+                addAccountsTransaction('POS', $sale, getCustomersReceiveableGLId(), getAccountsReceiveableGLId());
+            }
             $sale->amount = $avgProductionPrice;
             addAccountsTransaction('POS', $sale, getCOGSGLId(), getFGInventoryGLId());
 //            $sale->amount = $salesAmount;

@@ -102,3 +102,7 @@ function getRewardGLID(){
     return 51;
 }
 
+function getCustomersReceiveableGLId()
+{
+    return 58;
+}

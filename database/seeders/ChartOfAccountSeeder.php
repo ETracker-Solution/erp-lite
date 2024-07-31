@@ -814,5 +814,21 @@ class ChartOfAccountSeeder extends Seeder
             'created_at'=>'2024-05-23 04:14:24',
             'updated_at'=>'2024-05-23 04:14:24'
         ] );
+        ChartOfAccount::create( [
+            'id'=>58,
+            'parent_id'=>11,
+            'name'=>'Customers Receivable GL',
+            'status'=>'active',
+            'type'=>'ledger',
+            'account_type'=>'debit',
+            'is_bank_cash'=>'no',
+            'root_account_type'=>'as',
+            'default_type'=>'',
+            'created_by'=>NULL,
+            'updated_by'=>NULL,
+            'deleted_at'=>NULL,
+            'created_at'=>'2024-05-23 03:29:36',
+            'updated_at'=>NULL
+        ] );
     }
 }

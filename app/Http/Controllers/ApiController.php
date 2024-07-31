@@ -107,6 +107,7 @@ class ApiController extends Controller
 //            'price' => number_format(averageRMRate($coi->id),2),
             'coi_id' => $id,
             'balance_qty' => availableInventoryBalance($id, request()->store_id),
+            'is_readonly' => $coi->price > 0 ? true : false,
         ];
         return $data;
     }
