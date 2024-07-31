@@ -44,10 +44,10 @@
                                                         <input type="text" class="form-control input-sm"
                                                                value="{{$serial_no}}" name="serial_no"
                                                                id="serial_no">
-                                                        <span class="input-group-append">
+                                                        {{-- <span class="input-group-append">
                                                                     <button type="button"
                                                                             class="btn btn-info btn-flat">Search</button>
-                                                                </span>
+                                                                </span> --}}
                                                     </div>
                                                 </div>
                                             </div>
@@ -168,6 +168,7 @@
                                                             <th style="width: 20%">Group</th>
                                                             <th style="width: 36%">Item</th>
                                                             <th style="width: 5%">Unit</th>
+                                                            <th style="width: 15%">Balance Qty</th>
                                                             <th style="width: 8%">Rate</th>
                                                             <th style="width: 15%">Quantity</th>
                                                             <th style="width: 8%;vertical-align: middle">Value</th>
@@ -191,6 +192,13 @@
                                                             </td>
                                                             <td>
                                                                 @{{ row.unit }}
+                                                            </td>
+                                                            <td>
+                                                                @{{ row.balance_qty }}
+                                                                <input type="hidden"
+                                                                       :name="'products['+index+'][balance_qty]'"
+                                                                       class="form-control input-sm"
+                                                                       v-bind:value="row.balance_qty" readonly>
                                                             </td>
                                                             <td class="text-right">
                                                                 @{{ row.price }}
@@ -380,6 +388,15 @@
                             return false;
 
                         }
+                        if (!vm.transaction_type) {
+                            toastr.error('Enter Transaction Type', {
+                                closeButton: true,
+                                progressBar: true,
+                            });
+
+                            return false;
+
+                        }
                         if (!vm.item_id) {
 
                             toastr.error('Enter product', {
@@ -403,7 +420,7 @@
                                 });
                             } else {
                                 if (slug) {
-                                    axios.get(this.config.get_item_info_url + '/' + slug,{
+                                    axios.get(this.config.get_item_info_url + '/' + slug, {
                                         params: {
                                             store_id: vm.store_id
                                         }
@@ -455,16 +472,19 @@
                         //  row.item_total=total;
                     },
                     valid: function (index) {
-                        console.log(index.stock);
-                        console.log(index.quantity);
-
-                        if (index.quantity > index.stock) {
-                            //console.log('2');
-                            index.quantity = index.stock;
-                        }
+                        let vm = this;
                         if (index.quantity <= 0) {
-                            //console.log('3');
+                            toastr.error('Quantity 0 or Negative not Allow', {
+                                closeButton: true,
+                                progressBar: true,
+                            });
                             index.quantity = '';
+                        }
+                        if (vm.transaction_type == 'decrease') {
+                            if (index.balance_qty < index.quantity) {
+                                console.log('2');
+                                index.quantity = index.balance_qty;
+                            }
                         }
                     },
 

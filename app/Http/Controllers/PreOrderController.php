@@ -40,7 +40,7 @@ class PreOrderController extends Controller
                 ->rawColumns(['action', 'created_at', 'status'])
                 ->make(true);
         }
-        $outlets = Outlet::all();
+        $outlets = Outlet::where('status','active')->get();
         return view('pre_order.index',compact('outlets'));
     }
 

@@ -100,6 +100,15 @@
                                                 </a>
                                             </li>
                                         @endcan
+                                        {{-- @can('accounts-ft-voucher') --}}
+                                            <li class="nav-item">
+                                                <a href="{{route('supplier-vouchers.index')}}"
+                                                   class="nav-link {{ (Request::segment(1) == 'supplier-vouchers' )?' active':''}}">
+                                                    <i class="far fa-circle nav-icon"></i>
+                                                    <p>Supplier Voucher</p>
+                                                </a>
+                                            </li>
+                                        {{-- @endcan --}}
                                         @can('accounts-delivery-cash-transfer')
                                             <li class="nav-item">
                                                 <a href="{{route('delivery-cash-transfers.index')}}"
