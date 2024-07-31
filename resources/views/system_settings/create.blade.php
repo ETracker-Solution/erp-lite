@@ -4,6 +4,8 @@
     @php
         $links = [
         'Home'=>route('dashboard'),
+        'System Admin Module'=>'',
+        'System Setting'=>'',
         'System Setting Entry'=>''
         ]
     @endphp
@@ -83,12 +85,32 @@
                                         <div class="form-group">
                                             <label for="company_email">Company Email</label>
                                             <input type="email" class="form-control" name="settings[company_email]"
-                                                placeholder="Enter Company Name" value="{{ getSettingValue('company_email') }}">
+                                                placeholder="Enter Company Email" value="{{ getSettingValue('company_email') }}">
                                             @if ($errors->has('company_email'))
                                                 <small class="text-danger">{{ $errors->first('company_email') }}</small>
                                             @endif
                                         </div>
-                                    </div>                   
+                                    </div>   
+                                    <div class="col-xl-4 col-md-4 col-12 mb-1">
+                                        <div class="form-group">
+                                            <label for="copyright_name">Copyright Name</label>
+                                            <input type="text" class="form-control" name="settings[copyright_name]"
+                                                placeholder="Enter Copyright Name" value="{{ getSettingValue('copyright_name') }}">
+                                            @if ($errors->has('copyright_name'))
+                                                <small class="text-danger">{{ $errors->first('copyright_name') }}</small>
+                                            @endif
+                                        </div>
+                                    </div>
+                                    <div class="col-xl-4 col-md-4 col-12 mb-1">
+                                        <div class="form-group">
+                                            <label for="copyright_url">Copyright URL</label>
+                                            <input type="text" class="form-control" name="settings[copyright_url]"
+                                                placeholder="Enter Copyright URL" value="{{ getSettingValue('copyright_url') }}">
+                                            @if ($errors->has('copyright_url'))
+                                                <small class="text-danger">{{ $errors->first('copyright_url') }}</small>
+                                            @endif
+                                        </div>
+                                    </div>                
                                 </div>
                             </div>
                             <div class="card-footer">
