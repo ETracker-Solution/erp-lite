@@ -24,7 +24,7 @@
                             <div class="card-tools">
                                 <a href="{{route('outlets.create')}}" class="btn btn-sm btn-primary">
                                     <i class="fa fa-plus-circle"
-                                       aria-hidden="true"></i> &nbsp;Add Supplier
+                                       aria-hidden="true"></i> &nbsp;Create Outlet
 
                                 </a>
                             </div>
