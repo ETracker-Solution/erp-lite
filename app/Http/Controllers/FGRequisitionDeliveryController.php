@@ -50,8 +50,8 @@ class FGRequisitionDeliveryController extends Controller
     {
         $data = [
             'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'FG'])->get(),
-            'from_stores' => Store::where(['type' => 'FG', 'doc_type' => 'factory'])->get(),
-            'to_stores' => Store::where(['type' => 'FG', 'doc_type' => 'outlet'])->get(),
+            'from_stores' => Store::where(['type' => 'FG', 'doc_type' => 'factory','status'=>'active'])->get(),
+            'to_stores' => Store::where(['type' => 'FG', 'doc_type' => 'outlet','status'=>'active'])->get(),
         ];
         return view('fg_requisition_delivery.create', $data);
     }
