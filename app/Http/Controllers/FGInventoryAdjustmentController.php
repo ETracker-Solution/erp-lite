@@ -48,7 +48,7 @@ class FGInventoryAdjustmentController extends Controller
         $serial_no = $serial_count + 1;
         $data = [
             'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'FG'])->get(),
-            'stores' => Store::where(['type' => 'FG'])->get(),
+            'stores' => Store::where(['type' => 'FG','status' => 'active'])->get(),
             'serial_no' => $serial_no,
         ];
         return view('fg_inventory_adjustment.create', $data);

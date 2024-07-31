@@ -70,15 +70,15 @@ class RequisitionController extends Controller
     public function create()
     {
         if (\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->outlet_id) {
-            $from_stores = Store::where(['type' => 'FG', 'doc_type' => 'outlet', 'doc_id' => \auth()->user()->employee->outlet_id])->get();
+            $from_stores = Store::where(['type' => 'FG', 'doc_type' => 'outlet', 'status' => 'active', 'doc_id' => \auth()->user()->employee->outlet_id])->get();
         } else {
-            $from_stores = Store::where(['type' => 'FG', 'doc_type' => 'outlet'])->get();
+            $from_stores = Store::where(['type' => 'FG', 'doc_type' => 'outlet','status' => 'active'])->get();
         }
 
         $data = [
             'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'FG'])->get(),
             'from_stores' => $from_stores,
-            'to_stores' => Store::where(['type' => 'FG', 'doc_type' => 'factory'])->get(),
+            'to_stores' => Store::where(['type' => 'FG', 'doc_type' => 'factory','status' => 'active'])->get(),
             'serial_no' => RequisitionNumber::serial_number()
         ];
         return view('requisition.create', $data);
@@ -124,8 +124,8 @@ class RequisitionController extends Controller
     {
         $data = [
             'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'FG'])->get(),
-            'from_stores' => Store::where(['type' => 'FG', 'doc_type' => 'outlet'])->get(),
-            'to_stores' => Store::where(['type' => 'FG', 'doc_type' => 'factory'])->get(),
+            'from_stores' => Store::where(['type' => 'FG', 'doc_type' => 'outlet','status' => 'active'])->get(),
+            'to_stores' => Store::where(['type' => 'FG', 'doc_type' => 'factory','status' => 'active'])->get(),
             'requisition' => Requisition::find(decrypt($id))
         ];
         return view('requisition.edit', $data);
