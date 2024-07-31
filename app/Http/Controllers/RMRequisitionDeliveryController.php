@@ -49,8 +49,8 @@ class RMRequisitionDeliveryController extends Controller
     {
         $data = [
             'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'RM'])->get(),
-            'from_stores' => Store::where(['type' => 'RM', 'doc_type' => 'ho'])->get(),
-            'to_stores' => Store::where(['type' => 'RM', 'doc_type' => 'factory'])->get(),
+            'from_stores' => Store::where(['type' => 'RM', 'doc_type' => 'ho','status' => 'active'])->get(),
+            'to_stores' => Store::where(['type' => 'RM', 'doc_type' => 'factory','status' => 'active'])->get(),
             'requisitions' => Requisition::where(['type' => 'RM', 'status' => 'pending'])->get()
         ];
         return view('rm_requisition_delivery.create', $data);
