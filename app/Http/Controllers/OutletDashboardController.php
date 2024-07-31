@@ -43,9 +43,14 @@ class OutletDashboardController extends Controller
 
         $wastage_amount = InventoryAdjustment::whereIn('store_id', $store_ids)->sum('subtotal');
 
-        $requisition_deliveries =  $requisition_deliveries = RequisitionDelivery::whereHas('requisition', function ($query) {
+        $requisition_deliveries = RequisitionDelivery::whereHas('requisition', function ($query) {
             $query->where(['outlet_id' => \auth()->user()->employee->outlet_id]);
         })->where(['type' => 'FG', 'status' => 'completed'])->get();
+
+        $requisition_deliveries_count = RequisitionDelivery::whereHas('requisition', function ($query) {
+            $query->where(['outlet_id' => \auth()->user()->employee->outlet_id]);
+        })->where(['type' => 'FG','status' => 'completed'])->count();
+         
         $products = ChartOfInventory::where(['type' => 'item', 'rootAccountType' => 'FG'])->count();
 
         $year = Carbon::now()->month == 1 ? Carbon::now()->subYear()->year : Carbon::now()->year;
@@ -201,6 +206,7 @@ class OutletDashboardController extends Controller
 
         $data = [
             'requisition_deliveries' => $requisition_deliveries,
+            'requisition_deliveries_count' => $requisition_deliveries_count,
             'totalSales' => $total_sales,
             'outlets' => $outlets,
             'customers' => $customers,
