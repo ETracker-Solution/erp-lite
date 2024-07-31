@@ -41,9 +41,9 @@
                                                         <input type="text" class="form-control input-sm"
                                                                name="serial_no"
                                                                id="serial_no" v-model="serial_no">
-                                                        <span class="input-group-append">
+                                                        {{-- <span class="input-group-append">
                                                                     <button type="button" class="btn btn-info btn-flat">Search</button>
-                                                        </span>
+                                                        </span> --}}
                                                     </div>
                                                 </div>
                                             </div>
