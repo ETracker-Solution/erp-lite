@@ -41,10 +41,10 @@ class EmployeeController extends Controller
      */
     public function create()
     {
-        $designations = Designation::all();
-        $departments = Department::all();
-        $outlets = Outlet::all();
-        $factories = Factory::all();
+        $designations = Designation::where('status','active')->get();
+        $departments = Department::where('status','active')->get();
+        $outlets = Outlet::where('status','active')->get();
+        $factories = Factory::where('status','active')->get();
         return view('employee.create',compact('designations','departments','outlets','factories'));
     }
 

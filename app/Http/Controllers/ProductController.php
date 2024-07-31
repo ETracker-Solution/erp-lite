@@ -45,7 +45,7 @@ class ProductController extends Controller
     {
         $data = [
             'brands' => Brand::all(),
-            'units' => Unit::all(),
+            'units' => Unit::where(['status' => 'active'])->get(),
             'categories' => DB::table('categories')->get(),
         ];
         return view('product.create', $data);
