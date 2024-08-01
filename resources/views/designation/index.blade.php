@@ -7,7 +7,7 @@ Designation List
     @php
     $links = [
     'Home'=>route('dashboard'),
-    'Data Admin Module'=>'',
+    'Master Data'=>'',
     'HR'=>'',
     'Designation list'=>''
     ]

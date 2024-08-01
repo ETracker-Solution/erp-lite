@@ -7,7 +7,7 @@ Department List
     @php
     $links = [
     'Home'=>route('dashboard'),
-    'Data Admin Module'=>'',
+    'Master Data'=>'',
     'HR'=>'',
     'Department list'=>''
     ]

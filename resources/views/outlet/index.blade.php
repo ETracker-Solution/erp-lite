@@ -7,6 +7,7 @@
     @php
     $links = [
     'Home'=>route('dashboard'),
+    'Master Data'=>'',
     'Outlet List'=>''
     ]
     @endphp
