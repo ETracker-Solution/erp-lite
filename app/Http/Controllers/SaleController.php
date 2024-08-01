@@ -61,7 +61,7 @@ class SaleController extends Controller
         if (!auth()->user()->is_super) {
             $user_store = Store::where(['doc_type' => 'outlet', 'doc_id' => \auth()->user()->employee->outlet_id])->first();
             $outlet_id = $user_store->doc_id;
-            $serial_no = generateUniqueUUID($outlet_id, Sale::class,'invoice_number');
+            $serial_no = generateUniqueUUID($outlet_id, Sale::class, 'invoice_number');
             // $serial_no = InvoiceNumber::generateInvoiceNumber(\auth()->user()->employee->outlet_id);
         }
         $data = [
@@ -75,7 +75,7 @@ class SaleController extends Controller
 
         ];
 //        return $data;
-        return view('sale.create2', $data);
+        return view('sale.create', $data);
     }
 
     /**
@@ -83,7 +83,6 @@ class SaleController extends Controller
      */
     public function store(StoreSaleRequest $request)
     {
-        return $request->all();
         $request->validate([
             'products' => 'array',
             'description' => 'nullable',
@@ -111,7 +110,7 @@ class SaleController extends Controller
 
 
             $sale = new Sale();
-            $sale->invoice_number = generateUniqueUUID($outlet_id, Sale::class,'invoice_number');
+            $sale->invoice_number = generateUniqueUUID($outlet_id, Sale::class, 'invoice_number');
             // $sale->invoice_number = $request->invoice_number ?? InvoiceNumber::generateInvoiceNumber($outlet_id, $selectedDate);
             $sale->subtotal = $request->subtotal;
             $sale->discount = $request->discount ?? 0;
@@ -132,7 +131,7 @@ class SaleController extends Controller
 
             foreach ($products as $row) {
                 $row['product_id'] = $row['item_id'];
-                $row['unit_price'] = $row['sale_price'];
+                $row['unit_price'] = $row['rate'];
                 $currentStock = availableInventoryBalance($row['product_id'], $store->id);
                 if ($currentStock < $row['quantity']) {
                     Toastr::error('Quantity cannot more then ' . $currentStock . ' !', '', ["progressBar" => true]);
@@ -152,13 +151,18 @@ class SaleController extends Controller
             $receive_amount = 0;
             foreach ($request->payment_methods as $paymentMethod) {
                 $receive_amount += $paymentMethod['amount'];
-                Payment::create([
+            }
+            $sale->receive_amount = $receive_amount;
+            $sale->change_amount = $receive_amount - $sale->grand_total;
+            $sale->save();
+            foreach ($request->payment_methods as $paymentMethod) {
+                $payment = Payment::create([
                     'sale_id' => $sale->id,
                     'customer_id' => $customer_id ?? null,
                     'payment_method' => $paymentMethod['method'],
-                    'amount' => $paymentMethod['amount'],
+                    'amount' => ($paymentMethod['method'] == 'cash' && $sale->change_amount > 0) ? ($paymentMethod['amount'] - $sale->change_amount) : $paymentMethod['amount'],
                 ]);
-                $sale->amount = $paymentMethod['amount'];
+                $sale->amount = $payment->amount;
                 if ($paymentMethod['method'] == 'bkash') {
                     addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'bkash'), getAccountsReceiveableGLId());
                 }
@@ -172,17 +176,11 @@ class SaleController extends Controller
                 unset($sale->amount);
             }
 
-            $sale->receive_amount = $receive_amount;
-            $sale->change_amount = $receive_amount - $sale->grand_total;
-            $sale->save();
             //Start Loyalty Effect
-            pointEarnAndUpgradeMember($sale->id, $customer_id ?? null, $request->grandtotal);
+//            pointEarnAndUpgradeMember($sale->id, $customer_id ?? null, $request->grandtotal);
             //End Loyalty Effect
             $sale->amount = $salesAmount;
             addAccountsTransaction('POS', $sale, getAccountsReceiveableGLId(), getIncomeFromSalesGLId());
-            if ($salesAmount > $receive_amount){
-                addAccountsTransaction('POS', $sale, getCustomersReceiveableGLId(), getAccountsReceiveableGLId());
-            }
             $sale->amount = $avgProductionPrice;
             addAccountsTransaction('POS', $sale, getCOGSGLId(), getFGInventoryGLId());
 //            $sale->amount = $salesAmount;
