@@ -86,6 +86,16 @@ $links = [
                         searchable: true
                     },
                     {
+                        data: "minimum_purchase",
+                        title: "Minimum Purchase",
+                        searchable: true
+                    },
+                    {
+                        data: "discount",
+                        title: "Discount",
+                        searchable: true
+                    },
+                    {
                         data: "created_at",
                         title: "created at",
                         searchable: true
