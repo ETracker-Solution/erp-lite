@@ -45,8 +45,8 @@ class PermissionSeeder extends Seeder
         'loyalty'=>[
             'earn point','redeem point','point setting','membership','membertype','promo code'
         ],
-        'data admin'=>[
-            'chart of accounts','inventory item list','unit list','store list','supplier group list','supplier list','gl account','raw metarials','finish goods','customer ob','supplier ob','create factory','create outlet','designation','department'
+        'master data'=>[
+            'chart of accounts','inventory item list','unit list','store list','supplier group list','supplier list','gl account','raw metarials','finish goods','customer ob','supplier ob','create factory','create outlet','designation','department','create customer'
         ],
         'system admin'=>[
             'user list','employees','outlet payment','system setting','system config'
