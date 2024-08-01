@@ -17,27 +17,35 @@ class MemberTypeSeeder extends Seeder
         $created_at = now();
         $memberTypeArray = [
             [
-                'name' => 'Member',
+                'name' => 'New Customer',
                 'from_point' => 0,
-                'to_point' => 999,
+                'to_point' => 499,
+                'minimum_purchase' => 100,
+                'discount' => 00,
                 'created_at' => $created_at,
             ],
             [
-                'name' => 'Silver',
+                'name' => 'Silver Member',
+                'from_point' => 500,
+                'to_point' => 999,
+                'minimum_purchase' => 149,
+                'discount' => 10,
+                'created_at' => $created_at,
+            ],
+            [
+                'name' => 'Gold Member',
                 'from_point' => 1000,
                 'to_point' => 1999,
+                'minimum_purchase' => 199,
+                'discount' => 15,
                 'created_at' => $created_at,
             ],
             [
-                'name' => 'Gold',
+                'name' => 'Platinum Member',
                 'from_point' => 2000,
                 'to_point' => 2999,
-                'created_at' => $created_at,
-            ],
-            [
-                'name' => 'Platinum',
-                'from_point' => 3000,
-                'to_point' => 3999,
+                'minimum_purchase' => 249,
+                'discount' => 20,
                 'created_at' => $created_at,
             ]
 

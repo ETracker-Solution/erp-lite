@@ -54,6 +54,28 @@ $links = [
                                     @endif
                                 </div>
                             </div>
+                            <div class="col-xl-4 col-md-8 col-12 mb-1">
+                                <div class="form-group">
+                                    <label for="minimum_purchase">Minimum Purchase</label>
+                                    <input type="number" class="form-control" id="minimum_purchase" name="minimum_purchase"
+                                           placeholder="Enter From Point">
+
+                                    @if($errors->has('minimum_purchase'))
+                                        <small class="text-danger">{{$errors->first('minimum_purchase')}}</small>
+                                    @endif
+                                </div>
+                            </div>
+                            <div class="col-xl-4 col-md-8 col-12 mb-1">
+                                <div class="form-group">
+                                    <label for="discount">Discount</label>
+                                    <input type="number" class="form-control" id="discount" name="discount"
+                                           placeholder="Enter From Point">
+
+                                    @if($errors->has('discount'))
+                                        <small class="text-danger">{{$errors->first('discount')}}</small>
+                                    @endif
+                                </div>
+                            </div>
                         </div>
                         <button class="btn btn-info waves-effect waves-float waves-light float-right"
                                 type="submit">Submit
