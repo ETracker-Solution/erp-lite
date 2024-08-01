@@ -6,6 +6,8 @@
 @php
 $links = [
 'Home'=>route('dashboard'),
+'Loyalty Module'=>'',
+'Loyalty Entry'=>'',
 'Member Type list'=>''
 ]
 @endphp

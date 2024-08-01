@@ -4,7 +4,8 @@
     @php
         $links = [
             'Home' => route('dashboard'),
-            'Supplier Payment Voucher' => route('supplier-vouchers.index'),
+            'Accounts Module'=>'',
+            'General Accounts'=>'',
             'Supplier Payment Voucher Entry' => '',
         ];
     @endphp
@@ -17,14 +18,26 @@
             </span>
             <div class="row">
                 <div class="col-md-12">
+                    <div class="card card-info">
+                        <div class="card-header">
+                            <h4 class="card-title">Supplier Payment</h4>
+                            <div class="card-tools">
+                                <a href="{{route('supplier-vouchers.index')}}">
+                                    <button class="btn btn-sm btn-primary"><i class="fa fa-list" aria-hidden="true"></i>
+                                        &nbsp;See List
+                                    </button>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
                     <form action="{{ route('supplier-vouchers.store') }}" method="POST" class=""
                           enctype="multipart/form-data">
                         @csrf
-                        <div class="card card-info">
+                        {{-- <div class="card card-info">
                             <div class="card-header">
                                 <h4 class="card-title">Supplier Information</h4>
                             </div>
-                            <hr style="margin: 0;">
+                            <hr style="margin: 0;"> --}}
                             <div class="card-body">
                                 <div class="col-md-12">
                                     <div class="card">
@@ -82,11 +95,11 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="card card-info">
+                        {{-- </div> --}}
+                        {{-- <div class="card card-info">
                             <div class="card-header">
                                 <h4 class="card-title">Payment Information</h4>
-                            </div>
+                            </div> --}}
                             <hr style="margin: 0;">
                             <div class="card-body">
                                 <div class="col-md-12">
@@ -190,12 +203,14 @@
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="card-footer">
                                 <button type="submit" class="float-right btn btn-info"><i class="fa fa-fw fa-lg fa-check-circle"></i>Submit
                                 </button>
                             </div>
-                        </div>
+                            {{-- <div class="card-footer">
+                                <button type="submit" class="float-right btn btn-info"><i class="fa fa-fw fa-lg fa-check-circle"></i>Submit
+                                </button>
+                            </div> --}}
+                        {{-- </div> --}}
                     </form>
                 </div>
             </div>

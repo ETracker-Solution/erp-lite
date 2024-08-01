@@ -7,7 +7,8 @@
     @php
     $links = [
     'Home'=>route('dashboard'),
-    'Delivery Cash Transfer'=>route('fund-transfer-vouchers.index'),
+    'Accounts Module'=>'',
+    'General Accounts'=>'',
     'Delivery Cash Transfer Details'=>'',
     ]
     @endphp
@@ -17,11 +18,15 @@
         <div class="container-fluid">
             <div class="row">
                 <div class="col-md-12">
-                    <div class="card">
+                    <div class="card card-info">
                         <div class="card-header">
                             <h4 class="card-title">Delivery Cash Transfer Details</h4>
-                            <div class="text-right">
-                                {{-- <a href="{{ route('fund-transfer-voucher.pdf', encrypt($fundTransferVoucher->id)) }}" class="btn btn-primary" target="_blank"><i class="fa fa-download"></i> PDF</a> --}}
+                            <div class="card-tools">
+                                <a href="{{route('delivery-cash-transfers.index')}}">
+                                    <button class="btn btn-sm btn-primary"><i class="fa fa-list" aria-hidden="true"></i>
+                                        &nbsp;See List
+                                    </button>
+                                </a>
                             </div>
                         </div>
                         <div class="card-body">

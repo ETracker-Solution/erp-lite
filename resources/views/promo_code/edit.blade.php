@@ -5,7 +5,8 @@
 @php
         $links = [
             'Home'=>route('dashboard'),
-            'Promo Code list'=>route('promo-codes.index'),
+            'Loyalty Module'=>'',
+            'Loyalty Entry'=>'',
             'Promo Code Edit'=>'',
         ]
     @endphp
@@ -17,6 +18,13 @@
                     <div class="card">
                         <div class="card-header">
                             <h4 class="card-title">Promo Code Edit</h4>
+                            <div class="card-tools">
+                                <a href="{{route('promo-codes.index')}}">
+                                    <button class="btn btn-sm btn-primary"><i class="fa fa-list" aria-hidden="true"></i>
+                                        &nbsp;See List
+                                    </button>
+                                </a>
+                            </div>
                         </div>
                         <div class="card-body">
                             <form action="{{route('promo-codes.update',encrypt($row->id))}}" method="POST" class="" enctype="multipart/form-data">

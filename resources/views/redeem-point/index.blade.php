@@ -14,6 +14,8 @@
 @php
 $links = [
 'Home'=>route('dashboard'),
+'Loyalty Module'=>'',
+'Loyalty Entry'=>'',
 'Redeem Point list'=>''
 ]
 @endphp
