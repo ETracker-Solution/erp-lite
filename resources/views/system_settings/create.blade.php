@@ -110,7 +110,17 @@
                                                 <small class="text-danger">{{ $errors->first('copyright_url') }}</small>
                                             @endif
                                         </div>
-                                    </div>                
+                                    </div>    
+                                    <div class="col-xl-4 col-md-4 col-12 mb-1">
+                                        <div class="form-group">
+                                            <label for="software_name">Software Name</label>
+                                            <input type="text" class="form-control" name="settings[software_name]"
+                                                placeholder="Enter Software Name" value="{{ getSettingValue('software_name') }}">
+                                            @if ($errors->has('software_name'))
+                                                <small class="text-danger">{{ $errors->first('software_name') }}</small>
+                                            @endif
+                                        </div>
+                                    </div>            
                                 </div>
                             </div>
                             <div class="card-footer">
