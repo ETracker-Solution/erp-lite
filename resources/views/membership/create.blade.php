@@ -72,7 +72,7 @@ $links = [
                             </div>
                         </div>
                         <button class="btn btn-info waves-effect waves-float waves-light float-right"
-                                type="submit">Update
+                                type="submit">Submit
                         </button>
                     </form>
                 </div>
