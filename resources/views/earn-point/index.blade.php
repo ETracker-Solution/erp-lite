@@ -7,6 +7,8 @@ Earn Point List
 @php
 $links = [
 'Home'=>route('dashboard'),
+'Loyalty Module'=>'',
+'Loyalty Entry'=>'',
 'Earn Point list'=>''
 ]
 @endphp

@@ -13,6 +13,8 @@
     @php
     $links = [
     'Home'=>route('dashboard'),
+    'Accounts Module'=>'',
+    'General Accounts'=>'',
     'Payment Voucher'=>''
     ]
     @endphp

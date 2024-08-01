@@ -7,6 +7,8 @@ Supplier Payment Voucher List
     @php
     $links = [
     'Home'=>route('dashboard'),
+    'Accounts Module'=>'',
+    'General Accounts'=>'',
     'Supplier Payment Voucher List'=>''
     ]
     @endphp

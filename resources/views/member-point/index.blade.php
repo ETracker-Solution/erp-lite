@@ -1,15 +1,17 @@
 @extends('layouts.app')
 
-@section('title', 'Member Point Settings List')
+@section('title', 'Point Settings List')
 @section('content')
 
 @php
 $links = [
 'Home'=>route('dashboard'),
-'Member Point Settings list'=>''
+'Loyalty Module'=>'',
+'Loyalty Entry'=>'',
+'Point Settings list'=>''
 ]
 @endphp
-<x-breadcrumb title='Member Point Settings list' :links="$links"/>
+<x-breadcrumb title='Point Settings list' :links="$links"/>
 
 <section class="content">
     <div class="container-fluid">
@@ -18,7 +20,7 @@ $links = [
             <div class="col-12">
                 <div class="card card-info">
                     <div class="card-header">
-                        <h3 class="card-title">All Member Point Settings List</h3>
+                        <h3 class="card-title">All Point Settings List</h3>
                         <div class="card-tools">
                             <a href="{{ route('member-points.create') }}"><button class="btn btn-sm btn-primary"><i class="fa fa-plus-circle" aria-hidden="true"></i> &nbsp;Add New</button></a>
                         </div>

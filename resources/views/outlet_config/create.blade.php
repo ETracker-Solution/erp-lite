@@ -1,6 +1,6 @@
 @extends('layouts.app')
 @section('title')
-Outelt Config
+Outelt Payment
 @endsection
 @section('style')
 <!-- Select2 -->
@@ -11,10 +11,12 @@ Outelt Config
 @php
 $links = [
 'Home'=>route('dashboard'),
-'Outelt Config'=>''
+'System Admin Module'=>'',
+'System Config'=>'',
+'Outelt Payment'=>''
 ]
 @endphp
-<x-breadcrumb title='Outelt Config' :links="$links" />
+<x-breadcrumb title='Outelt Payment' :links="$links" />
 
 
 

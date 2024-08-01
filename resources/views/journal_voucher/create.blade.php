@@ -7,7 +7,8 @@
 @php
 $links = [
     'Home' => route('dashboard'),
-    'Journal Voucher' => route('journal-vouchers.index'),
+    'Accounts Module'=>'',
+    'General Accounts'=>'',
     'Journal Voucher Entry' => '',
 ];
 @endphp
@@ -19,14 +20,26 @@ $links = [
         <div class="col-md-12">
             <div class="row">
                 <div class="col-md-12">
+                    <div class="card card-info">
+                        <div class="card-header">
+                            <h4 class="card-title">Account Type</h4>
+                            <div class="card-tools">
+                                <a href="{{route('journal-vouchers.index')}}">
+                                    <button class="btn btn-sm btn-primary"><i class="fa fa-list" aria-hidden="true"></i>
+                                        &nbsp;See List
+                                    </button>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
                     <form action="{{ route('journal-vouchers.store') }}" method="POST" class=""
                         enctype="multipart/form-data">
                         @csrf
-                        <div class="card card-info">
+                        {{-- <div class="card card-info">
                             <div class="card-header">
                                 <h4 class="card-title">Account Type</h4>
                             </div>
-                            <hr style="margin: 0;">
+                            <hr style="margin: 0;"> --}}
                             <div class="card-body">
                                 <div class="col-md-12">
                                     <div class="card">
@@ -80,11 +93,11 @@ $links = [
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="card">
+                        {{-- </div> --}}
+                        {{-- <div class="card">
                             <div class="card-header">
                                 <h4 class="card-title">Account Type</h4>
-                            </div>
+                            </div> --}}
                             <hr style="margin: 0;">
                             <div class="card-body">
                                 <div class="col-md-12">
@@ -151,13 +164,16 @@ $links = [
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="card-footer">
                                 <button
                                     class="float-right btn btn-info waves-effect waves-float waves-light"
                                     type="submit">Save</button>
                             </div>
-                        </div>
+                            {{-- <div class="card-footer">
+                                <button
+                                    class="float-right btn btn-info waves-effect waves-float waves-light"
+                                    type="submit">Save</button>
+                            </div> --}}
+                        {{-- </div> --}}
                     </form>
                 </div>
             </div>

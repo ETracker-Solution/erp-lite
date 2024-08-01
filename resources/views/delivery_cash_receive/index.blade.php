@@ -5,6 +5,8 @@
     @php
     $links = [
     'Home'=>route('dashboard'),
+    'Accounts Module'=>'',
+    'General Accounts'=>'',
     'Delivery Cash Receive'=>''
     ]
     @endphp

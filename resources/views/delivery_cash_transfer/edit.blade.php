@@ -4,7 +4,8 @@
     @php
         $links = [
             'Home' => route('dashboard'),
-            'Fund Transfer Voucher' => route('fund-transfer-vouchers.index'),
+            'Accounts Module'=>'',
+            'General Accounts'=>'',
             'Fund Transfer Voucher Edit' => '',
         ];
     @endphp

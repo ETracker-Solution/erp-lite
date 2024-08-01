@@ -6,6 +6,8 @@
 @php
 $links = [
 'Home'=>route('dashboard'),
+'System Admin Module'=>'',
+'Users'=>'',
 'User list'=>''
 ]
 @endphp

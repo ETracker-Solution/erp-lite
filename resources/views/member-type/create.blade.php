@@ -4,7 +4,8 @@
 @php
 $links = [
     'Home'=>route('dashboard'),
-    'Member Type'=>route('member-types.index'),
+    'Loyalty Module'=>'',
+    'Loyalty Entry'=>'',
     'Member Type create'=>''
 ]
 @endphp
@@ -16,6 +17,13 @@ $links = [
             <div class="card card-info">
                 <div class="card-header">
                     <h4 class="card-title">Member Type Create</h4>
+                    <div class="card-tools">
+                        <a href="{{route('member-types.index')}}">
+                            <button class="btn btn-sm btn-primary"><i class="fa fa-list" aria-hidden="true"></i>
+                                &nbsp;See List
+                            </button>
+                        </a>
+                    </div>
                 </div>
                 <div class="card-body">
                     <form action="{{route('member-types.store')}}" method="POST" class=""

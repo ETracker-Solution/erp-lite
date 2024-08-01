@@ -6,6 +6,8 @@ User Entry
 @php
 $links = [
 'Home'=>route('dashboard'),
+'System Admin Module'=>'',
+'Users'=>'',
 'User Entry'=>''
 ]
 @endphp
