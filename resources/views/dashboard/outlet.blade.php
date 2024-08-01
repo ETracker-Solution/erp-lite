@@ -20,10 +20,10 @@
     <section class="content">
         <div class="row match-height">
             <!-- Medal Card -->
-            <div class="col-xl-4 col-md-6 col-12">
+            <div class="col-xl-3 col-md-6 col-12">
                 <div class="card card-congratulation-medal">
                     <div class="card-body">
-                        <h5 class="text-info">Congratulations Outlet! 🎉 </h5>
+                        <h5 class="text-info">Congratulations Outlet!</h5>
                         <p class="card-text font-small-3">Today's Sales Overview</p>
                         <h1 class="mb-75 mt-2 pt-50">
                             <a href="javascript:void(0);">{{ $todaySale }} BDT</a>
@@ -31,10 +31,22 @@
                     </div>
                 </div>
             </div>
+            <div class="col-xl-2 col-md-4 col-12">
+                <div class="card card-congratulation-medal">
+                    <div class="card-body">
+                        <a href="{{route('fg-requisition-deliveries.index')}}" class="btn btn-sm btn-block btn-info">
+                            Receivable Delivery
+                            <h1>
+                                {{ $requisition_deliveries_count }}
+                            </h1>
+                        </a>
+                    </div>
+                </div>
+            </div>
             <!--/ Medal Card -->
 
             <!-- Statistics Card -->
-            <div class="col-xl-8 col-md-6 col-12">
+            <div class="col-xl-7 col-md-6 col-12">
                 <div class="card card-statistics">
                     <div class="card-header bg-info">
                         <h3 class="card-title">Statistics</h3>

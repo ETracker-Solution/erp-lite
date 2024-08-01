@@ -11,7 +11,7 @@
             <i class="fas fa-folder">
             </i> Show
         </a>
-        @if($row->status != 'received')
+        @if($row->status != 'completed')
             <button id="btnDelete" class="btn btn-danger btn-xs"> <i class="fas fa-trash">
             </i> Delete</button>
         @endif
