@@ -1402,5 +1402,12 @@ return [
             'unit_id' => 2,
             'price' => 0,
         ],
+        [
+            'id' => 174,
+            'parent_id' => 3,
+            'name' => 'Custom Products',
+            'type' => 'group',
+            'rootAccountType' => 'FG',
+        ],
     ]
 ];

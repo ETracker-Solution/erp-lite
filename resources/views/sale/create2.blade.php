@@ -30,7 +30,7 @@
                                 </a>
                             </div>
                         </div>
-                        <form action="{{ route('sales.store') }}" method="POST" class="">
+                        <form action="{{ route('sales.store') }}" method="POST" class="" enctype="multipart/form-data">
                             @csrf
                             <div class="card-body">
                                 <div class="card-box">
@@ -220,8 +220,12 @@
                                                                        :name="'products['+index+'][item_id]'"
                                                                        class="form-control input-sm"
                                                                        v-bind:value="row.item_id">
-                                                                <input type="text" class="form-control input-sm"
-                                                                       v-bind:value="row.product_name" readonly>
+                                                                <input type="hidden"
+                                                                       :name="'products['+index+'][is_readonly]'"
+                                                                       class="form-control input-sm"
+                                                                       v-bind:value="row.is_readonly">
+                                                                <input type="text" class="form-control input-sm" :name="'products['+index+'][item_name]'"
+                                                                       v-model="row.product_name" v-bind:readonly="row.is_readonly">
                                                             </td>
                                                             <td>
                                                                 @{{ row.unit }}
@@ -397,7 +401,7 @@
                                 </div>
 
                             </div>
-                            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 text-right" v-if="items.length > 0">
+                            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 text-right" v-if="items.length > 0 && ((!customerNumber && total_payable_bill <= total_paying) || customerNumber)">
                                 <button class="float-right btn btn-primary" type="submit"><i
                                         class="fa fa-fw fa-lg fa-check-circle"></i>Submit
                                 </button>

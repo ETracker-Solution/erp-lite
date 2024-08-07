@@ -98,7 +98,7 @@ class OutletSeeder extends Seeder
                 'doc_id' => $outlet->id,
             ]);
 
-            $methods = ['Cash', 'Bkash'];
+            $methods = ['Cash', 'Bkash', 'Nagad', 'Bank','Rocket','Upay'];
             foreach ($methods as $method) {
                 $exists = ChartOfAccount::where('name', $method)->first();
                 if (!$exists) {

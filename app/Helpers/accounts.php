@@ -106,3 +106,16 @@ function getCustomersReceiveableGLId()
 {
     return 58;
 }
+
+function addCustomerTransaction($item){
+    \App\Models\CustomerTransaction::query()->create([
+        'customer_id' => $item->customer_id,
+        'doc_type' => 'POS',
+        'doc_id' => $item->id,
+        'amount' => $item->amount,
+        'date' => $item->date,
+        'transaction_type' => 1,
+        'chart_of_account_id' => getAccountsReceiveableGLId(),
+        'description' => 'Product Sales',
+    ]);
+}
