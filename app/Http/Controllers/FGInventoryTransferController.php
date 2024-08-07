@@ -55,11 +55,19 @@ class FGInventoryTransferController extends Controller
      */
     public function create()
     {
+        if (\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->outlet_id) {
+            $stores = Store::query()->whereType('FG')->where(['doc_type'=>'outlet','status'=>'active','doc_id'=>\auth()->user()->employee->outlet_id])->get();
+        } elseif(\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->factory_id) {
+            $stores = Store::query()->whereType('FG')->where(['doc_type'=>'factory','status'=>'active','doc_id'=>\auth()->user()->employee->factory_id])->get();
+        }else{
+            $stores = Store::query()->whereType('FG')->where('status','active')->get();
+        }
+
         $serial_count = InventoryTransfer::latest()->first() ? InventoryTransfer::latest()->first()->id : 0;
         $serial_no = $serial_count + 1;
         $data = [
             'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'FG'])->get(),
-            'stores' => \auth()->user() && \auth()->user()->employee && \auth()->user()->employee->outlet_id ? Store::query()->whereType('FG')->where(['doc_type'=>'outlet','status'=>'active','doc_id'=>\auth()->user()->employee->outlet_id])->get() : Store::query()->whereType('FG')->where('status','active')->get(),
+            'stores' => $stores,
             'to_stores' => \auth()->user() && \auth()->user()->employee && \auth()->user()->employee->outlet_id ? Store::query()->whereType('FG')->where(['doc_type'=>'outlet','status'=>'active'])->where('doc_id','!=',\auth()->user()->employee->outlet_id)->get() : Store::query()->whereType('FG')->where('status','active')->get(),
             'serial_no' => $serial_no,
         ];
