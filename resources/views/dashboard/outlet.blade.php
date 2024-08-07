@@ -34,7 +34,7 @@
             <div class="col-xl-2 col-md-4 col-12">
                 <div class="card card-congratulation-medal">
                     <div class="card-body">
-                        <a href="{{route('fg-requisition-deliveries.index')}}" class="btn btn-sm btn-block btn-info">
+                        <a href="{{route('fg-delivery-receives.create')}}" class="btn btn-sm btn-block btn-info">
                             Receivable Delivery
                             <h1>
                                 {{ $requisition_deliveries_count }}
