@@ -4,7 +4,8 @@
 @php
 $links = [
     'Home'=>route('dashboard'),
-    'Member Type'=>route('member-types.index'),
+    'Loyalty Module'=>'',
+    'Loyalty Entry'=>'',
     'Member Type create'=>''
 ]
 @endphp
@@ -16,6 +17,13 @@ $links = [
             <div class="card card-info">
                 <div class="card-header">
                     <h4 class="card-title">Member Type Create</h4>
+                    <div class="card-tools">
+                        <a href="{{route('member-types.index')}}">
+                            <button class="btn btn-sm btn-primary"><i class="fa fa-list" aria-hidden="true"></i>
+                                &nbsp;See List
+                            </button>
+                        </a>
+                    </div>
                 </div>
                 <div class="card-body">
                     <form action="{{route('member-types.store')}}" method="POST" class=""
@@ -51,6 +59,28 @@ $links = [
 
                                     @if($errors->has('to_point'))
                                         <small class="text-danger">{{$errors->first('to_point')}}</small>
+                                    @endif
+                                </div>
+                            </div>
+                            <div class="col-xl-4 col-md-8 col-12 mb-1">
+                                <div class="form-group">
+                                    <label for="minimum_purchase">Minimum Purchase</label>
+                                    <input type="number" class="form-control" id="minimum_purchase" name="minimum_purchase"
+                                           placeholder="Enter From Point">
+
+                                    @if($errors->has('minimum_purchase'))
+                                        <small class="text-danger">{{$errors->first('minimum_purchase')}}</small>
+                                    @endif
+                                </div>
+                            </div>
+                            <div class="col-xl-4 col-md-8 col-12 mb-1">
+                                <div class="form-group">
+                                    <label for="discount">Discount</label>
+                                    <input type="number" class="form-control" id="discount" name="discount"
+                                           placeholder="Enter From Point">
+
+                                    @if($errors->has('discount'))
+                                        <small class="text-danger">{{$errors->first('discount')}}</small>
                                     @endif
                                 </div>
                             </div>

@@ -6,7 +6,7 @@ Chart Of Accounts
     @php
         $links = [
        'Home'=>route('dashboard'),
-       'Data Admin Module'=>'',
+       'Master Data'=>'',
        'Account Setting'=>'',
        'Chart Of Accounts'=>'',
         ]

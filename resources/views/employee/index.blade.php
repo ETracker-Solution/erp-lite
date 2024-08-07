@@ -8,6 +8,8 @@ Employee List
 @php
     $links = [
     'Home'=>route('dashboard'),
+    'System Admin Module'=>'',
+    'Users'=>'',
     'Employee list'=>''
     ]
 @endphp

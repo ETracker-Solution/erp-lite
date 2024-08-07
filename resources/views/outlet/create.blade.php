@@ -11,6 +11,7 @@
     @php
         $links = [
             'Home' => route('dashboard'),
+            'Master Data'=>'',
             'Outlet' . (isset($outlet) ? ' Edit' : ' Entry') => '',
         ];
     @endphp

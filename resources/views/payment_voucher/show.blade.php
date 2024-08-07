@@ -7,7 +7,8 @@
 @php
     $links = [
     'Home'=>route('dashboard'),
-    'Payment Voucher'=>route('payment-vouchers.index'),
+    'Accounts Module'=>'',
+    'General Accounts'=>'',
     'Payment Voucher Datails'=>'',
     ]
     @endphp
@@ -20,8 +21,12 @@
                     <div class="card card-info">
                         <div class="card-header">
                             <h4 class="card-title">Payment Voucher Details</h4>
-                            <div class="text-right">
-                                {{-- <a href="{{ route('payment-voucher.pdf', encrypt($paymentVoucher->id)) }}" class="btn btn-primary" target="_blank"><i class="fa fa-download"></i> PDF</a> --}}
+                            <div class="card-tools">
+                                <a href="{{route('payment-vouchers.index')}}">
+                                    <button class="btn btn-sm btn-primary"><i class="fa fa-list" aria-hidden="true"></i>
+                                        &nbsp;See List
+                                    </button>
+                                </a>
                             </div>
                         </div>
                         <div class="card-body">

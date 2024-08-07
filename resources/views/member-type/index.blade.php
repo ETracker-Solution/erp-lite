@@ -6,6 +6,8 @@
 @php
 $links = [
 'Home'=>route('dashboard'),
+'Loyalty Module'=>'',
+'Loyalty Entry'=>'',
 'Member Type list'=>''
 ]
 @endphp
@@ -83,6 +85,16 @@ $links = [
                     {
                         data: "to_point",
                         title: "to point",
+                        searchable: true
+                    },
+                    {
+                        data: "minimum_purchase",
+                        title: "Minimum Purchase",
+                        searchable: true
+                    },
+                    {
+                        data: "discount",
+                        title: "Discount",
                         searchable: true
                     },
                     {

@@ -4,7 +4,8 @@
     @php
         $links = [
             'Home' => route('dashboard'),
-            'Fund Transfer Voucher' => route('fund-transfer-vouchers.index'),
+            'Accounts Module'=>'',
+            'General Accounts'=>'',
             'Fund Transfer Voucher Edit' => '',
         ];
     @endphp
@@ -16,13 +17,25 @@
                 <div class="col-md-12">
                     <div class="row">
                         <div class="col-md-12">
+                            <div class="card card-info">
+                                <div class="card-header">
+                                    <h4 class="card-title">Account Type</h4>
+                                    <div class="card-tools">
+                                        <a href="{{route('fund-transfer-vouchers.index')}}">
+                                            <button class="btn btn-sm btn-primary"><i class="fa fa-list" aria-hidden="true"></i>
+                                                &nbsp;See List
+                                            </button>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
                             <form action="{{ route('fund-transfer-vouchers.update',$fundTransferVoucher->id) }}" method="POST" class="" enctype="multipart/form-data">
                                 @csrf
                                 @method('put')
-                                <div class="card card-info">
+                                {{-- <div class="card card-info">
                                     <div class="card-header">
                                         <h4 class="card-title">Account Type</h4>
-                                    </div>
+                                    </div> --}}
                                     <hr style="margin: 0;">
                                     <div class="card-body">
                                         <div class="col-md-12">
@@ -73,11 +86,11 @@
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                                <div class="card card-info">
+                                {{-- </div> --}}
+                                {{-- <div class="card card-info">
                                     <div class="card-header">
                                         <h4 class="card-title">Account Type</h4>
-                                    </div>
+                                    </div> --}}
                                     <hr style="margin: 0;">
                                     <div class="card-body">
                                         <div class="col-md-12">
@@ -145,12 +158,14 @@
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-                                    <div class="card-footer">
                                         <button class="float-right btn btn-info waves-effect waves-float waves-light"
                                             type="submit">Update</button>
                                     </div>
-                                </div>
+                                    {{-- <div class="card-footer">
+                                        <button class="float-right btn btn-info waves-effect waves-float waves-light"
+                                            type="submit">Update</button>
+                                    </div> --}}
+                                {{-- </div> --}}
                             </form>
                         </div>
                     </div>

@@ -7,6 +7,8 @@ Receive Voucher List
     @php
     $links = [
     'Home'=>route('dashboard'),
+    'Accounts Module'=>'',
+    'General Accounts'=>'',
     'Receive Voucher List'=>''
     ]
     @endphp

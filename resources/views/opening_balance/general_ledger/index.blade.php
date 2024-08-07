@@ -6,7 +6,7 @@
     @php
         $links = [
        'Home'=>route('dashboard'),
-       'Data Admin Module'=>'',
+       'Master Data'=>'',
        'Opening Balance'=>'',
        'General Ledger'=>'',
         ]

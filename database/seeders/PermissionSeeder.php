@@ -16,9 +16,9 @@ class PermissionSeeder extends Seeder
      */
     public function run(): void
     {
-    //  DB::statement('SET FOREIGN_KEY_CHECKS=0;');
-    //  Permission::truncate();
-    //  DB::table('model_has_permissions')->truncate();
+     DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+     Permission::truncate();
+     DB::table('model_has_permissions')->truncate();
 
         // $modules = ['purchase','store rm','production','data admin','system admin','account','store fg', 'sales','loyalty'];
         // $suffix = ['admin','operator','viewer','approver'];
@@ -40,13 +40,13 @@ class PermissionSeeder extends Seeder
             'fg inventory transfer','fg inventory transfer receive','fg inventory adjustment','create fg requisition','fg requisition list','fg requisition delivery','fg delivery receive','fg inventory report'
         ],
         'sales'=>[
-            'pre orders list','pre order entry','sales','sales report', 'other outlet sales', 'sales delivery'
+            'pre orders list','pre order entry','sales','sales report', 'other outlet sales', 'sales delivery', 'sales exchanges'
         ],
         'loyalty'=>[
             'earn point','redeem point','point setting','membership','membertype','promo code'
         ],
-        'data admin'=>[
-            'chart of accounts','inventory item list','unit list','store list','supplier group list','supplier list','gl account','raw metarials','finish goods','customer ob','supplier ob','create factory','create outlet','designation','department'
+        'master data'=>[
+            'chart of accounts','inventory item list','unit list','store list','supplier group list','supplier list','gl account','raw metarials','finish goods','customer ob','supplier ob','create factory','create outlet','designation','department','create customer'
         ],
         'system admin'=>[
             'user list','employees','outlet payment','system setting','system config'

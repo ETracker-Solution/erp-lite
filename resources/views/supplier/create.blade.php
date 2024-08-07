@@ -11,7 +11,7 @@
 @php
 $links = [
 'Home'=>route('dashboard'),
-'Data Admin Module'=>'',
+'Master Data'=>'',
 'Purchase Setting'=>'',
 'Supplier Entry'=>''
 ]

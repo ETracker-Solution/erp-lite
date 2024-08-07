@@ -8,7 +8,8 @@
 @php
     $links = [
     'Home'=>route('dashboard'),
-    'Journal Voucher'=>route('journal-vouchers.index'),
+    'Accounts Module'=>'',
+    'General Accounts'=>'',
     'Journal Voucher Details'=>'',
     ]
     @endphp
@@ -21,8 +22,12 @@
                     <div class="card card-info">
                         <div class="card-header">
                             <h4 class="card-title">Journal Voucher Details</h4>
-                            <div class="text-right">
-                                {{-- <a href="{{ route('journal-voucher.pdf', encrypt($journalVoucher->id)) }}" class="btn btn-primary" target="_blank"><i class="fa fa-download"></i> PDF</a> --}}
+                            <div class="card-tools">
+                                <a href="{{route('journal-vouchers.index')}}">
+                                    <button class="btn btn-sm btn-primary"><i class="fa fa-list" aria-hidden="true"></i>
+                                        &nbsp;See List
+                                    </button>
+                                </a>
                             </div>
                         </div>
                         <div class="card-body">

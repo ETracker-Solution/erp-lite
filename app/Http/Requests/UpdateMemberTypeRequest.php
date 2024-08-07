@@ -27,6 +27,8 @@ class UpdateMemberTypeRequest extends FormRequest
             'name'=>'required',
             'from_point' => 'required',
             'to_point' => 'required',
+            'minimum_purchase' => 'required',
+            'discount' => 'required',
         ];
     }
 }

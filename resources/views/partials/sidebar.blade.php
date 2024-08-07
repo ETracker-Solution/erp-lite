@@ -183,7 +183,7 @@
                                     <ul class="nav nav-treeview third-child">
                                         @can('purchase-goods-purchase-bill')
                                             <li class="nav-item">
-                                                <a href="{{route('purchases.create')}}"
+                                                <a href="{{route('purchases.index')}}"
                                                    class="nav-link {{ (Request::segment(1) == 'purchases' )?' active':''}}">
                                                     <i class="far fa-circle nav-icon"></i>
                                                     <p>Goods Purchase Bill</p>
@@ -192,7 +192,7 @@
                                         @endcan
                                         @can('purchase-purchase-return-bill')
                                             <li class="nav-item">
-                                                <a href="{{route('purchase-returns.create')}}"
+                                                <a href="{{route('purchase-returns.index')}}"
                                                    class="nav-link {{ (Request::segment(1) == 'purchase-returns' )?' active':''}}">
                                                     <i class="far fa-circle nav-icon"></i>
                                                     <p>Purchase Return Bill</p>
@@ -229,7 +229,7 @@
                                     <ul class="nav nav-treeview third-child">
                                         @can('store-rm-rm-inventory-transfer')
                                             <li class="nav-item">
-                                                <a href="{{route('rm-inventory-transfers.create')}}"
+                                                <a href="{{route('rm-inventory-transfers.index')}}"
                                                    class="nav-link {{ (Request::segment(1) == 'rm-inventory-transfers' )?' active':''}}">
                                                     <i class="far fa-circle nav-icon"></i>
                                                     <p>RM Inventory Transfer</p>
@@ -238,7 +238,7 @@
                                         @endcan
                                         @can('store-rm-rm-inventory-transfer-receive')
                                             <li class="nav-item">
-                                                <a href="{{route('rm-transfer-receives.create')}}"
+                                                <a href="{{route('rm-transfer-receives.index')}}"
                                                 class="nav-link {{ (Request::segment(1) == 'rm-transfer-receives' )?' active':''}}">
                                                     <i class="far fa-circle nav-icon"></i>
                                                     <p>RM Inventory Transfer Receive</p>
@@ -248,7 +248,7 @@
                                             
                                         @can('store-rm-rm-inventory-adjustment')
                                             <li class="nav-item">
-                                                <a href="{{route('rm-inventory-adjustments.create')}}"
+                                                <a href="{{route('rm-inventory-adjustments.index')}}"
                                                    class="nav-link {{ (Request::segment(1) == 'rm-inventory-adjustments' )?' active':''}}">
                                                     <i class="far fa-circle nav-icon"></i>
                                                     <p>RM Inventory Adjustment</p>
@@ -343,13 +343,13 @@
                                                 <a href="{{route('batches.index')}}"
                                                    class="nav-link {{ (Request::segment(1) == 'batches' )?' active':''}}">
                                                     <i class="far fa-circle nav-icon"></i>
-                                                    <p>Batch Entry</p>
+                                                    <p>Batch</p>
                                                 </a>
                                             </li>
                                         @endcan
                                         @can('production-rm-consumption')
                                             <li class="nav-item">
-                                                <a href="{{route('consumptions.create')}}"
+                                                <a href="{{route('consumptions.index')}}"
                                                    class="nav-link {{ (Request::segment(1) == 'consumptions' )?' active':''}}">
                                                     <i class="far fa-circle nav-icon"></i>
                                                     <p>RM Consumption</p>
@@ -358,7 +358,7 @@
                                         @endcan
                                         @can('production-fg-production')
                                             <li class="nav-item">
-                                                <a href="{{route('productions.create')}}"
+                                                <a href="{{route('productions.index')}}"
                                                    class="nav-link {{ (Request::segment(1) == 'productions' )?' active':''}}">
                                                     <i class="far fa-circle nav-icon"></i>
                                                     <p>FG Production</p>
@@ -395,7 +395,7 @@
                                     <ul class="nav nav-treeview third-child">
                                         @can('store-fg-fg-inventory-transfer')
                                             <li class="nav-item">
-                                                <a href="{{route('fg-inventory-transfers.create')}}"
+                                                <a href="{{route('fg-inventory-transfers.index')}}"
                                                    class="nav-link {{ (Request::segment(1) == 'fg-inventory-transfers' )?' active':''}}">
                                                     <i class="far fa-circle nav-icon"></i>
                                                     <p>FG Inventory Transfer</p>
@@ -404,7 +404,7 @@
                                         @endcan
                                         @can('store-fg-fg-inventory-transfer-receive')
                                             <li class="nav-item">
-                                                <a href="{{route('fg-transfer-receives.create')}}"
+                                                <a href="{{route('fg-transfer-receives.index')}}"
                                                    class="nav-link {{ (Request::segment(1) == 'fg-transfer-receives' )?' active':''}}">
                                                     <i class="far fa-circle nav-icon"></i>
                                                     <p>FG Inventory Transfer Receive</p>
@@ -413,7 +413,7 @@
                                         @endcan
                                         @can('store-fg-fg-inventory-adjustment')
                                             <li class="nav-item">
-                                                <a href="{{route('fg-inventory-adjustments.create')}}"
+                                                <a href="{{route('fg-inventory-adjustments.index')}}"
                                                    class="nav-link {{ (Request::segment(1) == 'fg-inventory-adjustments' )?' active':''}}">
                                                     <i class="far fa-circle nav-icon"></i>
                                                     <p>FG Inventory Adjustment</p>
@@ -445,7 +445,7 @@
                                         @endcan
                                         @can('store-fg-fg-requisition-delivery')
                                             <li class="nav-item">
-                                                <a href="{{route('fg-requisition-deliveries.create')}}"
+                                                <a href="{{route('fg-requisition-deliveries.index')}}"
                                                    class="nav-link {{ (Request::segment(1) == 'fg-requisition-deliveries' )?' active':''}}">
                                                     <i class="far fa-circle nav-icon"></i>
                                                     <p>FG Requisition Delivery</p>
@@ -454,7 +454,7 @@
                                         @endcan
                                         @can('store-fg-fg-delivery-receive')
                                             <li class="nav-item">
-                                                <a href="{{route('fg-delivery-receives.create')}}"
+                                                <a href="{{route('fg-delivery-receives.index')}}"
                                                    class="nav-link {{ (Request::segment(1) == 'fg-delivery-receives' )?' active':''}}">
                                                     <i class="far fa-circle nav-icon"></i>
                                                     <p>FG Delivery Receive</p>
@@ -490,10 +490,10 @@
                         </ul>
                     </li>
                 @endcanany
-                @canany(['sales-sales','sales-sales-report','sales-pre-orders-list','sales-pre-order-entry','sales-other-outlet-sales','sales-sales-delivery'])
-                    <li class="nav-item {{ (Request::segment(1) == 'sales'|| Request::segment(1) == 'others-outlet-sales'||Request::segment(1) == 'sales-deliveries' ||Request::segment(1) == 'sale-reports'||Request::segment(1) == 'pre-orders' )?'menu-open':''}}">
+                @canany(['sales-sales','sales-sales-report','sales-pre-orders-list','sales-pre-order-entry','sales-other-outlet-sales','sales-sales-delivery','sales-sales-exchanges'])
+                    <li class="nav-item {{ (Request::segment(1) == 'sales'|| Request::segment(1) == 'others-outlet-sales'||Request::segment(1) == 'sales-deliveries'||Request::segment(1) == 'sales-exchanges' ||Request::segment(1) == 'sale-reports'||Request::segment(1) == 'pre-orders' )?'menu-open':''}}">
                         <a href="#"
-                           class="nav-link {{ (Request::segment(1) == 'sales'|| Request::segment(1) == 'others-outlet-sales'||Request::segment(1) == 'sales-deliveries' ||Request::segment(1) == 'sale-reports'||Request::segment(1) == 'pre-orders')?' active':''}}">
+                           class="nav-link {{ (Request::segment(1) == 'sales'|| Request::segment(1) == 'others-outlet-sales'||Request::segment(1) == 'sales-deliveries'||Request::segment(1) == 'sales-exchanges' ||Request::segment(1) == 'sale-reports'||Request::segment(1) == 'pre-orders')?' active':''}}">
                             <i class="nav-icon fas fa-shopping-cart"></i>
                             <p>
                                 Sales Module
@@ -533,9 +533,9 @@
                                     </ul>
                                 </li>
                             @endcanany
-                            @canany(['sales-sales','sales-other-outlet-sales','sales-sales-delivery'])
-                                <li class="nav-item {{ (Request::segment(1) == 'sales' || Request::segment(1) == 'others-outlet-sales'||Request::segment(1) == 'sales-deliveries')?'menu-open':''}}">
-                                    <a href="#" class="nav-link {{ (Request::segment(1) == 'sales' || Request::segment(1) == 'others-outlet-sales'||Request::segment(1) == 'sales-deliveries')?' active':''}}">
+                            @canany(['sales-sales','sales-other-outlet-sales','sales-sales-delivery','sales-sales-exchanges'])
+                                <li class="nav-item {{ (Request::segment(1) == 'sales' || Request::segment(1) == 'others-outlet-sales'||Request::segment(1) == 'sales-exchanges'||Request::segment(1) == 'sales-deliveries')?'menu-open':''}}">
+                                    <a href="#" class="nav-link {{ (Request::segment(1) == 'sales' || Request::segment(1) == 'others-outlet-sales'||Request::segment(1) == 'sales-exchanges'||Request::segment(1) == 'sales-deliveries')?' active':''}}">
                                         <i class="nav-icon fa fa-folder-open"></i>
                                         <p>
                                             Sales Entry
@@ -545,7 +545,7 @@
                                     <ul class="nav nav-treeview third-child">
                                         @can('sales-sales')
                                             <li class="nav-item">
-                                                <a href="{{route('sales.create')}}"
+                                                <a href="{{route('sales.index')}}"
                                                    class="nav-link {{ (Request::segment(1) == 'sales' )?' active':''}}">
                                                     <i class="far fa-circle nav-icon"></i>
                                                     <p>Sales</p>
@@ -554,7 +554,7 @@
                                         @endcan
                                         @can('sales-other-outlet-sales')
                                             <li class="nav-item">
-                                                <a href="{{route('others-outlet-sales.create')}}"
+                                                <a href="{{route('others-outlet-sales.index')}}"
                                                    class="nav-link {{ (Request::segment(1) == 'others-outlet-sales' )?' active':''}}">
                                                     <i class="far fa-circle nav-icon"></i>
                                                     <p>OO Sales</p>
@@ -570,7 +570,7 @@
                                                 </a>
                                             </li>
                                         @endcan
-                                        {{-- @can('') --}}
+                                        @can('sales-sales-exchanges')
                                             <li class="nav-item">
                                                 <a href="{{route('sales-exchanges.index')}}"
                                                    class="nav-link {{ (Request::segment(1) == 'sales-exchanges' )?' active':''}}">
@@ -578,7 +578,7 @@
                                                     <p>Sales Exchange</p>
                                                 </a>
                                             </li>
-                                        {{-- @endcan --}}
+                                        @endcan
                                     </ul>
                                 </li>
                             @endcanany
@@ -695,18 +695,18 @@
                         </ul>
                     </li>
                 @endcanany
-                @canany(['data-admin-create-outlet','data-admin-create-factory','data-admin-designation','data-admin-department','data-admin-gl-account','data-admin-raw-metarials','data-admin-finish-goods','data-admin-customer-ob','data-admin-supplier-ob','data-admin-supplier-group-list','data-admin-supplier-list','data-admin-inventory-item-list','data-admin-unit-list','data-admin-store-list','data-admin-chart-of-accounts'])
-                    <li class="nav-item {{ (Request::segment(1) == 'chart-of-accounts'||Request::segment(1) == 'chart-of-inventories'|| Request::segment(1) == 'units' || Request::segment(1) == 'stores'|| Request::segment(1) == 'supplier-groups'|| Request::segment(1) == 'suppliers'|| Request::segment(1) == 'general-ledger-opening-balances'|| Request::segment(1) == 'raw-materials-opening-balances'||Request::segment(1) == 'finish-goods-opening-balances'||Request::segment(1) == 'customer-opening-balances' || Request::segment(1) == 'supplier-opening-balances'||Request::segment(1) == 'factories'||Request::segment(1) == 'outlets'||Request::segment(1) == 'designations'||Request::segment(1) == 'departments' )?'menu-open':''}}">
+                @canany(['master-data-create-outlet','master-data-create-factory','master-data-designation','master-data-department','master-data-gl-account','master-data-raw-metarials','master-data-finish-goods','master-data-customer-ob','master-data-supplier-ob','master-data-supplier-group-list','master-data-supplier-list','master-data-inventory-item-list','master-data-unit-list','master-data-store-list','master-data-chart-of-accounts'])
+                    <li class="nav-item {{ (Request::segment(1) == 'chart-of-accounts'||Request::segment(1) == 'chart-of-inventories'|| Request::segment(1) == 'units' || Request::segment(1) == 'stores'|| Request::segment(1) == 'supplier-groups'|| Request::segment(1) == 'suppliers'|| Request::segment(1) == 'general-ledger-opening-balances'|| Request::segment(1) == 'raw-materials-opening-balances'||Request::segment(1) == 'finish-goods-opening-balances'||Request::segment(1) == 'customer-opening-balances' || Request::segment(1) == 'supplier-opening-balances'||Request::segment(1) == 'factories'||Request::segment(1) == 'outlets'||Request::segment(1) == 'designations'||Request::segment(1) == 'departments'||Request::segment(1) == 'customers' )?'menu-open':''}}">
                         <a href="#"
-                           class="nav-link {{ (Request::segment(1) == 'chart-of-accounts'|| Request::segment(1) == 'chart-of-inventories'|| Request::segment(1) == 'units' || Request::segment(1) == 'stores'|| Request::segment(1) == 'supplier-groups'|| Request::segment(1) == 'suppliers'|| Request::segment(1) == 'general-ledger-opening-balances'|| Request::segment(1) == 'raw-materials-opening-balances'||Request::segment(1) == 'finish-goods-opening-balances'||Request::segment(1) == 'customer-opening-balances' || Request::segment(1) == 'supplier-opening-balances'||Request::segment(1) == 'factories'||Request::segment(1) == 'outlets'||Request::segment(1) == 'designations'||Request::segment(1) == 'departments')?' active':''}}">
+                           class="nav-link {{ (Request::segment(1) == 'chart-of-accounts'|| Request::segment(1) == 'chart-of-inventories'|| Request::segment(1) == 'units' || Request::segment(1) == 'stores'|| Request::segment(1) == 'supplier-groups'|| Request::segment(1) == 'suppliers'|| Request::segment(1) == 'general-ledger-opening-balances'|| Request::segment(1) == 'raw-materials-opening-balances'||Request::segment(1) == 'finish-goods-opening-balances'||Request::segment(1) == 'customer-opening-balances' || Request::segment(1) == 'supplier-opening-balances'||Request::segment(1) == 'factories'||Request::segment(1) == 'outlets'||Request::segment(1) == 'designations'||Request::segment(1) == 'departments'||Request::segment(1) == 'customers')?' active':''}}">
                             <i class="nav-icon fas fa-wrench"></i>
                             <p>
-                                Data Admin Module
+                                Master Data
                                 <i class="right fas fa-angle-left"></i>
                             </p>
                         </a>
                         <ul class="nav nav-treeview second-child">
-                            @canany(['data-admin-chart-of-accounts'])
+                            @canany(['master-data-chart-of-accounts'])
                                 <li class="nav-item {{ (Request::segment(1) == 'chart-of-accounts' )?'menu-open':''}}">
                                     <a href="#"
                                        class="nav-link {{ (Request::segment(1) == 'chart-of-accounts' )?' active':''}}">
@@ -717,7 +717,7 @@
                                         </p>
                                     </a>
                                     <ul class="nav nav-treeview third-child">
-                                        @can('data-admin-chart-of-accounts')
+                                        @can('master-data-chart-of-accounts')
                                             <li class="nav-item">
                                                 <a href="{{route('chart-of-accounts.index')}}"
                                                    class="nav-link {{ (Request::segment(1) == 'chart-of-accounts' )?' active':''}}">
@@ -729,7 +729,7 @@
                                     </ul>
                                 </li>
                             @endcanany
-                            @canany(['data-admin-inventory-item-list','data-admin-unit-list','data-admin-store-list'])
+                            @canany(['master-data-inventory-item-list','master-data-unit-list','master-data-store-list'])
                                 <li class="nav-item {{ (Request::segment(1) == 'chart-of-inventories'|| Request::segment(1) == 'units' || Request::segment(1) == 'stores' )?'menu-open':''}}">
                                     <a href="#"
                                        class="nav-link {{ (Request::segment(1) == 'chart-of-inventories'|| Request::segment(1) == 'units' || Request::segment(1) == 'stores'  )?' active':''}}">
@@ -740,7 +740,7 @@
                                         </p>
                                     </a>
                                     <ul class="nav nav-treeview third-child">
-                                        @can('data-admin-inventory-item-list')
+                                        @can('master-data-inventory-item-list')
                                             <li class="nav-item">
                                                 <a href="{{route('chart-of-inventories.index')}}"
                                                    class="nav-link {{ (Request::segment(1) == 'chart-of-inventories' )?' active':''}}">
@@ -749,7 +749,7 @@
                                                 </a>
                                             </li>
                                         @endcan
-                                        @can('data-admin-unit-list')
+                                        @can('master-data-unit-list')
                                             <li class="nav-item">
                                                 <a href="{{route('units.index')}}"
                                                    class="nav-link {{ (Request::segment(1) == 'units' )?' active':''}}">
@@ -758,7 +758,7 @@
                                                 </a>
                                             </li>
                                         @endcan
-                                        @can('data-admin-store-list')
+                                        @can('master-data-store-list')
                                             <li class="nav-item">
                                                 <a href="{{route('stores.index')}}"
                                                    class="nav-link {{ (Request::segment(1) == 'stores' )?' active':''}}">
@@ -770,7 +770,7 @@
                                     </ul>
                                 </li>
                             @endcanany
-                            @canany(['data-admin-supplier-group-list','data-admin-supplier-list'])
+                            @canany(['master-data-supplier-group-list','master-data-supplier-list'])
                                 <li class="nav-item {{ (Request::segment(1) == 'supplier-groups'|| Request::segment(1) == 'suppliers' )?'menu-open':''}}">
                                     <a href="#"
                                        class="nav-link {{ (Request::segment(1) == 'supplier-groups'|| Request::segment(1) == 'suppliers'  )?' active':''}}">
@@ -781,7 +781,7 @@
                                         </p>
                                     </a>
                                     <ul class="nav nav-treeview third-child">
-                                        @can('data-admin-supplier-group-list')
+                                        @can('master-data-supplier-group-list')
                                             <li class="nav-item">
                                                 <a href="{{route('supplier-groups.index')}}"
                                                    class="nav-link {{ (Request::segment(1) == 'supplier-groups' )?' active':''}}">
@@ -790,7 +790,7 @@
                                                 </a>
                                             </li>
                                         @endcan
-                                        @can('data-admin-supplier-list')
+                                        @can('master-data-supplier-list')
                                             <li class="nav-item">
                                                 <a href="{{route('suppliers.index')}}"
                                                    class="nav-link {{ (Request::segment(1) == 'suppliers' )?' active':''}}">
@@ -803,7 +803,7 @@
                                 </li>
                             @endcanany
 
-                            @canany(['data-admin-gl-account','data-admin-raw-metarials','data-admin-finish-goods','data-admin-customer-ob','data-admin-supplier-ob'])
+                            @canany(['master-data-gl-account','master-data-raw-metarials','master-data-finish-goods','master-data-customer-ob','master-data-supplier-ob'])
                                 <li class="nav-item {{ (Request::segment(1) == 'general-ledger-opening-balances'|| Request::segment(1) == 'raw-materials-opening-balances'||Request::segment(1) == 'finish-goods-opening-balances'||Request::segment(1) == 'customer-opening-balances' || Request::segment(1) == 'supplier-opening-balances')?'menu-open':''}}">
                                     <a href="#"
                                        class="nav-link {{ (Request::segment(1) == 'general-ledger-opening-balances'|| Request::segment(1) == 'raw-materials-opening-balances' ||Request::segment(1) == 'finish-goods-opening-balances' ||Request::segment(1) == 'customer-opening-balances' || Request::segment(1) == 'supplier-opening-balances')?' active':''}}">
@@ -814,7 +814,7 @@
                                         </p>
                                     </a>
                                     <ul class="nav nav-treeview third-child">
-                                        @can('data-admin-gl-account')
+                                        @can('master-data-gl-account')
                                             <li class="nav-item">
                                                 <a href="{{route('general-ledger-opening-balances.index')}}"
                                                    class="nav-link {{ (Request::segment(1) == 'general-ledger-opening-balances' )?' active':''}}">
@@ -823,7 +823,7 @@
                                                 </a>
                                             </li>
                                         @endcan
-                                        @can('data-admin-raw-metarials')
+                                        @can('master-data-raw-metarials')
                                             <li class="nav-item">
                                                 <a href="{{route('raw-materials-opening-balances.index')}}"
                                                    class="nav-link {{ (Request::segment(1) == 'raw-materials-opening-balances' )?' active':''}}">
@@ -832,7 +832,7 @@
                                                 </a>
                                             </li>
                                         @endcan
-                                        @can('data-admin-finish-goods')
+                                        @can('master-data-finish-goods')
                                             <li class="nav-item">
                                                 <a href="{{route('finish-goods-opening-balances.index')}}"
                                                    class="nav-link {{ (Request::segment(1) == 'finish-goods-opening-balances' )?' active':''}}">
@@ -841,7 +841,7 @@
                                                 </a>
                                             </li>
                                         @endcan
-                                        @can('data-admin-customer-ob')
+                                        @can('master-data-customer-ob')
                                             <li class="nav-item">
                                                 <a href="{{route('customer-opening-balances.index')}}"
                                                    class="nav-link {{ (Request::segment(1) == 'customer-opening-balances' )?' active':''}}">
@@ -850,7 +850,7 @@
                                                 </a>
                                             </li>
                                         @endcan
-                                        @can('data-admin-supplier-ob')
+                                        @can('master-data-supplier-ob')
                                             <li class="nav-item">
                                                 <a href="{{route('supplier-opening-balances.index')}}"
                                                    class="nav-link {{ (Request::segment(1) == 'supplier-opening-balances' )?' active':''}}">
@@ -862,7 +862,7 @@
                                     </ul>
                                 </li>
                             @endcanany
-                            @canany(['data-admin-designation','data-admin-department'])
+                            @canany(['master-data-designation','master-data-department'])
                                 <li class="nav-item {{ (Request::segment(1) == 'designations'||Request::segment(1) == 'departments' )?'menu-open':''}}">
                                     <a href="#"
                                        class="nav-link {{ (Request::segment(1) == 'designations'||Request::segment(1) == 'departments'  )?' active':''}}">
@@ -873,7 +873,7 @@
                                         </p>
                                     </a>
                                     <ul class="nav nav-treeview third-child">
-                                        @can('data-admin-designation')
+                                        @can('master-data-designation')
                                             <li class="nav-item">
                                                 <a href="{{route('designations.index')}}"
                                                    class="nav-link {{ (Request::segment(1) == 'designations' )?' active':''}}">
@@ -882,7 +882,7 @@
                                                 </a>
                                             </li>
                                         @endcan
-                                        @can('data-admin-department')
+                                        @can('master-data-department')
                                             <li class="nav-item">
                                                 <a href="{{route('departments.index')}}"
                                                    class="nav-link {{ (Request::segment(1) == 'departments' )?' active':''}}">
@@ -894,26 +894,26 @@
                                     </ul>
                                 </li>
                             @endcanany
-                            @can('data-admin-create-factory')
+                            @can('master-data-create-factory')
                                 <li class="nav-item">
                                     <a href="{{route('factories.index')}}"
                                        class="nav-link {{ (Request::segment(1) == 'factories' )?' active':''}}">
                                         <i class="far fa-circle nav-icon"></i>
-                                        <p>Create Factory</p>
+                                        <p>Factory</p>
                                     </a>
                                 </li>
                             @endcan
 
-                            @can('data-admin-create-outlet')
+                            @can('master-data-create-outlet')
                                 <li class="nav-item">
                                     <a href="{{route('outlets.index')}}"
                                        class="nav-link {{ (Request::segment(1) == 'outlets' )?' active':''}}">
                                         <i class="far fa-circle nav-icon"></i>
-                                        <p>Create Outlet</p>
+                                        <p>Outlet List</p>
                                     </a>
                                 </li>
                             @endcan
-                            @can('data-admin-create-outlet')
+                            @can('master-data-create-customer')
                                 <li class="nav-item">
                                     <a href="{{route('customers.index')}}"
                                        class="nav-link {{ (Request::segment(1) == 'customers' )?' active':''}}">
@@ -961,7 +961,7 @@
                                                 <a href="{{route('employees.index')}}"
                                                    class="nav-link {{ (Request::segment(1) == 'employees' )?' active':''}}">
                                                     <i class="far fa-circle nav-icon"></i>
-                                                    <p>Employees</p>
+                                                    <p>Employee List</p>
                                                 </a>
                                             </li>
                                         @endcan

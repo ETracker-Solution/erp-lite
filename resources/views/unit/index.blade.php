@@ -7,7 +7,7 @@ Unit List
     @php
     $links = [
     'Home'=>route('dashboard'),
-    'Data Admin Module'=>'',
+    'Master Data'=>'',
     'Inventory Setting'=>'',
     'Unit list'=>''
     ]

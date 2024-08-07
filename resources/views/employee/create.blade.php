@@ -12,6 +12,8 @@ Employee
 @php
 $links = [
 'Home' => route('dashboard'),
+'System Admin Module'=>'',
+'Users'=>'',
 'Employee Entry' => '',
 ];
 @endphp

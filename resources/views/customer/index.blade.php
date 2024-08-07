@@ -8,6 +8,7 @@ Customer List
 @php
     $links = [
     'Home'=>route('dashboard'),
+    'Master Data'=>'',
     'Customer list'=>''
     ]
 @endphp
