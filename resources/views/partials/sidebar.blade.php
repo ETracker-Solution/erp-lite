@@ -490,7 +490,7 @@
                         </ul>
                     </li>
                 @endcanany
-                @canany(['sales-sales','sales-sales-report','sales-pre-orders-list','sales-pre-order-entry','sales-other-outlet-sales','sales-sales-delivery'])
+                @canany(['sales-sales','sales-sales-report','sales-pre-orders-list','sales-pre-order-entry','sales-other-outlet-sales','sales-sales-delivery','sales-sales-exchanges'])
                     <li class="nav-item {{ (Request::segment(1) == 'sales'|| Request::segment(1) == 'others-outlet-sales'||Request::segment(1) == 'sales-deliveries'||Request::segment(1) == 'sales-exchanges' ||Request::segment(1) == 'sale-reports'||Request::segment(1) == 'pre-orders' )?'menu-open':''}}">
                         <a href="#"
                            class="nav-link {{ (Request::segment(1) == 'sales'|| Request::segment(1) == 'others-outlet-sales'||Request::segment(1) == 'sales-deliveries'||Request::segment(1) == 'sales-exchanges' ||Request::segment(1) == 'sale-reports'||Request::segment(1) == 'pre-orders')?' active':''}}">
@@ -533,7 +533,7 @@
                                     </ul>
                                 </li>
                             @endcanany
-                            @canany(['sales-sales','sales-other-outlet-sales','sales-sales-delivery'])
+                            @canany(['sales-sales','sales-other-outlet-sales','sales-sales-delivery','sales-sales-exchanges'])
                                 <li class="nav-item {{ (Request::segment(1) == 'sales' || Request::segment(1) == 'others-outlet-sales'||Request::segment(1) == 'sales-exchanges'||Request::segment(1) == 'sales-deliveries')?'menu-open':''}}">
                                     <a href="#" class="nav-link {{ (Request::segment(1) == 'sales' || Request::segment(1) == 'others-outlet-sales'||Request::segment(1) == 'sales-exchanges'||Request::segment(1) == 'sales-deliveries')?' active':''}}">
                                         <i class="nav-icon fa fa-folder-open"></i>
@@ -570,7 +570,7 @@
                                                 </a>
                                             </li>
                                         @endcan
-                                        {{-- @can('') --}}
+                                        @can('sales-sales-exchanges')
                                             <li class="nav-item">
                                                 <a href="{{route('sales-exchanges.index')}}"
                                                    class="nav-link {{ (Request::segment(1) == 'sales-exchanges' )?' active':''}}">
@@ -578,7 +578,7 @@
                                                     <p>Sales Exchange</p>
                                                 </a>
                                             </li>
-                                        {{-- @endcan --}}
+                                        @endcan
                                     </ul>
                                 </li>
                             @endcanany
