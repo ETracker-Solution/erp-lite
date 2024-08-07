@@ -66,7 +66,7 @@ class SupplierOpeningBalanceController extends Controller
 
     public function list()
     {
-        $sob_balances = $this->base_model->with('supplier')->paginate(10);
+        $sob_balances = $this->base_model->with('supplier')->latest()->paginate(10);
         return response()->json(['success' => true, 'items' => new PaginateResource($sob_balances, CommonResource::class)]);
     }
 

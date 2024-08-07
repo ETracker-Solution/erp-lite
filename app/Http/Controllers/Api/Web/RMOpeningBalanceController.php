@@ -80,7 +80,7 @@ class RMOpeningBalanceController extends Controller
 
     public function list()
     {
-        $rom_balances = $this->base_model->with('chartOfInventory.unit', 'chartOfInventory.parent')->paginate(10);
+        $rom_balances = $this->base_model->with('chartOfInventory.unit', 'chartOfInventory.parent')->latest()->paginate(10);
         return response()->json(['success' => true, 'items' => new PaginateResource($rom_balances, ROMOpeningBalanceResource::class)]);
     }
 
