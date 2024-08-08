@@ -30,7 +30,7 @@
                                         <a href="{{route('pre-orders.index')}}" class="btn btn-sm btn-primary">
                                             <i class="fas fa-bars"
                                             aria-hidden="true"></i> &nbsp;
-                                            Pre Order List
+                                            See List
                                         </a>
                                     @endcan
                                 </div>

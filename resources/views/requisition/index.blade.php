@@ -24,8 +24,7 @@
                                 @can('store-fg-create-fg-requisition')
                                     <a href="{{route('requisitions.create')}}">
                                         <button class="btn btn-sm btn-primary"><i class="fa fa-plus-circle"
-                                                                                aria-hidden="true"></i> &nbsp;Add FG
-                                            Requisition
+                                                                                aria-hidden="true"></i> &nbsp;Add New
                                         </button>
                                     </a>
                                 @endcan

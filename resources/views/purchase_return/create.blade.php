@@ -30,7 +30,7 @@
                                     <a href="{{route('purchase-returns.index')}}" class="btn btn-sm btn-primary">
                                         <i class="fas fa-bars"
                                            aria-hidden="true"></i> &nbsp;
-                                        Goods Purchase Return Bill List
+                                           See List
                                     </a>
                                 </div>
                             </div>

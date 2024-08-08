@@ -88,7 +88,7 @@ class FGOpeningBalanceController extends Controller
 
     public function list()
     {
-        $fgob_balances = $this->base_model->with('chartOfInventory.unit', 'chartOfInventory.parent')->paginate(10);
+        $fgob_balances = $this->base_model->with('chartOfInventory.unit', 'chartOfInventory.parent')->latest()->paginate(10);
         return response()->json(['success' => true, 'items' => new PaginateResource($fgob_balances, FGOpeningBalanceResource::class)]);
     }
 

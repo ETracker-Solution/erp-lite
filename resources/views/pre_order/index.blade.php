@@ -22,8 +22,7 @@
                                 @can('sales-pre-order-entry')
                                     <a href="{{route('pre-orders.create')}}">
                                         <button class="btn btn-sm btn-primary"><i class="fa fa-plus-circle"
-                                                                                  aria-hidden="true"></i> &nbsp;Add
-                                            Pre Order
+                                                                                  aria-hidden="true"></i> &nbsp;Add New
                                         </button>
                                     </a>
                                 @endcan

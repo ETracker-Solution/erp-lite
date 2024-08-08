@@ -8,6 +8,7 @@ use App\Models\InventoryTransaction;
 use App\Models\Store;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use niklasravnsborg\LaravelPdf\Facades\Pdf;
 
@@ -15,7 +16,8 @@ class RMInventoryReportController extends Controller
 {
     public function index()
     {
-        return view('raw_material_inventory_report.index');
+        $isAdmin = auth()->user()->is_super;
+        return view('raw_material_inventory_report.index',compact('isAdmin'));
     }
 
 
