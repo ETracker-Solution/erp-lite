@@ -86,7 +86,7 @@ class SaleController extends Controller
      */
     public function store(StoreSaleRequest $request)
     {
-//        return $request->all();
+        return $request->all();
         $request->validate([
             'products' => 'array',
             'description' => 'nullable',
@@ -109,9 +109,9 @@ class SaleController extends Controller
                 }
                 $customer_id = $customer->id;
             }
-            if($request->store_id){
+            if ($request->store_id) {
                 $store = Store::find($request->store_id);
-            }else{
+            } else {
                 $store = Store::where(['doc_type' => 'outlet', 'doc_id' => \auth()->user()->employee->outlet_id])->first();
             }
             $outlet = Outlet::find($store->doc_id);
@@ -130,6 +130,18 @@ class SaleController extends Controller
 //            $sale->description = $request->description;
             $sale->created_by = Auth::id();
             $sale->outlet_id = $outlet_id;
+//            New Columns
+            $sale->membership_discount_percentage = $request->membership_discount_percentage;
+            $sale->membership_discount_amount = $request->membership_discount_amount;
+            $sale->special_discount_value = $request->special_discount_value;
+            $sale->special_discount_amount = $request->special_discount_amount;
+            $sale->couponCode = $request->couponCode;
+            $sale->couponCodeDiscountType = $request->couponCodeDiscountType;
+            $sale->couponCodeDiscountValue = $request->couponCodeDiscountValue;
+            $sale->couponCodeDiscountAmount = $request->couponCodeDiscountAmount;
+            $sale->total_discount_type = $request->total_discount_type;
+            $sale->total_discount_value = $request->total_discount_value;
+            $sale->total_discount_amount = $request->total_discount_amount;
             $sale->save();
 
             $products = $request->get('products');
@@ -182,6 +194,21 @@ class SaleController extends Controller
                     'amount' => ($paymentMethod['method'] == 'cash' && $sale->change_amount > 0) ? ($paymentMethod['amount'] - $sale->change_amount) : $paymentMethod['amount'],
                 ]);
                 $sale->amount = $payment->amount;
+                if ($paymentMethod['method'] == 'exchange') {
+                   return 'working on it';
+                }
+                if ($paymentMethod['method'] == 'upay') {
+                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'upay'), getAccountsReceiveableGLId());
+                }
+                if ($paymentMethod['method'] == 'rocket') {
+                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'rocket'), getAccountsReceiveableGLId());
+                }
+                if ($paymentMethod['method'] == 'bank') {
+                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'bank'), getAccountsReceiveableGLId());
+                }
+                if ($paymentMethod['method'] == 'nagad') {
+                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'nagad'), getAccountsReceiveableGLId());
+                }
                 if ($paymentMethod['method'] == 'bkash') {
                     addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'bkash'), getAccountsReceiveableGLId());
                 }
@@ -196,7 +223,7 @@ class SaleController extends Controller
             }
 
             //Start Loyalty Effect
-//            pointEarnAndUpgradeMember($sale->id, $customer_id ?? null, $request->grandtotal);
+            pointEarnAndUpgradeMember($sale->id, $customer_id ?? null, $request->grandtotal);
             //End Loyalty Effect
             $sale->amount = $salesAmount;
             addAccountsTransaction('POS', $sale, getAccountsReceiveableGLId(), getIncomeFromSalesGLId());
@@ -212,7 +239,7 @@ class SaleController extends Controller
             if ($request->sales_type == 'pre_order') {
                 $this->preOrderfromSales($sale, $deliveryDate, $request->description, $request->attachments, $request->delivery_point_id);
             }
-            if ($outlet_id !== $request->delivery_point_id){
+            if ($outlet_id !== $request->delivery_point_id) {
                 $this->othersOutletDelivery($sale, $request->delivery_point_id);
             }
             DB::commit();
@@ -349,7 +376,7 @@ class SaleController extends Controller
 
     }
 
-    protected function othersOutletDelivery($oldSale,$delivery_point_id)
+    protected function othersOutletDelivery($oldSale, $delivery_point_id)
     {
         $sale = new OthersOutletSale();
         $sale->invoice_number = $oldSale->invoice_number;

@@ -2,22 +2,37 @@
 @section('title')
     Sale Entry
 @endsection
+@section('styles')
+    <style>
+        input[name='date'] {
+            height: calc(1.8125rem + 2px);
+            padding: .25rem .5rem;
+            font-size: .875rem;
+            line-height: 1.5;
+            border-radius: .2rem;
+        }
+
+        input[name='delivery_date'] {
+            height: calc(1.8125rem + 2px);
+            padding: .25rem .5rem;
+            font-size: .875rem;
+            line-height: 1.5;
+            border-radius: .2rem;
+        }
+
+        .selected-discount-type {
+            color: #fff;
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+    </style>
+@endsection
 @section('content')
-    <!-- Content Header (Page header) -->
-    @php
-        $links = [
-        'Home'=>route('dashboard'),
-        'Sale list'=>''
-        ]
-    @endphp
-    <x-breadcrumb title='Sale Entry' :links="$links"/>
-
-
 
     <!-- Main content -->
     <section class="content">
         <div class="container-fluid">
-            <div class="row" id="vue_app">
+            <div class="row mt-2" id="vue_app">
                 <div class="col-lg-12 col-md-12">
                     <div class="card card-info">
                         <div class="card-header">
@@ -38,7 +53,7 @@
                                         <div class="row">
                                             <div class="col-3">
                                                 <div class="form-group">
-                                                    <label for="date">Date</label>
+                                                    <label for="date" class="small">Date</label>
                                                     <vuejs-datepicker v-model="date" name="date"
                                                                       placeholder="Select date"
                                                                       format="yyyy-MM-dd"
@@ -47,8 +62,8 @@
                                             </div>
                                             <div class="col-3">
                                                 <div class="form-group">
-                                                    <label for="">Current Store</label>
-                                                    <select name="store_id" id="" class="form-control"
+                                                    <label for="" class="small">Current Store</label>
+                                                    <select name="store_id" id="" class="form-control form-control-sm"
                                                             @if($user_store) disabled @endif @change="getStoreData()"
                                                             v-model="store_id">
                                                         <option value="">None</option>
@@ -61,8 +76,9 @@
                                             </div>
                                             <div class="col-3">
                                                 <div class="form-group">
-                                                    <label for="">Delivery Point</label>
-                                                    <select name="delivery_point_id" id="" class="form-control"
+                                                    <label for="" class="small">Delivery Point</label>
+                                                    <select name="delivery_point_id" id=""
+                                                            class="form-control form-control-sm"
                                                             v-model="delivery_point_id">
                                                         <option value="">None</option>
                                                         @foreach($delivery_points as $delivery_point)
@@ -74,7 +90,7 @@
                                             </div>
                                             <div class="col-3">
                                                 <div class="form-group">
-                                                    <label for="date">Delivery Date</label>
+                                                    <label for="date" class="small">Delivery Date</label>
                                                     <vuejs-datepicker v-model="delivery_date" name="delivery_date"
                                                                       placeholder="Select date"
                                                                       format="yyyy-MM-dd"></vuejs-datepicker>
@@ -84,8 +100,8 @@
                                         <div class="row">
                                             <div class="col-3">
                                                 <div class="form-group">
-                                                    <label for="">Sale Type</label>
-                                                    <select name="sales_type" id="" class="form-control"
+                                                    <label for="" class="small">Sale Type</label>
+                                                    <select name="sales_type" id="" class="form-control form-control-sm"
                                                             v-model="sales_type">
                                                         <option value="sales">SALES</option>
                                                         <option value="pre_order">PRE ORDER</option>
@@ -94,64 +110,51 @@
                                             </div>
                                             <div class="col-3" v-if="sales_type=='pre_order'">
                                                 <div class="form-group">
-                                                    <label for="">Attachments</label>
-                                                    <input type="file" name="attachments[]" id="" multiple class="form-control">
+                                                    <label for="" class="small">Attachments</label>
+                                                    <input type="file" name="attachments[]" id="" multiple
+                                                           class="form-control form-control-sm">
                                                 </div>
                                             </div>
                                             <div class="col-6" v-if="sales_type=='pre_order'">
                                                 <div class="form-group">
-                                                    <label for="">Description</label>
-                                                    <input type="text" name="description" id="" class="form-control">
+                                                    <label for="" class="small">Description</label>
+                                                    <input type="text" name="description" id=""
+                                                           class="form-control form-control-sm">
                                                 </div>
                                             </div>
                                         </div>
                                         <div class="row">
                                             <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                                                 <div class="form-group">
-                                                    <label for="customer_id">Invoice Number</label>
-                                                    <input type="text" class="form-control"
+                                                    <label for="customer_id" class="small">Invoice Number</label>
+                                                    <input type="text" class="form-control form-control-sm"
                                                            placeholder="Enter Invoice Number" v-model="invoice_number">
                                                 </div>
                                             </div>
                                             <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                                                 <div class="form-group">
-                                                    <label for="customer_id">Customer Number</label>
-                                                    <input type="text" class="form-control"
+                                                    <label for="customer_id" class="small">Customer Number</label>
+                                                    <input type="text" class="form-control form-control-sm"
                                                            placeholder="Enter Customer Number and Press Enter"
                                                            v-model="customerNumber"
-                                                           @keydown.enter="getCustomerInfo" name="customer_number">
-                                                    {{--                                                    <select name="customer_id" id="customer_id"--}}
-                                                    {{--                                                            class="form-control bSelect" v-model="customer_id">--}}
-                                                    {{--                                                        <option value="">Select One</option>--}}
-                                                    {{--                                                        @foreach($customers as $customer)--}}
-                                                    {{--                                                            <option--}}
-                                                    {{--                                                                value="{{ $customer->id }}">{{ $customer->name }}</option>--}}
-                                                    {{--                                                        @endforeach--}}
-                                                    {{--                                                    </select>--}}
+                                                           @keyup="getCustomerInfo" name="customer_number">
                                                 </div>
                                             </div>
                                             <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                                                 <div class="form-group">
-                                                    <label for="store_id">Customer Name</label>
-                                                    <input type="text" v-model="customer.name" class="form-control"
+                                                    <label for="store_id" class="small">Customer Name</label>
+                                                    <input type="text" v-model="customer.name"
+                                                           class="form-control form-control-sm"
                                                            disabled>
-                                                    {{--                                                    <select name="store_id" id="store_id"--}}
-                                                    {{--                                                            class="form-control bSelect"--}}
-                                                    {{--                                                            v-model="store_id" required>--}}
-                                                    {{--                                                        <option value="">Select One</option>--}}
-                                                    {{--                                                        @foreach($stores as $row)--}}
-                                                    {{--                                                            <option--}}
-                                                    {{--                                                                value="{{ $row->id }}">{{ $row->name }}</option>--}}
-                                                    {{--                                                        @endforeach--}}
-                                                    {{--                                                    </select>--}}
                                                 </div>
                                             </div>
                                         </div>
                                         <div class="row">
                                             <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
                                                 <div class="form-group">
-                                                    <label for="category_id" class="control-label">Group</label>
-                                                    <select class="form-control bSelect" name="category_id"
+                                                    <label for="category_id" class="control-label small">Group</label>
+                                                    <select class="form-control bSelect  form-control-sm"
+                                                            name="category_id"
                                                             v-model="category_id" @change="fetch_item">
                                                         <option value="">Select One</option>
                                                         @foreach ($groups as $category)
@@ -163,9 +166,10 @@
                                             </div>
                                             <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
                                                 <div class="form-group">
-                                                    <label for="item_id">Item</label>
+                                                    <label for="item_id" class="small">Item</label>
                                                     <select name="item_id" id="item_id"
-                                                            class="form-control bSelect" v-model="item_id">
+                                                            class="form-control bSelect form-control-sm"
+                                                            v-model="item_id">
                                                         <option value="">Select one</option>
 
                                                         <option :value="row.id" v-for="row in products"
@@ -177,22 +181,19 @@
                                             </div>
 
                                             <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12" style="margin-top: 26px;">
-                                                <button type="button" class="btn btn-info btn-block"
+                                                <button type="button" class="btn btn-sm btn-info btn-block"
                                                         @click="data_input">Add
                                                 </button>
                                             </div>
-
                                             <br>
                                             <br>
                                             <br>
                                             <br>
-
-                                            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-
+                                            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12" v-if="items.length > 0">
                                                 <hr>
                                                 <div class="table-responsive">
-                                                    <table class="table table-bordered">
-                                                        <thead>
+                                                    <table class="table table-bordered small table-sm">
+                                                        <thead class="thead-light">
                                                         <tr>
                                                             <th>#</th>
                                                             <th>Group</th>
@@ -208,7 +209,7 @@
                                                         <tbody>
                                                         <tr v-for="(row, index) in items">
                                                             <td>
-                                                                <button type="button" class="btn btn-danger"
+                                                                <button type="button" class="btn btn-sm btn-danger"
                                                                         @click="delete_row(row)"><i
                                                                         class="fa fa-trash"></i></button>
                                                             </td>
@@ -218,14 +219,17 @@
                                                             <td>
                                                                 <input type="hidden"
                                                                        :name="'products['+index+'][item_id]'"
-                                                                       class="form-control input-sm"
+                                                                       class="form-control input-sm form-control-sm"
                                                                        v-bind:value="row.item_id">
                                                                 <input type="hidden"
                                                                        :name="'products['+index+'][is_readonly]'"
-                                                                       class="form-control input-sm"
+                                                                       class="form-control input-sm form-control-sm"
                                                                        v-bind:value="row.is_readonly">
-                                                                <input type="text" class="form-control input-sm" :name="'products['+index+'][item_name]'"
-                                                                       v-model="row.product_name" v-bind:readonly="row.is_readonly">
+                                                                <input type="text"
+                                                                       class="form-control input-sm  form-control-sm"
+                                                                       :name="'products['+index+'][item_name]'"
+                                                                       v-model="row.product_name"
+                                                                       v-bind:readonly="row.is_readonly">
                                                             </td>
                                                             <td>
                                                                 @{{ row.unit }}
@@ -233,28 +237,49 @@
                                                             <td>
 
                                                                 <input type="text" :name="'products['+index+'][stock]'"
-                                                                       class="form-control input-sm"
+                                                                       class="form-control input-sm form-control-sm"
                                                                        v-bind:value="row.stock" readonly>
                                                             </td>
                                                             <td>
                                                                 <input type="number" v-model="row.price"
                                                                        :name="'products['+index+'][rate]'"
-                                                                       class="form-control input-sm"
-                                                                       @change="itemtotal(row)" v-bind:readonly="row.is_readonly">
+                                                                       class="form-control input-sm form-control-sm"
+                                                                       @change="itemtotal(row)"
+                                                                       v-bind:readonly="row.is_readonly">
                                                             </td>
                                                             <td>
                                                                 <input type="number" v-model="row.quantity"
                                                                        :name="'products['+index+'][quantity]'"
-                                                                       class="form-control input-sm"
+                                                                       class="form-control input-sm form-control-sm"
                                                                        @change="valid(row)" required>
                                                             </td>
                                                             <td>
-                                                                <input type="number" v-model="row.product_discount"
-                                                                       :name="'products['+index+'][product_discount]'"
-                                                                       class="form-control input-sm" required>
+                                                                <div class="row">
+                                                                    <div class="col-4">
+                                                                        <select name="" id=""
+                                                                                class="form-control form-control-sm"
+                                                                                v-model="row.discountType"
+                                                                                @change="updateProductDiscount(row)"
+                                                                                :disabled="!row.discountable">
+                                                                            <option value="">tk</option>
+                                                                            <option value="">%</option>
+                                                                        </select>
+                                                                    </div>
+                                                                    <div class="col-8">
+                                                                        <input type="number"
+                                                                               v-model="row.product_discount"
+                                                                               :name="'products['+index+'][product_discount]'"
+                                                                               class="form-control input-sm form-control-sm"
+                                                                               v-model="row.discountValue"
+                                                                               @keyup="updateProductDiscount(row)"
+                                                                               :disabled="!row.discountable"
+                                                                               required>
+                                                                    </div>
+                                                                </div>
                                                             </td>
                                                             <td>
-                                                                <input type="text" class="form-control input-sm"
+                                                                <input type="text"
+                                                                       class="form-control input-sm form-control-sm"
                                                                        v-bind:value="itemtotal(row)" readonly>
                                                             </td>
 
@@ -264,57 +289,70 @@
                                                         <tfoot>
 
                                                         <tr>
-                                                            <td colspan="7">
-
+                                                            <td colspan="7" class="text-center">
+                                                                <button class="btn btn-sm btn-outline-info"
+                                                                        data-toggle="modal" data-target="#couponModal"
+                                                                        type="button">Coupon
+                                                                </button>
+                                                                <button class="btn btn-sm btn-outline-primary"
+                                                                        data-toggle="modal" data-target="#discountModal"
+                                                                        type="button">% Discount
+                                                                </button>
+                                                                <button class="btn btn-sm btn-outline-dark"
+                                                                        :class="selectedSpecialDiscount ? 'text-danger' : ''"
+                                                                        :disabled="selectedNotDiscountableProduct"
+                                                                        :style="selectedNotDiscountableProduct ? {cursor: 'not-allowed'} : ''"
+                                                                        type="button" @click="addSpecialDiscount">
+                                                                    Special
+                                                                    Discount
+                                                                    (2%)
+                                                                </button>
+                                                                <button class="btn btn-sm btn-warning" type="button"  data-toggle="modal" data-target="#exchangeModal">EXCHANGE</button>
                                                             </td>
                                                             <td>
                                                                 SubTotal
                                                             </td>
                                                             <td>
                                                                 <input type="text" name="subtotal"
-                                                                       class="form-control input-sm"
+                                                                       class="form-control input-sm form-control-sm"
                                                                        v-bind:value="total_bill" readonly>
 
                                                             </td>
                                                         </tr>
-                                                        <tr>
-                                                            <td colspan="7">
-
-                                                            </td>
-                                                            <td>
-                                                                Discount
-                                                            </td>
-                                                            <td>
-                                                                <input type="text" name="discount"
-                                                                       class="form-control input-sm"
-                                                                       v-model="allDiscountAmount" disabled>
-
-                                                            </td>
-                                                        </tr>
-
-                                                        <tr>
-                                                            <td colspan="7">
-
-                                                            </td>
-                                                            <td>
-                                                                Grand Total
-                                                            </td>
-                                                            <td>
-                                                                <input type="text" name="grandtotal"
-                                                                       class="form-control input-sm"
-                                                                       v-bind:value="total_payable_bill" readonly>
-
-                                                            </td>
-                                                        </tr>
                                                         <tfoot>
+                                                    </table>
+                                                    <table class="table table-bordered small table-sm">
+                                                        <thead class="thead-light">
+                                                        <tr>
+                                                            <th>Product Discounts</th>
+                                                            <th>Coupon Discount</th>
+                                                            <th>Overall Discount</th>
+                                                            <th>Special Discount</th>
+                                                            <th>Membership Discount <span>( @{{ membership_discount_percentage }} % )</span><br>
+                                                                <span v-if="membership_discount_percentage > 0">Minimum Purchase <span>( @{{ minimum_purchase_amount }} TK )</span></span></th>
+                                                            <th>Total Discount</th>
+                                                            <th>Grand Total</th>
+                                                        </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                        <tr>
+                                                            <td>@{{ productWiseDiscount }}</td>
+                                                            <td>@{{ couponCodeDiscountAmount }}</td>
+                                                            <td>@{{ total_discount_amount }}</td>
+                                                            <td>@{{ special_discount_amount }}</td>
+                                                            <td>@{{ membership_discount_amount }}</td>
+                                                            <td>@{{ allDiscountAmount }}</td>
+                                                            <td>@{{ total_payable_bill }}</td>
+                                                        </tr>
+                                                        </tbody>
                                                     </table>
                                                 </div>
                                                 <hr>
                                                 <div class="table-responsive">
                                                     <div class="row">
                                                         <div class="col-7">
-                                                            <table class="table table-bordered">
-                                                                <thead>
+                                                            <table class="table table-bordered small table-sm">
+                                                                <thead class="thead-light">
                                                                 <tr>
                                                                     <th>#</th>
                                                                     <th>Method</th>
@@ -324,17 +362,23 @@
                                                                 <tbody>
                                                                 <tr v-for="(payment, index) in paymentMethods">
                                                                     <td>
-                                                                        <button type="button" class="btn btn-danger"
+                                                                        <button type="button"
+                                                                                class="btn btn-sm btn-danger"
                                                                                 @click="deletePaymentMethod(payment)"><i
                                                                                 class="fa fa-trash"></i></button>
                                                                     </td>
                                                                     <td>
                                                                         <select v-model="payment.method"
                                                                                 :name="'payment_methods['+index+'][method]'"
-                                                                                class="form-control">
+                                                                                class="form-control form-control-sm">
                                                                             <option value="cash">Cash</option>
                                                                             <option value="bkash">Bkash</option>
+                                                                            <option value="nagad">Nagad</option>
+                                                                            <option value="bank">Bank</option>
+                                                                            <option value="rocket">Rocket</option>
+                                                                            <option value="upay">Upay</option>
                                                                             <option value="point">Redeem Point</option>
+                                                                            <option value="exchange">Exchange</option>
                                                                         </select>
                                                                     </td>
                                                                     <td>
@@ -342,11 +386,11 @@
                                                                                :step="payment.method == 'point' ? 100 : 1"
                                                                                :name="'payment_methods['+index+'][amount]'"
                                                                                @key.press="checkPointInput"
-                                                                               class="form-control">
+                                                                               class="form-control form-control-sm" v-bind:readonly="payment.method == 'exchange' && exchangeAmount > 0">
                                                                     </td>
                                                                 </tr>
                                                                 <tr>
-                                                                    <td colspan="3">
+                                                                    <td colspan="3" class="text-right">
                                                                         <button class="btn btn-sm btn-secondary"
                                                                                 type="button"
                                                                                 @click="addMorePaymentMethod"> Add
@@ -362,22 +406,16 @@
                                                                 <tr>
                                                                     <th>Receive Amount</th>
                                                                     <td>
-                                                                        {{--                                                                        <input type="text" name="receive_amount"--}}
-                                                                        {{--                                                                               class="form-control input-sm"--}}
-                                                                        {{--                                                                               v-model="receive_amount" disabled>--}}
                                                                         <input type="text" name="receive_amount"
-                                                                               class="form-control input-sm"
+                                                                               class="form-control input-sm form-control-sm"
                                                                                v-model="total_paying" disabled>
                                                                     </td>
                                                                 </tr>
                                                                 <tr>
                                                                     <th>Change Amount</th>
                                                                     <td>
-                                                                        {{--                                                                        <input type="text" name="receive_amount"--}}
-                                                                        {{--                                                                               class="form-control input-sm"--}}
-                                                                        {{--                                                                               v-model="change_amount" disabled>--}}
                                                                         <input type="text" name="change_amount"
-                                                                               class="form-control input-sm"
+                                                                               class="form-control input-sm form-control-sm"
                                                                                v-model="cash_change" disabled>
                                                                     </td>
                                                                 </tr>
@@ -387,29 +425,130 @@
 
                                                 </div>
                                             </div>
-                                            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12"
-                                                 v-if="items.length > 0">
-                                                <div class="text-right col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                                        <textarea class="form-control" name="comments" rows="5"
-                                                                  placeholder="Enter Comments"></textarea>
-                                                </div>
-                                            </div>
+                                            {{--                                            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12"--}}
+                                            {{--                                                 v-if="items.length > 0">--}}
+                                            {{--                                                <div class="text-right col-lg-12 col-md-12 col-sm-12 col-xs-12">--}}
+                                            {{--                                                        <textarea class="form-control form-control-sm" name="comments" rows="5"--}}
+                                            {{--                                                                  placeholder="Enter Comments"></textarea>--}}
+                                            {{--                                                </div>--}}
+                                            {{--                                            </div>--}}
                                         </div>
 
 
                                     </div>
                                 </div>
-
+                                {{--New Discounts--}}
+                                <input type="hidden" name="membership_discount_percentage"
+                                       v-model="membership_discount_percentage">
+                                <input type="hidden" name="membership_discount_amount"
+                                       v-model="membership_discount_amount">
+                                <input type="hidden" name="special_discount_value" v-model="special_discount_value">
+                                <input type="hidden" name="special_discount_amount" v-model="special_discount_amount">
+                                <input type="hidden" name="couponCode" v-model="couponCode">
+                                <input type="hidden" name="couponCodeDiscountType" v-model="couponCodeDiscountType">
+                                <input type="hidden" name="couponCodeDiscountValue" v-model="couponCodeDiscountValue">
+                                <input type="hidden" name="couponCodeDiscountAmount" v-model="couponCodeDiscountAmount">
+                                <input type="hidden" name="total_discount_type" v-model="total_discount_type">
+                                <input type="hidden" name="total_discount_value" v-model="total_discount_value">
+                                <input type="hidden" name="total_discount_amount" v-model="total_discount_amount">
+                                <input type="hidden" name="discount" v-model="allDiscountAmount">
+                                <input type="hidden" name="grandtotal" v-model="total_payable_bill">
+                                <input type="hidden" name="returnNumber" v-model="returnNumber">
+                                <input type="hidden" name="exchangeAmount" v-model="exchangeAmount">
                             </div>
-                            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 text-right" v-if="items.length > 0 && ((!customerNumber && total_payable_bill <= total_paying) || customerNumber)">
+                            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 text-right"
+                                 v-if="items.length > 0 && ((!customerNumber && total_payable_bill <= total_paying) || customerNumber)">
                                 <button class="float-right btn btn-primary" type="submit"><i
-                                        class="fa fa-fw fa-lg fa-check-circle"></i>Submit
+                                        class="fa fa-fw fa-lg fa-save"></i>Save
                                 </button>
                             </div>
                         </form>
                     </div>
+                    <!--Modals-->
+                    <div class="modal fade" id="couponModal" tabindex="-1" role="dialog"
+                         aria-labelledby="exampleModalLabel" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="exampleModalLabel">Apply Coupon</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <input type="text" placeholder="Enter Coupon Code" v-model="couponCode"
+                                           class="form-control">
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                    <button type="button" class="btn btn-primary" :disabled="couponCode.length < 1"
+                                            v-on:click="getCouponDiscountValue">Apply
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal fade" id="discountModal" tabindex="-1" role="dialog"
+                         aria-labelledby="exampleModalLabel" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="exampleModalLabel">Apply Discount</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="mb-2">
+                                        <h4>Select Discount Type</h4>
 
+                                        <div class="text-center">
+                                            <button class="btn btn-sm btn-outline-primary"
+                                                    :class="total_discount_type == 'fixed' ? 'selected-discount-type' : '' "
+                                                    @click="setDiscountType('fixed')">Fixed
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-info"
+                                                    :class="total_discount_type == 'percentage' ? 'selected-discount-type' : '' "
+                                                    @click="setDiscountType('percentage')">Percentage
+                                            </button>
 
+                                        </div>
+                                    </div>
+                                    <input type="number" min="0" step="0.01" placeholder="Enter Discount Amount"
+                                           v-model="total_discount_value"
+                                           class="form-control">
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                    <button type="button" class="btn btn-primary" v-on:click="updateDiscount">Apply
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal fade" id="exchangeModal" tabindex="-1" role="dialog"
+                         aria-labelledby="exampleModalLabel" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="exampleModalLabel">Apply Exchange</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <input type="text" placeholder="Enter Sales Return Number" v-model="returnNumber"
+                                           class="form-control">
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                    <button type="button" class="btn btn-primary" :disabled="returnNumber.length < 1"
+                                            v-on:click="getReturnNumberValue">Apply
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div> <!-- end col -->
             </div>
             <!-- /.row -->
@@ -464,6 +603,8 @@
                         get_items_info_by_group_id_url: "{{ url('fetch-items-by-group-id') }}",
                         get_product_info_url: "{{ url('fetch-item-by-id-for-sale') }}",
                         get_customer_url: "{{ url('pos-customer-by-number') }}",
+                        get_coupon_code_value_url: "{{ url('pos-coupon-code-discount') }}",
+                        get_return_value_url: "{{ url('pos--return-number-amount') }}",
                     },
                     customer_id: '',
                     store_id: "",
@@ -486,13 +627,24 @@
                         amount: 0,
                         method: 'cash'
                     }],
-                    couponCodeDiscountAmount: 0,
-                    special_discount_amount: 0,
-                    total_discount_amount: 0,
                     delivery_point_id: '',
                     delivery_date: new Date(),
-                    sales_type: 'sales'
-
+                    sales_type: 'sales',
+                    membership_discount_percentage: 0,
+                    minimum_purchase_amount: 0,
+                    couponCode: '',
+                    couponCodeDiscountType: '',
+                    couponCodeDiscountValue: 0,
+                    couponCodeDiscountShowValue: '',
+                    couponCodeDiscountAmount: 0,
+                    total_discount_type: '',
+                    total_discount_value: 0,
+                    total_discount_amount: 0,
+                    special_discount_value: 2,
+                    special_discount_amount: 0,
+                    selectedSpecialDiscount: false,
+                    returnNumber: '',
+                    exchangeAmount: 0
                 },
                 components: {
                     vuejsDatepicker
@@ -552,7 +704,14 @@
                     },
                     allDiscountAmount: function () {
                         var vm = this
-                        return Number(vm.total_discount_amount) + Number(vm.special_discount_amount) + Number(this.productWiseDiscount)
+                        return Number(vm.total_discount_amount) + Number(vm.special_discount_amount) + Number(this.productWiseDiscount) + Number(this.membership_discount_amount)
+                    },
+                    membership_discount_amount: function () {
+                        var vm = this
+                        return vm.total_bill > vm.minimum_purchase_amount ? (Number(vm.total_bill) * Number(vm.membership_discount_percentage) / 100) : 0
+                    },
+                    selectedNotDiscountableProduct: function () {
+                        return this.items.some(item => !item.discountable);
                     }
                 },
                 methods: {
@@ -618,6 +777,10 @@
                                             product_discount: 0,
                                             subtotal: 0,
                                             is_readonly: product_details.is_readonly,
+                                            discountable: product_details.parent_id !== 73,
+                                            discountType: '',
+                                            discountValue: 0,
+                                            discountAmount: 0,
                                         });
                                         // vm.item_id = '';
                                         // vm.category_id = '';
@@ -660,6 +823,8 @@
                             vm.customer = (response.data);
                             if (vm.customer.name) {
                                 vm.customer.name = vm.customer.name + '  (' + vm.customer.current_point + '  point)'
+                                vm.membership_discount_percentage = vm.customer.purchase_discount
+                                vm.minimum_purchase_amount = vm.customer.minimum_purchase
                             }
                         }).catch(function (error) {
                             toastr.error(error, {
@@ -695,7 +860,140 @@
                     setStoreId() {
                         const vm = this
                         vm.store_id = "{{ $user_store ?  $user_store->id : ''}}"
-                    }
+                    },
+                    getCouponDiscountValue() {
+                        var vm = this;
+                        axios.get(this.config.get_coupon_code_value_url + '?code=' + vm.couponCode + '&user=' + vm.customerNumber)
+                            .then(function (response) {
+                                const responseData = response.data
+                                if (responseData.success === false) {
+                                    toastr.error(responseData.message, {
+                                        closeButton: true,
+                                        progressBar: true,
+                                    });
+                                } else {
+                                    if (responseData.data.minimum_purchase && responseData.data.minimum_purchase > vm.total_payable_bill) {
+                                        toastr.error('Minimum Purchase Amount is ' + responseData.data.minimum_purchase, {
+                                            closeButton: true,
+                                            progressBar: true,
+                                        });
+                                    }
+                                    vm.couponCodeDiscountType = responseData.data.discount_type
+                                    vm.couponCodeDiscountValue = responseData.data.discount_value
+                                    vm.minimumPurchaseAmount = responseData.data.minimum_purchase
+                                    if (vm.couponCodeDiscountType === 'fixed') {
+                                        vm.couponCodeDiscountAmount = vm.couponCodeDiscountValue
+                                        vm.couponCodeDiscountShowValue = vm.couponCodeDiscountValue + ' TK'
+                                    }
+                                    if (vm.couponCodeDiscountType === 'percentage') {
+                                        vm.couponCodeDiscountAmount = (vm.total_bill * vm.couponCodeDiscountValue) / 100
+                                        vm.couponCodeDiscountShowValue = vm.couponCodeDiscountValue + ' %'
+                                    }
+                                    vm.couponModalShow === true ? vm.couponModalShow = false : true
+                                }
+
+                            }).catch(function (error) {
+                            toastr.error(error, {
+                                closeButton: true,
+                                progressBar: true,
+                            });
+                            return false;
+                        });
+                    },
+                    updateDiscount() {
+                        var vm = this
+                        if (this.total_discount_type === 'fixed') {
+                            vm.total_discount_amount = vm.total_discount_value
+                        }
+                        if (this.total_discount_type === 'percentage') {
+                            vm.total_discount_amount = (vm.total_bill * vm.total_discount_value) / 100
+                        }
+                    },
+                    setDiscountType(discountType) {
+                        this.total_discount_type = discountType
+                    },
+                    addSpecialDiscount() {
+                        var vm = this
+                        if (vm.productWiseDiscount > 0) {
+                            if (confirm("Single Product Discount Applied, Sure to add Total Discount ?")) {
+                                if (vm.selectedSpecialDiscount) {
+                                    vm.selectedSpecialDiscount = false
+                                    vm.special_discount_amount = 0
+                                } else {
+                                    vm.selectedSpecialDiscount = true
+                                    vm.special_discount_amount = (vm.total_bill * vm.special_discount_value) / 100
+                                }
+                            } else {
+                                return false;
+                            }
+                        } else {
+                            if (vm.selectedSpecialDiscount) {
+                                vm.selectedSpecialDiscount = false
+                                vm.special_discount_amount = 0
+                            } else {
+                                vm.selectedSpecialDiscount = true
+                                vm.special_discount_amount = (vm.total_bill * vm.special_discount_value) / 100
+                            }
+                        }
+
+                    },
+                    updateProductDiscount(sp) {
+                        var vm = this
+                        if (vm.total_discount_amount > 0) {
+                            if (confirm("Total Discount Applied, Sure to add Total Discount Single Product Discount?")) {
+                                this.items.some(function (product) {
+                                    var total_cost = (product.quantity * product.price);
+                                    if (product.discountType == 'p') {
+                                        product.discountAmount = (total_cost * product.discountValue) / 100;
+                                    }
+                                    if (product.discountType == 'f') {
+                                        product.discountAmount = product.discountValue;
+                                    }
+                                });
+                            } else {
+                                sp.discountType = ''
+                                sp.discountValue = 0
+                                return false;
+                            }
+                        } else {
+                            this.items.some(function (product) {
+                                var total_cost = (product.quantity * product.price);
+                                if (product.discountType == 'p') {
+                                    product.discountAmount = (total_cost * product.discountValue) / 100;
+                                }
+                                if (product.discountType == 'f') {
+                                    product.discountAmount = product.discountValue;
+                                }
+                            });
+                        }
+
+                    },
+                    getReturnNumberValue() {
+                        var vm = this;
+                        axios.get(this.config.get_return_value_url + '?returnNumber=' + vm.returnNumber)
+                            .then(function (response) {
+                                const responseData = response.data
+                                if (responseData.success === false) {
+                                    toastr.error(responseData.message, {
+                                        closeButton: true,
+                                        progressBar: true,
+                                    });
+                                } else {
+                                    vm.exchangeAmount = responseData.amount
+                                    vm.paymentMethods.push({
+                                        amount: vm.exchangeAmount,
+                                        method: 'exchange'
+                                    })
+                                }
+
+                            }).catch(function (error) {
+                            toastr.error(error, {
+                                closeButton: true,
+                                progressBar: true,
+                            });
+                            return false;
+                        });
+                    },
                 },
                 updated() {
                     $('.bSelect').selectpicker('refresh');

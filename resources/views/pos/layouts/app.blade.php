@@ -781,6 +781,14 @@
                         } else {
                             return false;
                         }
+                    }else{
+                        if (vm.selectedSpecialDiscount) {
+                            vm.selectedSpecialDiscount = false
+                            vm.special_discount_amount = 0
+                        } else {
+                            vm.selectedSpecialDiscount = true
+                            vm.special_discount_amount = (vm.total_bill * vm.special_discount_value) / 100
+                        }
                     }
 
                 },
@@ -855,6 +863,11 @@
                         sessionStorage.setItem('holdOrder', JSON.stringify(currentHoldOrders))
                         vm.selectedProducts = []
                         vm.onHoldIdentifier = ''
+                        vm.total_discount_type = '';
+                        vm.total_discount_value = 0;
+                        vm.total_discount_amount = 0;
+                        vm.special_discount_amount = 0;
+                        vm.allDiscountAmount = 0;
                         this.closeOnHoldModal()
                     }
 

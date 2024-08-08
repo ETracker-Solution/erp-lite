@@ -101,6 +101,7 @@ class ApiController extends Controller
         $coi = ChartOfInventory::findOrFail($id);
         $data = [
             'group' => $coi->parent->name,
+            'parent_id' => $coi->parent_id,
             'name' => $coi->name,
             'unit' => $coi->unit->name ?? 'No Unit',
             'price' => $coi->price,

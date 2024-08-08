@@ -9,6 +9,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <meta name="csrf-token" content="{{ csrf_token() }}">
     @include('partials.style')
+    @yield('styles')
 </head>
 <body class="hold-transition sidebar-mini {{$sidebar??''}}">
 <div class="wrapper">
