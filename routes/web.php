@@ -174,6 +174,7 @@ Route::middleware('auth')->group(function () {
     Route::get('vuejs/autocomplete/search', [App\Http\Controllers\LabelController::class, 'autocompleteSearch'])->name('vuejs.autocomplete.search');
     Route::get('vuejs/autocomplete/sales-invoice-search', [App\Http\Controllers\SalesReturnController::class, 'autocompleteSearch']);
     Route::get('fetch-product-info-for-gatepass/{id}', [App\Http\Controllers\LabelController::class, 'fetch_product_info']);
+    Route::get('fetch-sale-info/{id}', [App\Http\Controllers\SalesReturnController::class, 'fetchSaleInfo']);
 
     Route::get('invoice-by-store/{store_id}', [SaleController::class, 'getInvoiceByOutlet']);
     Route::get('sale-pdf/{id}', [App\Http\Controllers\SaleController::class, 'pdf'])->name('sale.pdf');

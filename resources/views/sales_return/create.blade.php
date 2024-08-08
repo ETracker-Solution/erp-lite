@@ -1,6 +1,6 @@
 @extends('layouts.app')
 @section('title')
-    Print Labels
+    Sales Return
 @endsection
 
 @section('css')
@@ -57,11 +57,11 @@
                 <div class="col-12">
                     <div class="card">
                         <div class="card-header">
-                            <h3 class="card-title" style="color:#115548;">Product List</h3>
+                            <h3 class="card-title" style="color:#115548;">Sales Return Entry</h3>
                             <div class="card-tools">
-                                <a href="{{route('products.create')}}">
-                                    <button class="btn btn-sm btn-primary"><i class="fa fa-plus-circle"
-                                                                              aria-hidden="true"></i> &nbsp;Add Product
+                                <a href="{{route('sales-returns.index')}}">
+                                    <button class="btn btn-sm btn-primary"><i class="fa fa-list"
+                                                                              aria-hidden="true"></i> &nbsp;See List
                                     </button>
                                 </a>
                             </div>
@@ -71,7 +71,7 @@
                             <!-- end page title -->
                             <div class="row">
                                 <div class="col-lg-12 col-md-12">
-                                    <form action="{{ route('label.store') }}" method="post" target="_blank">
+                                    <form action="{{ route('sales-returns.store') }}" method="post" target="_blank">
                                         @csrf
                                         <div class="card">
                                             <div class="card-body">
@@ -79,10 +79,6 @@
                                                     <div class="row">
                                                         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12"
                                                              id="li_hover">
-
-                                                            <h4 class="font-size-18">Add products to generate
-                                                                Labels</h4>
-                                                            <hr>
                                                             <div>
                                                                 <div class="form-group" style="position: relative">
                                                                     <div class="input-group">
@@ -93,7 +89,7 @@
                                                                                     aria-hidden="true"></i></span>
                                                                         </div>
                                                                         <input type="text"
-                                                                               placeholder="Search Name/Product Id"
+                                                                               placeholder="Search Invoice"
                                                                                v-model="searchquery"
                                                                                v-on:keyup="autoComplete"
                                                                                class="form-control input-sm" autofocus>
@@ -106,11 +102,9 @@
                                                                         <li style="cursor: pointer;"
                                                                             class="list-group-item list-hover"
                                                                             v-for="result in data_results"
-                                                                            v-on:click="selectautoComplete(result.product_id)"
-                                                                            product_id="result.product_id">
-                                                                            @{{ result.product_code }}- @{{
-                                                                            result.product_name }} -@{{
-                                                                            result.product_category }}
+                                                                            v-on:click="selectautoCompleteInvoice(result.id)"
+                                                                            sale_id="result.id">
+                                                                            @{{ result.invoice_number }}
                                                                         </li>
 
                                                                     </ul>
@@ -120,86 +114,145 @@
                                                             </div>
                                                             <div class="table-responsive">
                                                                 <table class="table table-bordered">
-                                                                    <thead>
+                                                                    <thead class="bg-secondary">
                                                                     <tr>
-                                                                        <th></th>
-                                                                        <th>Product Code</th>
-                                                                        <th>Product Name</th>
-                                                                        <th>Product Category</th>
-                                                                        <th>No. of Labels</th>
-                                                                        <th>Action</th>
+                                                                        <th style="width: 5%">#</th>
+                                                                        <th style="width: 15%">Group</th>
+                                                                        <th style="width:25%">Item</th>
+                                                                        <th style="width: 5%">Unit</th>
+                                                                        <th style="width: 8%">Selling Price</th>
+                                                                        <th style="width: 15%">Discount</th>
+                                                                        <th style="width: 10%;vertical-align: middle">
+                                                                            Sale Quantity
+                                                                        </th>
+                                                                        <th style="width: 10%;vertical-align: middle">
+                                                                            Return
+                                                                            Quantity
+                                                                        </th>
+                                                                        <th style="width: 10%;vertical-align: middle">
+                                                                            Item total
+                                                                        </th>
+                                                                        <th style="width: 5%"></th>
                                                                     </tr>
                                                                     </thead>
                                                                     <tbody>
                                                                     <tr v-for="(row, index) in items">
                                                                         <td>
+                                                                            @{{ ++index }}
+                                                                        </td>
+                                                                        <td style="vertical-align: middle">
+                                                                            @{{ row.group }}
+                                                                        </td>
+                                                                        <td style="vertical-align: middle">
+                                                                            <input type="hidden"
+                                                                                   :name="'products['+index+'][coi_id]'"
+                                                                                   class="form-control input-sm"
+                                                                                   v-bind:value="row.coi_id">
+                                                                            @{{ row.name }}
+                                                                        </td>
+                                                                        <td style="vertical-align: middle">
+                                                                            @{{ row.unit }}
+                                                                        </td>
+                                                                        <td style="vertical-align: middle"
+                                                                            class="text-right">
+                                                                            <input type="number"
+                                                                                   v-model="row.rate"
+                                                                                   :name="'products['+index+'][rate]'"
+                                                                                   class="form-control input-sm"
+                                                                                   required readonly>
+                                                                        </td>
 
-                                                                            <div class="form-group">
-                                                                                <div class="custom-control custom-checkbox">
-                                                                                    <input class="custom-control-input"
-                                                                                           v-model="product_name" name="product_name"
-                                                                                           type="checkbox" id="product_name" value="1">
-                                                                                    <label for="product_name"
-                                                                                           class="custom-control-label"></label>
+                                                                        <td style="vertical-align: middle"
+                                                                            class="text-right">
+                                                                            <div class="row">
+                                                                                <div class="col-4">
+                                                                                    <select name="" id=""
+                                                                                            class="form-control form-control-sm"
+                                                                                            v-model="row.discountType"
+                                                                                    >
+                                                                                        <option value="">tk</option>
+                                                                                        <option value="">%</option>
+                                                                                    </select>
                                                                                 </div>
-
+                                                                                <div class="col-8">
+                                                                                    <input type="number"
+                                                                                           v-model="row.product_discount"
+                                                                                           :name="'products['+index+'][product_discount]'"
+                                                                                           class="form-control input-sm form-control-sm"
+                                                                                           v-model="row.discountValue"
+                                                                                           @keyup="updateProductDiscount(row)"
+                                                                                           :disabled="!row.discountable"
+                                                                                           required>
+                                                                                </div>
                                                                             </div>
                                                                         </td>
-                                                                        <td>
-
+                                                                        <td style="vertical-align: middle"
+                                                                            class="text-right">
                                                                             <input type="number"
-                                                                                   :name="'products['+index+'][serial_number]'"
+                                                                                   v-model="row.sale_quantity"
+                                                                                   :name="'products['+index+'][sale_quantity]'"
                                                                                    class="form-control input-sm"
-                                                                                   v-bind:value="row.serial_number"
-                                                                                   readonly>
+                                                                                   required readonly>
                                                                         </td>
-                                                                        <td>
-                                                                            <input type="hidden"
-                                                                                   :name="'products['+index+'][product_id]'"
-                                                                                   class="form-control input-sm"
-                                                                                   v-bind:value="row.product_id">
-                                                                            <input type="hidden"
-                                                                                   :name="'products['+index+'][img]'"
-                                                                                   class="form-control input-sm"
-                                                                                   v-bind:value="row.img">
-                                                                            <input type="hidden"
-                                                                                   :name="'products['+index+'][product_name]'"
-                                                                                   class="form-control input-sm"
-                                                                                   v-bind:value="row.product_name">
-                                                                            <input type="hidden"
-                                                                                   :name="'products['+index+'][selling_price]'"
-                                                                                   class="form-control input-sm"
-                                                                                   v-bind:value="row.selling_price">
 
-                                                                            <input type="text"
-                                                                                   class="form-control input-sm"
-                                                                                   v-bind:value="row.product_name"
-                                                                                   readonly>
-                                                                        </td>
-                                                                        <td>
-                                                                            <input type="text"
-                                                                                   class="form-control input-sm"
-                                                                                   v-bind:value="row.product_category"
-                                                                                   readonly>
-                                                                        </td>
-                                                                        <td>
+                                                                        <td style="vertical-align: middle"
+                                                                            class="text-right">
                                                                             <input type="number"
+                                                                                   v-model="row.return_quantity"
                                                                                    :name="'products['+index+'][quantity]'"
                                                                                    class="form-control input-sm"
-                                                                                   value="1">
+                                                                                   @change="valid(row)" required>
                                                                         </td>
                                                                         <td>
-                                                                            <button type="button"
-                                                                                    class="btn btn-danger btn-xs"
+                                                                            <input type="text"
+                                                                                   class="form-control input-sm"
+                                                                                   v-bind:value="item_total(row)"
+                                                                                   readonly>
+                                                                        </td>
+                                                                        <td style="vertical-align: middle">
+                                                                            <button type="button" class="btn btn-danger"
                                                                                     @click="delete_row(row)"><i
                                                                                     class="fa fa-trash"></i></button>
                                                                         </td>
                                                                     </tr>
+
                                                                     </tbody>
+                                                                    <tfoot>
+                                                                    <tr>
+                                                                        <td colspan="10"
+                                                                            style="background-color: #DDDCDC">
+
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td colspan="8" class="text-right">
+                                                                            Subtotal
+                                                                        </td>
+                                                                        <td class="text-right">
+                                                                            @{{subtotal}}
+                                                                            <input type="hidden"
+                                                                                   :name="'subtotal'"
+                                                                                   class="form-control input-sm"
+                                                                                   v-bind:value="subtotal"
+                                                                                   readonly>
+                                                                            <input type="hidden" :name="'total_item'"
+                                                                                   class="form-control input-sm"
+                                                                                   v-bind:value="items.length" readonly>
+                                                                        </td>
+                                                                        <td></td>
+                                                                    </tr>
+                                                                    </tfoot>
                                                                 </table>
                                                             </div>
                                                         </div>
                                                     </div>
+                                                </div>
+                                            </div>
+                                            <div class="card-footer">
+                                                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 text-right" v-if="items.length > 0">
+                                                    <button class="float-right btn btn-primary" type="submit"><i
+                                                            class="fa fa-fw fa-lg fa-check-circle"></i>Submit
+                                                    </button>
                                                 </div>
                                             </div>
                                         </div>
@@ -233,8 +286,7 @@
                 data: {
                     config: {
 
-                        get_product_info_url: "{{ url('fetch-product-info-for-gatepass') }}",
-                        get_requisition_info_url: "{{ url('fetch-requisition-info-for-gatepass') }}",
+                        get_product_info_url: "{{ url('fetch-sale-info') }}",
                     },
 
 
@@ -243,6 +295,13 @@
                     product_id: '',
                     items: [],
 
+                },
+                computed: {
+                    subtotal: function () {
+                        return this.items.reduce((total, item) => {
+                            return total + (item.quantity * item.rate)
+                        }, 0)
+                    }
                 },
                 //--------------
                 methods: {
@@ -267,12 +326,12 @@
                         }
 
                     },
-                    selectautoComplete(product_id) {
+                    selectautoCompleteInvoice(sale_id) {
 
                         const vm = this;
-                        if (!product_id) {
+                        if (!sale_id) {
 
-                            toastr.error('Enter product', {
+                            toastr.error('Enter Invoice', {
                                 closeButton: true,
                                 progressBar: true,
                             });
@@ -281,21 +340,15 @@
 
                         } else {
 
-                            var slug = product_id;
+                            var slug = sale_id;
 
                             if (slug) {
                                 axios.get(this.config.get_product_info_url + '/' + slug).then(function (response) {
 
-                                    product_details = response.data;
-
-                                    vm.items.push({
-                                        product_id: product_details.id,
-                                        product_name: product_details.name,
-                                        serial_number: product_details.code,
-                                        selling_price: product_details.selling_price,
-                                        product_category: product_details.category.name,
-                                        img: product_details.barcode_path,
-                                    });
+                                    let item = response.data.items;
+                                    for (key in item) {
+                                        vm.items.push(item[key]);
+                                    }
                                     vm.searchquery = '';
                                     vm.data_results = [];
 
@@ -315,6 +368,11 @@
                     },
                     delete_row: function (row) {
                         this.items.splice(this.items.indexOf(row), 1);
+                    },
+                    item_total: function (index) {
+
+                        return (index.quantity * index.rate);
+
                     },
                 },
                 //-------------

@@ -2,6 +2,9 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Purchase;
+use App\Models\SalesReturn;
+use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreSalesReturnRequest extends FormRequest
@@ -11,7 +14,7 @@ class StoreSalesReturnRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +25,24 @@ class StoreSalesReturnRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'products' => 'array',
+            'date' => 'required',
+            'reference_no' => 'nullable',
+            'subtotal' => 'required',
+            'remark' => 'nullable',
+            'net_payable' => 'nullable',
+            'uid' => 'required',
+            'created_by' => 'required',
         ];
+    }
+    public function prepareForValidation()
+    {
+
+        $this->merge([
+            'uid' => generateUniqueUUID(null, SalesReturn::class, 'uid', false, true),
+            'created_by' => auth()->user()->id,
+            'date' => Carbon::parse($this->date)->format('Y-m-d'),
+        ]);
+
     }
 }
