@@ -41,7 +41,7 @@ class POSController extends Controller
             Toastr::error('You are not permitted to do this');
             return back();
         }
-        $employees = Employee::where(['outlet_id'=>\auth()->user()->employee->outlet_id])->get();
+        $employees = Employee::where(['outlet_id' => \auth()->user()->employee->outlet_id])->get();
         return view('pos.index', compact('employees'));
     }
 
@@ -93,12 +93,12 @@ class POSController extends Controller
 
             $sale->payment_status = 'paid';
             $sale->outlet_id = $outlet_id;
-            if ($request->waiter_id){
-               $waiter =  Employee::find($request->waiter_id);
-               if($waiter){
-                   $sale->waiter_id = $waiter->id;
-                   $sale->waiter_name = $waiter->name;
-               }
+            if ($request->waiter_id) {
+                $waiter = Employee::find($request->waiter_id);
+                if ($waiter) {
+                    $sale->waiter_id = $waiter->id;
+                    $sale->waiter_name = $waiter->name;
+                }
             }
             $sale->save();
 
@@ -260,7 +260,7 @@ class POSController extends Controller
     public function getProductByNameSkuBarCode(Request $request)
     {
         $searchString = $request->search_term;
-        $product = ChartOfInventory::where(['rootAccountType' => 'FG', 'status' => 'active','type'=>'item'])->where(function ($q) use ($searchString) {
+        $product = ChartOfInventory::where(['rootAccountType' => 'FG', 'status' => 'active', 'type' => 'item'])->where(function ($q) use ($searchString) {
             $q->where('name', 'like', '%' . $searchString . '%');
         });
         if ($product->count() == 1) {
@@ -292,6 +292,8 @@ class POSController extends Controller
         $data = Customer::where('mobile', $request->number)->first();
         if ($data) {
             $data->current_point = $data->membership ? $data->membership->point : 0;
+            $data->minimum_purchase = $data->membership ? $data->membership->memberType->minimum_purchase : 0;
+            $data->purchase_discount = $data->membership ? $data->membership->memberType->discount : 0;
         }
         return $data;
     }
@@ -435,5 +437,12 @@ class POSController extends Controller
             $order->invoice_number = $order->sale_id ? $order->sale->invoice_number : '';
             return $order;
         });
+    }
+
+    public function getReturnNumberValue(Request $request)
+    {
+        $obj = new \stdClass();
+        $obj->amount = 10;
+        return $obj;
     }
 }

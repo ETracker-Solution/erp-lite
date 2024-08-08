@@ -37,4 +37,9 @@ class PreOrder extends Model
     {
         return $this->belongsTo(Sale::class, 'sale_id');
     }
+
+    public function attachments()
+    {
+        return $this->hasMany(PreOrderAttachment::class, 'pre_order_id');
+    }
 }

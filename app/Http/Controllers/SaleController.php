@@ -3,12 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Classes\InvoiceNumber;
+use App\Classes\PreOrderNumber;
 use App\Http\Requests\StoreSaleRequest;
 use App\Http\Requests\UpdateSaleRequest;
 use App\Models\ChartOfInventory;
 use App\Models\Customer;
+use App\Models\OthersOutletSale;
 use App\Models\Outlet;
 use App\Models\Payment;
+use App\Models\PreOrder;
 use App\Models\Product;
 use App\Models\Sale;
 use App\Models\Store;
@@ -75,7 +78,7 @@ class SaleController extends Controller
 
         ];
 //        return $data;
-        return view('sale.create', $data);
+        return view('sale.create2', $data);
     }
 
     /**
@@ -93,6 +96,7 @@ class SaleController extends Controller
             DB::beginTransaction();
 
             $selectedDate = Carbon::parse($request->date)->format('Y-m-d');
+            $deliveryDate = Carbon::parse($request->delivery_date)->format('Y-m-d');
             $customer_id = 1;
             if ($request->customer_number) {
                 $customer = Customer::where('mobile', $request->customer_number)->first();
@@ -104,11 +108,14 @@ class SaleController extends Controller
                 }
                 $customer_id = $customer->id;
             }
-            $store = Store::find($request->store_id);
+            if ($request->store_id) {
+                $store = Store::find($request->store_id);
+            } else {
+                $store = Store::where(['doc_type' => 'outlet', 'doc_id' => \auth()->user()->employee->outlet_id])->first();
+            }
             $outlet = Outlet::find($store->doc_id);
             $outlet_id = $outlet->id;
-
-
+            $request->merge(['delivery_point_id' => $request->delivery_point_id ?? $outlet_id]);
             $sale = new Sale();
             $sale->invoice_number = generateUniqueUUID($outlet_id, Sale::class, 'invoice_number');
             // $sale->invoice_number = $request->invoice_number ?? InvoiceNumber::generateInvoiceNumber($outlet_id, $selectedDate);
@@ -122,6 +129,18 @@ class SaleController extends Controller
 //            $sale->description = $request->description;
             $sale->created_by = Auth::id();
             $sale->outlet_id = $outlet_id;
+//            New Columns
+            $sale->membership_discount_percentage = $request->membership_discount_percentage;
+            $sale->membership_discount_amount = $request->membership_discount_amount;
+            $sale->special_discount_value = $request->special_discount_value;
+            $sale->special_discount_amount = $request->special_discount_amount;
+            $sale->couponCode = $request->couponCode;
+            $sale->couponCodeDiscountType = $request->couponCodeDiscountType;
+            $sale->couponCodeDiscountValue = $request->couponCodeDiscountValue;
+            $sale->couponCodeDiscountAmount = $request->couponCodeDiscountAmount;
+            $sale->total_discount_type = $request->total_discount_type;
+            $sale->total_discount_value = $request->total_discount_value;
+            $sale->total_discount_amount = $request->total_discount_amount;
             $sale->save();
 
             $products = $request->get('products');
@@ -130,10 +149,20 @@ class SaleController extends Controller
             $avgProductionPrice = 0;
 
             foreach ($products as $row) {
+                if ($row['is_readonly'] == 'false') {
+                    $newProduct = ChartOfInventory::create([
+                        'name' => $row['item_name'] . '-' . date('ymdhis'),
+                        'type' => 'item',
+                        'parent_id' => 174,
+                        'rootAccountType' => 'FG',
+                        'status' => 'active',
+                    ]);
+                    $row['item_id'] = $newProduct->id;
+                }
                 $row['product_id'] = $row['item_id'];
                 $row['unit_price'] = $row['rate'];
                 $currentStock = availableInventoryBalance($row['product_id'], $store->id);
-                if ($currentStock < $row['quantity']) {
+                if (($currentStock < $row['quantity']) && $row['is_readonly'] == 'true') {
                     Toastr::error('Quantity cannot more then ' . $currentStock . ' !', '', ["progressBar" => true]);
                     return back();
                 }
@@ -144,8 +173,9 @@ class SaleController extends Controller
                 $sale_item['rate'] = averageFGRate($row['product_id']);
                 $sale_item['amount'] = $sale_item['rate'] * $row['quantity'];
                 $sale_item['store_id'] = $store->id;
-                addInventoryTransaction(-1, 'POS', $sale_item);
-
+                if ($row['is_readonly'] == 'true') {
+                    addInventoryTransaction(-1, 'POS', $sale_item);
+                }
                 $avgProductionPrice += $sale_item['amount'];
             }
             $receive_amount = 0;
@@ -163,6 +193,21 @@ class SaleController extends Controller
                     'amount' => ($paymentMethod['method'] == 'cash' && $sale->change_amount > 0) ? ($paymentMethod['amount'] - $sale->change_amount) : $paymentMethod['amount'],
                 ]);
                 $sale->amount = $payment->amount;
+                if ($paymentMethod['method'] == 'exchange') {
+                   return 'working on it';
+                }
+                if ($paymentMethod['method'] == 'upay') {
+                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'upay'), getAccountsReceiveableGLId());
+                }
+                if ($paymentMethod['method'] == 'rocket') {
+                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'rocket'), getAccountsReceiveableGLId());
+                }
+                if ($paymentMethod['method'] == 'bank') {
+                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'bank'), getAccountsReceiveableGLId());
+                }
+                if ($paymentMethod['method'] == 'nagad') {
+                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'nagad'), getAccountsReceiveableGLId());
+                }
                 if ($paymentMethod['method'] == 'bkash') {
                     addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'bkash'), getAccountsReceiveableGLId());
                 }
@@ -177,21 +222,32 @@ class SaleController extends Controller
             }
 
             //Start Loyalty Effect
-//            pointEarnAndUpgradeMember($sale->id, $customer_id ?? null, $request->grandtotal);
+            pointEarnAndUpgradeMember($sale->id, $customer_id ?? null, $request->grandtotal);
             //End Loyalty Effect
             $sale->amount = $salesAmount;
             addAccountsTransaction('POS', $sale, getAccountsReceiveableGLId(), getIncomeFromSalesGLId());
-            $sale->amount = $avgProductionPrice;
-            addAccountsTransaction('POS', $sale, getCOGSGLId(), getFGInventoryGLId());
-//            $sale->amount = $salesAmount;
-//            addAccountsTransaction('POS',$sale, getCashGLID(), getAccountsReceiveableGLId());
+
+//            $sale->amount = $avgProductionPrice;
+//            addAccountsTransaction('POS', $sale, getCOGSGLId(), getFGInventoryGLId());
+
+            if ($customer_id != 1 && $salesAmount > $receive_amount) {
+                $sale->amount = $salesAmount - $receive_amount;
+                addCustomerTransaction($sale);
+            }
+
+            if ($request->sales_type == 'pre_order') {
+                $this->preOrderfromSales($sale, $deliveryDate, $request->description, $request->attachments, $request->delivery_point_id);
+            }
+            if ($outlet_id !== $request->delivery_point_id) {
+                $this->othersOutletDelivery($sale, $request->delivery_point_id);
+            }
             DB::commit();
 
             Toastr::success('Sale Order Successful!.', '', ["progressBar" => true]);
             return redirect()->route('sales.index');
         } catch (\Exception $e) {
             DB::rollBack();
-            return $e->getMessage();
+            return $e;
             Log::emergency("File:" . $e->getFile() . "Line:" . $e->getLine() . "Message:" . $e->getMessage());
             Toastr::info('Something went wrong!.', '', ["progressbar" => true]);
             return back();
@@ -283,5 +339,64 @@ class SaleController extends Controller
     {
         $store = Store::find($store_id);
         return generateInvoiceCode($store->doc_id, $request->date);
+    }
+
+    protected function preOrderfromSales($sale, $delivery_date, $description, $images, $delivery_point_id)
+    {
+        $data = [
+            'customer_id' => $sale->customer_id,
+            'outlet_id' => $sale->outlet_id,
+            'order_date' => $sale->date,
+            'delivery_date' => $delivery_date,
+            'subtotal' => $sale->subtotal,
+            'discount' => $sale->discount,
+            'vat' => $sale->vat,
+            'grand_total' => $sale->grand_total,
+            'advance_amount' => $sale->receive_amount,
+            'remark' => $description,
+            'created_by' => auth()->user()->id,
+            'order_number' => $sale->invoice_number,
+            'delivery_point_id' => $delivery_point_id,
+        ];
+        $preOrder = PreOrder::create($data);
+
+        $products = $sale->items;
+        foreach ($products as $product) {
+            $preOrder->items()->create($product->toArray());
+        }
+
+//        foreach ($images as $image) {
+//            $filename = date('Ymdmhs') . '.' . $image->getClientOriginalExtension();
+//            $image->move(public_path('/upload'), $filename);
+//            $preOrder->attachments()->create([
+//                'image' => $filename
+//            ]);
+//        }
+
+    }
+
+    protected function othersOutletDelivery($oldSale, $delivery_point_id)
+    {
+        $sale = new OthersOutletSale();
+        $sale->invoice_number = $oldSale->invoice_number;
+        $sale->subtotal = $oldSale->subtotal;
+        $sale->discount = $oldSale->discount ?? 0;
+        $sale->grand_total = $oldSale->grand_total;
+        $sale->receive_amount = $oldSale->receive_amount ?? 0;
+        $sale->change_amount = $oldSale->change_amount ?? 0;
+        $sale->customer_id = $oldSale->customer_id;
+        $sale->status = 'pending';
+        $sale->date = $oldSale->date;
+//            $sale->description = $request->description;
+        $sale->created_by = $oldSale->created_by;
+        $sale->outlet_id = $oldSale->outlet_id;
+        $sale->delivery_point_id = $delivery_point_id;
+        $sale->save();
+
+        $products = $oldSale->items;
+        foreach ($products as $product) {
+            $sale->items()->create($product->toArray());
+        }
+        $sale->save();
     }
 }

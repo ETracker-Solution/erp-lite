@@ -16,7 +16,7 @@ class CustomerSeeder extends Seeder
     {
         Customer::create( [
             'id'=>1,
-            'name'=>'Sujon',
+            'name'=>'Walking Customer',
             'mobile'=>"01710355700",
             'email'=>'customer@gmail.com',
             'address'=>'Dhaka',

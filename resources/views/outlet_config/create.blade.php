@@ -1,6 +1,6 @@
 @extends('layouts.app')
 @section('title')
-Outelt Payment
+    Outlet Payment
 @endsection
 @section('style')
 <!-- Select2 -->
@@ -13,10 +13,10 @@ $links = [
 'Home'=>route('dashboard'),
 'System Admin Module'=>'',
 'System Config'=>'',
-'Outelt Payment'=>''
+'Outlet Payment'=>''
 ]
 @endphp
-<x-breadcrumb title='Outelt Payment' :links="$links" />
+<x-breadcrumb title='Outlet Payment' :links="$links" />
 
 
 
@@ -40,6 +40,10 @@ $links = [
                                                 <th>Outlet</th>
                                                 <th>Cash Account</th>
                                                 <th>Bkash Account</th>
+                                                <th>Nagad Account</th>
+                                                <th>Bank Account</th>
+                                                <th>Rocket Account</th>
+                                                <th>Upay Account</th>
                                             </tr>
                                         </thead>
                                         @foreach ($outlets as $row)
@@ -48,8 +52,20 @@ $links = [
                                         \App\Models\OutletTransactionConfig::where(['outlet_id'=>$row->id,'type'=>'Bkash'])->first();
                                         $cashConfig =
                                         \App\Models\OutletTransactionConfig::where(['outlet_id'=>$row->id,'type'=>'Cash'])->first();
+                                        $nagadConfig =
+                                        \App\Models\OutletTransactionConfig::where(['outlet_id'=>$row->id,'type'=>'Nagad'])->first();
+                                        $bankConfig =
+                                        \App\Models\OutletTransactionConfig::where(['outlet_id'=>$row->id,'type'=>'Bank'])->first();
+                                        $rocketConfig =
+                                        \App\Models\OutletTransactionConfig::where(['outlet_id'=>$row->id,'type'=>'Rocket'])->first();
+                                        $upayConfig =
+                                        \App\Models\OutletTransactionConfig::where(['outlet_id'=>$row->id,'type'=>'Upay'])->first();
                                         $bkash = $bkashConfig ? $bkashConfig->coa_id : null;
                                         $cash = $cashConfig ? $cashConfig->coa_id : null;
+                                        $nagad = $nagadConfig ? $nagadConfig->coa_id : null;
+                                        $bank = $bankConfig ? $bankConfig->coa_id : null;
+                                        $rocket = $rocketConfig ? $rocketConfig->coa_id : null;
+                                        $upay = $upayConfig ? $upayConfig->coa_id : null;
                                         @endphp
                                         <tr>
                                             <td>{{ $row->name }}</td>
@@ -71,7 +87,43 @@ $links = [
                                                     @endforeach
                                                 </select>
                                             </td>
-                                            
+                                            <td>
+                                                <select name="settings[{{ $row->id }}][Nagad]" id="" class="form-control">
+                                                    @foreach(getAllLedgers() as $account)
+
+                                                    <option value="{{ $account->id }}" {{ $account->id == $nagad ?
+                                                        'selected' : '' }}>{{ $account->display_name }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </td>
+                                            <td>
+                                                <select name="settings[{{ $row->id }}][Bank]" id="" class="form-control">
+                                                    @foreach(getAllLedgers() as $account)
+
+                                                    <option value="{{ $account->id }}" {{ $account->id == $bank ?
+                                                        'selected' : '' }}>{{ $account->display_name }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </td>
+                                            <td>
+                                                <select name="settings[{{ $row->id }}][Rocket]" id="" class="form-control">
+                                                    @foreach(getAllLedgers() as $account)
+
+                                                    <option value="{{ $account->id }}" {{ $account->id == $rocket ?
+                                                        'selected' : '' }}>{{ $account->display_name }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </td>
+                                            <td>
+                                                <select name="settings[{{ $row->id }}][Upay]" id="" class="form-control">
+                                                    @foreach(getAllLedgers() as $account)
+
+                                                    <option value="{{ $account->id }}" {{ $account->id == $upay ?
+                                                        'selected' : '' }}>{{ $account->display_name }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </td>
+
                                         </tr>
                                         @endforeach
                                     </table>

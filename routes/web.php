@@ -129,6 +129,7 @@ Route::middleware('auth')->group(function () {
     Route::post('pos-add-customer', [POSController::class, 'addCustomer'])->name('pos.add.customer');
     Route::post('pos-update-customer/{id}', [POSController::class, 'updateCustomer'])->name('pos.update.customer');
     Route::get('pos-coupon-code-discount', [POSController::class, 'getCouponDiscountValue'])->name('pos.coupon.discount');
+    Route::get('pos--return-number-amount', [POSController::class, 'getReturnNumberValue'])->name('pos.exchange.discount');
     Route::get('pos-product-by-name-sku-bar-code', [POSController::class, 'getProductByNameSkuBarCode'])->name('pos.product.barcode');
     Route::get('pos-categories', [POSController::class, 'getAllProductCategories'])->name('pos.categories');
     Route::get('pos-products', [POSController::class, 'getAllProducts'])->name('pos.products');

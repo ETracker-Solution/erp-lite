@@ -7,6 +7,7 @@
 function pointEarnAndUpgradeMember($sale_id, $customer_id, $grand_total)
 {
     $membership = customerCurrentMembership($customer_id, $grand_total);
+
     if ($membership) {
         $point = membershipPointToEarn($membership->member_type_id, $grand_total);
         if ($point > 0) {
@@ -32,7 +33,7 @@ function customerCurrentMembership($customer_id, $totalBill = 0)
 {
     $data = \App\Models\Membership::where('customer_id', $customer_id)->first();
     if (!$data) {
-        $minimum_purchase_amount_to_be_a_member = getSettingValue('minimum_purchase_amount');
+        $minimum_purchase_amount_to_be_a_member = 100;
         if ($minimum_purchase_amount_to_be_a_member <= $totalBill) {
             $data = \App\Models\Membership::create([
                 'member_type_id' => 1,
