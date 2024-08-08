@@ -44,11 +44,19 @@ class FGInventoryAdjustmentController extends Controller
      */
     public function create()
     {
+        if (\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->outlet_id) {
+            $stores = Store::query()->whereType('FG')->where(['doc_type'=>'outlet','status'=>'active','doc_id'=>\auth()->user()->employee->outlet_id])->get();
+        } elseif(\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->factory_id) {
+            $stores = Store::query()->whereType('FG')->where(['doc_type'=>'factory','status'=>'active','doc_id'=>\auth()->user()->employee->factory_id])->get();
+        }else{
+            $stores = Store::query()->whereType('FG')->where('status','active')->get();
+        }
+
         $serial_count = InventoryAdjustment::latest()->first() ? InventoryAdjustment::latest()->first()->id : 0;
         $serial_no = $serial_count + 1;
         $data = [
             'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'FG'])->get(),
-            'stores' => Store::where(['type' => 'FG','status' => 'active'])->get(),
+            'stores' => $stores,
             'serial_no' => $serial_no,
         ];
         return view('fg_inventory_adjustment.create', $data);

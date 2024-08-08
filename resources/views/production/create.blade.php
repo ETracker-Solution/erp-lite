@@ -27,7 +27,7 @@
                                     <a href="{{route('productions.index')}}" class="btn btn-sm btn-primary">
                                         <i class="fas fa-bars"
                                            aria-hidden="true"></i> &nbsp;
-                                        FG Production List
+                                        See List
                                     </a>
                                 </div>
                             </div>

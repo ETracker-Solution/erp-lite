@@ -80,7 +80,7 @@ class RMOpeningBalanceController extends Controller
 
     public function list()
     {
-        $rom_balances = $this->base_model->with('chartOfInventory.unit', 'chartOfInventory.parent')->paginate(10);
+        $rom_balances = $this->base_model->with('chartOfInventory.unit', 'chartOfInventory.parent')->latest()->paginate(10);
         return response()->json(['success' => true, 'items' => new PaginateResource($rom_balances, ROMOpeningBalanceResource::class)]);
     }
 
@@ -156,10 +156,18 @@ class RMOpeningBalanceController extends Controller
 
     public function initialInfo()
     {
+        if (\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->outlet_id) {
+            $stores = Store::query()->whereType('RM')->where(['doc_type'=>'outlet','status'=>'active','doc_id'=>\auth()->user()->employee->outlet_id])->get();
+        } elseif(\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->factory_id) {
+            $stores = Store::query()->whereType('RM')->where(['doc_type'=>'factory','status'=>'active','doc_id'=>\auth()->user()->employee->factory_id])->get();
+        }else{
+            $stores = Store::query()->whereType('RM')->where('status','active')->get();
+        }
+
         return response()->json([
             'next_id' => getNextId(RawMaterialOpeningBalance::class),
             'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'RM'])->get(),
-            'stores' => Store::query()->whereType('RM')->get(),
+            'stores' => $stores,
             'success' => true
         ]);
     }

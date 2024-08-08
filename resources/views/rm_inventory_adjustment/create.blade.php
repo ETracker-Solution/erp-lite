@@ -27,8 +27,7 @@
                                 <div class="card-tools">
                                     <a class="btn btn-sm btn-primary"
                                        href="{{route('rm-inventory-adjustments.index')}}">
-                                        <i class="fa fa-list" aria-hidden="true"></i> &nbsp;RM Inventory Adjustment
-                                        List
+                                        <i class="fa fa-list" aria-hidden="true"></i> &nbsp;See List
                                     </a>
                                 </div>
                             </div>

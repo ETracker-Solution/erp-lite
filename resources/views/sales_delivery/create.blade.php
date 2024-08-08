@@ -25,7 +25,7 @@
                             <div class="card-tools">
                                 <a href="{{route('sales-deliveries.index')}}">
                                     <button class="btn btn-sm btn-primary">
-                                        <i class="fa fa-list" aria-hidden="true"></i> &nbsp;Sales Delivery List
+                                        <i class="fa fa-list" aria-hidden="true"></i> &nbsp;See List
                                     </button>
                                 </a>
                             </div>

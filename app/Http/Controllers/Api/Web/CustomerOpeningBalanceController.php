@@ -68,7 +68,7 @@ class CustomerOpeningBalanceController extends Controller
 
     public function list()
     {
-        $cob_balances = $this->base_model->with('customer')->paginate(10);
+        $cob_balances = $this->base_model->with('customer')->latest()->paginate(10);
         return response()->json(['success' => true, 'items' => new PaginateResource($cob_balances, CommonResource::class)]);
     }
 
