@@ -27,7 +27,7 @@
                                     <a href="{{route('consumptions.index')}}" class="btn btn-sm btn-primary">
                                         <i class="fas fa-bars"
                                            aria-hidden="true"></i> &nbsp;
-                                        RM Consumption List
+                                        See List
                                     </a>
                                 </div>
                             </div>

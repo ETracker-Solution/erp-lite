@@ -203,7 +203,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <button type="submit" class="float-right btn btn-info"><i class="fa fa-fw fa-lg fa-check-circle"></i>Submit
+                                <button type="submit" class="float-right btn btn-info">Save
                                 </button>
                             </div>
                             {{-- <div class="card-footer">

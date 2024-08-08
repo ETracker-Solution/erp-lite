@@ -23,8 +23,7 @@
                             <div class="card-tools">
                                 <a href="{{route('fg-transfer-receives.create')}}">
                                     <button class="btn btn-sm btn-primary"><i class="fa fa-plus-circle"
-                                                                              aria-hidden="true"></i> &nbsp;Add FG
-                                        Inventory Transfer Receive
+                                                                              aria-hidden="true"></i> &nbsp;Add New
                                     </button>
                                 </a>
                             </div>

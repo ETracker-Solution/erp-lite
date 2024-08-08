@@ -25,7 +25,7 @@
                             <div class="card-tools">
                                 <a href="{{route('others-outlet-sales.index')}}">
                                     <button class="btn btn-sm btn-primary">
-                                        <i class="fa fa-list" aria-hidden="true"></i> &nbsp;Others Outlet Sale List
+                                        <i class="fa fa-list" aria-hidden="true"></i> &nbsp;See List
                                     </button>
                                 </a>
                             </div>

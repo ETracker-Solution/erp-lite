@@ -21,10 +21,9 @@
                         <div class="card-header">
                             <h3 class="card-title">RM Inventory Transfer Receive List</h3>
                             <div class="card-tools">
-                                <a href="{{route('fg-transfer-receives.create')}}">
+                                <a href="{{route('rm-transfer-receives.create')}}">
                                     <button class="btn btn-sm btn-primary"><i class="fa fa-plus-circle"
-                                                                              aria-hidden="true"></i> &nbsp;Add RM
-                                        Inventory Transfer Receive
+                                                                              aria-hidden="true"></i> &nbsp;Add New
                                     </button>
                                 </a>
                             </div>
