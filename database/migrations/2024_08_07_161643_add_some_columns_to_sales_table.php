@@ -22,7 +22,7 @@ return new class extends Migration
             $table->string('couponCodeDiscountValue')->nullable();
             $table->string('couponCodeDiscountAmount')->nullable();
             $table->string('membership_discount_percentage')->nullable();
-            $table->string('membership_discount_value')->nullable();
+            $table->string('membership_discount_amount')->nullable();
             $table->string('exchange_id')->nullable();
         });
     }
@@ -33,7 +33,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('sales', function (Blueprint $table) {
-            $table->dropColumn(['total_discount_type', 'total_discount_value', 'total_discount_amount', 'special_discount_value', 'special_discount_amount', 'couponCode', 'couponCodeDiscountType', 'couponCodeDiscountValue', 'couponCodeDiscountAmount', 'membership_discount_percentage', 'membership_discount_value']);
+            $table->dropColumn(['total_discount_type', 'total_discount_value', 'total_discount_amount', 'special_discount_value', 'special_discount_amount', 'couponCode', 'couponCodeDiscountType', 'couponCodeDiscountValue', 'couponCodeDiscountAmount', 'membership_discount_percentage', 'membership_discount_amount','exchange_id']);
         });
     }
 };

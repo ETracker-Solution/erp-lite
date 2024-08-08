@@ -86,7 +86,6 @@ class SaleController extends Controller
      */
     public function store(StoreSaleRequest $request)
     {
-        return $request->all();
         $request->validate([
             'products' => 'array',
             'description' => 'nullable',
