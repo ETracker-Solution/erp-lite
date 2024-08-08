@@ -27,7 +27,7 @@
                                 <div class="card-tools">
                                     <a class="btn btn-sm btn-primary"
                                        href="{{route('rm-inventory-transfers.index')}}">
-                                        <i class="fa fa-list" aria-hidden="true"></i> &nbsp;RM Inventory Transfer List
+                                        <i class="fa fa-list" aria-hidden="true"></i> &nbsp;See List
                                     </a>
                                 </div>
                             </div>

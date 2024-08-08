@@ -27,7 +27,7 @@
                                 <div class="card-tools">
                                     <a href="{{route('fg-requisition-deliveries.index')}}"
                                        class="btn btn-sm btn-primary">
-                                        <i class="fa fa-list" aria-hidden="true"></i> &nbsp;FG Requisition Delivery List
+                                        <i class="fa fa-list" aria-hidden="true"></i> &nbsp;See List
                                     </a>
                                 </div>
                             </div>

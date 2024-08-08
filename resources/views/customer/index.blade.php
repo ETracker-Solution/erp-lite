@@ -24,7 +24,7 @@ Customer List
                     <div class="card-header">
                         <h3 class="card-title">Customer List</h3>
                         <div class="card-tools">
-                            <a href="{{route('customers.create')}}"><button class="btn btn-sm btn-primary"><i class="fa fa-plus-circle" aria-hidden="true"></i> &nbsp;Add customer</button></a>
+                            <a href="{{route('customers.create')}}"><button class="btn btn-sm btn-primary"><i class="fa fa-plus-circle" aria-hidden="true"></i> &nbsp;Add New</button></a>
                         </div>
                     </div>
                     <!-- /.card-header -->

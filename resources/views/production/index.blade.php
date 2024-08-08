@@ -23,8 +23,7 @@
                             <div class="card-tools">
                                 <a href="{{route('productions.create')}}">
                                     <button class="btn btn-sm btn-primary"><i class="fa fa-plus-circle"
-                                                                              aria-hidden="true"></i> &nbsp;Add FG
-                                        Production
+                                                                              aria-hidden="true"></i> &nbsp;Add New
                                     </button>
                                 </a>
                             </div>

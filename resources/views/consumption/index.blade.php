@@ -21,7 +21,7 @@
                             <div class="card-tools">
                                 <a href="{{route('consumptions.create')}}">
                                     <button class="btn btn-sm btn-primary"><i class="fa fa-plus-circle"
-                                                                              aria-hidden="true"></i> &nbsp;Add RM Consumption
+                                                                              aria-hidden="true"></i> &nbsp;Add New
                                     </button>
                                 </a>
                             </div>

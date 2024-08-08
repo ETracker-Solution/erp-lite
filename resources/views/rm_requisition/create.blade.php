@@ -26,7 +26,7 @@
                                 <h3 class="card-title">RM Requisition Entry</h3>
                                 <div class="card-tools">
                                     <a href="{{route('rm-requisitions.index')}}" class="btn btn-sm btn-primary">
-                                        <i class="fa fa-list" aria-hidden="true"></i> &nbsp;RM Requisition List
+                                        <i class="fa fa-list" aria-hidden="true"></i> &nbsp;See List
                                     </a>
                                 </div>
                             </div>

@@ -22,8 +22,7 @@
                             <div class="card-tools">
                                 <a href="{{route('purchases.create')}}">
                                     <button class="btn btn-sm btn-primary"><i class="fa fa-plus-circle"
-                                                                              aria-hidden="true"></i> &nbsp;Add Goods
-                                        Purchase Bill
+                                                                              aria-hidden="true"></i> &nbsp;Add New
                                     </button>
                                 </a>
                             </div>

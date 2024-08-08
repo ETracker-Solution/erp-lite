@@ -23,7 +23,7 @@
                             <div class="card-tools">
                                 <a href="{{route('rm-inventory-adjustments.create')}}">
                                     <button class="btn btn-sm btn-primary"><i class="fa fa-plus-circle"
-                                                                              aria-hidden="true"></i> &nbsp;Add Inventory Adjustment
+                                                                              aria-hidden="true"></i> &nbsp;Add New
                                     </button>
                                 </a>
                             </div>
