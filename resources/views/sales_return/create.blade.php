@@ -59,7 +59,11 @@
                         <div class="card-header">
                             <h3 class="card-title" style="color:#115548;">Product List</h3>
                             <div class="card-tools">
-                                <a href="{{route('products.create')}}"><button class="btn btn-sm btn-primary"><i class="fa fa-plus-circle" aria-hidden="true"></i> &nbsp;Add Product</button></a>
+                                <a href="{{route('products.create')}}">
+                                    <button class="btn btn-sm btn-primary"><i class="fa fa-plus-circle"
+                                                                              aria-hidden="true"></i> &nbsp;Add Product
+                                    </button>
+                                </a>
                             </div>
                         </div>
                         <!-- /.card-header -->
@@ -73,30 +77,43 @@
                                             <div class="card-body">
                                                 <div class="card-box" id="vue_app">
                                                     <div class="row">
-                                                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12" id="li_hover">
+                                                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12"
+                                                             id="li_hover">
 
-                                                            <h4 class="font-size-18">Add products to generate Labels</h4>
+                                                            <h4 class="font-size-18">Add products to generate
+                                                                Labels</h4>
                                                             <hr>
                                                             <div>
                                                                 <div class="form-group" style="position: relative">
                                                                     <div class="input-group">
                                                                         <div class="input-group-prepend">
-                                                                            <span class="input-group-text" id="basic-addon1"><i class="fa fa-barcode" aria-hidden="true"></i></span>
+                                                                            <span class="input-group-text"
+                                                                                  id="basic-addon1"><i
+                                                                                    class="fa fa-barcode"
+                                                                                    aria-hidden="true"></i></span>
                                                                         </div>
-                                                                        <input type="text" placeholder="Search Name/Product Id" v-model="searchquery" v-on:keyup="autoComplete" class="form-control input-sm" autofocus>
+                                                                        <input type="text"
+                                                                               placeholder="Search Name/Product Id"
+                                                                               v-model="searchquery"
+                                                                               v-on:keyup="autoComplete"
+                                                                               class="form-control input-sm" autofocus>
 
                                                                     </div>
 
-                                                                    <ul class="list-group" style="position: absolute; width:100% !important;z-index:2;">
+                                                                    <ul class="list-group"
+                                                                        style="position: absolute; width:100% !important;z-index:2;">
 
-                                                                        <li style="cursor: pointer;" class="list-group-item list-hover" v-for="result in data_results" v-on:click="selectautoComplete(result.product_id)" product_id="result.product_id">
-                                                                            @{{ result.product_code }}- @{{ result.product_name }} -@{{ result.product_category }}
+                                                                        <li style="cursor: pointer;"
+                                                                            class="list-group-item list-hover"
+                                                                            v-for="result in data_results"
+                                                                            v-on:click="selectautoComplete(result.product_id)"
+                                                                            product_id="result.product_id">
+                                                                            @{{ result.product_code }}- @{{
+                                                                            result.product_name }} -@{{
+                                                                            result.product_category }}
                                                                         </li>
 
                                                                     </ul>
-
-
-
 
 
                                                                 </div>
@@ -105,6 +122,7 @@
                                                                 <table class="table table-bordered">
                                                                     <thead>
                                                                     <tr>
+                                                                        <th></th>
                                                                         <th>Product Code</th>
                                                                         <th>Product Name</th>
                                                                         <th>Product Category</th>
@@ -116,77 +134,70 @@
                                                                     <tr v-for="(row, index) in items">
                                                                         <td>
 
-                                                                            <input type="number" :name="'products['+index+'][serial_number]'" class="form-control input-sm" v-bind:value="row.serial_number" readonly>
-                                                                        </td>
-                                                                        <td>
-                                                                            <input type="hidden" :name="'products['+index+'][product_id]'" class="form-control input-sm" v-bind:value="row.product_id">
-                                                                            <input type="hidden" :name="'products['+index+'][img]'" class="form-control input-sm" v-bind:value="row.img">
-                                                                            <input type="hidden" :name="'products['+index+'][product_name]'" class="form-control input-sm" v-bind:value="row.product_name">
-                                                                            <input type="hidden" :name="'products['+index+'][selling_price]'" class="form-control input-sm" v-bind:value="row.selling_price">
+                                                                            <div class="form-group">
+                                                                                <div class="custom-control custom-checkbox">
+                                                                                    <input class="custom-control-input"
+                                                                                           v-model="product_name" name="product_name"
+                                                                                           type="checkbox" id="product_name" value="1">
+                                                                                    <label for="product_name"
+                                                                                           class="custom-control-label"></label>
+                                                                                </div>
 
-                                                                            <input type="text" class="form-control input-sm" v-bind:value="row.product_name" readonly>
+                                                                            </div>
                                                                         </td>
                                                                         <td>
-                                                                            <input type="text" class="form-control input-sm" v-bind:value="row.product_category" readonly>
+
+                                                                            <input type="number"
+                                                                                   :name="'products['+index+'][serial_number]'"
+                                                                                   class="form-control input-sm"
+                                                                                   v-bind:value="row.serial_number"
+                                                                                   readonly>
                                                                         </td>
                                                                         <td>
-                                                                            <input type="number" :name="'products['+index+'][quantity]'" class="form-control input-sm" value="1">
+                                                                            <input type="hidden"
+                                                                                   :name="'products['+index+'][product_id]'"
+                                                                                   class="form-control input-sm"
+                                                                                   v-bind:value="row.product_id">
+                                                                            <input type="hidden"
+                                                                                   :name="'products['+index+'][img]'"
+                                                                                   class="form-control input-sm"
+                                                                                   v-bind:value="row.img">
+                                                                            <input type="hidden"
+                                                                                   :name="'products['+index+'][product_name]'"
+                                                                                   class="form-control input-sm"
+                                                                                   v-bind:value="row.product_name">
+                                                                            <input type="hidden"
+                                                                                   :name="'products['+index+'][selling_price]'"
+                                                                                   class="form-control input-sm"
+                                                                                   v-bind:value="row.selling_price">
+
+                                                                            <input type="text"
+                                                                                   class="form-control input-sm"
+                                                                                   v-bind:value="row.product_name"
+                                                                                   readonly>
                                                                         </td>
                                                                         <td>
-                                                                            <button type="button" class="btn btn-danger btn-xs" @click="delete_row(row)"><i class="fa fa-trash"></i></button>
+                                                                            <input type="text"
+                                                                                   class="form-control input-sm"
+                                                                                   v-bind:value="row.product_category"
+                                                                                   readonly>
+                                                                        </td>
+                                                                        <td>
+                                                                            <input type="number"
+                                                                                   :name="'products['+index+'][quantity]'"
+                                                                                   class="form-control input-sm"
+                                                                                   value="1">
+                                                                        </td>
+                                                                        <td>
+                                                                            <button type="button"
+                                                                                    class="btn btn-danger btn-xs"
+                                                                                    @click="delete_row(row)"><i
+                                                                                    class="fa fa-trash"></i></button>
                                                                         </td>
                                                                     </tr>
                                                                     </tbody>
                                                                 </table>
                                                             </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="card">
-                                            <div class="card-body">
-                                                <div class="card-box">
-                                                    <div class="row">
-                                                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                                            <h4 class="font-size-18">Information to show in Labels</h4>
-                                                            <hr>
-                                                        </div>
-
-                                                        <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
-                                                            <div class="form-group">
-                                                                <div class="custom-control custom-checkbox">
-                                                                    <input class="custom-control-input" v-model="product_name" name="product_name" type="checkbox" id="product_name" value="1">
-                                                                    <label for="product_name" class="custom-control-label">Product Name</label>
-                                                                </div>
-
-                                                            </div>
-                                                        </div><div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
-                                                            <div class="form-group">
-                                                                <div class="custom-control custom-checkbox">
-                                                                    <input class="custom-control-input" v-model="product_price" name="product_price" type="checkbox" id="product_price" value="1">
-                                                                    <label for="product_price" class="custom-control-label">Product Price</label>
-                                                                </div>
-
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-lg-12 col-md-12 col-sm-12">
-                                                            <hr>
-                                                            <div class="form-group">
-                                                                <label for="page_size">Barcode setting:</label>
-                                                                <select name="page_size" v-model="page_size" id="page_size" class="form-control bSelect" required>
-                                                                    <option value="">Select one</option>
-                                                                    <option value="20">20 Labels per Sheet - (8.5" x 11")</option>
-                                                                    <option value="30">30 Labels per sheet - (8.5" x 11")</option>
-                                                                    <option value="32">32 Labels per sheet - (8.5" x 11")</option>
-                                                                    <option value="40">40 Labels per sheet - (8.5" x 11")</option>
-
-                                                                </select>
-                                                            </div>
-                                                        </div>
-                                                        <div class="offset-lg-8  offset-md-8 offset-md-8 col-lg-4 col-sm-4 col-sm-4">
-                                                            <button type="submit" class="btn btn-primary btn-block">Preview
-                                                            </button>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -215,7 +226,7 @@
     <script src="{{ asset('vue-js/bootstrap-select/dist/js/bootstrap-select.min.js') }}"></script>
 
     <script>
-        $(document).ready(function() {
+        $(document).ready(function () {
 
             var app = new Vue({
                 el: '#vue_app',
@@ -225,7 +236,6 @@
                         get_product_info_url: "{{ url('fetch-product-info-for-gatepass') }}",
                         get_requisition_info_url: "{{ url('fetch-requisition-info-for-gatepass') }}",
                     },
-
 
 
                     searchquery: '',
@@ -238,17 +248,16 @@
                 methods: {
 
                     autoComplete() {
-                        var vm = this;
+                        const vm = this;
                         vm.data_results = [];
 
                         if (vm.searchquery.length > 1) {
 
-                            axios.get('/vuejs/autocomplete/search', {
+                            axios.get('/vuejs/autocomplete/sales-invoice-search', {
                                 params: {
                                     searchquery: vm.searchquery
                                 }
                             }).then(response => {
-
 
 
                                 vm.data_results = response.data;
@@ -260,7 +269,7 @@
                     },
                     selectautoComplete(product_id) {
 
-                        var vm = this;
+                        const vm = this;
                         if (!product_id) {
 
                             toastr.error('Enter product', {
@@ -275,7 +284,7 @@
                             var slug = product_id;
 
                             if (slug) {
-                                axios.get(this.config.get_product_info_url + '/' + slug).then(function(response) {
+                                axios.get(this.config.get_product_info_url + '/' + slug).then(function (response) {
 
                                     product_details = response.data;
 
@@ -290,7 +299,7 @@
                                     vm.searchquery = '';
                                     vm.data_results = [];
 
-                                }).catch(function(error) {
+                                }).catch(function (error) {
 
                                     toastr.error('Something went to wrong', {
                                         closeButton: true,
@@ -304,7 +313,7 @@
 
                         }
                     },
-                    delete_row: function(row) {
+                    delete_row: function (row) {
                         this.items.splice(this.items.indexOf(row), 1);
                     },
                 },
