@@ -66,10 +66,10 @@ class FactoryDashboardController extends Controller
 
         $todayTotalRequisitions = Requisition::where('to_factory_id',$factory_id)->whereDate('created_at', Carbon::today())->count();
         $todayTotalDeliveries = RequisitionDelivery::where(['type' => 'FG', 'date' => Carbon::today()])->count();
-        $todayTotalWastages = InventoryAdjustment::whereIn('store_id', $store_ids)->sum('subtotal');
+        $todayTotalWastages = InventoryAdjustment::whereIn('store_id', $store_ids)->where(['date' => Carbon::today(),'transaction_type'=>'decrease'])->sum('subtotal');
 
         //2nd Section
-        $thisMonthTotalWastages = InventoryAdjustment::whereIn('store_id', $store_ids)->whereMonth('created_at', Carbon::now()->month)->sum('subtotal');
+        $thisMonthTotalWastages = InventoryAdjustment::whereIn('store_id', $store_ids)->whereMonth('created_at', Carbon::now()->month)->where('transaction_type', 'decrease')->sum('subtotal');
 
 //Expenses
         $year = Carbon::now()->month == 1 ? Carbon::now()->subYear()->year : Carbon::now()->year;
