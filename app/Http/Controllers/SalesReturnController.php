@@ -62,6 +62,15 @@ class SalesReturnController extends Controller
 
     public function index()
     {
+
+        return view('sales_return.index');
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     */
+    public function create()
+    {
         $data = [
             'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'FG'])->get(),
             'batches' => Batch::where(['is_production' => false])->get(),
@@ -70,14 +79,6 @@ class SalesReturnController extends Controller
 
         ];
         return view('sales_return.create', $data);
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
     }
 
     /**

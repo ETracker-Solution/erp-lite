@@ -1,15 +1,15 @@
 @extends('layouts.app')
 @section('title')
-    Sales Delivery
+    Sales Return
 @endsection
 @section('content')
     @php
         $links = [
         'Home'=>route('dashboard'),
-        'Sales Delivery'=>''
+        'Sales Return'=>''
         ]
     @endphp
-    <x-breadcrumb title='Sales Delivery' :links="$links"/>
+    <x-breadcrumb title='Sales Return' :links="$links"/>
 
     <!-- Main content -->
     <section class="content">
@@ -19,11 +19,11 @@
                 <div class="col-12">
                     <div class="card card-info">
                         <div class="card-header">
-                            <h3 class="card-title">Sales Delivery List</h3>
+                            <h3 class="card-title">Sales Return List</h3>
                             <div class="card-tools">
-                                <a href="{{route('sales-deliveries.create')}}">
+                                <a href="{{route('sales-returns.create')}}">
                                     <button class="btn btn-sm btn-primary"><i class="fa fa-plus-circle"
-                                                                              aria-hidden="true"></i> &nbsp;Make Delivery
+                                                                              aria-hidden="true"></i> &nbsp;Add New
                                     </button>
                                 </a>
                             </div>
@@ -66,7 +66,7 @@
                 serverSide: true,
                 processing: true,
                 ajax: {
-                    url: "{{ route('sales-deliveries.index') }}",
+                    url: "{{ route('sales-returns.index') }}",
                 },
                 columns: [{
                     data: "DT_RowIndex",
@@ -76,26 +76,12 @@
                     orderable: false
                 },
                     {
-                        data: "invoice_number",
+                        data: "uid",
                         title: "Invoice No",
                         searchable: true
                     },
-                    {
-                        data: "outlet.name",
-                        title: "Order From",
-                        searchable: true,
-                        "defaultContent": "N/A"
-                    },
-                    {
-                        data: "grand_total",
-                        title: "Grand Total",
-                        searchable: true
-                    },
-                    {
-                        data: "due",
-                        title: "Due",
-                        searchable: true
-                    },
+
+
                     {
                         data: "status",
                         title: "Delivery Status",
