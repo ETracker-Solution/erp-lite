@@ -82,7 +82,7 @@
             <div class="col-lg-4 col-12">
                 <div class="row match-height">
                     <!-- Bar Chart - Orders -->
-                    <div class="col-lg-6 col-md-3 col-6">
+                    {{-- <div class="col-lg-6 col-md-3 col-6">
                         <div class="card">
                             <div class="card-header bg-info">
                                 <h3 class="card-title">{{ $currentMonthExpense }} BDT</h3>
@@ -95,11 +95,11 @@
                                 <p>{{ $expenseMessage }}</p>
                             </div>
                         </div>
-                    </div>
+                    </div> --}}
                     <!--/ Bar Chart - Orders -->
 
                     <!-- Line Chart - Profit -->
-                    <div class="col-lg-6 col-md-3 col-6">
+                    <div class="col-xl-12 col-12">
                         <div class="card card-tiny-line-stats">
                             <div class="card-header bg-info">
                                 <h3 class="card-title">Sales</h3>
