@@ -46,7 +46,6 @@ class AdminDashboardController extends Controller
         $lastMonthExpense = 0;
         // $lastMonthExpense = Expense::whereYear('date', $year)->whereMonth('date', $lastMonth->month)->sum('amount');
 
-        $currentMonthExpense = 0;
         $currentMonthExpense = AccountTransaction::with('chartOfAccount')->whereHas('chartOfAccount', function ($query) {
             $query->where(['root_account_type' => 'ex']);
         })->whereYear('date', Carbon::now()->year)->whereMonth('date', Carbon::now()->month)->sum('amount');
