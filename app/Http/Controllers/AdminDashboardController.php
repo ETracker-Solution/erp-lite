@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\AccountTransaction;
+use App\Models\ChartOfAccount;
 use App\Models\ChartOfInventory;
 use App\Models\Customer;
 use App\Models\Expense;
@@ -44,8 +46,10 @@ class AdminDashboardController extends Controller
         $lastMonthExpense = 0;
         // $lastMonthExpense = Expense::whereYear('date', $year)->whereMonth('date', $lastMonth->month)->sum('amount');
 
-        $currentMonthExpense = 29;
-        // $currentMonthExpense = Expense::whereYear('date', Carbon::now()->year)->whereMonth('date', Carbon::now()->month)->sum('amount');
+        $currentMonthExpense = 0;
+        $currentMonthExpense = AccountTransaction::with('chartOfAccount')->whereHas('chartOfAccount', function ($query) {
+            $query->where(['root_account_type' => 'ex']);
+        })->whereYear('date', Carbon::now()->year)->whereMonth('date', Carbon::now()->month)->sum('amount');
         $expenseMessage = 'No Expense Added';
         if ($lastMonthExpense === 0) {
             $expensePercentage = 100;
