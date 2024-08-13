@@ -209,7 +209,7 @@ class AdminDashboardController extends Controller
             'products' => $products,
             'wastageAmount' => $wastage_amount,
             'lastMonthExpense' => $lastMonthExpense,
-            'expensePercentage' => $expensePercentage,
+            'expensePercentage' => round($expensePercentage, 2),
             'currentMonthExpense' => $currentMonthExpense,
             'expenseMessage' => $expenseMessage,
             'lastMonthSales' => $parts,
