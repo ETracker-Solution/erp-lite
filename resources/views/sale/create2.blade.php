@@ -256,9 +256,10 @@
                                                             <td>
                                                                 <div class="row">
                                                                     <div class="col-4">
-                                                                        <select name="" id=""
+                                                                        <select
                                                                                 class="form-control form-control-sm"
                                                                                 v-model="row.discountType"
+                                                                                :name="'products['+index+'][discountType]'"
                                                                                 @change="updateProductDiscount(row)"
                                                                                 :disabled="!row.discountable">
                                                                             <option value="f">tk</option>
@@ -270,7 +271,7 @@
                                                                                v-model="row.product_discount"
                                                                                :name="'products['+index+'][product_discount]'"
                                                                                class="form-control input-sm form-control-sm"
-                                                                               v-model="row.discountValue"
+{{--                                                                               v-model="row.discountValue"--}}
                                                                                @keyup="updateProductDiscount(row)"
                                                                                :disabled="!row.discountable"
                                                                                required>
@@ -700,7 +701,7 @@
                     },
                     productWiseDiscount: function () {
                         return this.items.reduce((total, item) => {
-                            return total + Number(item.product_discount)
+                            return total + Number(item.discountAmount)
                         }, 0)
                     },
                     allDiscountAmount: function () {
@@ -802,7 +803,7 @@
                     },
                     itemtotal: function (index) {
 
-                        return (index.quantity * index.price) - index.product_discount;
+                        return (index.quantity * index.price) - index.discountAmount;
 
                     },
                     valid: function (index) {
@@ -946,6 +947,7 @@
                         if (vm.total_discount_amount > 0) {
                             if (confirm("Total Discount Applied, Sure to add Total Discount Single Product Discount?")) {
                                 this.items.some(function (product) {
+                                    product.discountValue = product.product_discount
                                     var total_cost = (product.quantity * product.price);
                                     if (product.discountType == 'p') {
                                         product.discountAmount = (total_cost * product.discountValue) / 100;
@@ -961,6 +963,7 @@
                             }
                         } else {
                             this.items.some(function (product) {
+                                product.discountValue = product.product_discount
                                 var total_cost = (product.quantity * product.price);
                                 if (product.discountType == 'p') {
                                     product.discountAmount = (total_cost * product.discountValue) / 100;
