@@ -572,10 +572,10 @@
                                         @endcan
                                         @can('sales-sales-exchanges')
                                             <li class="nav-item">
-                                                <a href="{{route('sales-exchanges.index')}}"
-                                                   class="nav-link {{ (Request::segment(1) == 'sales-exchanges' )?' active':''}}">
+                                                <a href="{{route('sales-returns.index')}}"
+                                                   class="nav-link {{ (Request::segment(1) == 'sales-returns' )?' active':''}}">
                                                     <i class="far fa-circle nav-icon"></i>
-                                                    <p>Sales Exchange</p>
+                                                    <p>Sales Return</p>
                                                 </a>
                                             </li>
                                         @endcan
