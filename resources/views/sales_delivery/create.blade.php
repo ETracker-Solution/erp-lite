@@ -163,48 +163,48 @@
                                                         </tbody>
                                                         <tfoot>
 
-                                                        <tr>
-                                                            <td colspan="7">
+{{--                                                        <tr>--}}
+{{--                                                            <td colspan="7">--}}
 
-                                                            </td>
-                                                            <td>
-                                                                SubTotal
-                                                            </td>
-                                                            <td>
-                                                                <input type="text" name="subtotal"
-                                                                       class="form-control input-sm"
-                                                                       v-bind:value="total_bill" readonly>
+{{--                                                            </td>--}}
+{{--                                                            <td>--}}
+{{--                                                                SubTotal--}}
+{{--                                                            </td>--}}
+{{--                                                            <td>--}}
+{{--                                                                <input type="text" name="subtotal"--}}
+{{--                                                                       class="form-control input-sm"--}}
+{{--                                                                       v-bind:value="total_bill" readonly>--}}
 
-                                                            </td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td colspan="7">
+{{--                                                            </td>--}}
+{{--                                                        </tr>--}}
+{{--                                                        <tr>--}}
+{{--                                                            <td colspan="7">--}}
 
-                                                            </td>
-                                                            <td>
-                                                                Discount
-                                                            </td>
-                                                            <td>
-                                                                <input type="text" name="discount"
-                                                                       class="form-control input-sm"
-                                                                       v-model="allDiscountAmount" disabled>
+{{--                                                            </td>--}}
+{{--                                                            <td>--}}
+{{--                                                                Discount--}}
+{{--                                                            </td>--}}
+{{--                                                            <td>--}}
+{{--                                                                <input type="text" name="discount"--}}
+{{--                                                                       class="form-control input-sm"--}}
+{{--                                                                       v-model="allDiscountAmount" disabled>--}}
 
-                                                            </td>
-                                                        </tr>
+{{--                                                            </td>--}}
+{{--                                                        </tr>--}}
 
-                                                        <tr>
-                                                            <td colspan="7">
+{{--                                                        <tr>--}}
+{{--                                                            <td colspan="7">--}}
 
-                                                            </td>
-                                                            <td>
-                                                                Grand Total
-                                                            </td>
-                                                            <td>
-                                                                <input type="text" name="grandtotal"
-                                                                       class="form-control input-sm"
-                                                                       v-bind:value="total_payable_bill" readonly>
-                                                            </td>
-                                                        </tr>
+{{--                                                            </td>--}}
+{{--                                                            <td>--}}
+{{--                                                                Grand Total--}}
+{{--                                                            </td>--}}
+{{--                                                            <td>--}}
+{{--                                                                <input type="text" name="grandtotal"--}}
+{{--                                                                       class="form-control input-sm"--}}
+{{--                                                                       v-bind:value="total_payable_bill" readonly>--}}
+{{--                                                            </td>--}}
+{{--                                                        </tr>--}}
                                                         <tr>
                                                             <td colspan="7">
 
@@ -503,7 +503,7 @@
                                 const resData = response.data;
                                 vm.products = resData.items;
                                 vm.products.map((product) => {
-                                    vm.fetch_item(product.product_id, product.quantity)
+                                    vm.fetch_item(product.product_id, product.quantity, slug)
                                 })
                                 if (response.data.customer){
                                     vm.customerNumber = resData.customer.mobile
@@ -521,13 +521,14 @@
                             });
                         }
                     },
-                    fetch_item(slug, qty) {
+                    fetch_item(slug, qty, sale_id) {
                         var vm = this;
                         {
                             if (slug) {
                                 axios.get(this.config.get_product_info_url + '/' + slug, {
                                     params: {
-                                        store_id: vm.store_id
+                                        store_id: vm.store_id,
+                                        sale_id: sale_id
                                     }
                                 }).then(function (response) {
                                     product_details = response.data;

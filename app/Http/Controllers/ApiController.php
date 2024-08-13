@@ -6,11 +6,13 @@ use App\Models\ChartOfInventory;
 use App\Models\Consumption;
 use App\Models\ConsumptionItem;
 use App\Models\InventoryTransfer;
+use App\Models\OthersOutletSale;
 use App\Models\Product;
 use App\Models\Production;
 use App\Models\Purchase;
 use App\Models\Requisition;
 use App\Models\RequisitionDelivery;
+use App\Models\Sale;
 use App\Models\Store;
 use App\Models\Supplier;
 use App\Models\SupplierTransaction;
@@ -24,6 +26,7 @@ class ApiController extends Controller
     {
         return SupplierTransaction::where('supplier_id', $id)->sum(DB::raw('amount * transaction_type'));
     }
+
     public function fetchCustomerDueById($id)
     {
         return CustomerTransaction::where('customer_id', $id)->sum(DB::raw('amount * transaction_type'));
@@ -97,14 +100,17 @@ class ApiController extends Controller
 
     public function fetchItemByIdForSale($id)
     {
-
         $coi = ChartOfInventory::findOrFail($id);
+        if (\request()->sale_id) {
+            $sale = OthersOutletSale::find(\request()->sale_id);
+            $item = $sale->items()->where('product_id', $coi->id)->first();
+        }
         $data = [
             'group' => $coi->parent->name,
             'parent_id' => $coi->parent_id,
             'name' => $coi->name,
             'unit' => $coi->unit->name ?? 'No Unit',
-            'price' => $coi->price,
+            'price' => isset($item) ? $item->unit_price : $coi->price,
 //            'price' => number_format(averageRMRate($coi->id),2),
             'coi_id' => $id,
             'balance_qty' => availableInventoryBalance($id, request()->store_id),

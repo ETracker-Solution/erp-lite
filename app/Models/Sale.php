@@ -78,4 +78,9 @@ class Sale extends Model
     {
         return $this->hasOne(MembershipPointHistory::class,'sale_id');
     }
+
+    public function preOrder()
+    {
+        return $this->hasOne(PreOrder::class,'sale_id');
+    }
 }

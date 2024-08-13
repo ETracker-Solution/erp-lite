@@ -42,4 +42,9 @@ class PreOrder extends Model
     {
         return $this->hasMany(PreOrderAttachment::class, 'pre_order_id');
     }
+
+    public function deliveryPoint()
+    {
+        return $this->belongsTo(Outlet::class, 'delivery_point_id');
+    }
 }

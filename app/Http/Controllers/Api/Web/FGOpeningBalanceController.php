@@ -227,12 +227,12 @@ class FGOpeningBalanceController extends Controller
                     $message = '| Invalid Store Name';
                 }
 
-                $group = ChartOfInventory::query()->where(['type' => 'group', 'rootAccountType' => 'RM'])->whereName($line['Group Name'])->first();
+                $group = ChartOfInventory::query()->where(['type' => 'group', 'rootAccountType' => 'FG'])->whereName($line['Group Name'])->first();
                 if (!$group) {
                     $message = '| Invalid Group Name';
                 }
 
-                $item = ChartOfInventory::query()->where(['type' => 'item', 'rootAccountType' => 'RM', 'parent_id' => $group->id])->whereName($line['Item Name'])->first();
+                $item = ChartOfInventory::query()->where(['type' => 'item', 'rootAccountType' => 'FG', 'parent_id' => $group->id])->whereName($line['Item Name'])->first();
                 if (!$item) {
                     $message = '| Invalid Item Name';
                 }

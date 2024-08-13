@@ -261,8 +261,8 @@
                                                                                 v-model="row.discountType"
                                                                                 @change="updateProductDiscount(row)"
                                                                                 :disabled="!row.discountable">
-                                                                            <option value="">tk</option>
-                                                                            <option value="">%</option>
+                                                                            <option value="f">tk</option>
+                                                                            <option value="p">%</option>
                                                                         </select>
                                                                     </div>
                                                                     <div class="col-8">
@@ -644,7 +644,8 @@
                     special_discount_amount: 0,
                     selectedSpecialDiscount: false,
                     returnNumber: '',
-                    exchangeAmount: 0
+                    exchangeAmount: 0,
+                    user_outlet_id: "",
                 },
                 components: {
                     vuejsDatepicker
@@ -805,7 +806,8 @@
 
                     },
                     valid: function (index) {
-                        if (index.quantity > index.stock && index.is_readonly) {
+                        const vm=this
+                        if (index.quantity > index.stock && index.is_readonly && (!vm.delivery_point_id || vm.user_outlet_id == vm.delivery_point_id)) {
                             index.quantity = index.stock;
                         }
                         if (index.quantity <= 0) {
@@ -822,7 +824,7 @@
                         }).then(function (response) {
                             vm.customer = (response.data);
                             if (vm.customer.name) {
-                                vm.customer.name = vm.customer.name + '  (' + vm.customer.current_point + '  point)'
+                                vm.customer.name = vm.customer.name + '  (' + vm.customer.reedemible_point + '  point)'
                                 vm.membership_discount_percentage = vm.customer.purchase_discount
                                 vm.minimum_purchase_amount = vm.customer.minimum_purchase
                             }
@@ -848,7 +850,8 @@
                                 date: vm.date
                             }
                         }).then((response) => {
-                            vm.invoice_number = response.data
+                            vm.invoice_number = response.data.invoice
+                            vm.user_outlet_id = response.data.outlet
                         })
                     },
                     deletePaymentMethod: function (row) {
@@ -860,6 +863,7 @@
                     setStoreId() {
                         const vm = this
                         vm.store_id = "{{ $user_store ?  $user_store->id : ''}}"
+                        vm.user_outlet_id = "{{ $user_store ?  $user_outlet_id : ''}}"
                     },
                     getCouponDiscountValue() {
                         var vm = this;

@@ -27,6 +27,8 @@ use Illuminate\Support\Facades\DB;
 use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Mike42\Escpos\PrintConnectors\CupsPrintConnector;
+use Mike42\Escpos\Printer;
 
 class POSController extends Controller
 {
@@ -294,6 +296,7 @@ class POSController extends Controller
             $data->current_point = $data->membership ? $data->membership->point : 0;
             $data->minimum_purchase = $data->membership ? $data->membership->memberType->minimum_purchase : 0;
             $data->purchase_discount = $data->membership ? $data->membership->memberType->discount : 0;
+            $data->reedemible_point = $data->membership ? round($data->currentReedemablePoint(),2) : 0;
         }
         return $data;
     }
@@ -363,6 +366,12 @@ class POSController extends Controller
 //        $dompdf->setPaper('A4', $this->pageOrientation);
         // Render the HTML as PDF
         $dompdf->render();
+        $output = $dompdf->output();
+        $pdfFilePath = storage_path('app/invoices/invoice_' . $id . '.pdf'); // Save path
+
+        file_put_contents($pdfFilePath, $output);
+
+        $this->print($pdfFilePath);
         return $dompdf->stream('order', ["Attachment" => false]);
     }
 
@@ -444,5 +453,51 @@ class POSController extends Controller
         $obj = new \stdClass();
         $obj->amount = 10;
         return $obj;
+    }
+
+    public function print($pdfFilePath)
+    {
+        $printerName = $this->getDefaultPrinter();
+        $connector = new CupsPrintConnector($printerName);
+        $printer = new Printer($connector);
+
+        // Start printing
+        try {
+            exec("lp -d " . escapeshellarg($printerName) . " " . escapeshellarg($pdfFilePath));
+//            $printer->cut();
+        } catch (\Exception $e) {
+            return "Failed to print: " . $e->getMessage();
+        } finally {
+            $printer->close();
+        }
+        unlink($pdfFilePath);
+    }
+
+
+    public function getDefaultPrinter()
+    {
+        $os = PHP_OS_FAMILY;
+
+        // Initialize output
+        $output = [];
+
+        if ($os === 'Linux') {
+            // Command for Linux
+            exec("lpstat -d", $output);
+            return count($output) > 0 ? trim(str_replace("system default destination:", "", $output[0])) : null;
+
+        } elseif ($os === 'Windows') {
+            // Command for Windows
+            exec("wmic printer get name", $output);
+            return isset($output[1]) ? trim($output[1]) : null; // Assuming the first line after header is the default printer
+
+        } elseif ($os === 'Darwin') {
+            // Command for macOS
+            exec("lpstat -d", $output);
+            return count($output) > 0 ? trim(str_replace("system default destination:", "", $output[0])) : null;
+
+        } else {
+            return null; // Unsupported OS
+        }
     }
 }

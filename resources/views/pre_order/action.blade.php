@@ -4,8 +4,9 @@
             @csrf
             @method('PUT')
             <input type="hidden" name="status" value="approved">
-            <button id="btnDelete" class="btn btn-success btn-xs"> <i class="fas fa-check-circle">
-                </i> Approve</button>
+            <button id="btnDelete" class="btn btn-success btn-xs"><i class="fas fa-check-circle">
+                </i> Approve
+            </button>
         </form>
     @endif
     <form action="{{route('pre-orders.destroy', encrypt($row->id))}}" method="post">
@@ -21,9 +22,24 @@
             </i> Show
         </a>
         @if($row->status == 'pending')
-        <button id="btnDelete" class="btn btn-danger btn-xs"><i class="fas fa-trash">
-            </i> Delete
-        </button>
+            <button id="btnDelete" class="btn btn-danger btn-xs"><i class="fas fa-trash">
+                </i> Delete
+            </button>
         @endif
+
     </form>
+    @if($row->status == 'approved' && auth()->user()->employee->user_of != 'outlet')
+        <button class="btn btn-success btn-xs" data-toggle="modal" data-target="#deliverModal" data-id="{{ $row->id }}"
+                type="button"><i
+                class="fas fa-check-circle">
+            </i> Deliver
+        </button>
+    @endif
+    @if($row->status == 'delivered' && auth()->user()->employee->user_of != 'factory')
+        <button class="btn btn-success btn-xs" data-toggle="modal" data-target="#receiveModal" data-id="{{ $row->id }}"
+                type="button"><i
+                class="fas fa-check-circle">
+            </i> Receive
+        </button>
+    @endif
 </div>

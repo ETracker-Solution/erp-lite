@@ -267,7 +267,7 @@ class RequisitionController extends Controller
 
                 $totalQty += ($outlet_req_qty - $delivered_qty);
             }
-            foreach (auth()->user()->employee->factory->stores as $store) {
+            foreach (auth()->user()->employee->factory->stores()->where('type','FG')->get() as $store) {
                 $current_stock += availableInventoryBalance($product->id, $store->id);
             }
             $diff = $req_qty - $current_stock;

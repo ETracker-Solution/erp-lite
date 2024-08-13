@@ -41,8 +41,7 @@
                                     <div class="form-group">
                                         <label for="item_id">Account</label>
                                         <select name="item_id" id="item_id"
-                                                class="form-control bSelect" v-model="item_id"
-                                                @change="get_product_info">
+                                                class="form-control bSelect" v-model="item_id">
                                             <option value="">Select one</option>
                                             <option :value="row.id" v-for="row in items"
                                             >@{{ row.id + ' - ' + row.name }}

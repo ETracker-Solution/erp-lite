@@ -13,13 +13,18 @@ use App\Models\Sale;
 use App\Models\Store;
 use App\Models\TransferReceive;
 use Brian2694\Toastr\Facades\Toastr;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Mike42\Escpos\PrintConnectors\CupsPrintConnector;
 use Yajra\DataTables\Facades\DataTables;
-
+use Mike42\Escpos\PrintConnectors\WindowsPrintConnector;
+use Mike42\Escpos\Printer;
+use Mike42\Escpos\PrintConnectors\FilePrintConnector;
+use Mike42\Escpos\PrintConnectors\NetworkPrintConnector;
 class SalesDeliveryController extends Controller
 {
     /**
@@ -60,6 +65,7 @@ class SalesDeliveryController extends Controller
      */
     public function create()
     {
+        return $this->print();
         $user_store = null;
         if (!auth()->user()->is_super) {
             $user_store = Store::where(['doc_type' => 'outlet', 'doc_id' => \auth()->user()->employee->outlet_id])->first();
@@ -89,21 +95,11 @@ class SalesDeliveryController extends Controller
 
         try {
             DB::beginTransaction();
+
             $selectedDate = Carbon::parse($request->date)->format('Y-m-d');
 
             $originalSale = OthersOutletSale::find($request->sale_id);
             $originalSaleItems = $originalSale->items;
-            $customer_id = 1;
-            if ($request->customer_number) {
-                $customer = Customer::where('mobile', $request->customer_number)->first();
-                if (!$customer) {
-                    $customer = Customer::create([
-                        'name' => 'New Customer',
-                        'mobile' => $request->customer_number
-                    ]);
-                }
-                $customer_id = $customer->id;
-            }
 
             $store = Store::find($request->store_id);
 
@@ -115,150 +111,36 @@ class SalesDeliveryController extends Controller
             $receiveData = [];
             $tq = 0;
             // transfer Stock
-            $transferData = [
-                'to_store_id' => $mail_outlet_store_id,
-                'from_store_id' => $request->store_id,
-                'date' => $selectedDate,
-                'type' => 'FG',
-                'reference_no' => 'nullable',
-                'remark' => 'Sale Delivery Stock Transfer',
-//                'created_by' => 'required',
-            ];
-            foreach ($originalSaleItems as $item) {
-                $currentStock = availableInventoryBalance($item->product_id, $store->id);
-                if ($currentStock < $item->quantity) {
-                    Toastr::error('Quantity cannot more then ' . $currentStock ?? 0 . ' !', '', ["progressBar" => true]);
-                    return back();
-                }
-                $transferData['products'][] = [
-                    'coi_id' => $item->product_id,
-                    'rate' => averageFGRate($item->product_id),
-                    'quantity' => $item->quantity,
-                ];
-                $tq +=$item->quantity;
-            }
-
-
-            $fGInventoryTransfer = InventoryTransfer::create($transferData);
-            foreach ($transferData['products'] as $product) {
-                $fGInventoryTransfer->items()->create($product);
-            }
-
-            //receive transfer
-            $receiveData = [
-                'from_store_id' => $transferData['from_store_id'],
-                'to_store_id' => $transferData['to_store_id'],
-                'inventory_transfer_id' => $fGInventoryTransfer->id,
-                'date' => $selectedDate,
-                'type' => 'FG',
-                'reference_no' => 'nullable',
-                'total_quantity' => $tq,
-                'remark' => 'Sale Delivery Stock Receive',
-//                'created_by' => 'required',
-            ];
-
-            foreach ($originalSaleItems as $item) {
-                $receiveData['products'][] = [
-                    'coi_id' => $item->product_id,
-                    'rate' => averageFGRate($item->product_id),
-                    'quantity' => $item->quantity,
-                ];
-                $tq +=$item->quantity;
-            }
-
-            $fGInventoryTransferReceive = TransferReceive::query()->create($receiveData);
-            foreach ($receiveData['products'] as $product) {
-                $fGInventoryTransferReceive->items()->create($product);
-                // Inventory Transaction Effect
-                InventoryTransaction::query()->create([
-                    'store_id' => $fGInventoryTransferReceive->from_store_id,
-                    'doc_type' => 'FGIT',
-                    'doc_id' => $fGInventoryTransferReceive->id,
-                    'quantity' => $product['quantity'],
-                    'rate' => $product['rate'],
-                    'amount' => $product['quantity'] * $product['rate'],
-                    'date' => $fGInventoryTransferReceive->date,
-                    'type' => -1,
-                    'coi_id' => $product['coi_id'],
-                ]);
-                InventoryTransaction::query()->create([
-                    'store_id' => $fGInventoryTransferReceive->to_store_id,
-                    'doc_type' => 'FGIT',
-                    'doc_id' => $fGInventoryTransferReceive->id,
-                    'quantity' => $product['quantity'],
-                    'rate' => $product['rate'],
-                    'amount' => $product['quantity'] * $product['rate'],
-                    'date' => $fGInventoryTransferReceive->date,
-                    'type' => 1,
-                    'coi_id' => $product['coi_id'],
-                ]);
-            }
-            InventoryTransfer::where('id', $fGInventoryTransferReceive->id)->update(['status' => 'received']);
-
 
             $outlet = Outlet::find($store->doc_id);
             $outlet_id = $outlet->id;
-            $sale = new Sale();
-            $sale->invoice_number = generateUniqueUUID($main_outlet->id, Sale::class, 'invoice_number');
-            // $sale->invoice_number = $request->invoice_number ?? InvoiceNumber::generateInvoiceNumber($outlet_id, $selectedDate);
-            $sale->subtotal = $originalSale->subtotal;
-            $sale->discount = $originalSale->discount ?? 0;
-            $sale->grand_total = $originalSale->grand_total;
-            $sale->receive_amount = $originalSale->grand_total ?? 0;
-            $sale->change_amount =  0;
-            $sale->customer_id = $customer_id;
-            $sale->date = $selectedDate;
-//            $sale->description = $request->description;
-            $sale->created_by = Auth::id();
-            $sale->outlet_id = $main_outlet->id;
-            $sale->save();
-
+            $sale = Sale::where('invoice_number',$originalSale->invoice_number)->first();
 
             $salesAmount = $sale->grand_total;
-            $avgProductionPrice = 0;
 
-            foreach ($originalSaleItems as $row) {
-                $row =  collect($row)->toArray();
-                $currentStock = availableInventoryBalance($row['product_id'], $mail_outlet_store_id);
-                if ($currentStock < $row['quantity']) {
-                    Toastr::error('Quantity cannot more then ' . $currentStock . ' !', '', ["progressBar" => true]);
-                    return back();
-                }
+            if ($sale->preOrder || ($sale->outlet_id != $sale->delivery_point_id)) {
+                foreach ($originalSaleItems as $row) {
+                    $row =  collect($row)->toArray();
+                    $currentStock = availableInventoryBalance($row['product_id'], $mail_outlet_store_id);
+                    if ($currentStock < $row['quantity']) {
+                        Toastr::error('Quantity cannot more then ' . $currentStock . ' !', '', ["progressBar" => true]);
+                        return back();
+                    }
 
-                $sale_item = $sale->items()->create($row);
-                $sale_item['date'] = date('Y-m-d');
-                $sale_item['coi_id'] = $row['product_id'];
-                $sale_item['rate'] = averageFGRate($row['product_id']);
-                $sale_item['amount'] = $sale_item['rate'] * $row['quantity'];
-                $sale_item['store_id'] = $mail_outlet_store_id;
-                addInventoryTransaction(-1, 'POS', $sale_item);
+                    $sale_item = $sale->items()->where('product_id',$row['product_id'])->first();
+                    $sale_item['date'] = date('Y-m-d');
+                    $sale_item['coi_id'] = $row['product_id'];
+                    $sale_item['rate'] = averageFGRate($row['product_id']);
+                    $sale_item['amount'] = $sale_item['rate'] * $row['quantity'];
+                    $sale_item['store_id'] = $mail_outlet_store_id;
+                    addInventoryTransaction(-1, 'POS', $sale_item);
 
-                $avgProductionPrice += $sale_item['amount'];
-            }
-            $receive_amount = 0;
-            foreach (json_decode($originalSale->payment_methods, true) as $paymentMethod) {
-                $receive_amount += $paymentMethod['amount'];
-                Payment::create([
-                    'sale_id' => $sale->id,
-                    'customer_id' => $customer_id ?? null,
-                    'payment_method' => $paymentMethod['method'],
-                    'amount' => $paymentMethod['amount'],
-                ]);
-                $sale->amount = $paymentMethod['amount'];
-                if ($paymentMethod['method'] == 'bkash') {
-                    addAccountsTransaction('POS', $sale, outletTransactionAccount($main_outlet->id, 'bkash'), getAccountsReceiveableGLId());
                 }
-                if ($paymentMethod['method'] == 'cash') {
-                    addAccountsTransaction('POS', $sale, outletTransactionAccount($main_outlet->id,), getAccountsReceiveableGLId());
-                }
-                if ($paymentMethod['method'] == 'point') {
-                    redeemPoint($sale->id, $customer_id, $paymentMethod['amount']);
-                    addAccountsTransaction('POS', $sale, getRewardGLID(), getAccountsReceiveableGLId());
-                }
+                $receive_amount = $sale->receive_amount;
+
             }
             $delivery_receive = 0;
             foreach ($request->payment_methods as $paymentMethod) {
-                $receive_amount += $paymentMethod['amount'];
                 $delivery_receive += $paymentMethod['amount'];
                 Payment::create([
                     'sale_id' => $sale->id,
@@ -267,6 +149,18 @@ class SalesDeliveryController extends Controller
                     'amount' => $paymentMethod['amount'],
                 ]);
                 $sale->amount = $paymentMethod['amount'];
+                if ($paymentMethod['method'] == 'upay') {
+                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'upay'), getAccountsReceiveableGLId());
+                }
+                if ($paymentMethod['method'] == 'rocket') {
+                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'rocket'), getAccountsReceiveableGLId());
+                }
+                if ($paymentMethod['method'] == 'bank') {
+                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'bank'), getAccountsReceiveableGLId());
+                }
+                if ($paymentMethod['method'] == 'nagad') {
+                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'nagad'), getAccountsReceiveableGLId());
+                }
                 if ($paymentMethod['method'] == 'bkash') {
                     addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'bkash'), getAccountsReceiveableGLId());
                 }
@@ -280,26 +174,22 @@ class SalesDeliveryController extends Controller
                 unset($sale->amount);
             }
 
-            $sale->receive_amount = $receive_amount;
-            $sale->change_amount = $receive_amount - $sale->grand_total;
-            $sale->save();
-            //Start Loyalty Effect
-            pointEarnAndUpgradeMember($sale->id, $customer_id ?? null, $request->grandtotal);
-            //End Loyalty Effect
-            $sale->amount = $salesAmount;
-            addAccountsTransaction('POS', $sale, getAccountsReceiveableGLId(), getIncomeFromSalesGLId());
-            $sale->amount = $avgProductionPrice;
-            addAccountsTransaction('POS', $sale, getCOGSGLId(), getFGInventoryGLId());
             $originalSale->update([
                 'status'=>'delivered',
                 'payment_status'=>'paid',
                 'delivery_point_receive_amount'=>$delivery_receive
             ]);
+
+            if ($delivery_receive > 0) {
+                $sale->amount = $delivery_receive;
+                addCustomerTransaction($sale, -1);
+            }
+
 //            $sale->amount = $salesAmount;
 //            addAccountsTransaction('POS',$sale, getCashGLID(), getAccountsReceiveableGLId());
             DB::commit();
 
-            Toastr::success('Sale Order Successful!.', '', ["progressBar" => true]);
+            Toastr::success('Sale Delivered Successful!.', '', ["progressBar" => true]);
             return redirect()->route('sales-deliveries.index');
         } catch (\Exception $e) {
             DB::rollBack();
@@ -347,4 +237,47 @@ class SalesDeliveryController extends Controller
         $sale = OthersOutletSale::with('deliveryPoint', 'outlet', 'items.coi', 'customer')->where('id', $id)->first();
         return $sale;
     }
+
+    public function print()
+    {
+//        return phpinfo();
+        $printer = null;
+
+        try {
+            $connector = new CupsPrintConnector($this->getDefaultPrinter());
+            $printer = new Printer($connector);
+            $printer->text("Invoice #" . 1 . "\n");
+            $printer->text("Date: " . '2024-01-01' . "\n");
+            $printer->text("Customer: " . 'Noman' . "\n");
+
+            // Feed and cut the paper
+            $printer->feed();
+            $printer->cut();
+        } catch (\Exception $e) {
+            // Log or print the exception for detailed error information
+            \Log::error('Printing failed: ' . $e->getMessage());
+            \Log::error($e->getTraceAsString());
+            return "Failed to print: " . $e->getMessage();
+        } finally {
+            if ($printer) {
+                try {
+                    $printer->close();
+                } catch (\Exception $e) {
+                    \Log::error('Failed to close printer: ' . $e->getMessage());
+                }
+            }
+        }
+
+    }
+
+
+    public function getDefaultPrinter()
+    {
+        $output = [];
+        exec("lpstat -d", $output);
+
+        // Extract the printer name from the output
+        return count($output) > 0 ? trim(str_replace("system default destination:", "", $output[0])) : null;
+    }
+
 }

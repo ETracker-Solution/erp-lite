@@ -82,23 +82,27 @@ function getCashGLID()
     return 13;
 }
 
-function getAllLedgers(){
-    return ChartOfAccount::where('type','ledger')->select(DB::raw('id,name,CONCAT(id,". ",name, " (",root_account_type,")") as display_name'))->get();
+function getAllLedgers()
+{
+    return ChartOfAccount::where('type', 'ledger')->select(DB::raw('id,name,CONCAT(id,". ",name, " (",root_account_type,")") as display_name'))->get();
 }
 
-function outletTransactionAccount($outlet_id, $account_type='cash'){
-    $account =  \App\Models\OutletTransactionConfig::where(['type'=>$account_type, 'outlet_id'=>$outlet_id])->first();
-    if ($account){
+function outletTransactionAccount($outlet_id, $account_type = 'cash')
+{
+    $account = \App\Models\OutletTransactionConfig::where(['type' => $account_type, 'outlet_id' => $outlet_id])->first();
+    if ($account) {
         return $account->coa_id;
     }
     return false;
 }
 
-function getDiscountGLID(){
+function getDiscountGLID()
+{
     return 50;
 }
 
-function getRewardGLID(){
+function getRewardGLID()
+{
     return 51;
 }
 
@@ -107,14 +111,15 @@ function getCustomersReceiveableGLId()
     return 58;
 }
 
-function addCustomerTransaction($item){
+function addCustomerTransaction($item, $transaction_type = 1)
+{
     \App\Models\CustomerTransaction::query()->create([
         'customer_id' => $item->customer_id,
         'doc_type' => 'POS',
         'doc_id' => $item->id,
         'amount' => $item->amount,
         'date' => $item->date,
-        'transaction_type' => 1,
+        'transaction_type' => $transaction_type,
         'chart_of_account_id' => getAccountsReceiveableGLId(),
         'description' => 'Product Sales',
     ]);
