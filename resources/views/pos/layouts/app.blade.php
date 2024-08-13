@@ -342,11 +342,15 @@
                 },
                 allDiscountAmount: function () {
                     var vm = this
-                    return Number(vm.total_discount_amount) + Number(vm.special_discount_amount) + Number(this.productWiseDiscount)
+                    return Number(vm.total_discount_amount) + Number(vm.special_discount_amount) + Number(this.productWiseDiscount) + Number(this.membership_discount_amount)
                 },
                 selectedNotDiscountableProduct: function () {
                     return this.selectedProducts.some(item => !item.discountable);
-                }
+                },
+                membership_discount_amount: function () {
+                    var vm = this
+                    return vm.customer &&  vm.total_bill > vm.customer.minimum_purchase ? (Number(vm.total_bill) * Number(vm.customer.purchase_discount) / 100) : 0
+                },
 
             },
             methods: {
@@ -498,7 +502,18 @@
                             customer_number: this.customerNumber,
                             payment_methods: this.paymentMethods,
                             pre_order_id: this.selectedPreOrderId,
-                            waiter_id: this.waiter_id
+                            waiter_id: this.waiter_id,
+                            membership_discount_percentage: vm.customer ? vm.customer.purchase_discount : 0,
+                            membership_discount_amount: vm.membership_discount_amount,
+                            special_discount_value: vm.special_discount_value,
+                            special_discount_amount: vm.special_discount_amount,
+                            couponCode: vm.couponCode,
+                            couponCodeDiscountType: vm.couponCodeDiscountType,
+                            couponCodeDiscountValue: vm.couponCodeDiscountValue,
+                            couponCodeDiscountAmount: vm.couponCodeDiscountAmount,
+                            total_discount_type: vm.total_discount_type,
+                            total_discount_value: vm.total_discount_value,
+                            total_discount_amount: vm.total_discount_amount,
                         }).then(function (response) {
                             // console.log(response)
                             // return
