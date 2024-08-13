@@ -36,7 +36,7 @@ class AdminDashboardController extends Controller
     public function adminDashboard()
     {
         $total_sales = Sale::whereDate('created_at', date('Y-m-d'))->sum('grand_total');
-        $outlets = Outlet::count();
+        $outlets = Outlet::whereStatus('active')->count();
         $customers = Customer::where('type', 'regular')->count();
         $wastage_amount = InventoryAdjustment::sum('subtotal');
         $products = ChartOfInventory::where('type', 'item')->where('rootAccountType', 'FG')->count();
