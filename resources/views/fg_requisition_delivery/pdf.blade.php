@@ -69,7 +69,8 @@
                             </div>
                             <div class="row">
                                 <div class="col-sm-6 top-right">
-                                    <span class="marginright">{{ \Carbon\Carbon::parse($fgRequisitionDelivery->created_at)->isoFormat('MMM Do, YYYY') }}</span>
+                                    <span class="marginright">{{ \Carbon\Carbon::parse($fgRequisitionDelivery->created_at)->isoFormat('MMM Do, YYYY') }}</span><br>
+                                    <h3> Delivery Challan No : {{ $fgRequisitionDelivery->uid }}</h3>
                                 </div>
                             </div>
                             <hr>
@@ -80,9 +81,9 @@
                                             <p><b>FGR No :</b> {{ $fgRequisitionDelivery->requisition ? $fgRequisitionDelivery->requisition->uid : 'Not Available' }}</p>
                                             <p><b>Date :</b> {{ $fgRequisitionDelivery->date }} </p>
                                             <p><b>Status :</b> {!! showStatus($fgRequisitionDelivery->status) !!}</p>
-                                            <p><b>Outlet :</b> {{ $fgRequisitionDelivery->requisition->outlet->name ?? ''}}</p>
+                                            <p><b>Outlet :</b> {{ $fgRequisitionDelivery->requisition->outlet ? $fgRequisitionDelivery->requisition->outlet->name : '' }}</p>
                                             <p><b>Store :</b> {{ $fgRequisitionDelivery->toStore->name ?? ''}}</p>
-                                            <p><b>Address :</b> {{ $fgRequisitionDelivery->requisition->outlet->address }}</p>
+                                            <p><b>Address :</b> {{ $fgRequisitionDelivery->requisition->outlet ? $fgRequisitionDelivery->requisition->outlet->address : '' }}</p>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -94,24 +95,45 @@
 										<th>Group</th>
 										<th>Item</th>
 										<th>Unit</th>
-										<th>Quantity</th>
+                                        <th>Requsition QTY</th>
+                                        <th>Delivery QTY</th>
+										<th>Remaining QTY</th>
 										{{-- <th>Rate</th> --}}
 									</tr>
                                 </thead>
                                 <tbody>
                                     @foreach ($fgRequisitionDelivery->items as $item)
+                                    @php
+                                        $requisition_qty = getRequisitionQty($item->requisition_id, $item->coi_id);
+                                        $delivery_qty = $item->quantity;
+                                    @endphp
                                         <tr>
                                             <td>{{ $loop->iteration }}</td>
                                             <td>{{ $item->coi->parent->name ?? '' }}</td>
                                             <td>{{ $item->coi->name ?? '' }}</td>
                                             <td>{{ $item->coi->unit->name ?? '' }}</td>
-                                            <td>{{ $item->quantity ?? '' }}</td>
+                                            <td>{{ $requisition_qty }}</td>
+                                            <td>{{ $delivery_qty }}</td>
+                                            <td>{{ $requisition_qty- $delivery_qty  }}</td>
                                             {{-- <td>{{ $item->rate ?? '' }} TK</td> --}}
                                         </tr>
+                                       
                                     @endforeach
                                 </tbody>
                             </table>
                             <htmlpagefooter name="page-footer">
+                                
+                                <table width="100%">
+                                    <tbody>
+                                        <tr>
+                                            <td style="text-align: left;"><span style="border-top: 1px solid hsl(0, 0%, 2%);">Factroy Supervisor</span> </td>
+                                            <td style="text-align: center;"><span style="border-top: 1px solid hsl(0, 0%, 2%);">Delivery Man</span></td>
+                                            <td style="text-align: right;"><span style="border-top: 1px solid hsl(0, 0%, 2%);">Showroom Incharge</span> </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <hr>
+
                                 @php
                                     $date = new DateTime('now', new DateTimezone('Asia/Dhaka'));
                                 @endphp
@@ -119,16 +141,7 @@
                                 <strong>
                                     Printing Time:- {{ $date->format('F j, Y, g:i a') }}
                                 </strong>
-                                <hr>
-                                {{-- <br>
-                                <table width="100%">
-                                    <tbody>
-                                        <tr>
-                                            <td style="text-align: left;">Customer Signature</td>
-                                            <td style="text-align: right;">Saller Signature</td>
-                                        </tr>
-                                    </tbody>
-                                </table> --}}
+                                <br>
                             </htmlpagefooter>
 
                         </div>
