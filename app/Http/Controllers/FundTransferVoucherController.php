@@ -95,7 +95,8 @@ class FundTransferVoucherController extends Controller
             foreach ($validated['products'] as $product) {
                 $product['date'] = $validated['date'];
                 $product['narration'] = $validated['narration'];
-                $voucher = FundTransferVoucher::create($product);
+                $product['created_by'] = $validated['created_by'];
+                FundTransferVoucher::create($product);
             }
             DB::commit();
         } catch (\Exception $error) {
