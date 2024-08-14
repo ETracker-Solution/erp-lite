@@ -87,9 +87,44 @@
 
 </div>
 <script>
-    $('.branch').click(function () {
-        $(this).children().toggleClass('fa-folder-open');
-        $(this).next().slideToggle();
+    $(document).ready(function() {
+        // Restore the state of all branches from local storage
+        function restoreState() {
+            $('.branch').each(function() {
+                var branchId = $(this).attr('id');
+                if (localStorage.getItem('branch_' + branchId) === 'open') {
+                    $(this).children('.fa').addClass('fa-folder-open');
+                    $(this).next('.tree').show();
+                } else {
+                    $(this).children('.fa').removeClass('fa-folder-open');
+                    $(this).next('.tree').hide();
+                }
+            });
+        }
 
+        // Toggle the state and save it in local storage
+        function toggleBranchState(branch) {
+            console.log(branch)
+            var branchId = branch.attr('id');
+            var isOpen = branch.next('.tree').is(':visible');
+
+            branch.children('.fa').toggleClass('fa-folder-open');
+            branch.next('.tree').slideToggle();
+
+            // Save the state in local storage
+            if (isOpen) {
+                localStorage.setItem('branch_' + branchId, 'closed');
+            } else {
+                localStorage.setItem('branch_' + branchId, 'open');
+            }
+        }
+
+        // Restore state on page load
+        restoreState();
+
+        // Add click event handler for all branches
+        $('.branch').click(function(e) {
+            toggleBranchState($(this));
+        });
     });
 </script>

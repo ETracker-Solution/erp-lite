@@ -33,6 +33,7 @@ class InventoryController extends Controller
             'account_type' => $inventory->rootAccountType,
             'unit_id' => $inventory->unit_id,
             'price' => $inventory->price,
+            'status' => $inventory->status,
         ];
         return response()->json($data);
     }
@@ -46,6 +47,7 @@ class InventoryController extends Controller
             }
             if ($inventory->type == 'item') {
                 $inventory->unit_id = \request()->unit;
+                $inventory->status = \request()->status;
                 $inventory->price = \request()->price;
             }
             $inventory->updated_by = auth()->user()->id;
@@ -71,6 +73,7 @@ class InventoryController extends Controller
                 'type' => \request()->item_type,
                 'rootAccountType' => $inventory->rootAccountType,
                 'unit_id' => \request()->unit ?? null,
+                'status' => \request()->status,
                 'price' => \request()->price ?? 0,
                 'created_by' => auth()->user()->id,
             ]);
