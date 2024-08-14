@@ -91,6 +91,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('receive-vouchers', ReceiveVoucherController::class);
     Route::resource('journal-vouchers', JournalVoucherController::class);
     Route::resource('fund-transfer-vouchers', FundTransferVoucherController::class);
+    Route::get('fund-transfer-voucher-receive/{id}', [App\Http\Controllers\FundTransferVoucherController::class, 'receive'])->name('fund-transfer-vouchers.receive');
     Route::resource('departments', DepartmentController::class);
     Route::resource('designations', DesignationController::class);
     Route::resource('factories', FactoryController::class);

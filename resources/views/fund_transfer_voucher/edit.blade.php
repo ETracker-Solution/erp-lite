@@ -48,7 +48,7 @@
                                                                 <label for="uid">JV No</label>
                                                                 <input type="number" class="form-control" id="uid"
                                                                         placeholder="Enter RV No"
-                                                                        value="{{ $fundTransferVoucher->uid }}" readonly>
+                                                                        value="{{ $fundTransferVoucher->id }}" readonly>
                                                             </div>
                                                         </div>
                                                         <div class="col-xl-4 col-md-4 col-12">

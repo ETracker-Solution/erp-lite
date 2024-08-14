@@ -39,7 +39,10 @@ class FundTransferVoucherController extends Controller
                 ->addColumn('created_at', function ($row) {
                     return view('common.created_at', compact('row'));
                 })
-                ->rawColumns(['action'])
+                ->editColumn('status', function ($row) {
+                    return showStatus($row->status);
+                })
+                ->rawColumns(['action', 'created_at', 'status'])
                 ->make(true);
         }
         return view('fund_transfer_voucher.index');
@@ -93,8 +96,6 @@ class FundTransferVoucherController extends Controller
                 $product['date'] = $validated['date'];
                 $product['narration'] = $validated['narration'];
                 $voucher = FundTransferVoucher::create($product);
-                // Accounts Effect
-                addAccountsTransaction('FTV', $voucher, $voucher->debit_account_id, $voucher->credit_account_id);
             }
             DB::commit();
         } catch (\Exception $error) {
@@ -187,6 +188,26 @@ class FundTransferVoucherController extends Controller
             return back();
         }
         Toastr::success('Fund Transfer Voucher Deleted Successfully!.', '', ["progressBar" => true]);
+        return redirect()->route('fund-transfer-vouchers.index');
+    }
+
+    public function receive($id)
+    {
+        DB::beginTransaction();
+        try {
+            $voucher = FundTransferVoucher::findOrFail(decrypt($id));
+            $voucher->status = "received";
+            $voucher->save();
+
+            // Accounts Effect
+            addAccountsTransaction('FTV', $voucher, $voucher->debit_account_id, $voucher->credit_account_id);
+            DB::commit();
+        } catch (\Exception $error) {
+            DB::rollBack();
+            Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
+            return back();
+        }
+        Toastr::success('Fund Transfer Voucher Received Successful!.', '', ["progressBar" => true]);
         return redirect()->route('fund-transfer-vouchers.index');
     }
 

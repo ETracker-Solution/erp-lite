@@ -3,12 +3,12 @@
 @section('title', 'Fund Transfer Voucher')
 @section('content')
     @php
-    $links = [
-    'Home'=>route('dashboard'),
-    'Accounts Module'=>'',
-    'General Accounts'=>'',
-    'Fund Transfer Voucher'=>''
-    ]
+        $links = [
+        'Home'=>route('dashboard'),
+        'Accounts Module'=>'',
+        'General Accounts'=>'',
+        'Fund Transfer Voucher'=>''
+        ]
     @endphp
     <x-breadcrumb title='Fund Transfer Voucher' :links="$links"/>
     <!-- Main content -->
@@ -62,62 +62,66 @@
     <script src="{{ asset('assets/plugins/datatables-responsive/js/responsive.bootstrap4.min.js')}}"></script>
 @endsection
 @push('script')
-<script>
-    $(document).ready(function() {
-        $('#dataTable').dataTable({
-            stateSave: true,
-            responsive: true,
-            serverSide: true,
-            processing: true,
-            ajax: {
-                url: "{{ route('fund-transfer-vouchers.index') }}",
-            },
-            columns: [{
+    <script>
+        $(document).ready(function () {
+            $('#dataTable').dataTable({
+                stateSave: true,
+                responsive: true,
+                serverSide: true,
+                processing: true,
+                ajax: {
+                    url: "{{ route('fund-transfer-vouchers.index') }}",
+                },
+                columns: [{
                     data: "DT_RowIndex",
                     title: "SL",
                     name: "DT_RowIndex",
                     searchable: false,
                     orderable: false
                 },
-                {
-                    data: "date",
-                    title: "Date",
-                    searchable: true
-                },
-                {
-                    data: "uid",
-                    title: "FTV No",
-                    searchable: true
-                },
-                {
-                    data: "credit_account.name",
-                    title: "Transfer From",
-                    searchable: false
-                },
-                {
-                    data: "debit_account.name",
-                    title: "Transfer To",
-                    searchable: false
-                },
-                {
-                    data: "amount",
-                    title: "Amount",
-                    searchable: false
-                },
-                // {
-                //     data: "created_at",
-                //     title: "Created At",
-                //     searchable: true
-                // },
-                {
-                    data: "action",
-                    title: "Action",
-                    orderable: false,
-                    searchable: false
-                },
-            ],
-        });
-    })
-</script>
+                    {
+                        data: "date",
+                        title: "Date",
+                        searchable: true
+                    },
+                    {
+                        data: "id",
+                        title: "FTV No",
+                        searchable: true
+                    },
+                    {
+                        data: "credit_account.name",
+                        title: "Transfer From",
+                        searchable: false
+                    },
+                    {
+                        data: "debit_account.name",
+                        title: "Transfer To",
+                        searchable: false
+                    },
+                    {
+                        data: "amount",
+                        title: "Amount",
+                        searchable: false
+                    }, {
+                        data: "status",
+                        title: "Status",
+                        searchable: false
+                    },
+                    // {
+                    //     data: "created_at",
+                    //     title: "Created At",
+                    //     searchable: true
+                    // },
+                    {
+                        data: "action",
+                        title: "Action",
+                        orderable: false,
+                        searchable: false
+                    },
+                ],
+            });
+        })
+    </script>
 
 @endpush

@@ -22,6 +22,7 @@ class CreateFundTransferVouchersTable extends Migration
             $table->foreignId('debit_account_id')->comment('chart_of_account_id,to')->constrained('chart_of_accounts')->onDelete('cascade');
             $table->longText('narration')->nullable();
             $table->string('reference_no')->nullable();
+            $table->string('status')->default('pending');
             $table->foreignId('created_by')->nullable()->constrained('users')->onDelete('cascade');
             $table->timestamps();
         });

@@ -23,7 +23,7 @@
                         @csrf
                         <div class="card">
                             <div class="card-header bg-info">
-                                <h3 class="card-title">Goods Purchase Bill (GPB) Entry</h3>
+                                <h3 class="card-title">FT Voucher (FTV) Entry</h3>
                                 <div class="card-tools">
                                     <a href="{{route('purchases.index')}}" class="btn btn-sm btn-primary">
                                         <i class="fas fa-bars"
@@ -58,7 +58,7 @@
                         </div>
                         <div class="card">
                             <div class="card-header bg-info">
-                                <h3 class="card-title">Goods Purchase Line Item</h3>
+                                <h3 class="card-title">FT Voucher Line Item</h3>
                             </div>
                             <div class="card-body">
                                 <div class="row">
@@ -88,17 +88,6 @@
                                     </div>
                                     <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                         <div class="form-group">
-                                            <label for="amount">Amount</label>
-                                            <input type="number" class="form-control" id="amount"
-                                                   name="amount" placeholder="Enter Amount"
-                                                   v-model="amount">
-                                            @if ($errors->has('amount'))
-                                                <small class="text-danger">{{ $errors->first('amount') }}</small>
-                                            @endif
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
-                                        <div class="form-group">
                                             <label for="reference_no">Reference No</label>
                                             <input type="text" class="form-control" id="reference_no"
                                                    name="reference_no" placeholder="Enter Reference No"
@@ -108,7 +97,18 @@
                                             @endif
                                         </div>
                                     </div>
-                                    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12"
+                                    <div class="col-lg-2 col-md-2 col-sm-2 col-xs-12">
+                                        <div class="form-group">
+                                            <label for="amount">Amount</label>
+                                            <input type="number" class="form-control" id="amount"
+                                                   name="amount" placeholder="Enter Amount"
+                                                   v-model="amount">
+                                            @if ($errors->has('amount'))
+                                                <small class="text-danger">{{ $errors->first('amount') }}</small>
+                                            @endif
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-1 col-md-1 col-sm-1 col-xs-12"
                                          style="margin-top: 30px;">
                                         <button type="button" class="btn btn-info btn-block"
                                                 @click="data_input">Add
@@ -152,14 +152,16 @@
                                                                v-bind:value="row.to_account_id">
                                                     </td>
                                                     <td>
-                                                        <input type="text" v-model="row.reference_no"
+                                                        @{{ row.reference_no }}
+                                                        <input type="hidden" v-model="row.reference_no"
                                                                :name="'products['+index+'][reference_no]'"
                                                                class="form-control input-sm"
                                                                required>
                                                     </td>
 
                                                     <td>
-                                                        <input type="number" v-model="row.amount"
+                                                        @{{ row.amount }}
+                                                        <input type="hidden" v-model="row.amount"
                                                                :name="'products['+index+'][amount]'"
                                                                class="form-control input-sm"
                                                                required>
