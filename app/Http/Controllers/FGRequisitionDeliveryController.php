@@ -64,6 +64,7 @@ class FGRequisitionDeliveryController extends Controller
         try {
             DB::beginTransaction();
             $data = $request->validated();
+            $data['uid'] = generateUniqueUUID($data['from_store_id'], RequisitionDelivery::class, 'uid');
             $requisition_delivery = RequisitionDelivery::query()->create($data);
             $products = $request->get('products');
             foreach ($products as $product) {

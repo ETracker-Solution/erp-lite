@@ -194,3 +194,9 @@ function generateUniqueUUID($store_id, $model, $column_name, $is_factory = false
     }
     return $code;
 }
+
+function getRequisitionQty($requisition_id, $product_id)
+{
+    $requisition = \App\Models\Requisition::find($requisition_id);
+    return $requisition->items()->where('coi_id', $product_id)->first()->quantity;
+}
