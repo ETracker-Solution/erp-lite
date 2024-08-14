@@ -72,20 +72,29 @@ FG Requisition Details
                                             <th>Group</th>
                                             <th>Item</th>
                                             <th>Unit</th>
-                                            <th>Quantity</th>
+                                            <th>Requsition QTY</th>
+                                            <th>Delivery QTY</th>
+                                            <th>Remaining QTY</th>
                                             {{-- <th>Rate</th> --}}
                                         </tr>
                                     </thead>
                                     <tbody>
                                         @foreach ($fgRequisitionDelivery->items as $item)
-                                        <tr>
-                                            <td>{{ $loop->iteration }}</td>
-                                            <td>{{ $item->coi->parent->name ?? '' }}</td>
-                                            <td>{{ $item->coi->name ?? '' }}</td>
-                                            <td>{{ $item->coi->unit->name ?? '' }}</td>
-                                            <td>{{ $item->quantity ?? '' }}</td>
-                                            {{-- <td>{{ $item->rate ?? '' }} TK</td> --}}
-                                        </tr>
+                                        @php
+                                            $requisition_qty = getRequisitionQty($item->requisition_id, $item->coi_id);
+                                            $delivery_qty = $item->quantity;
+                                        @endphp
+                                            <tr>
+                                                <td>{{ $loop->iteration }}</td>
+                                                <td>{{ $item->coi->parent->name ?? '' }}</td>
+                                                <td>{{ $item->coi->name ?? '' }}</td>
+                                                <td>{{ $item->coi->unit->name ?? '' }}</td>
+                                                <td>{{ $requisition_qty }}</td>
+                                                <td>{{ $delivery_qty }}</td>
+                                                <td>{{ $requisition_qty- $delivery_qty  }}</td>
+                                                {{-- <td>{{ $item->rate ?? '' }} TK</td> --}}
+                                            </tr>
+                                           
                                         @endforeach
                                     </tbody>
                                 </table>
