@@ -76,15 +76,17 @@
                     orderable: false
                 },
                     {
-                        data: "uid",
+                        data: "id",
                         title: "Invoice No",
                         searchable: true
                     },
-
-
                     {
+                        data: "subtotal",
+                        title: "Subtotal",
+                        searchable: false
+                    }, {
                         data: "status",
-                        title: "Delivery Status",
+                        title: "status",
                         searchable: false
                     },
                     {

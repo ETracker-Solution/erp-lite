@@ -16,6 +16,7 @@ use App\Models\Store;
 use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Yajra\DataTables\Facades\DataTables;
 
 class SalesReturnController extends Controller
 {
@@ -62,6 +63,23 @@ class SalesReturnController extends Controller
 
     public function index()
     {
+        if (\request()->ajax()) {
+            $sales_return = SalesReturn::latest();
+            return DataTables::of($sales_return)
+                ->addIndexColumn()
+                ->addColumn('action', function ($row) {
+                    return view('sales_return.action', compact('row'));
+                })
+                ->addColumn('created_at', function ($row) {
+//                    return view('common.created_at', compact('row'));
+                    return '';
+                })
+                ->editColumn('status', function ($row) {
+                    return showStatus($row->status);
+                })
+                ->rawColumns(['action', 'created_at', 'status'])
+                ->make(true);
+        }
 
         return view('sales_return.index');
     }
@@ -90,10 +108,10 @@ class SalesReturnController extends Controller
 //        DB::beginTransaction();
 //        try {
 
-            $sale = SalesReturn::create($validated);
-            foreach ($validated['products'] as $product) {
-                $sale->items()->create($product);
-            }
+        $sale = SalesReturn::create($validated);
+        foreach ($validated['products'] as $product) {
+            $sale->items()->create($product);
+        }
 //            DB::commit();
 //        } catch (\Exception $error) {
 //            DB::rollBack();
