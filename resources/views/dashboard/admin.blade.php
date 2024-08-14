@@ -222,12 +222,39 @@
             <div class="col-xl-12 col-12">
                 <div class="card">
                     <div class="card-header bg-info">
-                        <h4 class="card-title">Requistions</h4>
+                        <h4 class="card-title">Today's Requisition</h4>
+                        <div class="card-tools">
+                            Total {{$todayRequisitions->count()}} Requisition Today
+                        </div>
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
-                            <table id="dataTable" class="table table-bordered">
-                                {{-- show from datatable --}}
+                            <table class="table">
+                                <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Date</th>
+                                    <th>FGR No</th>
+                                    <th>Outlet</th>
+                                    <th>Status</th>
+                                    <th>Created At</th>
+                                    <th>Action</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                    {{-- @dd($todayRequisitions); --}}
+                                @foreach($todayRequisitions as $row)
+                                    <tr>
+                                        <td>{{$loop->iteration}}</td>
+                                        <td> {{$row->date}}</td>
+                                        <td> {{$row->uid}}</td>
+                                        <td> {{$row->fromStore->name ?? ''}}</td>
+                                        <td>{!! showStatus($row->status) !!}</td>
+                                        <td>{{$row->created_at->format('d-m-Y')}}</td>
+                                        <td><a href="{{ route('requisitions.show', encrypt($row->id)) }}" class="btn btn-primary btn-sm"><i class="fa fa-eye"></i></a></td>   
+                                    </tr>
+                                @endforeach
+                                </tbody>
                             </table>
                         </div>
                     </div>
@@ -361,7 +388,7 @@
     <script src="{{asset('admin/app-assets/js/core/app.js')}}"></script>
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     {{--    <script src="{{asset('admin/app-assets/js/scripts/pages/dashboard-ecommerce.js')}}"></script>--}}
-    <script>
+    {{-- <script>
         $(document).ready(function () {
             $('#dataTable').dataTable({
                 stateSave: true,
@@ -415,7 +442,7 @@
                 ],
             });
         })
-    </script>
+    </script> --}}
     <script>
 
 
