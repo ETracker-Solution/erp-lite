@@ -85,9 +85,17 @@ class FundTransferVoucherController extends Controller
         $validated = $request->validated();
         DB::beginTransaction();
         try {
-            $voucher = FundTransferVoucher::create($validated);
-            // Accounts Effect
-            addAccountsTransaction('FTV', $voucher, $voucher->debit_account_id, $voucher->credit_account_id);
+            if (count($validated['products']) < 1) {
+                Toastr::info('At Least One Product Required.', '', ["progressBar" => true]);
+                return back();
+            }
+            foreach ($validated['products'] as $product) {
+                $product['date'] = $validated['date'];
+                $product['narration'] = $validated['narration'];
+                $voucher = FundTransferVoucher::create($product);
+                // Accounts Effect
+                addAccountsTransaction('FTV', $voucher, $voucher->debit_account_id, $voucher->credit_account_id);
+            }
             DB::commit();
         } catch (\Exception $error) {
             DB::rollBack();

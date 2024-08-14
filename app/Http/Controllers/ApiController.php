@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ChartOfAccount;
 use App\Models\ChartOfInventory;
 use App\Models\Consumption;
 use App\Models\ConsumptionItem;
@@ -360,5 +361,18 @@ class ApiController extends Controller
         $is_headOffice = $request->is_headOffice ?? false;
         $store = Store::find($store_id);
         return generateUniqueUUID($store->doc_id, $modelClass, $request->column, $is_factory, $is_headOffice);
+    }
+
+    public function fetchAccountDetailsById($id)
+    {
+        $from_account = ChartOfAccount::with('parent')->findOrFail(\request('from_account_id'));
+        $to_account = ChartOfAccount::with('parent')->findOrFail(\request('to_account_id'));
+        $data = [
+            'from_account_id' => $from_account->id,
+            'from_account_name' => $from_account->name,
+            'to_account_id' => $to_account->id,
+            'to_account_name' => $to_account->name,
+        ];
+        return response()->json($data);
     }
 }
