@@ -54,8 +54,8 @@ Route::middleware('auth')->group(function () {
     Route::resource('stores', \App\Http\Controllers\StoreController::class);
     Route::resource('chart-of-inventories', ChartOfInventoryController::class);
 
-    Route::get('/update-profile',[ProfileController::class,'profile'])->name('profile');
-    Route::post('/update-profile',[ProfileController::class,'updateProfile'])->name('profile.update-admin');
+    Route::get('/update-profile', [ProfileController::class, 'profile'])->name('profile');
+    Route::post('/update-profile', [ProfileController::class, 'updateProfile'])->name('profile.update-admin');
 
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -79,7 +79,7 @@ Route::middleware('auth')->group(function () {
     Route::get('others-outlet-sale-pdf/{id}', [App\Http\Controllers\OthersOutletSaleController::class, 'pdfDownload'])->name('others.outlet.pdf-download');
 
 
-    Route::put('requisitions.status-update/{id}',[\App\Http\Controllers\RequisitionController::class, 'updateStatus'])->name('requisitions.status-update');
+    Route::put('requisitions.status-update/{id}', [\App\Http\Controllers\RequisitionController::class, 'updateStatus'])->name('requisitions.status-update');
     Route::resource('requisitions', \App\Http\Controllers\RequisitionController::class);
     Route::get('requisition-pdf/{id}', [App\Http\Controllers\RequisitionController::class, 'pdfDownload'])->name('requisition.pdf');
     Route::resource('productions', \App\Http\Controllers\ProductionController::class);
@@ -91,6 +91,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('receive-vouchers', ReceiveVoucherController::class);
     Route::resource('journal-vouchers', JournalVoucherController::class);
     Route::resource('fund-transfer-vouchers', FundTransferVoucherController::class);
+    Route::get('fund-transfer-voucher-receive/{id}', [App\Http\Controllers\FundTransferVoucherController::class, 'receive'])->name('fund-transfer-vouchers.receive');
     Route::resource('departments', DepartmentController::class);
     Route::resource('designations', DesignationController::class);
     Route::resource('factories', FactoryController::class);
@@ -114,7 +115,7 @@ Route::middleware('auth')->group(function () {
     //-----End Supplier Payment Voucher---------
     //
     // //-----Start Pre Order---------
-    Route::put('pre-orders.status-update/{id}',[\App\Http\Controllers\PreOrderController::class, 'updateStatus'])->name('pre-orders.status-update');
+    Route::put('pre-orders.status-update/{id}', [\App\Http\Controllers\PreOrderController::class, 'updateStatus'])->name('pre-orders.status-update');
     Route::resource('pre-orders', \App\Http\Controllers\PreOrderController::class);
     Route::get('pre-order-pdf/{id}', [App\Http\Controllers\PreOrderController::class, 'Pdf'])->name('pre-order.pdf');
 
@@ -324,7 +325,7 @@ Route::middleware('auth')->group(function () {
     /*=========== Sale Report Api Ends ===========*/
 
 
-    Route::get('fetch-data-by-sale-id-for-sale/{id}',[\App\Http\Controllers\SalesDeliveryController::class,'getItemData']);
+    Route::get('fetch-data-by-sale-id-for-sale/{id}', [\App\Http\Controllers\SalesDeliveryController::class, 'getItemData']);
     Route::resource('sales-deliveries', \App\Http\Controllers\SalesDeliveryController::class);
 
 
@@ -334,12 +335,12 @@ Route::middleware('auth')->group(function () {
     Route::resource('sales-exchanges', \App\Http\Controllers\SalesExchangeController::class);
     Route::resource('sales-returns', \App\Http\Controllers\SalesReturnController::class);
 
-    Route::get('get-uuid/{store_id}',[\App\Http\Controllers\ApiController::class, 'getUUIDbyStore']);
+    Route::get('get-uuid/{store_id}', [\App\Http\Controllers\ApiController::class, 'getUUIDbyStore']);
     //-----Start Customer Receive Voucher---------
     Route::resource('customer-receive-vouchers', \App\Http\Controllers\CustomerReceiveVoucherController::class);
     Route::get('fetch-due-by-customer-id/{id}', [App\Http\Controllers\ApiController::class, 'fetchSupplierDueById'])->name('customer.due');
     //-----End Customer Receive Voucher---------
-
+    Route::get('fetch-account-info/{id}', [App\Http\Controllers\ApiController::class, 'fetchAccountDetailsById']);
 });
 Route::group(['prefix' => 'reports', 'middleware' => 'auth'], function () {
 

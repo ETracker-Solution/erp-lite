@@ -1,12 +1,15 @@
 @extends('layouts.app')
-@section('title', 'Fund Transfer Voucher Edit')
+@section('title', 'Fund Transfer Voucher Entry')
+@push('style')
+
+@endpush
 @section('content')
     @php
         $links = [
             'Home' => route('dashboard'),
             'Accounts Module'=>'',
             'General Accounts'=>'',
-            'Fund Transfer Voucher Edit' => '',
+            'Fund Transfer Voucher Entry' => '',
         ];
     @endphp
     <x-breadcrumb title='Fund Transfer Voucher' :links="$links"/>
@@ -29,41 +32,42 @@
                                     </div>
                                 </div>
                             </div>
-                            <form action="{{ route('fund-transfer-vouchers.update',$fundTransferVoucher->id) }}" method="POST" class="" enctype="multipart/form-data">
+                            <form action="{{ route('fund-transfer-vouchers.store') }}" method="POST" class="" enctype="multipart/form-data">
                                 @csrf
-                                @method('put')
-                                {{-- <div class="card card-info">
+                                {{-- <div class="card">
                                     <div class="card-header">
                                         <h4 class="card-title">Account Type</h4>
-                                    </div> --}}
-                                    <hr style="margin: 0;">
+                                    </div>
+                                    <hr style="margin: 0;"> --}}
                                     <div class="card-body">
                                         <div class="col-md-12">
                                             <div class="card">
                                                 <div class="card-body">
                                                     <div class="row">
-
                                                         <div class="col-xl-4 col-md-4 col-12">
                                                             <div class="form-group">
-                                                                <label for="uid">JV No</label>
+                                                                <label for="uid">FTV No</label>
                                                                 <input type="number" class="form-control" id="uid"
-                                                                        placeholder="Enter RV No"
-                                                                        value="{{ $fundTransferVoucher->id }}" readonly>
+                                                                        name="uid" placeholder="Enter JV No"
+                                                                        value="{{ old('uid') }}" readonly>
+                                                                @if ($errors->has('uid'))
+                                                                    <small class="text-danger">{{ $errors->first('uid') }}</small>
+                                                                @endif
                                                             </div>
                                                         </div>
                                                         <div class="col-xl-4 col-md-4 col-12">
                                                             <div class="form-group">
                                                                 <label for="date">Date</label>
                                                                 <div class="input-group date" id="reservationdate"
-                                                                    data-target-input="nearest">
-                                                                    <input type="text" value="{{ old('date',$fundTransferVoucher->date) }}" name="date" class="form-control datetimepicker-input"
-                                                                        data-target="#reservationdate" />
-                                                                    <div class="input-group-append" data-target="#reservationdate"
-                                                                        data-toggle="datetimepicker">
-                                                                        <div class="input-group-text"><i class="fa fa-calendar"></i>
-                                                                        </div>
+                                                                data-target-input="nearest">
+                                                                <input type="text" name="date" value="{{ date('Y-m-d') }}" class="form-control datetimepicker-input"
+                                                                    data-target="#reservationdate" />
+                                                                <div class="input-group-append" data-target="#reservationdate"
+                                                                    data-toggle="datetimepicker">
+                                                                    <div class="input-group-text"><i class="fa fa-calendar"></i>
                                                                     </div>
                                                                 </div>
+                                                            </div>
                                                             </div>
                                                         </div>
                                                         <div class="col-xl-4 col-md-4 col-12">
@@ -73,9 +77,7 @@
                                                                     id="credit_account_id">
                                                                     <option value="">---Select Account---</option>
                                                                     @foreach ($chartOfAccounts as $row)
-                                                                        <option value="{{ $row->id }}"
-                                                                            {{ $row->id == $fundTransferVoucher->credit_account_id ? 'selected' : '' }}>
-                                                                            {{ $row->name }}
+                                                                        <option value="{{ $row->id }}" {{ old('credit_account_id') == $row->id ? 'selected' : '' }}>{{ $row->name }}
                                                                         </option>
                                                                     @endforeach
                                                                 </select>
@@ -87,7 +89,7 @@
                                         </div>
                                     </div>
                                 {{-- </div> --}}
-                                {{-- <div class="card card-info">
+                                {{-- <div class="card">
                                     <div class="card-header">
                                         <h4 class="card-title">Account Type</h4>
                                     </div> --}}
@@ -107,27 +109,18 @@
                                                                         id="debit_account_id">
                                                                         <option value="">---Select Account---</option>
                                                                         @foreach ($toChartOfAccounts as $row)
-                                                                            <option value="{{ $row->id }}"
-                                                                                {{ $row->id == $fundTransferVoucher->debit_account_id ? 'selected' : '' }}>
-                                                                                {{ $row->name }}
+                                                                            <option value="{{ $row->id }}" {{ old('debit_account_id') == $row->id ? 'selected' : '' }}>{{ $row->name }}
                                                                             </option>
                                                                         @endforeach
                                                                     </select>
                                                                 </div>
                                                             </div>
-                                                        </div>
-
-                                                    </div>
-                                                    <div class="row">
-                                                        <div class="col-md-6">
-                                                        </div>
-                                                        <div class="col-md-6">
                                                             <div class="col-xl-12 col-md-12 col-12">
                                                                 <div class="form-group">
                                                                     <label for="amount">Amount</label>
                                                                     <input type="number" class="form-control" id="amount"
                                                                         name="amount" placeholder="Enter Amount"
-                                                                        value="{{ $fundTransferVoucher->amount }}">
+                                                                        value="{{ old('amount') }}">
                                                                     @if ($errors->has('amount'))
                                                                         <small class="text-danger">{{ $errors->first('amount') }}</small>
                                                                     @endif
@@ -138,7 +131,7 @@
                                                                     <label for="reference_no">Referance No</label>
                                                                     <input type="text" class="form-control" id="reference_no"
                                                                         name="reference_no" placeholder="Enter Referance No"
-                                                                        value="{{ $fundTransferVoucher->reference_no }}">
+                                                                        value="{{ old('reference_no') }}">
                                                                     @if ($errors->has('reference_no'))
                                                                         <small class="text-danger">{{ $errors->first('reference_no') }}</small>
                                                                     @endif
@@ -147,7 +140,7 @@
                                                             <div class="col-xl-12 col-md-12 col-12">
                                                                 <div class="form-group">
                                                                     <label for="narration">Description</label>
-                                                                    <textarea class="form-control" name="narration" id="narration" cols="" rows="3" placeholder="Enter Description">{{ $fundTransferVoucher->narration }}</textarea>
+                                                                    <textarea class="form-control" name="narration" id="narration" cols="" rows="3" placeholder="Enter Description">{{ old('narration') }}</textarea>
                                                                     @if ($errors->has('narration'))
                                                                         <small class="text-danger">{{ $errors->first('narration') }}</small>
                                                                     @endif
@@ -159,11 +152,11 @@
                                             </div>
                                         </div>
                                         <button class="float-right btn btn-info waves-effect waves-float waves-light"
-                                            type="submit">Update</button>
+                                            type="submit">Save</button>
                                     </div>
                                     {{-- <div class="card-footer">
                                         <button class="float-right btn btn-info waves-effect waves-float waves-light"
-                                            type="submit">Update</button>
+                                            type="submit">Save</button>
                                     </div> --}}
                                 {{-- </div> --}}
                             </form>
@@ -174,4 +167,12 @@
         </div>
     </section>
     <!-- Basic Inputs end -->
+    <input type="hidden" id="fundTransferVoucaher"  value="{{ $FTVno }}"/>
 @endsection
+@push('script')
+    <script>
+        var i = parseInt(document.getElementById('fundTransferVoucaher').value);
+
+        document.getElementById('uid').value = i;
+    </script>
+@endpush
