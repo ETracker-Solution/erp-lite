@@ -6,6 +6,7 @@ use App\Classes\PreOrderNumber;
 use App\Http\Requests\StorePreOrderRequest;
 use App\Models\ChartOfInventory;
 use App\Models\Customer;
+use App\Models\InventoryTransaction;
 use App\Models\Outlet;
 use App\Models\PreOrder;
 use App\Models\Store;
@@ -40,30 +41,35 @@ class PreOrderController extends Controller
                 ->rawColumns(['action', 'created_at', 'status'])
                 ->make(true);
         }
-        $outlets = Outlet::where('status','active')->get();
-        return view('pre_order.index',compact('outlets'));
+        $outlets = Outlet::where('status', 'active')->get();
+        $factoryStores = Store::where(['doc_type' => 'factory', 'type' => 'FG'])->get();
+        $outletStores = Store::where(['doc_type' => 'outlet', 'type' => 'FG'])->get();
+        if (auth()->user()->employee && auth()->user()->employee->outlet_id) {
+            $outletStores = Store::where(['doc_type' => 'outlet', 'type' => 'FG', 'doc_id' => auth()->user()->employee->outlet_id])->get();
+        }
+        return view('pre_order.index', compact('outlets', 'factoryStores', 'outletStores'));
     }
 
     protected function getFilteredData()
     {
-        if (auth()->user()->employee && auth()->user()->employee->outlet_id){
+        if (auth()->user()->employee && auth()->user()->employee->outlet_id) {
             $outlet_id = auth()->user()->employee->outlet_id;
-            $orders =  PreOrder::with('customer', 'outlet')->where('delivery_point_id', $outlet_id)->orWhere('outlet_id', $outlet_id)->latest();
-        }else{
-            $orders =  PreOrder::with('customer', 'outlet')->latest();
+            $orders = PreOrder::with('customer', 'outlet', 'deliveryPoint')->where('delivery_point_id', $outlet_id)->orWhere('outlet_id', $outlet_id)->latest();
+        } else {
+            $orders = PreOrder::with('customer', 'outlet', 'deliveryPoint')->latest();
         }
         if (\request()->filled('outlet_id')) {
-            $orders->where('delivery_point_id',\request()->outlet_id);
+            $orders->where('delivery_point_id', \request()->outlet_id);
         }
         if (\request()->filled('status')) {
-            $orders->where('status',\request()->status);
+            $orders->where('status', \request()->status);
         }
         if (\request()->filled('filter_by')) {
-            if (\request()->filter_by == 'delivery_today'){
-                $orders->whereDate('delivery_date',now()->format('Y-m-d'));
+            if (\request()->filter_by == 'delivery_today') {
+                $orders->whereDate('delivery_date', now()->format('Y-m-d'));
             }
-            if (\request()->filter_by == 'order_today'){
-                $orders->whereDate('created_at',now()->format('Y-m-d'));
+            if (\request()->filter_by == 'order_today') {
+                $orders->whereDate('created_at', now()->format('Y-m-d'));
             }
 
         }
@@ -208,9 +214,58 @@ class PreOrderController extends Controller
 
     public function updateStatus(Request $request, $id)
     {
-        $req = PreOrder::findOrFail($id);
-        $req->update(['status' => $request->status]);
-        Toastr::success('Pre Order Approved Successfully!.', '', ["progressBar" => true]);
+        DB::beginTransaction();
+        try {
+            $req = PreOrder::findOrFail($id);
+            $updatableData = [
+                'status' => $request->status,
+            ];
+            if ($request->status == 'delivered') {
+                $updatableData = [
+                    'status' => $request->status,
+                    'factory_delivery_store_id' => $request->factory_store
+                ];
+            }
+            if ($request->status == 'received') {
+                $updatableData = [
+                    'status' => $request->status,
+                    'outlet_receive_store_id' => $request->outlet_store
+                ];
+            }
+            $req->update($updatableData);
+
+            $products = $req->items;
+
+            foreach ($products as $product){
+                InventoryTransaction::query()->create([
+                    'store_id' => $req->factory_delivery_store_id,
+                    'doc_type' => 'PO',
+                    'doc_id' => $req->id,
+                    'quantity' => $product->quantity,
+                    'rate' => $product->unit_price,
+                    'amount' => $product->quantity * $product->unit_price,
+                    'date' => date('y-m-d'),
+                    'type' => -1,
+                    'coi_id' => $product->coi_id,
+                ]);
+                InventoryTransaction::query()->create([
+                    'store_id' => $request->outlet_store,
+                    'doc_type' => 'PO',
+                    'doc_id' => $req->id,
+                    'quantity' => $product->quantity,
+                    'rate' => $product->unit_price,
+                    'amount' => $product->quantity * $product->unit_price,
+                    'date' => date('y-m-d'),
+                    'type' => 1,
+                    'coi_id' => $product->coi_id,
+                ]);
+            }
+            DB::commit();
+        }catch (\Exception $exception){
+            DB::rollBack();
+            return $exception->getMessage();
+        }
+        Toastr::success('Pre Order Status Updated Successfully!.', '', ["progressBar" => true]);
         return redirect()->route('pre-orders.index');
     }
 }

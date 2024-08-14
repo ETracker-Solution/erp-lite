@@ -61,6 +61,7 @@ class SaleController extends Controller
     {
         $serial_no = null;
         $user_store = null;
+        $outlet_id = null;
         if (!auth()->user()->is_super) {
             $user_store = Store::where(['doc_type' => 'outlet', 'doc_id' => \auth()->user()->employee->outlet_id])->first();
             $outlet_id = $user_store->doc_id;
@@ -75,6 +76,7 @@ class SaleController extends Controller
             'user_store' => $user_store,
             'invoice_number' => $serial_no,
             'delivery_points' => Outlet::all(),
+            'user_outlet_id' => $outlet_id
 
         ];
 //        return $data;
@@ -162,10 +164,25 @@ class SaleController extends Controller
                 $row['product_id'] = $row['item_id'];
                 $row['unit_price'] = $row['rate'];
                 $currentStock = availableInventoryBalance($row['product_id'], $store->id);
-                if (($currentStock < $row['quantity']) && $row['is_readonly'] == 'true') {
+                if (($currentStock < $row['quantity']) && $row['is_readonly'] == 'true' && ($request->sales_type != 'pre_order' || $outlet_id !== $request->delivery_point_id)) {
                     Toastr::error('Quantity cannot more then ' . $currentStock . ' !', '', ["progressBar" => true]);
                     return back();
                 }
+
+                $discount_type = $row['discountType'];
+                $discount_value = $row['product_discount'];
+
+                $row['discount_type'] = $discount_type;
+                $row['discount_value'] = $discount_value;
+                $amount = $row['unit_price'] * $row['quantity'];
+                if ($discount_type == 'p') {
+                    $discount = ($amount * $discount_value) / 100;
+                } elseif ($discount_type == 'f') {
+                    $discount = ($amount - $discount_value);
+                } else {
+                    $discount = 0;
+                }
+                $row['discount'] = $discount;
 
                 $sale_item = $sale->items()->create($row);
                 $sale_item['date'] = date('Y-m-d');
@@ -194,7 +211,7 @@ class SaleController extends Controller
                 ]);
                 $sale->amount = $payment->amount;
                 if ($paymentMethod['method'] == 'exchange') {
-                   return 'working on it';
+                    return 'working on it';
                 }
                 if ($paymentMethod['method'] == 'upay') {
                     addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'upay'), getAccountsReceiveableGLId());
@@ -238,7 +255,7 @@ class SaleController extends Controller
             if ($request->sales_type == 'pre_order') {
                 $this->preOrderfromSales($sale, $deliveryDate, $request->description, $request->attachments, $request->delivery_point_id);
             }
-            if ($outlet_id !== $request->delivery_point_id) {
+            if (($receive_amount < $sale->grand_total) || $outlet_id !== $request->delivery_point_id) {
                 $this->othersOutletDelivery($sale, $request->delivery_point_id);
             }
             DB::commit();
@@ -338,7 +355,9 @@ class SaleController extends Controller
     public function getInvoiceByOutlet(Request $request, $store_id)
     {
         $store = Store::find($store_id);
-        return generateInvoiceCode($store->doc_id, $request->date);
+        $store->invoice = generateInvoiceCode($store->doc_id, $request->date);
+        $store->outlet = $store->doc_type == 'outlet' ? $store->doc_id : null;
+        return $store;
     }
 
     protected function preOrderfromSales($sale, $delivery_date, $description, $images, $delivery_point_id)
@@ -362,16 +381,17 @@ class SaleController extends Controller
 
         $products = $sale->items;
         foreach ($products as $product) {
+            $product->coi_id = $product->product_id;
             $preOrder->items()->create($product->toArray());
         }
 
-//        foreach ($images as $image) {
-//            $filename = date('Ymdmhs') . '.' . $image->getClientOriginalExtension();
-//            $image->move(public_path('/upload'), $filename);
-//            $preOrder->attachments()->create([
-//                'image' => $filename
-//            ]);
-//        }
+        foreach ($images as $image) {
+            $filename = date('Ymdmhs') . '.' . $image->getClientOriginalExtension();
+            $image->move(public_path('/upload'), $filename);
+            $preOrder->attachments()->create([
+                'image' => $filename
+            ]);
+        }
 
     }
 

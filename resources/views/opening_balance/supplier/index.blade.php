@@ -264,7 +264,7 @@
                             vm.currentPage = response.data.items.meta.current_page
                             vm.total = response.data.items.meta.total
                             vm.pageLoading = false;
-                            vm.backAsStarting()
+                            // vm.backAsStarting()
                         }).catch(function (error) {
                             toastr.error('Something went to wrong', {
                                 closeButton: true,

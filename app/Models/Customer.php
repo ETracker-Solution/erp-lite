@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Customer extends Model
 {
     use HasFactory, SoftDeletes;
+
     protected $guarded = ['id'];
 
     public function points(): \Illuminate\Database\Eloquent\Relations\HasMany
@@ -28,6 +29,16 @@ class Customer extends Model
 
     public function membership()
     {
-        return $this->hasOne(Membership::class,'customer_id');
+        return $this->hasOne(Membership::class, 'customer_id');
+    }
+
+    public function membershipPointHistories()
+    {
+        return $this->hasMany(MembershipPointHistory::class, 'customer_id');
+    }
+
+    public function currentReedemablePoint()
+    {
+        return $this->membershipPointHistories()->whereYear('created_at', date('Y'))->sum('point');
     }
 }

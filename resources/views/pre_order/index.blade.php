@@ -19,13 +19,13 @@
                         <div class="card-header bg-info">
                             <h3 class="card-title">Pre Order List</h3>
                             <div class="card-tools">
-                                @can('sales-pre-order-entry')
-                                    <a href="{{route('pre-orders.create')}}">
-                                        <button class="btn btn-sm btn-primary"><i class="fa fa-plus-circle"
-                                                                                  aria-hidden="true"></i> &nbsp;Add New
-                                        </button>
-                                    </a>
-                                @endcan
+                                {{--                                @can('sales-pre-order-entry')--}}
+                                {{--                                    <a href="{{route('pre-orders.create')}}">--}}
+                                {{--                                        <button class="btn btn-sm btn-primary"><i class="fa fa-plus-circle"--}}
+                                {{--                                                                                  aria-hidden="true"></i> &nbsp;Add New--}}
+                                {{--                                        </button>--}}
+                                {{--                                    </a>--}}
+                                {{--                                @endcan--}}
                             </div>
                         </div>
                         <!-- /.card-header -->
@@ -57,7 +57,7 @@
                                         <select name="outlet_id" id="" class="form-control">
                                             <option value="">All</option>
                                             @foreach($outlets as $outlet)
-                                            <option value="{{ $outlet->id }}">{{ $outlet->name }}</option>
+                                                <option value="{{ $outlet->id }}">{{ $outlet->name }}</option>
                                             @endforeach
                                         </select>
                                     </div>
@@ -77,6 +77,73 @@
             <!-- /.row -->
 
         </div><!-- /.container-fluid -->
+        <!-- Modal -->
+        <div class="modal fade" id="deliverModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+             aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <form method="POST" id="deliverForm">
+                    @csrf
+                    @method('PUT')
+                    <input type="hidden" name="status" value="delivered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalLabel">Deliver Pre Order</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label for="">Select Store</label>
+                                <select name="factory_store" id="" class="form-control">
+                                    <option value="">Choose One</option>
+                                    @foreach($factoryStores as $store)
+                                        <option value="{{ $store->id }}">{{ $store->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-primary do-deliver">Confirm Delivery</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="modal fade" id="receiveModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+             aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <form method="POST" id="receiveForm">
+                    @csrf
+                    @method('PUT')
+                    <input type="hidden" name="status" value="received">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalLabel">Receive Pre Order</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label for="">Select Store</label>
+                                <select name="outlet_store" id="" class="form-control">
+                                    <option value="">Choose One</option>
+                                    @foreach($outletStores as $store)
+                                        <option value="{{ $store->id }}">{{ $store->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-primary do-receive">Confirm Receive</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
     </section>
     <!-- /.content -->
 @endsection
@@ -129,7 +196,11 @@
                         searchable: true
                     }, {
                         data: "outlet.name",
-                        title: "Outlet",
+                        title: "Order From",
+                        searchable: true
+                    }, {
+                        data: "delivery_point.name",
+                        title: "Delivery From",
                         searchable: true
                     },
                     {
@@ -164,5 +235,26 @@
         function recallDatatable() {
             $('#dataTable').DataTable().draw(true);
         }
+
+        let preOrderId
+        let submitUrl
+        $('#deliverModal').on('show.bs.modal', function (event) {
+            let button = $(event.relatedTarget)
+            preOrderId = button.data('id')
+            submitUrl = "/pre-orders.status-update/" + preOrderId
+        })
+        $('#receiveModal').on('show.bs.modal', function (event) {
+            let button = $(event.relatedTarget)
+            preOrderId = button.data('id')
+            submitUrl = "/pre-orders.status-update/" + preOrderId
+        })
+        $(document).on("click", ".do-deliver", function (e) {
+            e.preventDefault()
+            $("#deliverForm").attr('action', submitUrl).submit();
+        })
+        $(document).on("click", ".do-receive", function (e) {
+            e.preventDefault()
+            $("#receiveForm").attr('action', submitUrl).submit();
+        })
     </script>
 @endpush

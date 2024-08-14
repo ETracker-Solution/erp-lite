@@ -41,11 +41,11 @@
                                     </tr>
                                     <tr>
                                         <th><strong>Transfer From Account  :</strong></th>
-                                        <td>{{ $deliveryCashTransfer->debitAccount->name }}</td>
+                                        <td>{{ $deliveryCashTransfer->creditAccount->name }}</td>
                                     </tr>
                                     <tr>
                                         <th><strong>Transfer To Account  :</strong></th>
-                                        <td>{{ $deliveryCashTransfer->creditAccount->name }}</td>
+                                        <td>{{ $deliveryCashTransfer->debitAccount->name }}</td>
                                     </tr>
                                     <tr>
                                         <th><strong>Amount :</strong></th>

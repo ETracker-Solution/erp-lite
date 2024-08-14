@@ -82,7 +82,7 @@ function redeemPoint($sale_id, $customer_id,$point)
             'point' => $point * (-1),
             'member_type_id' => $membership->member_type_id
         ]);
-        $membership->decrement('point', $point);
+//        $membership->decrement('point', $point);
     }
 }
 

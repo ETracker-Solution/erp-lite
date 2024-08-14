@@ -58,8 +58,8 @@
                         </div>
                         <div class="col-6" style="line-height: 10px">
                             <p>Customer Name: @{{ customer ? customer.name : 'Not Found' }}</p>
-                            <p>Customer Point: @{{ customer ? customer.current_point : 'Not Found' }}</p>
-                            <a v-if="customer && customer.current_point > 0" @click="getPointRedeemField">[Redeem]</a>
+                            <p>Customer Point: @{{ customer ? customer.reedemible_point : 'Not Found' }}</p>
+                            <a v-if="customer && customer.reedemible_point > 100" @click="getPointRedeemField">[Redeem]</a>
                         </div>
                     </div>
                 </div>
@@ -105,10 +105,15 @@
                 <div>
                     <ul style="list-style-type: none">
                         <li><span>Subtotal</span><span style="float: right">TK.@{{ total_bill }}</span></li>
-                        <li><span>Discount</span><span style="float: right">TK.@{{ allDiscountAmount }}</span></li>
-                        <li><span>Coupon(s)</span><span style="float: right"><strong><span
+                        <li><span>Products Discount</span><span style="float: right">TK.@{{ productWiseDiscount }}</span></li>
+
+                        <li><span>Coupon Discount</span><span style="float: right"><strong><span
                                         v-if="couponCodeDiscountShowValue">( @{{ couponCodeDiscountShowValue }} )</span>@{{ couponCodeDiscountAmount ?? 'N/A' }}</strong></span>
                         </li>
+                        <li><span>Overall Discount</span><span style="float: right">TK.@{{ total_discount_amount }}</span></li>
+                        <li><span>Special Discount</span><span style="float: right">TK.@{{ special_discount_amount }}</span></li>
+                        <li><span>Membership Discount (@{{customer && customer.purchase_discount > 0 ? customer.purchase_discount +'% @ '+customer.minimum_purchase + 'TK' : ''}} )</span><span style="float: right">TK.@{{ membership_discount_amount }}</span></li>
+                        <li><span>Total Discount</span><span style="float: right">TK.@{{ allDiscountAmount }}</span></li>
                     </ul>
                 </div>
                 <div class="container text-center btn-group btn-group-justified" style="gap: 10px">

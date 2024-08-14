@@ -103,22 +103,25 @@
     <table style="border: 2px solid #fff;">
         <tr>
             <td class="tc bb-none company_name">
-                <img src="{{ public_path('upload'.'/'.getSettingValue('company_logo')) }}" alt="" style="width: 150px; height: 150px;">
+                <img src="{{ public_path('upload'.'/'.getSettingValue('company_logo')) }}" alt=""
+                     style="height: 150px;">
             </td>
         </tr>
         <tr>
             <td class="tc bb-none" style="font-size: 10px;">
-                888/1,Baridhara Dohs,Dhaka-1216
+                {{ $sale->outlet->address }}
             </td>
         </tr>
         <tr>
-            <td class="bb-none tc"><p style="font-size: 10px;" class="tc">VAT Reg:00524124-0152</p></td>
+            <td class="bb-none tc"><p style="font-size: 10px;" class="tc">VAT Reg:001649431-0301</p></td>
         </tr>
         <tr>
-            <td class="bb-none tc"><p style="font-size: 10px;" class="tc text-bold mm10">Mobile:{{ $sale->outlet->mobile }}</p></td>
+            <td class="bb-none tc"><p style="font-size: 10px;" class="tc text-bold mm10">
+                    Customer Care: 01638393939</p></td>
         </tr>
         <tr>
-            <td class="bb-none tc"><p style="font-size: 10px;" class="tc text-bold mm10"><u>{{ $sale->outlet->name }} Invoice</u></p></td>
+            <td class="bb-none tc"><p style="font-size: 10px;" class="tc text-bold mm10"><u>{{ $sale->outlet->name }}
+                        Invoice</u></p></td>
         </tr>
     </table>
 
@@ -163,20 +166,20 @@
         No Items
     @endforelse
     @php
-    $total = $sale->items->sum(function ($q){
-        return $q->unit_price * $q->quantity;
-    });
-    $vat = $sale->vat ?? 0;
-    $sub_total = $total + $vat;
-    $discount = $sale->discount ?? 0;
-    $net_amount = $sub_total- $discount;
-    $previous_point = getPreviousPointBeforeSale($sale->id,$sale->customer_id);
-    $payment_point = $sale->payments()->where('payment_method','point')->first();
-    $point_redeem = $payment_point ? $payment_point->amount : 0;
-    $earned_point = $sale->membershipPointHistory && $sale->membershipPointHistory->member_type_id != 1 ? $sale->membershipPointHistory->point : 0;
+        $total = $sale->items->sum(function ($q){
+            return $q->unit_price * $q->quantity;
+        });
+        $vat = $sale->vat ?? 0;
+        $sub_total = $total + $vat;
+        $discount = $sale->discount ?? 0;
+        $net_amount = $sub_total- $discount;
+        $payment_point = $sale->payments()->where('payment_method','point')->first();
+        $point_redeem = $payment_point ? $payment_point->amount : 0;
+        $earned_point = $sale->membershipPointHistory[0] && $sale->membershipPointHistory[0]->member_type_id != 1 ? $sale->membershipPointHistory()->where('point','>', 0)->first()->point : 0;
+        $previous_point = $sale->customer->currentReedemablePoint() > 0 ? $sale->customer->currentReedemablePoint() - $earned_point : 0;
 
-    $paid_amount = $sale->payments->sum('amount');
-    $change_amount =  $paid_amount - $net_amount
+        $paid_amount = $sale->payments->sum('amount');
+        $change_amount =  $paid_amount - $net_amount
     @endphp
     <tr>
         <td class="tc bl-none br-none"></td>
@@ -244,7 +247,7 @@
             <td class="tc bl-none br-none"></td>
             <td class="tc bl-none br-none tr">{{ $payment->amount }}</td>
         </tr>
-        @empty
+    @empty
         Not Found
     @endforelse
 
@@ -276,7 +279,7 @@
         <td class="b-none"></td>
         <td class="b-none"></td>
         <td class="tc b-none">Current Point</td>
-        <td class="b-none tr">{{ $sale->customer && $sale->customer->membership  && $sale->customer->membership->member_type_id == $sale->membershipPointHistory->member_type_id ? $sale->customer->membership->point : 0  }}</td>
+        <td class="b-none tr">{{ $sale->customer && $sale->customer->membership  && $sale->customer->membership->member_type_id == $sale->membershipPointHistory[0]->member_type_id && $sale->customer->id != 1 ? $sale->customer->currentReedemablePoint() : 0  }}</td>
     </tr>
 
 </table>
@@ -292,11 +295,11 @@
 
 <htmlpagefooter name="page-footer">
     <hr>
-    <h3 class="text-bold tc">Goods Can’t Be Return once Sold</h3>
+    <h3 class="text-bold tc">Sold Goods are not returnable</h3>
     <hr>
-        <h4><em class="tc">
-                system By:E-Tracker Software solution Ltd
-            </em></h4>
+    <h4><em class="tc">
+            system By:E-Tracker Software solution Ltd
+        </em></h4>
 
 </htmlpagefooter>
 </body>
