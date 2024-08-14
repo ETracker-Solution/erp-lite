@@ -45,9 +45,9 @@ FG Requisition Details
                                     <tbody>
                                         <tr>
                                             <td style="text-align: left; padding:8px; line-height: 0.6">
-                                                <p><b>Outlet :</b> {{ $fgRequisitionDelivery->requisition->outlet->name ?? ''}}</p>
+                                                <p><b>Outlet :</b> {{ $fgRequisitionDelivery->requisition->outlet ? $fgRequisitionDelivery->requisition->outlet->name : ''}}</p>
                                                 <p><b>Store :</b> {{ $fgRequisitionDelivery->toStore->name ?? ''}}</p>
-                                                <p><b>Address :</b> {{ $fgRequisitionDelivery->requisition->outlet->address }}</p>
+                                                <p><b>Address :</b> {{ $fgRequisitionDelivery->requisition->outlet ? $fgRequisitionDelivery->requisition->outlet->address : '' }}</p>
                                             </td> 
                                         </tr>
                                     </tbody>
