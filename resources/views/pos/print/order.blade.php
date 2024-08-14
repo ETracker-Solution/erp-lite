@@ -104,20 +104,20 @@
         <tr>
             <td class="tc bb-none company_name">
                 <img src="{{ public_path('upload'.'/'.getSettingValue('company_logo')) }}" alt=""
-                     style="width: 150px; height: 150px;">
+                     style="height: 150px;">
             </td>
         </tr>
         <tr>
             <td class="tc bb-none" style="font-size: 10px;">
-                888/1,Baridhara Dohs,Dhaka-1216
+                {{ $sale->outlet->address }}
             </td>
         </tr>
         <tr>
-            <td class="bb-none tc"><p style="font-size: 10px;" class="tc">VAT Reg:00524124-0152</p></td>
+            <td class="bb-none tc"><p style="font-size: 10px;" class="tc">VAT Reg:001649431-0301</p></td>
         </tr>
         <tr>
             <td class="bb-none tc"><p style="font-size: 10px;" class="tc text-bold mm10">
-                    Mobile:{{ $sale->outlet->mobile }}</p></td>
+                    Customer Care: 01638393939</p></td>
         </tr>
         <tr>
             <td class="bb-none tc"><p style="font-size: 10px;" class="tc text-bold mm10"><u>{{ $sale->outlet->name }}
@@ -295,11 +295,11 @@
 
 <htmlpagefooter name="page-footer">
     <hr>
-    <h3 class="text-bold tc">Goods Can’t Be Return once Sold</h3>
+    <h3 class="text-bold tc">Sold Goods are not returnable</h3>
     <hr>
-        <h4><em class="tc">
-                system By:E-Tracker Software solution Ltd
-            </em></h4>
+    <h4><em class="tc">
+            system By:E-Tracker Software solution Ltd
+        </em></h4>
 
 </htmlpagefooter>
 </body>

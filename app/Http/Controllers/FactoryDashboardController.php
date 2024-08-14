@@ -37,7 +37,7 @@ class FactoryDashboardController extends Controller
         $store_ids = Store::where(['doc_type'=>'factory','doc_id'=> $factory_id])->pluck('id');
 
 
-        $monthlyTotalRequisitions = Requisition::where('to_factory_id',$factory_id)->whereMonth('created_at', Carbon::now()->month)->count();        
+        $monthlyTotalRequisitions = Requisition::where('to_factory_id',$factory_id)->whereMonth('created_at', Carbon::now()->month)->count();
 
         $productWiseStock = [];
         $productWiseStock['products'] = [];
@@ -63,9 +63,9 @@ class FactoryDashboardController extends Controller
             $fgTotalStock += $stock;
         }
 
-        $TotalNewRequisitions = Requisition::where('to_factory_id',$factory_id)->whereType('FG')->whereIn('status',['pending','approved'])->count();
+        $TotalNewRequisitions = Requisition::where('to_factory_id',$factory_id)->whereType('FG')->whereIn('status',['approved'])->where('delivery_status','pending')->count();
 
-        $todayTotalRequisitions = Requisition::where('to_factory_id',$factory_id)->whereDate('created_at', Carbon::today())->count();
+        $todayTotalRequisitions = Requisition::where('to_factory_id',$factory_id)->whereDate('created_at', Carbon::today())->whereIn('status',['pending'])->count();
         $todayTotalDeliveries = RequisitionDelivery::where(['type' => 'FG', 'date' => $today])->count();
         $todayTotalWastages = InventoryAdjustment::whereIn('store_id', $store_ids)->where(['date' => $today,'transaction_type'=>'decrease'])->sum('subtotal');
 

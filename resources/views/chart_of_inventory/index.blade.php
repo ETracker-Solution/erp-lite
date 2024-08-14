@@ -88,6 +88,11 @@
                                                       placeholder="Enter Selling Price" :isRequired='false'
                                                       :isReadonly='false' defaultValue=""/>
                                     </div>
+                                    <div class="col-xl-12 col-md-12 col-12">
+                                        <x-forms.static-select label="Status" inputName="status" placeholder="Select One"
+                                            :isRequired='true' :isReadonly='false' defaultValue="active"
+                                            :options="['active','inactive']" />
+                                    </div>
                                 </div>
 
                             </div>
@@ -142,6 +147,7 @@
         let groupNameInput = $("input[name=group_name]")
         let accountTypeInput = $("input[name=account_type]")
         let itemUnitInput = $("select[name=unit]")
+        let itemStatusInput = $("select[name=status]")
         let itemPriceInput = $("input[name=price]")
         let newItemNameInput = $("input[name=new_item_name]")
         let newItemTypeInput = $("select[name=new_item_type]")
@@ -155,7 +161,7 @@
         }
 
         function setValue(element, value) {
-            if (element == itemUnitInput) {
+            if (element == itemUnitInput || element == itemStatusInput) {
                 element.val(value).trigger('change')
             } else {
                 element.val(value)
@@ -180,6 +186,7 @@
                     setValue(groupNameInput, result.group_name)
                     setValue(accountTypeInput, result.account_type)
                     setValue(itemUnitInput, '')
+                    setValue(itemStatusInput, '')
                     setValue(itemPriceInput, '')
                     makeVisible(updateButton)
                     makeVisible(addButton)
@@ -187,6 +194,7 @@
                     if (result.item_type === 'item') {
                         makeVisible(additionalInfoDiv)
                         setValue(itemUnitInput, result.unit_id)
+                        setValue(itemStatusInput, result.status)
                         setValue(itemPriceInput, result.price)
                         makeHidden(addButton)
                     } else {
@@ -226,6 +234,7 @@
                             item_name: getValue(itemNameInput),
                             unit: getValue(itemUnitInput),
                             price: getValue(itemPriceInput),
+                            status: getValue(itemStatusInput)
                         },
                         headers: {
                             'X-CSRF-TOKEN': csrfToken
@@ -275,6 +284,7 @@
                     item_name: getValue(newItemNameInput),
                     item_type: getValue(newItemTypeInput),
                     unit: getValue(itemUnitInput),
+                    status: getValue(itemStatusInput),
                     price: getValue(itemPriceInput),
                 },
                 headers: {
@@ -335,6 +345,7 @@
                     setValue(groupNameInput, '')
                     setValue(accountTypeInput, '')
                     setValue(itemUnitInput, '')
+                    setValue(itemStatusInput, '')
                     setValue(itemPriceInput, 0)
 
                     makeHidden(addNewDiv)

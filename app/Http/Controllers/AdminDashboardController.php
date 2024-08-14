@@ -41,6 +41,8 @@ class AdminDashboardController extends Controller
         $wastage_amount = InventoryAdjustment::sum('subtotal');
         $products = ChartOfInventory::where('type', 'item')->where('rootAccountType', 'FG')->count();
 
+        $todayRequisitions = Requisition::whereType('FG')->whereDate('created_at', Carbon::today())->get();
+
         $year = Carbon::now()->month == 1 ? Carbon::now()->subYear()->year : Carbon::now()->year;
         $lastMonth = Carbon::now()->subMonth();
 
@@ -207,12 +209,13 @@ class AdminDashboardController extends Controller
             'outlets' => $outlets,
             'customers' => $customers,
             'products' => $products,
-            'wastageAmount' => $wastage_amount,
+            'wastageAmount' => round($wastage_amount),
             'lastMonthExpense' => $lastMonthExpense,
             'expensePercentage' => round($expensePercentage, 2),
             'currentMonthExpense' => $currentMonthExpense,
             'expenseMessage' => $expenseMessage,
             'lastMonthSales' => $parts,
+            'todayRequisitions' => $todayRequisitions,
             'discount' => [
                 'thisMonth' => $totalDiscountThisMonth,
                 'lastMonth' => $totalDiscountLastMonth,

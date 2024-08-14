@@ -1,7 +1,7 @@
 <ul class="tree">
     @foreach ($subcharts as $row)
         <li>
-            <span class="{{ $row->type == 'group' ? 'branch' : 'Leaf' }}"
+            <span class="{{ $row->type == 'group' ? 'branch' : 'Leaf' }}" id="{{ $row->id }}"
                 onclick="changeChart({{ $row->id }})" class="{{ $row->type == 'item' ? 'text-danger' : '' }}"><i
                     class="fa {{ $row->type == 'group' ? 'fa-folder' : 'fa-leaf' }} "></i>
                 {{ $row->name }}

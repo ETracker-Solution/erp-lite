@@ -229,6 +229,7 @@ class RequisitionController extends Controller
         $product_ids = RequisitionItem::whereIn('requisition_id', $requisition_ids)->pluck('coi_id')->toArray();
 
         $headers = [
+            'Group',
             'Product',
         ];
         $outlets = Outlet::select('id', 'name')->whereIn('id', $outlet_ids)->get();
@@ -239,16 +240,18 @@ class RequisitionController extends Controller
         $headers[] = 'Current Stock';
         $headers[] = 'Production';
         $values = [];
-        $products = ChartOfInventory::where(['type' => 'item', 'rootAccountType' => 'FG'])->whereIn('id', $product_ids)->get();
+        $products = ChartOfInventory::where(['type' => 'item', 'rootAccountType' => 'FG'])->whereIn('id', $product_ids)->orderBy('parent_id')->get();
 
         foreach ($products as $key => $product) {
             $totalQty = 0;
             $current_stock = 0;
             $req_qty = 0;
             $delivered_qty = 0;
+            $values[$key]['group_name'] = $product->parent->name;
             $values[$key]['product_name'] = $product->name;
             foreach ($outlets as $outlet) {
                 $outlet_req_qty = 0;
+                $outlet_req_delivery_qty = 0;
                 $single_outlet_reqs = $outlet->requisitions()->where(['type' => 'FG', 'status' => 'approved'])
                     ->whereIn('delivery_status', ['pending', 'partial'])->get();
 
@@ -257,15 +260,16 @@ class RequisitionController extends Controller
                     $outlet_req_qty += $req->items()->where('coi_id', $product->id)->sum('quantity');
                     foreach ($req->deliveries as $delivery) {
                         $delivered_qty += $delivery->items()->where('coi_id', $product->id)->sum('quantity');
+                        $outlet_req_delivery_qty += $delivery->items()->where('coi_id', $product->id)->sum('quantity');
                     }
                 }
 
 
 //                $qty = getRequisitionQtyByProduct($product->id, $outlet->id);
 
-                $values[$key]['product_quantity'][] = $outlet_req_qty - $delivered_qty;
+                $values[$key]['product_quantity'][] = $outlet_req_qty - $outlet_req_delivery_qty;
 
-                $totalQty += ($outlet_req_qty - $delivered_qty);
+                $totalQty += ($outlet_req_qty - $outlet_req_delivery_qty);
             }
             foreach (auth()->user()->employee->factory->stores()->where('type','FG')->get() as $store) {
                 $current_stock += availableInventoryBalance($product->id, $store->id);
