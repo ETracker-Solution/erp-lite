@@ -26,12 +26,15 @@ class StoreSalesReturnRequest extends FormRequest
     {
         return [
             'products' => 'array',
+            'sale_id' => 'required',
+            'store_id' => 'required',
             'date' => 'required',
             'reference_no' => 'nullable',
             'subtotal' => 'required',
+            'discount' => 'required',
+            'grand_total' => 'required',
             'remark' => 'nullable',
             'net_payable' => 'nullable',
-            'uid' => 'required',
             'created_by' => 'required',
         ];
     }
@@ -39,7 +42,6 @@ class StoreSalesReturnRequest extends FormRequest
     {
 
         $this->merge([
-            'uid' => generateUniqueUUID(null, SalesReturn::class, 'uid', false, true),
             'created_by' => auth()->user()->id,
             'date' => Carbon::parse($this->date)->format('Y-m-d'),
         ]);

@@ -166,10 +166,10 @@ function generateInvoiceCode($store_id)
     return $code;
 }
 
-function generateUniqueUUID($store_id, $model, $column_name, $is_factory = false, $is_headOffice = false)
+function generateUniqueUUID($outlet_or_factory_id, $model, $column_name, $is_factory = false, $is_headOffice = false)
 {
     if (!$is_headOffice) {
-        $outlet = $is_factory ? \App\Models\Factory::find($store_id) : Outlet::find($store_id);
+        $outlet = $is_factory ? \App\Models\Factory::find($outlet_or_factory_id) : Outlet::find($outlet_or_factory_id);
         $outlet_name = str_replace(',', ' ', trim($outlet->name));
     } else {
         $outlet_name = 'HO';
@@ -198,5 +198,20 @@ function generateUniqueUUID($store_id, $model, $column_name, $is_factory = false
 function getRequisitionQty($requisition_id, $product_id)
 {
     $requisition = \App\Models\Requisition::find($requisition_id);
-    return $requisition->items()->where('coi_id', $product_id)->first()->quantity;
+    $found =  $requisition->items()->where('coi_id', $product_id)->first();
+    if ($found){
+        return $found->quantity;
+    }else{
+        return 0;
+    }
+}
+
+function getReturnedQty($sale_return_id, $coi_id){
+    $sale_return = \App\Models\SalesReturn::find($sale_return_id);
+    $found =  $sale_return->items()->where('coi_id', $coi_id)->first();
+    if ($found){
+        return $found->quantity;
+    }else{
+        return 0;
+    }
 }

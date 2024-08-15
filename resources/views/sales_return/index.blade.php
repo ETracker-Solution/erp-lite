@@ -76,17 +76,22 @@
                     orderable: false
                 },
                     {
-                        data: "id",
-                        title: "Invoice No",
+                        data: "uid",
+                        title: "Return No",
                         searchable: true
                     },
                     {
                         data: "subtotal",
                         title: "Subtotal",
                         searchable: false
+                    },
+                    {
+                        data: "discount",
+                        title: "Discount",
+                        searchable: false
                     }, {
-                        data: "status",
-                        title: "status",
+                        data: "grand_total",
+                        title: "Grand Total",
                         searchable: false
                     },
                     {
@@ -94,12 +99,12 @@
                         title: "Date",
                         searchable: true
                     },
-                    {
-                        data: "action",
-                        title: "Action",
-                        orderable: false,
-                        searchable: false
-                    },
+                    // {
+                    //     data: "action",
+                    //     title: "Action",
+                    //     orderable: false,
+                    //     searchable: false
+                    // },
                 ],
             });
         })

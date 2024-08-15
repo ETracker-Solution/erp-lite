@@ -11,6 +11,8 @@ class SalesReturnItem extends Model
 
     protected $guarded = ['id'];
 
+    protected $table = 'sales_return_items';
+
     public function coi()
     {
 
