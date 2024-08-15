@@ -156,7 +156,7 @@ class PaymentVoucherController extends Controller
         return redirect()->route('payment-vouchers.index');
     }
 
-    public function paymentVoucherPdf($id)
+    public function Pdf($id)
     {
         $paymentVoucher = PaymentVoucher::findOrFail(decrypt($id));
         $data = [

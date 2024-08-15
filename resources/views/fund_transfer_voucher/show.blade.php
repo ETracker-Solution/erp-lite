@@ -27,7 +27,7 @@
                                         &nbsp;See List
                                     </button>
                                 </a>
-                                {{-- <a href="{{ route('fund-transfer-voucher.pdf', encrypt($fundTransferVoucher->id)) }}" class="btn btn-primary" target="_blank"><i class="fa fa-download"></i> PDF</a> --}}
+                                <a href="{{ route('fund-transfer-voucher.pdf', encrypt($fundTransferVoucher->id)) }}" class="btn btn-sm btn-primary" target="_blank"><i class="fa fa-download"></i> PDF</a>
                             </div>
                         </div>
                         <div class="card-body">
@@ -39,7 +39,7 @@
                                     </tr>
                                     <tr>
                                         <th><strong>FTV No :</strong></th>
-                                        <td>{{ $fundTransferVoucher->uid }}</td>
+                                        <td>{{ $fundTransferVoucher->id }}</td>
                                     </tr>
                                     <tr>
                                         <th><strong>Transfer From Account  :</strong></th>
