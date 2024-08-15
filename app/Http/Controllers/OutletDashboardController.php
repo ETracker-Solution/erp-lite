@@ -51,7 +51,7 @@ class OutletDashboardController extends Controller
             $query->where(['outlet_id' => \auth()->user()->employee->outlet_id]);
         })->where(['type' => 'FG','status' => 'completed'])->count();
          
-        $products = ChartOfInventory::where(['type' => 'item', 'rootAccountType' => 'FG'])->count();
+        $products = ChartOfInventory::where(['type' => 'item', 'rootAccountType' => 'FG','status'=>'active'])->count();
 
         $year = Carbon::now()->month == 1 ? Carbon::now()->subYear()->year : Carbon::now()->year;
         $lastMonth = Carbon::now()->subMonth();
