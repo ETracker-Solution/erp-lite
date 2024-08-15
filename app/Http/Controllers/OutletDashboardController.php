@@ -216,6 +216,11 @@ class OutletDashboardController extends Controller
         $salesCompare['month'][] = 'Current Month';
         $salesCompare['sale'][] = $currentMonthAmount;
 
+        $salesWastageCompare['sales'][] = 'Sales';
+        $salesWastageCompare['wastage'][] = $currentMonthAmount;
+        $salesWastageCompare['sales'][] = 'Wastage';
+        $salesWastageCompare['wastage'][] = $wastage_amount;
+
         $data = [
             'requisition_deliveries' => $requisition_deliveries,
             'requisition_deliveries_count' => $requisition_deliveries_count,
@@ -258,6 +263,7 @@ class OutletDashboardController extends Controller
             'bestSellingProducts' => $bestProducts,
             'slowSellingProducts' => $slowSellingProducts,
             'salesComparision' => $salesCompare,
+            'salesWastageCompare' => $salesWastageCompare,
         ];
 //        return $data;
         return view('dashboard.outlet', $data);
