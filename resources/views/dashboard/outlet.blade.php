@@ -894,7 +894,7 @@
         new Chart("sales-comparison-chart", {
             type: 'horizontalBar',
             data: {
-                labels: JSON.parse('<?= json_encode($salesComparision['month'] ?? '') ?>'),
+                labels: JSON.parse('<?= json_encode($salesComparision['month'] ?? 0) ?>'),
                 datasets: [{
                     data: JSON.parse('<?= json_encode($salesComparision['sale'] ?? 0) ?>'),
                     backgroundColor: ["#73BFB8", "#73BFB8", "#73BFB8", "#73BFB8", "#73BFB8", "#73BFB8", "#73BFB8"],
@@ -966,7 +966,7 @@
         new Chart("sales-and-wastage-comparison-chart", {
             type: 'horizontalBar',
             data: {
-                labels: JSON.parse('<?= json_encode($salesWastageCompare['sales'] ?? '') ?>'),
+                labels: JSON.parse('<?= json_encode($salesWastageCompare['sales'] ?? 0) ?>'),
                 datasets: [{
                     data: JSON.parse('<?= json_encode($salesWastageCompare['wastage'] ?? 0) ?>'),
                     backgroundColor: ["#73BFB8", "#73BFB8", "#73BFB8", "#73BFB8", "#73BFB8", "#73BFB8", "#73BFB8"],

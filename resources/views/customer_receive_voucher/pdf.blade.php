@@ -15,11 +15,9 @@
 </head>
 
 <body>
-    <h2 style="text-align:center; color: #4e73df; padding: 0px; margin: 0px; margin-left: 20px;" class="text-primary">
-        <strong> {{ Auth::guard('web')->user()->business->name ?? 'Company Name' }}</strong>
-    </h2>
-    {{-- <p style="text-align:center;  font-size: 13px;"> Address : {{ Auth::guard('web')->user()->company->address ?? '' }} --}}
-    </p>
+    <div class="invoice-ribbon">
+        @include('common.pdf_header')
+    </div>
     <p style="text-align:center;  font-size: 13px;">Receive Voucher</p>
     <hr>
     <table width="100%" style="text-align: center;">
