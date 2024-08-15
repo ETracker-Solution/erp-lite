@@ -28,6 +28,7 @@
                                         &nbsp;See List
                                     </button>
                                 </a>
+                                <a href="{{ route('receive-voucher.pdf', encrypt($receiveVoucher->id)) }}" class="btn btn-sm btn-primary" target="_blank"><i class="fa fa-download"></i> PDF</a>
                             </div>
                         </div>
                         <div class="card-body">

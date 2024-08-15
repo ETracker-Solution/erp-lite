@@ -87,9 +87,14 @@ Route::middleware('auth')->group(function () {
     Route::resource('outlets', \App\Http\Controllers\OutletController::class);
     Route::resource('employees', \App\Http\Controllers\EmployeeController::class);
     Route::resource('permissions', \App\Http\Controllers\PermissionController::class);
+
+    Route::get('payment-voucher-pdf/{id}', [App\Http\Controllers\PaymentVoucherController::class, 'Pdf'])->name('payment-voucher.pdf');
     Route::resource('payment-vouchers', PaymentVoucherController::class);
+    Route::get('receive-voucher-pdf/{id}', [App\Http\Controllers\ReceiveVoucherController::class, 'Pdf'])->name('receive-voucher.pdf');
     Route::resource('receive-vouchers', ReceiveVoucherController::class);
+    Route::get('journal-voucher-pdf/{id}', [App\Http\Controllers\JournalVoucherController::class, 'Pdf'])->name('journal-voucher.pdf');
     Route::resource('journal-vouchers', JournalVoucherController::class);
+    Route::get('fund-transfer-voucher-pdf/{id}', [App\Http\Controllers\FundTransferVoucherController::class, 'Pdf'])->name('fund-transfer-voucher.pdf');
     Route::resource('fund-transfer-vouchers', FundTransferVoucherController::class);
     Route::get('fund-transfer-voucher-receive/{id}', [App\Http\Controllers\FundTransferVoucherController::class, 'receive'])->name('fund-transfer-vouchers.receive');
     Route::resource('departments', DepartmentController::class);
@@ -110,6 +115,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('promo-codes', \App\Http\Controllers\PromoCodeController::class);
 
     //-----Start Supplier Payment Voucher---------
+    Route::get('supplier-voucher-pdf/{id}', [App\Http\Controllers\SupplierPaymentVoucherController::class, 'Pdf'])->name('supplier-voucher.pdf');
     Route::resource('supplier-vouchers', SupplierPaymentVoucherController::class);
     Route::get('fetch-due-by-supplier-id/{id}', [App\Http\Controllers\ApiController::class, 'fetchSupplierDueById'])->name('supplier.due');
     //-----End Supplier Payment Voucher---------

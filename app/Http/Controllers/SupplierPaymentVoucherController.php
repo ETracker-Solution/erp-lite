@@ -12,6 +12,7 @@ use App\Models\SupplierPaymentVoucher;
 use App\Models\SupplierTransaction;
 use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Support\Facades\DB;
+use niklasravnsborg\LaravelPdf\Facades\Pdf;
 use Yajra\DataTables\Facades\DataTables;
 
 class SupplierPaymentVoucherController extends Controller
@@ -126,5 +127,39 @@ class SupplierPaymentVoucherController extends Controller
         }
         Toastr::success('Supplier Voucher Deleted Successfully!.', '', ["progressBar" => true]);
         return redirect()->route('supplier-vouchers.index');
+    }
+    public function Pdf($id)
+    {
+        $supplierVoucher = SupplierPaymentVoucher::findOrFail(decrypt($id));
+        $data = [
+            'supplierVoucher' => $supplierVoucher,
+        ];
+
+        $pdf = Pdf::loadView(
+            'supplier_payment_voucher.pdf',
+            $data,
+            [],
+            [
+                'format' => 'A4-P',
+                'orientation' => 'P',
+                'margin-left' => 1,
+
+                '', // mode - default ''
+                '', // format - A4, for example, default ''
+                0, // font size - default 0
+                '', // default font family
+                1, // margin_left
+                1, // margin right
+                1, // margin top
+                1, // margin bottom
+                1, // margin header
+                1, // margin footer
+                'L', // L - landscape, P - portrait
+
+            ]
+        );
+        $name = \Carbon\Carbon::now()->format('d-m-Y');
+
+        return $pdf->stream($name . '.pdf');
     }
 }

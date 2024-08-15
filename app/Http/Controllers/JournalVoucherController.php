@@ -154,7 +154,7 @@ class JournalVoucherController extends Controller
         return redirect()->route('journal-vouchers.index');
     }
 
-    public function journalVoucherPdf($id)
+    public function Pdf($id)
     {
         $journalVoucher = JournalVoucher::findOrFail(decrypt($id));
 

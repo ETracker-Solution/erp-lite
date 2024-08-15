@@ -27,6 +27,7 @@
                                         &nbsp;See List
                                     </button>
                                 </a>
+                                <a href="{{ route('payment-voucher.pdf', encrypt($paymentVoucher->id)) }}" class="btn btn-sm btn-primary" target="_blank"><i class="fa fa-download"></i> PDF</a>
                             </div>
                         </div>
                         <div class="card-body">
@@ -35,6 +36,10 @@
                                     <tr>
                                         <th><strong>Date :</strong></th>
                                         <td>{{ $paymentVoucher->date }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th><strong>PV No :</strong></th>
+                                        <td>{{ $paymentVoucher->uid }}</td>
                                     </tr>
                                     <tr>
                                         <th><strong>Debit Account  :</strong></th>
