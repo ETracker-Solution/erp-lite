@@ -51,7 +51,7 @@ class OutletDashboardController extends Controller
             $query->where(['outlet_id' => \auth()->user()->employee->outlet_id]);
         })->where(['type' => 'FG','status' => 'completed'])->count();
          
-        $products = ChartOfInventory::where(['type' => 'item', 'rootAccountType' => 'FG'])->count();
+        $products = ChartOfInventory::where(['type' => 'item', 'rootAccountType' => 'FG','status'=>'active'])->count();
 
         $year = Carbon::now()->month == 1 ? Carbon::now()->subYear()->year : Carbon::now()->year;
         $lastMonth = Carbon::now()->subMonth();
@@ -76,11 +76,17 @@ class OutletDashboardController extends Controller
         $noOfWeeks = $currentDate->copy()->subMonth()->weekOfMonth;
         $totalDays = $startDate->daysInMonth;
 
+        $currentMonthStartDate = $currentDate->copy()->startOfMonth();
+        $currentMonthEndtDate = $currentDate->copy()->endOfMonth();
+
+        $currentMonthAmount = Sale::where('outlet_id', $outlet_id)->whereBetween('created_at', [$currentMonthStartDate, $currentMonthEndtDate])
+                ->sum('grand_total');
         // Calculate the number of days in each part
         $daysPerPart = ceil($totalDays / $noOfWeeks);
 
         // Initialize an array to store sales data for each part
         $parts = [];
+        $lastMonthSaleAmount = 0;
 
         // Iterate over each part
         for ($part = 0; $part < $noOfWeeks; $part++) {
@@ -94,6 +100,7 @@ class OutletDashboardController extends Controller
             $salesTotal = Sale::where('outlet_id', $outlet_id)->whereBetween('created_at', [$partStartDate, $partEndDate])
                 ->sum('grand_total');
             $parts[] = $salesTotal;
+            $lastMonthSaleAmount += $salesTotal;
         }
 
         $totalDiscountThisMonth = Sale::where('outlet_id', $outlet_id)->whereYear('created_at', $currentDate->year)->whereMonth('created_at', $currentDate->month)->sum('discount');
@@ -204,6 +211,16 @@ class OutletDashboardController extends Controller
             $bestProducts['qty'][] = $product->total_sold;
         }
 
+        $salesCompare['month'][] = 'Last Month';
+        $salesCompare['sale'][] = $lastMonthSaleAmount;
+        $salesCompare['month'][] = 'Current Month';
+        $salesCompare['sale'][] = $currentMonthAmount;
+
+        $salesWastageCompare['sales'][] = 'Sales';
+        $salesWastageCompare['wastage'][] = $currentMonthAmount;
+        $salesWastageCompare['sales'][] = 'Wastage';
+        $salesWastageCompare['wastage'][] = $wastage_amount;
+
         $data = [
             'requisition_deliveries' => $requisition_deliveries,
             'requisition_deliveries_count' => $requisition_deliveries_count,
@@ -245,6 +262,8 @@ class OutletDashboardController extends Controller
             'todayExpense' => $todayExpense,
             'bestSellingProducts' => $bestProducts,
             'slowSellingProducts' => $slowSellingProducts,
+            'salesComparision' => $salesCompare,
+            'salesWastageCompare' => $salesWastageCompare,
         ];
 //        return $data;
         return view('dashboard.outlet', $data);

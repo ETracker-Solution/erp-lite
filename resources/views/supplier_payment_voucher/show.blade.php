@@ -28,7 +28,7 @@
                                         &nbsp;See List
                                     </button>
                                 </a>
-                                {{-- <a href="{{ route('supplier-voucher.pdf', encrypt($supplierVoucher->id)) }}" class="btn btn-primary" target="_blank"><i class="fa fa-download"></i> PDF</a> --}}
+                                <a href="{{ route('supplier-voucher.pdf', encrypt($supplierVoucher->id)) }}" class="btn btn-sm btn-primary" target="_blank"><i class="fa fa-download"></i> PDF</a>
                             </div>
                         </div>
                         <div class="card-body">

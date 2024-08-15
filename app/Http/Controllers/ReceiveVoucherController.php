@@ -156,7 +156,7 @@ class ReceiveVoucherController extends Controller
         return redirect()->route('receive-vouchers.index');
     }
 
-    public function receiveVoucherPdf($id)
+    public function Pdf($id)
     {
         $receiveVoucher = ReceiveVoucher::findOrFail(decrypt($id));
         $data = [

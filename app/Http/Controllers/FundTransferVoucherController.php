@@ -212,7 +212,7 @@ class FundTransferVoucherController extends Controller
         return redirect()->route('fund-transfer-vouchers.index');
     }
 
-    public function fundTransferVoucherPdf($id)
+    public function Pdf($id)
     {
         $fundTransferVoucher = FundTransferVoucher::findOrFail(decrypt($id));
         $data = [

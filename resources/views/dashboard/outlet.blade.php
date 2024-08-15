@@ -353,6 +353,26 @@
 
                 </div>
             </div>
+            <div class="col-xl-6 col-12">
+                <div class="card">
+                    <div class="card-header bg-info">
+                        <h3 class="card-title">Sales Comparison</h3>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="sales-comparison-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-6 col-12">
+                <div class="card">
+                    <div class="card-header bg-info">
+                        <h3 class="card-title">Sales and Wastage Comparison</h3>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="sales-and-wastage-comparison-chart"></canvas>
+                    </div>
+                </div>
+            </div>
         </div>
         {{--        <div class="row match-height">--}}
         {{--            <div class="col-sm-12 col-xl-6 col-12">--}}
@@ -805,6 +825,150 @@
                 labels: JSON.parse('<?= json_encode($bestSellingProducts['name'] ?? '') ?>'),
                 datasets: [{
                     data: JSON.parse('<?= json_encode($bestSellingProducts['qty'] ?? 0) ?>'),
+                    backgroundColor: ["#73BFB8", "#73BFB8", "#73BFB8", "#73BFB8", "#73BFB8", "#73BFB8", "#73BFB8"],
+                }]
+            },
+            options: {
+                tooltips: {
+                    enabled: false
+                },
+                responsive: true,
+                legend: {
+                    display: false,
+                    position: 'bottom',
+                    fullWidth: true,
+                    labels: {
+                        boxWidth: 10,
+                        padding: 50
+                    }
+                },
+                scales: {
+                    yAxes: [{
+                        barPercentage: 0.75,
+                        gridLines: {
+                            display: true,
+                            drawTicks: true,
+                            drawOnChartArea: false
+                        },
+                        ticks: {
+                            fontColor: '#555759',
+                            fontFamily: 'Lato',
+                            fontSize: 11
+                        }
+
+                    }],
+                    xAxes: [{
+                        gridLines: {
+                            display: true,
+                            drawTicks: false,
+                            tickMarkLength: 5,
+                            drawBorder: false
+                        },
+                        ticks: {
+                            padding: 5,
+                            beginAtZero: true,
+                            fontColor: '#555759',
+                            fontFamily: 'Lato',
+                            fontSize: 11,
+                            // callback: function (label, index, labels) {
+                            //     return label / 1000;
+                            // }
+
+                        },
+                        scaleLabel: {
+                            display: false,
+                            padding: 10,
+                            fontFamily: 'Lato',
+                            fontColor: '#555759',
+                            fontSize: 16,
+                            fontStyle: 700,
+                            labelString: 'Scale Label'
+                        },
+
+                    }]
+                }
+            }
+        });
+    </script>
+    <script>
+        new Chart("sales-comparison-chart", {
+            type: 'horizontalBar',
+            data: {
+                labels: JSON.parse('<?= json_encode($salesComparision['month'] ?? 0) ?>'),
+                datasets: [{
+                    data: JSON.parse('<?= json_encode($salesComparision['sale'] ?? 0) ?>'),
+                    backgroundColor: ["#73BFB8", "#73BFB8", "#73BFB8", "#73BFB8", "#73BFB8", "#73BFB8", "#73BFB8"],
+                }]
+            },
+            options: {
+                tooltips: {
+                    enabled: false
+                },
+                responsive: true,
+                legend: {
+                    display: false,
+                    position: 'bottom',
+                    fullWidth: true,
+                    labels: {
+                        boxWidth: 10,
+                        padding: 50
+                    }
+                },
+                scales: {
+                    yAxes: [{
+                        barPercentage: 0.75,
+                        gridLines: {
+                            display: true,
+                            drawTicks: true,
+                            drawOnChartArea: false
+                        },
+                        ticks: {
+                            fontColor: '#555759',
+                            fontFamily: 'Lato',
+                            fontSize: 11
+                        }
+
+                    }],
+                    xAxes: [{
+                        gridLines: {
+                            display: true,
+                            drawTicks: false,
+                            tickMarkLength: 5,
+                            drawBorder: false
+                        },
+                        ticks: {
+                            padding: 5,
+                            beginAtZero: true,
+                            fontColor: '#555759',
+                            fontFamily: 'Lato',
+                            fontSize: 11,
+                            // callback: function (label, index, labels) {
+                            //     return label / 1000;
+                            // }
+
+                        },
+                        scaleLabel: {
+                            display: false,
+                            padding: 10,
+                            fontFamily: 'Lato',
+                            fontColor: '#555759',
+                            fontSize: 16,
+                            fontStyle: 700,
+                            labelString: 'Scale Label'
+                        },
+
+                    }]
+                }
+            }
+        });
+    </script>
+    <script>
+        new Chart("sales-and-wastage-comparison-chart", {
+            type: 'horizontalBar',
+            data: {
+                labels: JSON.parse('<?= json_encode($salesWastageCompare['sales'] ?? 0) ?>'),
+                datasets: [{
+                    data: JSON.parse('<?= json_encode($salesWastageCompare['wastage'] ?? 0) ?>'),
                     backgroundColor: ["#73BFB8", "#73BFB8", "#73BFB8", "#73BFB8", "#73BFB8", "#73BFB8", "#73BFB8"],
                 }]
             },
