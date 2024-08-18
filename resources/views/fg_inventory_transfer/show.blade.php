@@ -17,7 +17,7 @@ FG Inventory Transfer Details
                 <div class="card card-info">
                     <div class="card-header">
                         <h3 class="card-title">FG Inventory Transfer Details</h3>
-                        <a href="{{route('fg-inventory-transfers.pdf',$fGInventoryTransfer->id)}}"
+                        <a href="{{route('fg-inventory-transfers.pdf',encrypt($fGInventoryTransfer->id))}}"
                             class="btn btn-sm btn-primary float-right" target="_blank"><i class="fa fa-download"></i> PDF</a>
                     </div>    
                     <!-- Main content -->

@@ -7,7 +7,7 @@
             </i>
             Edit
         </a> --}}
-        <a href="{{ route('fg-inventory-transfers.show', $row->id) }}" class="btn btn-xs btn-primary">
+        <a href="{{ route('fg-inventory-transfers.show', encrypt($row->id)) }}" class="btn btn-xs btn-primary">
             <i class="fas fa-folder">
             </i> Show
         </a>
