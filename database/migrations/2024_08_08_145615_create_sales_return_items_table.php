@@ -17,6 +17,7 @@ return new class extends Migration
             $table->double('rate', 15, 2);
             $table->double('quantity', 8, 2);
             $table->string('discount_type')->nullable();
+            $table->string('discount_value')->nullable();
             $table->double('discount', 15, 2)->nullable();
             $table->foreignId('sales_return_id')->references('id')->on('sales_returns')->onDelete('cascade');
             $table->timestamps();

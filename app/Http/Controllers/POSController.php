@@ -12,6 +12,7 @@ use App\Models\Outlet;
 use App\Models\Payment;
 use App\Models\PreOrder;
 use App\Models\PromoCode;
+use App\Models\SalesReturn;
 use App\Models\Store;
 use Carbon\Carbon;
 use App\Models\Sale;
@@ -185,7 +186,7 @@ class POSController extends Controller
                     addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'bkash'), getAccountsReceiveableGLId());
                 }
                 if ($paymentMethod['method'] == 'cash') {
-                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id,), getAccountsReceiveableGLId());
+                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id), getAccountsReceiveableGLId());
                 }
                 if ($paymentMethod['method'] == 'point') {
                     redeemPoint($sale->id, $customer_id, $paymentMethod['amount']);
@@ -492,8 +493,14 @@ class POSController extends Controller
 
     public function getReturnNumberValue(Request $request)
     {
-        $obj = new \stdClass();
-        $obj->amount = 10;
+        $ret = SalesReturn::where('uid', $request->returnNumber)->first();
+        if ($ret) {
+            $obj = new \stdClass();
+            $obj->amount = $ret->grand_total;
+        } else {
+            return response()->json(['success' => false, 'message' => 'Return Number Not Found'], 404);
+        }
+
         return $obj;
     }
 

@@ -12,6 +12,8 @@ return new class extends Migration {
     {
         Schema::create('sales_returns', function (Blueprint $table) {
             $table->id();
+            $table->string('sale_id');
+            $table->string('store_id');
             $table->string('uid', 20)->nullable();
             $table->string('sales_return_number', 20)->nullable();
             $table->double('subtotal', 15, 2);

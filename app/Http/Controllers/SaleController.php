@@ -14,6 +14,7 @@ use App\Models\Payment;
 use App\Models\PreOrder;
 use App\Models\Product;
 use App\Models\Sale;
+use App\Models\SalesReturn;
 use App\Models\Store;
 use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Http\Request;
@@ -210,8 +211,12 @@ class SaleController extends Controller
                     'amount' => ($paymentMethod['method'] == 'cash' && $sale->change_amount > 0) ? ($paymentMethod['amount'] - $sale->change_amount) : $paymentMethod['amount'],
                 ]);
                 $sale->amount = $payment->amount;
+                $prevSale = $sale;
                 if ($paymentMethod['method'] == 'exchange') {
-                    return 'working on it';
+                    $ret = SalesReturn::where('uid', $request->returnNumber)->first();
+                    Sale::find($prevSale['id'])->update([
+                        'exchange_id'=>$ret->id
+                    ]);
                 }
                 if ($paymentMethod['method'] == 'upay') {
                     addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'upay'), getAccountsReceiveableGLId());

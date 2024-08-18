@@ -540,6 +540,7 @@
                                 <div class="modal-body">
                                     <input type="text" placeholder="Enter Sales Return Number" v-model="returnNumber"
                                            class="form-control">
+                                    <a href="{{ route('sales-returns.create') }}" target="_blank">Create New Return</a>
                                 </div>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
