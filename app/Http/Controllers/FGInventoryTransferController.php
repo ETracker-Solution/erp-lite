@@ -102,8 +102,8 @@ class FGInventoryTransferController extends Controller
      */
     public function show($id)
     {
-        $items = InventoryTransferItem::where('inventory_transfer_id', $id)->get();
-        $fGInventoryTransfer = InventoryTransfer::with('toStore', 'fromStore')->find($id);
+        $items = InventoryTransferItem::where('inventory_transfer_id', decrypt($id))->get();
+        $fGInventoryTransfer = InventoryTransfer::with('toStore', 'fromStore')->find(decrypt($id));
         return view('fg_inventory_transfer.show', compact('fGInventoryTransfer', 'items'));
     }
 
@@ -144,8 +144,8 @@ class FGInventoryTransferController extends Controller
     public function pdfDownload($id)
     {
         $data = [
-            'items' => InventoryTransferItem::where('inventory_transfer_id', $id)->get(),
-            'FGInventoryTransfer' => InventoryTransfer::with('toStore', 'fromStore')->find($id),
+            'items' => InventoryTransferItem::where('inventory_transfer_id',decrypt($id))->get(),
+            'FGInventoryTransfer' => InventoryTransfer::with('toStore', 'fromStore')->find(decrypt($id)),
         ];
 
         $pdf = PDF::loadView(
