@@ -34,6 +34,10 @@ Route::get('/', function () {
     return redirect()->route('login');
 //    return view('welcome');
 });
+//register start
+Route::resource('registers', \App\Http\Controllers\RegisterController::class); 
+//register end 
+
 
 
 Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard');
@@ -50,6 +54,7 @@ Route::middleware('auth')->group(function () {
 
     //lock Screen Start
 
+    
     Route::resource('chart-of-accounts', ChartOfAccountController::class);
     Route::resource('stores', \App\Http\Controllers\StoreController::class);
     Route::resource('chart-of-inventories', ChartOfInventoryController::class);
@@ -379,3 +384,4 @@ Route::group(['middleware' => 'auth'], function () {
 
 
 require __DIR__ . '/auth.php';
+require __DIR__ . '/admin.php';
