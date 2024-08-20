@@ -14,27 +14,27 @@
                      with font-awesome or any other icon font library -->
                 <li class="nav-item">
                     <a href="{{route('admin.admin_dashboard')}}"
-                       class="nav-link {{ (Request::segment(1) == 'dashboard' )?' active':''}}">
+                       class="nav-link {{ (Request::segment(2) == 'dashboard' )?' active':''}}">
                         <i class="nav-icon fas fa-tachometer-alt"></i>
                         <p>Dashboard</p>
                     </a>
                 </li>
-                {{-- <li class="nav-item">
-                    <a href="#" class="nav-link">
-                        <i class="nav-icon fas fa-tachometer-alt"></i>
+                <li class="nav-item {{ (Request::segment(2) == 'companies' )?'menu-open':''}}">
+                    <a href="#" class="nav-link {{ (Request::segment(2) == 'companies' )?' active':''}}">
+                        <i class="nav-icon fa fas fa-cubes"></i>
                         <p>
-                            General Accounts
+                            Company
                             <i class="right fas fa-angle-left"></i>
                         </p>
                     </a>
                     <ul class="nav nav-treeview">
                         <li class="nav-item">
-                            <a href="#" class="nav-link">
+                            <a href="{{ route('admin.companies.index') }}" class="nav-link {{ (Request::segment(2) == 'companies' )?' active':''}}">
                                 <i class="far fa-circle nav-icon"></i>
-                                <p>Received Voucher</p>
+                                <p>Company List</p>
                             </a>
                         </li>
-                        <li class="nav-item">
+                        {{-- <li class="nav-item">
                             <a href="#" class="nav-link">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>Payment Voucher</p>
@@ -45,9 +45,9 @@
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>Journal Voucher</p>
                             </a>
-                        </li>
+                        </li> --}}
                     </ul>
-                </li> --}}
+                </li>
                 {{-- <li class="nav-item {{ (Request::segment(1) == 'categories'|| Request::segment(1) == 'attributes'|| Request::segment(1) == 'brands'||Request::segment(1) == 'units'||Request::segment(1) == 'products' )?'menu-open':''}}">
                     <a href="#"
                        class="nav-link {{ (Request::segment(1) == 'categories'|| Request::segment(1) == 'brands'||Request::segment(1) == 'units'||Request::segment(1) == 'products' )?' active':''}}">

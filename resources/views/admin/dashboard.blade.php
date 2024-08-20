@@ -1,4 +1,11 @@
 @extends('admin.layouts.app')
 @section('content')
-    <h1>Admin Dashboard</h1>
+    <section class="content-header">
+        @php
+        $links = [
+        'Admin Dashboard'=>route('admin.admin_dashboard'),
+        ]
+        @endphp
+        <x-breadcrumb title='Admin Dashboard' :links="$links" />
+    </section>
 @endsection

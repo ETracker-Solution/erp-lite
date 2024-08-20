@@ -77,4 +77,8 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
         ->name('logout')
         ->middleware('auth:admin');
 
+
+    //company
+    Route::resource('companies', \App\Http\Controllers\Admin\CompanyController::class);
+
 });
