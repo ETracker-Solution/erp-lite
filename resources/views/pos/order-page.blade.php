@@ -32,7 +32,7 @@
                 <div class="m-2 mt-4" style="min-height: 50vh">
                     <div class="row" style="max-height: 50vh; overflow-y: auto;">
                         <div class="col-12 product-info mt-2"  v-if="selectedInvoice.items && selectedInvoice.items.length > 0" v-for="(row,index) in selectedInvoice.items">
-                            <span class="productName"> @{{ row.product.name }}</span><br>
+                            <span class="productName"> @{{ row.coi.name }}</span><br>
                             <span class="productPrice">TK.@{{ row.unit_price }} x @{{ row.quantity }}</span>
                             <span class="float-right productPrice">TK.@{{ row.unit_price * row.quantity }}</span>
                         </div>
