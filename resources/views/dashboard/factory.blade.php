@@ -24,7 +24,7 @@
                 <div class="card card-congratulation-medal">
                     <div class="card-body">
                         <h5>Welcome to the Dashboard !🎉 </h5>
-                        <p class="card-text font-small-3">Complete Requisition in the Month</p>
+                        <p class="card-text font-small-3">Deliverable</p>
                         <h3 class="mb-75 mt-2 pt-50">
                             {{ $TotalNewRequisitions }}
                         </h3>
@@ -56,13 +56,17 @@
                                                    icon="layers"
                                                    colorClass="bg-light-info"/>
                             </div>
-                            <div class="col-xl-3 col-sm-6 col-12 mb-2 mb-sm-0">
+                            <div class="col-xl-2 col-sm-6 col-12 mb-2 mb-sm-0">
                                 <x-card-statistics title="Delivery" value="{{ $todayTotalDeliveries }}"
                                                    icon="shopping-cart"
                                                    colorClass="bg-light-danger"/>
                             </div>
-                            <div class="col-xl-3 col-sm-6 col-12">
+                            <div class="col-xl-2 col-sm-6 col-12">
                                 <x-card-statistics title="Wastage" value="{{ $todayTotalWastages }}" icon="trash-2"
+                                                   colorClass="bg-light-success"/>
+                            </div>
+                            <div class="col-xl-2 col-sm-6 col-12">
+                                <x-card-statistics title="Pre Order" value="{{ $todayPreOrderDeliveries }}" icon="trash-2"
                                                    colorClass="bg-light-success"/>
                             </div>
                         </div>
