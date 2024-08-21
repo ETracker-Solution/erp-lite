@@ -60,11 +60,31 @@ $links = [
                                     <th>Type : </th>
                                     <td>{{ $company->type }}</td>
                                 </tr>
+                                <tr>
+                                    <th>Status : </th>
+                                    <td>{!! showStatus($company->status) !!}</td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
 
                 </div>
+                <form action="{{ route('admin.company.change.status',$company->id) }}" method="POST">
+                    @csrf
+                    @method('PUT')
+                    {{-- @if ($company->status == 'pending')
+                        <a title="Active"><button class="btn btn-success float-right">Approved</button></a>
+                        @else
+                        <a title="Pending"><button class="btn btn-danger float-right">Pending</button></i></a>
+                    @endif --}}
+                    @if ($company->status == 'pending')
+                        <a title="Active"><button class="btn btn-success float-right">Active</button></a>
+                        @elseif($company->status == 'active')
+                        <a title="Pending"><button class="btn btn-danger float-right">Inactive</button></i></a>
+                        @elseif($company->status == 'inactive')
+                        <a title="Active"><button class="btn btn-success float-right">Active</button></i></a>
+                    @endif
+                </form>
             </div>
             <!-- /.row -->
 

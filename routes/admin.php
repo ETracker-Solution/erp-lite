@@ -80,5 +80,6 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
 
     //company
     Route::resource('companies', \App\Http\Controllers\Admin\CompanyController::class);
+    Route::put('companies-change-status/{id}', [\App\Http\Controllers\Admin\CompanyController::class, 'changeStatus'])->name('company.change.status');
 
 });
