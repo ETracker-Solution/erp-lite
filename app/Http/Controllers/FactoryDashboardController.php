@@ -8,6 +8,7 @@ use App\Models\ChartOfInventory;
 use App\Models\InventoryAdjustment;
 use App\Models\InventoryTransaction;
 use App\Models\Outlet;
+use App\Models\PreOrder;
 use App\Models\Product;
 use App\Models\Requisition;
 use App\Models\RequisitionDelivery;
@@ -68,6 +69,7 @@ class FactoryDashboardController extends Controller
         $todayTotalRequisitions = Requisition::where('to_factory_id',$factory_id)->whereDate('created_at', Carbon::today())->whereIn('status',['pending'])->count();
         $todayTotalDeliveries = RequisitionDelivery::where(['type' => 'FG', 'date' => $today])->count();
         $todayTotalWastages = InventoryAdjustment::whereIn('store_id', $store_ids)->where(['date' => $today,'transaction_type'=>'decrease'])->sum('subtotal');
+        $todayPreOrderDeliveries = PreOrder::where(['status' => 'pending', 'delivery_date' => $today])->count();
 
         //2nd Section
         $thisMonthTotalWastages = InventoryAdjustment::whereIn('store_id', $store_ids)->whereMonth('created_at', Carbon::now()->month)->where('transaction_type', 'decrease')->sum('subtotal');
@@ -171,6 +173,7 @@ class FactoryDashboardController extends Controller
             'todayTotalRequisitions' => $todayTotalRequisitions,
             'todayTotalDeliveries' => $todayTotalDeliveries,
             'todayTotalWastages' => $todayTotalWastages,
+            'todayPreOrderDeliveries' => $todayPreOrderDeliveries,
             //2nd Section
             'thisMonthTotalWastages' => $thisMonthTotalWastages,
             'thisMonthWastages' => $parts,
