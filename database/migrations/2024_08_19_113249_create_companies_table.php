@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('address')->nullable();
             $table->integer('no_of_employee')->nullable();
             $table->string('type');
-            $table->string('status')->default('active');
+            $table->string('status')->default('pending');
             $table->timestamps();
         });
     }
