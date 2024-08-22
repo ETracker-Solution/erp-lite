@@ -91,7 +91,7 @@ class CompanyController extends Controller
         //
     }
 
-    public function changeStatus($id)
+    public function changeStatus(Request $request, $id)
     {
        
 
@@ -109,16 +109,11 @@ class CompanyController extends Controller
             'password' => $password,
         ];
 
-        if ($company->status == 'pending') {
-            $status = 'active';
-        } elseif ($company->status == 'active') {
-            $status = 'inactive';
-        } elseif ($company->status == 'inactive') {
-            $status = 'active';
-        }
+        $company->update([
+            'status' => $request->status
+        ]);
 
-        $company->update(['status' => $status]);
-        if($company->status == 'active' ){
+        if($company->status == 'approved' ){
             Mail::to($company->email)->send(new CompanyApprovalMail($company, $credentials));
         }
         Toastr::success('Status Changed Successfully!.', '', ["progressBar" => true]);

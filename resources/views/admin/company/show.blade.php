@@ -69,22 +69,22 @@ $links = [
                     </div>
 
                 </div>
-                <form action="{{ route('admin.company.change.status',$company->id) }}" method="POST">
+                @if ($company->status == 'pending')
+                <form action="{{ route('admin.company.change.status',$company->id) }}" method="POST" title="Accept">
                     @csrf
                     @method('PUT')
-                    {{-- @if ($company->status == 'pending')
-                        <a title="Active"><button class="btn btn-success float-right">Approved</button></a>
-                        @else
-                        <a title="Pending"><button class="btn btn-danger float-right">Pending</button></i></a>
-                    @endif --}}
-                    @if ($company->status == 'pending')
-                        <a title="Active"><button class="btn btn-success float-right">Active</button></a>
-                        @elseif($company->status == 'active')
-                        <a title="Pending"><button class="btn btn-danger float-right">Inactive</button></i></a>
-                        @elseif($company->status == 'inactive')
-                        <a title="Active"><button class="btn btn-success float-right">Active</button></i></a>
-                    @endif
+                    <input type="hidden" name="status" value="approved">
+                    <button class="btn btn-success float-right ml-1" id="approve_status">Approved</button>
                 </form>
+                @endif
+                @if ($company->status == 'pending')
+                    <form action="{{ route('admin.company.change.status',$company->id) }}" method="POST" title="Reject">
+                        @csrf
+                        @method('PUT')
+                        <input type="hidden" name="status" value="rejected">
+                        <button class="btn btn-danger float-right" id="reject_status">Rejected</button>
+                    </form>
+                @endif
             </div>
             <!-- /.row -->
 
