@@ -197,10 +197,12 @@
                     }, {
                         data: "outlet.name",
                         title: "Order From",
-                        searchable: true
+                        searchable: true,
+                        "defaultContent": '<span class="text-danger">N/A</span>'
                     }, {
                         data: "delivery_point.name",
                         title: "Delivery From",
+                        "defaultContent": '<span class="text-danger">N/A</span>',
                         searchable: true
                     },
                     {
