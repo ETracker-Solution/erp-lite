@@ -44,6 +44,7 @@ function showStatus($status)
         case 'return':
         case 'inactive':
         case 'returned':
+        case 'rejected':
             return '<span class="badge badge-danger">' . ucfirst($status) . '</span>';
         case 'cancelled':
             return '<span class="badge badge-glow badge-danger">' . ucfirst($status) . '</span>';
