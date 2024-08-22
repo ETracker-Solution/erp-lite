@@ -45,8 +45,8 @@ Sales Details
                                 <tbody>
                                     <tr>
                                         <td style="text-align: left; padding:8px; line-height: 0.6">
-                                            <p><b>Outlet :</b> {{ $sale->outlet->name }}</p>
                                             <p><b>Address :</b> {{ $sale->outlet->address }}</p>
+                                            <p><b>Status :</b> {{ $sale->status }}</p>
                                         </td> 
                                     </tr>
                                 </tbody>
