@@ -32,6 +32,7 @@
                                     <tr>
                                         <td style="text-align: left; padding:8px; line-height: 0.6">
                                             <p><b>Invoice No :</b> {{ $otherOutletSale->invoice_number }}</p>
+                                            <p><b>Order From :</b> {{ $otherOutletSale->outlet->name }}</p>
                                             <p><b>Delivery Point :</b> {{ $otherOutletSale->deliveryPoint->name }}</p>
                                             <p><b>Date :</b> {{ $otherOutletSale->date }} </p>
                                             <p><b>Sub Total :</b> {{ $otherOutletSale->subtotal }} </p>

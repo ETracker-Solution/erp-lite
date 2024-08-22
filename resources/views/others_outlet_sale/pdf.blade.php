@@ -116,6 +116,7 @@
                                 </tbody>
                             </table>
                             <div class="invoice-ribbon">
+                                <p><b>Order From :</b> {{ $otherOutletSale->outlet->name }}</p>
                                 <p><b>Delivery Point :</b> {{ $otherOutletSale->deliveryPoint->name }}</p>
                             </div>
                             <htmlpagefooter name="page-footer">

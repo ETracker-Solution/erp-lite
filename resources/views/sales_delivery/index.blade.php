@@ -87,6 +87,12 @@
                         "defaultContent": "N/A"
                     },
                     {
+                        data: "delivery_point.name",
+                        title: "Delivery Point",
+                        searchable: true
+                    },
+
+                    {
                         data: "grand_total",
                         title: "Grand Total",
                         searchable: true

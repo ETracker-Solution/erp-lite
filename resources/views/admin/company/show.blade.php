@@ -74,7 +74,7 @@ $links = [
                     @csrf
                     @method('PUT')
                     <input type="hidden" name="status" value="approved">
-                    <button class="btn btn-success float-right ml-1" id="approve_status">Approved</button>
+                    <a  onclick="void(0)" class="btn btn-success float-right ml-1 updateStatus">Approved</a>
                 </form>
                 @endif
                 @if ($company->status == 'pending')
@@ -82,7 +82,7 @@ $links = [
                         @csrf
                         @method('PUT')
                         <input type="hidden" name="status" value="rejected">
-                        <button class="btn btn-danger float-right" id="reject_status">Rejected</button>
+                        <a  onclick="void(0)" class="btn btn-danger float-right updateStatus">Rejected</a>
                     </form>
                 @endif
             </div>
@@ -94,5 +94,9 @@ $links = [
 @endsection
 
 @push('script')
-
+<script>
+    $(window).on('load', function() {
+        confirmAlert('.updateStatus', "Update Status", 'Yes, Confirm')
+    });
+</script>
 @endpush

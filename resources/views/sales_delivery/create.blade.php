@@ -222,7 +222,7 @@
                                                             <td colspan="7">
 
                                                             </td>
-                                                            <td style="background-color: black; color: white; font-weight: 700; font-size: 20px">
+                                                            <td style="background-color: rgb(194, 43, 43); color: white; font-weight: 700; font-size: 20px">
                                                                 Due
                                                             </td>
                                                             <td>
