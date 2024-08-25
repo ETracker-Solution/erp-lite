@@ -509,9 +509,9 @@
                         </a>
                         <ul class="nav nav-treeview second-child">
                             @canany(['sales-pre-orders-list','sales-pre-order-entry'])
-                                <li class="nav-item {{ (Request::segment(1) == 'sale-reports'||Request::segment(1) == 'pre-orders')?'menu-open':''}}">
+                                <li class="nav-item {{ (Request::segment(1) == 'pre-orders')?'menu-open':''}}">
                                     <a href="#"
-                                       class="nav-link {{ (Request::segment(1) == 'sale-reports'||Request::segment(1) == 'pre-orders')?' active':''}}">
+                                       class="nav-link {{ (Request::segment(1) == 'pre-orders')?' active':''}}">
                                         <i class="nav-icon fa fa-folder-open"></i>
                                         <p>
                                             Pre Order
