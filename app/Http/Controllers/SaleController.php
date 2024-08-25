@@ -249,8 +249,8 @@ class SaleController extends Controller
             $sale->amount = $salesAmount;
             addAccountsTransaction('POS', $sale, getAccountsReceiveableGLId(), getIncomeFromSalesGLId());
 
-//            $sale->amount = $avgProductionPrice;
-//            addAccountsTransaction('POS', $sale, getCOGSGLId(), getFGInventoryGLId());
+            $sale->amount = 0;
+            addAccountsTransaction('POS', $sale, getCOGSGLId(), getFGInventoryGLId());
 
             if ($customer_id != 1 && $salesAmount > $receive_amount) {
                 $sale->amount = $salesAmount - $receive_amount;
