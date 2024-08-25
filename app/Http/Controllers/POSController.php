@@ -345,7 +345,11 @@ class POSController extends Controller
 
     public function getAllOrders()
     {
-        return Sale::with('items.coi', 'customer')->withSum('items', 'quantity')->latest()->get();
+        $orders = [];
+        if (\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->outlet_id){
+            $orders = Sale::where(['outlet_id' => \auth()->user()->employee->outlet_id])->with('items.coi', 'customer')->withSum('items', 'quantity')->latest()->get();
+        }
+        return $orders;
     }
 
     public function getCouponDiscountValue(Request $request)

@@ -104,7 +104,7 @@
         <tr>
             <td class="tc bb-none company_name">
                 <img src="{{ public_path('upload'.'/'.getSettingValue('company_logo')) }}" alt=""
-                     style="height: 150px;">
+                     style="height: 50px;">
             </td>
         </tr>
         <tr>

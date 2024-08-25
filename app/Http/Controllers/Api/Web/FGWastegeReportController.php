@@ -30,27 +30,47 @@ class FGWastegeReportController extends Controller
         $type = 'FG';
 
         $report_type = \request()->report_type;
-
-        return $fromDate;
-
-
-        $getPost =InventoryAdjustment::get() ;
+        $store_id = \request()->store_id;
 
 
+        // $getPost = InventoryAdjustment::with('items')->where(['type' => $type, 'transaction_type' => 'decrease'])->where('store_id', $store_id)->get();
+
+        $statement = "SELECT
+     ia.created_at as Date,
+    s.name as StoreName,
+    coi.name as ItemName,
+    iat.rate as Rate,
+    SUM(iat.quantity) AS Qty,
+    SUM(iat.quantity * iat.rate) AS Value
+FROM
+    inventory_adjustments ia
+JOIN
+    stores s ON ia.store_id = s.id
+
+JOIN
+    inventory_adjustment_items iat ON ia.id = iat.inventory_adjustment_id
+ JOIN
+    chart_of_inventories coi ON coi.id = iat.coi_id
+             WHERE ia.store_id='$store_id' AND ia.date >= '$fromDate' AND ia.date <= '$toDate'
+GROUP BY
+    ia.store_id, ia.created_at, iat.coi_id
+ORDER BY
+    ia.store_id, ia.created_at";
+
+        $getPost = DB::select($statement);
 
         if (!count($getPost) > 0) {
             return false;
         }
         $columns = array_keys((array)$getPost[0]);
         $data = [
-            'dateRange' => 'as On  ' . $asOnDate,
+            'dateRange' => $toDate. ' -  ' . $fromDate,
             'data' => $getPost,
             'page_title' => $page_title,
             'columns' => $columns,
             'report_header' => $report_header
         ];
         $pdf = Pdf::loadView('common.report_main', $data);
-//        return $pdf->stream();
         $pdf->stream();
     }
 }
