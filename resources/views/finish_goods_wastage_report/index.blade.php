@@ -37,31 +37,31 @@
                                         </select>
                                     </div>
                                 </div>
-                                <div class="col-12">
-                                    <div class="form-group">
-                                        <label for="group_id">Group</label>
-                                        <select name="group_id" id="group_id" @change="fetch_product"
-                                                class="form-control" v-model="group_id">
-                                            <option value="">Select a Group</option>
-                                            <option :value="row.id" v-for="row in groups"
-                                            >@{{ row.id + ' - ' + row.name }}
-                                            </option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="col-12">
-                                    <div class="form-group">
-                                        <label for="item_id">Item</label>
-                                        <select name="item_id" id="item_id"
-                                                class="form-control bSelect" v-model="item_id"
-                                                @change="get_product_info">
-                                            <option value="">Select one</option>
-                                            <option :value="row.id" v-for="row in items"
-                                            >@{{ row.id + ' - ' + row.name }}
-                                            </option>
-                                        </select>
-                                    </div>
-                                </div>
+{{--                                <div class="col-12">--}}
+{{--                                    <div class="form-group">--}}
+{{--                                        <label for="group_id">Group</label>--}}
+{{--                                        <select name="group_id" id="group_id" @change="fetch_product"--}}
+{{--                                                class="form-control" v-model="group_id">--}}
+{{--                                            <option value="">Select a Group</option>--}}
+{{--                                            <option :value="row.id" v-for="row in groups"--}}
+{{--                                            >@{{ row.id + ' - ' + row.name }}--}}
+{{--                                            </option>--}}
+{{--                                        </select>--}}
+{{--                                    </div>--}}
+{{--                                </div>--}}
+{{--                                <div class="col-12">--}}
+{{--                                    <div class="form-group">--}}
+{{--                                        <label for="item_id">Item</label>--}}
+{{--                                        <select name="item_id" id="item_id"--}}
+{{--                                                class="form-control bSelect" v-model="item_id"--}}
+{{--                                                @change="get_product_info">--}}
+{{--                                            <option value="">Select one</option>--}}
+{{--                                            <option :value="row.id" v-for="row in items"--}}
+{{--                                            >@{{ row.id + ' - ' + row.name }}--}}
+{{--                                            </option>--}}
+{{--                                        </select>--}}
+{{--                                    </div>--}}
+{{--                                </div>--}}
                             </div>
                         </div>
                     </div>
@@ -105,32 +105,36 @@
                             <div class="row">
                                 <div class="col-12">
                                     <div class="text-center">
+                                        <button class="btn btn-sm btn-dark w-50 mb-2"
+                                                @click="showReport('all_summary')">
+                                            Show All Summary
+                                        </button>
                                         @if(\auth()->user() && \auth()->user()->employee && !\auth()->user()->employee->outlet_id)
-                                            <button class="btn btn-sm btn-dark w-50 mb-2"
-                                                    @click="showReport('all_groups')">
-                                                Show All Groups Quantity Summary
-                                            </button>
+{{--                                            <button class="btn btn-sm btn-dark w-50 mb-2"--}}
+{{--                                                    @click="showReport('all_groups')">--}}
+{{--                                                Show All Groups Quantity Summary--}}
+{{--                                            </button>--}}
 
-                                            <button class="btn btn-sm btn-dark w-50 mb-2"
-                                                    @click="showReport('single_group_item')">Show Single Group Item
-                                                Quantity
-                                                Summary
-                                            </button>
-                                            <button class="btn btn-sm btn-dark w-50 mb-2"
-                                                    @click="showReport('all_item')">
-                                                Show All Item Quantity Summary
-                                            </button>
+{{--                                            <button class="btn btn-sm btn-dark w-50 mb-2"--}}
+{{--                                                    @click="showReport('single_group_item')">Show Single Group Item--}}
+{{--                                                Quantity--}}
+{{--                                                Summary--}}
+{{--                                            </button>--}}
+{{--                                            <button class="btn btn-sm btn-dark w-50 mb-2"--}}
+{{--                                                    @click="showReport('all_item')">--}}
+{{--                                                Show All Item Quantity Summary--}}
+{{--                                            </button>--}}
                                             {{--                                        <button class="btn btn-sm btn-dark w-50 mb-2"--}}
                                             {{--                                                @click="showReport('single_item')">Show Single Item Quantity Summary--}}
                                             {{--                                        </button>--}}
-                                            <button class="btn btn-sm btn-dark w-50 mb-2"
-                                                    @click="showReport('store_group')">Show All Store Quantity Summary
-                                            </button>
+{{--                                            <button class="btn btn-sm btn-dark w-50 mb-2"--}}
+{{--                                                    @click="showReport('store_group')">Show All Store Quantity Summary--}}
+{{--                                            </button>--}}
                                         @endif
-                                        <button class="btn btn-sm btn-dark w-50 mb-2"
-                                                @click="showReport('store_group_item')">Show Single Store + Group + Item
-                                            Quantity Summary
-                                        </button>
+{{--                                        <button class="btn btn-sm btn-dark w-50 mb-2"--}}
+{{--                                                @click="showReport('store_group_item')">Show Single Store + Group + Item--}}
+{{--                                            Quantity Summary--}}
+{{--                                        </button>--}}
                                     </div>
                                 </div>
                             </div>
@@ -283,7 +287,15 @@
                     },
                     showReport(reportType) {
                         const vm = this;
-                        if (reportType === 'single_group_item') {
+                        if (reportType === 'all_summary') {
+                            if (!vm.store_id) {
+                                toastr.error('Please Select store', {
+                                    closeButton: true,
+                                    progressBar: true,
+                                });
+                                return false;
+                            }
+                        } if (reportType === 'single_group_item') {
                             if (!vm.group_id) {
                                 toastr.error('Please Select Group', {
                                     closeButton: true,

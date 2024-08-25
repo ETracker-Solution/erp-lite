@@ -485,7 +485,7 @@
                                             </li>
                                         @endcan
                                         <li class="nav-item">
-                                            <a href="{{route('finish-goods-inventory-report.index')}}"
+                                            <a href="{{route('finish-goods-wastage-report.index')}}"
                                                class="nav-link {{ (Request::segment(1) == 'finish-goods-wastage-report' )?' active':''}}">
                                                 <i class="far fa-circle nav-icon"></i>
                                                 <p>FG Wastage Report</p>
