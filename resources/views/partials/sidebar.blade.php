@@ -101,13 +101,13 @@
                                             </li>
                                         @endcan
                                         {{-- @can('accounts-ft-voucher') --}}
-                                            <li class="nav-item">
-                                                <a href="{{route('supplier-vouchers.index')}}"
-                                                   class="nav-link {{ (Request::segment(1) == 'supplier-vouchers' )?' active':''}}">
-                                                    <i class="far fa-circle nav-icon"></i>
-                                                    <p>Supplier Voucher</p>
-                                                </a>
-                                            </li>
+                                        <li class="nav-item">
+                                            <a href="{{route('supplier-vouchers.index')}}"
+                                               class="nav-link {{ (Request::segment(1) == 'supplier-vouchers' )?' active':''}}">
+                                                <i class="far fa-circle nav-icon"></i>
+                                                <p>Supplier Voucher</p>
+                                            </a>
+                                        </li>
                                         {{-- @endcan --}}
                                         @can('accounts-delivery-cash-transfer')
                                             <li class="nav-item">
@@ -119,14 +119,14 @@
                                             </li>
                                         @endcan
                                         @can('accounts-delivery-cash-receive')
-                                        <li class="nav-item">
-                                            <a href="{{route('delivery-cash-receives.index')}}"
-                                               class="nav-link {{ (Request::segment(1) == 'delivery-cash-receives' )?' active':''}}">
-                                                <i class="far fa-circle nav-icon"></i>
-                                                <p>DC Receive</p>
-                                            </a>
-                                        </li>
-                                    @endcan
+                                            <li class="nav-item">
+                                                <a href="{{route('delivery-cash-receives.index')}}"
+                                                   class="nav-link {{ (Request::segment(1) == 'delivery-cash-receives' )?' active':''}}">
+                                                    <i class="far fa-circle nav-icon"></i>
+                                                    <p>DC Receive</p>
+                                                </a>
+                                            </li>
+                                        @endcan
                                         @can('supplier-voucher')
                                             <li class="nav-item">
                                                 <a href="{{route('supplier-vouchers.index')}}"
@@ -239,7 +239,7 @@
                                         @can('store-rm-rm-inventory-transfer-receive')
                                             <li class="nav-item">
                                                 <a href="{{route('rm-transfer-receives.index')}}"
-                                                class="nav-link {{ (Request::segment(1) == 'rm-transfer-receives' )?' active':''}}">
+                                                   class="nav-link {{ (Request::segment(1) == 'rm-transfer-receives' )?' active':''}}">
                                                     <i class="far fa-circle nav-icon"></i>
                                                     <p>RM Inventory Transfer Receive</p>
                                                 </a>
@@ -484,6 +484,13 @@
                                                 </a>
                                             </li>
                                         @endcan
+                                        <li class="nav-item">
+                                            <a href="{{route('finish-goods-inventory-report.index')}}"
+                                               class="nav-link {{ (Request::segment(1) == 'finish-goods-wastage-report' )?' active':''}}">
+                                                <i class="far fa-circle nav-icon"></i>
+                                                <p>FG Wastage Report</p>
+                                            </a>
+                                        </li>
                                     </ul>
                                 </li>
                             @endcanany
@@ -521,21 +528,22 @@
                                                 </a>
                                             </li>
                                         @endcan
-{{--                                        @can('sales-pre-order-entry')--}}
-{{--                                            <li class="nav-item">--}}
-{{--                                                <a href="{{route('pre-orders.create')}}"--}}
-{{--                                                   class="nav-link {{ (Request::segment(1) == 'pre-orders' && Request::segment(2) == 'create')?' active':''}}">--}}
-{{--                                                    <i class="far fa-circle nav-icon"></i>--}}
-{{--                                                    <p>Pre Order Entry</p>--}}
-{{--                                                </a>--}}
-{{--                                            </li>--}}
-{{--                                        @endcan--}}
+                                        {{--                                        @can('sales-pre-order-entry')--}}
+                                        {{--                                            <li class="nav-item">--}}
+                                        {{--                                                <a href="{{route('pre-orders.create')}}"--}}
+                                        {{--                                                   class="nav-link {{ (Request::segment(1) == 'pre-orders' && Request::segment(2) == 'create')?' active':''}}">--}}
+                                        {{--                                                    <i class="far fa-circle nav-icon"></i>--}}
+                                        {{--                                                    <p>Pre Order Entry</p>--}}
+                                        {{--                                                </a>--}}
+                                        {{--                                            </li>--}}
+                                        {{--                                        @endcan--}}
                                     </ul>
                                 </li>
                             @endcanany
                             @canany(['sales-sales','sales-other-outlet-sales','sales-sales-delivery','sales-sales-exchanges'])
                                 <li class="nav-item {{ (Request::segment(1) == 'sales' || Request::segment(1) == 'others-outlet-sales'||Request::segment(1) == 'sales-exchanges'||Request::segment(1) == 'sales-deliveries')?'menu-open':''}}">
-                                    <a href="#" class="nav-link {{ (Request::segment(1) == 'sales' || Request::segment(1) == 'others-outlet-sales'||Request::segment(1) == 'sales-exchanges'||Request::segment(1) == 'sales-deliveries')?' active':''}}">
+                                    <a href="#"
+                                       class="nav-link {{ (Request::segment(1) == 'sales' || Request::segment(1) == 'others-outlet-sales'||Request::segment(1) == 'sales-exchanges'||Request::segment(1) == 'sales-deliveries')?' active':''}}">
                                         <i class="nav-icon fa fa-folder-open"></i>
                                         <p>
                                             Sales Entry
@@ -552,15 +560,15 @@
                                                 </a>
                                             </li>
                                         @endcan
-{{--                                        @can('sales-other-outlet-sales')--}}
-{{--                                            <li class="nav-item">--}}
-{{--                                                <a href="{{route('others-outlet-sales.index')}}"--}}
-{{--                                                   class="nav-link {{ (Request::segment(1) == 'others-outlet-sales' )?' active':''}}">--}}
-{{--                                                    <i class="far fa-circle nav-icon"></i>--}}
-{{--                                                    <p>OO Sales</p>--}}
-{{--                                                </a>--}}
-{{--                                            </li>--}}
-{{--                                        @endcan--}}
+                                        {{--                                        @can('sales-other-outlet-sales')--}}
+                                        {{--                                            <li class="nav-item">--}}
+                                        {{--                                                <a href="{{route('others-outlet-sales.index')}}"--}}
+                                        {{--                                                   class="nav-link {{ (Request::segment(1) == 'others-outlet-sales' )?' active':''}}">--}}
+                                        {{--                                                    <i class="far fa-circle nav-icon"></i>--}}
+                                        {{--                                                    <p>OO Sales</p>--}}
+                                        {{--                                                </a>--}}
+                                        {{--                                            </li>--}}
+                                        {{--                                        @endcan--}}
                                         @can('sales-sales-delivery')
                                             <li class="nav-item">
                                                 <a href="{{route('sales-deliveries.index')}}"
