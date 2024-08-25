@@ -485,7 +485,7 @@
                                             </li>
                                         @endcan
                                         <li class="nav-item">
-                                            <a href="{{route('finish-goods-inventory-report.index')}}"
+                                            <a href="{{route('finish-goods-wastage-report.index')}}"
                                                class="nav-link {{ (Request::segment(1) == 'finish-goods-wastage-report' )?' active':''}}">
                                                 <i class="far fa-circle nav-icon"></i>
                                                 <p>FG Wastage Report</p>
@@ -497,10 +497,10 @@
                         </ul>
                     </li>
                 @endcanany
-                @canany(['sales-sales','sales-sales-report','sales-pre-orders-list','sales-pre-order-entry','sales-other-outlet-sales','sales-sales-delivery','sales-sales-exchanges'])
-                    <li class="nav-item {{ (Request::segment(1) == 'sales'|| Request::segment(1) == 'others-outlet-sales'||Request::segment(1) == 'sales-deliveries'||Request::segment(1) == 'sales-exchanges' ||Request::segment(1) == 'sale-reports'||Request::segment(1) == 'pre-orders' )?'menu-open':''}}">
+                @canany(['sales-sales','sales-sales-report','sales-pre-orders-list','sales-pre-order-entry','sales-other-outlet-sales','sales-sales-delivery','sales-sales-exchanges',])
+                    <li class="nav-item {{ (Request::segment(1) == 'sales'|| Request::segment(1) == 'others-outlet-sales'||Request::segment(1) == 'sales-deliveries'||Request::segment(1) == 'sales-exchanges' ||Request::segment(1) == 'sale-reports'||Request::segment(1) == 'pre-orders'||Request::segment(1) == 'sales-returns' )?'menu-open':''}}">
                         <a href="#"
-                           class="nav-link {{ (Request::segment(1) == 'sales'|| Request::segment(1) == 'others-outlet-sales'||Request::segment(1) == 'sales-deliveries'||Request::segment(1) == 'sales-exchanges' ||Request::segment(1) == 'sale-reports'||Request::segment(1) == 'pre-orders')?' active':''}}">
+                           class="nav-link {{ (Request::segment(1) == 'sales'|| Request::segment(1) == 'others-outlet-sales'||Request::segment(1) == 'sales-deliveries'||Request::segment(1) == 'sales-exchanges' ||Request::segment(1) == 'sale-reports'||Request::segment(1) == 'pre-orders'||Request::segment(1) == 'sales-returns')?' active':''}}">
                             <i class="nav-icon fas fa-shopping-cart"></i>
                             <p>
                                 Sales Module
@@ -541,9 +541,9 @@
                                 </li>
                             @endcanany
                             @canany(['sales-sales','sales-other-outlet-sales','sales-sales-delivery','sales-sales-exchanges'])
-                                <li class="nav-item {{ (Request::segment(1) == 'sales' || Request::segment(1) == 'others-outlet-sales'||Request::segment(1) == 'sales-exchanges'||Request::segment(1) == 'sales-deliveries')?'menu-open':''}}">
+                                <li class="nav-item {{ (Request::segment(1) == 'sales' || Request::segment(1) == 'others-outlet-sales'||Request::segment(1) == 'sales-exchanges'||Request::segment(1) == 'sales-deliveries'||Request::segment(1) == 'sales-returns')?'menu-open':''}}">
                                     <a href="#"
-                                       class="nav-link {{ (Request::segment(1) == 'sales' || Request::segment(1) == 'others-outlet-sales'||Request::segment(1) == 'sales-exchanges'||Request::segment(1) == 'sales-deliveries')?' active':''}}">
+                                       class="nav-link {{ (Request::segment(1) == 'sales' || Request::segment(1) == 'others-outlet-sales'||Request::segment(1) == 'sales-exchanges'||Request::segment(1) == 'sales-deliveries'||Request::segment(1) == 'sales-returns')?' active':''}}">
                                         <i class="nav-icon fa fa-folder-open"></i>
                                         <p>
                                             Sales Entry
