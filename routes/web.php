@@ -35,8 +35,8 @@ Route::get('/', function () {
 //    return view('welcome');
 });
 //register start
-Route::resource('registers', \App\Http\Controllers\RegisterController::class); 
-//register end 
+Route::resource('registers', \App\Http\Controllers\RegisterController::class);
+//register end
 
 
 
@@ -54,7 +54,7 @@ Route::middleware('auth')->group(function () {
 
     //lock Screen Start
 
-    
+
     Route::resource('chart-of-accounts', ChartOfAccountController::class);
     Route::resource('stores', \App\Http\Controllers\StoreController::class);
     Route::resource('chart-of-inventories', ChartOfInventoryController::class);
@@ -261,7 +261,9 @@ Route::middleware('auth')->group(function () {
     /*=========== Raw Material Inventory Adjustment Starts ===========*/
     Route::resource('rm-inventory-adjustments', \App\Http\Controllers\RMInventoryAdjustmentController::class);
     /*=========== Raw Material Inventory Adjustment Ends ===========*/
-
+    /*=========== Finish Goods wastage Report Api Starts ===========*/
+    Route::resource('finish-goods-wastage-report', \App\Http\Controllers\Api\Web\FGWastegeReportController::class);
+    /*=========== Finish Goods wastage Report Api Ends ===========*/
     /*=========== RM Inventory Transfer Starts ===========*/
     Route::resource('rm-inventory-transfers', \App\Http\Controllers\RMInventoryTransferController::class);
     Route::get('rm-inventory-transfers-pdf/{id}', [App\Http\Controllers\RMInventoryTransferController::class, 'pdfDownload'])->name('rm-inventory-transfers.pdf');
