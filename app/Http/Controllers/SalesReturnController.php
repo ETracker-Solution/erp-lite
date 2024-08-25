@@ -101,7 +101,7 @@ class SalesReturnController extends Controller
         if (auth()->user()->is_super) {
             $stores = Store::where(['doc_type' => 'outlet', 'type' => 'FG'])->get();
         }
-        if (!auth()->user()->is_super && \auth()->user()->user_of == 'outlet') {
+        if (!auth()->user()->is_super && \auth()->user()->employee->user_of == 'outlet') {
             $stores = Store::where(['doc_type' => 'outlet', 'doc_id' => \auth()->user()->employee->outlet_id, 'type' => 'FG'])->get();
         }
         $data = [
