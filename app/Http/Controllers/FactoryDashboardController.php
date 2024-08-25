@@ -172,7 +172,7 @@ class FactoryDashboardController extends Controller
             'monthlyTotalRequisitions' => $monthlyTotalRequisitions,
             'todayTotalRequisitions' => $todayTotalRequisitions,
             'todayTotalDeliveries' => $todayTotalDeliveries,
-            'todayTotalWastages' => $todayTotalWastages,
+            'todayTotalWastages' => round($todayTotalWastages),
             'todayPreOrderDeliveries' => $todayPreOrderDeliveries,
             //2nd Section
             'thisMonthTotalWastages' => $thisMonthTotalWastages,
@@ -188,11 +188,11 @@ class FactoryDashboardController extends Controller
             'monthlyWastages' => $monthlyWastages,
             'outletWiseWastage' => $outletWiseWastage,
             'stock' => [
-                'total' => $totalStock,
+                'total' => round($totalStock),
                 'productWise' => $productWiseStock
             ],
             'fgStock' => [
-                'total' => $fgTotalStock,
+                'total' => round($fgTotalStock),
                 'productWise' => $fgProductWiseStock
             ],
 

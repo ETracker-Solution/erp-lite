@@ -211,8 +211,8 @@ class AdminDashboardController extends Controller
             'products' => $products,
             'wastageAmount' => round($wastage_amount),
             'lastMonthExpense' => $lastMonthExpense,
-            'expensePercentage' => round($expensePercentage, 2),
-            'currentMonthExpense' => $currentMonthExpense,
+            'expensePercentage' => round($expensePercentage),
+            'currentMonthExpense' => round($currentMonthExpense),
             'expenseMessage' => $expenseMessage,
             'lastMonthSales' => $parts,
             'todayRequisitions' => $todayRequisitions,
@@ -223,7 +223,7 @@ class AdminDashboardController extends Controller
                 'outletWiseDiscount' => $outletWiseDiscount
             ],
             'stock' => [
-                'total' => $totalStock,
+                'total' => round($totalStock),
                 'productWise' => $productWiseStock
             ],
             'expense' => [

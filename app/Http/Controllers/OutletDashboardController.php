@@ -8,6 +8,7 @@ use App\Models\Customer;
 use App\Models\Expense;
 use App\Models\InventoryAdjustment;
 use App\Models\InventoryTransaction;
+use App\Models\OthersOutletSale;
 use App\Models\Outlet;
 use App\Models\Product;
 use App\Models\RequisitionDelivery;
@@ -50,6 +51,8 @@ class OutletDashboardController extends Controller
         $requisition_deliveries_count = RequisitionDelivery::whereHas('requisition', function ($query) {
             $query->where(['outlet_id' => \auth()->user()->employee->outlet_id]);
         })->where(['type' => 'FG','status' => 'completed'])->count();
+
+        $otherOutletSales = OthersOutletSale::where(['status' => 'delivered','outlet_id' => \auth()->user()->employee->outlet_id])->count();
          
         $products = ChartOfInventory::where(['type' => 'item', 'rootAccountType' => 'FG','status'=>'active'])->count();
 
@@ -228,7 +231,7 @@ class OutletDashboardController extends Controller
             'outlets' => $outlets,
             'customers' => $customers,
             'products' => $products,
-            'wastageAmount' => $wastage_amount,
+            'wastageAmount' => round($wastage_amount),
             'latestFiveSales' => $latestFiveSales,
             'lastMonthExpense' => $lastMonthExpense,
             'expensePercentage' => $expensePercentage,
@@ -242,7 +245,7 @@ class OutletDashboardController extends Controller
                 'outletWiseDiscount' => $outletWiseDiscount
             ],
             'stock' => [
-                'total' => $totalStock,
+                'total' => round($totalStock),
                 'productWise' => $productWiseStock
             ],
             'expense' => [
@@ -264,6 +267,7 @@ class OutletDashboardController extends Controller
             'slowSellingProducts' => $slowSellingProducts,
             'salesComparision' => $salesCompare,
             'salesWastageCompare' => $salesWastageCompare,
+            'otherOutletSales' => $otherOutletSales
         ];
 //        return $data;
         return view('dashboard.outlet', $data);
