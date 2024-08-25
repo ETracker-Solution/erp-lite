@@ -514,7 +514,7 @@
                                        class="nav-link {{ (Request::segment(1) == 'sale-reports'||Request::segment(1) == 'pre-orders')?' active':''}}">
                                         <i class="nav-icon fa fa-folder-open"></i>
                                         <p>
-                                            Pre Order Entry
+                                            Pre Order
                                             <i class="right fas fa-angle-left"></i>
                                         </p>
                                     </a>

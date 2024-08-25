@@ -69,22 +69,22 @@ $links = [
                     </div>
 
                 </div>
-                <form action="{{ route('admin.company.change.status',$company->id) }}" method="POST">
+                @if ($company->status == 'pending')
+                <form action="{{ route('admin.company.change.status',$company->id) }}" method="POST" title="Accept">
                     @csrf
                     @method('PUT')
-                    {{-- @if ($company->status == 'pending')
-                        <a title="Active"><button class="btn btn-success float-right">Approved</button></a>
-                        @else
-                        <a title="Pending"><button class="btn btn-danger float-right">Pending</button></i></a>
-                    @endif --}}
-                    @if ($company->status == 'pending')
-                        <a title="Active"><button class="btn btn-success float-right">Active</button></a>
-                        @elseif($company->status == 'active')
-                        <a title="Pending"><button class="btn btn-danger float-right">Inactive</button></i></a>
-                        @elseif($company->status == 'inactive')
-                        <a title="Active"><button class="btn btn-success float-right">Active</button></i></a>
-                    @endif
+                    <input type="hidden" name="status" value="approved">
+                    <a  onclick="void(0)" class="btn btn-success float-right ml-1 updateStatus">Approved</a>
                 </form>
+                @endif
+                @if ($company->status == 'pending')
+                    <form action="{{ route('admin.company.change.status',$company->id) }}" method="POST" title="Reject">
+                        @csrf
+                        @method('PUT')
+                        <input type="hidden" name="status" value="rejected">
+                        <a  onclick="void(0)" class="btn btn-danger float-right updateStatus">Rejected</a>
+                    </form>
+                @endif
             </div>
             <!-- /.row -->
 
@@ -94,5 +94,9 @@ $links = [
 @endsection
 
 @push('script')
-
+<script>
+    $(window).on('load', function() {
+        confirmAlert('.updateStatus', "Update Status", 'Yes, Confirm')
+    });
+</script>
 @endpush

@@ -65,14 +65,14 @@ class SalesDeliveryController extends Controller
      */
     public function create()
     {
-        return $this->print();
+        // return $this->print();
         $user_store = null;
         if (!auth()->user()->is_super) {
             $user_store = Store::where(['doc_type' => 'outlet', 'doc_id' => \auth()->user()->employee->outlet_id])->first();
             $outlet_id = $user_store->doc_id;
         }
         if (\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->outlet_id) {
-            $sales = OthersOutletSale::with('deliveryPoint', 'outlet')->where(['delivery_point_id' => \auth()->user()->employee->outlet_id])->where('status', '!=', 'delivered')->latest();
+            $sales = OthersOutletSale::with('deliveryPoint', 'outlet')->where(['delivery_point_id' => \auth()->user()->employee->outlet_id])->where('status', '!=', 'delivered')->latest()->get();
         } elseif (\auth()->user()->is_super) {
             $sales = OthersOutletSale::with('deliveryPoint', 'outlet')->where('status', '!=', 'delivered')->latest()->get();
         }
