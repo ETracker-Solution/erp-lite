@@ -202,6 +202,26 @@
                                     </ul>
                                 </li>
                             @endcanany
+{{--                            <li class="nav-item {{ (Request::segment(1) == 'purchases'||Request::segment(1) == 'purchase-returns')?'menu-open':''}}">--}}
+{{--                                <a href="#" class="nav-link {{ (Request::segment(1) == 'purchases')?' active':''}}">--}}
+{{--                                    <i class="nav-icon fa fa-folder-open"></i>--}}
+{{--                                    <p>--}}
+{{--                                        Report--}}
+{{--                                        <i class="right fas fa-angle-left"></i>--}}
+{{--                                    </p>--}}
+{{--                                </a>--}}
+{{--                                <ul class="nav nav-treeview third-child">--}}
+
+{{--                                    <li class="nav-item">--}}
+{{--                                        <a href="{{route('purchase-reports.index')}}"--}}
+{{--                                           class="nav-link {{ (Request::segment(1) == 'purchase-reports' )?' active':''}}">--}}
+{{--                                            <i class="far fa-circle nav-icon"></i>--}}
+{{--                                            <p>Purchase Report</p>--}}
+{{--                                        </a>--}}
+{{--                                    </li>--}}
+
+{{--                                </ul>--}}
+{{--                            </li>--}}
                         </ul>
                     </li>
                 @endcanany

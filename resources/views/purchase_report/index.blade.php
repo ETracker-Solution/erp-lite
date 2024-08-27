@@ -1,16 +1,16 @@
 @extends('layouts.app')
 @section('title')
-    Sale Report
+    Purchase Report
 @endsection
 @section('content')
     @php
         $links = [
        'Home'=>route('dashboard'),
-       'Sales Module'=>'',
-       'Sales Report'=>'',
+       'Purchase Module'=>'',
+       'Purchase Report'=>'',
         ]
     @endphp
-    <x-breadcrumb title='Sales Report' :links="$links"/>
+    <x-breadcrumb title='Purchase Report' :links="$links"/>
 
     <section class="content">
         <div class="container-fluid">
@@ -101,7 +101,7 @@
                 <div class="col-6">
                     <div class="card card-info">
                         <div class="card-header">
-                            <div class="card-title">Sales Report</div>
+                            <div class="card-title">Purchase Report</div>
                         </div>
                         <div class="card-body">
                             <div class="row">

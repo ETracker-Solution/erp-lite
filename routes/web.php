@@ -39,7 +39,6 @@ Route::resource('registers', \App\Http\Controllers\RegisterController::class);
 //register end
 
 
-
 Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
@@ -336,6 +335,10 @@ Route::middleware('auth')->group(function () {
     Route::get('get-all-fg-stores', [\App\Http\Controllers\Api\Web\SaleReportController::class, 'getAllFGStores']);
     Route::resource('sale-reports', \App\Http\Controllers\Api\Web\SaleReportController::class);
     /*=========== Sale Report Api Ends ===========*/
+
+    /*=========== Purchase Report Api Starts ===========*/
+    Route::resource('purchase-reports', \App\Http\Controllers\Api\Web\PurchaseReportController::class);
+    /*=========== Purchase Report Api Ends ===========*/
 
 
     Route::get('fetch-data-by-sale-id-for-sale/{id}', [\App\Http\Controllers\SalesDeliveryController::class, 'getItemData']);

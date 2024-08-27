@@ -22,12 +22,12 @@ class PurchaseReportController extends Controller
     public function create()
     {
 
-        $report_header = 'FG Wastage Report';
+        $report_header = 'Purchase Report';
         $page_title = false;
 
         $startDate = Carbon::parse(\request()->from_date)->format('Y-m-d') ?? Carbon::now()->format('Y-m-d');
         $endDate = Carbon::parse(\request()->to_date)->format('Y-m-d') ?? Carbon::now()->format('Y-m-d');
-        $type = 'FG';
+        $type = 'RM';
 
         $report_type = \request()->report_type;
         $store_id = \request()->store_id;
@@ -43,18 +43,18 @@ class PurchaseReportController extends Controller
             return [
                 'supplier_name' => $purchase->supplier->name,
                 'purchase_id' => $purchase->id,
-                'purchase_date' => $purchase->purchase_date,
+                'purchase_date' => $purchase->date,
                 'items' => $purchase->items->map(function ($item) {
                     return [
-                        'product_id' => $item->product->id,
-                        'product_name' => $item->product->name,
+                        'product_id' => $item->coi->id,
+                        'product_name' => $item->coi->name,
                         'quantity' => $item->quantity,
-                        'total_value' => $item->quantity * $item->price,
+                        'total_value' => $item->quantity * $item->rate,
                     ];
                 }),
                 'total_quantity' => $purchase->items->sum('quantity'),
                 'total_value' => $purchase->items->sum(function ($item) {
-                    return $item->quantity * $item->price;
+                    return $item->quantity * $item->rate;
                 }),
             ];
         });
