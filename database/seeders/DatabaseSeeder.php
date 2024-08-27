@@ -39,6 +39,7 @@ class DatabaseSeeder extends Seeder
         $this->call(MemberTypeSeeder::class);
         $this->call(MembershipSeeder::class);
         $this->call(MemberPointSeeder::class);
+        $this->call(AdminSeeder::class);
 
         $user = \App\Models\User::create([
             'name' => 'Super Admin',
