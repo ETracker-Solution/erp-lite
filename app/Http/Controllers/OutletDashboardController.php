@@ -34,8 +34,6 @@ class OutletDashboardController extends Controller
 
     public function outletDashboard()
     {
-
-
         $total_sales = Sale::sum('grand_total');
         $outlets = Outlet::count();
         $customers = Customer::where('type', 'regular')->count();
@@ -185,6 +183,7 @@ class OutletDashboardController extends Controller
         $customersWithPoint = Customer::whereHas('membership')->with('membership', 'sales')->get();
         $latestFiveSales = Sale::where('outlet_id', $outlet_id)->take(5)->latest()->get();
         $todaySale = Sale::where('outlet_id', $outlet_id)->whereDate('created_at', Carbon::now()->format('Y-m-d'))->sum('grand_total');
+        $todayInvoice = Sale::where('outlet_id', $outlet_id)->whereDate('created_at', Carbon::now()->format('Y-m-d'))->count();
         $todayExpense = 0;
 
         $bestProducts = [];
@@ -262,6 +261,7 @@ class OutletDashboardController extends Controller
             ],
             'customersWithPoint' => $customersWithPoint,
             'todaySale' => $todaySale,
+            'todayInvoice' => $todayInvoice,
             'todayExpense' => $todayExpense,
             'bestSellingProducts' => $bestProducts,
             'slowSellingProducts' => $slowSellingProducts,

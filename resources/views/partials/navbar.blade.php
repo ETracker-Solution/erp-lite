@@ -11,8 +11,14 @@
         <li class="nav-item d-none d-sm-inline-block">
             <a href="/pos" class="nav-link">POS</a>
         </li>
+        <li class="nav-item d-none d-sm-inline-block">
+            <a href="{{route('pre-orders.index')}}" class="nav-link">Pre Order</a>
+        </li>
         @endif
         @if(\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->factory_id)
+            <li class="nav-item d-none d-sm-inline-block">
+                <a href="{{route('pre-orders.index')}}" class="nav-link">Pre Order</a>
+            </li>
             <li class="nav-item d-none d-sm-inline-block">
                 <a href="{{route('today.requisitions')}}" class="nav-link">Requisitions</a>
             </li>

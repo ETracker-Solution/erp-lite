@@ -73,7 +73,7 @@
                                                    colorClass="bg-light-primary"/>
                             </div>
                             <div class="col-xl-3 col-sm-6 col-12 mb-2 mb-xl-0">
-                                <x-card-statistics title="Customers" value="{{ $customers }}" icon="user"
+                                <x-card-statistics title="Today's Invoice" value="{{ $todayInvoice }}" icon="user"
                                                    colorClass="bg-light-info"/>
                             </div>
                             <div class="col-xl-3 col-sm-6 col-12 mb-2 mb-sm-0">
@@ -1116,5 +1116,11 @@
         };
         goalOverviewChart = new ApexCharts($goalOverviewChart, goalOverviewChartOptions);
         goalOverviewChart.render();
+    </script>
+
+    <script>
+        setInterval(function() {
+            location.reload(); // This will reload the entire page
+        }, 5000); // 5000 milliseconds = 5 seconds
     </script>
 @endpush
