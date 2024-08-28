@@ -231,35 +231,36 @@ class PreOrderController extends Controller
                     'status' => $request->status,
                     'outlet_receive_store_id' => $request->outlet_store
                 ];
+                $products = $req->items;
+
+                foreach ($products as $product){
+                    InventoryTransaction::query()->create([
+                        'store_id' => $req->factory_delivery_store_id,
+                        'doc_type' => 'PO',
+                        'doc_id' => $req->id,
+                        'quantity' => $product->quantity,
+                        'rate' => $product->unit_price,
+                        'amount' => $product->quantity * $product->unit_price,
+                        'date' => date('y-m-d'),
+                        'type' => -1,
+                        'coi_id' => $product->coi_id,
+                    ]);
+                    InventoryTransaction::query()->create([
+                        'store_id' => $request->outlet_store,
+                        'doc_type' => 'PO',
+                        'doc_id' => $req->id,
+                        'quantity' => $product->quantity,
+                        'rate' => $product->unit_price,
+                        'amount' => $product->quantity * $product->unit_price,
+                        'date' => date('y-m-d'),
+                        'type' => 1,
+                        'coi_id' => $product->coi_id,
+                    ]);
+                }
             }
             $req->update($updatableData);
 
-            $products = $req->items;
 
-            foreach ($products as $product){
-                InventoryTransaction::query()->create([
-                    'store_id' => $req->factory_delivery_store_id,
-                    'doc_type' => 'PO',
-                    'doc_id' => $req->id,
-                    'quantity' => $product->quantity,
-                    'rate' => $product->unit_price,
-                    'amount' => $product->quantity * $product->unit_price,
-                    'date' => date('y-m-d'),
-                    'type' => -1,
-                    'coi_id' => $product->coi_id,
-                ]);
-                InventoryTransaction::query()->create([
-                    'store_id' => $request->outlet_store,
-                    'doc_type' => 'PO',
-                    'doc_id' => $req->id,
-                    'quantity' => $product->quantity,
-                    'rate' => $product->unit_price,
-                    'amount' => $product->quantity * $product->unit_price,
-                    'date' => date('y-m-d'),
-                    'type' => 1,
-                    'coi_id' => $product->coi_id,
-                ]);
-            }
             DB::commit();
         }catch (\Exception $exception){
             DB::rollBack();

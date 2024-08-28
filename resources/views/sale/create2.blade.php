@@ -809,7 +809,7 @@
                     },
                     valid: function (index) {
                         const vm=this
-                        if (index.quantity > index.stock && index.is_readonly && (!vm.delivery_point_id || vm.user_outlet_id == vm.delivery_point_id)) {
+                        if (index.quantity > index.stock && index.is_readonly && (!vm.delivery_point_id || vm.user_outlet_id == vm.delivery_point_id) && vm.sales_type == 'sales') {
                             index.quantity = index.stock;
                         }
                         if (index.quantity <= 0) {

@@ -191,7 +191,7 @@ class SaleController extends Controller
                 $sale_item['rate'] = averageFGRate($row['product_id']);
                 $sale_item['amount'] = $sale_item['rate'] * $row['quantity'];
                 $sale_item['store_id'] = $store->id;
-                if ($row['is_readonly'] == 'true') {
+                if ($row['is_readonly'] == 'true' && $request->sales_type != 'pre_order') {
                     addInventoryTransaction(-1, 'POS', $sale_item);
                 }
                 $avgProductionPrice += $sale_item['amount'];
@@ -389,14 +389,17 @@ class SaleController extends Controller
             $product->coi_id = $product->product_id;
             $preOrder->items()->create($product->toArray());
         }
-
-        foreach ($images as $image) {
-            $filename = date('Ymdmhs') . '.' . $image->getClientOriginalExtension();
-            $image->move(public_path('/upload'), $filename);
-            $preOrder->attachments()->create([
-                'image' => $filename
-            ]);
+        if (isset($images))
+        {
+            foreach ($images as $image) {
+                $filename = date('Ymdmhs') . '.' . $image->getClientOriginalExtension();
+                $image->move(public_path('/upload'), $filename);
+                $preOrder->attachments()->create([
+                    'image' => $filename
+                ]);
+            }
         }
+
 
     }
 
