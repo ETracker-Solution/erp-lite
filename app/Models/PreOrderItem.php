@@ -20,4 +20,8 @@ class PreOrderItem extends Model
     {
         return $this->belongsTo(ChartOfInventory::class, 'coi_id');
     }
+    public function coi()
+    {
+        return $this->belongsTo(ChartOfInventory::class, 'coi_id');
+    }
 }

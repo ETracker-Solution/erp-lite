@@ -68,17 +68,20 @@
                             </div>
                             
                             <hr>
+                            <b>Order No :</b> {{ $model->cake_message }}, <br>
+                            <b>Customer :</b> {{ $model->remark }}, <br>
+                            <b>Outlet :</b> {{ $model->flavour }}, <br>
                             <b>Size :</b> {{ $model->size }}, <br>
                             <b>Flavour :</b> {{ $model->flavour }}, <br>
                             <b>Cake Message :</b> {{ $model->cake_message }}, <br>
-                            <b>Description :</b> {{ $model->remark }}.
+                            <b>Description :</b> {{ $model->remark }}. <br>
+                            
                             <table border="1"cellspacing="0" width="100%" style="text-align: center; margin-top:20px;">
                                 <thead style="background:#cdced2;">
                                     <tr style="background-color: #cdced2;">
                                         <th>#</th>
-                                        <th>Order No</th>
-                                        <th>Customer</th>
-                                        <th>Outlet</th>
+                                        <th>Group</th>
+                                        <th>Item</th>
                                         <th>Rate</th>
                                         <th>Qty</th>
                                         <th>Discount</th>
@@ -92,9 +95,8 @@
                                     @foreach ($model->items as $item)
                                     <tr>
                                         <td>{{ $loop->iteration }}</td>
-                                        <td>{{ $model->order_number }}</td>
-                                        <td>{{ $model->customer->name }}</td>
-                                        <td>{{ $model->outlet->name }}</td>
+                                        <td>{{ $item->coi->parent->name }}</td>
+                                        <td>{{ $item->coi->name }}</td>
                                         <td>{{ $item->unit_price }}</td>
                                         <td>{{ $item->quantity?? '' }} {{ $item->product->unit->name?? '' }}</td>
                                         <td>{{ $item->discount }}</td>
