@@ -258,7 +258,7 @@ class SaleController extends Controller
             }
 
             if ($request->sales_type == 'pre_order') {
-                $this->preOrderfromSales($sale, $deliveryDate, $request->description, $request->attachments, $request->delivery_point_id);
+                $this->preOrderfromSales($sale, $deliveryDate, $request->description,$request->size,$request->flavour,$request->cake_message, $request->attachments, $request->delivery_point_id);
             }
             if (($receive_amount < $sale->grand_total) || $outlet_id !== $request->delivery_point_id) {
                 $this->othersOutletDelivery($sale, $request->delivery_point_id);
@@ -365,7 +365,7 @@ class SaleController extends Controller
         return $store;
     }
 
-    protected function preOrderfromSales($sale, $delivery_date, $description, $images, $delivery_point_id)
+    protected function preOrderfromSales($sale, $delivery_date, $description,$size,$flavour,$cake_message, $images, $delivery_point_id)
     {
         $data = [
             'customer_id' => $sale->customer_id,
@@ -378,6 +378,9 @@ class SaleController extends Controller
             'grand_total' => $sale->grand_total,
             'advance_amount' => $sale->receive_amount,
             'remark' => $description,
+            'flavour' => $flavour,
+            'cake_message' => $cake_message,
+            'size' => $size,
             'created_by' => auth()->user()->id,
             'order_number' => $sale->invoice_number,
             'delivery_point_id' => $delivery_point_id,

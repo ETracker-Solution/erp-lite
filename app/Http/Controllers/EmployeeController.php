@@ -53,6 +53,7 @@ class EmployeeController extends Controller
      */
     public function store(StoreEmployeeRequest $request)
     {
+        // dd($request->all());
         $validated = $request->validated();
 
         DB::beginTransaction();
