@@ -426,6 +426,14 @@
                                                         <div class="col-5">
                                                             <table class="table">
                                                                 <tr>
+                                                                    <th>Payable Amount</th>
+                                                                    <td>
+                                                                        <input type="text" name="receive_amount"
+                                                                               class="form-control input-sm form-control-sm"
+                                                                               v-model="pay_left" disabled>
+                                                                    </td>
+                                                                </tr>
+                                                                <tr>
                                                                     <th>Receive Amount</th>
                                                                     <td>
                                                                         <input type="text" name="receive_amount"
@@ -433,6 +441,7 @@
                                                                                v-model="total_paying" disabled>
                                                                     </td>
                                                                 </tr>
+                                                                
                                                                 <tr>
                                                                     <th>Change Amount</th>
                                                                     <td>
