@@ -136,25 +136,26 @@ class ApiController extends Controller
 
     public function fetch_products_by_cat_id($id)
     {
-        $data = array();
+
         $products = ChartOfInventory::where(['status' => 'active', 'parent_id' => $id])->get();
         // dd($products);
 
 
         foreach ($products as $product) {
 
-            $product['stock'] = 0;
-            $product['quantity'] = 0;
-            $product['price'] = 0;
-            $product['selling_price'] = 0;
+            $product['group'] = $product->parent->name;
+            $product['uom'] = $product->unit->name;
+            $product['stock'] = '';
+            $product['quantity'] = '';
+            $product['price'] = '';
+            $product['rate'] = '';
+            $product['selling_price'] = '';
         }
         //dd($products);
-        $data = [
+        return [
 
             'products' => $products,
         ];
-
-        return $data;
     }
 
     public function fetchSuppliersByGroupId($id)
