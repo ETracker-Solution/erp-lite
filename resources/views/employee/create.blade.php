@@ -233,6 +233,10 @@ $links = [
                                     'key'=>'outlet',
                                     'value'=>'Outlet'
                                     ] ,
+                                    (object) [
+                                    'key'=>'ho',
+                                    'value'=>'Admin'
+                                    ] ,
                                     ];
                                     @endphp
                                     <x-forms.select label="User Of" inputName="user_of" placeholder="Select One"

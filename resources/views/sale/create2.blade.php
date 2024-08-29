@@ -122,6 +122,27 @@
                                                            class="form-control form-control-sm">
                                                 </div>
                                             </div>
+                                            <div class="col-4" v-if="sales_type=='pre_order'">
+                                                <div class="form-group">
+                                                    <label for="" class="small">Size</label>
+                                                    <input type="text" name="size" id=""
+                                                           class="form-control form-control-sm">
+                                                </div>
+                                            </div>
+                                            <div class="col-4" v-if="sales_type=='pre_order'">
+                                                <div class="form-group">
+                                                    <label for="" class="small">Flavour</label>
+                                                    <input type="text" name="flavour" id=""
+                                                           class="form-control form-control-sm">
+                                                </div>
+                                            </div>
+                                            <div class="col-4" v-if="sales_type=='pre_order'">
+                                                <div class="form-group">
+                                                    <label for="" class="small">Cake Message</label>
+                                                    <input type="text" name="cake_message" id=""
+                                                           class="form-control form-control-sm">
+                                                </div>
+                                            </div>
                                         </div>
                                         <div class="row">
                                             <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
@@ -544,7 +565,7 @@
                                 </div>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                    <button type="button" class="btn btn-primary" :disabled="returnNumber.length < 1"
+                                    <button type="button" class="btn btn-primary" data-dismiss="modal" :disabled="returnNumber.length < 1"
                                             v-on:click="getReturnNumberValue">Apply
                                     </button>
                                 </div>
@@ -914,6 +935,7 @@
                         if (this.total_discount_type === 'percentage') {
                             vm.total_discount_amount = (vm.total_bill * vm.total_discount_value) / 100
                         }
+                        vm.total_discount_value = 0;
                     },
                     setDiscountType(discountType) {
                         this.total_discount_type = discountType
@@ -993,12 +1015,14 @@
                                         method: 'exchange'
                                     })
                                 }
+                                
 
                             }).catch(function (error) {
                             toastr.error(error, {
                                 closeButton: true,
                                 progressBar: true,
                             });
+                            vm.returnNumber = "";
                             return false;
                         });
                     },
