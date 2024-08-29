@@ -167,7 +167,7 @@
                                                                 <input type="number" v-model="row.quantity"
                                                                        :name="'products['+index+'][quantity]'"
                                                                        class="form-control input-sm"
-                                                                       @change="valid(row)" required>
+                                                                       @change="valid(row)" readonly>
                                                             </td>
                                                             <td style="vertical-align: middle">
                                                                 <button type="button" class="btn btn-danger"
@@ -330,7 +330,7 @@
                         }
                         if (index.quantity <= 0) {
                             console.log('3');
-                            index.quantity = '';
+                            index.quantity = index.quantity;
                         }
                     }
                 },

@@ -68,7 +68,10 @@
                             </div>
                             
                             <hr>
-                            Description : {{ $model->remark }}
+                            <b>Size :</b> {{ $model->size }}, <br>
+                            <b>Flavour :</b> {{ $model->flavour }}, <br>
+                            <b>Cake Message :</b> {{ $model->cake_message }}, <br>
+                            <b>Description :</b> {{ $model->remark }}.
                             <table border="1"cellspacing="0" width="100%" style="text-align: center; margin-top:20px;">
                                 <thead style="background:#cdced2;">
                                     <tr style="background-color: #cdced2;">

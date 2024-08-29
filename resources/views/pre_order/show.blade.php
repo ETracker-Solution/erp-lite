@@ -37,12 +37,15 @@
                         <!-- info row -->
                         <!-- /.row -->
                         <div class="row invoice-info">
-                            <div class="col-sm-4 invoice-col pl-4 pt-4">
-                                <b>Description :</b> {{ $model->remark }}
+                            <div class="col-sm-4 invoice-col pl-4" style="padding: 10px">
+                                <b>Size :</b> {{ $model->remark }}, <br>
+                                <b>Flavour :</b> {{ $model->flavour }}, <br>
+                                <b>Cake Message :</b> {{ $model->cake_message }}, <br>
+                                <b>Description :</b> {{ $model->remark }}.
                             </div>
                             <!-- /.col -->
                             <div class="col-sm-4 invoice-col">
-
+                                
                             </div>
                             <!-- /.col -->
                             <!-- /.col -->
