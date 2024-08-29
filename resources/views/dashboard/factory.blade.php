@@ -848,6 +848,6 @@
     <script>
         setInterval(function() {
             location.reload(); // This will reload the entire page
-        }, 5000); // 5000 milliseconds = 5 seconds
+        }, 60000); // 60000 milliseconds = 60 seconds
     </script>
 @endpush
