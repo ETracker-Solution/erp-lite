@@ -428,8 +428,7 @@
                                                                 <tr>
                                                                     <th>Payable Amount</th>
                                                                     <td>
-                                                                        <input type="text" name="receive_amount"
-                                                                               class="form-control input-sm form-control-sm"
+                                                                        <input type="text" class="form-control input-sm form-control-sm"
                                                                                v-model="pay_left" disabled>
                                                                     </td>
                                                                 </tr>
