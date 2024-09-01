@@ -12,6 +12,7 @@ use App\Models\PreOrder;
 use App\Models\Product;
 use App\Models\Requisition;
 use App\Models\RequisitionDelivery;
+use App\Models\Sale;
 use App\Models\Store;
 use App\Models\User;
 use App\Repository\Interfaces\AdminInterface;
@@ -70,6 +71,9 @@ class FactoryDashboardController extends Controller
         $todayTotalDeliveries = RequisitionDelivery::where(['type' => 'FG', 'date' => $today])->count();
         $todayTotalWastages = InventoryAdjustment::whereIn('store_id', $store_ids)->where(['date' => $today,'transaction_type'=>'decrease'])->sum('subtotal');
         $todayPreOrderDeliveries = PreOrder::where(['status' => 'pending', 'delivery_date' => $today])->count();
+
+        // $todayInvoice = Sale::where('outlet_id', $factory_id)->whereDate('created_at', $today)->count();
+
 
         //2nd Section
         $thisMonthTotalWastages = InventoryAdjustment::whereIn('store_id', $store_ids)->whereMonth('created_at', Carbon::now()->month)->where('transaction_type', 'decrease')->sum('subtotal');

@@ -110,12 +110,19 @@
                                             </div>
                                             <div class="col-3" v-if="sales_type=='pre_order'">
                                                 <div class="form-group">
+                                                    <label for="" class="small">Delivery Time</label>
+                                                    <input type="time" name="delivery_time" id=""
+                                                           class="form-control form-control-sm">
+                                                </div>
+                                            </div>
+                                            <div class="col-3" v-if="sales_type=='pre_order'">
+                                                <div class="form-group">
                                                     <label for="" class="small">Attachments</label>
                                                     <input type="file" name="attachments[]" id="" multiple
                                                            class="form-control form-control-sm">
                                                 </div>
                                             </div>
-                                            <div class="col-6" v-if="sales_type=='pre_order'">
+                                            <div class="col-3" v-if="sales_type=='pre_order'">
                                                 <div class="form-group">
                                                     <label for="" class="small">Description</label>
                                                     <input type="text" name="description" id=""

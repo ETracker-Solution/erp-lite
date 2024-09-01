@@ -64,9 +64,15 @@ class SaleController extends Controller
         $user_store = null;
         $outlet_id = null;
         if (!auth()->user()->is_super) {
-            $user_store = Store::where(['doc_type' => 'outlet', 'doc_id' => \auth()->user()->employee->outlet_id])->first();
-            $outlet_id = $user_store->doc_id;
-            $serial_no = generateUniqueUUID($outlet_id, Sale::class, 'invoice_number');
+            if(\auth()->user()->employee->outlet_id){
+                $user_store = Store::where(['doc_type' => 'outlet', 'doc_id' => \auth()->user()->employee->outlet_id])->first();
+                $outlet_id = $user_store->doc_id;
+                $serial_no = generateUniqueUUID($outlet_id, Sale::class, 'invoice_number');
+            }else{
+
+                Toastr::success('You are not allowed to create sales!.', '', ["progressBar" => true]);
+                return redirect()->route('sales.index');
+            }
             // $serial_no = InvoiceNumber::generateInvoiceNumber(\auth()->user()->employee->outlet_id);
         }
         $data = [
@@ -94,12 +100,13 @@ class SaleController extends Controller
             'description' => 'nullable',
         ]);
 
-//         dd( $request->all());
+        // dd( $request->all());
         try {
             DB::beginTransaction();
 
             $selectedDate = Carbon::parse($request->date)->format('Y-m-d');
             $deliveryDate = Carbon::parse($request->delivery_date)->format('Y-m-d');
+            $delivery_time = $request->delivery_time ?? null;
             $customer_id = 1;
             if ($request->customer_number) {
                 $customer = Customer::where('mobile', $request->customer_number)->first();
@@ -258,7 +265,7 @@ class SaleController extends Controller
             }
 
             if ($request->sales_type == 'pre_order') {
-                $this->preOrderfromSales($sale, $deliveryDate, $request->description,$request->size,$request->flavour,$request->cake_message, $request->attachments, $request->delivery_point_id);
+                $this->preOrderfromSales($sale, $deliveryDate, $delivery_time, $request->description,$request->size,$request->flavour,$request->cake_message, $request->attachments, $request->delivery_point_id);
             }
             if (($receive_amount < $sale->grand_total) || $outlet_id !== $request->delivery_point_id) {
                 $this->othersOutletDelivery($sale, $request->delivery_point_id);
@@ -365,13 +372,14 @@ class SaleController extends Controller
         return $store;
     }
 
-    protected function preOrderfromSales($sale, $delivery_date, $description,$size,$flavour,$cake_message, $images, $delivery_point_id)
+    protected function preOrderfromSales($sale, $delivery_date, $delivery_time, $description,$size,$flavour,$cake_message, $images, $delivery_point_id)
     {
         $data = [
             'customer_id' => $sale->customer_id,
             'outlet_id' => $sale->outlet_id,
             'order_date' => $sale->date,
             'delivery_date' => $delivery_date,
+            'delivery_time' => $delivery_time,
             'subtotal' => $sale->subtotal,
             'discount' => $sale->discount,
             'vat' => $sale->vat,

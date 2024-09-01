@@ -38,6 +38,7 @@
                         <!-- /.row -->
                         <div class="row invoice-info">
                             <div class="col-sm-4 invoice-col pl-4" style="padding: 10px">
+                                <b>Delivery Time :</b> {{ \Carbon\Carbon::parse($model->delivery_time)->format('h:i A') }}, <br>
                                 <b>Size :</b> {{ $model->remark }}, <br>
                                 <b>Flavour :</b> {{ $model->flavour }}, <br>
                                 <b>Cake Message :</b> {{ $model->cake_message }}, <br>
@@ -45,9 +46,9 @@
                             </div>
                             <!-- /.col -->
                             <div class="col-sm-4 invoice-col pl-4" style="padding: 10px">
-                                <b>Order No :</b> {{ $model->cake_message }}, <br>
-                                <b>Customer :</b> {{ $model->remark }}, <br>
-                                <b>Outlet :</b> {{ $model->flavour }}, <br>
+                                <b>Order No :</b> {{ $model->order_number }}, <br>
+                                <b>Customer :</b> {{ $model->customer->name }}, <br>
+                                <b>Outlet :</b> {{ $model->outlet->name }}, <br>
                             </div>
                             <!-- /.col -->
                             <!-- /.col -->
