@@ -15,6 +15,7 @@ return new class extends Migration
             $table->string('size')->nullable();
             $table->string('flavour')->nullable();
             $table->string('cake_message')->nullable();
+            $table->time('delivery_time')->nullable();
         });
     }
 
@@ -27,6 +28,7 @@ return new class extends Migration
             $table->dropColumn('size');
             $table->dropColumn('flavour');
             $table->dropColumn('cake_message');
+            $table->dropColumn('delivery_time');
         });
     }
 };
