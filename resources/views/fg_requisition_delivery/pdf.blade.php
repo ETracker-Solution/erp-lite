@@ -60,7 +60,7 @@
                     <div class="panel panel-default invoice" id="invoice">
                         <div class="panel-body">
                             <div class="invoice-ribbon">
-                                @include('common.pdf_header')
+                                {{-- @include('common.pdf_header') --}}
                             </div>
                             <div class="row">
                                 <div class="col-sm-6 top-right">
@@ -116,34 +116,32 @@
                                     @endforeach
                                 </tbody>
                             </table>
-                            <htmlpagefooter name="page-footer">
-                                
-                                <table width="100%">
-                                    <tbody>
-                                        <tr>
-                                            <td style="text-align: left;"><span style="border-top: 1px solid hsl(0, 0%, 2%);">Factroy Supervisor</span> </td>
-                                            <td style="text-align: center;"><span style="border-top: 1px solid hsl(0, 0%, 2%);">Delivery Man</span></td>
-                                            <td style="text-align: right;"><span style="border-top: 1px solid hsl(0, 0%, 2%);">Showroom Incharge</span> </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                                <hr>
-
-                                @php
-                                    $date = new DateTime('now', new DateTimezone('Asia/Dhaka'));
-                                @endphp
-                                <br>
-                                <strong>
-                                    Printing Time:- {{ $date->format('F j, Y, g:i a') }}
-                                </strong>
-                                <br>
-                            </htmlpagefooter>
+                            
 
                         </div>
                     </div>
+                   
                 </div>
+                
             </div>
+            
         </div>
+        <htmlpagefooter name="page-footer">      
+            <span>
+                <span style="border-top: 1px solid hsl(0, 0%, 2%);">Factroy Supervisor</span> &emsp;&emsp;&emsp;&emsp;&emsp; &emsp;&emsp;&emsp;&emsp;&emsp;
+                <span style="border-top: 1px solid hsl(0, 0%, 2%);">Delivery Man</span> &emsp;&emsp;&emsp; &emsp;&emsp; &emsp;&emsp;&emsp;&emsp;&emsp;
+                <span style="border-top: 1px solid hsl(0, 0%, 2%);">Showroom Incharge</span>
+            </span>
+
+            @php
+                $date = new DateTime('now', new DateTimezone('Asia/Dhaka'));
+            @endphp
+            <br>
+            <strong>
+                Printing Time:- {{ $date->format('F j, Y, g:i a') }}
+            </strong>
+            <br>
+        </htmlpagefooter>
     </body>
 
 </html>

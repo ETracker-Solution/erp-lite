@@ -133,6 +133,7 @@ class FGRequisitionDeliveryController extends Controller
         $data = [
             'fgRequisitionDelivery' => RequisitionDelivery::with('toStore', 'fromStore','requisition')->find(decrypt($id)),
         ];
+        // return view('fg_requisition_delivery.pdf', $data);
 
         $pdf = PDF::loadView(
             'fg_requisition_delivery.pdf',
