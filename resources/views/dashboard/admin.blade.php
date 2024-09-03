@@ -49,14 +49,18 @@
                                                    colorClass="bg-light-primary"/>
                             </div>
                             <div class="col-xl-3 col-sm-6 col-12 mb-2 mb-xl-0">
+                                <x-card-statistics title="Today's Invoice" value="{{ $todayInvoice }}" icon="layers"
+                                                   colorClass="bg-light-primary"/>
+                            </div>
+                            <div class="col-xl-2 col-sm-6 col-12 mb-2 mb-xl-0">
                                 <x-card-statistics title="Customers" value="{{ $customers }}" icon="fa fa-user"
                                                    colorClass="bg-light-info"/>
                             </div>
-                            <div class="col-xl-3 col-sm-6 col-12 mb-2 mb-sm-0">
+                            <div class="col-xl-2 col-sm-6 col-12 mb-2 mb-sm-0">
                                 <x-card-statistics title="Products" value="{{ $products }}" icon="shopping-cart"
                                                    colorClass="bg-light-danger"/>
                             </div>
-                            <div class="col-xl-3 col-sm-6 col-12">
+                            <div class="col-xl-2 col-sm-6 col-12">
                                 <x-card-statistics title="Wastage" value="{{ $wastageAmount }}" icon="trash-2"
                                                    colorClass="bg-light-success"/>
                             </div>

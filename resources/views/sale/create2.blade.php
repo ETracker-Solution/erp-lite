@@ -74,7 +74,7 @@
                                                     </select>
                                                 </div>
                                             </div>
-                                            <div class="col-3">
+                                            <div class="col-2">
                                                 <div class="form-group">
                                                     <label for="" class="small">Delivery Point</label>
                                                     <select name="delivery_point_id" id=""
@@ -88,7 +88,7 @@
                                                     </select>
                                                 </div>
                                             </div>
-                                            <div class="col-3">
+                                            <div class="col-2">
                                                 <div class="form-group">
                                                     <label for="date" class="small">Delivery Date</label>
                                                     <vuejs-datepicker v-model="delivery_date" name="delivery_date"
@@ -96,6 +96,19 @@
                                                                       format="yyyy-MM-dd"></vuejs-datepicker>
                                                 </div>
                                             </div>
+                                            <div class="col-2">
+                                                <div class="form-group">
+                                                    <label for="" class="small">Delivery Time</label>
+                                                    <input type="time" v-model="delivery_time" name="delivery_time" id=""
+                                                           class="form-control form-control-sm">
+                                                </div>
+                                            </div>
+                                            {{-- <div class="col-2">
+                                                <div class="form-group">
+                                                    <label for="text" class="small">Delivery Charge</label>
+                                                    <input type="text" v-model="delivery_charge" name="delivery_charge" class="form-control form-control-sm" placeholder="Enter Delivery Charge">
+                                                </div>
+                                            </div> --}}
                                         </div>
                                         <div class="row">
                                             <div class="col-3">
@@ -110,19 +123,12 @@
                                             </div>
                                             <div class="col-3" v-if="sales_type=='pre_order'">
                                                 <div class="form-group">
-                                                    <label for="" class="small">Delivery Time</label>
-                                                    <input type="time" name="delivery_time" id=""
-                                                           class="form-control form-control-sm">
-                                                </div>
-                                            </div>
-                                            <div class="col-3" v-if="sales_type=='pre_order'">
-                                                <div class="form-group">
                                                     <label for="" class="small">Attachments</label>
                                                     <input type="file" name="attachments[]" id="" multiple
                                                            class="form-control form-control-sm">
                                                 </div>
                                             </div>
-                                            <div class="col-3" v-if="sales_type=='pre_order'">
+                                            <div class="col-6" v-if="sales_type=='pre_order'">
                                                 <div class="form-group">
                                                     <label for="" class="small">Description</label>
                                                     <input type="text" name="description" id=""
@@ -667,6 +673,8 @@
                     }],
                     delivery_point_id: '',
                     delivery_date: new Date(),
+                    delivery_time: '',
+                    delivery_charge: '',
                     sales_type: 'sales',
                     membership_discount_percentage: 0,
                     minimum_purchase_amount: 0,
