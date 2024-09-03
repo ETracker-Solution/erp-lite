@@ -33,6 +33,11 @@ Sales Details
                                             <p><b>Outlet :</b> {{ $sale->outlet->name }}</p>
                                             <p><b>Customer Name :</b> {{ $sale->customer ? $sale->customer->name : 'N/A' }} </p>
                                             <p><b>Customer Number :</b> {{ $sale->customer ? $sale->customer->mobile ?? 'N/A' : 'N/A' }} </p>
+                                            @if(isset($sale->delivery_time))
+                                                <b>Delivery Time :</b> {{ \Carbon\Carbon::parse($sale->delivery_time)->format('h:i A') }}
+                                            @else
+                                                
+                                            @endif
 {{--                                            <p><b>Status :</b> {!! showStatus($sale->status) !!}</p>--}}
                                         </td>
                                     </tr>
