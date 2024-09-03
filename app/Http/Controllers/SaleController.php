@@ -429,7 +429,7 @@ class SaleController extends Controller
         $sale->customer_id = $oldSale->customer_id;
         $sale->status = 'pending';
         $sale->date = $oldSale->date;
-//            $sale->description = $request->description;
+        $sale->delivery_time = $oldSale->delivery_time;
         $sale->created_by = $oldSale->created_by;
         $sale->outlet_id = $oldSale->outlet_id;
         $sale->delivery_point_id = $delivery_point_id;

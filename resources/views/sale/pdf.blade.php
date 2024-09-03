@@ -72,6 +72,11 @@
                                             <p><b>email :</b> {{ $sale->customer->email }} </p>
                                             <p><b>Phone :</b> {{ $sale->customer->mobile }} </p>
                                             <p><b>Address :</b> {{ $sale->customer->address }}</p>
+                                            @if(isset($sale->delivery_time))
+                                                <p><b>Delivery Time :</b> {{ \Carbon\Carbon::parse($sale->delivery_time)->format('h:i A') }}</p>
+                                            @else
+                                                
+                                            @endif
 										</td>
 									</tr>
 								</tbody>
