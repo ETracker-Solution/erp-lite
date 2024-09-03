@@ -20,6 +20,7 @@ use App\Models\Store;
 use App\Repository\Interfaces\AdminInterface;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -35,11 +36,14 @@ class AdminDashboardController extends Controller
 
     public function adminDashboard()
     {
+        $outlet_id = Auth::user()->employee->outlet_id;
+
         $total_sales = Sale::whereDate('created_at', date('Y-m-d'))->sum('grand_total');
         $outlets = Outlet::whereStatus('active')->count();
         $customers = Customer::where('type', 'regular')->count();
         $wastage_amount = InventoryAdjustment::sum('subtotal');
         $products = ChartOfInventory::where('type', 'item')->where('rootAccountType', 'FG')->count();
+        $todayInvoice = Sale::where('outlet_id', $outlet_id)->whereDate('created_at', Carbon::now()->format('Y-m-d'))->count();
 
         $todayRequisitions = Requisition::whereType('FG')->whereDate('created_at', Carbon::today())->get();
 
@@ -244,6 +248,7 @@ class AdminDashboardController extends Controller
             // 'todayExpense' => $todayExpense,
             'bestSellingProducts' => $bestProducts,
             'slowSellingProducts' => $slowSellingProducts,
+            'todayInvoice' => $todayInvoice
         ];
 //        return $data;
         return view('dashboard.admin', $data);

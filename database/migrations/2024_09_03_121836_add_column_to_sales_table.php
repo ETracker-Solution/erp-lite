@@ -11,10 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('pre_orders', function (Blueprint $table) {
-            $table->string('size')->nullable();
-            $table->string('flavour')->nullable();
-            $table->string('cake_message')->nullable();
+        Schema::table('sales', function (Blueprint $table) {
             $table->time('delivery_time')->nullable();
             $table->double('delivery_charge', 15, 2)->default(0);
         });
@@ -25,10 +22,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('pre_orders', function (Blueprint $table) {
-            $table->dropColumn('size');
-            $table->dropColumn('flavour');
-            $table->dropColumn('cake_message');
+        Schema::table('sales', function (Blueprint $table) {
             $table->dropColumn('delivery_time');
             $table->dropColumn('delivery_charge');
         });

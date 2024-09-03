@@ -47,12 +47,17 @@
                     </div>
                     <div class="card-body statistics-body">
                         <div class="row">
-                            <div class="col-xl-3 col-sm-6 col-12 mb-2 mb-xl-0">
+                            <div class="col-xl-2 col-sm-6 col-12 mb-2 mb-xl-0">
                                 <x-card-statistics title="Total Stock" value="{{ $fgStock['total'] }}" icon="layers"
                                                    colorClass="bg-light-primary"/>
                             </div>
-                            <div class="col-xl-3 col-sm-6 col-12 mb-2 mb-xl-0">
+                            <div class="col-xl-2 col-sm-6 col-12 mb-2 mb-xl-0">
                                 <x-card-statistics title="Requisition" value="{{ $todayTotalRequisitions }}"
+                                                   icon="layers"
+                                                   colorClass="bg-light-info"/>
+                            </div>
+                            <div class="col-xl-2 col-sm-6 col-12 mb-2 mb-xl-0">
+                                <x-card-statistics title="Today's Invoice" value="{{ $todayInvoice }}"
                                                    icon="layers"
                                                    colorClass="bg-light-info"/>
                             </div>

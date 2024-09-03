@@ -106,6 +106,7 @@ class SaleController extends Controller
 
             $selectedDate = Carbon::parse($request->date)->format('Y-m-d');
             $deliveryDate = Carbon::parse($request->delivery_date)->format('Y-m-d');
+            $delivery_charge = $request->delivery_charge ?? 0;
             $delivery_time = $request->delivery_time ?? null;
             $customer_id = 1;
             if ($request->customer_number) {
@@ -136,6 +137,7 @@ class SaleController extends Controller
             $sale->change_amount = $request->change_amount ?? 0;
             $sale->customer_id = $customer_id;
             $sale->date = $selectedDate;
+            $sale->delivery_time = $delivery_time;
 //            $sale->description = $request->description;
             $sale->created_by = Auth::id();
             $sale->outlet_id = $outlet_id;
@@ -265,7 +267,7 @@ class SaleController extends Controller
             }
 
             if ($request->sales_type == 'pre_order') {
-                $this->preOrderfromSales($sale, $deliveryDate, $delivery_time, $request->description,$request->size,$request->flavour,$request->cake_message, $request->attachments, $request->delivery_point_id);
+                $this->preOrderfromSales($sale, $deliveryDate,$delivery_charge, $delivery_time, $request->description,$request->size,$request->flavour,$request->cake_message, $request->attachments, $request->delivery_point_id);
             }
             if (($receive_amount < $sale->grand_total) || $outlet_id !== $request->delivery_point_id) {
                 $this->othersOutletDelivery($sale, $request->delivery_point_id);
@@ -372,13 +374,14 @@ class SaleController extends Controller
         return $store;
     }
 
-    protected function preOrderfromSales($sale, $delivery_date, $delivery_time, $description,$size,$flavour,$cake_message, $images, $delivery_point_id)
+    protected function preOrderfromSales($sale, $delivery_date, $delivery_charge, $delivery_time, $description,$size,$flavour,$cake_message, $images, $delivery_point_id)
     {
         $data = [
             'customer_id' => $sale->customer_id,
             'outlet_id' => $sale->outlet_id,
             'order_date' => $sale->date,
             'delivery_date' => $delivery_date,
+            'delivery_charge' => $delivery_charge,
             'delivery_time' => $delivery_time,
             'subtotal' => $sale->subtotal,
             'discount' => $sale->discount,
