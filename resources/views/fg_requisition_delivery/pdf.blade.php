@@ -60,7 +60,7 @@
                     <div class="panel panel-default invoice" id="invoice">
                         <div class="panel-body">
                             <div class="invoice-ribbon">
-                                {{-- @include('common.pdf_header') --}}
+                                @include('common.pdf_header')
                             </div>
                             <div class="row">
                                 <div class="col-sm-6 top-right">
