@@ -104,6 +104,8 @@ class OutletDashboardController extends Controller
             $lastMonthSaleAmount += $salesTotal;
         }
 
+        $totalDiscountToday = Sale::where('outlet_id', $outlet_id)->whereDate('created_at', Carbon::today())->sum('discount');
+
         $totalDiscountThisMonth = Sale::where('outlet_id', $outlet_id)->whereYear('created_at', $currentDate->year)->whereMonth('created_at', $currentDate->month)->sum('discount');
         $totalDiscountLastMonth = Sale::where('outlet_id', $outlet_id)->whereYear('created_at', $year)->whereMonth('created_at', $lastMonth->month)->sum('discount');
 
@@ -127,7 +129,7 @@ class OutletDashboardController extends Controller
         $totalStock = 0;
         $allProducts = ChartOfInventory::where(['type' => 'item', 'rootAccountType' => 'FG'])->get();
         foreach ($allProducts as $product) {
-            $stock = InventoryTransaction::whereIn('store_id', $store_ids)->where('coi_id', $product->id)->sum(DB::raw('amount * type'));
+            $stock = InventoryTransaction::whereIn('store_id', $store_ids)->where('coi_id', $product->id)->sum(DB::raw('quantity * type'));
             $productWiseStock['products'][] = $product->name;
             $productWiseStock['stock'][] = $stock;
             $totalStock += $stock;
@@ -238,6 +240,7 @@ class OutletDashboardController extends Controller
             'expenseMessage' => $expenseMessage,
             'lastMonthSales' => $parts,
             'discount' => [
+                'thisDay' => $totalDiscountToday,
                 'thisMonth' => $totalDiscountThisMonth,
                 'lastMonth' => $totalDiscountLastMonth,
                 'percentage' => $discountPercentage,
