@@ -132,13 +132,13 @@
                             <div class="card-header bg-info">
                                 <h3 class="card-title">Total Discount</h3>
                                 <div class="card-tools">
-                                    Monthly Report
+                                    Today's Report
                                 </div>
                             </div>
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-6">
-                                        <h5 class="mb-1">{{ $discount['thisMonth'] }}</h5>
+                                        <h5 class="mb-1">{{ $discount['thisDay'] }}</h5>
                                     </div>
                                     <div class="col-6">
                                         <canvas id="discount-chart"></canvas>
