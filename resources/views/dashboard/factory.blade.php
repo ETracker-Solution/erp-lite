@@ -142,7 +142,7 @@
                             Raw Stock Summary
                         </div>
                     </div>
-                    <canvas id="attendanceChart"></canvas>
+                    <canvas id="stockChart"></canvas>
                 </div>
             </div>
             <!--/ Revenue Report Card -->
@@ -278,6 +278,13 @@
         </div>
     </section>
 @endsection
+<?php
+    $stocks = $stock['productWise']['stock'];
+    // Format each number in the stock array
+    $formatted_stocks = array_map(function($num) {
+        return number_format($num, 0);
+    }, $stocks);
+?>
 
 @push('script')
     <script src="{{asset('admin/app-assets/vendors/js/charts/apexcharts.min.js')}}"></script>
@@ -344,7 +351,9 @@
                     backgroundColor: generateColors(<?= count($stock['productWise']['products']) ?>),
                     borderColor: "lightgreen",
                     borderWidth: 1,
-                    data: JSON.parse('<?= json_encode($stock['productWise']['stock']) ?>'),
+                    data: JSON.parse('<?= json_encode($formatted_stocks) ?>').map(function(value) {
+                        return parseFloat(value.replace(/,/g, ''));
+                    }),
                 },
             ]
         };
@@ -368,7 +377,7 @@
         }
 
         window.onload = function () {
-            var ctxA = document.getElementById("attendanceChart").getContext("2d");
+            var ctxA = document.getElementById("stockChart").getContext("2d");
             window.myBar = new Chart(ctxA, {
                 type: "bar",
                 data: barChartDataOrder,

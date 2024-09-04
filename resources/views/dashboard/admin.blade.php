@@ -372,7 +372,7 @@
     $stocks = $stock['productWise']['stock'];
     // Format each number in the stock array
     $formatted_stocks = array_map(function($num) {
-        return number_format($num, 2);
+        return number_format($num, 0);
     }, $stocks);
 ?>
 @section('css')
