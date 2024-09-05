@@ -267,6 +267,8 @@ AND SS.date <= '$to_date'
 
     }
 
+
+
     public function getSingleCustomerDetails($customer_id, $from_date, $to_date)
     {
         $outlet_id = auth()->user()->employee && auth()->user()->employee->outlet_id ? auth()->user()->employee->outlet_id : null;
