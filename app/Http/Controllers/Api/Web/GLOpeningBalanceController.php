@@ -110,7 +110,7 @@ class GLOpeningBalanceController extends Controller
                 'created_by' => auth()->user()->id,
             ]);
 
-            // addAccountsTransaction('GLOB', $glob, getFGInventoryGLId(), getOpeningBalanceOfEquityGLId());
+            addAccountsTransaction('GLOB', $glob, getFGInventoryGLId(), getOpeningBalanceOfEquityGLId());
 
             DB::commit();
         } catch (\Exception $exception) {
@@ -129,8 +129,9 @@ class GLOpeningBalanceController extends Controller
     public function destroy(string $id)
     {
         try {
-            $finishGoodsOpeningBalance = GeneralLedgerOpeningBalance::find($id);
-            $finishGoodsOpeningBalance->delete();
+            $generalLedgerOpeningBalance = GeneralLedgerOpeningBalance::find($id);
+            AccountTransaction::where(['doc_id' => $generalLedgerOpeningBalance->id, 'doc_type' => 'GLOB'])->delete();
+            $generalLedgerOpeningBalance->delete();
         } catch (\Exception $exception) {
             return response()->json([
                 'message' => $exception->getMessage(),
