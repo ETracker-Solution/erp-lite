@@ -175,8 +175,14 @@
         $net_amount = $sub_total- $discount;
         $payment_point = $sale->payments()->where('payment_method','point')->first();
         $point_redeem = $payment_point ? $payment_point->amount : 0;
+        $earned_point = 0;
+        $current_point = 0;
+        if (isset($sale->membershipPointHistory[0])){
         $earned_point = $sale->membershipPointHistory[0] && $sale->membershipPointHistory[0]->member_type_id != 1 ? $sale->membershipPointHistory()->where('point','>', 0)->first()->point : 0;
+        $current_point = $sale->customer && $sale->customer->membership  && $sale->customer->membership->member_type_id == $sale->membershipPointHistory[0]->member_type_id && $sale->customer->id != 1 ? $sale->customer->currentReedemablePoint() : 0;
+}
         $previous_point = $sale->customer->currentReedemablePoint() > 0 ? $sale->customer->currentReedemablePoint() - $earned_point : 0;
+
 
         $paid_amount = $sale->payments->sum('amount');
         $change_amount =  $paid_amount - $net_amount
@@ -227,7 +233,8 @@
         <td class="tc bl-none br-none bt-none"></td>
         <td class="tc bl-none br-none bt-none"></td>
         <td class="tc bl-none br-none bt-none"></td>
-        <td class="tc bl-none br-none bt-none">Change Amount:</td>
+
+<td class="tc bl-none br-none bt-none">Change Amount:</td>
         <td class="tc bl-none br-none bt-none tr">{{ $change_amount }}</td>
     </tr>
 </table>
@@ -279,7 +286,7 @@
         <td class="b-none"></td>
         <td class="b-none"></td>
         <td class="tc b-none">Current Point</td>
-        <td class="b-none tr">{{ $sale->customer && $sale->customer->membership  && $sale->customer->membership->member_type_id == $sale->membershipPointHistory[0]->member_type_id && $sale->customer->id != 1 ? $sale->customer->currentReedemablePoint() : 0  }}</td>
+        <td class="b-none tr">{{ $current_point  }}</td>
     </tr>
 
 </table>
@@ -305,4 +312,3 @@
 </body>
 
 </html>
-
