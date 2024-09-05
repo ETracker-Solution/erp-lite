@@ -82,100 +82,100 @@ class SaleReportController extends Controller
     }
 
     public function getAllSaleQuery($from_date, $to_date)
-{
-    $outlet_id = auth()->user()->employee && auth()->user()->employee->outlet_id ? auth()->user()->employee->outlet_id : null;
-    if (auth()->user()->is_super) {
-        return "
-            SELECT 
-                SS.invoice_number AS 'Invoice Number',
-                US.name AS 'Seller',
-                IFNULL(SS.waiter_name, '') AS 'Waiter',
-                SS.date AS 'Date',
-                SS.subtotal AS 'Amount',
-                SS.discount AS 'Discount',
-                (SS.subtotal - SS.discount) AS 'After Discount',
-                ATT.amount AS 'COGS'
-            FROM 
-                sales SS
-            LEFT JOIN 
-                users US ON SS.created_by = US.id
-            JOIN 
-                account_transactions ATT ON ATT.doc_id = SS.id
-            WHERE 
-                ATT.doc_type = 'POS'
-                AND ATT.chart_of_account_id = 43
-                AND SS.date >= '$from_date'
-                AND SS.date <= '$to_date'
-            
-            UNION ALL
+    {
+        $outlet_id = auth()->user()->employee && auth()->user()->employee->outlet_id ? auth()->user()->employee->outlet_id : null;
+        if (auth()->user()->is_super) {
+            return "
+                SELECT 
+                    SS.invoice_number AS 'Invoice Number',
+                    US.name AS 'Seller',
+                    IFNULL(SS.waiter_name, '') AS 'Waiter',
+                    SS.date AS 'Date',
+                    SS.subtotal AS 'Amount',
+                    SS.discount AS 'Discount',
+                    (SS.subtotal - SS.discount) AS 'After Discount',
+                    ATT.amount AS 'COGS'
+                FROM 
+                    sales SS
+                LEFT JOIN 
+                    users US ON SS.created_by = US.id
+                JOIN 
+                    account_transactions ATT ON ATT.doc_id = SS.id
+                WHERE 
+                    ATT.doc_type = 'POS'
+                    AND ATT.chart_of_account_id = 43
+                    AND SS.date >= '$from_date'
+                    AND SS.date <= '$to_date'
+                
+                UNION ALL
 
-            SELECT
-                '' AS 'Seller',
-                '' AS 'Waiter',
-                'Total' AS 'Invoice Number',
-                '' AS 'Date',
-                SUM(SS.subtotal) AS 'Amount',
-                SUM(SS.discount) AS 'Discount',
-                SUM(SS.subtotal - SS.discount) AS 'After Discount',
-                SUM(ATT.amount) AS 'COGS'
-            FROM
-                sales SS
-            JOIN
-                account_transactions ATT ON ATT.doc_id = SS.id
-            WHERE
-                ATT.doc_type = 'POS'
-                AND ATT.chart_of_account_id = 43
-                AND SS.date >= '$from_date'
-                AND SS.date <= '$to_date'
-        ";
-    } else {
-        return "
-            SELECT 
-                SS.invoice_number AS 'Invoice Number',
-                US.name AS 'Seller',
-                IFNULL(SS.waiter_name, '') AS 'Waiter',
-                SS.date AS 'Date',
-                SS.subtotal AS 'Amount',
-                SS.discount AS 'Discount',
-                (SS.subtotal - SS.discount) AS 'After Discount',
-                ATT.amount AS 'COGS'
-            FROM 
-                sales SS
-            LEFT JOIN 
-                users US ON SS.created_by = US.id
-            JOIN 
-                account_transactions ATT ON ATT.doc_id = SS.id
-            WHERE 
-                ATT.doc_type = 'POS'
-                AND ATT.chart_of_account_id = 43
-                AND SS.date >= '$from_date'
-                AND SS.date <= '$to_date'
-                AND SS.outlet_id = '$outlet_id'
-            
-            UNION ALL
+                SELECT
+                    '' AS 'Seller',
+                    '' AS 'Waiter',
+                    'Total' AS 'Invoice Number',
+                    '' AS 'Date',
+                    SUM(SS.subtotal) AS 'Amount',
+                    SUM(SS.discount) AS 'Discount',
+                    SUM(SS.subtotal - SS.discount) AS 'After Discount',
+                    SUM(ATT.amount) AS 'COGS'
+                FROM
+                    sales SS
+                JOIN
+                    account_transactions ATT ON ATT.doc_id = SS.id
+                WHERE
+                    ATT.doc_type = 'POS'
+                    AND ATT.chart_of_account_id = 43
+                    AND SS.date >= '$from_date'
+                    AND SS.date <= '$to_date'
+            ";
+        } else {
+            return "
+                SELECT 
+                    SS.invoice_number AS 'Invoice Number',
+                    US.name AS 'Seller',
+                    IFNULL(SS.waiter_name, '') AS 'Waiter',
+                    SS.date AS 'Date',
+                    SS.subtotal AS 'Amount',
+                    SS.discount AS 'Discount',
+                    (SS.subtotal - SS.discount) AS 'After Discount',
+                    ATT.amount AS 'COGS'
+                FROM 
+                    sales SS
+                LEFT JOIN 
+                    users US ON SS.created_by = US.id
+                JOIN 
+                    account_transactions ATT ON ATT.doc_id = SS.id
+                WHERE 
+                    ATT.doc_type = 'POS'
+                    AND ATT.chart_of_account_id = 43
+                    AND SS.date >= '$from_date'
+                    AND SS.date <= '$to_date'
+                    AND SS.outlet_id = '$outlet_id'
+                
+                UNION ALL
 
-            SELECT
-                '' AS 'Seller',
-                '' AS 'Waiter',
-                'Total' AS 'Invoice Number',
-                '' AS 'Date',
-                SUM(SS.subtotal) AS 'Amount',
-                SUM(SS.discount) AS 'Discount',
-                SUM(SS.subtotal - SS.discount) AS 'After Discount',
-                0 AS 'COGS'
-            FROM
-                sales SS
-            JOIN
-                account_transactions ATT ON ATT.doc_id = SS.id
-            WHERE
-                ATT.doc_type = 'POS'
-                AND ATT.chart_of_account_id = 43
-                AND SS.date >= '$from_date'
-                AND SS.date <= '$to_date'
-                AND SS.outlet_id = '$outlet_id'
-        ";
+                SELECT
+                    '' AS 'Seller',
+                    '' AS 'Waiter',
+                    'Total' AS 'Invoice Number',
+                    '' AS 'Date',
+                    SUM(SS.subtotal) AS 'Amount',
+                    SUM(SS.discount) AS 'Discount',
+                    SUM(SS.subtotal - SS.discount) AS 'After Discount',
+                    0 AS 'COGS'
+                FROM
+                    sales SS
+                JOIN
+                    account_transactions ATT ON ATT.doc_id = SS.id
+                WHERE
+                    ATT.doc_type = 'POS'
+                    AND ATT.chart_of_account_id = 43
+                    AND SS.date >= '$from_date'
+                    AND SS.date <= '$to_date'
+                    AND SS.outlet_id = '$outlet_id'
+            ";
+        }
     }
-}
 
 
     public function getItemWiseSalesSummary($from_date, $to_date)
