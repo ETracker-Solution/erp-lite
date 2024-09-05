@@ -117,7 +117,11 @@ class FGOpeningBalanceController extends Controller
         try {
             $finishGoodsOpeningBalance = FinishGoodsOpeningBalance::find($id);
             $previous_uid = $finishGoodsOpeningBalance->uid;
-           
+            AccountTransaction::where(['doc_id' => $finishGoodsOpeningBalance->id, 'doc_type' => 'FGOB'])->delete();
+            $finishGoodsOpeningBalance->inventoryTransaction()->delete();
+
+            $finishGoodsOpeningBalance->delete();
+
             $alreadyExists = $this->base_model->where(['store_id' => $request->store_id, 'coi_id' => $request->item_id])->exists();
 
             if ($alreadyExists) {
@@ -126,11 +130,6 @@ class FGOpeningBalanceController extends Controller
                     'success' => false
                 ]);
             }
-            
-            AccountTransaction::where(['doc_id' => $finishGoodsOpeningBalance->id, 'doc_type' => 'FGOB'])->delete();
-            $finishGoodsOpeningBalance->inventoryTransaction()->delete();
-
-            $finishGoodsOpeningBalance->delete();
 
             $fgob = $this->base_model->create([
                 'uid' => $previous_uid,
@@ -170,6 +169,7 @@ class FGOpeningBalanceController extends Controller
     {
         try {
             $finishGoodsOpeningBalance = FinishGoodsOpeningBalance::find($id);
+            AccountTransaction::where(['doc_id' => $finishGoodsOpeningBalance->id, 'doc_type' => 'FGOB'])->delete();
             $finishGoodsOpeningBalance->inventoryTransaction()->delete();
             $finishGoodsOpeningBalance->delete();
         } catch (\Exception $exception) {
