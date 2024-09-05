@@ -28,17 +28,17 @@ class FGInventoryReportController extends Controller
 
         $report_type = \request()->report_type;
         if ($report_type == 'all_groups') {
-            $statement = "CALL get_all_groups('" . $asOnDate . "','FG')";
+            $statement = get_all_groups_report($asOnDate ,'FG');
         } elseif ($report_type == 'single_group_item') {
             $page_title = 'Group Name: ' . ChartOfInventory::find(\request()->group_id)->name;
-            $statement = "CALL get_all_items_by_group(" . \request()->group_id . ",'" . $asOnDate . "','FG')";
+            $statement = get_all_items_by_group(\request()->group_id, $asOnDate,'FG');
         } elseif ($report_type == 'all_item') {
-            $statement = "CALL get_all_items('" . $asOnDate . "','FG')";
+            $statement = get_all_items($asOnDate,'FG');
         } elseif ($report_type == 'store_group') {
-            $statement = "CALL get_all_stores('" . $asOnDate . "','FG')";
+            $statement = get_all_stores($asOnDate,'FG');
         } elseif ($report_type == 'store_group_item') {
             $page_title = 'Store Name: ' . Store::find(\request()->store_id)->name;
-            $statement = "CALL get_all_items_by_store(" . \request()->store_id . ",'" . $asOnDate . "','FG')";
+            $statement = get_all_items_by_store(\request()->store_id, $asOnDate,'FG');
         }
 
         $getPost = DB::select($statement);

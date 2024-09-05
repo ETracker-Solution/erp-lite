@@ -216,3 +216,239 @@ function getReturnedQty($sale_return_id, $coi_id){
         return 0;
     }
 }
+
+
+function get_all_groups_report($date, $ac_type){
+        return "SELECT
+    CIP.name as `Group Name`,
+    SUM(IT.quantity * IT.type) as `Balance Qty`,
+    CASE 
+    WHEN '$ac_type' = 'RM' THEN FORMAT((IT.amount / SUM(IT.quantity * IT.type)), 0) 
+    ELSE FORMAT(rate,0) 
+    END AS RATE,
+    -- FORMAT((IT.amount / SUM(IT.quantity * IT.type)),0) as RATE,
+    IT.amount as `Value`
+    FROM
+    inventory_transactions IT
+    JOIN
+    chart_of_inventories CI ON CI.id = IT.coi_id
+    JOIN
+    chart_of_inventories CIP ON CIP.id = CI.parent_id
+    WHERE
+            IT.date <= '$date'
+            AND CI.rootAccountType = '$ac_type'
+    GROUP BY
+    CIP.id";
+}
+ function get_all_items_by_group($group_id, $date, $ac_type)
+ {
+    return "SELECT
+    `Item ID`,
+    `Item Name`,
+    `Balance Qty`,
+    `Rate`,
+    `Value`
+FROM (
+    SELECT
+        IF(Group_Name = @prev_group, '', IFNULL(Group_Name, '')) AS `Group Name`,
+        IF(Subgroup_ID IS NULL, '', IFNULL(Subgroup_ID, '')) AS `Item ID`,
+        IF(Subgroup_ID IS NULL, '', IFNULL(Subgroup_Name, '')) AS `Item Name`,
+        `Balance Qty`,
+        IF(Subgroup_ID IS NULL, '', IFNULL(
+        CASE 
+    WHEN '$ac_type' = 'RM' THEN IF(`AllQ` = 0, NULL,format( `AllA` / `AllQ`,0))
+    ELSE FORMAT(ORate,0) 
+    END 
+        , ''))  AS `Rate`,
+        `Value`,
+        @prev_group := Group_Name
+    FROM (
+        SELECT
+            IF(CIP.name IS NULL, 'Total', CIP.name) AS Group_Name,
+            CI.id AS Subgroup_ID,
+            CI.name AS Subgroup_Name,
+            SUM(IT.quantity * IT.type) AS `Balance Qty`,
+            SUM(CASE WHEN IT.type = 1 THEN IT.quantity ELSE 0 END) as `AllQ`,
+            SUM(CASE WHEN IT.type = 1 THEN IT.amount ELSE 0 END) as `AllA`,
+            rate as ORate,
+            SUM(IT.amount) AS `Value`
+        FROM
+            inventory_transactions IT
+        JOIN
+            chart_of_inventories CI ON CI.id = IT.coi_id
+        JOIN
+            chart_of_inventories CIP ON CIP.id = CI.parent_id
+         WHERE
+            CIP.id = '$group_id'
+            AND IT.date <= '$date'
+            AND CI.rootAccountType = '$ac_type'
+        GROUP BY
+            CI.id WITH ROLLUP
+    ) AS subquery,
+    (SELECT @prev_group := null) AS prev
+) AS result";
+ }
+
+ function get_all_items($date, $ac_type)
+ {
+    return "SELECT
+    `Group Name`,
+    `Item ID`,
+    `Item Name`,
+    `Balance Qty`,
+    `Rate`,
+    `Value`
+FROM (
+    SELECT
+        IF(Group_Name = @prev_group, '', IFNULL(Group_Name, '')) AS `Group Name`,
+        IF(Subgroup_ID IS NULL, '', IFNULL(Subgroup_ID, '')) AS `Item ID`,
+        IF(Subgroup_ID IS NULL, '', IFNULL(Subgroup_Name, '')) AS `Item Name`,
+        `Balance Qty`,
+        IF(Subgroup_ID IS NULL, '', IFNULL(
+        CASE 
+    WHEN '$ac_type' = 'RM' THEN IF(`AllQ` = 0, NULL,format( `AllA` / `AllQ`,0))
+    ELSE FORMAT(ORate,0) 
+    END 
+        , ''))  AS `Rate`,
+        `Value`,
+        @prev_group := Group_Name
+    FROM (
+        SELECT
+            IF(CIP.name IS NULL, 'Total', CIP.name) AS Group_Name,
+            CI.id AS Subgroup_ID,
+            CI.name AS Subgroup_Name,
+            SUM(IT.quantity * IT.type) AS `Balance Qty`,
+             SUM(CASE WHEN IT.type = 1 THEN IT.quantity ELSE 0 END) as `AllQ`,
+            SUM(CASE WHEN IT.type = 1 THEN IT.amount ELSE 0 END) as `AllA`,
+            rate as ORate,
+            SUM(IT.amount) AS `Value`
+        FROM
+            inventory_transactions IT
+        JOIN
+            chart_of_inventories CI ON CI.id = IT.coi_id
+        JOIN
+            chart_of_inventories CIP ON CIP.id = CI.parent_id
+         WHERE
+            IT.date <= '$date'
+            AND CI.rootAccountType = '$ac_type'
+        GROUP BY
+            CIP.id, CI.id WITH ROLLUP
+    ) AS subquery,
+    (SELECT @prev_group := null) AS prev
+) AS result";
+ }
+
+function get_all_stores($date, $ac_type)
+{
+    return "SELECT
+    `Store Name`,
+    `Group Name`,
+    `Item ID`,
+    `Item Name`,
+    `Balance Qty`,
+    `Rate`,
+    `Value`
+FROM (
+    SELECT
+		IF(Store_Name = @prev_store, '', IFNULL(Store_Name, '')) AS `Store Name`,
+        IF(Group_Name = @prev_group, '', IFNULL(Group_Name, '')) AS `Group Name`,
+        IF(Subgroup_ID IS NULL, '', IFNULL(Subgroup_ID, '')) AS `Item ID`,
+        IF(Subgroup_ID IS NULL, '', IFNULL(Subgroup_Name, '')) AS `Item Name`,
+        `Balance Qty`,
+        IF(Subgroup_ID IS NULL, '', IFNULL(
+        CASE 
+    WHEN '$ac_type' = 'RM' THEN IF(`AllQ` = 0, NULL,format( `AllA` / `AllQ`,0))
+    ELSE FORMAT(ORate,0) 
+    END 
+        , ''))  AS `Rate`,
+      IF(Subgroup_ID IS NULL,format(@total_a,0),format(`Value`,0)) as`Value`,
+        @prev_group := Group_Name,
+        @prev_store:= Store_Name,
+        @total_a := @total_a + `Value`
+    FROM (
+        SELECT
+			ST.id AS Store_ID,
+            ST.name AS Store_Name,
+            IF(CIP.name IS NULL, 'Total', CIP.name) AS Group_Name,
+            CI.id AS Subgroup_ID,
+            CI.name AS Subgroup_Name,
+            SUM(IT.quantity * IT.type) AS `Balance Qty`,
+            SUM(CASE WHEN IT.type = 1 THEN IT.quantity ELSE 0 END) as `AllQ`,
+            SUM(CASE WHEN IT.type = 1 THEN IT.amount ELSE 0 END) as `AllA`,
+            rate as ORate,
+            SUM(IT.quantity * IT.type) * (SUM(CASE WHEN IT.type = 1 THEN IT.amount ELSE 0 END)/SUM(CASE WHEN IT.type = 1 THEN IT.quantity ELSE 0 END)) AS `Value`
+        FROM
+            inventory_transactions IT
+        JOIN
+            chart_of_inventories CI ON CI.id = IT.coi_id
+        JOIN
+            chart_of_inventories CIP ON CIP.id = CI.parent_id
+        LEFT JOIN
+			stores ST on ST.id  = IT.store_id
+		WHERE
+            IT.date <= '$date'
+            AND CI.rootAccountType = '$ac_type'
+        GROUP BY
+            IT.store_id WITH ROLLUP
+    ) AS subquery,
+    (SELECT @prev_group := null, @prev_store:= null, @total_a :=0) AS prev
+) AS result";
+}
+
+function get_all_items_by_store($store_id, $date, $ac_type)
+{
+ 
+    return "SELECT
+    `Group Name`,
+    `Item ID`,
+    `Item Name`,
+    `Balance Qty`,
+    `Rate`,
+    `Value`
+FROM (
+    SELECT
+		IF(Store_Name = @prev_store, '', IFNULL(Store_Name, '')) AS `Store Name`,
+        IF(Group_Name = @prev_group, '', IFNULL(Group_Name, '')) AS `Group Name`,
+        IF(Subgroup_ID IS NULL, '', IFNULL(Subgroup_ID, '')) AS `Item ID`,
+        IF(Subgroup_ID IS NULL, '', IFNULL(Subgroup_Name, '')) AS `Item Name`,
+        `Balance Qty`,
+        IF(Subgroup_ID IS NULL, '', IFNULL(
+        CASE 
+    WHEN '$ac_type' = 'RM' THEN IF(`AllQ` = 0, NULL,format( `AllA` / `AllQ`,0))
+    ELSE FORMAT(ORate,0) 
+    END 
+        , ''))  AS `Rate`,
+       IF(Subgroup_ID IS NULL,format(@total_a,0),format(`Value`,0)) as`Value`,
+        @prev_group := Group_Name,
+         @prev_store:= Store_Name,
+        @total_a := @total_a + `Value`
+    FROM (
+        SELECT
+			ST.id AS Store_ID,
+            ST.name AS Store_Name,
+            IF(CIP.name IS NULL, 'Total', CIP.name) AS Group_Name,
+            CI.id AS Subgroup_ID,
+            CI.name AS Subgroup_Name,
+            SUM(IT.quantity * IT.type) AS `Balance Qty`,
+            SUM(CASE WHEN IT.type = 1 THEN IT.quantity ELSE 0 END) as `AllQ`,
+            SUM(CASE WHEN IT.type = 1 THEN IT.amount ELSE 0 END) as `AllA`,
+            rate as ORate,
+            SUM(IT.quantity * IT.type) * (SUM(CASE WHEN IT.type = 1 THEN IT.amount ELSE 0 END)/SUM(CASE WHEN IT.type = 1 THEN IT.quantity ELSE 0 END)) AS `Value`
+        FROM
+            inventory_transactions IT
+        JOIN
+            chart_of_inventories CI ON CI.id = IT.coi_id
+        JOIN
+            chart_of_inventories CIP ON CIP.id = CI.parent_id
+        LEFT JOIN
+			stores ST on ST.id  = IT.store_id
+        WHERE
+			IT.store_id = '$store_id'
+			AND IT.date <= '$date'
+			 AND CI.rootAccountType = '$ac_type'
+        GROUP BY
+             CI.id WITH ROLLUP
+    ) AS subquery,
+    (SELECT @prev_group := null, @prev_store:= null, @total_a :=0) AS prev
+) AS result";
+}
