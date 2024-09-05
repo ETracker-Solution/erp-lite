@@ -58,7 +58,7 @@ class FGOpeningBalanceController extends Controller
                 ]);
             }
 
-            $rmob = $this->base_model->create([
+            $fgob = $this->base_model->create([
                 'uid' => getNextId(FinishGoodsOpeningBalance::class),
                 'date' => $request->date,
                 'quantity' => $request->qty,
@@ -69,9 +69,9 @@ class FGOpeningBalanceController extends Controller
                 'remarks' => $request->remarks,
                 'created_by' => auth()->user()->id,
             ]);
-            addInventoryTransaction(1, 'FGOB', $rmob);
+            addInventoryTransaction(1, 'FGOB', $fgob);
 
-            addAccountsTransaction('FGOB', $rmob, getFGInventoryGLId(), getOpeningBalanceOfEquityGLId());
+            addAccountsTransaction('FGOB', $fgob, getFGInventoryGLId(), getOpeningBalanceOfEquityGLId());
             DB::commit();
         } catch (\Exception $exception) {
             DB::rollBack();
@@ -117,11 +117,7 @@ class FGOpeningBalanceController extends Controller
         try {
             $finishGoodsOpeningBalance = FinishGoodsOpeningBalance::find($id);
             $previous_uid = $finishGoodsOpeningBalance->uid;
-            AccountTransaction::where(['doc_id' => $finishGoodsOpeningBalance->id, 'doc_type' => 'FGOB'])->delete();
-            $finishGoodsOpeningBalance->inventoryTransaction()->delete();
-
-            $finishGoodsOpeningBalance->delete();
-
+           
             $alreadyExists = $this->base_model->where(['store_id' => $request->store_id, 'coi_id' => $request->item_id])->exists();
 
             if ($alreadyExists) {
@@ -130,6 +126,11 @@ class FGOpeningBalanceController extends Controller
                     'success' => false
                 ]);
             }
+            
+            AccountTransaction::where(['doc_id' => $finishGoodsOpeningBalance->id, 'doc_type' => 'FGOB'])->delete();
+            $finishGoodsOpeningBalance->inventoryTransaction()->delete();
+
+            $finishGoodsOpeningBalance->delete();
 
             $fgob = $this->base_model->create([
                 'uid' => $previous_uid,
