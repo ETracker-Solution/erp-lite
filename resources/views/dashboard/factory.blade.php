@@ -157,7 +157,7 @@
                         </div>
                     </div>
                     <div class="card-body">
-                        <canvas id="total-expense-chart"></canvas>
+                        <canvas id="finish-goods-chart"></canvas>
                     </div>
                 </div>
             </div>
@@ -284,6 +284,12 @@
     $formatted_stocks = array_map(function($num) {
         return number_format($num, 0);
     }, $stocks);
+
+    $fg_stocks = $fgStock['productWise']['stock'];
+    // Format each number in the stock array
+    $fg_formatted_stocks = array_map(function($num) {
+        return number_format($num, 0);
+    }, $fg_stocks);
 ?>
 
 @push('script')
@@ -647,13 +653,23 @@
         statisticsProfitChart.render();
     </script>
     <script>
-        new Chart("total-expense-chart", {
+        function generateColors(numColors) {
+            var colors = ["green", "red", "blue", "orange", "brown", "purple", "yellow", "cyan", "magenta", "lime"];
+            var dynamicColors = [];
+            for (var i = 0; i < numColors; i++) {
+                dynamicColors.push(colors[i % colors.length]);
+            }
+            return dynamicColors;
+        }
+        new Chart("finish-goods-chart", {
             type: "bar",
             data: {
                 labels: JSON.parse('<?= json_encode($fgStock['productWise']['products']) ?>'),
                 datasets: [{
-                    backgroundColor: ["red", "green", "blue", "orange", "brown", "red", "green", "blue", "orange", "brown"],
-                    data: JSON.parse('<?= json_encode($fgStock['productWise']['stock']) ?>'),
+                    backgroundColor: generateColors(<?= count($fgStock['productWise']['products']) ?>),
+                    data: JSON.parse('<?= json_encode($fg_formatted_stocks) ?>').map(function(value) {
+                        return parseFloat(value.replace(/,/g, ''));
+                    }),
                 }]
             },
             options: {
@@ -665,6 +681,8 @@
             }
         });
     </script>
+
+
     <script>
         new Chart("outlet-wise-chart", {
             type: "line",
@@ -680,8 +698,8 @@
             },
             options: {
                 legend: {display: false},
-                scales: {
-                    yAxes: [{ticks: {min: 6, max: 16}}],
+                scales1: {
+                    yAxes1: [{ticks: {min: 6, max: 16}}],
                 }
             }
         });
