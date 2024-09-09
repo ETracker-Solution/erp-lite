@@ -143,7 +143,7 @@ class SaleReportController extends Controller
                     SS.subtotal AS 'Amount',
                     SS.discount AS 'Discount',
                     (SS.subtotal - SS.discount) AS 'After Discount',
-                    ATT.amount AS 'COGS'
+                    0 AS 'COGS'
                 FROM
                     sales SS
                 LEFT JOIN
@@ -166,7 +166,7 @@ class SaleReportController extends Controller
                     SUM(SS.subtotal) AS 'Amount',
                     SUM(SS.discount) AS 'Discount',
                     SUM(SS.subtotal - SS.discount) AS 'After Discount',
-                    SUM(ATT.amount) AS 'COGS'
+                    0 AS 'COGS'
                 FROM
                     sales SS
                 JOIN
@@ -187,7 +187,7 @@ class SaleReportController extends Controller
                     SS.subtotal AS 'Amount',
                     SS.discount AS 'Discount',
                     (SS.subtotal - SS.discount) AS 'After Discount',
-                    ATT.amount AS 'COGS'
+                    0 AS 'COGS'
                 FROM
                     sales SS
                 LEFT JOIN
