@@ -98,10 +98,10 @@
                 <td>{{$row->date}}</td>
                 <td>{{$row->invoice_number}}</td>
                 <td>{{$row->outlet->name}}</td>
-                <td>{{$row->total_discount_amount}}</td>
+                <td>{{$row->grand_total}}</td>
             </tr>
             @php
-                $total=$total+$row->total_discount_amount;
+                $total=$total+$row->grand_total;
             @endphp
         @endforeach
         <tr>

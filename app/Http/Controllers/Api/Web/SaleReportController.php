@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Web;
 use App\Http\Controllers\Controller;
 use App\Models\ChartOfInventory;
 use App\Models\Customer;
+use App\Models\OthersOutletSale;
 use App\Models\Outlet;
 use App\Models\Sale;
 use App\Models\Store;
@@ -69,7 +70,7 @@ class SaleReportController extends Controller
 
             $data = [
                 'dateRange' => $dateRange,
-                'data' => Sale::with('customer', 'outlet')->where('outlet_id', $outlet->id)->where('date', '>=', $from_date)->where('date', '<=', $to_date)->get(),
+                'data' => OthersOutletSale::with('customer', 'outlet')->where('outlet_id', $outlet->id)->where('date', '>=', $from_date)->where('date', '<=', $to_date)->get(),
                 'page_title' => $page_title,
                 'report_header' => $report_header
             ];
@@ -80,9 +81,8 @@ class SaleReportController extends Controller
             $page_title = 'Customer Name :: ' . $customer->name;
             $data = [
                 'dateRange' => $dateRange,
-                'data' => [],
+                'data' => OthersOutletSale::with('customer', 'outlet')->where('customer_id', $customer->id)->where('date', '>=', $from_date)->where('date', '<=', $to_date)->get(),
                 'page_title' => $page_title,
-                'columns' => [],
                 'report_header' => $report_header
             ];
             $pdf = Pdf::loadView('sale.report.single_due', $data);

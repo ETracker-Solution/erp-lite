@@ -104,7 +104,7 @@
                 <td>{{$row->grand_total}}</td>
             </tr>
             @php
-                $total=$total+$row->grand_total;
+                $total=$total+($row->grand_total-($row->receive_amount+$row->delivery_point_receive_amount));
             @endphp
         @endforeach
         <tr>
