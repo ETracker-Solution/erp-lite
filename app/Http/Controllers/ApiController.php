@@ -143,8 +143,8 @@ class ApiController extends Controller
 
         foreach ($products as $product) {
 
-            $product['group'] = $product->parent->name;
-            $product['uom'] = $product->unit->name;
+            $product['group'] = $product->parent ? $product->parent->name : '';
+            $product['uom'] = $product->unit ? $product->unit->name : '';
             $product['stock'] = '';
             $product['quantity'] = '';
             $product['price'] = '';
