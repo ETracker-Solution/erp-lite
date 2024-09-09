@@ -32,10 +32,13 @@ class RMInventoryAdjustmentController extends Controller
                 ->editColumn('status', function ($row) {
                     return showStatus($row->status);
                 })
+                ->editColumn('type', function ($row) {
+                    return showStatus($row->transaction_type);
+                })
                 ->addColumn('created_at', function ($row) {
                     return view('common.created_at', compact('row'));
                 })
-                ->rawColumns(['action', 'amount_info', 'status'])
+                ->rawColumns(['action', 'amount_info', 'status','type'])
                 ->make(true);
         }
         return view('rm_inventory_adjustment.index');
@@ -110,9 +113,9 @@ class RMInventoryAdjustmentController extends Controller
     public function show($id)
     {
 
-        $fGInventoryAdjustment = InventoryAdjustment::findOrFail(decrypt($id));
+        $RMInventoryAdjustment = InventoryAdjustment::findOrFail(decrypt($id));
         $items = InventoryAdjustmentItem::where('inventory_adjustment_id', decrypt($id))->get();
-        return view('rm_inventory_adjustment.show', compact('fGInventoryAdjustment', 'items'));
+        return view('rm_inventory_adjustment.show', compact('RMInventoryAdjustment', 'items'));
     }
 
     /**

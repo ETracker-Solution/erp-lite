@@ -95,7 +95,7 @@
                         "defaultContent":"Not Set"
                     },
                     {
-                        data: "transaction_type",
+                        data: "type",
                         title: "Transaction Type",
                         searchable: true,
                         "defaultContent":"Not Set"
