@@ -25,17 +25,17 @@
                         </div>
                         <div class="card-body">
                             <div class="row">
-                                {{--                                <div class="col-12">--}}
-                                {{--                                    <div class="form-group">--}}
-                                {{--                                        <label for="store_id">Outlet</label>--}}
-                                {{--                                        <select name="store_id" id="store_id" class="form-control" v-model="store_id">--}}
-                                {{--                                            <option value="">Select a Outlet</option>--}}
-                                {{--                                            <option :value="row.id" v-for="row in stores"--}}
-                                {{--                                            >@{{ row.id + ' - ' + row.name }}--}}
-                                {{--                                            </option>--}}
-                                {{--                                        </select>--}}
-                                {{--                                    </div>--}}
-                                {{--                                </div>--}}
+                                <div class="col-12">
+                                    <div class="form-group">
+                                        <label for="store_id">Outlet</label>
+                                        <select name="store_id" id="store_id" class="form-control" v-model="store_id">
+                                            <option value="">Select a Outlet</option>
+                                            <option :value="row.id" v-for="row in stores"
+                                            >@{{ row.id + ' - ' + row.name }}
+                                            </option>
+                                        </select>
+                                    </div>
+                                </div>
                                 <div class="col-12">
                                     <div class="form-group">
                                         <label for="group_id">Group</label>
@@ -136,6 +136,25 @@
                                                 @click="showReport('Single Customer Details')">
                                             Show Single Customer Details
                                         </button>
+                                        <hr>
+                                        {{-- Due and Discount Report --}}
+                                        <button class="btn btn-sm btn-dark w-50 mb-2"
+                                                @click="showReport('Outlet Wise Due')">
+                                            Show Outlet Wise Due
+                                        </button>
+                                        <button class="btn btn-sm btn-dark w-50 mb-2"
+                                                @click="showReport('Single Customer Due')">
+                                            Show Single Customer Due
+                                        </button>
+                                        <button class="btn btn-sm btn-dark w-50 mb-2"
+                                                @click="showReport('Outlet Wise Discount')">
+                                            Show Outlet Wise Discount
+                                        </button>
+                                        <button class="btn btn-sm btn-dark w-50 mb-2"
+                                                @click="showReport('Single Customer Discount')">
+                                            Show Single Customer Discount
+                                        </button>
+                                        {{-- End Due and Discount Report --}}
                                     </div>
                                 </div>
                             </div>
@@ -227,7 +246,16 @@
                                 return false;
                             }
                         }
-                        if (reportType === 'Single Customer Details') {
+                        if (reportType === 'Outlet Wise Discount' || reportType === 'Outlet Wise Due') {
+                            if (!vm.store_id) {
+                                toastr.error('Please Select an Outlet', {
+                                    closeButton: true,
+                                    progressBar: true,
+                                });
+                                return false;
+                            }
+                        }
+                        if (reportType === 'Single Customer Details' || reportType === 'Single Customer Due' || reportType === 'Single Customer Discount') {
                             if (!vm.customer_id) {
                                 toastr.error('Please Select a Customer', {
                                     closeButton: true,
@@ -246,6 +274,7 @@
                                 to_date: vm.to_date,
                                 item_id: vm.item_id,
                                 customer_id: vm.customer_id,
+                                store_id: vm.store_id,
                             },
                             responseType: 'blob',
                         }).then(function (response) {
