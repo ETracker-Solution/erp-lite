@@ -72,8 +72,8 @@
                                     @foreach ($model->items as $item)
                                         <tr>
                                             <td>{{ $loop->iteration }}</td>
-                                            <td>{{ $item->coi->parent->name }}</td>
-                                            <td>{{ $item->coi->name }}</td>
+                                            <td>{{ $item->coi->parent ? $item->coi->parent->name : '' }}</td>
+                                            <td>{{ $item->coi ? $item->coi->name : '' }}</td>
                                             <td>{{ $item->unit_price }}</td>
                                             <td>{{ $item->quantity?? '' }} {{ $item->product->unit->name?? '' }}</td>
                                             <td>{{ $item->discount }}</td>
