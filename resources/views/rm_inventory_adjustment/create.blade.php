@@ -89,7 +89,7 @@
                                                             required>
                                                         <option value="">Select one</option>
                                                         <option value="increase">Increase</option>
-                                                        <option value="decrease">Decrease</option>
+                                                        <option value="decrease">Wastage</option>
                                                     </select>
                                                 </div>
                                             </div>

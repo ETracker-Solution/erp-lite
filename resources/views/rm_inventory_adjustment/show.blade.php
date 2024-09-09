@@ -1,15 +1,15 @@
 @extends('layouts.app')
 @section('title')
-FGInventory Adjustment Details
+RM Inventory Adjustment Details
 @endsection
 @section('content')
     @php    
         $links = [
         'Home'=>route('dashboard'),
-        'FG Inventory Adjustment'=>''
+        'RM Inventory Adjustment'=>''
         ]
     @endphp
-<x-breadcrumb title='FG Inventory Adjustment Details' :links="$links"/>
+<x-breadcrumb title='RM Inventory Adjustment Details' :links="$links"/>
 
 <section class="content">
     <div class="container-fluid">
@@ -25,11 +25,11 @@ FGInventory Adjustment Details
                                 <tbody>
                                     <tr>
                                         <td style="text-align: left; padding:8px; line-height: 0.6">
-                                            <p><b>UID :</b> {{ $fGInventoryAdjustment->uid }}</p>
-                                            <p><b>Date :</b> {{ $fGInventoryAdjustment->date }} </p>
-                                            <p><b>Store :</b> {{ $fGInventoryAdjustment->store->name }} </p>
-                                            <p><b>Transaction Type :</b> {{ $fGInventoryAdjustment->transaction_type }}</p>
-                                            <p><b>Status :</b> {!! showStatus($fGInventoryAdjustment->status) !!}</p>
+                                            <p><b>UID :</b> {{ $RMInventoryAdjustment->uid }}</p>
+                                            <p><b>Date :</b> {{ $RMInventoryAdjustment->date }} </p>
+                                            <p><b>Store :</b> {{ $RMInventoryAdjustment->store->name }} </p>
+                                            <p><b>Transaction Type :</b> {!! showStatus($RMInventoryAdjustment->transaction_type) !!}</p>
+                                            <p><b>Status :</b> {!! showStatus($RMInventoryAdjustment->status) !!}</p>
                                         </td> 
                                     </tr>
                                 </tbody>

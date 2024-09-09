@@ -30,10 +30,13 @@ class FGInventoryAdjustmentController extends Controller
                 ->editColumn('status', function ($row) {
                     return showStatus($row->status);
                 })
+                ->editColumn('type', function ($row) {
+                    return showStatus($row->transaction_type);
+                })
                 ->addColumn('created_at', function ($row) {
                     return view('common.created_at', compact('row'));
                 })
-                ->rawColumns(['action','status', 'amount_info'])
+                ->rawColumns(['action','status', 'amount_info','type'])
                 ->make(true);
         }
         return view('fg_inventory_adjustment.index');
