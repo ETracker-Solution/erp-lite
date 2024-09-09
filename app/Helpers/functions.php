@@ -62,6 +62,10 @@ function showStatus($status)
             return '<span class="badge badge-pill badge-glow badge-primary">Partial Collection</span>';
         case 'wait_for_pickup':
             return '<span class="badge badge-pill badge-glow badge-warning">Wait for Pickup</span>';
+        case 'decrease':
+            return '<span class="badge badge-pill badge-glow badge-danger">Wastage</span>';
+        case 'increase':
+            return '<span class="badge badge-pill badge-glow badge-success">Increase</span>';
     }
 }
 
