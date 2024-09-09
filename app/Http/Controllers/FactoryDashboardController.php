@@ -33,7 +33,6 @@ class FactoryDashboardController extends Controller
     public function factoryDashboard()
     {
         $today =  Carbon::today()->format('Y-m-d');
-        $outlet_id = Auth::user()->employee->outlet_id;
         //first Section
         $factory_id = Auth::user()->employee->factory_id;
         $store_ids = Store::where(['doc_type'=>'factory','doc_id'=> $factory_id])->pluck('id');
@@ -72,7 +71,7 @@ class FactoryDashboardController extends Controller
         $todayTotalWastages = InventoryAdjustment::whereIn('store_id', $store_ids)->where(['date' => $today,'transaction_type'=>'decrease'])->sum('subtotal');
         $todayPreOrderDeliveries = PreOrder::where(['status' => 'pending', 'delivery_date' => $today])->count();
 
-        $todayInvoice = Sale::where('outlet_id', $outlet_id)->whereDate('created_at', Carbon::now()->format('Y-m-d'))->count();
+        $todayInvoice = Sale::whereDate('created_at', Carbon::now()->format('Y-m-d'))->count();
 
         //2nd Section
         $thisMonthTotalWastages = InventoryAdjustment::whereIn('store_id', $store_ids)->whereMonth('created_at', Carbon::now()->month)->where('transaction_type', 'decrease')->sum('subtotal');
