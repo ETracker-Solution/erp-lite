@@ -6,8 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Models\ChartOfInventory;
 use App\Models\Customer;
 use App\Models\Outlet;
+use App\Models\Sale;
 use App\Models\Store;
 use Carbon\Carbon;
+use http\Client\Curl\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use niklasravnsborg\LaravelPdf\Facades\Pdf;
@@ -26,7 +28,7 @@ class SaleReportController extends Controller
 
     public function getAllCustomers()
     {
-        return Customer::where(['type'=>'regular'])->select('id', DB::raw('CONCAT(name," - ", mobile) as name'))->get();
+        return Customer::where(['type' => 'regular'])->select('id', DB::raw('CONCAT(name," - ", mobile) as name'))->get();
     }
 
     public function create()
@@ -54,18 +56,65 @@ class SaleReportController extends Controller
             $query = $this->getAllCustomerSalesDetails($from_date, $to_date);
         } elseif ($report_type == 'Single Item Sales Details') {
             $item = ChartOfInventory::find(\request()->item_id);
-            $page_title = 'Item Name :: '.$item->name;
-            $query = $this->getSinlgeItemDetails($item->id,$from_date, $to_date);
+            $page_title = 'Item Name :: ' . $item->name;
+            $query = $this->getSinlgeItemDetails($item->id, $from_date, $to_date);
         } elseif ($report_type == 'Single Customer Details') {
             $item = Customer::find(\request()->customer_id);
-            $page_title = 'Customer Name :: '.$item->name;
-            $query = $this->getSingleCustomerDetails($item->id,$from_date, $to_date);
+            $page_title = 'Customer Name :: ' . $item->name;
+            $query = $this->getSingleCustomerDetails($item->id, $from_date, $to_date);
+        } elseif ($report_type == 'Outlet Wise Due') {
+
+            $outlet = Outlet::find(\request()->store_id);
+            $page_title = 'Outlet Name :: ' . $outlet->name;
+
+            $data = [
+                'dateRange' => $dateRange,
+                'data' => Sale::with('customer', 'outlet')->where('outlet_id', $outlet->id)->where('date', '>=', $from_date)->where('date', '<=', $to_date)->get(),
+                'page_title' => $page_title,
+                'report_header' => $report_header
+            ];
+            $pdf = Pdf::loadView('sale.report.all_due', $data);
+            $pdf->stream();
+        } elseif ($report_type == 'Single Customer Due') {
+            $customer = Customer::find(\request()->customer_id);
+            $page_title = 'Customer Name :: ' . $customer->name;
+            $data = [
+                'dateRange' => $dateRange,
+                'data' => [],
+                'page_title' => $page_title,
+                'columns' => [],
+                'report_header' => $report_header
+            ];
+            $pdf = Pdf::loadView('sale.report.single_due', $data);
+            $pdf->stream();
+        } elseif ($report_type == 'Outlet Wise Discount') {
+            $outlet = Outlet::find(\request()->store_id);
+            $page_title = 'Outlet Name :: ' . $outlet->name;
+            $data = [
+                'dateRange' => $dateRange,
+                'data' => Sale::with('customer', 'outlet')->where('outlet_id', $outlet->id)->where('date', '>=', $from_date)->where('date', '<=', $to_date)->get(),
+                'page_title' => $page_title,
+                'report_header' => $report_header
+            ];
+            $pdf = Pdf::loadView('sale.report.all_discount', $data);
+            $pdf->stream();
+        } elseif ($report_type == 'Single Customer Discount') {
+            $customer = Customer::find(\request()->customer_id);
+            $page_title = 'Customer Name :: ' . $customer->name;
+            $data = [
+                'dateRange' => $dateRange,
+                'data' => Sale::with('customer', 'outlet')->where('customer_id', $customer->id)->where('date', '>=', $from_date)->where('date', '<=', $to_date)->get(),
+                'page_title' => $page_title,
+                'report_header' => $report_header
+            ];
+            $pdf = Pdf::loadView('sale.report.single_discount', $data);
+            $pdf->stream();
         }
 
         $getData = DB::select($query);
 
-        if (!isset($getData[0])){
-            return response()->json(['success'=>false]);
+        if (!isset($getData[0])) {
+            return response()->json(['success' => false]);
         }
         $columns = array_keys((array)$getData[0]);
 
@@ -86,7 +135,7 @@ class SaleReportController extends Controller
         $outlet_id = auth()->user()->employee && auth()->user()->employee->outlet_id ? auth()->user()->employee->outlet_id : null;
         if (auth()->user()->is_super) {
             return "
-                SELECT 
+                SELECT
                     SS.invoice_number AS 'Invoice Number',
                     US.name AS 'Seller',
                     IFNULL(SS.waiter_name, '') AS 'Waiter',
@@ -95,18 +144,18 @@ class SaleReportController extends Controller
                     SS.discount AS 'Discount',
                     (SS.subtotal - SS.discount) AS 'After Discount',
                     ATT.amount AS 'COGS'
-                FROM 
+                FROM
                     sales SS
-                LEFT JOIN 
+                LEFT JOIN
                     users US ON SS.created_by = US.id
-                JOIN 
+                JOIN
                     account_transactions ATT ON ATT.doc_id = SS.id
-                WHERE 
+                WHERE
                     ATT.doc_type = 'POS'
                     AND ATT.chart_of_account_id = 43
                     AND SS.date >= '$from_date'
                     AND SS.date <= '$to_date'
-                
+
                 UNION ALL
 
                 SELECT
@@ -130,7 +179,7 @@ class SaleReportController extends Controller
             ";
         } else {
             return "
-                SELECT 
+                SELECT
                     SS.invoice_number AS 'Invoice Number',
                     US.name AS 'Seller',
                     IFNULL(SS.waiter_name, '') AS 'Waiter',
@@ -139,19 +188,19 @@ class SaleReportController extends Controller
                     SS.discount AS 'Discount',
                     (SS.subtotal - SS.discount) AS 'After Discount',
                     ATT.amount AS 'COGS'
-                FROM 
+                FROM
                     sales SS
-                LEFT JOIN 
+                LEFT JOIN
                     users US ON SS.created_by = US.id
-                JOIN 
+                JOIN
                     account_transactions ATT ON ATT.doc_id = SS.id
-                WHERE 
+                WHERE
                     ATT.doc_type = 'POS'
                     AND ATT.chart_of_account_id = 43
                     AND SS.date >= '$from_date'
                     AND SS.date <= '$to_date'
                     AND SS.outlet_id = '$outlet_id'
-                
+
                 UNION ALL
 
                 SELECT
@@ -181,8 +230,8 @@ class SaleReportController extends Controller
     public function getItemWiseSalesSummary($from_date, $to_date)
     {
         $outlet_id = auth()->user()->employee && auth()->user()->employee->outlet_id ? auth()->user()->employee->outlet_id : null;
-        if (auth()->user()->is_super){
-        return "
+        if (auth()->user()->is_super) {
+            return "
 select COI.name as 'Item', SUM(SI.quantity) as 'Quantity', SUM(SI.quantity * SI.unit_price) as 'Sales Amount'
 from sales SS
 join sale_items SI
@@ -192,7 +241,7 @@ on COI.id = SI.product_id
 WHERE SS.date >= '$from_date'
 AND SS.date <= '$to_date'
 group by COI.id";
-        }else{
+        } else {
             return "
 select COI.name as 'Item', SUM(SI.quantity) as 'Quantity', SUM(SI.quantity * SI.unit_price) as 'Sales Amount'
 from sales SS
@@ -231,7 +280,7 @@ group by SS.outlet_id, SI.product_id
     public function getAllCustomerSalesDetails($from_date, $to_date)
     {
         $outlet_id = auth()->user()->employee && auth()->user()->employee->outlet_id ? auth()->user()->employee->outlet_id : null;
-        if (auth()->user()->is_super){
+        if (auth()->user()->is_super) {
             return "
 select SS.invoice_number as 'Invoice Number', SS.date as 'Date', CU.name as 'Customer Name', COI.name as 'Item Name', SI.quantity as 'Quantity', SI.unit_price  as 'Rate', (SI.quantity * SI.unit_price)  as 'Value'
 from sales SS
@@ -244,7 +293,7 @@ on COI.id = SI.product_id
 WHERE SS.date >= '$from_date'
 AND SS.date <= '$to_date'
         ";
-        }else{
+        } else {
             return "
 select SS.invoice_number as 'Invoice Number', SS.date as 'Date', CU.name as 'Customer Name', COI.name as 'Item Name', SI.quantity as 'Quantity', SI.unit_price  as 'Rate', (SI.quantity * SI.unit_price)  as 'Value'
 from sales SS
@@ -265,7 +314,7 @@ AND SS.outlet_id = '$outlet_id'
     public function getSinlgeItemDetails($item_id, $from_date, $to_date)
     {
         $outlet_id = auth()->user()->employee && auth()->user()->employee->outlet_id ? auth()->user()->employee->outlet_id : null;
-        if (auth()->user()->is_super){
+        if (auth()->user()->is_super) {
             return "
         select SS.invoice_number as 'Invoice Number', SS.date as 'Date', SI.quantity as 'Quantity', SI.unit_price as 'Rate', (SI.quantity * SI.unit_price) as 'Sales Value', OT.name as 'Outlet'
 from sales SS
@@ -277,7 +326,7 @@ WHERE SI.product_id = $item_id
         AND SS.date >= '$from_date'
 AND SS.date <= '$to_date'
         ";
-        }else{
+        } else {
             return "
         select SS.invoice_number as 'Invoice Number', SS.date as 'Date', SI.quantity as 'Quantity', SI.unit_price as 'Rate', (SI.quantity * SI.unit_price) as 'Sales Value', OT.name as 'Outlet'
 from sales SS
@@ -297,7 +346,7 @@ AND SS.date <= '$to_date'
     public function getSingleCustomerDetails($customer_id, $from_date, $to_date)
     {
         $outlet_id = auth()->user()->employee && auth()->user()->employee->outlet_id ? auth()->user()->employee->outlet_id : null;
-        if (auth()->user()->is_super){
+        if (auth()->user()->is_super) {
             return "
         select SS.invoice_number as 'Invoice Number', SS.date as 'Date', COI.name as 'Item Name', SI.quantity as 'Quantity', SI.unit_price as 'Rate', (SI.quantity * SI.unit_price) as 'Sales Value', OT.name as 'Outlet'
 from sales SS
@@ -313,7 +362,7 @@ WHERE SS.customer_id= $customer_id
         AND SS.date >= '$from_date'
 AND SS.date <= '$to_date'
         ";
-        }else{
+        } else {
             return "
         select SS.invoice_number as 'Invoice Number', SS.date as 'Date', COI.name as 'Item Name', SI.quantity as 'Quantity', SI.unit_price as 'Rate', (SI.quantity * SI.unit_price) as 'Sales Value', OT.name as 'Outlet'
 from sales SS
