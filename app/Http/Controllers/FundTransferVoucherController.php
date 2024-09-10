@@ -259,8 +259,10 @@ class FundTransferVoucherController extends Controller
         // if (\request()->filled('status')) {
         //     $fundTransferVoucher->where('status', \request()->status);
         // }
-        // if (\request()->filled('priority')) {
-        //     $fundTransferVoucher->where('priority', \request()->priority);
+        // if (\request()->filled('store_id')) {
+        //     $fundTransferVoucher->whereHas('outlet', function ($q) {
+        //         $q->where('store_id', \request()->store_id);
+        //     });
         // }
         if (\request()->filled('date_range')) {
             searchColumnByDateRange($fundTransferVoucher);

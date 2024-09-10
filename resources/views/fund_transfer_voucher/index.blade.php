@@ -34,12 +34,12 @@
                                                        placeholder="Enter Store Name" name="code"/>
                                             </div> --}}
                                             {{-- <div class="form-group col-md-3">
-                                                <label for="location_id" class="font-weight-bold">Select Location</label>
-                                                <select class="form-control select2" name="location_id" id="location_id"
+                                                <label for="store_id" class="font-weight-bold">Select Store</label>
+                                                <select class="form-control select2" name="store_id" id="store_id"
                                                         required>
                                                     <option value="" selected>All</option>
-                                                    @foreach ($locations as $location)
-                                                        <option value="{{ $location->id }}">{{ $location->name }}</option>
+                                                    @foreach ($stores as $store)
+                                                        <option value="{{ $store->id }}">{{ $store->name }}</option>
                                                     @endforeach
                                                 </select>
                                             </div> --}}
@@ -123,7 +123,7 @@
                 ajax: {
                     url: "{{ route('fund-transfer-vouchers.index') }}",
                     data: function(d) {
-                        // d.issue_type = $('select[name="issue_type"]').find(':selected').val();
+                        // d.store_id = $('select[name="store_id"]').val();
                         d.date_range = $('input[name="date_range"]').val();
                         // d.title = $('input[name="title"]').val();
                     }
@@ -178,6 +178,9 @@
         $('#fp-range').on('change', function() {
             recallDatatable();
         })
+        $('#store_id').on('change', function () {
+            recallDatatable();
+        });
 
         function recallDatatable() {
             $('#dataTable').DataTable().draw(true);
