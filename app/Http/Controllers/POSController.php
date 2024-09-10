@@ -412,11 +412,11 @@ class POSController extends Controller
 
 
         $dompdf->render();
-        $output = $dompdf->output();
-        $pdfFilePath = storage_path('app/invoices/invoice_' . $id . '.pdf');
-        file_put_contents($pdfFilePath, $output);
+//        $output = $dompdf->output();
+//        $pdfFilePath = storage_path('app/invoices/invoice_' . $id . '.pdf');
+//        file_put_contents($pdfFilePath, $output);
         // Serve the PDF URL
-        return response()->file($pdfFilePath);
+//        return response()->file($pdfFilePath);
 
 
 
