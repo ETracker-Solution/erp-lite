@@ -42,7 +42,7 @@
                     </a>
                 </li>
 
-                @canany(['accounts-receive-voucher','accounts-payment-voucher','accounts-journal-voucher','accounts-ft-voucher','accounts-delivery-cash-transfer','accounts-delivery-cash-receive','supplier-voucher','accounts-ledger-report','accounts-financial-report'])
+                @canany(['accounts-receive-voucher','accounts-payment-voucher','accounts-journal-voucher','accounts-ft-voucher','accounts-delivery-cash-transfer','accounts-delivery-cash-receive','supplier-voucher','accounts-ledger-report','accounts-financial-report','accounts-supplier-voucher'])
                     <li class="nav-item {{ (Request::segment(1) == 'reports'|| Request::segment(1) == 'financial-statements'|| Request::segment(1) == 'receive-vouchers'|| Request::segment(1) == 'payment-vouchers'|| Request::segment(1) == 'journal-vouchers'|| Request::segment(1) == 'fund-transfer-vouchers'|| Request::segment(1) == 'delivery-cash-transfers'|| Request::segment(1) == 'delivery-cash-receives'|| Request::segment(1) == 'supplier-vouchers' )?'menu-open':''}}">
                         <a href="#"
                            class="nav-link {{ (Request::segment(1) == 'reports'|| Request::segment(1) == 'financial-statements'|| Request::segment(1) == 'receive-vouchers'|| Request::segment(1) == 'payment-vouchers'|| Request::segment(1) == 'journal-vouchers'|| Request::segment(1) == 'fund-transfer-vouchers'|| Request::segment(1) == 'delivery-cash-transfers'|| Request::segment(1) == 'delivery-cash-receives'|| Request::segment(1) == 'supplier-vouchers')?' active':''}}">
@@ -53,7 +53,7 @@
                             </p>
                         </a>
                         <ul class="nav nav-treeview second-child">
-                            @canany(['accounts-receive-voucher','accounts-payment-voucher','accounts-journal-voucher','accounts-ft-voucher','accounts-delivery-cash-transfer','accounts-delivery-cash-receive','supplier-voucher'])
+                            @canany(['accounts-receive-voucher','accounts-payment-voucher','accounts-journal-voucher','accounts-ft-voucher','accounts-delivery-cash-transfer','accounts-delivery-cash-receive','accounts-supplier-voucher'])
                                 <li class="nav-item {{ (Request::segment(1) == 'receive-vouchers'|| Request::segment(1) == 'payment-vouchers'|| Request::segment(1) == 'journal-vouchers'|| Request::segment(1) == 'fund-transfer-vouchers'|| Request::segment(1) == 'delivery-cash-transfers'|| Request::segment(1) == 'delivery-cash-receives'|| Request::segment(1) == 'supplier-vouchers' )?'menu-open':''}}">
                                     <a href="#"
                                        class="nav-link {{ (Request::segment(1) == 'receive-vouchers'|| Request::segment(1) == 'payment-vouchers'||Request::segment(1) == 'journal-vouchers'||Request::segment(1) == 'fund-transfer-vouchers'|| Request::segment(1) == 'delivery-cash-transfers'|| Request::segment(1) == 'delivery-cash-receives'|| Request::segment(1) == 'supplier-vouchers'  )?' active':''}}">
@@ -100,7 +100,7 @@
                                                 </a>
                                             </li>
                                         @endcan
-                                        {{-- @can('accounts-ft-voucher') --}}
+                                        @can('accounts-supplier-voucher')
                                         <li class="nav-item">
                                             <a href="{{route('supplier-vouchers.index')}}"
                                                class="nav-link {{ (Request::segment(1) == 'supplier-vouchers' )?' active':''}}">
@@ -108,7 +108,7 @@
                                                 <p>Supplier Voucher</p>
                                             </a>
                                         </li>
-                                        {{-- @endcan --}}
+                                        @endcan
                                         @can('accounts-delivery-cash-transfer')
                                             <li class="nav-item">
                                                 <a href="{{route('delivery-cash-transfers.index')}}"

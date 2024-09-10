@@ -69,6 +69,20 @@ function showStatus($status)
     }
 }
 
+function getDatesArrayFromDateRange(string $date_range)
+{
+    if (str_contains($date_range, ' to ')) {
+        return explode(' to ', $date_range);
+    }
+    return [$date_range, $date_range];
+}
+
+function searchColumnByDateRange($object, string $column_name = 'created_at', $date_range = null)
+{
+    $date_range = $date_range ?? request()->date_range;
+    return $object->whereBetween(DB::raw('date(' . $column_name . ')'), getDatesArrayFromDateRange($date_range));
+}
+
 function totalPreOrder($product_id)
 {
 

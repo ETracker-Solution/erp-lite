@@ -412,12 +412,12 @@ class POSController extends Controller
 //        $dompdf->setPaper('A4', $this->pageOrientation);
         // Render the HTML as PDF
         $dompdf->render();
-//        $output = $dompdf->output();
-//        $pdfFilePath = storage_path('app/invoices/invoice_' . $id . '.pdf'); // Save path
+       $output = $dompdf->output();
+       $pdfFilePath = storage_path('app/invoices/invoice_' . $id . '.pdf'); // Save path
 //
-//        file_put_contents($pdfFilePath, $output);
+       file_put_contents($pdfFilePath, $output);
 //
-//        $this->print($pdfFilePath);
+       $this->print($pdfFilePath);
         return $dompdf->stream('order', ["Attachment" => false]);
     }
 
