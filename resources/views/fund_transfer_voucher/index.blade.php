@@ -16,6 +16,40 @@
         <div class="container-fluid">
             <div class="row">
                 <div class="col-12">
+                        <div class="col-lg-12 col-md-12">
+                            <div class="mb-2 card">
+                                <div class="card-content collapse show">
+                                    <div class="card-body">
+                                        
+                                        <div class="row">
+                                        
+                                            <div class="col-md-3 form-group">
+                                                <label for="fp-range" class="font-weight-bold">DATE RANGE</label>
+                                                <input type="text" id="fp-range" class="form-control flatpickr-range"
+                                                       placeholder="YYYY-MM-DD to YYYY-MM-DD" name="date_range"/>
+                                            </div>
+                                            {{-- <div class="col-md-3 form-group">
+                                                <label for="code" class="font-weight-bold">Store Name</label>
+                                                <input type="text" id="code" class="form-control"
+                                                       placeholder="Enter Store Name" name="code"/>
+                                            </div> --}}
+                                            {{-- <div class="form-group col-md-3">
+                                                <label for="location_id" class="font-weight-bold">Select Location</label>
+                                                <select class="form-control select2" name="location_id" id="location_id"
+                                                        required>
+                                                    <option value="" selected>All</option>
+                                                    @foreach ($locations as $location)
+                                                        <option value="{{ $location->id }}">{{ $location->name }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div> --}}
+                                            
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                            </div>
+                        </div>
                     <div class="card card-info">
                         <div class="card-header">
                             <h3 class="card-title">All Fund Transfer Voucher List</h3>
@@ -48,13 +82,30 @@
 @endsection
 
 @section('css')
+    <link rel="stylesheet" type="text/css"
+    href="{{ asset('datepicker/app-assets/vendors/css/pickers/pickadate/pickadate.css') }}">
+    <link rel="stylesheet" type="text/css"
+    href="{{ asset('datepicker/app-assets/vendors/css/pickers/flatpickr/flatpickr.min.css') }}">
+    <link rel="stylesheet" type="text/css"
+    href="{{ asset('datepicker/app-assets/css/plugins/forms/pickers/form-flat-pickr.css') }}">
+    <link rel="stylesheet" type="text/css"
+    href="{{ asset('datepicker/app-assets/css/plugins/forms/pickers/form-pickadate.css') }}">
+    <link rel="stylesheet" type="text/css"
+    href="{{ asset('datepicker') }}/app-assets/css/core/menu/menu-types/vertical-menu.css">
     <!-- DataTables -->
     <link rel="stylesheet" href="{{ asset('assets/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css')}}">
 @endsection
 @push('style')
-
+    
 @endpush
 @section('js')
+
+    <script src="{{ asset('datepicker/app-assets/vendors/js/pickers/pickadate/picker.js') }}"></script>
+    <script src="{{ asset('datepicker/app-assets/vendors/js/pickers/pickadate/picker.date.js') }}"></script>
+    <script src="{{ asset('datepicker/app-assets/vendors/js/pickers/pickadate/picker.time.js') }}"></script>
+    <script src="{{ asset('datepicker/app-assets/vendors/js/pickers/pickadate/legacy.js') }}"></script>
+    <script src="{{ asset('datepicker/app-assets/vendors/js/pickers/flatpickr/flatpickr.min.js') }}"></script>
+    <script src="{{ asset('datepicker/app-assets/js/scripts/forms/pickers/form-pickers.js') }}"></script>
     <!-- DataTables -->
     <script src="{{ asset('assets/plugins/datatables/jquery.dataTables.min.js')}}"></script>
     <script src="{{ asset('assets/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js')}}"></script>
@@ -71,6 +122,11 @@
                 processing: true,
                 ajax: {
                     url: "{{ route('fund-transfer-vouchers.index') }}",
+                    data: function(d) {
+                        // d.issue_type = $('select[name="issue_type"]').find(':selected').val();
+                        d.date_range = $('input[name="date_range"]').val();
+                        // d.title = $('input[name="title"]').val();
+                    }
                 },
                 columns: [{
                     data: "DT_RowIndex",
@@ -118,6 +174,14 @@
                 ],
             });
         })
+
+        $('#fp-range').on('change', function() {
+            recallDatatable();
+        })
+
+        function recallDatatable() {
+            $('#dataTable').DataTable().draw(true);
+        }
     </script>
 
 @endpush
