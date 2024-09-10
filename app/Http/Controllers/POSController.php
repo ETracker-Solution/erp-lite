@@ -29,6 +29,7 @@ use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Mike42\Escpos\PrintConnectors\CupsPrintConnector;
+use Mike42\Escpos\PrintConnectors\FilePrintConnector;
 use Mike42\Escpos\Printer;
 
 class POSController extends Controller
@@ -408,15 +409,26 @@ class POSController extends Controller
         $options = ['chroot' => base_path()];
         $dompdf = new Dompdf($options);
         $dompdf->loadHtml(view('pos.print.order', compact('sale'))->render());
+
+
+        $dompdf->render();
+        $output = $dompdf->output();
+        $pdfFilePath = storage_path('app/invoices/invoice_' . $id . '.pdf');
+        file_put_contents($pdfFilePath, $output);
+        // Serve the PDF URL
+        return response()->file($pdfFilePath);
+
+
+
         // (Optional) Set paper size and orientation
 //        $dompdf->setPaper('A4', $this->pageOrientation);
         // Render the HTML as PDF
-        $dompdf->render();
+//        $dompdf->render();
 //        $output = $dompdf->output();
 //        $pdfFilePath = storage_path('app/invoices/invoice_' . $id . '.pdf'); // Save path
-//
+////
 //        file_put_contents($pdfFilePath, $output);
-//
+////
 //        $this->print($pdfFilePath);
         return $dompdf->stream('order', ["Attachment" => false]);
     }
@@ -513,11 +525,15 @@ class POSController extends Controller
         $printerName = $this->getDefaultPrinter();
         $connector = new CupsPrintConnector($printerName);
         $printer = new Printer($connector);
-
         // Start printing
         try {
-            exec("lp -d " . escapeshellarg($printerName) . " " . escapeshellarg($pdfFilePath));
-//            $printer->cut();
+            $printer->feed();
+            exec("lp -d " . escapeshellarg($printerName) . " " . escapeshellarg($pdfFilePath), $output);
+
+            if ($output === null) {
+                return "Failed to execute command.";
+            }
+            $printer->cut();
         } catch (\Exception $e) {
             return "Failed to print: " . $e->getMessage();
         } finally {
