@@ -525,15 +525,11 @@ class POSController extends Controller
         $printerName = $this->getDefaultPrinter();
         $connector = new CupsPrintConnector($printerName);
         $printer = new Printer($connector);
+
         // Start printing
         try {
-            $printer->feed();
-            exec("lp -d " . escapeshellarg($printerName) . " " . escapeshellarg($pdfFilePath), $output);
-
-            if ($output === null) {
-                return "Failed to execute command.";
-            }
-            $printer->cut();
+            exec("lp -d " . escapeshellarg($printerName) . " " . escapeshellarg($pdfFilePath));
+//            $printer->cut();
         } catch (\Exception $e) {
             return "Failed to print: " . $e->getMessage();
         } finally {

@@ -25,12 +25,13 @@ class FundTransferVoucherController extends Controller
     public function index()
     {
         if (\request()->ajax()) {
-            if (\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->outlet_id) {
-                $fundTransferVouchers = FundTransferVoucher::where('created_by', \auth()->user()->id)->with('creditAccount', 'debitAccount')->latest();
+            // if (\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->outlet_id) {
+            //     $fundTransferVouchers = FundTransferVoucher::where('created_by', \auth()->user()->id)->with('creditAccount', 'debitAccount')->latest();
 
-            } else {
-                $fundTransferVouchers = FundTransferVoucher::with('creditAccount', 'debitAccount')->latest();
-            }
+            // } else {
+            //     $fundTransferVouchers = FundTransferVoucher::with('creditAccount', 'debitAccount')->latest();
+            // }
+            $fundTransferVouchers = $this->getFilteredData();
             return DataTables::of($fundTransferVouchers)
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
@@ -245,5 +246,25 @@ class FundTransferVoucherController extends Controller
         $name = \Carbon\Carbon::now()->format('d-m-Y');
 
         return $pdf->stream($name . '.pdf');
+    }
+
+    public function getFilteredData()
+    {
+        if (\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->outlet_id) {
+                $fundTransferVoucher = FundTransferVoucher::where('created_by', \auth()->user()->id)->with('creditAccount', 'debitAccount')->latest();
+
+            } else {
+                $fundTransferVoucher = FundTransferVoucher::with('creditAccount', 'debitAccount')->latest();
+            }
+        // if (\request()->filled('status')) {
+        //     $fundTransferVoucher->where('status', \request()->status);
+        // }
+        // if (\request()->filled('priority')) {
+        //     $fundTransferVoucher->where('priority', \request()->priority);
+        // }
+        if (\request()->filled('date_range')) {
+            searchColumnByDateRange($fundTransferVoucher);
+        }
+        return $fundTransferVoucher->latest();
     }
 }
