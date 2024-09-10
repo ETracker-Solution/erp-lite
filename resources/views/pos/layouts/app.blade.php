@@ -754,7 +754,13 @@
                 printInvoice(order_id) {
                     this.closePaymentModal()
                     const url = this.config.print_invoice_url + '/' + order_id
-                    window.open(url, '_blank').focus();
+                    // window.open(url, '_blank').focus();
+                    var printWindow = window.open(url, '_blank');
+
+                    // Wait for the PDF to load and then print
+                    printWindow.onload = function() {
+                        printWindow.print();
+                    };
                     // window.location.href = url
                 },
                 openCouponModal() {
