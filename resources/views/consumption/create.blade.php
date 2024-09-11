@@ -49,7 +49,7 @@
                                                                        id="serial_no" v-model="serial_no">
                                                                 {{-- <span class="input-group-append">
                     <button type="button" class="btn btn-info btn-flat" @click="data_edit">Search</button> --}}
-                  </span>
+                                                                </span>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -208,7 +208,7 @@
 
                                                             </td>
                                                             <td style="width: 50px">
-                                                                @{{ row.unit }}
+                                                                @{{ row.uom }}
                                                             </td>
                                                             <td style="width: 180px">
                                                                 <input type="number" v-model="row.balance"
@@ -334,6 +334,7 @@
                         get_items_info_by_group_id_url: "{{ url('fetch-items-by-group-id') }}",
                         get_item_balance_info_url: "{{ url('fetch-item-available-balance') }}",
                         get_item_info_url: "{{ url('fetch-item-info-rm-consumption') }}",
+                        get_items_by_group_id_rm_consumption_url: "{{ url('fetch-items-by-group-id-rm-consumption') }}",
                         get_edit_data_url: "{{ url('fetch-consumption-by-id') }}",
                     },
                     action: {{$store_url}},
@@ -365,16 +366,25 @@
 
                     fetch_product() {
 
-                        var vm = this;
+                        let vm = this;
+                        let store_id = vm.store_id;
 
-                        var slug = vm.group_id;
+                        if (!store_id) {
+                            vm.group_id = '';
+                            toastr.error('Please Select Store', {
+                                closeButton: true,
+                                progressBar: true,
+                            });
+                            return false;
+                        }
+                        let group_id = vm.group_id;
 
-                        if (slug) {
+                        if (group_id) {
                             vm.item_id = '';
                             vm.balance = '';
                             vm.items = [];
                             vm.pageLoading = true;
-                            axios.get(this.config.get_items_info_by_group_id_url + '/' + slug).then(function (response) {
+                            axios.get(this.config.get_items_info_by_group_id_url + '/' + group_id).then(function (response) {
 
                                 // vm.selected_items = response.data.products;
                                 vm.items = response.data.products;
@@ -394,10 +404,10 @@
                     },
                     fetch_item_balance() {
 
-                        var vm = this;
+                        let vm = this;
 
-                        var store_id = vm.store_id;
-                        var item_id = vm.item_id;
+                        let store_id = vm.store_id;
+                        let item_id = vm.item_id;
                         if (!vm.store_id) {
                             toastr.error('Please Select Store', {
                                 closeButton: true,
@@ -428,8 +438,8 @@
                     data_input() {
 
                         let vm = this;
-                        let slug = vm.item_id;
                         let store_id = vm.store_id;
+                        let group_id = vm.group_id;
 
                         if (!store_id) {
                             toastr.error('Please Select Store', {
@@ -438,58 +448,84 @@
                             });
                             return false;
                         }
-                        if (!slug) {
-                            toastr.error('Please Select Item', {
+                        if (!group_id) {
+                            toastr.error('Please Select Group', {
                                 closeButton: true,
                                 progressBar: true,
                             });
                             return false;
-                        }
-
-                        let exists = vm.selected_items.some(function (field) {
-                            return field.id == slug
-                        });
-                        if (exists) {
-                            toastr.info('Item Already Selected', {
-                                closeButton: true,
-                                progressBar: true,
-                            });
                         } else {
+                            let item_id = vm.item_id;
+                            let exists = vm.selected_items.some(function (field) {
+                                return field.id == item_id
+                            });
 
-
-                            if (slug) {
-                                vm.pageLoading = true;
-                                axios.get(this.config.get_item_info_url + '/' + slug+ '/' + store_id).then(function (response) {
-                                    let data = response.data;
-                                    console.log(data);
-                                    vm.selected_items.push({
-                                        id: data.item.id,
-                                        group: data.item.parent.name,
-                                        name: data.item.name,
-                                        unit: data.item.unit.name,
-                                        balance: data.balance,
-                                        rate: data.average_rate.toFixed(2),
-                                        quantity: '',
-                                    });
-                                    vm.balance = '';
-                                    vm.item_id = '';
-                                    vm.group_id = '';
-                                    vm.items = [];
-                                    vm.pageLoading = false;
-
-                                }).catch(function (error) {
-
-                                    toastr.error('Something went to wrong', {
-                                        closeButton: true,
-                                        progressBar: true,
-                                    });
-
-                                    return false;
-
+                            if (exists) {
+                                toastr.info('Item Already Selected', {
+                                    closeButton: true,
+                                    progressBar: true,
                                 });
-                            }
+                            } else {
 
+
+                                if (item_id) {
+                                    vm.pageLoading = true;
+                                    axios.get(this.config.get_item_info_url + '/' + item_id + '/' + store_id).then(function (response) {
+                                        let data = response.data;
+                                        console.log(data);
+                                        vm.selected_items.push({
+                                            id: data.item.id,
+                                            group: data.item.parent.name,
+                                            name: data.item.name,
+                                            uom: data.item.unit.name,
+                                            balance: data.balance,
+                                            rate: data.average_rate.toFixed(2),
+                                            quantity: '',
+                                        });
+                                        vm.balance = '';
+                                        vm.item_id = '';
+                                        vm.group_id = '';
+                                        vm.items = [];
+                                        vm.pageLoading = false;
+
+                                    }).catch(function (error) {
+
+                                        toastr.error('Something went to wrong', {
+                                            closeButton: true,
+                                            progressBar: true,
+                                        });
+
+                                        return false;
+
+                                    });
+                                } else {
+                                    vm.pageLoading = true;
+                                    axios.get(this.config.get_items_by_group_id_rm_consumption_url + '/' + vm.group_id + '/' + store_id).then(function (response) {
+                                        vm.selected_items = [];
+                                        vm.item_id = '';
+                                        let items = response.data.products;
+                                        for (let key in items) {
+                                            vm.selected_items.push(items[key]);
+                                        }
+                                        console.log(vm.selected_items);
+                                        // vm.item_id = '';
+                                        // vm.group_id = '';
+                                        vm.pageLoading = false;
+
+                                    }).catch(function (error) {
+
+                                        toastr.error('Something went to wrong', {
+                                            closeButton: true,
+                                            progressBar: true,
+                                        });
+
+                                        return false;
+
+                                    });
+                                }
+                            }
                         }
+
 
                     },
                     data_edit() {
@@ -535,11 +571,11 @@
                     },
                     valid: function (index) {
                         //console.log(index.stock_quantity);
-                        if(index.quantity > index.balance ){
+                        if (index.quantity > index.balance) {
                             //console.log('1st');
-                            index.quantity = index.balance ;
+                            index.quantity = index.balance;
                         }
-                        if(index.quantity <= 0){
+                        if (index.quantity <= 0) {
                             //console.log('3');
                             index.quantity = '';
                         }

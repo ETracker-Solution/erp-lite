@@ -166,6 +166,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/fetch-items-by-group-id/{id}', [App\Http\Controllers\ApiController::class, 'fetch_products_by_cat_id']);
     Route::get('/fetch-item-available-balance/{item_id}/{store_id?}', [App\Http\Controllers\ApiController::class, 'fetchItemAvailableBalance']);
     Route::get('fetch-item-info-rm-consumption/{item_id}/{store_id?}', [App\Http\Controllers\ApiController::class, 'fetchItemInfoRMConsumption']);
+    Route::get('fetch-items-by-group-id-rm-consumption/{group_id}/{store_id?}', [App\Http\Controllers\ApiController::class, 'fetchItemsByGroupIdRMConsumption']);
     Route::get('/fetch-requisitions-by-store-id/{id}', [App\Http\Controllers\ApiController::class, 'fetch_req_by_store_id']);
 
 
