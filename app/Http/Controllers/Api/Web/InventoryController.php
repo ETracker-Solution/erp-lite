@@ -73,7 +73,7 @@ class InventoryController extends Controller
                 'type' => \request()->item_type,
                 'rootAccountType' => $inventory->rootAccountType,
                 'unit_id' => \request()->unit ?? null,
-                'status' => \request()->status,
+                'status' => \request()->status?? 'active',
                 'price' => \request()->price ?? 0,
                 'created_by' => auth()->user()->id,
             ]);
