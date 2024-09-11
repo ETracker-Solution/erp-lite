@@ -33,16 +33,16 @@
                                                 <input type="text" id="code" class="form-control"
                                                        placeholder="Enter Store Name" name="code"/>
                                             </div> --}}
-                                            {{-- <div class="form-group col-md-3">
-                                                <label for="store_id" class="font-weight-bold">Select Store</label>
-                                                <select class="form-control select2" name="store_id" id="store_id"
+                                            <div class="form-group col-md-3">
+                                                <label for="outlet_id" class="font-weight-bold">Select Outlet</label>
+                                                <select class="form-control select2" name="outlet_id" id="outlet_id"
                                                         required>
                                                     <option value="" selected>All</option>
-                                                    @foreach ($stores as $store)
-                                                        <option value="{{ $store->id }}">{{ $store->name }}</option>
+                                                    @foreach ($outlets as $row)
+                                                        <option value="{{ $row->id }}">{{ $row->name }}</option>
                                                     @endforeach
                                                 </select>
-                                            </div> --}}
+                                            </div>
                                             
                                         </div>
                                     </div>
@@ -123,7 +123,7 @@
                 ajax: {
                     url: "{{ route('fund-transfer-vouchers.index') }}",
                     data: function(d) {
-                        // d.store_id = $('select[name="store_id"]').val();
+                        d.outlet_id = $('select[name="outlet_id"]').val();
                         d.date_range = $('input[name="date_range"]').val();
                         // d.title = $('input[name="title"]').val();
                     }
@@ -178,7 +178,7 @@
         $('#fp-range').on('change', function() {
             recallDatatable();
         })
-        $('#store_id').on('change', function () {
+        $('#outlet_id').on('change', function () {
             recallDatatable();
         });
 

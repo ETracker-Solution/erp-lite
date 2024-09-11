@@ -75,5 +75,10 @@ class ChartOfAccount extends Model
     {
         return $this->belongsTo(self::class, 'parent_id');
     }
+    
+    public function outlets()
+    {
+        return $this->belongsToMany(Outlet::class,'outlet_accounts', 'coa_id', 'outlet_id');
+    }
 
 }

@@ -7,6 +7,7 @@ use App\Models\FundTransferVoucher;
 use App\Http\Requests\StoreFundTransferVoucherRequest;
 use App\Http\Requests\UpdateFundTransferVoucherRequest;
 use App\Models\ChartOfAccount;
+use App\Models\Outlet;
 use App\Models\OutletTransactionConfig;
 use App\Models\Transaction;
 use Brian2694\Toastr\Facades\Toastr;
@@ -24,13 +25,8 @@ class FundTransferVoucherController extends Controller
      */
     public function index()
     {
+        $outlets = Outlet::all();
         if (\request()->ajax()) {
-            // if (\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->outlet_id) {
-            //     $fundTransferVouchers = FundTransferVoucher::where('created_by', \auth()->user()->id)->with('creditAccount', 'debitAccount')->latest();
-
-            // } else {
-            //     $fundTransferVouchers = FundTransferVoucher::with('creditAccount', 'debitAccount')->latest();
-            // }
             $fundTransferVouchers = $this->getFilteredData();
             return DataTables::of($fundTransferVouchers)
                 ->addIndexColumn()
@@ -46,7 +42,7 @@ class FundTransferVoucherController extends Controller
                 ->rawColumns(['action', 'created_at', 'status'])
                 ->make(true);
         }
-        return view('fund_transfer_voucher.index');
+        return view('fund_transfer_voucher.index',compact('outlets'));
     }
 
     /**
@@ -259,11 +255,13 @@ class FundTransferVoucherController extends Controller
         // if (\request()->filled('status')) {
         //     $fundTransferVoucher->where('status', \request()->status);
         // }
-        // if (\request()->filled('store_id')) {
-        //     $fundTransferVoucher->whereHas('outlet', function ($q) {
-        //         $q->where('store_id', \request()->store_id);
-        //     });
-        // }
+        if (\request()->filled('outlet_id')) {
+            $fundTransferVoucher->whereHas('creditAccount', function ($q) {
+                $q->whereHas('outlets', function ($query) {
+                    $query->where('outlet_id', \request()->outlet_id);
+                });
+            });
+        }
         if (\request()->filled('date_range')) {
             searchColumnByDateRange($fundTransferVoucher);
         }

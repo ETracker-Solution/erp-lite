@@ -9,6 +9,7 @@ use App\Http\Controllers\FactoryController;
 use App\Http\Controllers\FundTransferVoucherController;
 use App\Http\Controllers\JournalVoucherController;
 use App\Http\Controllers\OthersOutletSaleController;
+use App\Http\Controllers\OutletAccountController;
 use App\Http\Controllers\PaymentVoucherController;
 use App\Http\Controllers\POSController;
 use App\Http\Controllers\ProfileController;
@@ -112,6 +113,11 @@ Route::middleware('auth')->group(function () {
     Route::resource('memberships', \App\Http\Controllers\MembershipController::class);
     Route::resource('outlet-configs', \App\Http\Controllers\OuteletConfigController::class);
     Route::resource('system-settings', SystemSettingController::class);
+
+    Route::resource('outlet-accounts', OutletAccountController::class);
+    Route::patch('outlet-account-active-or-inactive/{id}', [\App\Http\Controllers\OutletAccountController::class, 'changeStatus'])->name('outlet-account.change');
+
+
 
 
     //Promo Code
