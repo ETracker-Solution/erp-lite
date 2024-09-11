@@ -69,6 +69,26 @@ class ApiController extends Controller
         return $data;
     }
 
+    public function fetchItemsByGroupIdRMConsumption($group_id, $store_id = null): array
+    {
+        $items = ChartOfInventory::where(['status' => 'active', 'parent_id' => $group_id])->get();
+        foreach ($items as $item) {
+
+            $item['id'] = $item ? $item->id : '';
+            $item['name'] = $item ? $item->name : '';
+            $item['group'] = $item->parent ? $item->parent->name : '';
+            $item['uom'] = $item->unit ? $item->unit->name : '';
+            $item['balance'] = availableInventoryBalance($item->id, $store_id);
+            $item['quantity'] = '';
+            $item['rate'] = round(averageRMRate($item->id, $store_id),2);
+
+        }
+        return [
+            'products' => $items,
+        ];
+
+    }
+
     public function fetch_product_sale($id)
     {
 
