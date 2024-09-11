@@ -151,7 +151,7 @@
                                                 <div class="form-group">
                                                     <label for="group_id" class="control-label">Group</label>
                                                     <select class="form-control" name="group_id" v-model="group_id"
-                                                            @change="fetch_product">
+                                                            @change="fetch_items">
                                                         <option value="">Select One</option>
                                                         @foreach ($groups as $row)
                                                             <option value="{{ $row->id }}">{{ $row->name }}</option>
@@ -217,7 +217,7 @@
 
                                                             </td>
                                                             <td>
-                                                                @{{ row.unit }}
+                                                                @{{ row.uom }}
                                                             </td>
                                                             <td>
                                                                 <input type="number" v-model="row.quantity"
@@ -375,16 +375,15 @@
                 },
                 methods: {
 
-                    fetch_product() {
+                    fetch_items() {
 
                         let vm = this;
-
-                        let slug = vm.group_id;
-
-                        if (slug) {
+                        let group_id = vm.group_id;
+                        if (group_id) {
                             vm.pageLoading = true;
-                            axios.get(this.config.get_items_info_by_group_id_url + '/' + slug).then(function (response) {
-
+                            axios.get(this.config.get_items_info_by_group_id_url + '/' + group_id).then(function (response) {
+                                vm.items = [];
+                                vm.item_id = '';
                                 // vm.selected_items = response.data.products;
                                 vm.items = response.data.products;
                                 vm.pageLoading = false;
@@ -401,21 +400,19 @@
                         }
 
                     },
-
                     data_input() {
 
                         let vm = this;
-                        if (!vm.item_id) {
-                            toastr.error('Please Select Item', {
+                        if (!vm.group_id) {
+                            toastr.error('Please Select Group', {
                                 closeButton: true,
                                 progressBar: true,
                             });
                             return false;
                         } else {
-
-                            let slug = vm.item_id;
+                            let item_id = vm.item_id;
                             let exists = vm.selected_items.some(function (field) {
-                                return field.id == slug
+                                return field.id == item_id
                             });
 
                             if (exists) {
@@ -424,16 +421,16 @@
                                     progressBar: true,
                                 });
                             } else {
-                                if (slug) {
+                                if (item_id) {
                                     vm.pageLoading = true;
-                                    axios.get(this.config.get_item_info_url + '/' + slug).then(function (response) {
+                                    axios.get(this.config.get_item_info_url + '/' + item_id).then(function (response) {
                                         let item_info = response.data;
                                         console.log(item_info);
                                         vm.selected_items.push({
                                             id: item_info.id,
                                             group: item_info.parent.name,
                                             name: item_info.name,
-                                            unit: item_info?.unit?.name,
+                                            uom: item_info?.unit?.name,
                                             rate: item_info.price,
                                             quantity: item_info?.quantity,
                                         });
@@ -451,11 +448,35 @@
                                         return false;
 
                                     });
-                                }
+                                } else {
 
+                                    vm.pageLoading = true;
+                                    axios.get(this.config.get_items_info_by_group_id_url + '/' + vm.group_id).then(function (response) {
+                                        vm.selected_items = [];
+                                        vm.item_id = '';
+                                        let items = response.data.products;
+                                        for (let key in items) {
+                                            vm.selected_items.push(items[key]);
+                                        }
+                                        console.log(vm.selected_items);
+                                        // vm.item_id = '';
+                                        // vm.group_id = '';
+                                        vm.pageLoading = false;
+
+                                    }).catch(function (error) {
+
+                                        toastr.error('Something went to wrong', {
+                                            closeButton: true,
+                                            progressBar: true,
+                                        });
+
+                                        return false;
+
+                                    });
+
+                                }
                             }
                         }
-
                     },
 
                     data_edit() {
