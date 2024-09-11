@@ -19,4 +19,10 @@ class Outlet extends Model
     {
         return $this->hasMany(Requisition::class,'outlet_id');
     }
+
+    public function outlets()
+    {
+        return $this->belongsToMany(OutletAccount::class,'outlet_id');
+    }
+    
 }

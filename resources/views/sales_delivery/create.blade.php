@@ -542,7 +542,7 @@
                                         price: product_details.price,
                                         sale_price: product_details.price,
                                         quantity: qty,
-                                        product_discount: 0,
+                                        product_discount: product_details.product_discount,
                                         subtotal: 0,
                                     });
                                     // vm.item_id = '';

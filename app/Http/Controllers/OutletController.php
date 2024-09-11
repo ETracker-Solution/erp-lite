@@ -6,6 +6,7 @@ use App\Http\Requests\StoreOutletRequest;
 use App\Http\Requests\UpdateOutletRequest;
 use App\Models\ChartOfAccount;
 use App\Models\Outlet;
+use App\Models\OutletAccount;
 use App\Models\OutletTransactionConfig;
 use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Support\Facades\DB;
@@ -73,6 +74,7 @@ class OutletController extends Controller
                             'parent_id' => $exists->id
                         ]);
                     }
+                    
                     $account = $exists->subChartOfAccounts()->create([
                         'name' => $method . ' ' . $outlet->name,
                         'type' => 'ledger',
@@ -84,6 +86,11 @@ class OutletController extends Controller
                         'outlet_id' => $outlet->id,
                         'coa_id' => $account->id,
                         'type' => $method
+                    ]);
+                    
+                    OutletAccount::create([
+                        'outlet_id' => $outlet->id,
+                        'coa_id' => $account->id
                     ]);
                 }
             DB::commit();

@@ -723,10 +723,10 @@
                         </ul>
                     </li>
                 @endcanany
-                @canany(['master-data-create-outlet','master-data-create-factory','master-data-designation','master-data-department','master-data-gl-account','master-data-raw-metarials','master-data-finish-goods','master-data-customer-ob','master-data-supplier-ob','master-data-supplier-group-list','master-data-supplier-list','master-data-inventory-item-list','master-data-unit-list','master-data-store-list','master-data-chart-of-accounts'])
-                    <li class="nav-item {{ (Request::segment(1) == 'chart-of-accounts'||Request::segment(1) == 'chart-of-inventories'|| Request::segment(1) == 'units' || Request::segment(1) == 'stores'|| Request::segment(1) == 'supplier-groups'|| Request::segment(1) == 'suppliers'|| Request::segment(1) == 'general-ledger-opening-balances'|| Request::segment(1) == 'raw-materials-opening-balances'||Request::segment(1) == 'finish-goods-opening-balances'||Request::segment(1) == 'customer-opening-balances' || Request::segment(1) == 'supplier-opening-balances'||Request::segment(1) == 'factories'||Request::segment(1) == 'outlets'||Request::segment(1) == 'designations'||Request::segment(1) == 'departments'||Request::segment(1) == 'customers' )?'menu-open':''}}">
+                @canany(['master-data-create-outlet','master-data-create-factory','master-data-designation','master-data-department','master-data-gl-account','master-data-raw-metarials','master-data-finish-goods','master-data-customer-ob','master-data-supplier-ob','master-data-supplier-group-list','master-data-supplier-list','master-data-inventory-item-list','master-data-unit-list','master-data-store-list','master-data-chart-of-accounts','master-data-outlet-accounts'])
+                    <li class="nav-item {{ (Request::segment(1) == 'chart-of-accounts'|| Request::segment(1) == 'outlet-accounts'||Request::segment(1) == 'chart-of-inventories'|| Request::segment(1) == 'units' || Request::segment(1) == 'stores'|| Request::segment(1) == 'supplier-groups'|| Request::segment(1) == 'suppliers'|| Request::segment(1) == 'general-ledger-opening-balances'|| Request::segment(1) == 'raw-materials-opening-balances'||Request::segment(1) == 'finish-goods-opening-balances'||Request::segment(1) == 'customer-opening-balances' || Request::segment(1) == 'supplier-opening-balances'||Request::segment(1) == 'factories'||Request::segment(1) == 'outlets'||Request::segment(1) == 'designations'||Request::segment(1) == 'departments'||Request::segment(1) == 'customers' )?'menu-open':''}}">
                         <a href="#"
-                           class="nav-link {{ (Request::segment(1) == 'chart-of-accounts'|| Request::segment(1) == 'chart-of-inventories'|| Request::segment(1) == 'units' || Request::segment(1) == 'stores'|| Request::segment(1) == 'supplier-groups'|| Request::segment(1) == 'suppliers'|| Request::segment(1) == 'general-ledger-opening-balances'|| Request::segment(1) == 'raw-materials-opening-balances'||Request::segment(1) == 'finish-goods-opening-balances'||Request::segment(1) == 'customer-opening-balances' || Request::segment(1) == 'supplier-opening-balances'||Request::segment(1) == 'factories'||Request::segment(1) == 'outlets'||Request::segment(1) == 'designations'||Request::segment(1) == 'departments'||Request::segment(1) == 'customers')?' active':''}}">
+                           class="nav-link {{ (Request::segment(1) == 'chart-of-accounts'|| Request::segment(1) == 'outlet-accounts'|| Request::segment(1) == 'chart-of-inventories'|| Request::segment(1) == 'units' || Request::segment(1) == 'stores'|| Request::segment(1) == 'supplier-groups'|| Request::segment(1) == 'suppliers'|| Request::segment(1) == 'general-ledger-opening-balances'|| Request::segment(1) == 'raw-materials-opening-balances'||Request::segment(1) == 'finish-goods-opening-balances'||Request::segment(1) == 'customer-opening-balances' || Request::segment(1) == 'supplier-opening-balances'||Request::segment(1) == 'factories'||Request::segment(1) == 'outlets'||Request::segment(1) == 'designations'||Request::segment(1) == 'departments'||Request::segment(1) == 'customers')?' active':''}}">
                             <i class="nav-icon fas fa-wrench"></i>
                             <p>
                                 Master Data
@@ -734,10 +734,10 @@
                             </p>
                         </a>
                         <ul class="nav nav-treeview second-child">
-                            @canany(['master-data-chart-of-accounts'])
-                                <li class="nav-item {{ (Request::segment(1) == 'chart-of-accounts' )?'menu-open':''}}">
+                            @canany(['master-data-chart-of-accounts','master-data-outlet-accounts'])
+                                <li class="nav-item {{ (Request::segment(1) == 'chart-of-accounts' || Request::segment(1) == 'outlet-accounts' )?'menu-open':''}}">
                                     <a href="#"
-                                       class="nav-link {{ (Request::segment(1) == 'chart-of-accounts' )?' active':''}}">
+                                       class="nav-link {{ (Request::segment(1) == 'chart-of-accounts' || Request::segment(1) == 'outlet-accounts' )?' active':''}}">
                                         <i class="nav-icon fa fa-folder-open"></i>
                                         <p>
                                             Account Setting
@@ -751,6 +751,15 @@
                                                    class="nav-link {{ (Request::segment(1) == 'chart-of-accounts' )?' active':''}}">
                                                     <i class="far fa-circle nav-icon"></i>
                                                     <p>Chart Of Accounts</p>
+                                                </a>
+                                            </li>
+                                        @endcan
+                                        @can('master-data-outlet-accounts')
+                                            <li class="nav-item">
+                                                <a href="{{route('outlet-accounts.index')}}"
+                                                   class="nav-link {{ (Request::segment(1) == 'outlet-accounts' )?' active':''}}">
+                                                    <i class="far fa-circle nav-icon"></i>
+                                                    <p>Outlet Accounts</p>
                                                 </a>
                                             </li>
                                         @endcan

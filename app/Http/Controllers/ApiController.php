@@ -116,6 +116,7 @@ class ApiController extends Controller
             'coi_id' => $id,
             'balance_qty' => availableInventoryBalance($id, request()->store_id),
             'is_readonly' => $coi->price > 0 ? true : false,
+            'product_discount' => $item->discount,
         ];
         return $data;
     }
