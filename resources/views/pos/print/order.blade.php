@@ -11,8 +11,8 @@
 
     <style>
         @page {
-            size: 80mm 250mm;
-            margin: 0;
+            size: 72mm 210mm;
+            margin: 0 !important;
             height: auto;
         }
 
@@ -107,11 +107,11 @@
                      style="height: 50px;">
             </td>
         </tr>
-        <tr>
-            <td class="tc bb-none" style="font-size: 10px;">
-                {{ $sale->outlet->address }}
-            </td>
-        </tr>
+{{--        <tr>--}}
+{{--            <td class="tc bb-none" style="font-size: 10px;">--}}
+{{--                {{ $sale->outlet->address }}--}}
+{{--            </td>--}}
+{{--        </tr>--}}
         <tr>
             <td class="bb-none tc"><p style="font-size: 10px;" class="tc">VAT Reg:001649431-0301</p></td>
         </tr>
@@ -119,10 +119,10 @@
             <td class="bb-none tc"><p style="font-size: 10px;" class="tc text-bold mm10">
                     Customer Care: 01638393939</p></td>
         </tr>
-        <tr>
-            <td class="bb-none tc"><p style="font-size: 10px;" class="tc text-bold mm10"><u>{{ $sale->outlet->name }}
-                        Invoice</u></p></td>
-        </tr>
+{{--        <tr>--}}
+{{--            <td class="bb-none tc"><p style="font-size: 10px;" class="tc text-bold mm10"><u>{{ $sale->outlet->name }}--}}
+{{--                        Invoice</u></p></td>--}}
+{{--        </tr>--}}
     </table>
 
 </htmlpageheader>

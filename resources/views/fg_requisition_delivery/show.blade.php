@@ -91,7 +91,7 @@ FG Requisition Details
                                                 <td>{{ $item->coi->unit->name ?? '' }}</td>
                                                 <td>{{ $requisition_qty }}</td>
                                                 <td>{{ $delivery_qty }}</td>
-                                                <td>{{ $requisition_qty- $delivery_qty  }}</td>
+                                                <td>{{ max(($requisition_qty - $delivery_qty),0)  }}</td>
                                                 {{-- <td>{{ $item->rate ?? '' }} TK</td> --}}
                                             </tr>
                                            

@@ -9,6 +9,7 @@
         @page {
             header: page-header;
             footer: page-footer;
+            margin-top: 0px;
         }
         body{margin-top:20px;
         background:#eee;
@@ -109,22 +110,16 @@
                                             <td>{{ $item->coi->unit->name ?? '' }}</td>
                                             <td>{{ $requisition_qty }}</td>
                                             <td>{{ $delivery_qty }}</td>
-                                            <td>{{ $requisition_qty- $delivery_qty  }}</td>
+                                            <td>{{ max(($requisition_qty - $delivery_qty),0)  }}</td>
                                             {{-- <td>{{ $item->rate ?? '' }} TK</td> --}}
                                         </tr>
-                                       
                                     @endforeach
                                 </tbody>
                             </table>
-                            
-
                         </div>
                     </div>
-                   
                 </div>
-                
-            </div>
-            
+            </div> 
         </div>
         <htmlpagefooter name="page-footer">      
             <span>
@@ -132,7 +127,6 @@
                 <span style="border-top: 1px solid hsl(0, 0%, 2%);">Delivery Man</span> &emsp;&emsp;&emsp; &emsp;&emsp; &emsp;&emsp;&emsp;&emsp;&emsp;
                 <span style="border-top: 1px solid hsl(0, 0%, 2%);">Showroom Incharge</span>
             </span>
-
             @php
                 $date = new DateTime('now', new DateTimezone('Asia/Dhaka'));
             @endphp
@@ -143,6 +137,5 @@
             <br>
         </htmlpagefooter>
     </body>
-
 </html>
 
