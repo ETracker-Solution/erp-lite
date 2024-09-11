@@ -52,7 +52,7 @@ class SalesDeliveryController extends Controller
                     return showStatus($row->status);
                 })
                 ->addColumn('due', function ($row) {
-                    return number_format(($row->grand_total - ($row->receive_amount + $row->delivery_point_receive_amount)), 2);
+                    return number_format(max($row->grand_total - ($row->receive_amount + $row->delivery_point_receive_amount),0), 2);
                 })
                 ->rawColumns(['action', 'created_at', 'status'])
                 ->make(true);
