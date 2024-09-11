@@ -118,7 +118,7 @@
                                         </tr>
                                         <tr>
                                             <th style="width:50%">Due</th>
-                                            <td class="text-right">{{ $otherOutletSale->grand_total -   $paid}}</td>
+                                            <td class="text-right">{{ max($otherOutletSale->grand_total - $paid,0)}}</td>
                                         </tr>
                                     </table>
                                 </div>
