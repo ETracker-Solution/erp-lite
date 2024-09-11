@@ -111,9 +111,9 @@
                                         <div class="row">
                                             <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
                                                 <div class="form-group">
-                                                    <label for="category_id" class="control-label">Group</label>
-                                                    <select class="form-control bSelect" name="category_id"
-                                                            v-model="category_id" @change="fetch_item">
+                                                    <label for="group_id" class="control-label">Group</label>
+                                                    <select class="form-control bSelect" name="group_id"
+                                                            v-model="group_id" @change="fetch_item">
                                                         <option value="">Select One</option>
                                                         @foreach ($groups as $category)
                                                             <option
@@ -163,7 +163,7 @@
                                                         </tr>
                                                         </thead>
                                                         <tbody>
-                                                        <tr v-for="(row, index) in items">
+                                                        <tr v-for="(row, index) in selected_items">
                                                             <td>
                                                                 @{{ ++index }}
                                                             </td>
@@ -178,7 +178,7 @@
                                                                 @{{ row.name }}
                                                             </td>
                                                             <td style="vertical-align: middle">
-                                                                @{{ row.unit }}
+                                                                @{{ row.uom }}
                                                             </td>
                                                             <td style="vertical-align: middle" class="text-right">
                                                                 <input type="number" v-model="row.quantity"
@@ -211,7 +211,7 @@
                                                                        v-bind:value="total_quantity" readonly>
                                                                 <input type="hidden" :name="'total_item'"
                                                                        class="form-control input-sm"
-                                                                       v-bind:value="items.length" readonly>
+                                                                       v-bind:value="selected_items.length" readonly>
                                                             </td>
                                                             <td></td>
                                                         </tr>
@@ -224,7 +224,8 @@
                                 </div>
                             </div>
                             <div class="card-footer">
-                                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 text-right" v-if="items.length > 0">
+                                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 text-right"
+                                     v-if="selected_items.length > 0">
                                     <button class="float-right btn btn-primary" type="submit"><i
                                             class="fa fa-fw fa-lg fa-check-circle"></i>Submit
                                     </button>
@@ -292,10 +293,10 @@
                     customer_id: '',
                     from_store_id: '',
                     to_store_id: '',
-                    category_id: '',
+                    group_id: '',
                     item_id: '',
                     products: [],
-                    items: [],
+                    selected_items: [],
                     pageLoading: false,
 
                 },
@@ -305,7 +306,7 @@
                 computed: {
 
                     total_quantity: function () {
-                        return this.items.reduce((total, item) => {
+                        return this.selected_items.reduce((total, item) => {
                             return total + parseFloat(item.quantity ? item.quantity : 0)
                         }, 0)
                     },
@@ -315,13 +316,14 @@
 
                     fetch_item() {
 
-                        var vm = this;
+                        let vm = this;
+                        let group_id = vm.group_id;
 
-                        var slug = vm.category_id;
-                        //    alert(slug);
-                        if (slug) {
-                            axios.get(this.config.get_items_info_by_group_id_url + '/' + slug).then(function (response) {
-
+                        if (group_id) {
+                            axios.get(this.config.get_items_info_by_group_id_url + '/' + group_id).then(function (response) {
+                                vm.products=[];
+                                vm.item_id='';
+                                console.log('products.....empty');
                                 vm.products = response.data.products;
                                 vm.pageLoading = false;
 
@@ -341,20 +343,16 @@
                     data_input() {
 
                         let vm = this;
-                        if (!vm.item_id) {
-
-                            toastr.error('Enter product', {
+                        if (!vm.group_id) {
+                            toastr.error('Please Select Group', {
                                 closeButton: true,
                                 progressBar: true,
                             });
-
                             return false;
-
                         } else {
-
-                            let slug = vm.item_id;
-                            let exists = vm.items.some(function (field) {
-                                return field.coi_id == slug
+                            let item_id = vm.item_id;
+                            let exists = vm.selected_items.some(function (field) {
+                                return field.id == item_id
                             });
 
                             if (exists) {
@@ -363,15 +361,15 @@
                                     progressBar: true,
                                 });
                             } else {
-                                if (slug) {
-                                    axios.get(this.config.get_item_info_url + '/' + slug).then(function (response) {
+                                if (item_id) {
+                                    axios.get(this.config.get_item_info_url + '/' + item_id).then(function (response) {
 
                                         let product_details = response.data;
-                                        vm.items.push({
+                                        vm.selected_items.push({
                                             coi_id: product_details.coi_id,
                                             group: product_details.group,
                                             name: product_details.name,
-                                            unit: product_details.unit,
+                                            uom: product_details.unit.name,
                                             balance_qty: product_details.balance_qty,
                                             price: product_details.price,
                                             quantity: '',
@@ -379,7 +377,7 @@
                                         });
 
                                         // vm.item_id = '';
-                                        // vm.category_id = '';
+                                        // vm.group_id = '';
 
                                     }).catch(function (error) {
 
@@ -391,15 +389,39 @@
                                         return false;
 
                                     });
-                                }
+                                } else {
 
+                                    vm.pageLoading = true;
+                                    axios.get(this.config.get_items_info_by_group_id_url + '/' + vm.group_id).then(function (response) {
+                                        vm.selected_items=[];
+                                        vm.item_id= '';
+                                        let items = response.data.products;
+                                        for (let key in items) {
+                                            vm.selected_items.push(items[key]);
+                                        }
+                                        console.log(vm.selected_items);
+                                        // vm.item_id = '';
+                                        // vm.group_id = '';
+                                        vm.pageLoading = false;
+
+                                    }).catch(function (error) {
+
+                                        toastr.error('Something went to wrong', {
+                                            closeButton: true,
+                                            progressBar: true,
+                                        });
+
+                                        return false;
+
+                                    });
+
+                                }
                             }
                         }
-
                     },
 
                     delete_row: function (row) {
-                        this.items.splice(this.items.indexOf(row), 1);
+                        this.selected_items.splice(this.selected_items.indexOf(row), 1);
                     },
                     valid: function (index) {
 
