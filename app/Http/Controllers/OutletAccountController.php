@@ -45,7 +45,7 @@ class OutletAccountController extends Controller
     public function create()
     {
         $outlets = \App\Models\Outlet::all();
-        $chartOfAccounts = \App\Models\ChartOfAccount::where('root_account_type','as')->get();
+        $chartOfAccounts = \App\Models\ChartOfAccount::where(['root_account_type'=>'as','type'=>'group'])->get();
         return view('outlet_account.create',compact('outlets', 'chartOfAccounts'));
     }
 
