@@ -63,6 +63,7 @@
                             </div>
                             
                             <hr>
+                            <b>Delivery Date :</b> {{ $model->delivery_date }},<br>
                             <b>Delivery Time :</b> {{ \Carbon\Carbon::parse($model->delivery_time)->format('h:i A') }}, <br>
                             <b>Order No :</b> {{ $model->order_number }}, <br>
                             <b>Customer :</b> {{ $model->customer->name ?? '' }}, <br>
