@@ -77,7 +77,7 @@ class OutletAccountController extends Controller
             'outlet_id' => $request->outlet_id,
             'coa_id' => $coaId,
         ]);
-        $outletTransactionConfig = \App\Models\OutletTransactionConfig::where('type', $request->type)->first();
+        $outletTransactionConfig = \App\Models\OutletTransactionConfig::where(['type'=> $request->type, 'outlet_id'=> $request->outlet_id])->first();
         if(!$outletTransactionConfig){
             OutletTransactionConfig::create([
                 'type' => $request->type,
