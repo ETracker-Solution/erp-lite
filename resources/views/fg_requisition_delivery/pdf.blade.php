@@ -66,7 +66,7 @@
                             <div class="row">
                                 <div class="col-sm-6 top-right">
                                     <span class="marginright">{{ \Carbon\Carbon::parse($fgRequisitionDelivery->created_at)->isoFormat('MMM Do, YYYY') }}</span><br>
-                                    <h3> Delivery Challan hhhNo : {{ $fgRequisitionDelivery->uid }}</h3>
+                                    <h3> Delivery Challan No : {{ $fgRequisitionDelivery->uid }}</h3>
                                 </div>
                             </div>
                             <hr>
