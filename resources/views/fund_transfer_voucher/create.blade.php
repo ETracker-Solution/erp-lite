@@ -69,7 +69,7 @@
                                                     v-model="from_account_id">
                                                 <option value="">Select One</option>
                                                 @foreach ($chartOfAccounts as $row)
-                                                    <option value="{{ $row->id }}">{{ $row->name }}</option>
+                                                    <option value="{{ $row->coa->id }}">{{ $row->coa->name }}</option>
                                                 @endforeach
                                             </select>
                                         </div>
