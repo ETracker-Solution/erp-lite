@@ -38,7 +38,7 @@
                         <!-- /.row -->
                         <div class="row invoice-info">
                             <div class="col-sm-4 invoice-col pl-4" style="padding: 10px">
-                                <b>Delivery Time :</b> {{ $model->delivery_date }}, <br>
+                                <b>Delivery Date :</b> {{ $model->delivery_date }}, <br>
                                 <b>Delivery Time :</b> {{ \Carbon\Carbon::parse($model->delivery_time)->format('h:i A') }}, <br>
                                 <b>Size :</b> {{ $model->remark }}, <br>
                                 <b>Flavour :</b> {{ $model->flavour }}, <br>
