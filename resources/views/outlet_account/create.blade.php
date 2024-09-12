@@ -46,16 +46,19 @@
                             <!-- form start -->
                             <div class="card-body">
                                 <div class="row">
-                                    <div class="col-xl-4 col-md-4 col-12 mb-1">
+                                    <div class="col-xl-3 col-md-3 col-12 mb-1">
                                         <x-forms.select label="Oultet" inputName="outlet_id" placeholder="Select One" :isRequired='true'  :isReadonly='false' defaultValue="" :options="$outlets" optionId="id" optionValue="name"/>
                                     </div>
 
-                                    <div class="col-xl-4 col-md-4 col-12 mb-1">
+                                    <div class="col-xl-3 col-md-3 col-12 mb-1">
                                         <x-forms.text label="Account Name" inputName="name" placeholder="Enter Account Name"
                                             :isRequired='true' :isReadonly='false' :defaultValue="isset($outletAccount) ? $outletAccount->name : ''" />
                                     </div>
-                                    <div class="col-xl-4 col-md-4 col-12 mb-1">
+                                    <div class="col-xl-3 col-md-3 col-12 mb-1">
                                         <x-forms.static-select label="Status" inputName="status" placeholder="Select One" :isRequired='true'  :isReadonly='false' :defaultValue="isset($outletAccount) ? $outletAccount->status : ''" :options="['active','inactive']"/>
+                                    </div>
+                                    <div class="col-xl-3 col-md-3 col-12 mb-1">
+                                        <x-forms.static-select label="Type" inputName="type" placeholder="Select One" :isRequired='true'  :isReadonly='false' :defaultValue="isset($outletAccount) ? $outletAccount->status : ''" :options="['Cash','Bkash','Nagad','Rocket','Upay','DBBL','UCB']"/>
                                     </div>
                                 </div>
                             </div>

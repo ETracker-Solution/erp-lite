@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ChartOfAccount;
 use App\Models\OutletAccount;
+use App\Models\OutletTransactionConfig;
 use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -59,7 +60,7 @@ class OutletAccountController extends Controller
         ]);
         DB::beginTransaction();
         try {
-            $coa = \App\Models\ChartOfAccount::find($request->name);
+            $coa = \App\Models\ChartOfAccount::where('name', $request->name)->first();
         // if (!$coa){
             $coa =  ChartOfAccount::create([
                 'name' => $request->name,
@@ -69,13 +70,22 @@ class OutletAccountController extends Controller
                 'is_bank_cash' => 'yes',
                 'root_account_type' => 'as',
             ]);
-            $coa = $coa->id;
+            $coaId = $coa->id;
         // }
         
         OutletAccount::create([
             'outlet_id' => $request->outlet_id,
-            'coa_id' => $coa,
+            'coa_id' => $coaId,
         ]);
+        $outletTransactionConfig = \App\Models\OutletTransactionConfig::where(['type'=> $request->type, 'outlet_id'=> $request->outlet_id])->first();
+        if(!$outletTransactionConfig){
+            OutletTransactionConfig::create([
+                'type' => $request->type,
+                'outlet_id' => $request->outlet_id,
+                'coa_id' => $coaId,
+            ]);
+        }
+        
 
         DB::commit();
         } catch (\Exception $error) {
