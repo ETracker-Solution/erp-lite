@@ -68,9 +68,16 @@
                                             <select class="form-control bSelect" name="from_account_id"
                                                     v-model="from_account_id">
                                                 <option value="">Select One</option>
-                                                @foreach ($chartOfAccounts as $row)
+                                                @if (\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->outlet_id)
+                                                     @foreach ($chartOfAccounts as $row)
                                                     <option value="{{ $row->coa->id }}">{{ $row->coa->name }}</option>
                                                 @endforeach
+                                                @else
+                                                    @foreach ($chartOfAccounts as $row)
+                                                        <option value="{{ $row->id }}">{{ $row->name }}</option>
+                                                    @endforeach
+                                                @endif
+                                                
                                             </select>
                                         </div>
                                     </div>
