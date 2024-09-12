@@ -65,6 +65,7 @@ class COAccountController extends Controller
                 'name' => \request()->item_name,
                 'type' => \request()->item_type,
                 'account_type' => $account->account_type,
+                'is_bank_cash' => $account->is_bank_cash,
                 'created_by' => auth()->user()->id,
             ]);
         } catch (\Exception $exception) {
