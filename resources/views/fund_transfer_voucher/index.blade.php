@@ -16,6 +16,7 @@
         <div class="container-fluid">
             <div class="row">
                 <div class="col-12">
+                    @can('accounts-ft-voucher-filter')
                         <div class="col-lg-12 col-md-12">
                             <div class="mb-2 card">
                                 <div class="card-content collapse show">
@@ -26,12 +27,12 @@
                                             <div class="col-md-3 form-group">
                                                 <label for="fp-range" class="font-weight-bold">DATE RANGE</label>
                                                 <input type="text" id="fp-range" class="form-control flatpickr-range"
-                                                       placeholder="YYYY-MM-DD to YYYY-MM-DD" name="date_range"/>
+                                                    placeholder="YYYY-MM-DD to YYYY-MM-DD" name="date_range"/>
                                             </div>
                                             {{-- <div class="col-md-3 form-group">
                                                 <label for="code" class="font-weight-bold">Store Name</label>
                                                 <input type="text" id="code" class="form-control"
-                                                       placeholder="Enter Store Name" name="code"/>
+                                                    placeholder="Enter Store Name" name="code"/>
                                             </div> --}}
                                             <div class="form-group col-md-3">
                                                 <label for="outlet_id" class="font-weight-bold">Select Outlet</label>
@@ -50,6 +51,7 @@
                                 
                             </div>
                         </div>
+                    @endcan
                     <div class="card card-info">
                         <div class="card-header">
                             <h3 class="card-title">All Fund Transfer Voucher List</h3>

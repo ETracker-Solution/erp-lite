@@ -25,7 +25,7 @@ class PermissionSeeder extends Seeder
 
         $newModule = [
         'accounts'=>[
-            'receive voucher','payment voucher','journal voucher','ft voucher','supplier voucher','ledger report','financial report','delivery cash transfer','delivery cash receive'
+            'receive voucher','payment voucher','journal voucher','ft voucher','supplier voucher','ledger report','financial report','delivery cash transfer','delivery cash receive','ft voucher filter'
         ],
         'purchase'=>[
             'goods purchase bill','purchase return bill'
