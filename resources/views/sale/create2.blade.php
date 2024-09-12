@@ -409,7 +409,8 @@
                                                                             <option value="cash">Cash</option>
                                                                             <option value="bkash">Bkash</option>
                                                                             <option value="nagad">Nagad</option>
-                                                                            <option value="bank">Bank</option>
+                                                                            <option value="DBBL">DBBL</option>
+                                                                            <option value="UCB">UCB</option>
                                                                             <option value="rocket">Rocket</option>
                                                                             <option value="upay">Upay</option>
                                                                             <option value="point">Redeem Point</option>
