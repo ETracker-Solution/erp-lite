@@ -69,6 +69,7 @@ class OutletAccountController extends Controller
                 'account_type' => 'debit',
                 'is_bank_cash' => 'yes',
                 'root_account_type' => 'as',
+                'parent_id' => 5,
             ]);
             $coaId = $coa->id;
         // }
