@@ -174,7 +174,7 @@ class SaleController extends Controller
                 $row['product_id'] = $row['item_id'];
                 $row['unit_price'] = $row['rate'];
                 $currentStock = availableInventoryBalance($row['product_id'], $store->id);
-                if (($currentStock < $row['quantity']) && $row['is_readonly'] == 'true' && ($request->sales_type != 'pre_order' || $outlet_id !== $request->delivery_point_id)) {
+                if (($currentStock < $row['quantity']) && $row['is_readonly'] == 'true' && ($request->sales_type != 'pre_order' && $outlet_id == $request->delivery_point_id)) {
                     Toastr::error('Quantity cannot more then ' . $currentStock . ' !', '', ["progressBar" => true]);
                     return back();
                 }

@@ -8,6 +8,7 @@ use App\Models\ChartOfAccount;
 use App\Models\DeliveryCashTransfer;
 use App\Models\OthersOutletSale;
 use App\Models\Outlet;
+use App\Models\OutletAccount;
 use App\Models\OutletTransactionConfig;
 use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Support\Facades\DB;
@@ -48,10 +49,11 @@ class DeliveryCashTransferController extends Controller
     {
         if (\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->outlet_id) {
 
-            $cons = OutletTransactionConfig::with('coa')->where('outlet_id', \auth()->user()->employee->outlet_id)->get();
+            $cons = OutletAccount::with('coa')->where('outlet_id', \auth()->user()->employee->outlet_id)->get();
             foreach ($cons as $con) {
                 $chartOfAccounts[] = $con->coa;
             }
+
             $othersOutlets = OthersOutletSale::where('payment_status', 'paid')->where('outlet_id', \auth()->user()->employee->outlet_id)->get();
 
 
@@ -61,12 +63,13 @@ class DeliveryCashTransferController extends Controller
 
 
         }
-        $chartOfAccounts = ChartOfAccount::where(['type' => 'ledger', 'status' => 'active'])->where(function ($q){
-            return $q->where('name','like','%bkash%')->orWhere('name','like','%bank%')->orWhere('name','like','%cash%');
-        })->get();
-        $toChartOfAccounts = ChartOfAccount::where(['type' => 'ledger', 'status' => 'active'])->where(function ($q){
-            return $q->where('name','like','%bkash%')->orWhere('name','like','%bank%')->orWhere('name','like','%cash%');
-        })->get();
+        // $chartOfAccounts = ChartOfAccount::where(['type' => 'ledger', 'status' => 'active'])->where(function ($q){
+        //     return $q->where('name','like','%bkash%')->orWhere('name','like','%bank%')->orWhere('name','like','%cash%');
+        // })->get();
+        // $toChartOfAccounts = ChartOfAccount::where(['type' => 'ledger', 'status' => 'active'])->where(function ($q){
+        //     return $q->where('name','like','%bkash%')->orWhere('name','like','%bank%')->orWhere('name','like','%cash%');
+        // })->get();
+        $toChartOfAccounts = ChartOfAccount::where(['is_bank_cash' => 'yes', 'type' => 'ledger', 'status' => 'active'])->get();
 
         // $othersOutlets = OthersOutletSale::where('payment_status', 'payable')->get();
         return view('delivery_cash_transfer.create', compact('othersOutlets','chartOfAccounts','toChartOfAccounts'));
