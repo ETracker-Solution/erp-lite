@@ -8,6 +8,7 @@ use App\Http\Requests\StoreFundTransferVoucherRequest;
 use App\Http\Requests\UpdateFundTransferVoucherRequest;
 use App\Models\ChartOfAccount;
 use App\Models\Outlet;
+use App\Models\OutletAccount;
 use App\Models\OutletTransactionConfig;
 use App\Models\Transaction;
 use Brian2694\Toastr\Facades\Toastr;
@@ -54,10 +55,11 @@ class FundTransferVoucherController extends Controller
     {
         if (\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->outlet_id) {
 
-           $cons = OutletTransactionConfig::with('coa')->where('outlet_id', \auth()->user()->employee->outlet_id)->get();
-            foreach ($cons as $con) {
-                $chartOfAccounts[] = $con->coa;
-            }
+        //    $cons = OutletTransactionConfig::with('coa')->where('outlet_id', \auth()->user()->employee->outlet_id)->get();
+        //     foreach ($cons as $con) {
+        //         $chartOfAccounts[] = $con->coa;
+        //     }
+            $chartOfAccounts = OutletAccount::with('coa')->where('outlet_id', \auth()->user()->employee->outlet_id)->get();
 
         } else {
             $chartOfAccounts = ChartOfAccount::where(['is_bank_cash' => 'yes', 'type' => 'ledger', 'status' => 'active'])->get();
