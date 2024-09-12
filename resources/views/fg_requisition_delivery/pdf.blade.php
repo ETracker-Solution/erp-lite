@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Responsive Delivery Challan</title>
+    <title>FG Requisiton Delivery Pdf</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -123,13 +123,16 @@
 </head>
 <body>
 
-    {{-- <div class="header">
-        <img src="logo.png" alt="Logo">
-    </div> --}}
-
     <div class="company-info">
         @include('common.pdf_header')
     </div>
+    <div class="row">
+        <div style="text-align: right">
+        <span class="marginright"><b> Date : {{ \Carbon\Carbon::parse($fgRequisitionDelivery->created_at)->isoFormat('MMM Do, YYYY') }}</b></span><br>
+            <h3> Delivery Challan No : {{ $fgRequisitionDelivery->uid }}</h3>
+        </div>
+    </div>
+    <hr>
 
     <table class="details">
         <tr>
