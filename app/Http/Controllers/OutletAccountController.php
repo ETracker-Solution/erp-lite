@@ -45,7 +45,7 @@ class OutletAccountController extends Controller
     public function create()
     {
         $outlets = \App\Models\Outlet::all();
-        $chartOfAccounts = \App\Models\ChartOfAccount::all();
+        $chartOfAccounts = \App\Models\ChartOfAccount::where('root_account_type','as')->get();
         return view('outlet_account.create',compact('outlets', 'chartOfAccounts'));
     }
 
@@ -69,7 +69,7 @@ class OutletAccountController extends Controller
                 'account_type' => 'debit',
                 'is_bank_cash' => 'yes',
                 'root_account_type' => 'as',
-                'parent_id' => 5,
+                'parent_id' => $request->coa_id,
             ]);
             $coaId = $coa->id;
         // }

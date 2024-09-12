@@ -54,7 +54,7 @@ class FundTransferVoucherController extends Controller
     {
         if (\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->outlet_id) {
 
-            $cons = OutletTransactionConfig::with('coa')->where('outlet_id', \auth()->user()->employee->outlet_id)->get();
+           $cons = OutletTransactionConfig::with('coa')->where('outlet_id', \auth()->user()->employee->outlet_id)->get();
             foreach ($cons as $con) {
                 $chartOfAccounts[] = $con->coa;
             }
