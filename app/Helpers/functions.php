@@ -288,7 +288,7 @@ FROM (
             SUM(IT.quantity * IT.type) AS `Balance Qty`,
             SUM(CASE WHEN IT.type = 1 THEN IT.quantity ELSE 0 END) as `AllQ`,
             SUM(CASE WHEN IT.type = 1 THEN IT.amount ELSE 0 END) as `AllA`,
-            rate as ORate,
+            CI.price as ORate,
             SUM(IT.amount) AS `Value`
         FROM
             inventory_transactions IT
@@ -338,7 +338,7 @@ FROM (
             SUM(IT.quantity * IT.type) AS `Balance Qty`,
              SUM(CASE WHEN IT.type = 1 THEN IT.quantity ELSE 0 END) as `AllQ`,
             SUM(CASE WHEN IT.type = 1 THEN IT.amount ELSE 0 END) as `AllA`,
-            rate as ORate,
+            CI.price as ORate,
             SUM(IT.amount) AS `Value`
         FROM
             inventory_transactions IT
@@ -393,7 +393,7 @@ FROM (
             SUM(IT.quantity * IT.type) AS `Balance Qty`,
             SUM(CASE WHEN IT.type = 1 THEN IT.quantity ELSE 0 END) as `AllQ`,
             SUM(CASE WHEN IT.type = 1 THEN IT.amount ELSE 0 END) as `AllA`,
-            rate as ORate,
+            CI.price as ORate,
             SUM(IT.quantity * IT.type) * (SUM(CASE WHEN IT.type = 1 THEN IT.amount ELSE 0 END)/SUM(CASE WHEN IT.type = 1 THEN IT.quantity ELSE 0 END)) AS `Value`
         FROM
             inventory_transactions IT
@@ -450,7 +450,7 @@ FROM (
             SUM(IT.quantity * IT.type) AS `Balance Qty`,
             SUM(CASE WHEN IT.type = 1 THEN IT.quantity ELSE 0 END) as `AllQ`,
             SUM(CASE WHEN IT.type = 1 THEN IT.amount ELSE 0 END) as `AllA`,
-            rate as ORate,
+            CI.price as ORate,
             SUM(IT.quantity * IT.type) * (SUM(CASE WHEN IT.type = 1 THEN IT.amount ELSE 0 END)/SUM(CASE WHEN IT.type = 1 THEN IT.quantity ELSE 0 END)) AS `Value`
         FROM
             inventory_transactions IT
