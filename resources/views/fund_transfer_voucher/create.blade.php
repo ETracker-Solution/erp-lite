@@ -70,8 +70,8 @@
                                                 <option value="">Select One</option>
                                                 @if (\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->outlet_id)
                                                      @foreach ($chartOfAccounts as $row)
-                                                    <option value="{{ $row->coa->id }}">{{ $row->coa->name }}</option>
-                                                @endforeach
+                                                        <option value="{{ $row->coa->id }}">{{ $row->coa->name }}</option>
+                                                    @endforeach
                                                 @else
                                                     @foreach ($chartOfAccounts as $row)
                                                         <option value="{{ $row->id }}">{{ $row->name }}</option>
