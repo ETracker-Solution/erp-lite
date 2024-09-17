@@ -80,7 +80,7 @@ class ApiController extends Controller
             $item['uom'] = $item->unit ? $item->unit->name : '';
             $item['balance'] = availableInventoryBalance($item->id, $store_id);
             $item['quantity'] = '';
-            $item['rate'] = round(averageRMRate($item->id, $store_id),2);
+            $item['rate'] = round(averageRMRate($item->id, $store_id), 2);
 
         }
         return [
@@ -164,12 +164,32 @@ class ApiController extends Controller
 
         foreach ($products as $product) {
 
+            if (auth()->user()->employee->user_of == 'factory') {
+                $single_outlet_reqs = Requisition::where(['type' => 'FG', 'status' => 'approved'])
+                    ->whereIn('delivery_status', ['pending', 'partial'])->get();
+
+                $req_qty = 0;
+                $current_stock = 0;
+                foreach ($single_outlet_reqs as $req) {
+                    $req_qty += $req->items()->where('coi_id', $product->id)->sum('quantity');
+                }
+
+                foreach (auth()->user()->employee->factory->stores as $store) {
+                    $current_stock += availableInventoryBalance($product->id, $store->id);
+                }
+                $diff = $req_qty - $current_stock;
+
+                $product['quantity'] = $diff ? max($diff, 0) : 0;
+            }else{
+                $product['quantity']=0;
+            }
+
+
             $product['group'] = $product->parent ? $product->parent->name : '';
             $product['uom'] = $product->unit ? $product->unit->name : '';
             $product['stock'] = '';
-            $product['quantity'] = '';
-            $product['price'] = '';
-            $product['rate'] = '';
+            $product['price'] = $product->price;
+            $product['rate'] = $product->price;
             $product['selling_price'] = '';
         }
         //dd($products);
