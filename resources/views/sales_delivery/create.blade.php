@@ -47,18 +47,34 @@
                                                                       @closed="getStoreData()"></vuejs-datepicker>
                                                 </div>
                                             </div>
-                                            <div class="col-3">
+                                            <div class="col-6">
                                                 <div class="form-group">
                                                     <label for="">Current Store</label>
-                                                    <select name="store_id" id="" class="form-control"
-                                                            @if($user_store) readonly @endif @change="getStoreData()"
-                                                            v-model="store_id">
-                                                        <option value="">None</option>
-                                                        @foreach($stores as $store)
-                                                            <option
-                                                                value="{{$store->id}}" {{ $user_store ?($user_store->id == $store->id ? 'selected' : '') :'' }}>{{ $store->name }}</option>
-                                                        @endforeach
-                                                    </select>
+                                                    @if($user_store)
+                                                        <select name="store_id" id="" class="form-control" disabled
+                                                                @change="getStoreData()"
+                                                                v-model="store_id">
+                                                            <option value="">None</option>
+                                                            @foreach($stores as $store)
+                                                                <option
+                                                                    value="{{$store->id}}" {{ $user_store ?($user_store->id == $store->id ? 'selected' : '') :'' }}>{{ $store->name }}</option>
+                                                            @endforeach
+                                                        </select>
+                                                        <input type="hidden"
+                                                               name="store_id"
+                                                               class="form-control input-sm"
+                                                               v-bind:value="store_id">
+                                                    @else
+                                                        <select name="store_id" id="" class="form-control"
+                                                                @change="getStoreData()"
+                                                                v-model="store_id">
+                                                            <option value="">None</option>
+                                                            @foreach($stores as $store)
+                                                                <option
+                                                                    value="{{$store->id}}" {{ $user_store ?($user_store->id == $store->id ? 'selected' : '') :'' }}>{{ $store->name }}</option>
+                                                            @endforeach
+                                                        </select>
+                                                    @endif
                                                 </div>
                                             </div>
                                             <div class="col-3">
@@ -163,54 +179,54 @@
                                                         </tbody>
                                                         <tfoot>
 
-{{--                                                        <tr>--}}
-{{--                                                            <td colspan="7">--}}
+                                                        {{--                                                        <tr>--}}
+                                                        {{--                                                            <td colspan="7">--}}
 
-{{--                                                            </td>--}}
-{{--                                                            <td>--}}
-{{--                                                                SubTotal--}}
-{{--                                                            </td>--}}
-{{--                                                            <td>--}}
-{{--                                                                <input type="text" name="subtotal"--}}
-{{--                                                                       class="form-control input-sm"--}}
-{{--                                                                       v-bind:value="total_bill" readonly>--}}
+                                                        {{--                                                            </td>--}}
+                                                        {{--                                                            <td>--}}
+                                                        {{--                                                                SubTotal--}}
+                                                        {{--                                                            </td>--}}
+                                                        {{--                                                            <td>--}}
+                                                        {{--                                                                <input type="text" name="subtotal"--}}
+                                                        {{--                                                                       class="form-control input-sm"--}}
+                                                        {{--                                                                       v-bind:value="total_bill" readonly>--}}
 
-{{--                                                            </td>--}}
-{{--                                                        </tr>--}}
-{{--                                                        <tr>--}}
-{{--                                                            <td colspan="7">--}}
+                                                        {{--                                                            </td>--}}
+                                                        {{--                                                        </tr>--}}
+                                                        {{--                                                        <tr>--}}
+                                                        {{--                                                            <td colspan="7">--}}
 
-{{--                                                            </td>--}}
-{{--                                                            <td>--}}
-{{--                                                                Discount--}}
-{{--                                                            </td>--}}
-{{--                                                            <td>--}}
-{{--                                                                <input type="text" name="discount"--}}
-{{--                                                                       class="form-control input-sm"--}}
-{{--                                                                       v-model="allDiscountAmount" disabled>--}}
+                                                        {{--                                                            </td>--}}
+                                                        {{--                                                            <td>--}}
+                                                        {{--                                                                Discount--}}
+                                                        {{--                                                            </td>--}}
+                                                        {{--                                                            <td>--}}
+                                                        {{--                                                                <input type="text" name="discount"--}}
+                                                        {{--                                                                       class="form-control input-sm"--}}
+                                                        {{--                                                                       v-model="allDiscountAmount" disabled>--}}
 
-{{--                                                            </td>--}}
-{{--                                                        </tr>--}}
+                                                        {{--                                                            </td>--}}
+                                                        {{--                                                        </tr>--}}
 
-{{--                                                        <tr>--}}
-{{--                                                            <td colspan="7">--}}
+                                                        {{--                                                        <tr>--}}
+                                                        {{--                                                            <td colspan="7">--}}
 
-{{--                                                            </td>--}}
-{{--                                                            <td>--}}
-{{--                                                                Grand Total--}}
-{{--                                                            </td>--}}
-{{--                                                            <td>--}}
-{{--                                                                <input type="text" name="grandtotal"--}}
-{{--                                                                       class="form-control input-sm"--}}
-{{--                                                                       v-bind:value="total_payable_bill" readonly>--}}
-{{--                                                            </td>--}}
-{{--                                                        </tr>--}}
+                                                        {{--                                                            </td>--}}
+                                                        {{--                                                            <td>--}}
+                                                        {{--                                                                Grand Total--}}
+                                                        {{--                                                            </td>--}}
+                                                        {{--                                                            <td>--}}
+                                                        {{--                                                                <input type="text" name="grandtotal"--}}
+                                                        {{--                                                                       class="form-control input-sm"--}}
+                                                        {{--                                                                       v-bind:value="total_payable_bill" readonly>--}}
+                                                        {{--                                                            </td>--}}
+                                                        {{--                                                        </tr>--}}
                                                         <tr>
                                                             <td colspan="7">
 
                                                             </td>
                                                             <td>
-                                                               Paid
+                                                                Paid
                                                             </td>
                                                             <td>
                                                                 <input type="text"
@@ -257,16 +273,16 @@
                                                                         <select v-model="payment.method"
                                                                                 :name="'payment_methods['+index+'][method]'"
                                                                                 class="form-control">
-                                                                                <option value="cash">Cash</option>
-                                                                                <option value="bkash">Bkash</option>
-                                                                                <option value="nagad">Nagad</option>
-                                                                                <option value="DBBL">DBBL</option>
-                                                                                <option value="UCB">UCB</option>
-                                                                                <option value="rocket">Rocket</option>
-                                                                                <option value="upay">Upay</option>
-                                                                                <option value="point">Redeem Point</option>
-                                                                                <option value="exchange">Exchange</option>
-                                                                                <option value="point">Redeem Point</option>
+                                                                            <option value="cash">Cash</option>
+                                                                            <option value="bkash">Bkash</option>
+                                                                            <option value="nagad">Nagad</option>
+                                                                            <option value="DBBL">DBBL</option>
+                                                                            <option value="UCB">UCB</option>
+                                                                            <option value="rocket">Rocket</option>
+                                                                            <option value="upay">Upay</option>
+                                                                            <option value="point">Redeem Point</option>
+                                                                            <option value="exchange">Exchange</option>
+                                                                            <option value="point">Redeem Point</option>
                                                                         </select>
                                                                     </td>
                                                                     <td>
@@ -425,7 +441,7 @@
                     couponCodeDiscountAmount: 0,
                     special_discount_amount: 0,
                     total_discount_amount: 0,
-                    oldPaid : 0,
+                    oldPaid: 0,
                     receivable_amount: 0
 
                 },
@@ -433,7 +449,7 @@
                     vuejsDatepicker
                 },
 
-                mounted: function (){
+                mounted: function () {
                     this.setStoreId()
                 },
                 computed: {
@@ -494,13 +510,13 @@
                 methods: {
                     getAllData() {
                         var vm = this;
-                        if(!vm.store_id){
+                        if (!vm.store_id) {
                             toastr.warning('Please Select Store', {
                                 closeButton: true,
                                 progressBar: true,
                             });
                             return false;
-                            vm.sale_id= ''
+                            vm.sale_id = ''
                         }
                         var slug = vm.sale_id;
 
@@ -512,7 +528,7 @@
                                 vm.products.map((product) => {
                                     vm.fetch_item(product.product_id, product.quantity, slug)
                                 })
-                                if (response.data.customer){
+                                if (response.data.customer) {
                                     vm.customerNumber = resData.customer.mobile
                                     vm.getCustomerInfo()
                                 }
@@ -539,7 +555,7 @@
                                     }
                                 }).then(function (response) {
                                     product_details = response.data;
-                                    vm.items=[];
+                                    vm.items = [];
                                     vm.items.push({
                                         item_id: vm.item_id,
                                         group: product_details.group,
@@ -625,8 +641,8 @@
                     addMorePaymentMethod() {
                         this.paymentMethods.push({amount: 0, method: ''})
                     },
-                    setStoreId(){
-                        const vm=this
+                    setStoreId() {
+                        const vm = this
                         vm.store_id = "{{ $user_store ?  $user_store->id : ''}}"
                     }
                 },
