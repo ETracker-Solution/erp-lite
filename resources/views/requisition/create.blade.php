@@ -171,7 +171,7 @@
                                                                 @{{ row.group }}
                                                             </td>
                                                             <td style="vertical-align: middle">
-                                                                <input type="text"
+                                                                <input type="hidden"
                                                                        :name="'products['+index+'][coi_id]'"
                                                                        class="form-control input-sm"
                                                                        v-bind:value="row.coi_id">
