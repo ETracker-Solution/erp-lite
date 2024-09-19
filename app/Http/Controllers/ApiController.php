@@ -255,6 +255,8 @@ class ApiController extends Controller
 
                 } elseif ($balance_quantity > $requisition_quantity) {
                     $quantity = $requisition_quantity;
+                } elseif ($balance_quantity = $requisition_quantity) {
+                    $quantity = $requisition_quantity;
                 } else {
                     $quantity = '';
                 }
