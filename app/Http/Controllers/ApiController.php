@@ -180,8 +180,8 @@ class ApiController extends Controller
                 $diff = $req_qty - $current_stock;
 
                 $product['quantity'] = $diff ? max($diff, 0) : 0;
-            }else{
-                $product['quantity']=0;
+            } else {
+                $product['quantity'] = 0;
             }
 
 
@@ -244,6 +244,21 @@ class ApiController extends Controller
 
         foreach ($r_items as $row) {
             if ($row->quantity > 0) {
+                $balance_quantity = availableInventoryBalance($row->coi_id, $store_id);
+                $requisition_quantity = $row->quantity;
+                if ($balance_quantity < $requisition_quantity) {
+                    if ($balance_quantity <= 0) {
+                        $quantity = '';
+                    } else {
+                        $quantity = $balance_quantity;
+                    }
+
+                } elseif ($balance_quantity > $requisition_quantity) {
+                    $quantity = $requisition_quantity;
+                } else {
+                    $quantity = '';
+                }
+
                 $items[] = [
                     'requisition_id' => $id,
                     'coi_id' => $row->coi_id,
@@ -252,9 +267,9 @@ class ApiController extends Controller
                     'group' => $row->coi->parent->name ?? '',
                     'rm_average_rate' => averageRMRate($row->coi_id, $store_id),
                     'fg_average_rate' => averageFGRate($row->coi_id, $store_id),
-                    'balance_quantity' => availableInventoryBalance($row->coi_id, $store_id),
-                    'requisition_quantity' => $row->quantity,
-                    'quantity' => '',
+                    'balance_quantity' => $balance_quantity,
+                    'requisition_quantity' => $requisition_quantity,
+                    'quantity' => $quantity,
                 ];
             }
         }
