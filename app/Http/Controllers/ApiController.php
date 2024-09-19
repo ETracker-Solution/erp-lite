@@ -187,6 +187,7 @@ class ApiController extends Controller
 
             $product['group'] = $product->parent ? $product->parent->name : '';
             $product['uom'] = $product->unit ? $product->unit->name : '';
+            $product['coi_id'] = $product->id;
             $product['stock'] = '';
             $product['price'] = $product->price;
             $product['rate'] = $product->price;
