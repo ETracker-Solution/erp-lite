@@ -60,12 +60,13 @@ class FundTransferVoucherController extends Controller
         //         $chartOfAccounts[] = $con->coa;
         //     }
             $chartOfAccounts = OutletAccount::with('coa')->where('outlet_id', \auth()->user()->employee->outlet_id)->get();
+            $toChartOfAccounts = ChartOfAccount::where(['default_type' => 'office_account','is_bank_cash' => 'yes', 'type' => 'ledger', 'status' => 'active'])->get();
 
         } else {
             $chartOfAccounts = ChartOfAccount::where(['is_bank_cash' => 'yes', 'type' => 'ledger', 'status' => 'active'])->get();
+            $toChartOfAccounts = ChartOfAccount::where(['is_bank_cash' => 'yes', 'type' => 'ledger', 'status' => 'active'])->get();
 
         }
-        $toChartOfAccounts = ChartOfAccount::where(['is_bank_cash' => 'yes', 'type' => 'ledger', 'status' => 'active'])->get();
 
         $lastValue = FundTransferVoucher::latest()->pluck('uid')->first();
         if ($lastValue !== null) {
