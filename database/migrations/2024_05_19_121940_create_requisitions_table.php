@@ -18,7 +18,7 @@ return new class extends Migration {
             $table->integer('total_item')->nullable();
             $table->double('total_quantity', 8, 2);
             $table->text('remark')->nullable();
-            $table->enum('status', ['pending', 'approved', 'completed', 'rejected'])->default('pending');
+            $table->enum('status', ['pending', 'approved', 'completed', 'rejected','cancelled'])->default('pending');
             $table->enum('type', ['FG', 'RM'])->default('FG');
             $table->foreignId('to_store_id')->nullable()->constrained('stores')->onDelete('cascade');
             $table->foreignId('from_store_id')->nullable()->constrained('stores')->onDelete('cascade');
