@@ -136,6 +136,7 @@
                                                 @click="showReport('Single Customer Details')">
                                             Show Single Customer Details
                                         </button>
+                                        @if(auth()->user()->employee->user_of != 'outlet')
                                         <hr>
                                         {{-- Due and Discount Report --}}
                                         <button class="btn btn-sm btn-dark w-50 mb-2"
@@ -155,6 +156,7 @@
                                             Show Single Customer Discount
                                         </button>
                                         {{-- End Due and Discount Report --}}
+                                        @endif
                                     </div>
                                 </div>
                             </div>

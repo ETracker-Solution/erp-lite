@@ -88,11 +88,11 @@
                 <th style="text-align: left; padding-left:35px;"><strong>Referance :</strong></th>
                 <td style="text-align: left; padding-right:-20px;">{{ $receiveVoucher->reference_no }}</td>
             </tr>
-            
+
         </thead>
     </table>
     <htmlpagefooter name="page-footer">
-                                
+
         <table width="100%">
             <tbody>
                 <tr>
@@ -107,7 +107,7 @@
             $date = new DateTime('now', new DateTimezone('Asia/Dhaka'));
         @endphp
         <br>
-        <strong>
+        <strong style="font-size: 8px">
             Printing Time:- {{ $date->format('F j, Y, g:i a') }}
         </strong>
         <br>

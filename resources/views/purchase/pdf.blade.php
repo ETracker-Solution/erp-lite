@@ -109,7 +109,7 @@
                                     $date = new DateTime('now', new DateTimezone('Asia/Dhaka'));
                                 @endphp
                                 <br>
-                                <strong>
+                                <strong style="font-size: 8px">
                                     Printing Time:- {{ $date->format('F j, Y, g:i a') }}
                                 </strong>
                                 <hr>

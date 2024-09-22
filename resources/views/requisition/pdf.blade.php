@@ -58,7 +58,7 @@
             <div class="row">
                 <div class="col-sm-12">
                     <div class="panel panel-default invoice" id="invoice">
-                        
+
                         <div class="panel-body">
                             <div class="invoice-ribbon">
                                 @include('common.pdf_header')
@@ -82,7 +82,7 @@
 									</tr>
 								</tbody>
 							</table>
-                            
+
                             <table border="1"cellspacing="0" width="100%" style="text-align: center; margin-top:20px;">
                                 <thead style="background:#cdced2;">
 									<tr style="background-color: #cdced2;">
@@ -110,7 +110,7 @@
                                     $date = new DateTime('now', new DateTimezone('Asia/Dhaka'));
                                 @endphp
                                 <br>
-                                <strong>
+                                <strong style="font-size: 8px">
                                     Printing Time:- {{ $date->format('F j, Y, g:i a') }}
                                 </strong>
                                 <hr>
