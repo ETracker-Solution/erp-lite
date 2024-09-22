@@ -80,7 +80,7 @@
                                             <td>{{ $item->unit_price ?? '' }}</td>
                                             <td>{{ $item->quantity ?? '' }}</td>
                                             <td>{{ $item->discount ? $item->discount : 0 }}</td>
-                                            <td class="text-right">{{ $otherOutletSale->grand_total }}</td>
+                                            <td class="text-right">{{  $item->unit_price*$item->quantity }}</td>
                                         </tr>
                                     @endforeach
                                     </tbody>

@@ -35,7 +35,7 @@
                                             <p><b>Delivery Point :</b> {{ $otherOutletSale->deliveryPoint->name }}</p>
                                             <p><b>Date :</b> {{ $otherOutletSale->date }} </p>
                                             <p><b>Sub Total :</b> {{ $otherOutletSale->subtotal }} </p>
-                                            <p><b> Delivery Status :</b> {!! showStatus($otherOutletSale->status) !!}
+                                            <p><b>Delivery Status :</b> {!! showStatus($otherOutletSale->status) !!}
                                             </p>
                                         </td>
                                     </tr>
@@ -63,10 +63,10 @@
                                         <th>#</th>
                                         <th>Invoice No</th>
                                         <th>Item</th>
-                                        <th>Unit</th>
+                                        <th>Unit Price</th>
                                         <th>Quantity</th>
                                         <th>Discount</th>
-                                        <th class="text-right">Grand Total</th>
+                                        <th class="text-right">item Total</th>
 
                                     </tr>
                                     </thead>
@@ -78,8 +78,8 @@
                                             <td>{{ $item->coi->name ?? '' }}</td>
                                             <td>{{ $item->unit_price ?? '' }}</td>
                                             <td>{{ $item->quantity ?? '' }}</td>
-                                            <td>{{ $otherOutletSale->discount }}</td>
-                                            <td class="text-right">{{ $otherOutletSale->grand_total }}</td>
+                                            <td>{{ $item->discount }}</td>
+                                            <td class="text-right">{{$item->unit_price*$item->discount }}</td>
                                         </tr>
                                     @endforeach
                                     </tbody>

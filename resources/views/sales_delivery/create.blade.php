@@ -397,8 +397,8 @@
 
     <link rel="stylesheet" href="{{ asset('vue-js/bootstrap-select/dist/css/bootstrap-select.min.css') }}">
 @endpush
-@push('script')
 
+@push('script')
     <script src="{{ asset('vue-js/vue/dist/vue.js') }}"></script>
     <script src="{{ asset('vue-js/axios/dist/axios.min.js') }}"></script>
     <script src="{{ asset('vue-js/bootstrap-select/dist/js/bootstrap-select.min.js') }}"></script>
@@ -509,7 +509,7 @@
                 },
                 methods: {
                     getAllData() {
-                        var vm = this;
+                        const vm = this;
                         if (!vm.store_id) {
                             toastr.warning('Please Select Store', {
                                 closeButton: true,
@@ -518,15 +518,16 @@
                             return false;
                             vm.sale_id = ''
                         }
-                        var slug = vm.sale_id;
+                        const sale_id = vm.sale_id;
 
-                        if (slug) {
-
-                            axios.get(this.config.get_data_by_invoice + '/' + slug).then(function (response) {
+                        if (sale_id) {
+                             vm.items = [];
+                            axios.get(this.config.get_data_by_invoice + '/' + sale_id).then(function (response) {
                                 const resData = response.data;
                                 vm.products = resData.items;
                                 vm.products.map((product) => {
-                                    vm.fetch_item(product.product_id, product.quantity, slug)
+                                    vm.fetch_item(product.product_id, product.quantity, sale_id)
+                                   console.log(product.product_id);
                                 })
                                 if (response.data.customer) {
                                     vm.customerNumber = resData.customer.mobile
@@ -545,17 +546,17 @@
                         }
                     },
                     fetch_item(slug, qty, sale_id) {
-                        var vm = this;
+                        const vm = this;
                         {
                             if (slug) {
+                                console.log(slug);
                                 axios.get(this.config.get_product_info_url + '/' + slug, {
                                     params: {
                                         store_id: vm.store_id,
                                         sale_id: sale_id
                                     }
                                 }).then(function (response) {
-                                    product_details = response.data;
-                                    vm.items = [];
+                                    const product_details = response.data;
                                     vm.items.push({
                                         item_id: vm.item_id,
                                         group: product_details.group,
@@ -568,6 +569,7 @@
                                         product_discount: product_details.product_discount,
                                         subtotal: 0,
                                     });
+                                    console.log(vm.items);
                                     // vm.item_id = '';
                                     // vm.category_id = '';
 
