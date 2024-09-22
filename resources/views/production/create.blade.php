@@ -230,7 +230,7 @@
                                                                 <input type="number" v-model="row.rate"
                                                                        :name="'products['+index+'][rate]'"
                                                                        class="form-control input-sm"
-                                                                       @change="itemtotal(row)" required>
+                                                                       @change="itemtotal(row)" required readonly>
                                                             </td>
                                                             <td>
                                                                 <input type="text" class="form-control input-sm"
