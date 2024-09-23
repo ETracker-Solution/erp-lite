@@ -64,20 +64,21 @@
                                 <div class="row">
                                     <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                         <div class="form-group">
-                                            <label for="from_account_id" class="control-label">Transfer From</label>
+                                            <label for="from_account_id" class="control-label">Transfer From ( @{{ from_ac_balance }})</label>
                                             <select class="form-control bSelect" name="from_account_id"
-                                                    v-model="from_account_id">
+                                                    v-model="from_account_id" @change="fetchFromBalance">
                                                 <option value="">Select One</option>
                                                 @if (\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->outlet_id)
-                                                     @foreach ($chartOfAccounts as $row)
-                                                        <option value="{{ $row->coa->id }}">{{ $row->coa->name }}</option>
+                                                    @foreach ($chartOfAccounts as $row)
+                                                        <option
+                                                            value="{{ $row->coa->id }}">{{ $row->coa->name }}</option>
                                                     @endforeach
                                                 @else
                                                     @foreach ($chartOfAccounts as $row)
                                                         <option value="{{ $row->id }}">{{ $row->name }}</option>
                                                     @endforeach
                                                 @endif
-                                                
+
                                             </select>
                                         </div>
                                     </div>
@@ -270,7 +271,8 @@
                 el: '#vue_app',
                 data: {
                     config: {
-                        get_item_info_url: "{{ url('fetch-account-info') }}"
+                        get_item_info_url: "{{ url('fetch-account-info') }}",
+                        get_from_account_balance_data: "{{ url('fetch-from-account-balance') }}"
                     },
                     date: new Date(),
                     from_account_id: '',
@@ -280,7 +282,8 @@
                     selected_items: [],
                     pageLoading: false,
                     uid: "22",
-                    store_id: ''
+                    store_id: '',
+                    from_ac_balance: ''
                 },
                 components: {
                     vuejsDatepicker
@@ -294,7 +297,17 @@
                     }
                 },
                 methods: {
+                    fetchFromBalance() {
+                        const vm = this;
+                        const from_account_id = vm.from_account_id;
+                        vm.pageLoading = true;
+                        axios.get(this.config.get_from_account_balance_data + '/' + from_account_id).then(function (response) {
+                            vm.from_ac_balance = response.data.from_ac_balance;
+                            console.log(response.data.from_ac_balance);
+                            vm.pageLoading = false;
+                        })
 
+                    },
 
                     data_input() {
 
@@ -306,8 +319,16 @@
                             });
                             return false;
                         } else {
+                            if (vm.from_ac_balance < vm.amount) {
+                                toastr.error('Please Valid amount Input', {
+                                    closeButton: true,
+                                    progressBar: true,
+                                });
+                                return false;
+                            }
                             console.log(vm.amount)
                             let slug = vm.from_account_id;
+                            let to_account_id=vm.to_account_id
 
                             if (slug) {
                                 vm.pageLoading = true;

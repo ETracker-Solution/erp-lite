@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AccountTransaction;
 use App\Models\ChartOfAccount;
 use App\Models\ChartOfInventory;
 use App\Models\Consumption;
@@ -432,6 +433,13 @@ class ApiController extends Controller
             'from_account_name' => $from_account->name,
             'to_account_id' => $to_account->id,
             'to_account_name' => $to_account->name,
+        ];
+        return response()->json($data);
+    }
+    public function fetchFromAccountBalanceById($coa_id)
+    {
+        $data = [
+            'from_ac_balance' => AccountTransaction::where('chart_of_account_id', $coa_id)->sum(\DB::raw('amount * transaction_type'))
         ];
         return response()->json($data);
     }
