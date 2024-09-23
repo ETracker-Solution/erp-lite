@@ -58,7 +58,7 @@
                         </div>
                         <div class="col-6" style="line-height: 10px">
                             <p>Customer Name: @{{ customer ? customer.name : 'Not Found' }}</p>
-                            <p>Customer Point: @{{ customer ? customer.reedemible_point : 'Not Found' }}</p>
+                            <p>Customer Point: @{{ customer ? customer.reedemible_point : 'Not Found' }} <span style="color: cornflowerblue">(@{{ customer ? customer.member_type_name : 'Not Found' }})</span></p>
                             <a v-if="customer && customer.reedemible_point > 100" @click="getPointRedeemField">[Redeem]</a>
                         </div>
                     </div>

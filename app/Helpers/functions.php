@@ -240,9 +240,9 @@ function get_all_groups_report($date, $ac_type){
         return "SELECT
     CIP.name as `Group Name`,
     SUM(IT.quantity * IT.type) as `Balance Qty`,
-    CASE 
-    WHEN '$ac_type' = 'RM' THEN FORMAT((IT.amount / SUM(IT.quantity * IT.type)), 0) 
-    ELSE FORMAT(rate,0) 
+    CASE
+    WHEN '$ac_type' = 'RM' THEN FORMAT((IT.amount / SUM(IT.quantity * IT.type)), 0)
+    ELSE FORMAT(rate,0)
     END AS RATE,
     -- FORMAT((IT.amount / SUM(IT.quantity * IT.type)),0) as RATE,
     IT.amount as `Value`
@@ -273,12 +273,12 @@ FROM (
         IF(Subgroup_ID IS NULL, '', IFNULL(Subgroup_Name, '')) AS `Item Name`,
         `Balance Qty`,
         IF(Subgroup_ID IS NULL, '', IFNULL(
-        CASE 
+        CASE
     WHEN '$ac_type' = 'RM' THEN IF(`AllQ` = 0, NULL,format( `AllA` / `AllQ`,0))
-    ELSE FORMAT(ORate,0) 
-    END 
+    ELSE FORMAT(ORate,0)
+    END
         , ''))  AS `Rate`,
-        `Value`,
+         CASE WHEN '$ac_type' = 'RM' THEN format(`Value`,0) ELSE format(( `Balance Qty` * ORate),0) END AS `Value`,
         @prev_group := Group_Name
     FROM (
         SELECT
@@ -323,12 +323,12 @@ FROM (
         IF(Subgroup_ID IS NULL, '', IFNULL(Subgroup_Name, '')) AS `Item Name`,
         `Balance Qty`,
         IF(Subgroup_ID IS NULL, '', IFNULL(
-        CASE 
+        CASE
     WHEN '$ac_type' = 'RM' THEN IF(`AllQ` = 0, NULL,format( `AllA` / `AllQ`,0))
-    ELSE FORMAT(ORate,0) 
-    END 
+    ELSE FORMAT(ORate,0)
+    END
         , ''))  AS `Rate`,
-        `Value`,
+        CASE WHEN '$ac_type' = 'RM' THEN format(`Value`,0) ELSE format(( `Balance Qty` * ORate),0) END AS `Value`,
         @prev_group := Group_Name
     FROM (
         SELECT
@@ -374,12 +374,12 @@ FROM (
         IF(Subgroup_ID IS NULL, '', IFNULL(Subgroup_Name, '')) AS `Item Name`,
         `Balance Qty`,
         IF(Subgroup_ID IS NULL, '', IFNULL(
-        CASE 
+        CASE
     WHEN '$ac_type' = 'RM' THEN IF(`AllQ` = 0, NULL,format( `AllA` / `AllQ`,0))
-    ELSE FORMAT(ORate,0) 
-    END 
+    ELSE FORMAT(ORate,0)
+    END
         , ''))  AS `Rate`,
-      IF(Subgroup_ID IS NULL,format(@total_a,0),format(`Value`,0)) as`Value`,
+      IF(Subgroup_ID IS NULL,format(@total_a,0),CASE WHEN '$ac_type' = 'RM' THEN format(`Value`,0) ELSE format(( `Balance Qty` * ORate),0) END) as`Value`,
         @prev_group := Group_Name,
         @prev_store:= Store_Name,
         @total_a := @total_a + `Value`
@@ -415,7 +415,7 @@ FROM (
 
 function get_all_items_by_store($store_id, $date, $ac_type)
 {
- 
+
     return "SELECT
     `Group Name`,
     `Item ID`,
@@ -431,12 +431,17 @@ FROM (
         IF(Subgroup_ID IS NULL, '', IFNULL(Subgroup_Name, '')) AS `Item Name`,
         `Balance Qty`,
         IF(Subgroup_ID IS NULL, '', IFNULL(
-        CASE 
+        CASE
     WHEN '$ac_type' = 'RM' THEN IF(`AllQ` = 0, NULL,format( `AllA` / `AllQ`,0))
-    ELSE FORMAT(ORate,0) 
-    END 
+    ELSE FORMAT(ORate,0)
+    END
         , ''))  AS `Rate`,
-       IF(Subgroup_ID IS NULL,format(@total_a,0),format(`Value`,0)) as`Value`,
+      IF(Subgroup_ID IS NULL, '', IFNULL(
+        CASE
+    WHEN '$ac_type' = 'RM' THEN FORMAT( `Value`,0)
+    ELSE FORMAT((ORate * `Balance Qty`),0)
+    END
+        , ''))  AS `Value`,
         @prev_group := Group_Name,
          @prev_store:= Store_Name,
         @total_a := @total_a + `Value`

@@ -340,6 +340,7 @@ class POSController extends Controller
             $data->minimum_purchase = $data->membership ? $data->membership->memberType->minimum_purchase : 0;
             $data->purchase_discount = $data->membership ? $data->membership->memberType->discount : 0;
             $data->reedemible_point = $data->membership ? round($data->currentReedemablePoint(), 2) : 0;
+            $data->member_type_name = $data->membership ? $data->membership->memberType->name : '';
         }
         return $data;
     }
