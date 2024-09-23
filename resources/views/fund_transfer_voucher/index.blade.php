@@ -21,13 +21,13 @@
                             <div class="mb-2 card">
                                 <div class="card-content collapse show">
                                     <div class="card-body">
-                                        
+
                                         <div class="row">
-                                        
+
                                             <div class="col-md-3 form-group">
                                                 <label for="fp-range" class="font-weight-bold">DATE RANGE</label>
                                                 <input type="text" id="fp-range" class="form-control flatpickr-range"
-                                                    placeholder="YYYY-MM-DD to YYYY-MM-DD" name="date_range"/>
+                                                       placeholder="YYYY-MM-DD to YYYY-MM-DD" name="date_range"/>
                                             </div>
                                             {{-- <div class="col-md-3 form-group">
                                                 <label for="code" class="font-weight-bold">Store Name</label>
@@ -44,14 +44,35 @@
                                                     @endforeach
                                                 </select>
                                             </div>
-                                            
                                         </div>
                                     </div>
                                 </div>
-                                
+
                             </div>
                         </div>
                     @endcan
+
+                            <div class="mb-2 card">
+                                <div class="card-content collapse show">
+                                    <div class="card-body">
+
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div style="border: 1px solid #000" class="p-1">
+                                                    @foreach($outlet_accounts as $outlet_account)
+                                                        <span class="badge badge-success p-1 m-1">{{$outlet_account['name']}} :   {{$outlet_account['balance']}} BDT</span>
+                                                    @endforeach
+                                                </div>
+
+
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+
                     <div class="card card-info">
                         <div class="card-header">
                             <h3 class="card-title">All Fund Transfer Voucher List</h3>
@@ -85,20 +106,20 @@
 
 @section('css')
     <link rel="stylesheet" type="text/css"
-    href="{{ asset('datepicker/app-assets/vendors/css/pickers/pickadate/pickadate.css') }}">
+          href="{{ asset('datepicker/app-assets/vendors/css/pickers/pickadate/pickadate.css') }}">
     <link rel="stylesheet" type="text/css"
-    href="{{ asset('datepicker/app-assets/vendors/css/pickers/flatpickr/flatpickr.min.css') }}">
+          href="{{ asset('datepicker/app-assets/vendors/css/pickers/flatpickr/flatpickr.min.css') }}">
     <link rel="stylesheet" type="text/css"
-    href="{{ asset('datepicker/app-assets/css/plugins/forms/pickers/form-flat-pickr.css') }}">
+          href="{{ asset('datepicker/app-assets/css/plugins/forms/pickers/form-flat-pickr.css') }}">
     <link rel="stylesheet" type="text/css"
-    href="{{ asset('datepicker/app-assets/css/plugins/forms/pickers/form-pickadate.css') }}">
+          href="{{ asset('datepicker/app-assets/css/plugins/forms/pickers/form-pickadate.css') }}">
     <link rel="stylesheet" type="text/css"
-    href="{{ asset('datepicker') }}/app-assets/css/core/menu/menu-types/vertical-menu.css">
+          href="{{ asset('datepicker') }}/app-assets/css/core/menu/menu-types/vertical-menu.css">
     <!-- DataTables -->
     <link rel="stylesheet" href="{{ asset('assets/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css')}}">
 @endsection
 @push('style')
-    
+
 @endpush
 @section('js')
 
@@ -124,7 +145,7 @@
                 processing: true,
                 ajax: {
                     url: "{{ route('fund-transfer-vouchers.index') }}",
-                    data: function(d) {
+                    data: function (d) {
                         d.outlet_id = $('select[name="outlet_id"]').val();
                         d.date_range = $('input[name="date_range"]').val();
                         // d.title = $('input[name="title"]').val();
@@ -177,7 +198,7 @@
             });
         })
 
-        $('#fp-range').on('change', function() {
+        $('#fp-range').on('change', function () {
             recallDatatable();
         })
         $('#outlet_id').on('change', function () {

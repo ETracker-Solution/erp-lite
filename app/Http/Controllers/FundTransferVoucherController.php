@@ -14,6 +14,7 @@ use App\Models\Transaction;
 use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Termwind\Components\Raw;
 use Yajra\DataTables\Facades\DataTables;
 use niklasravnsborg\LaravelPdf\Facades\Pdf;
 
@@ -26,6 +27,18 @@ class FundTransferVoucherController extends Controller
      */
     public function index()
     {
+        if (\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->outlet_id) {
+
+            $oas = OutletAccount::with('coa')->where('outlet_id', \auth()->user()->employee->outlet_id)->get();
+        } else {
+            $oas = OutletAccount::with('coa')->get();
+        }
+        $outlet_accounts = [];
+        foreach ($oas as $key => $row) {
+            $outlet_accounts[$key]['name'] = $row->coa->name;
+            $outlet_accounts[$key]['balance'] = AccountTransaction::where('chart_of_account_id',$row->coa_id)->sum(\DB::raw('amount * transaction_type'));
+        }
+
         $outlets = Outlet::all();
         if (\request()->ajax()) {
             $fundTransferVouchers = $this->getFilteredData();
@@ -43,7 +56,7 @@ class FundTransferVoucherController extends Controller
                 ->rawColumns(['action', 'created_at', 'status'])
                 ->make(true);
         }
-        return view('fund_transfer_voucher.index',compact('outlets'));
+        return view('fund_transfer_voucher.index', compact('outlets', 'outlet_accounts'));
     }
 
     /**
@@ -55,12 +68,12 @@ class FundTransferVoucherController extends Controller
     {
         if (\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->outlet_id) {
 
-        //    $cons = OutletTransactionConfig::with('coa')->where('outlet_id', \auth()->user()->employee->outlet_id)->get();
-        //     foreach ($cons as $con) {
-        //         $chartOfAccounts[] = $con->coa;
-        //     }
+            //    $cons = OutletTransactionConfig::with('coa')->where('outlet_id', \auth()->user()->employee->outlet_id)->get();
+            //     foreach ($cons as $con) {
+            //         $chartOfAccounts[] = $con->coa;
+            //     }
             $chartOfAccounts = OutletAccount::with('coa')->where('outlet_id', \auth()->user()->employee->outlet_id)->get();
-            $toChartOfAccounts = ChartOfAccount::where(['default_type' => 'office_account','is_bank_cash' => 'yes', 'type' => 'ledger', 'status' => 'active'])->get();
+            $toChartOfAccounts = ChartOfAccount::where(['default_type' => 'office_account', 'is_bank_cash' => 'yes', 'type' => 'ledger', 'status' => 'active'])->get();
 
         } else {
             $chartOfAccounts = ChartOfAccount::where(['is_bank_cash' => 'yes', 'type' => 'ledger', 'status' => 'active'])->get();
@@ -250,11 +263,11 @@ class FundTransferVoucherController extends Controller
     public function getFilteredData()
     {
         if (\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->outlet_id) {
-                $fundTransferVoucher = FundTransferVoucher::where('created_by', \auth()->user()->id)->with('creditAccount', 'debitAccount')->latest();
+            $fundTransferVoucher = FundTransferVoucher::where('created_by', \auth()->user()->id)->with('creditAccount', 'debitAccount')->latest();
 
-            } else {
-                $fundTransferVoucher = FundTransferVoucher::with('creditAccount', 'debitAccount')->latest();
-            }
+        } else {
+            $fundTransferVoucher = FundTransferVoucher::with('creditAccount', 'debitAccount')->latest();
+        }
         // if (\request()->filled('status')) {
         //     $fundTransferVoucher->where('status', \request()->status);
         // }
