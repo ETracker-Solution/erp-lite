@@ -269,7 +269,7 @@ class SaleController extends Controller
             if ($request->sales_type == 'pre_order') {
                 $this->preOrderfromSales($sale, $deliveryDate,$delivery_charge, $delivery_time, $request->description,$request->size,$request->flavour,$request->cake_message, $request->attachments, $request->delivery_point_id);
             }
-            if (($receive_amount < $sale->grand_total) || $outlet_id !== $request->delivery_point_id) {
+            if (($receive_amount < $sale->grand_total) || $outlet_id !== $request->delivery_point_id || $request->sales_type == 'pre_order') {
                 $this->othersOutletDelivery($sale, $request->delivery_point_id);
             }
             DB::commit();
