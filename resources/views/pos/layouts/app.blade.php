@@ -515,8 +515,6 @@
                             total_discount_value: vm.total_discount_value,
                             total_discount_amount: vm.total_discount_amount,
                         }).then(function (response) {
-                            // console.log(response)
-                            // return
                             vm.selectedProducts = [];
                             vm.customer = {};
                             vm.discount_type = '';
@@ -525,7 +523,7 @@
                             vm.total_discount_value = 0;
                             vm.total_discount_amount = 0;
                             vm.special_discount_amount = 0;
-                            vm.allDiscountAmount = 0;
+                            this.allDiscountAmount = 0;
                             vm.couponCodeDiscountValue = 0;
                             vm.couponCodeDiscountAmount = 0;
                             vm.getAllProducts()
@@ -545,8 +543,7 @@
                             }
                             vm.printInvoice(response.data.sale.id)
                         }).catch(function (error) {
-                            console.log(error)
-                            toastr.error('Something Went Wrong', {
+                            toastr.error(error?.response?.data?.message, {
                                 closeButton: true,
                                 progressBar: true,
                             });
@@ -888,7 +885,7 @@
                         vm.total_discount_value = 0;
                         vm.total_discount_amount = 0;
                         vm.special_discount_amount = 0;
-                        vm.allDiscountAmount = 0;
+                        this.allDiscountAmount = 0;
                         this.closeOnHoldModal()
                     }
 

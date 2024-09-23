@@ -395,6 +395,7 @@ class SaleController extends Controller
             'created_by' => auth()->user()->id,
             'order_number' => $sale->invoice_number,
             'delivery_point_id' => $delivery_point_id,
+            'sale_id'=>$sale->id
         ];
         $preOrder = PreOrder::create($data);
 
