@@ -298,7 +298,7 @@
 
 <htmlpagefooter name="page-footer">
     <hr>
-    <h3 class="text-bold tc">Sold Goods are not returnable</h3>
+    <h3 class="text-bold tc">{{ $sale->message }}</h3>
     <hr>
     <h4 class="tc"><em>
             System By:E-Tracker Software solution Ltd
