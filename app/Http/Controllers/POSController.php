@@ -221,13 +221,15 @@ class POSController extends Controller
 
         } catch (\Exception $error) {
             DB::rollBack();
-            return $error;
+            $message = $error->getMessage();
             Log::emergency("File:" . $error->getFile() . "Line:" . $error->getLine() . "Message:" . $error->getMessage());
-//            Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
-//            return response()->json(['message' => 'error'], 500);
-            return response()->json(['message' => $error->getMessage()], 500);
+            if ($error->getCode() == 23000){
+                $message = 'Please Set Account Config';
+            }
+
+            return response()->json(['success'=>false,'message' => $message], 500);
         }
-        return response()->json(['message' => 'success', 'sale' => $sale]);
+        return response()->json(['success'=>true,'message' => 'success', 'sale' => $sale]);
     }
 
     /**
