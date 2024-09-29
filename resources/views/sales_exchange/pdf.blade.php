@@ -61,7 +61,7 @@
                             <div class="invoice-ribbon">
                                 @include('common.pdf_header')
                             </div>
-                            
+
                             <hr>
                             <table border="1"cellspacing="0" width="100%" style="text-align: center; margin-top:20px;">
                                 <thead style="background:#cdced2;">
@@ -72,7 +72,7 @@
                                         <th>Unit</th>
                                         <th>Quantity</th>
                                         <th>Discount</th>
-                                        <th class="text-right">Grand Total</th> 
+                                        <th class="text-right">Grand Total</th>
                                     </tr>
                                 </thead>
                                 @php
@@ -87,10 +87,10 @@
                                             <td>{{ $item->unit_price ?? '' }}</td>
                                             <td>{{ $item->quantity ?? '' }}</td>
                                             <td>{{ $otherOutletSale->discount }}</td>
-                                            <td class="text-right">{{ $otherOutletSale->grand_total }}</td>    
+                                            <td class="text-right">{{ $otherOutletSale->grand_total }}</td>
                                         </tr>
                                     @endforeach
-                                    
+
                                     <tr>
                                         <td colspan="5"></td>
                                         <td class="text-left">Sub Total:</td>
@@ -105,7 +105,7 @@
                                         <td colspan="5"></td>
                                         <td class="text-left">Grand Total:</td>
                                         <td class="text-right">{{ $otherOutletSale->grand_total - ($otherOutletSale->discount * $item->quantity)}}</td>
-                                        
+
                                     </tr>
 
                                 </tbody>
@@ -118,7 +118,7 @@
                                     $date = new DateTime('now', new DateTimezone('Asia/Dhaka'));
                                 @endphp
                                 <br>
-                                <strong>
+                                <strong style="font-size: 8px">
                                     Printing Time:- {{ $date->format('F j, Y, g:i a') }}
                                 </strong>
                                 <hr>

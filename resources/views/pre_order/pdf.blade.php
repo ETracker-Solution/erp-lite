@@ -61,7 +61,7 @@
                             <div class="invoice-ribbon">
                                 @include('common.pdf_header')
                             </div>
-                            
+
                             <hr>
                             <b>Delivery Date :</b> {{ $model->delivery_date }},<br>
                             <b>Delivery Time :</b> {{ \Carbon\Carbon::parse($model->delivery_time)->format('h:i A') }}, <br>
@@ -72,7 +72,7 @@
                             <b>Flavour :</b> {{ $model->flavour }}, <br>
                             <b>Cake Message :</b> {{ $model->cake_message }}, <br>
                             <b>Description :</b> {{ $model->remark }}. <br>
-                            
+
                             <table border="1"cellspacing="0" width="100%" style="text-align: center; margin-top:20px;">
                                 <thead style="background:#cdced2;">
                                     <tr style="background-color: #cdced2;">
@@ -100,7 +100,7 @@
                                         <td class="text-right">{{ $item->unit_price * $item->quantity }}</td>
                                     </tr>
                                     @endforeach
-                                    
+
                                     <tr>
                                         <td colspan="5"></td>
                                         <td class="text-left">Sub Total:</td>
@@ -115,7 +115,7 @@
                                         <td colspan="5"></td>
                                         <td class="text-left">Grand Total:</td>
                                         <td class="text-right">{{ $model->grand_total - $item->discount }}</td>
-                                        
+
                                     </tr>
 
                                 </tbody>
@@ -125,7 +125,7 @@
                                     $date = new DateTime('now', new DateTimezone('Asia/Dhaka'));
                                 @endphp
                                 <br>
-                                <strong>
+                                <strong style="font-size: 8px">
                                     Printing Time:- {{ $date->format('F j, Y, g:i a') }}
                                 </strong>
                                 <hr>

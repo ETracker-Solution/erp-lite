@@ -230,7 +230,7 @@
                                                                 <input type="number" v-model="row.rate"
                                                                        :name="'products['+index+'][rate]'"
                                                                        class="form-control input-sm"
-                                                                       @change="itemtotal(row)" required>
+                                                                       @change="itemtotal(row)" required readonly>
                                                             </td>
                                                             <td>
                                                                 <input type="text" class="form-control input-sm"
@@ -452,7 +452,7 @@
 
                                     vm.pageLoading = true;
                                     axios.get(this.config.get_items_info_by_group_id_url + '/' + vm.group_id).then(function (response) {
-                                        vm.selected_items = [];
+                                      //  vm.selected_items = [];
                                         vm.item_id = '';
                                         let items = response.data.products;
                                         for (let key in items) {

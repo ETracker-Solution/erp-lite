@@ -364,6 +364,7 @@ Route::middleware('auth')->group(function () {
     Route::get('fetch-due-by-customer-id/{id}', [App\Http\Controllers\ApiController::class, 'fetchSupplierDueById'])->name('customer.due');
     //-----End Customer Receive Voucher---------
     Route::get('fetch-account-info/{id}', [App\Http\Controllers\ApiController::class, 'fetchAccountDetailsById']);
+    Route::get('fetch-from-account-balance/{id}', [App\Http\Controllers\ApiController::class, 'fetchFromAccountBalanceById']);
 });
 Route::group(['prefix' => 'reports', 'middleware' => 'auth'], function () {
 

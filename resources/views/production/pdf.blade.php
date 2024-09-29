@@ -1,163 +1,200 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
 <head>
-    <title>Production </title>
-<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FG Requisiton Delivery Pdf</title>
     <style>
-        @page {
-            header: page-header;
-            footer: page-footer;
-        }
-        body{margin-top:20px;
-        background:#eee;
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
         }
 
-        /*Invoice*/
-        .invoice .top-left {
-            font-size:65px;
-            color:#3ba0ff;
+        .header {
+            text-align: center;
         }
 
-        .invoice .top-right {
-            text-align:right;
-            padding-right:20px;
+        .header img {
+            width: 100px;
         }
-        @media(max-width:575px) {
-            .invoice .top-left,.invoice .top-right,.invoice .payment-details {
-                text-align:center;
+
+        .company-info {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .company-info h2 {
+            margin: 5px 0;
+        }
+
+        .company-info p {
+            margin: 0;
+        }
+
+        .details, .items {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        .details th, .details td, .items th, .items td {
+            padding: 10px;
+            text-align: left;
+            border: 1px solid #000;
+        }
+
+        .footer {
+            margin-top: 30px;
+        }
+
+        .footer div {
+            display: inline-block;
+            width: 30%;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .signature-section {
+            margin-top: 50px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .signature-section div {
+            text-align: center;
+            font-weight: bold;
+            width: 32%;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .footer p {
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .details, .items th, .items td, .details th, .details td {
+                font-size: 12px;
+                padding: 8px;
             }
 
-            .invoice .from,.invoice .to,.invoice .payment-details {
-                float:none;
-                width:100%;
-                text-align:center;
-                margin-bottom:25px;
+            .signature-section div {
+                width: 100%;
+                margin-bottom: 20px;
             }
 
-            .invoice p.lead,.invoice .from p.lead,.invoice .to p.lead,.invoice .payment-details p.lead {
-                font-size:22px;
+            .signature-section {
+                display: block;
+                text-align: center;
             }
 
-            .invoice .btn {
-                margin-top:10px;
+            .footer div {
+                width: 100%;
+                margin-bottom: 10px;
             }
         }
 
-        @media print {
-            .invoice {
-                width:900px;
-                height:800px;
+        @media (max-width: 480px) {
+            .header img {
+                width: 80px;
+            }
+
+            .company-info h2 {
+                font-size: 16px;
+            }
+
+            .company-info p {
+                font-size: 12px;
+            }
+
+            .details, .items {
+                font-size: 10px;
+            }
+
+            .details th, .details td, .items th, .items td {
+                padding: 5px;
             }
         }
+
     </style>
 </head>
-    <body>
-        <div class="container bootstrap snippets bootdeys">
-            <div class="row">
-                <div class="col-sm-12">
-                    <div class="panel panel-default invoice" id="invoice">
-                        <div class="panel-body">
-                            <div class="invoice-ribbon">
-                                <h2 style="text-align:center; color: #4e73df; padding: 0px; margin: 0px; margin-left: 20px;" class="text-primary">
-                                    <strong> {{ getSettingValue('company_name') }}</strong>
-                                </h2>
-                                <p style="text-align: center; padding: 0px; margin: 0px;">Address : {{ getSettingValue('company_address') }}</p>
-                                <p style="text-align: center; padding: 0px; margin: 0px;">Email : {{ getSettingValue('company_email') }}</p>
-                                <p style="text-align: center; padding: 0px; margin: 0px;">Phone : {{ getSettingValue('company_phone') }}</p>
-                            </div>
-                            <div class="row">
+<body>
 
-                                <div class="col-sm-6 top-left">
-                                    <i class="fa fa-rocket"></i>
-                                </div>
+<div class="company-info">
+    @include('common.pdf_header')
+</div>
+<div class="row">
+    <div style="text-align: right">
+        <h3 class="marginright">Production No:{{ $production->uid }}</h3>
+        <span class="marginright">{{ \Carbon\Carbon::parse($production->created_at)->isoFormat('MMM Do, YYYY') }}</span>
+    </div>
+</div>
+<hr>
 
-                                <div class="col-sm-6 top-right">
-                                    <h3 class="marginright">Production No:{{ $production->uid }}</h3>
-                                    <span class="marginright">{{ \Carbon\Carbon::parse($production->created_at)->isoFormat('MMM Do, YYYY') }}</span>
-                                </div>
+<table class="details">
+    <tr>
+        <td style="text-align: left">
+            <p class="lead marginbottom payment-info"><b> Production Details</b></p>
+            <p><b>Date :</b> {{ $production->created_at->format('Y-m-d') }}</p>
+            <p><b>Batch No : </b> {{ $production->batch->batch_no }} </p>
+            <p><b>Status :</b> {{ $production->status }}</p>
+            <p><b>Reference :</b> {{ $production->reference_no }}</p>
+        </td>
+    </tr>
+</table>
 
-                            </div>
-                            <hr>
-                            <table border="1"cellspacing="0" width="100%" style="text-align: center;">
-                                <tbody>
-                                    <tr>
-                                        <td style="text-align: left">
-                                            <p class="lead marginbottom payment-info"><b> Production Details</b></p>
-                                            <p><b>Date :</b> {{ $production->created_at->format('Y-m-d') }}</p>
-                                            <p><b>Batch No : </b> {{ $production->batch->batch_no }} </p>
-                                            <p><b>Status :</b> {{ $production->status }}</p>
-                                            <p><b>Reference :</b> {{ $production->reference_no }}</p>
-                                            <p><b>Grand Total :</b> BDT {{ $production->grand_total }} </p>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                            <table border="1"cellspacing="0" width="100%" style="text-align: center; margin-top:20px;">
-                                <thead style="background:#cdced2;">
-                                    <tr style="background-color: #cdced2;">
-                                        <th>#</th>
-                                        <th>Group</th>
-                                        <th>Item</th>
-                                        <th>Unit</th>
-                                        <th>Unit Price</th>
-                                        <th>Quantity</th>
-                                        <th>Item Total</th>
-                                    </tr>
-                                </thead>
-                                @php
-                                    $i=1;
-                                @endphp
-                                <tbody>
-                                    @forelse ($production->items as $row)
-                                    <tr>
-                                        <td>{{ $i++ }}</td>
-                                        <td>{{ $row->coi->parent ? $row->coi->parent->name : '' }}</td>
-                                        <td>{{ $row->coi ? $row->coi->name : '' }}</td>
-                                        <td>{{ $row->coi->unit ? $row->coi->unit->name : '' }}</td>
-                                        <td>{{ $row->rate }}</td>
-                                        <td>{{ $row->quantity }}</td>
-                                        <td>{{ $row->rate * $row->quantity }}</td>
+<table class="items">
+    <thead style="background:#cdced2;">
+    <tr style="background-color: #cdced2;">
+        <th>#</th>
+        <th>Group</th>
+        <th>Item</th>
+        <th>Unit</th>
+        <th>Unit Price</th>
+        <th>Quantity</th>
+        <th>Item Total</th>
+    </tr>
+    </thead>
+    <tbody>
+    @php
+        $i=1;
+    @endphp
+    @foreach ($production->items as $row)
+        <tr>
+            <td>{{ ++$i }}</td>
+            <td>{{ $row->coi->parent ? $row->coi->parent->name : '' }}</td>
+            <td>{{ $row->coi ? $row->coi->name : '' }}</td>
+            <td>{{ $row->coi->unit ? $row->coi->unit->name : '' }}</td>
+            <td>{{ $row->rate }}</td>
+            <td>{{ $row->quantity }}</td>
+            <td>{{ $row->rate * $row->quantity }}</td>
+        </tr>
+    @endforeach
+    </tbody>
+</table>
 
-                                    </tr>
-                                    @empty
+<div class="signature-section" style="display: flex; justify-content: space-between; margin-top: 100px">
+    <span style="border-top: 1px solid hsl(0, 0%, 2%);">Factory Supervisor</span>&emsp;&emsp;&emsp;&emsp;&emsp; &emsp;&emsp;&emsp;&emsp;&emsp;
+    <span style="border-top: 1px solid hsl(0, 0%, 2%);">Delivery Man</span>&emsp;&emsp;&emsp;&emsp;&emsp; &emsp;&emsp;&emsp;&emsp;&emsp;
+    <span style="border-top: 1px solid hsl(0, 0%, 2%);">Showroom In-charge</span>
+</div>
+<hr>
+<div class="footer">
+    @php
+        $date = new DateTime('now', new DateTimezone('Asia/Dhaka'));
+    @endphp
+    <br>
+    <strong style="font-size: 8px">
+        Printing Time:- {{ $date->format('F j, Y, g:i a') }}
+    </strong>
+</div>
 
-                                    @endforelse
-                                    <tr>
-                                        <td colspan="5">
-                                            <b>Description: </b>{{$production->remark}}
-                                        </td>
-                                        <td class="text-left">Sub Total </td>
-                                        <td class="text-right">{{$production->subtotal}} </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                            <htmlpagefooter name="page-footer">
-                                @php
-                                    $date = new DateTime('now', new DateTimezone('Asia/Dhaka'));
-                                @endphp
-                                <br>
-                                <strong>
-                                    Printing Time:- {{ $date->format('F j, Y, g:i a') }}
-                                </strong>
-                                <hr>
-                                <br>
-                                <table width="100%">
-                                    <tbody>
-                                        <tr>
-                                            <td style="text-align: left;">Customer Signature</td>
-                                            <td style="text-align: right;">Saller Signature</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </htmlpagefooter>
-
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </body>
-
+</body>
 </html>
+
+
+
 

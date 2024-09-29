@@ -501,7 +501,7 @@
                                 } else {
                                     vm.pageLoading = true;
                                     axios.get(this.config.get_items_by_group_id_rm_consumption_url + '/' + vm.group_id + '/' + store_id).then(function (response) {
-                                        vm.selected_items = [];
+                                      //  vm.selected_items = [];
                                         vm.item_id = '';
                                         let items = response.data.products;
                                         for (let key in items) {

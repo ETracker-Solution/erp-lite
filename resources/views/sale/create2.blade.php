@@ -454,7 +454,7 @@
                                                                                v-model="total_paying" disabled>
                                                                     </td>
                                                                 </tr>
-                                                                
+
                                                                 <tr>
                                                                     <th>Change Amount</th>
                                                                     <td>
@@ -939,6 +939,7 @@
                                     if (vm.couponCodeDiscountType === 'percentage') {
                                         vm.couponCodeDiscountAmount = (vm.total_bill * vm.couponCodeDiscountValue) / 100
                                         vm.couponCodeDiscountShowValue = vm.couponCodeDiscountValue + ' %'
+                                        vm.couponCodeDiscountAmount = Math.round(vm.couponCodeDiscountAmount)
                                     }
                                     vm.couponModalShow === true ? vm.couponModalShow = false : true
                                 }
@@ -953,13 +954,28 @@
                     },
                     updateDiscount() {
                         var vm = this
-                        if (this.total_discount_type === 'fixed') {
-                            vm.total_discount_amount = vm.total_discount_value
+                        if (vm.productWiseDiscount > 0) {
+                            if (confirm("Single Product Discount Applied, Sure to add Total Discount ?")) {
+                                if (this.total_discount_type === 'fixed') {
+                                    vm.total_discount_amount = vm.total_discount_value
+                                }
+                                if (this.total_discount_type === 'percentage') {
+                                    vm.total_discount_amount = (vm.total_bill * vm.total_discount_value) / 100
+                                    vm.total_discount_amount = Math.round(vm.total_discount_amount)
+                                }
+                                vm.total_discount_value = 0;
+                            }
+                        }else{
+                            if (this.total_discount_type === 'fixed') {
+                                vm.total_discount_amount = vm.total_discount_value
+                            }
+                            if (this.total_discount_type === 'percentage') {
+                                vm.total_discount_amount = (vm.total_bill * vm.total_discount_value) / 100
+                                vm.total_discount_amount = Math.round(vm.total_discount_amount)
+                            }
+                            vm.total_discount_value = 0;
                         }
-                        if (this.total_discount_type === 'percentage') {
-                            vm.total_discount_amount = (vm.total_bill * vm.total_discount_value) / 100
-                        }
-                        vm.total_discount_value = 0;
+
                     },
                     setDiscountType(discountType) {
                         this.total_discount_type = discountType
@@ -975,6 +991,7 @@
                                     vm.selectedSpecialDiscount = true
                                     vm.special_discount_amount = (vm.total_bill * vm.special_discount_value) / 100
                                 }
+                                vm.special_discount_amount = Math.round(vm.special_discount_amount)
                             } else {
                                 return false;
                             }
@@ -986,6 +1003,7 @@
                                 vm.selectedSpecialDiscount = true
                                 vm.special_discount_amount = (vm.total_bill * vm.special_discount_value) / 100
                             }
+                            vm.special_discount_amount = Math.round(vm.special_discount_amount)
                         }
 
                     },
@@ -1002,6 +1020,7 @@
                                     if (product.discountType == 'f') {
                                         product.discountAmount = product.discountValue;
                                     }
+                                    product.discountAmount = Math.round(product.discountAmount)
                                 });
                             } else {
                                 sp.discountType = ''
@@ -1018,6 +1037,7 @@
                                 if (product.discountType == 'f') {
                                     product.discountAmount = product.discountValue;
                                 }
+                                product.discountAmount = Math.round(product.discountAmount)
                             });
                         }
 
@@ -1039,7 +1059,7 @@
                                         method: 'exchange'
                                     })
                                 }
-                                
+
 
                             }).catch(function (error) {
                             toastr.error(error, {

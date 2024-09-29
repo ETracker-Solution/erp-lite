@@ -4,8 +4,19 @@
             @csrf
             @method('PUT')
             <input type="hidden" name="status" value="approved">
-            <button id="btnApprove" class="btn btn-success btn-xs"> <i class="fas fa-check-circle">
-                </i> Approve</button>
+            <button id="btnApprove" class="btn btn-success btn-xs"><i class="fas fa-check-circle">
+                </i> Approve
+            </button>
+        </form>
+    @endif
+    @if($row->status == 'pending' && auth()->user()->employee->user_of != 'outlet')
+        <form action="{{ route('requisitions.status-update', $row->id) }}" method="POST">
+            @csrf
+            @method('PUT')
+            <input type="hidden" name="status" value="cancelled">
+            <button id="btnDelete" class="btn btn-danger btn-xs"><i class="fas fa-check-circle">
+                </i> Cancelled
+            </button>
         </form>
     @endif
     <form action="{{route('requisitions.destroy', $row->id)}}" method="post">
@@ -23,8 +34,9 @@
             </i> Show
         </a>
         @if($row->status != 'approved' && $row->status != 'completed')
-            {{-- <button id="btnDelete" class="btn btn-danger btn-xs"> <i class="fas fa-trash">
-            </i> Delete</button> --}}
+            {{-- <button id="btnDelete" class="btn btn-danger btn-xs"><i class="fas fa-trash">
+                </i> Delete
+            </button> --}}
         @endif
 
     </form>

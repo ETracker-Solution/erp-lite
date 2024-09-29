@@ -11,9 +11,9 @@
 
     <style>
         @page {
-            size: 72mm 210mm;
+            size: 72mm 250mm;
             margin: 0 !important;
-            height: auto;
+
         }
 
         .company_name {
@@ -82,10 +82,6 @@
             border-radius: 15px;
         }
 
-        .page-break {
-            page-break-after: always;
-        }
-
         .text-bold {
             font-weight: 600;
         }
@@ -93,6 +89,10 @@
         .mm10 {
             margin-top: -10px;
         }
+        table, tr, td {
+            page-break-inside: avoid;
+        }
+
     </style>
 
 </head>
@@ -218,27 +218,23 @@
     <tr>
         <td class="tc bl-none br-none bt-none"></td>
         <td class="tc bl-none br-none bt-none"></td>
-        <td class="tc bl-none br-none bt-none"></td>
-        <td class="tc bl-none br-none bt-none">Net Amount:</td>
+        <td class="tc bl-none br-none bt-none" colspan="2">Net Amount:</td>
         <td class="tc bl-none br-none bt-none tr">{{ $net_amount }}</td>
     </tr>
     <tr>
         <td class="tc bl-none br-none"></td>
         <td class="tc bl-none br-none"></td>
-        <td class="tc bl-none br-none"></td>
-        <td class="tc bl-none br-none">Paid Amount</td>
+        <td class="tc bl-none br-none" colspan="2">Paid Amount</td>
         <td class="tc bl-none br-none tr">{{ $paid_amount }}</td>
     </tr>
     <tr>
         <td class="tc bl-none br-none bt-none"></td>
         <td class="tc bl-none br-none bt-none"></td>
-        <td class="tc bl-none br-none bt-none"></td>
 
-<td class="tc bl-none br-none bt-none">Change Amount:</td>
+        <td class="tc bl-none br-none bt-none" colspan="2">Change Amount:</td>
         <td class="tc bl-none br-none bt-none tr">{{ $change_amount }}</td>
     </tr>
 </table>
-<br><br>
 <p class="text-bold">Payment Info:</p>
 <table>
     <tr>
@@ -302,10 +298,10 @@
 
 <htmlpagefooter name="page-footer">
     <hr>
-    <h3 class="text-bold tc">Sold Goods are not returnable</h3>
+    <h3 class="text-bold tc">{{ $sale->message }}</h3>
     <hr>
-    <h4><em class="tc">
-            system By:E-Tracker Software solution Ltd
+    <h4 class="tc"><em>
+            System By:E-Tracker Software solution Ltd
         </em></h4>
 
 </htmlpagefooter>

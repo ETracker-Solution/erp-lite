@@ -73,9 +73,9 @@
                                             </div>
                                             <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                                 <div class="form-group">
-                                                    <label for="to_store_id">To Store</label>
+                                                    <label for="to_store_id">To Store--</label>
                                                     <select name="to_store_id" id="to_store_id"
-                                                            class="form-control bSelect"
+                                                            class="form-control bSelect" disabled
                                                             v-model="to_store_id" required>
                                                         <option value="">Select One</option>
                                                         @foreach($to_stores as $row)
@@ -84,6 +84,10 @@
                                                         @endforeach
                                                     </select>
                                                 </div>
+                                                <input type="hidden"
+                                                       name="to_store_id"
+                                                       class="form-control input-sm"
+                                                       v-bind:value="to_store_id">
                                             </div>
 
                                             <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">

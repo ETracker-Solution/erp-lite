@@ -221,13 +221,15 @@ class POSController extends Controller
 
         } catch (\Exception $error) {
             DB::rollBack();
-            return $error;
+            $message = $error->getMessage();
             Log::emergency("File:" . $error->getFile() . "Line:" . $error->getLine() . "Message:" . $error->getMessage());
-//            Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
-//            return response()->json(['message' => 'error'], 500);
-            return response()->json(['message' => $error->getMessage()], 500);
+            if ($error->getCode() == 23000){
+                $message = 'Please Set Account Config';
+            }
+
+            return response()->json(['success'=>false,'message' => $message], 500);
         }
-        return response()->json(['message' => 'success', 'sale' => $sale]);
+        return response()->json(['success'=>true,'message' => 'success', 'sale' => $sale]);
     }
 
     /**
@@ -340,6 +342,7 @@ class POSController extends Controller
             $data->minimum_purchase = $data->membership ? $data->membership->memberType->minimum_purchase : 0;
             $data->purchase_discount = $data->membership ? $data->membership->memberType->discount : 0;
             $data->reedemible_point = $data->membership ? round($data->currentReedemablePoint(), 2) : 0;
+            $data->member_type_name = $data->membership ? $data->membership->memberType->name : '';
         }
         return $data;
     }
@@ -404,6 +407,11 @@ class POSController extends Controller
     public function printInvoice($id)
     {
         $sale = Sale::find($id);
+        $message = 'Sold Goods are not returnable.';
+        if ($sale->preOrder){
+            $message = "Pre-order goods can be  cancelled before 24 hours of delivery.";
+        }
+        $sale->message = $message;
 //        return view('pos.print.order', compact('sale'));
         $options = new Options();
         $options = ['chroot' => base_path()];

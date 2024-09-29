@@ -479,7 +479,7 @@
                                 else {
                                     vm.pageLoading = true;
                                     axios.get(this.config.get_items_info_by_group_id_url + '/' + vm.group_id).then(function (response) {
-                                        vm.selected_items=[];
+                                      //  vm.selected_items=[];
                                         let items = response.data.products;
                                         for (let key in items) {
                                             vm.selected_items.push(items[key]);

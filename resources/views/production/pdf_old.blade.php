@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <title>Purchase Return </title>
+    <title>Production </title>
 <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
     <style>
         @page {
@@ -66,50 +66,70 @@
                                 <p style="text-align: center; padding: 0px; margin: 0px;">Email : {{ getSettingValue('company_email') }}</p>
                                 <p style="text-align: center; padding: 0px; margin: 0px;">Phone : {{ getSettingValue('company_phone') }}</p>
                             </div>
-                            <br>
-                            <div class="col-sm-4 invoice-col">
-                                <b>Purchase Return No :</b> {{ $model->id }},
-                                <b>Name :</b> {{ $model->supplier->name }},
-                                <b>Address :</b>  {{ $model->supplier->address }}.
-                            </div>
+                            <div class="row">
 
+                                <div class="col-sm-6 top-left">
+                                    <i class="fa fa-rocket"></i>
+                                </div>
+
+                                <div class="col-sm-6 top-right">
+                                    <h3 class="marginright">Production No:{{ $production->uid }}</h3>
+                                    <span class="marginright">{{ \Carbon\Carbon::parse($production->created_at)->isoFormat('MMM Do, YYYY') }}</span>
+                                </div>
+
+                            </div>
                             <hr>
+                            <table border="1"cellspacing="0" width="100%" style="text-align: center;">
+                                <tbody>
+                                    <tr>
+                                        <td style="text-align: left">
+                                            <p class="lead marginbottom payment-info"><b> Production Details</b></p>
+                                            <p><b>Date :</b> {{ $production->created_at->format('Y-m-d') }}</p>
+                                            <p><b>Batch No : </b> {{ $production->batch->batch_no }} </p>
+                                            <p><b>Status :</b> {{ $production->status }}</p>
+                                            <p><b>Reference :</b> {{ $production->reference_no }}</p>
+                                            <p><b>Grand Total :</b> BDT {{ $production->grand_total }} </p>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
                             <table border="1"cellspacing="0" width="100%" style="text-align: center; margin-top:20px;">
                                 <thead style="background:#cdced2;">
                                     <tr style="background-color: #cdced2;">
                                         <th>#</th>
                                         <th>Group</th>
-                                        <th>Product</th>
+                                        <th>Item</th>
                                         <th>Unit</th>
-                                        <th>Qty</th>
-                                        <th>Price</th>
-                                        <th class="text-right">Item Total</th>
+                                        <th>Unit Price</th>
+                                        <th>Quantity</th>
+                                        <th>Item Total</th>
                                     </tr>
                                 </thead>
                                 @php
                                     $i=1;
                                 @endphp
                                 <tbody>
-                                    @foreach ($model->items as $item)
-                                        <tr>
-                                            <td>{{ $loop->iteration }}</td>
-                                            <td>{{ $item->coi->parent->name?? '' }}</td>
-                                            <td>{{ $item->coi->name?? '' }}</td>
-                                            <td>{{ $item->coi->unit->name?? '' }}</td>
-                                            <td>{{ $item->quantity?? '' }} {{ $item->product->unit->name?? '' }}</td>
-                                            <td>{{ $item->rate?? '' }}</td>
-                                            <td class="text-right">{{ $item->rate * $item->quantity?? '' }}</td>
-                                        </tr>
-                                    @endforeach
-
+                                    @forelse ($production->items as $row)
                                     <tr>
-                                        <td colspan="5"></td>
-                                        <td class="text-left">
-                                            Sub Total
-                                        </td>
-                                        <td class="text-right">{{$model->subtotal}} </td>
-                                    </tr>
+                                        <td>{{ $i++ }}</td>
+                                        <td>{{ $row->coi->parent ? $row->coi->parent->name : '' }}</td>
+                                        <td>{{ $row->coi ? $row->coi->name : '' }}</td>
+                                        <td>{{ $row->coi->unit ? $row->coi->unit->name : '' }}</td>
+                                        <td>{{ $row->rate }}</td>
+                                        <td>{{ $row->quantity }}</td>
+                                        <td>{{ $row->rate * $row->quantity }}</td>
 
+                                    </tr>
+                                    @empty
+
+                                    @endforelse
+                                    <tr>
+                                        <td colspan="5">
+                                            <b>Description: </b>{{$production->remark}}
+                                        </td>
+                                        <td class="text-left">Sub Total </td>
+                                        <td class="text-right">{{$production->subtotal}} </td>
+                                    </tr>
                                 </tbody>
                             </table>
                             <htmlpagefooter name="page-footer">
@@ -117,11 +137,11 @@
                                     $date = new DateTime('now', new DateTimezone('Asia/Dhaka'));
                                 @endphp
                                 <br>
-                                <strong style="font-size: 8px">
+                                <strong>
                                     Printing Time:- {{ $date->format('F j, Y, g:i a') }}
                                 </strong>
                                 <hr>
-                                {{-- <br>
+                                <br>
                                 <table width="100%">
                                     <tbody>
                                         <tr>
@@ -129,7 +149,7 @@
                                             <td style="text-align: right;">Saller Signature</td>
                                         </tr>
                                     </tbody>
-                                </table> --}}
+                                </table>
                             </htmlpagefooter>
 
                         </div>

@@ -75,7 +75,7 @@
                                             @if(isset($sale->delivery_time))
                                                 <p><b>Delivery Time :</b> {{ \Carbon\Carbon::parse($sale->delivery_time)->format('h:i A') }}</p>
                                             @else
-                                                
+
                                             @endif
 										</td>
 									</tr>
@@ -133,7 +133,7 @@
                                     $date = new DateTime('now', new DateTimezone('Asia/Dhaka'));
                                 @endphp
                                 <br>
-                                <strong>
+                                <strong style="font-size: 8px">
                                     Printing Time:- {{ $date->format('F j, Y, g:i a') }}
                                 </strong>
                                 <hr>
