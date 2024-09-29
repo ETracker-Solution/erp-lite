@@ -240,10 +240,6 @@ function get_all_groups_report($date, $ac_type){
         return "SELECT
     CIP.name as `Group Name`,
     SUM(IT.quantity * IT.type) as `Balance Qty`,
-    CASE
-    WHEN '$ac_type' = 'RM' THEN FORMAT((IT.amount / SUM(IT.quantity * IT.type)), 0)
-    ELSE FORMAT(rate,0)
-    END AS RATE,
     -- FORMAT((IT.amount / SUM(IT.quantity * IT.type)),0) as RATE,
     IT.amount as `Value`
     FROM
@@ -364,7 +360,6 @@ function get_all_stores($date, $ac_type)
     `Item ID`,
     `Item Name`,
     `Balance Qty`,
-    `Rate`,
     `Value`
 FROM (
     SELECT
@@ -475,3 +470,11 @@ FROM (
     (SELECT @prev_group := null, @prev_store:= null, @total_a :=0) AS prev
 ) AS result";
 }
+
+// function extracode()
+// {
+//     CASE
+//     WHEN '$ac_type' = 'RM' THEN FORMAT((IT.amount / SUM(IT.quantity * IT.type)), 0)
+//     ELSE FORMAT(rate,0)
+//     END AS RATE,
+// }

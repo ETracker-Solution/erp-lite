@@ -80,8 +80,20 @@ $links = [
                         orderable: false,
                     },
                     {
+                        data: "customer.mobile",
+                        title: "Phone",
+                        searchable: true,
+                        orderable: false,
+                    },
+                    {
                         data: "member_type.name",
                         title: "Member Type",
+                        searchable: false,
+                        orderable: false,
+                    },
+                    {
+                        data: "point",
+                        title: "Point",
                         searchable: false,
                         orderable: false,
                     },
