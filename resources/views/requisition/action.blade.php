@@ -4,7 +4,7 @@
             @csrf
             @method('PUT')
             <input type="hidden" name="status" value="approved">
-            <button id="btnDelete" class="btn btn-success btn-xs"><i class="fas fa-check-circle">
+            <button id="btnApprove" class="btn btn-success btn-xs"><i class="fas fa-check-circle">
                 </i> Approve
             </button>
         </form>
@@ -34,13 +34,14 @@
             </i> Show
         </a>
         @if($row->status != 'approved' && $row->status != 'completed')
-            <button id="btnDelete" class="btn btn-danger btn-xs"><i class="fas fa-trash">
+            {{-- <button id="btnDelete" class="btn btn-danger btn-xs"><i class="fas fa-trash">
                 </i> Delete
-            </button>
+            </button> --}}
         @endif
 
     </form>
 </div>
 <script>
-    confirmAlert('#btnDelete')
+    confirmAlert('#btnApprove',message = "You won't be able to revert this!", buttonText = 'Yes, Approve it!', title = 'Are you sure?')
+    confirmAlert('#btnDelete',message = "You won't be able to revert this!", buttonText = 'Yes, cancel it!', title = 'Are you sure?')
 </script>
