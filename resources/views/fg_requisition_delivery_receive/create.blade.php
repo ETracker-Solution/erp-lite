@@ -131,7 +131,7 @@
                                                             <th style="width: 10%;vertical-align: middle">Receive
                                                                 Quantity
                                                             </th>
-                                                            <th style="width: 5%"></th>
+                                                            {{-- <th style="width: 5%"></th> --}}
                                                         </tr>
                                                         </thead>
                                                         <tbody>
@@ -169,22 +169,22 @@
                                                                        class="form-control input-sm"
                                                                        @change="valid(row)" readonly>
                                                             </td>
-                                                            <td style="vertical-align: middle">
+                                                            {{-- <td style="vertical-align: middle">
                                                                 <button type="button" class="btn btn-danger"
                                                                         @click="delete_row(row)"><i
                                                                         class="fa fa-trash"></i></button>
-                                                            </td>
+                                                            </td> --}}
                                                         </tr>
 
                                                         </tbody>
                                                         <tfoot>
                                                         <tr>
-                                                            <td colspan="7" style="background-color: #DDDCDC">
+                                                            <td colspan="6" style="background-color: #DDDCDC">
 
                                                             </td>
                                                         </tr>
                                                         <tr>
-                                                            <td colspan="5" class="text-right">
+                                                            <td colspan="4" class="text-right">
                                                                 Total Quantity
                                                             </td>
                                                             <td class="text-right">
