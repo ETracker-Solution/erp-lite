@@ -226,6 +226,19 @@
 
                                                             </td>
                                                             <td>
+                                                                Total Discount
+                                                            </td>
+                                                            <td>
+                                                                <input type="text"
+                                                                       class="form-control input-sm"
+                                                                       v-bind:value="orderDiscount" readonly>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td colspan="7">
+
+                                                            </td>
+                                                            <td>
                                                                 Paid
                                                             </td>
                                                             <td>
@@ -442,7 +455,8 @@
                     special_discount_amount: 0,
                     total_discount_amount: 0,
                     oldPaid: 0,
-                    receivable_amount: 0
+                    receivable_amount: 0,
+                    orderDiscount: 0
 
                 },
                 components: {
@@ -527,15 +541,17 @@
                                 vm.products = resData.items;
                                 vm.products.map((product) => {
                                     vm.fetch_item(product.product_id, product.quantity, sale_id)
-                                   console.log(product.product_id);
                                 })
                                 if (response.data.customer) {
                                     vm.customerNumber = resData.customer.mobile
                                     vm.getCustomerInfo()
                                 }
-                                vm.oldPaid = resData.receive_amount
+                                vm.orderDiscount = resData.discount
                                 vm.receivable_amount = resData.grand_total - resData.receive_amount
+                                vm.receivable_amount = vm.receivable_amount > 0 ? vm.receivable_amount : 0
                                 vm.receivable_amount = Math.round(vm.receivable_amount)
+                                vm.oldPaid = vm.receivable_amount > 0 ? resData.receive_amount : resData.grand_total
+
                             }).catch(function (error) {
                                 toastr.error('Something went to wrong', {
                                     closeButton: true,
