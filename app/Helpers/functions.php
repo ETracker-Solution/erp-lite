@@ -465,7 +465,7 @@ FROM (
 			AND IT.date <= '$date'
 			 AND CI.rootAccountType = '$ac_type'
         GROUP BY
-             CI.id WITH ROLLUP
+             ST.id,CIP.id, CI.id WITH ROLLUP
     ) AS subquery,
     (SELECT @prev_group := null, @prev_store:= null, @total_a :=0) AS prev
 ) AS result";

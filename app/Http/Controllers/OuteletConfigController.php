@@ -37,16 +37,21 @@ class OuteletConfigController extends Controller
             'settings' => 'required|array',
         ]);
         foreach ($request->settings as $outletId => $item) {
-            foreach($item as $key => $value) {
-                $outletConfig = OutletTransactionConfig::where(['outlet_id'=>$outletId])->where('type',$key)->first();
-                $outletConfig->update(
-                    [
-                        // 'outlet_id' => $outletId,
-                        // 'type' => 'Bkash',
+            foreach ($item as $key => $value) {
+                $outletConfig = OutletTransactionConfig::where(['outlet_id' => $outletId])->where('type', $key)->first();
+                if (!$outletConfig) {
+                    OutletTransactionConfig::create([
+                        'outlet_id' => $outletId,
+                        'type' => $key,
                         'coa_id' => $value,
-                    ],
-                );
-                
+                    ]);
+                } else {
+                    $outletConfig->update([
+                        'coa_id' => $value,
+                    ]);
+                }
+
+
             }
         }
         Toastr::success('Transaction configurations updated successfully!.', '', ["progressBar" => true]);

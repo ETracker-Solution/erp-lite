@@ -180,7 +180,7 @@ class SaleController extends Controller
                 }
 
                 $discount_type = isset($row['discountType']) ? $row['discountType'] : null;
-                $discount_value = $row['product_discount'];
+                $discount_value = isset($row['product_discount']) ?  $row['product_discount'] : 0;
 
                 $row['discount_type'] = $discount_type;
                 $row['discount_value'] = $discount_value;

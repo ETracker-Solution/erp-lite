@@ -24,7 +24,12 @@ class SaleReportController extends Controller
 
     public function getAllFGStores()
     {
-        return Outlet::all();
+        if(\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->outlet_id){
+            $outlets = Outlet::where('id',\auth()->user()->employee->outlet_id)->get();
+        }else{
+            $outlets = Outlet::all();
+        }
+        return $outlets;
     }
 
     public function getAllCustomers()
