@@ -78,6 +78,19 @@ $links = [
                                     @endif
                                 </div>
                             </div>
+
+                            <div class="col-xl-4 col-md-8 col-12 mb-1">
+                                <div class="form-group">
+                                    <label for="membership_number">Point</label>
+                                    <input type="text" class="form-control" id="point"
+                                           name="point" placeholder="Enter Membership Point"
+                                           value="{{old('point')}}">
+                                    @if($errors->has('point'))
+                                        <small
+                                            class="text-danger">{{$errors->first('point')}}</small>
+                                    @endif
+                                </div>
+                            </div>
                         </div>
                         <button class="btn btn-info waves-effect waves-float waves-light float-right"
                                 type="submit">Submit

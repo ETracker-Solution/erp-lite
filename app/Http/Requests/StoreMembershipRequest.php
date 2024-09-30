@@ -25,8 +25,9 @@ class StoreMembershipRequest extends FormRequest
     {
         return [
             'membership_number' => 'nullable',
-            'customer_id' => 'required',
+            'customer_id' => ['required', 'unique:memberships,customer_id'],
             'member_type_id' => 'required',
+            'point' => 'required',
             'created_by' => 'required'
         ];
     }
