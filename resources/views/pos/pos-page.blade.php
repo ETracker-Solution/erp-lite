@@ -212,9 +212,11 @@
                     <b-col  cols="5" class="mr-2">
                         <select class="form-control"  v-model="payment.method">
                             <option value="cash">Cash</option>
-                            <option value="card">Card</option>
                             <option value="bkash">Bkash</option>
                             <option value="nagad">Nagad</option>
+                            <option value="DBBL">DBBL</option>
+                            <option value="UCB">UCB</option>
+                            <option value="upay">Upay</option>
                             <option value="point">Redeem Point</option>
                         </select>
                     </b-col>
