@@ -198,36 +198,63 @@ class RMOpeningBalanceController extends Controller
         try {
             $file = $request->file('file');
             $errorData = new Collection();
+
             (new FastExcel)->import($file, function ($line) use ($errorData) {
                 $message = '';
-//                $line = array_filter($line);
+
+                // Validate store
                 $store = Store::query()->whereName($line['Store Name'])->first();
                 if (!$store) {
-                    $message = '| Invalid Store Name';
+                    $message .= '| Invalid Store Name';
+                    $line['Feedback'] = $message;
+                    $errorData->push($line);
+                    return; // Skip this iteration
                 }
 
-                $group = ChartOfInventory::query()->where(['type' => 'group', 'rootAccountType' => 'RM'])->whereName($line['Group Name'])->first();
+                // Validate group
+                $group = ChartOfInventory::query()->where([
+                    'type' => 'group',
+                    'rootAccountType' => 'RM'
+                ])->whereName($line['Group Name'])->first();
                 if (!$group) {
-                    $message = '| Invalid Group Name';
+                    $message .= '| Invalid Group Name';
+                    $line['Feedback'] = $message;
+                    $errorData->push($line);
+                    return; // Skip this iteration
                 }
 
-                $item = ChartOfInventory::query()->where(['type' => 'item', 'rootAccountType' => 'RM', 'parent_id' => $group->id])->whereName($line['Item Name'])->first();
+                // Validate item
+                $item = ChartOfInventory::query()->where([
+                    'type' => 'item',
+                    'rootAccountType' => 'RM',
+                    'parent_id' => $group->id
+                ])->whereName($line['Item Name'])->first();
                 if (!$item) {
-                    $message = '| Invalid Item Name';
+                    $message .= '| Invalid Item Name';
+                    $line['Feedback'] = $message;
+                    $errorData->push($line);
+                    return; // Skip this iteration
                 }
 
+                // Validate other fields
                 $qty = $line['Quantity'] ?? 0;
                 $rate = $line['Rate'] ?? 0;
-
                 $date = $line['Date(Year-Month-Date)'] ?? '';
 
-                $alreadyExists = $this->base_model->where(['store_id' => $store->id, 'coi_id' => $item->id])->exists();
+                // Check for existing opening balance
+                $alreadyExists = $this->base_model
+                    ->where(['store_id' => $store->id, 'coi_id' => $item->id])
+                    ->exists();
 
                 if ($alreadyExists) {
-                    $message = '| Opening Balance Already Added';
+                    $message .= '| Opening Balance Already Added';
+                    $line['Feedback'] = $message;
+                    $errorData->push($line);
+                    return; // Skip this iteration
                 }
 
-                if (!$alreadyExists && $store && $group && $item && ($qty > 0) && $rate && $date) {
+                // Proceed to insert data if valid
+                if ($qty > 0 && $rate > 0 && $date) {
                     DB::beginTransaction();
                     try {
                         $rmob = $this->base_model->create([
@@ -238,12 +265,14 @@ class RMOpeningBalanceController extends Controller
                             'amount' => $qty * $rate,
                             'store_id' => $store->id,
                             'coi_id' => $item->id,
-                            'remarks' => $line ['Remarks'] ?? null,
+                            'remarks' => $line['Remarks'] ?? null,
                             'created_by' => auth()->user()->id,
                         ]);
-                        addInventoryTransaction(1, 'RMOB', $rmob);
 
+                        // Add inventory and account transactions
+                        addInventoryTransaction(1, 'RMOB', $rmob);
                         addAccountsTransaction('RMOB', $rmob, getRMInventoryGLId(), getOpeningBalanceOfEquityGLId());
+
                         DB::commit();
                     } catch (\Exception $error) {
                         DB::rollBack();
@@ -252,20 +281,25 @@ class RMOpeningBalanceController extends Controller
                         $errorData->push($line);
                     }
                 } else {
+                    $message .= '| Invalid Quantity, Rate, or Date';
                     $line['Feedback'] = $message;
                     $errorData->push($line);
                 }
             });
 
-            if (count($errorData) > 0) {
+            // If there are errors, export the failed records
+            if ($errorData->isNotEmpty()) {
                 $fileName = time() . "_rmob_creation_failed_jobs.xlsx";
                 Toastr::warning('Excel File Upload Failed', 'Warning');
                 return (new \Rap2hpoutre\FastExcel\FastExcel($errorData->all()))->download($fileName);
             }
+
         } catch (\Exception $error) {
-            Log::error($error);
+            Log::error($error->getMessage());
         }
+
         Toastr::success('RM OB Uploaded Successfully', 'Success');
         return redirect()->back();
     }
+
 }

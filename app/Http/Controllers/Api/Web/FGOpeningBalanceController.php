@@ -220,36 +220,52 @@ class FGOpeningBalanceController extends Controller
         try {
             $file = $request->file('file');
             $errorData = new Collection();
+
             (new FastExcel)->import($file, function ($line) use ($errorData) {
                 $message = '';
-//                $line = array_filter($line);
+
+                // Check for store
                 $store = Store::query()->whereName($line['Store Name'])->first();
                 if (!$store) {
                     $message = '| Invalid Store Name';
+                    $line['Feedback'] = $message;
+                    $errorData->push($line);
+                    return; // Skip to the next iteration
                 }
 
+                // Check for group
                 $group = ChartOfInventory::query()->where(['type' => 'group', 'rootAccountType' => 'FG'])->whereName($line['Group Name'])->first();
                 if (!$group) {
                     $message = '| Invalid Group Name';
+                    $line['Feedback'] = $message;
+                    $errorData->push($line);
+                    return; // Skip to the next iteration
                 }
 
+                // Check for item
                 $item = ChartOfInventory::query()->where(['type' => 'item', 'rootAccountType' => 'FG', 'parent_id' => $group->id])->whereName($line['Item Name'])->first();
                 if (!$item) {
                     $message = '| Invalid Item Name';
+                    $line['Feedback'] = $message;
+                    $errorData->push($line);
+                    return; // Skip to the next iteration
                 }
 
                 $qty = $line['Quantity'] ?? 0;
                 $rate = $line['Rate'] ?? 0;
-
                 $date = $line['Date(Year-Month-Date)'] ?? '';
 
+                // Check if the entry already exists
                 $alreadyExists = $this->base_model->where(['store_id' => $store->id, 'coi_id' => $item->id])->exists();
-
                 if ($alreadyExists) {
                     $message = '| Opening Balance Already Added';
+                    $line['Feedback'] = $message;
+                    $errorData->push($line);
+                    return; // Skip to the next iteration
                 }
 
-                if (!$alreadyExists && $store && $group && $item && ($qty > 0) && $rate && $date) {
+                // If all conditions are met, create the entry
+                if (!$alreadyExists && ($qty > 0) && $rate && $date) {
                     DB::beginTransaction();
                     try {
                         $rmob = $this->base_model->create([
@@ -260,12 +276,13 @@ class FGOpeningBalanceController extends Controller
                             'amount' => $qty * $rate,
                             'store_id' => $store->id,
                             'coi_id' => $item->id,
-                            'remarks' => $line ['Remarks'] ?? null,
+                            'remarks' => $line['Remarks'] ?? null,
                             'created_by' => auth()->user()->id,
                         ]);
-                        addInventoryTransaction(1, 'FGOB', $rmob);
 
+                        addInventoryTransaction(1, 'FGOB', $rmob);
                         addAccountsTransaction('FGOB', $rmob, getRMInventoryGLId(), getOpeningBalanceOfEquityGLId());
+
                         DB::commit();
                     } catch (\Exception $error) {
                         DB::rollBack();
@@ -279,6 +296,7 @@ class FGOpeningBalanceController extends Controller
                 }
             });
 
+            // If there were any errors, generate an Excel file with failed records
             if (count($errorData) > 0) {
                 $fileName = time() . "_fg_ob_creation_failed_jobs.xlsx";
                 Toastr::warning('Excel File Upload Failed', 'Warning');
@@ -287,7 +305,9 @@ class FGOpeningBalanceController extends Controller
         } catch (\Exception $error) {
             Log::error($error);
         }
+
         Toastr::success('FG OB Uploaded Successfully', 'Success');
         return redirect()->back();
     }
+
 }
