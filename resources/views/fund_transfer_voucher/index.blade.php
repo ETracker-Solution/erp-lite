@@ -51,28 +51,28 @@
                             </div>
                         </div>
                     @endcan
+                    @if(\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->outlet_id)
+                        <div class="mb-2 card">
+                            <div class="card-content collapse show">
+                                <div class="card-body">
 
-                            <div class="mb-2 card">
-                                <div class="card-content collapse show">
-                                    <div class="card-body">
-
-                                        <div class="row">
-                                            <div class="col-md-12">
-                                                <div style="border: 1px solid #000" class="p-1">
-                                                    @foreach($outlet_accounts as $outlet_account)
-                                                        <span class="badge badge-success p-1 m-1">{{$outlet_account['name']}} :   {{$outlet_account['balance']}} BDT</span>
-                                                    @endforeach
-                                                </div>
-
-
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <div style="border: 1px solid #000" class="p-1">
+                                                @foreach($outlet_accounts as $outlet_account)
+                                                    <span class="badge badge-success p-1 m-1">{{$outlet_account['name']}} :   {{$outlet_account['balance']}} BDT</span>
+                                                @endforeach
                                             </div>
 
+
                                         </div>
+
                                     </div>
                                 </div>
-
                             </div>
 
+                        </div>
+                    @endif
                     <div class="card card-info">
                         <div class="card-header">
                             <h3 class="card-title">All Fund Transfer Voucher List</h3>
