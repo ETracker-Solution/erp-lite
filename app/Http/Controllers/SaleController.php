@@ -64,11 +64,11 @@ class SaleController extends Controller
         $user_store = null;
         $outlet_id = null;
         if (!auth()->user()->is_super) {
-            if(\auth()->user()->employee->outlet_id){
+            if (\auth()->user()->employee->outlet_id) {
                 $user_store = Store::where(['doc_type' => 'outlet', 'doc_id' => \auth()->user()->employee->outlet_id])->first();
                 $outlet_id = $user_store->doc_id;
                 $serial_no = generateUniqueUUID($outlet_id, Sale::class, 'invoice_number');
-            }else{
+            } else {
 
                 Toastr::success('You are not allowed to create sales!.', '', ["progressBar" => true]);
                 return redirect()->route('sales.index');
@@ -180,7 +180,7 @@ class SaleController extends Controller
                 }
 
                 $discount_type = isset($row['discountType']) ? $row['discountType'] : null;
-                $discount_value = isset($row['product_discount']) ?  $row['product_discount'] : 0;
+                $discount_value = isset($row['product_discount']) ? $row['product_discount'] : 0;
 
                 $row['discount_type'] = $discount_type;
                 $row['discount_value'] = $discount_value;
@@ -224,26 +224,29 @@ class SaleController extends Controller
                 if ($paymentMethod['method'] == 'exchange') {
                     $ret = SalesReturn::where('uid', $request->returnNumber)->first();
                     Sale::find($prevSale['id'])->update([
-                        'exchange_id'=>$ret->id
+                        'exchange_id' => $ret->id
                     ]);
                 }
                 if ($paymentMethod['method'] == 'upay') {
-                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'upay'), getAccountsReceiveableGLId());
+                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'Upay'), getAccountsReceiveableGLId());
                 }
                 if ($paymentMethod['method'] == 'rocket') {
-                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'rocket'), getAccountsReceiveableGLId());
+                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'Rocket'), getAccountsReceiveableGLId());
                 }
-                if ($paymentMethod['method'] == 'bank') {
-                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'bank'), getAccountsReceiveableGLId());
+                if ($paymentMethod['method'] == 'DBBL') {
+                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'DBBL'), getAccountsReceiveableGLId());
+                }
+                if ($paymentMethod['method'] == 'UCB') {
+                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'UCB'), getAccountsReceiveableGLId());
                 }
                 if ($paymentMethod['method'] == 'nagad') {
-                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'nagad'), getAccountsReceiveableGLId());
+                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'Nagad'), getAccountsReceiveableGLId());
                 }
                 if ($paymentMethod['method'] == 'bkash') {
-                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'bkash'), getAccountsReceiveableGLId());
+                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'Bkash'), getAccountsReceiveableGLId());
                 }
                 if ($paymentMethod['method'] == 'cash') {
-                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id,), getAccountsReceiveableGLId());
+                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id), getAccountsReceiveableGLId());
                 }
                 if ($paymentMethod['method'] == 'point') {
                     redeemPoint($sale->id, $customer_id, $paymentMethod['amount']);
@@ -267,7 +270,7 @@ class SaleController extends Controller
             }
 
             if ($request->sales_type == 'pre_order') {
-                $this->preOrderfromSales($sale, $deliveryDate,$delivery_charge, $delivery_time, $request->description,$request->size,$request->flavour,$request->cake_message, $request->attachments, $request->delivery_point_id);
+                $this->preOrderfromSales($sale, $deliveryDate, $delivery_charge, $delivery_time, $request->description, $request->size, $request->flavour, $request->cake_message, $request->attachments, $request->delivery_point_id);
             }
             if (($receive_amount < $sale->grand_total) || $outlet_id !== $request->delivery_point_id || $request->sales_type == 'pre_order') {
                 $this->othersOutletDelivery($sale, $request->delivery_point_id);
@@ -374,7 +377,7 @@ class SaleController extends Controller
         return $store;
     }
 
-    protected function preOrderfromSales($sale, $delivery_date, $delivery_charge, $delivery_time, $description,$size,$flavour,$cake_message, $images, $delivery_point_id)
+    protected function preOrderfromSales($sale, $delivery_date, $delivery_charge, $delivery_time, $description, $size, $flavour, $cake_message, $images, $delivery_point_id)
     {
         $data = [
             'customer_id' => $sale->customer_id,
@@ -395,7 +398,7 @@ class SaleController extends Controller
             'created_by' => auth()->user()->id,
             'order_number' => $sale->invoice_number,
             'delivery_point_id' => $delivery_point_id,
-            'sale_id'=>$sale->id
+            'sale_id' => $sale->id
         ];
         $preOrder = PreOrder::create($data);
 
@@ -404,8 +407,7 @@ class SaleController extends Controller
             $product->coi_id = $product->product_id;
             $preOrder->items()->create($product->toArray());
         }
-        if (isset($images))
-        {
+        if (isset($images)) {
             foreach ($images as $image) {
                 $filename = date('Ymdmhs') . '.' . $image->getClientOriginalExtension();
                 $image->move(public_path('/upload'), $filename);

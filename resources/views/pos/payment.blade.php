@@ -11,9 +11,11 @@
             <input type="number"  v-model="payment.amount" :step="payment.method == 'point' ? 100 : 1" @key.press="checkPointInput">
             <select v-model="payment.method">
                 <option value="cash">Cash</option>
-                <option value="card">Card</option>
                 <option value="bkash">Bkash</option>
                 <option value="nagad">Nagad</option>
+                <option value="DBBL">DBBL</option>
+                <option value="UCB">UCB</option>
+                <option value="upay">Upay</option>
                 <option value="point">Redeem Point</option>
             </select>
 {{--            <span></span>--}}

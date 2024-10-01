@@ -295,7 +295,6 @@
                                                                             <option value="upay">Upay</option>
                                                                             <option value="point">Redeem Point</option>
                                                                             <option value="exchange">Exchange</option>
-                                                                            <option value="point">Redeem Point</option>
                                                                         </select>
                                                                     </td>
                                                                     <td>
