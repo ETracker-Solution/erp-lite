@@ -5,7 +5,7 @@ FG Inventory Transfer Receive Details
 @section('content')
 <!-- Content Wrapper. Contains page content -->
 <!-- Content Header (Page header) -->
-    @php    
+    @php
         $links = [
         'Home'=>route('dashboard'),
         'FG Inventory Transfer Receive Details'=>''
@@ -34,7 +34,7 @@ FG Inventory Transfer Receive Details
                                                 <p><b>FGITR No :</b> {{ $fgTransferReceive->uid }}</p>
                                                 <p><b>Date :</b> {{ $fgTransferReceive->date }} </p>
                                                 <p><b>Status :</b> {!! showStatus($fgTransferReceive->status) !!}</p>
-                                            </td> 
+                                            </td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -45,13 +45,13 @@ FG Inventory Transfer Receive Details
                             </div>
                             <!-- /.col -->
                             <div class="col-sm-4 invoice-col">
-                                 
+
                             </div>
                             <!-- /.col -->
                         </div>
-    
+
                         <!-- /.row -->
-    
+
                         <!-- Table row -->
                         <div class="row">
                             <div class="col-12 table-responsive">
@@ -62,6 +62,8 @@ FG Inventory Transfer Receive Details
                                             <th>Date</th>
                                             <th>From Store</th>
                                             <th>To Store</th>
+                                            <th>Group</th>
+                                            <th>Item</th>
                                             <th>Quantity</th>
                                             <th>Rate</th>
                                         </tr>
@@ -73,6 +75,8 @@ FG Inventory Transfer Receive Details
                                             <td>{{ $fgTransferReceive->date }}</td>
                                             <td>{{ $fgTransferReceive->fromStore->name ?? '' }}</td>
                                             <td>{{ $fgTransferReceive->toStore->name ?? '' }}</td>
+                                            <td>{{ $item->coi->parent->name ?? '' }}</td>
+                                            <td>{{ $item->coi->name ?? '' }}</td>
                                             <td>{{ $item->quantity ?? '' }}</td>
                                             <td>{{ $item->rate ?? '' }} TK</td>
                                         </tr>

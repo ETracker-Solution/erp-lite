@@ -10,4 +10,9 @@ class TransferReceiveItem extends Model
     use HasFactory;
 
     protected $guarded = ['id'];
+
+    public function coi()
+    {
+        return $this->belongsTo(ChartOfInventory::class, 'coi_id', 'id');
+    }
 }
