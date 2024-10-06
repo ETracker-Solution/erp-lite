@@ -67,15 +67,15 @@
                         </div>
                         <div class="card-footer" v-if="item_id && amount && date">
                             <div class="text-center">
-                                <button class="btn btn-sm btn-secondary" type="button" @click="update_balance"
-                                        v-if="isEditMode"><i
-                                        class="fa fa-save"></i>Update
-                                </button>
-                                <button class="btn btn-sm btn-danger" type="button" @click="delete_balance"
-                                        v-if="isEditMode">
-                                    <i
-                                        class="fa fa-trash"></i>Delete
-                                </button>
+{{--                                <button class="btn btn-sm btn-secondary" type="button" @click="update_balance"--}}
+{{--                                        v-if="isEditMode"><i--}}
+{{--                                        class="fa fa-save"></i>Update--}}
+{{--                                </button>--}}
+{{--                                <button class="btn btn-sm btn-danger" type="button" @click="delete_balance"--}}
+{{--                                        v-if="isEditMode">--}}
+{{--                                    <i--}}
+{{--                                        class="fa fa-trash"></i>Delete--}}
+{{--                                </button>--}}
                                 <button class="btn btn-sm btn-info" type="button" @click="store_balance"
                                         v-if="!isEditMode">
                                     <i
