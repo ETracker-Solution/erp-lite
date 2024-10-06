@@ -319,7 +319,7 @@
                             });
                             return false;
                         } else {
-                            if (vm.from_ac_balance < vm.amount) {
+                            if (vm.from_ac_balance < vm.amount || vm.amount < 0) {
                                 toastr.error('Please Valid amount Input', {
                                     closeButton: true,
                                     progressBar: true,
