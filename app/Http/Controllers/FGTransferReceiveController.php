@@ -68,6 +68,10 @@ class FGTransferReceiveController extends Controller
             $inventory_transfers = InventoryTransfer::whereHas('toStore', function ($query) {
                 $query->where(['doc_type' => 'outlet', 'doc_id' => \auth()->user()->employee->outlet_id]);
             })->where(['type' => 'FG', 'status' => 'pending'])->get();
+        } else if (\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->factory_id) {
+            $inventory_transfers = InventoryTransfer::whereHas('toStore', function ($query) {
+                $query->where(['doc_type' => 'factory', 'doc_id' => \auth()->user()->employee->factory_id]);
+            })->where(['type' => 'FG', 'status' => 'pending'])->get();
         } else {
             $inventory_transfers = InventoryTransfer::where(['type' => 'FG', 'status' => 'pending'])->get();
         }
