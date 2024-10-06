@@ -20,7 +20,20 @@ class FGInventoryAdjustmentController extends Controller
      */
     public function index()
     {
-        $fGInventoryAdjustments = InventoryAdjustment::with('store')->where('type','FG')->latest();
+        if (!auth()->user()->is_super) {
+            if (auth()->user()->employee){
+                if (auth()->user()->employee->factory_id){
+                    $store_id = auth()->user()->employee->factory->stores()->pluck('id')->toArray();
+                }
+                if (auth()->user()->employee->outlet_id){
+                    $store_id = auth()->user()->employee->outlet->stores()->pluck('id')->toArray();
+                }
+                $fGInventoryAdjustments = InventoryAdjustment::with('store')
+                    ->where(['type' => 'FG'])->whereIn('store_id', $store_id)->latest();
+            }
+        }else{
+            $fGInventoryAdjustments = InventoryAdjustment::with('store')->where(['type' => 'FG'])->latest();
+        }
         if (\request()->ajax()) {
             return DataTables::of($fGInventoryAdjustments)
                 ->addIndexColumn()

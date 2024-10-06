@@ -28,7 +28,20 @@ class FGTransferReceiveController extends Controller
     public function index()
     {
         if (\request()->ajax()) {
-            $data = TransferReceive::with('fromStore', 'toStore', 'inventoryTransfer')->where('type', 'FG')->latest();
+            if (!auth()->user()->is_super) {
+                if (auth()->user()->employee){
+                    if (auth()->user()->employee->factory_id){
+                        $data = TransferReceive::with('toStore', 'fromStore','inventoryTransfer')
+                            ->where(['type' => 'FG'])->whereIn('from_store_id', auth()->user()->employee->factory->stores()->pluck('id')->toArray())->latest();
+                    }
+                    if (auth()->user()->employee->outlet_id){
+                        $data = TransferReceive::with('toStore', 'fromStore','inventoryTransfer')
+                            ->where(['type' => 'FG'])->whereIn('from_store_id', auth()->user()->employee->outlet->stores()->pluck('id')->toArray())->latest();
+                    }
+                }
+            }else{
+                $data = TransferReceive::with('toStore', 'fromStore')->where(['type' => 'FG'])->latest();
+            }
             return DataTables::of($data)
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
