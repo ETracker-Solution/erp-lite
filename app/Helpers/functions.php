@@ -197,16 +197,18 @@ function generateUniqueUUID($outlet_or_factory_id, $model, $column_name, $is_fac
     $words = strtoupper($outlet_name);
     $acronym = "";
 
-    $acronym .= mb_substr($words, 0, 3) . mb_substr($words, -1);
+    $length = 4;
+
+    $acronym .= mb_substr($words, 0, $length) . mb_substr($words, -1);
 
     $nameWithDate = $acronym . date('ym');
     $lastCode = $model::where($column_name, 'like', '%' . $nameWithDate . '%')->orderBy($column_name, 'DESC')->first();
     if ($lastCode) {
-        $last3Digits = (int)(substr($lastCode->$column_name, -3)) + 1;
+        $last3Digits = (int)(substr($lastCode->$column_name, -$length)) + 1;
     } else {
         $last3Digits = 001;
     }
-    $code = $acronym . date('ym') . str_pad($last3Digits, 3, 0, STR_PAD_LEFT);
+    $code = $acronym . date('ym') . str_pad($last3Digits, $length, 0, STR_PAD_LEFT);
 
     if ($model::where($column_name, $code)->exists()) {
         generateInvoiceCode($outlet_name);
