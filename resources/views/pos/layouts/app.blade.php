@@ -634,13 +634,14 @@
                     var vm = this;
                     axios.get(this.config.get_product_by_search_string_url + '?search_term=' + vm.search_string)
                         .then(function (response) {
-                            if (response.data !== 'multiple') {
-                                vm.selectProductToSell(response.data)
-                                vm.search_string = ''
-                                vm.getAllProducts()
-                            } else {
-                                vm.getAllProducts()
-                            }
+                            vm.getAllProducts()
+                            // if (response.data !== 'multiple') {
+                            //     vm.selectProductToSell(response.data)
+                            //     vm.search_string = ''
+                            //     vm.getAllProducts()
+                            // } else {
+                            //     vm.getAllProducts()
+                            // }
                         }).catch(function (error) {
                         toastr.error(error, {
                             closeButton: true,
