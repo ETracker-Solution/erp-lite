@@ -31,13 +31,13 @@ class FGTransferReceiveController extends Controller
             if (!auth()->user()->is_super) {
                 if (auth()->user()->employee){
                     if (auth()->user()->employee->factory_id){
-                        $data = TransferReceive::with('toStore', 'fromStore','inventoryTransfer')
-                            ->where(['type' => 'FG'])->whereIn('from_store_id', auth()->user()->employee->factory->stores()->pluck('id')->toArray())->latest();
+                        $stores = auth()->user()->employee->factory->stores()->pluck('id')->toArray();
                     }
                     if (auth()->user()->employee->outlet_id){
-                        $data = TransferReceive::with('toStore', 'fromStore','inventoryTransfer')
-                            ->where(['type' => 'FG'])->whereIn('from_store_id', auth()->user()->employee->outlet->stores()->pluck('id')->toArray())->latest();
+                        $stores = auth()->user()->employee->outlet->stores()->pluck('id')->toArray();
                     }
+                    $data = TransferReceive::with('toStore', 'fromStore','inventoryTransfer')
+                        ->where(['type' => 'FG'])->whereIn('from_store_id', $stores)->orWhereIn('to_store_id', $stores)->latest();
                 }
             }else{
                 $data = TransferReceive::with('toStore', 'fromStore')->where(['type' => 'FG'])->latest();
