@@ -11,7 +11,7 @@
                         <div class="col-8">
                             <span class="customerName">#@{{ row.invoice_number }}</span><br>
                             <span>@{{ row.readable_sell_date_time }}</span><br>
-                            <span>   @{{ row.customer.type == 'regular' ? (row.customer.name + ' - ' + row.customer.mobile) : 'Walking Customer' }}</span>
+                            <span>   @{{ row.customer && row.customer.type == 'regular' ? (row.customer.name + ' - ' + row.customer.mobile) : 'Walking Customer' }}</span>
                         </div>
                         <div class="col-4" style="align-content: center">
                             <span class="customerName">TK. @{{ row.grand_total }}</span><br>
