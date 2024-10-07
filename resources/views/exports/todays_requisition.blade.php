@@ -20,10 +20,10 @@
         <tr>
             @foreach(array_keys($value) as $mainKey)
                 @if(!is_array($value[$mainKey]))
-                    <td>{{$value[$mainKey]}}</td>
+                    <td style="text-align: center">{{$value[$mainKey]}}</td>
                 @else
                     @foreach($value[$mainKey] as $item)
-                        <td>{{$item}}</td>
+                        <td style="text-align: center">{{$item}}</td>
                     @endforeach
                 @endif
             @endforeach
