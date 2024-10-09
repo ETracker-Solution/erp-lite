@@ -21,7 +21,7 @@ class FGInventoryAdjustmentController extends Controller
     public function index()
     {
         if (!auth()->user()->is_super) {
-            if (auth()->user()->employee){
+            if (auth()->user()->employee && auth()->user()->employee->user_of != 'ho'){
                 if (auth()->user()->employee->factory_id){
                     $store_id = auth()->user()->employee->factory->stores()->pluck('id')->toArray();
                 }
