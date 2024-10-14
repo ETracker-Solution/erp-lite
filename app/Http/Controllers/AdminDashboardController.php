@@ -39,7 +39,7 @@ class AdminDashboardController extends Controller
         $total_sales = Sale::whereDate('created_at', date('Y-m-d'))->sum('grand_total');
         $outlets = Outlet::whereStatus('active')->count();
         $customers = Customer::where('type', 'regular')->count();
-        $wastage_amount = InventoryAdjustment::sum('subtotal');
+        $wastage_amount = InventoryAdjustment::whereDate('created_at',date('Y-m-d'))->where(['transaction_type'=>'decrease'])->sum('subtotal');
         $products = ChartOfInventory::where('type', 'item')->where('rootAccountType', 'FG')->count();
         $todayInvoice = Sale::whereDate('created_at', Carbon::now()->format('Y-m-d'))->count();
 
@@ -96,6 +96,7 @@ class AdminDashboardController extends Controller
 
         $totalDiscountThisMonth = Sale::whereYear('created_at', $currentDate->year)->whereMonth('created_at', $currentDate->month)->sum('discount');
         $totalDiscountLastMonth = Sale::whereYear('created_at', $year)->whereMonth('created_at', $lastMonth->month)->sum('discount');
+        $totalDiscountToday = Sale::whereYear('created_at', $year)->whereDate('created_at', date('Y-m-d'))->sum('discount');
 
         if ($totalDiscountLastMonth === 0) {
             $discountPercentage = 100;
@@ -108,7 +109,7 @@ class AdminDashboardController extends Controller
 
         foreach ($allOutlets as $ol) {
             $outletWiseDiscount['outletName'][] = $ol->name;
-            $outletWiseDiscount['discount'][] = Sale::whereYear('created_at', $currentDate->year)->whereMonth('created_at', $currentDate->month)->where('outlet_id', $ol->id)->sum('discount');
+            $outletWiseDiscount['discount'][] = Sale::whereYear('created_at', $currentDate->year)->whereMonth('created_at', $currentDate->month)->whereDay('created_at',$currentDate->day)->where('outlet_id', $ol->id)->sum('discount');
         }
 
         $productWiseStock = [];
@@ -172,7 +173,7 @@ class AdminDashboardController extends Controller
                 ->make(true);
         }
 
-        $customersWithPoint = Customer::whereHas('membership')->with('membership', 'sales')->get();
+        $customersWithPoint = Customer::where('type','regular')->whereHas('membership')->with('membership', 'sales')->get();
 
         $todaySale = Sale::whereDate('created_at', Carbon::now()->format('Y-m-d'))->sum('grand_total');
         $todayPurchase = Purchase::whereDate('date', Carbon::now()->format('Y-m-d'))->sum('net_payable');
@@ -220,6 +221,7 @@ class AdminDashboardController extends Controller
             'todayRequisitions' => $todayRequisitions,
             'discount' => [
                 'thisMonth' => $totalDiscountThisMonth,
+                'today' => $totalDiscountToday,
                 'lastMonth' => $totalDiscountLastMonth,
                 'percentage' => $discountPercentage,
                 'outletWiseDiscount' => $outletWiseDiscount

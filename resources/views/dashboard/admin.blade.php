@@ -74,37 +74,37 @@
             <div class="col-lg-4 col-12">
                 <div class="row match-height">
                     <!-- Bar Chart - Orders -->
-                    <div class="col-lg-6 col-md-3 col-6">
-                        <div class="card">
-                            <div class="card-header bg-info">
-                                <h3 class="card-title">{{ $currentMonthExpense }} BDT</h3>
-                                <div class="card-tools">
-                                    Expenses
-                                </div>
-                            </div>
-                            <div class="card-body pb-50">
-                                <div id="expense-radial-bar-chart" class="my-2"></div>
-                                <p>{{ $expenseMessage }}</p>
-                            </div>
-                        </div>
-                    </div>
-                    <!--/ Bar Chart - Orders -->
+{{--                    <div class="col-lg-6 col-md-3 col-6">--}}
+{{--                        <div class="card">--}}
+{{--                            <div class="card-header bg-info">--}}
+{{--                                <h3 class="card-title">{{ $currentMonthExpense }} BDT</h3>--}}
+{{--                                <div class="card-tools">--}}
+{{--                                    Expenses--}}
+{{--                                </div>--}}
+{{--                            </div>--}}
+{{--                            <div class="card-body pb-50">--}}
+{{--                                <div id="expense-radial-bar-chart" class="my-2"></div>--}}
+{{--                                <p>{{ $expenseMessage }}</p>--}}
+{{--                            </div>--}}
+{{--                        </div>--}}
+{{--                    </div>--}}
+{{--                    <!--/ Bar Chart - Orders -->--}}
 
-                    <!-- Line Chart - Profit -->
-                    <div class="col-lg-6 col-md-3 col-6">
-                        <div class="card card-tiny-line-stats">
-                            <div class="card-header bg-info">
-                                <h3 class="card-title">Sales</h3>
-                                <div class="card-tools">
-                                    Last Month
-                                </div>
-                            </div>
-                            <div class="card-body pb-50">
-                                <div id="statistics-profit-chart"></div>
-                            </div>
-                        </div>
-                    </div>
-                    <!--/ Line Chart - Profit -->
+{{--                    <!-- Line Chart - Profit -->--}}
+{{--                    <div class="col-lg-6 col-md-3 col-6">--}}
+{{--                        <div class="card card-tiny-line-stats">--}}
+{{--                            <div class="card-header bg-info">--}}
+{{--                                <h3 class="card-title">Sales</h3>--}}
+{{--                                <div class="card-tools">--}}
+{{--                                    Last Month--}}
+{{--                                </div>--}}
+{{--                            </div>--}}
+{{--                            <div class="card-body pb-50">--}}
+{{--                                <div id="statistics-profit-chart"></div>--}}
+{{--                            </div>--}}
+{{--                        </div>--}}
+{{--                    </div>--}}
+{{--                    <!--/ Line Chart - Profit -->--}}
 
                     <!-- Earnings Card -->
                     <div class="col-lg-12 col-md-6 col-12">
@@ -112,13 +112,13 @@
                             <div class="card-header bg-info">
                                 <h3 class="card-title">Total Discount</h3>
                                 <div class="card-tools">
-                                    Monthly Report
+                                    Today
                                 </div>
                             </div>
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-6">
-                                        <h5 class="mb-1">{{ $discount['thisMonth'] }}</h5>
+                                        <h5 class="mb-1">{{ $discount['today'] }}</h5>
                                     </div>
                                     <div class="col-6">
                                         <canvas id="discount-chart"></canvas>
@@ -255,7 +255,7 @@
                                         <td> {{$row->fromStore->name ?? ''}}</td>
                                         <td>{!! showStatus($row->status) !!}</td>
                                         <td>{{$row->created_at->format('d-m-Y')}}</td>
-                                        <td><a href="{{ route('requisitions.show', encrypt($row->id)) }}" class="btn btn-primary btn-sm"><i class="fa fa-eye"></i></a></td>   
+                                        <td><a href="{{ route('requisitions.show', encrypt($row->id)) }}" class="btn btn-primary btn-sm"><i class="fa fa-eye"></i></a></td>
                                     </tr>
                                 @endforeach
                                 </tbody>
@@ -284,7 +284,7 @@
                             <tbody>
                             @forelse($customersWithPoint as $customer)
                                 <tr>
-                                    <td>{{ $customer->name }}</td>
+                                    <td>{{ $customer->name. $customer->id }}</td>
                                     <td>{{ $customer->mobile }}</td>
                                     <td>{{ $customer->membership->point }}</td>
                                     <td>{{ $customer->sales->sum('grand_total') }}</td>
@@ -1047,6 +1047,6 @@
             location.reload(); // This will reload the entire page
         }, 60000); // 60000 milliseconds = 60 seconds
     </script>
-    
+
 
 @endpush
