@@ -123,12 +123,19 @@
                                             </div>
                                             <div class="col-3" v-if="sales_type=='pre_order'">
                                                 <div class="form-group">
+                                                    <label for="" class="small">Delivery Charge</label>
+                                                    <input type="text" name="delivery_charge" id="" v-model="delivery_charge"
+                                                           class="form-control form-control-sm" placeholder="Enter Delivery Charge">
+                                                </div>
+                                            </div>
+                                            <div class="col-3" v-if="sales_type=='pre_order'">
+                                                <div class="form-group">
                                                     <label for="" class="small">Attachments</label>
                                                     <input type="file" name="attachments[]" id="" multiple
                                                            class="form-control form-control-sm">
                                                 </div>
                                             </div>
-                                            <div class="col-6" v-if="sales_type=='pre_order'">
+                                            <div class="col-3" v-if="sales_type=='pre_order'">
                                                 <div class="form-group">
                                                     <label for="" class="small">Description</label>
                                                     <input type="text" name="description" id=""
@@ -366,6 +373,7 @@
                                                             <th>Membership Discount <span>( @{{ membership_discount_percentage }} % )</span><br>
                                                                 <span v-if="membership_discount_percentage > 0">Minimum Purchase <span>( @{{ minimum_purchase_amount }} TK )</span></span></th>
                                                             <th>Total Discount</th>
+                                                            <th>Delivery Charge</th>
                                                             <th>Grand Total</th>
                                                         </tr>
                                                         </thead>
@@ -377,6 +385,7 @@
                                                             <td>@{{ special_discount_amount }}</td>
                                                             <td>@{{ membership_discount_amount }}</td>
                                                             <td>@{{ allDiscountAmount }}</td>
+                                                            <td>@{{ delivery_charge }}</td>
                                                             <td>@{{ total_payable_bill }}</td>
                                                         </tr>
                                                         </tbody>
@@ -675,7 +684,7 @@
                     delivery_point_id: '',
                     delivery_date: new Date(),
                     delivery_time: '',
-                    delivery_charge: '',
+                    delivery_charge: 0,
                     sales_type: 'sales',
                     membership_discount_percentage: 0,
                     minimum_purchase_amount: 0,
@@ -707,7 +716,7 @@
                         }, 0)
                     },
                     grandtotal: function () {
-                        return this.subtotal - this.discount
+                        return this.subtotal - this.discount + this.delivery_charge
                     },
                     change_amount: function () {
                         return this.grandtotal - this.receive_amount
@@ -740,7 +749,7 @@
                     },
                     total_payable_bill: function () {
                         var vm = this
-                        return (this.total_bill - vm.couponCodeDiscountAmount - this.allDiscountAmount)
+                        return (this.total_bill - vm.couponCodeDiscountAmount - this.allDiscountAmount) + + this.delivery_charge
                     },
                     total_due: function () {
                         return this.total_payable_bill

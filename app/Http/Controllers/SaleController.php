@@ -138,6 +138,7 @@ class SaleController extends Controller
             $sale->customer_id = $customer_id;
             $sale->date = $selectedDate;
             $sale->delivery_time = $delivery_time;
+            $sale->delivery_charge = $delivery_charge;
 //            $sale->description = $request->description;
             $sale->created_by = Auth::id();
             $sale->outlet_id = $outlet_id;
@@ -436,6 +437,7 @@ class SaleController extends Controller
         $sale->created_by = $oldSale->created_by;
         $sale->outlet_id = $oldSale->outlet_id;
         $sale->delivery_point_id = $delivery_point_id;
+        $sale->delivery_charge = $oldSale->delivery_charge;
         $sale->save();
 
         $products = $oldSale->items;

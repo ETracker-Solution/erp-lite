@@ -69,7 +69,7 @@
                                             <p><b>Outlet :</b> {{ $sale->outlet->name }}</p>
                                             <p><b>Address :</b> {{ $sale->outlet->address }}</p>
 											<p><b>Customer :</b> {{ $sale->customer->name }}</p>
-                                            <p><b>email :</b> {{ $sale->customer->email }} </p>
+                                            <p><b>Email :</b> {{ $sale->customer->email }} </p>
                                             <p><b>Phone :</b> {{ $sale->customer->mobile }} </p>
                                             <p><b>Address :</b> {{ $sale->customer->address }}</p>
                                             @if(isset($sale->delivery_time))
@@ -113,6 +113,11 @@
                                     <td colspan="5"></td>
                                     <td class="text-left">Sub Total:</td>
                                     <td class="text-right">{{ $sale->subtotal }} </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="5"></td>
+                                    <td class="text-left">Delivery Charge:</td>
+                                    <td class="text-right">{{ $sale->delivery_charge }} </td>
                                 </tr>
                                 <tr>
                                     <td colspan="5"></td>

@@ -36,7 +36,7 @@ Sales Details
                                             @if(isset($sale->delivery_time))
                                                 <b>Delivery Time :</b> {{ \Carbon\Carbon::parse($sale->delivery_time)->format('h:i A') }}
                                             @else
-                                                
+
                                             @endif
 {{--                                            <p><b>Status :</b> {!! showStatus($sale->status) !!}</p>--}}
                                         </td>
@@ -52,7 +52,7 @@ Sales Details
                                         <td style="text-align: left; padding:8px; line-height: 0.6">
                                             <p><b>Address :</b> {{ $sale->outlet->address }}</p>
                                             <p><b>Status :</b> {{ $sale->status }}</p>
-                                        </td> 
+                                        </td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -67,7 +67,7 @@ Sales Details
                                             <p><b>email :</b> {{ $sale->customer->email }} </p>
                                             <p><b>Phone :</b> {{ $sale->customer->mobile }} </p>
                                             <p><b>Address :</b> {{ $sale->customer->address }}</p>
-                                        </td> 
+                                        </td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -122,6 +122,10 @@ Sales Details
                                     <tr>
                                         <th style="width:50%">Subtotal:</th>
                                         <td class="text-right">{{ $sale->subtotal }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th style="width:50%">Delivery Charge:</th>
+                                        <td class="text-right">{{ $sale->delivery_charge }}</td>
                                     </tr>
                                     <tr>
                                         <th style="width:50%">Discount:</th>

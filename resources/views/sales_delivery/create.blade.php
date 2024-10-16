@@ -107,7 +107,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="row">
+                                        <div class="row" v-if="items && items.length > 0">
                                             <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                 <hr>
                                                 <div class="table-responsive">
@@ -226,12 +226,38 @@
 
                                                             </td>
                                                             <td>
+                                                                Delivery Charge
+                                                            </td>
+                                                            <td>
+                                                                <input type="text"
+                                                                       class="form-control input-sm"
+                                                                       v-bind:value="delivery_charge" readonly>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td colspan="7">
+
+                                                            </td>
+                                                            <td>
                                                                 Total Discount
                                                             </td>
                                                             <td>
                                                                 <input type="text"
                                                                        class="form-control input-sm"
                                                                        v-bind:value="orderDiscount" readonly>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td colspan="7">
+
+                                                            </td>
+                                                            <td>
+                                                                Grand Total
+                                                            </td>
+                                                            <td>
+                                                                <input type="text"
+                                                                       class="form-control input-sm"
+                                                                       v-bind:value="orderAmount" readonly>
                                                             </td>
                                                         </tr>
                                                         <tr>
@@ -455,8 +481,9 @@
                     total_discount_amount: 0,
                     oldPaid: 0,
                     receivable_amount: 0,
-                    orderDiscount: 0
-
+                    orderDiscount: 0,
+                    delivery_charge: 0,
+                    orderAmount: 0,
                 },
                 components: {
                     vuejsDatepicker
@@ -550,7 +577,8 @@
                                 vm.receivable_amount = vm.receivable_amount > 0 ? vm.receivable_amount : 0
                                 vm.receivable_amount = Math.round(vm.receivable_amount)
                                 vm.oldPaid = vm.receivable_amount > 0 ? resData.receive_amount : resData.grand_total
-
+                                vm.delivery_charge = resData.delivery_charge
+                                vm.orderAmount = resData.grand_total
                             }).catch(function (error) {
                                 toastr.error('Something went to wrong', {
                                     closeButton: true,
