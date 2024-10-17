@@ -69,7 +69,7 @@
                                                         <div class="col-xl-4 col-md-4 col-12">
                                                             <div class="form-group">
                                                                 <label for="credit_account_id">Transfer From</label>
-                                                                <select class="form-control select2" name="credit_account_id"
+                                                                <select class="form-control select2" disabled
                                                                     id="credit_account_id">
                                                                     <option value="">---Select Account---</option>
                                                                     @foreach ($chartOfAccounts as $row)
@@ -103,7 +103,7 @@
                                                             <div class="col-xl-12 col-md-12 col-12">
                                                                 <div class="form-group">
                                                                     <label for="debit_account_id">Transfer To</label>
-                                                                    <select class="form-control select2" name="debit_account_id"
+                                                                    <select class="form-control select2" disabled
                                                                         id="debit_account_id">
                                                                         <option value="">---Select Account---</option>
                                                                         @foreach ($toChartOfAccounts as $row)
