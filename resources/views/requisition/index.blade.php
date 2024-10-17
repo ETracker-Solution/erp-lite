@@ -56,9 +56,9 @@
                                         <input type="date" name="to_date" id="to_date" class="form-control">
                                     </div>
                                 </div>
-                                <div class="col-12">
-                                    <button class="btn btn-primary" type="button" id="search-btn">Search</button>
-                                </div>
+{{--                                <div class="col-12">--}}
+{{--                                    <button class="btn btn-primary" type="button" id="search-btn">Search</button>--}}
+{{--                                </div>--}}
                             </div>
                             <hr>
                             <table id="dataTable" class="table table-bordered">
