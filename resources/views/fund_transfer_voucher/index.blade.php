@@ -138,6 +138,13 @@
 @push('script')
     <script>
         $(document).ready(function () {
+            if (sessionStorage.getItem('outlet_id')) {
+                $('select[name="outlet_id"]').val(sessionStorage.getItem('outlet_id'));
+            }
+            if (sessionStorage.getItem('date_range')) {
+                $('input[name="date_range"]').val(sessionStorage.getItem('date_range'));
+            }
+
             $('#dataTable').dataTable({
                 stateSave: true,
                 responsive: true,
@@ -199,9 +206,11 @@
         })
 
         $('#fp-range').on('change', function () {
+            sessionStorage.setItem('date_range', $('input[name="date_range"]').val());
             recallDatatable();
         })
         $('#outlet_id').on('change', function () {
+            sessionStorage.setItem('outlet_id', $('select[name="outlet_id"]').val());
             recallDatatable();
         });
 
