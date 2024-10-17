@@ -173,7 +173,14 @@ class AdminDashboardController extends Controller
                 ->make(true);
         }
 
-        $customersWithPoint = Customer::where('type','regular')->whereHas('membership')->with('membership', 'sales')->get();
+        $customersWithPoint = Customer::where('type','regular')
+            ->has('membership')
+            ->with(['membership', 'sales'])
+            ->join('memberships', 'customers.id', '=', 'memberships.customer_id')
+            ->orderByDesc('memberships.point')
+            ->select('customers.*')
+            ->take(10) // Limit to the top 10 customers
+            ->get();
 
         $todaySale = Sale::whereDate('created_at', Carbon::now()->format('Y-m-d'))->sum('grand_total');
         $todayPurchase = Purchase::whereDate('date', Carbon::now()->format('Y-m-d'))->sum('net_payable');

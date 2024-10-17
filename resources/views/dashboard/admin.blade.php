@@ -71,68 +71,8 @@
             <!--/ Statistics Card -->
         </div>
         <div class="row match-height">
-            <div class="col-lg-4 col-12">
-                <div class="row match-height">
-                    <!-- Bar Chart - Orders -->
-{{--                    <div class="col-lg-6 col-md-3 col-6">--}}
-{{--                        <div class="card">--}}
-{{--                            <div class="card-header bg-info">--}}
-{{--                                <h3 class="card-title">{{ $currentMonthExpense }} BDT</h3>--}}
-{{--                                <div class="card-tools">--}}
-{{--                                    Expenses--}}
-{{--                                </div>--}}
-{{--                            </div>--}}
-{{--                            <div class="card-body pb-50">--}}
-{{--                                <div id="expense-radial-bar-chart" class="my-2"></div>--}}
-{{--                                <p>{{ $expenseMessage }}</p>--}}
-{{--                            </div>--}}
-{{--                        </div>--}}
-{{--                    </div>--}}
-{{--                    <!--/ Bar Chart - Orders -->--}}
-
-{{--                    <!-- Line Chart - Profit -->--}}
-{{--                    <div class="col-lg-6 col-md-3 col-6">--}}
-{{--                        <div class="card card-tiny-line-stats">--}}
-{{--                            <div class="card-header bg-info">--}}
-{{--                                <h3 class="card-title">Sales</h3>--}}
-{{--                                <div class="card-tools">--}}
-{{--                                    Last Month--}}
-{{--                                </div>--}}
-{{--                            </div>--}}
-{{--                            <div class="card-body pb-50">--}}
-{{--                                <div id="statistics-profit-chart"></div>--}}
-{{--                            </div>--}}
-{{--                        </div>--}}
-{{--                    </div>--}}
-{{--                    <!--/ Line Chart - Profit -->--}}
-
-                    <!-- Earnings Card -->
-                    <div class="col-lg-12 col-md-6 col-12">
-                        <div class="card earnings-card">
-                            <div class="card-header bg-info">
-                                <h3 class="card-title">Total Discount</h3>
-                                <div class="card-tools">
-                                    Today
-                                </div>
-                            </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-6">
-                                        <h5 class="mb-1">{{ $discount['today'] }}</h5>
-                                    </div>
-                                    <div class="col-6">
-                                        <canvas id="discount-chart"></canvas>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <!--/ Earnings Card -->
-                </div>
-            </div>
-
             <!-- Revenue Report Card -->
-            <div class="col-lg-8 col-12">
+            <div class="col-lg-12 col-12">
                 <div class="card card-revenue-budget">
                     <div class="card-header bg-info">
                         <h3 class="card-title">Total Stock : {{ $stock['total'] }}</h3>
@@ -147,32 +87,6 @@
             <!--/ Revenue Report Card -->
         </div>
         <div class="row match-height">
-            {{-- <div class="col-xl-4 col-12">
-                <div class="card">
-                    <div class="card-header bg-info">
-                        <h3 class="card-title">{{ $expense['total'] }} BDT</h3>
-                        <div class="card-tools">
-                            Total Expense
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <canvas id="total-expense-chart"></canvas>
-                    </div>
-                </div>
-            </div> --}}
-            <div class="col-xl-6 col-12">
-                <div class="card">
-                    <div class="card-header bg-info">
-                        <h3 class="card-title">Sales</h3>
-                        <div class="card-tools">
-                            Total {{ $sales['total'] }} BDT this month
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <canvas id="outlet-wise-chart"></canvas>
-                    </div>
-                </div>
-            </div>
             <div class="col-xl-6 col-12">
                 <div class="card">
                     <div class="card-header bg-info">
@@ -185,44 +99,28 @@
 
                 </div>
             </div>
+            <div class="col-lg-6 col-md-6 col-12">
+                <div class="card earnings-card">
+                    <div class="card-header bg-info">
+                        <h3 class="card-title">Total Discount</h3>
+                        <div class="card-tools">
+                            Today
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-6">
+                                <h5 class="mb-1">{{ $discount['today'] }}</h5>
+                            </div>
+                            <div class="col-6">
+                                <canvas id="discount-chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
         <div class="row match-height">
-            {{--            <div class="col-xl-4 col-12">--}}
-            {{--                <div class="card">--}}
-            {{--                    <div class="card-header">--}}
-            {{--                        <h2 class="fw-bolder mb-0">Total Customer</h2>--}}
-            {{--                    </div>--}}
-            {{--                    <div class="card-body">--}}
-            {{--                        <div class="row avg-sessions pt-50">--}}
-            {{--                            <div class="col-12">--}}
-            {{--                                <div class="progress progress-bar-warning" style="height: 12px">--}}
-            {{--                                    <div class="progress-bar" role="progressbar" aria-valuenow="50"--}}
-            {{--                                         aria-valuemin="50" aria-valuemax="100" style="width: 50%"></div>--}}
-            {{--                                </div>--}}
-            {{--                                <p class="mb-50">Pending 1000</p>--}}
-            {{--                            </div>--}}
-            {{--                        </div>--}}
-            {{--                        <div class="row avg-sessions pt-50">--}}
-            {{--                            <div class="col-12">--}}
-            {{--                                <div class="progress progress-bar-primary" style="height: 12px">--}}
-            {{--                                    <div class="progress-bar" role="progressbar" aria-valuenow="25"--}}
-            {{--                                         aria-valuemin="25" aria-valuemax="100" style="width: 50%"></div>--}}
-            {{--                                </div>--}}
-            {{--                                <p class="mb-50">Processing 1000</p>--}}
-            {{--                            </div>--}}
-            {{--                        </div>--}}
-            {{--                        <div class="row avg-sessions pt-50">--}}
-            {{--                            <div class="col-12">--}}
-            {{--                                <div class="progress progress-bar-success" style="height: 12px">--}}
-            {{--                                    <div class="progress-bar" role="progressbar" aria-valuenow="60"--}}
-            {{--                                         aria-valuemin="60" aria-valuemax="100" style="width: 50%"></div>--}}
-            {{--                                </div>--}}
-            {{--                                <p class="mb-50">Approved 1000</p>--}}
-            {{--                            </div>--}}
-            {{--                        </div>--}}
-            {{--                    </div>--}}
-            {{--                </div>--}}
-            {{--            </div>--}}
             <div class="col-xl-12 col-12">
                 <div class="card">
                     <div class="card-header bg-info">
@@ -303,28 +201,6 @@
             <div class="col-xl-6 col-12">
                 <div class="card">
                     <div class="card-header bg-info">
-                        <h4 class="card-title">Sales, Purchase</h4>
-                    </div>
-                    <div class="card-body">
-                        <canvas id="sale-purchase-expense-chart"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="row match-height">
-            <div class="col-xl-8 col-12">
-                <div class="card">
-                    <div class="card-header bg-info">
-                        <h4 class="card-title">Best Selling Products</h4>
-                    </div>
-                    <div class="card-body">
-                        <canvas id="best-selling-product-chart"></canvas>
-                    </div>
-                </div>
-            </div>
-            <div class="col-xl-4 col-12">
-                <div class="card">
-                    <div class="card-header bg-info">
                         <h2 class="card-title">Top 5 Slow Products</h2>
                     </div>
                     <div class="card-body">
@@ -356,6 +232,7 @@
                 </div>
             </div>
         </div>
+
         {{--        <div class="row match-height">--}}
         {{--            <div class="col-sm-12 col-xl-6 col-12">--}}
         {{--                <div class="card">--}}
