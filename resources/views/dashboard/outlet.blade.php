@@ -31,7 +31,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-xl-1 col-md-4 col-12">
+            <div class="col-xl-2 col-md-4 col-12">
                 <div class="card card-congratulation-medal">
                     <div class="card-body">
                         <a href="{{route('fg-delivery-receives.create')}}" class="btn btn-sm btn-block btn-info">
@@ -43,7 +43,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-xl-2 col-md-4 col-12">
+            <div class="col-xl-1 col-md-4 col-12">
                 <div class="card card-congratulation-medal">
                     <div class="card-body">
                         <a href="{{route('sales-deliveries.index')}}" class="btn btn-sm btn-block btn-info">
