@@ -183,7 +183,14 @@ class OutletDashboardController extends Controller
                 ->make(true);
         }
 
-        $customersWithPoint = Customer::whereHas('membership')->with('membership', 'sales')->get();
+        $customersWithPoint = Customer::where('type','regular')
+            ->has('membership')
+            ->with(['membership', 'sales'])
+            ->join('memberships', 'customers.id', '=', 'memberships.customer_id')
+            ->orderByDesc('memberships.point')
+            ->select('customers.*')
+            ->take(10) // Limit to the top 10 customers
+            ->get();
         $latestFiveSales = Sale::where('outlet_id', $outlet_id)->take(5)->latest()->get();
         $todaySale = Sale::where('outlet_id', $outlet_id)->whereDate('created_at', Carbon::now()->format('Y-m-d'))->sum('grand_total');
         $todayInvoice = Sale::where('outlet_id', $outlet_id)->whereDate('created_at', Carbon::now()->format('Y-m-d'))->count();

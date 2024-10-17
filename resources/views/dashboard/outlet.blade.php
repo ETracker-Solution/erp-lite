@@ -89,11 +89,11 @@
                                                    colorClass="bg-light-info"/>
                             </div>
                             <div class="col-xl-3 col-sm-6 col-12 mb-2 mb-sm-0">
-                                <x-card-statistics title="Products" value="{{ $products }}" icon="shopping-cart"
+                                <x-card-statistics title="Total Item" value="{{ $products }}" icon="shopping-cart"
                                                    colorClass="bg-light-danger"/>
                             </div>
                             <div class="col-xl-3 col-sm-6 col-12">
-                                <x-card-statistics title="Wastage" value="{{ $wastageAmount }}" icon="trash-2"
+                                <x-card-statistics title="Wastage Amount" value="{{ $wastageAmount . 'TK.' }}" icon="trash-2"
                                                    colorClass="bg-light-success"/>
                             </div>
                         </div>
@@ -122,21 +122,6 @@
                     </div> --}}
                     <!--/ Bar Chart - Orders -->
 
-                    <!-- Line Chart - Profit -->
-                    <div class="col-xl-12 col-12">
-                        <div class="card card-tiny-line-stats">
-                            <div class="card-header bg-info">
-                                <h3 class="card-title">Sales</h3>
-                                <div class="card-tools">
-                                    Last Month
-                                </div>
-                            </div>
-                            <div class="card-body pb-50">
-                                <div id="statistics-profit-chart"></div>
-                            </div>
-                        </div>
-                    </div>
-                    <!--/ Line Chart - Profit -->
 
                     <!-- Earnings Card -->
                     <div class="col-lg-12 col-md-6 col-12">
@@ -167,7 +152,7 @@
             <div class="col-lg-8 col-12">
                 <div class="card card-revenue-budget">
                     <div class="card-header bg-info">
-                        <h3 class="card-title">Total Stock : {{ $stock['total'] }}</h3>
+                        <h3 class="card-title">Total Stock : {{ $stock['total'] . 'TK.' }}</h3>
                     </div>
                     <div class="row mx-0">
                         <div class="col-md-12 col-12 revenue-report-wrapper">
@@ -288,7 +273,7 @@
 
         </div>
         <div class="row match-height">
-            <div class="col-xl-6 col-12">
+            <div class="col-xl-12 col-12">
                 <div class="card">
                     <div class="card-header bg-info">
                         <h4 class="card-title">Top Customers</h4>
@@ -319,16 +304,6 @@
 
                             </tbody>
                         </table>
-                    </div>
-                </div>
-            </div>
-            <div class="col-xl-6 col-12">
-                <div class="card">
-                    <div class="card-header bg-info">
-                        <h3 class="card-title">Sales, Expense</h3>
-                    </div>
-                    <div class="card-body">
-                        <canvas id="sale-expense-chart"></canvas>
                     </div>
                 </div>
             </div>
