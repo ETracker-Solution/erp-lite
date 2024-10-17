@@ -15,6 +15,7 @@ use App\Models\RequisitionItem;
 use App\Models\Store;
 use App\Services\ExportService;
 use Brian2694\Toastr\Facades\Toastr;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -41,12 +42,9 @@ class RequisitionController extends Controller
 
     public function index()
     {
-        if (\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->outlet_id) {
-            $data = Requisition::with('fromStore', 'toStore')->where(['type' => 'FG', 'outlet_id' => \auth()->user()->employee->outlet_id])->latest();
-        } else {
-            $data = Requisition::with('fromStore', 'toStore')->where('type', 'FG')->latest();
-        }
+
         if (\request()->ajax()) {
+            $data = $this->getFilteredData();
             return DataTables::of($data)
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
@@ -298,5 +296,21 @@ class RequisitionController extends Controller
         $req->update(['status' => $request->status]);
         Toastr::success('Requisition Approved Successfully!.', '', ["progressBar" => true]);
         return redirect()->route('requisitions.index');
+    }
+
+    private function getFilteredData(){
+        $data = Requisition::with('fromStore', 'toStore')->where('type', 'FG');
+        if (\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->outlet_id) {
+            $data = $data->where(['outlet_id' => \auth()->user()->employee->outlet_id]);
+        }
+        if (\request()->filled('status')){
+            $data = $data->where('status',\request()->status);
+        }
+        if (\request()->filled('from_date') && \request()->filled('to_date')){
+            $from_date = Carbon::parse(request()->from_date)->format('Y-m-d');
+            $to_date = Carbon::parse(request()->to_date)->format('Y-m-d');
+            $data = $data->whereDate('date','>=',$from_date)->whereDate('date','<=',$to_date);
+        }
+        return $data->latest();
     }
 }
