@@ -20,7 +20,7 @@
     <section class="content">
         <div class="row match-height">
             <!-- Medal Card -->
-            <div class="col-xl-3 col-md-6 col-12">
+            <div class="col-xl-2 col-md-6 col-12">
                 <div class="card card-congratulation-medal">
                     <div class="card-body">
                         <h5 class="text-info">Congratulations Outlet!</h5>
@@ -31,7 +31,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-xl-2 col-md-4 col-12">
+            <div class="col-xl-1 col-md-4 col-12">
                 <div class="card card-congratulation-medal">
                     <div class="card-body">
                         <a href="{{route('fg-delivery-receives.create')}}" class="btn btn-sm btn-block btn-info">
@@ -50,6 +50,18 @@
                             OOS delivery
                             <h1>
                                 {{ $otherOutletSales }}
+                            </h1>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-2 col-md-4 col-12">
+                <div class="card card-congratulation-medal">
+                    <div class="card-body">
+                        <a href="javascript:void(0)" class="btn btn-sm btn-block btn-info">
+                            PETTY CASH
+                            <h1>
+                                {{ $outletPettyCashAmount }}
                             </h1>
                         </a>
                     </div>

@@ -28,7 +28,7 @@ class ChartOfAccount extends Model
 
     public function transactions()
     {
-        return $this->hasMany(Transaction::class, 'chart_of_account_id');
+        return $this->hasMany(AccountTransaction::class, 'chart_of_account_id');
     }
 
     public function currentAmountAs()
@@ -75,7 +75,7 @@ class ChartOfAccount extends Model
     {
         return $this->belongsTo(self::class, 'parent_id');
     }
-    
+
     public function outlets()
     {
         return $this->belongsToMany(Outlet::class,'outlet_accounts', 'coa_id', 'outlet_id');

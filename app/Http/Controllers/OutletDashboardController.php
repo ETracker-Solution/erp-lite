@@ -10,6 +10,7 @@ use App\Models\InventoryAdjustment;
 use App\Models\InventoryTransaction;
 use App\Models\OthersOutletSale;
 use App\Models\Outlet;
+use App\Models\OutletAccount;
 use App\Models\Product;
 use App\Models\RequisitionDelivery;
 use App\Models\Sale;
@@ -42,16 +43,16 @@ class OutletDashboardController extends Controller
 
         $wastage_amount = InventoryAdjustment::whereIn('store_id', $store_ids)->sum('subtotal');
 
-        $requisition_deliveries = RequisitionDelivery::whereHas('requisition', function ($query) {
-            $query->where(['outlet_id' => \auth()->user()->employee->outlet_id]);
+        $requisition_deliveries = RequisitionDelivery::whereHas('requisition', function ($query) use($outlet_id) {
+            $query->where(['outlet_id' => $outlet_id]);
         })->where(['type' => 'FG', 'status' => 'completed'])->get();
 
-        $requisition_deliveries_count = RequisitionDelivery::whereHas('requisition', function ($query) {
-            $query->where(['outlet_id' => \auth()->user()->employee->outlet_id]);
+        $requisition_deliveries_count = RequisitionDelivery::whereHas('requisition', function ($query) use($outlet_id) {
+            $query->where(['outlet_id' => $outlet_id]);
         })->where(['type' => 'FG','status' => 'completed'])->count();
 
-        $otherOutletSales = OthersOutletSale::where(['status' => 'delivered','outlet_id' => \auth()->user()->employee->outlet_id])->count();
-         
+        $otherOutletSales = OthersOutletSale::where(['status' => 'delivered','outlet_id' => $outlet_id])->count();
+
         $products = ChartOfInventory::where(['type' => 'item', 'rootAccountType' => 'FG','status'=>'active'])->count();
 
         $year = Carbon::now()->month == 1 ? Carbon::now()->subYear()->year : Carbon::now()->year;
@@ -225,6 +226,14 @@ class OutletDashboardController extends Controller
         $salesWastageCompare['sales'][] = 'Wastage';
         $salesWastageCompare['wastage'][] = $wastage_amount;
 
+        $outletPettyCashAmount = 0;
+        $outletAccounts = OutletAccount::where('outlet_id',$outlet_id)->get();
+        foreach ($outletAccounts as $outletAccount) {
+            if ($outletAccount->coa->default_type == 'petty_cash'){
+                $outletPettyCashAmount =  $outletAccount->coa->transactions()->sum(DB::raw('transaction_type* amount'));
+            }
+        }
+
         $data = [
             'requisition_deliveries' => $requisition_deliveries,
             'requisition_deliveries_count' => $requisition_deliveries_count,
@@ -270,7 +279,8 @@ class OutletDashboardController extends Controller
             'slowSellingProducts' => $slowSellingProducts,
             'salesComparision' => $salesCompare,
             'salesWastageCompare' => $salesWastageCompare,
-            'otherOutletSales' => $otherOutletSales
+            'otherOutletSales' => $otherOutletSales,
+            'outletPettyCashAmount'=>$outletPettyCashAmount
         ];
 //        return $data;
         return view('dashboard.outlet', $data);

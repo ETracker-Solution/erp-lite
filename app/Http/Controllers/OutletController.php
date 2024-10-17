@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreOutletRequest;
 use App\Http\Requests\UpdateOutletRequest;
 use App\Models\ChartOfAccount;
+use App\Models\GeneralLedgerOpeningBalance;
 use App\Models\Outlet;
 use App\Models\OutletAccount;
 use App\Models\OutletTransactionConfig;
@@ -35,7 +36,7 @@ class OutletController extends Controller
                 ->addColumn('created_at', function ($row) {
                     return view('common.created_at', compact('row'));
                 })
-                ->rawColumns(['action','status'])
+                ->rawColumns(['action', 'status'])
                 ->make(true);
         }
         return view('outlet.index');
@@ -48,7 +49,7 @@ class OutletController extends Controller
     {
         $serial_count = Outlet::latest()->first() ? Outlet::latest()->first()->id : 0;
         $serial_no = $serial_count + 1;
-        return view('outlet.create',compact('serial_no'));
+        return view('outlet.create', compact('serial_no'));
     }
 
     /**
@@ -63,36 +64,62 @@ class OutletController extends Controller
             $outlet = Outlet::create($validated);
 
             $methods = ['Cash', 'Bkash'];
-                foreach ($methods as $method) {
-                    $exists = ChartOfAccount::where('name', $method)->first();
-                    if (!$exists) {
-                        $exists = ChartOfAccount::create([
-                            'name' => $method,
-                            'type' => 'group',
-                            'account_type' => 'debit',
-                            'root_account_type' => 'as',
-                            'parent_id' => $exists->id
-                        ]);
-                    }
-                    
+            foreach ($methods as $method) {
+                $exists = ChartOfAccount::where('name', $method)->first();
+                if (!$exists) {
+                    $exists = ChartOfAccount::create([
+                        'name' => $method,
+                        'type' => 'group',
+                        'account_type' => 'debit',
+                        'root_account_type' => 'as',
+                        'parent_id' => $exists->id
+                    ]);
+                }
+
+                $account = $exists->subChartOfAccounts()->create([
+                    'name' => $method . ' ' . $outlet->name,
+                    'type' => 'ledger',
+                    'account_type' => 'debit',
+                    'root_account_type' => 'as',
+                ]);
+
+                OutletTransactionConfig::create([
+                    'outlet_id' => $outlet->id,
+                    'coa_id' => $account->id,
+                    'type' => $method
+                ]);
+
+                OutletAccount::create([
+                    'outlet_id' => $outlet->id,
+                    'coa_id' => $account->id
+                ]);
+            }
+            if ($request->filled('petty_cash')) {
+                $exists = ChartOfAccount::where('name', 'Cash')->first();
+                if (!$exists) {
+                    $exists = ChartOfAccount::create([
+                        'name' => 'Cash',
+                        'type' => 'group',
+                        'account_type' => 'debit',
+                        'root_account_type' => 'as',
+                        'parent_id' => $exists->id
+                    ]);
+                }
+                if (!ChartOfAccount::where('name', $outlet->name . '- Petty Cash')->first()) {
                     $account = $exists->subChartOfAccounts()->create([
-                        'name' => $method . ' ' . $outlet->name,
+                        'name' => $outlet->name . '- Petty Cash',
                         'type' => 'ledger',
                         'account_type' => 'debit',
                         'root_account_type' => 'as',
+                        'default_type' => 'petty_cash',
                     ]);
-
-                    OutletTransactionConfig::create([
-                        'outlet_id' => $outlet->id,
-                        'coa_id' => $account->id,
-                        'type' => $method
-                    ]);
-                    
                     OutletAccount::create([
                         'outlet_id' => $outlet->id,
-                        'coa_id' => $account->id
+                        'coa_id' => $account->id,
                     ]);
                 }
+
+            }
             DB::commit();
         } catch (\Exception $error) {
             DB::rollBack();
@@ -128,7 +155,24 @@ class OutletController extends Controller
         $validated = $request->validated();
         DB::beginTransaction();
         try {
-            Outlet::findOrFail($id)->update($validated);
+            $outlet = Outlet::findOrFail($id);
+            if ($request->filled('petty_cash')) {
+                $exists = ChartOfAccount::where(['name'=> 'Cash', 'type' => 'group','account_type' => 'debit'])->first();
+                if (!ChartOfAccount::where('name', $outlet->name . '- Petty Cash')->first()) {
+                    $account = $exists->subChartOfAccounts()->create([
+                        'name' => $outlet->name . '- Petty Cash',
+                        'type' => 'ledger',
+                        'account_type' => 'debit',
+                        'root_account_type' => 'as',
+                        'default_type' => 'petty_cash',
+                    ]);
+                    OutletAccount::create([
+                        'outlet_id' => $outlet->id,
+                        'coa_id' => $account->id,
+                    ]);
+                }
+            }
+            $outlet->update($validated);
             DB::commit();
         } catch (\Exception $error) {
             DB::rollBack();
@@ -146,8 +190,8 @@ class OutletController extends Controller
     {
         DB::beginTransaction();
         try {
-            $outletTrans = OutletTransactionConfig::where('outlet_id',decrypt($id))->get();
-            foreach($outletTrans as $outletTran) {
+            $outletTrans = OutletTransactionConfig::where('outlet_id', decrypt($id))->get();
+            foreach ($outletTrans as $outletTran) {
                 $outletTran->coa->delete();
                 $outletTran->delete();
             }
