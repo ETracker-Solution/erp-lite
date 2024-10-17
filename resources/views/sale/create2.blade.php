@@ -290,6 +290,7 @@
                                                             </td>
                                                             <td>
                                                                 <input type="number" v-model="row.quantity"
+                                                                       step="0.1"
                                                                        :name="'products['+index+'][quantity]'"
                                                                        class="form-control input-sm form-control-sm"
                                                                        @change="valid(row)" required>
