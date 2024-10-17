@@ -76,7 +76,12 @@
                     searchable: false,
                     orderable: false
                 },
-
+                    {
+                        data: "uid",
+                        title: "FGRD No",
+                        searchable: true,
+                        "defaultContent": "Not Set"
+                    },
                     {
                         data: "requisition.uid",
                         title: "FGR No",

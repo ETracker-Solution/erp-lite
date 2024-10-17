@@ -25,7 +25,7 @@ class FGRequisitionDeliveryController extends Controller
     {
 
         if (\request()->ajax()) {
-            $data = RequisitionDelivery::with('fromStore','toStore','requisition')->where('type', 'FG')->latest();
+            $data = RequisitionDelivery::with('fromStore', 'toStore', 'requisition')->where('type', 'FG')->latest();
             return DataTables::of($data)
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
@@ -50,8 +50,8 @@ class FGRequisitionDeliveryController extends Controller
     {
         $data = [
             'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'FG'])->get(),
-            'from_stores' => Store::where(['type' => 'FG', 'doc_type' => 'factory','status'=>'active'])->get(),
-            'to_stores' => Store::where(['type' => 'FG', 'doc_type' => 'outlet','status'=>'active'])->get(),
+            'from_stores' => Store::where(['type' => 'FG', 'doc_type' => 'factory', 'status' => 'active'])->get(),
+            'to_stores' => Store::where(['type' => 'FG', 'doc_type' => 'outlet', 'status' => 'active'])->get(),
         ];
         return view('fg_requisition_delivery.create', $data);
     }
@@ -68,11 +68,11 @@ class FGRequisitionDeliveryController extends Controller
             $requisition_delivery = RequisitionDelivery::query()->create($data);
             $products = $request->get('products');
             foreach ($products as $product) {
-                $product['requisition_id']=$data['requisition_id'];
+                $product['requisition_id'] = $data['requisition_id'];
                 $requisition_delivery->items()->create($product);
             }
             Requisition::where('id', $data['requisition_id'])->update([
-                'delivery_status'=>$request->delivery_status
+                'delivery_status' => $request->delivery_status
             ]);
             DB::commit();
             Toastr::success('FG Requisition Delivery Entry Successful!.', '', ["progressBar" => true]);
@@ -90,7 +90,7 @@ class FGRequisitionDeliveryController extends Controller
      */
     public function show(string $id)
     {
-        $fgRequisitionDelivery = RequisitionDelivery::with('toStore', 'fromStore','requisition')->find(decrypt($id));
+        $fgRequisitionDelivery = RequisitionDelivery::with('toStore', 'fromStore', 'requisition')->find(decrypt($id));
         return view('fg_requisition_delivery.show', compact('fgRequisitionDelivery'));
     }
 
@@ -99,7 +99,8 @@ class FGRequisitionDeliveryController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $fgRequisitionDelivery = RequisitionDelivery::with('toStore', 'fromStore', 'requisition')->find(decrypt($id));
+        return view('fg_requisition_delivery.edit', compact('fgRequisitionDelivery'));
     }
 
     /**
@@ -107,7 +108,31 @@ class FGRequisitionDeliveryController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+
+        try {
+            DB::beginTransaction();
+            $fgRequisitionDelivery = RequisitionDelivery::find(decrypt($id));
+            $items = $request->items;
+            $totalQty = 0;
+            foreach ($items as $key => $item) {
+                $prev = $fgRequisitionDelivery->items()->where('id', $key)->first();
+                $price = $prev->rate / $prev->quantity;
+                $prev->update([
+                    'quantity' => $item,
+                    'rate' => $price * $item
+                ]);
+                $totalQty += $item;
+            }
+            $fgRequisitionDelivery->update(['total_quantity', $totalQty]);
+            DB::commit();
+            Toastr::success('FG Requisition Delivery Updated Successful!.', '', ["progressBar" => true]);
+            return redirect()->route('fg-requisition-deliveries.index');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::emergency("File:" . $e->getFile() . "Line:" . $e->getLine() . "Message:" . $e->getMessage());
+            Toastr::info('Something went wrong!.', '', ["progressbar" => true]);
+            return back();
+        }
     }
 
     /**
@@ -131,7 +156,7 @@ class FGRequisitionDeliveryController extends Controller
     public function pdfDownload($id)
     {
         $data = [
-            'fgRequisitionDelivery' => RequisitionDelivery::with('toStore', 'fromStore','requisition')->find(decrypt($id)),
+            'fgRequisitionDelivery' => RequisitionDelivery::with('toStore', 'fromStore', 'requisition')->find(decrypt($id)),
         ];
 
         $pdf = PDF::loadView(
