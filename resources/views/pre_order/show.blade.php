@@ -1,6 +1,6 @@
 @extends('layouts.app')
 @section('title')
-    Purchase List
+    Pre Order Details
 @endsection
 @section('content')
     <!-- Content Wrapper. Contains page content -->
@@ -14,7 +14,7 @@
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
                         <li class="breadcrumb-item"><a href="#">Home</a></li>
-                        <li class="breadcrumb-item active">Invoice</li>
+                        <li class="breadcrumb-item active">Pre Order</li>
                     </ol>
                 </div>
             </div>

@@ -148,7 +148,12 @@ class PreOrderController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $preOrder = PreOrder::findOrFail(decrypt($id));
+        $data = [
+            'model' => $preOrder,
+        ];
+
+        return view('pre_order.edit', $data);
     }
 
     /**
@@ -156,7 +161,10 @@ class PreOrderController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $preOrder = PreOrder::findOrFail(decrypt($id));
+        $preOrder->update($request->only(['size','flavour','cake_message','remarks']));
+        Toastr::success('Pre Order Updated Successfully!.', '', ["progressBar" => true]);
+        return redirect()->back();
     }
 
     /**
