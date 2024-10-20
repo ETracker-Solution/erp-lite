@@ -422,7 +422,7 @@
                             discountType: '',
                             discountValue: 0,
                             discountAmount: 0,
-                            discountable: product.parent_id !== 73
+                            discountable: product.discountable
                         })
                     }
                 },

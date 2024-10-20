@@ -60,6 +60,13 @@
                                         <x-forms.text label="Account Type" inputName="account_type" placeholder=""
                                                       :isRequired='false' :isReadonly='true' defaultValue=""/>
                                     </div>
+                                    <div class="col-xl-12 col-md-12 col-12">
+                                        <label for="">Non Discountable</label>
+                                        <select name="non_discountable" id="" class="form-control">
+                                            <option value="0">No</option>
+                                            <option value="1">Yes</option>
+                                        </select>
+                                    </div>
                                 </div>
 
                                 <div class="row  callout callout-secondary" id="addNewForm" hidden>
@@ -151,6 +158,8 @@
         let itemPriceInput = $("input[name=price]")
         let newItemNameInput = $("input[name=new_item_name]")
         let newItemTypeInput = $("select[name=new_item_type]")
+        let nonDiscountableCheckbox = $("select[name=non_discountable]")
+
 
         function makeHidden(element) {
             element.prop('hidden', true)
@@ -161,7 +170,7 @@
         }
 
         function setValue(element, value) {
-            if (element == itemUnitInput || element == itemStatusInput) {
+            if (element == itemUnitInput || element == itemStatusInput || element == nonDiscountableCheckbox) {
                 element.val(value).trigger('change')
             } else {
                 element.val(value)
@@ -188,6 +197,7 @@
                     setValue(itemUnitInput, '')
                     setValue(itemStatusInput, '')
                     setValue(itemPriceInput, '')
+                    setValue(nonDiscountableCheckbox, result.non_discountable)
                     makeVisible(updateButton)
                     makeVisible(addButton)
                     makeVisible(deleteButton)
@@ -234,7 +244,8 @@
                             item_name: getValue(itemNameInput),
                             unit: getValue(itemUnitInput),
                             price: getValue(itemPriceInput),
-                            status: getValue(itemStatusInput)
+                            status: getValue(itemStatusInput),
+                            non_discountable: getValue(nonDiscountableCheckbox)
                         },
                         headers: {
                             'X-CSRF-TOKEN': csrfToken
@@ -286,6 +297,7 @@
                     unit: getValue(itemUnitInput),
                     status: getValue(itemStatusInput),
                     price: getValue(itemPriceInput),
+                    non_discountable: getValue(nonDiscountableCheckbox)
                 },
                 headers: {
                     'X-CSRF-TOKEN': csrfToken

@@ -133,7 +133,7 @@ class ApiController extends Controller
             'name' => $coi->name,
             'unit' => $coi->unit->name ?? 'No Unit',
             'price' => isset($item) ? $item->unit_price : $coi->price,
-//            'price' => number_format(averageRMRate($coi->id),2),
+            'discountable' => !$coi->parent->non_discountable,
             'coi_id' => $id,
             'balance_qty' => availableInventoryBalance($id, request()->store_id),
             'is_readonly' => $coi->price > 0 ? true : false,

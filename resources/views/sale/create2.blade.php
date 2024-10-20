@@ -835,7 +835,7 @@
                                             product_discount: 0,
                                             subtotal: 0,
                                             is_readonly: product_details.is_readonly,
-                                            discountable: product_details.parent_id !== 73,
+                                            discountable: product_details.discountable,
                                             discountType: '',
                                             discountValue: 0,
                                             discountAmount: 0,

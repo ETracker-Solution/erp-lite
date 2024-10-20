@@ -34,6 +34,7 @@ class InventoryController extends Controller
             'unit_id' => $inventory->unit_id,
             'price' => $inventory->price,
             'status' => $inventory->status,
+            'non_discountable' => $inventory->non_discountable,
         ];
         return response()->json($data);
     }
@@ -44,6 +45,7 @@ class InventoryController extends Controller
             $inventory = $this->base_model->find($id);
             if (\request()->filled('item_name')) {
                 $inventory->name = \request()->item_name;
+                $inventory->non_discountable = \request()->non_discountable;
             }
             if ($inventory->type == 'item') {
                 $inventory->unit_id = \request()->unit;
@@ -76,6 +78,7 @@ class InventoryController extends Controller
                 'status' => \request()->status?? 'active',
                 'price' => \request()->price ?? 0,
                 'created_by' => auth()->user()->id,
+                'non_discountable'=>\request()->non_discountable ? 1 : 0
             ]);
         } catch (\Exception $exception) {
             return response()->json([
