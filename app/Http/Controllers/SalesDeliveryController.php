@@ -105,6 +105,9 @@ class SalesDeliveryController extends Controller
 
             $main_outlet = $originalSale->outlet;
 
+            $delivery_outlet = Outlet::find($originalSale->delivery_point_id);
+            $delivery_store_id = $delivery_outlet->stores()->first()->id;
+
             $mail_outlet_store_id = $main_outlet->stores()->first()->id;
 
 
@@ -121,7 +124,7 @@ class SalesDeliveryController extends Controller
             if ($sale->preOrder || ($sale->outlet_id != $sale->delivery_point_id)) {
                 foreach ($originalSaleItems as $row) {
                     $row =  collect($row)->toArray();
-                    $currentStock = availableInventoryBalance($row['product_id'], $mail_outlet_store_id);
+                    $currentStock = availableInventoryBalance($row['product_id'], $delivery_store_id);
                     if ($currentStock < $row['quantity']) {
                         Toastr::error('Quantity cannot more then ' . $currentStock . ' !', '', ["progressBar" => true]);
                         return back();
@@ -132,7 +135,7 @@ class SalesDeliveryController extends Controller
                     $sale_item['coi_id'] = $row['product_id'];
                     $sale_item['rate'] = averageFGRate($row['product_id']);
                     $sale_item['amount'] = $sale_item['rate'] * $row['quantity'];
-                    $sale_item['store_id'] = $mail_outlet_store_id;
+                    $sale_item['store_id'] = $delivery_store_id;
                     addInventoryTransaction(-1, 'POS', $sale_item);
 
                 }
