@@ -15,7 +15,8 @@ RUN apt-get update && apt-get install -y \
     libfreetype6-dev \
     libjpeg62-turbo-dev \
     libpng-dev && \
-    docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip
+    docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip intl \
+    && docker-php-ext-configure intl
 
 # Clear cache
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
