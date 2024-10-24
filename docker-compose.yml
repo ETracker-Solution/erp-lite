@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+    app:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        image: erp
+        container_name: erp
+        restart: unless-stopped
+        working_dir: /var/www
+        volumes:
+            - ./:/var/www
+            - ./.env:/var/www/.env
+            - ./docker/custom.ini:/usr/local/etc/php/conf.d/php-overrides.ini
+        networks:
+            - app-network
+        ports:
+            - "9001:9000"
+
+    nginx:
+        image: nginx:alpine
+        container_name: erp-nginx
+        ports:
+            - "8001:80"
+        volumes:
+            - ./:/var/www
+            - ./docker/nginx/conf.d:/etc/nginx/conf.d/
+        depends_on:
+            - app
+        networks:
+            - app-network
+
+networks:
+    app-network:
+        driver: bridge
