@@ -54,7 +54,7 @@ class PreOrderController extends Controller
     {
         if (auth()->user()->employee && auth()->user()->employee->outlet_id) {
             $outlet_id = auth()->user()->employee->outlet_id;
-            $orders = PreOrder::with('customer', 'outlet', 'deliveryPoint')->where('delivery_point_id', $outlet_id)->orWhere('outlet_id', $outlet_id)->latest();
+            $orders = PreOrder::with('customer', 'outlet', 'deliveryPoint')->where('delivery_point_id', $outlet_id)->latest();
         } else {
             $orders = PreOrder::with('customer', 'outlet', 'deliveryPoint')->latest();
         }
