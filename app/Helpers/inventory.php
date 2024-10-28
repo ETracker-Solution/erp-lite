@@ -86,3 +86,45 @@ function fetchStoreProductBalances(array $productIds, array $storeIds)
 
     return $storeProductBalances;
 }
+
+function fetchAverageRates(array $coiIds, int $store_id = null)
+{
+    // Query for RM rates
+    $rmRates = InventoryTransaction::whereIn('coi_id', $coiIds)
+        ->where('type', 1)  // Only consider the transactions of type 1 for RM
+        ->when($store_id, function ($query) use ($store_id) {
+            return $query->where('store_id', $store_id);
+        })
+        ->select('coi_id', DB::raw('SUM(amount) as totalAmount'), DB::raw('SUM(quantity) as totalQuantity'))
+        ->groupBy('coi_id')
+        ->get()
+        ->keyBy('coi_id');
+
+    // Query for FG rates
+    $fgRates = InventoryTransaction::whereIn('coi_id', $coiIds)
+        ->where('type', 1)  // Assuming FG also uses type 1 for rate calculation
+        ->when($store_id, function ($query) use ($store_id) {
+            return $query->where('store_id', $store_id);
+        })
+        ->select('coi_id', DB::raw('SUM(amount) as totalAmount'), DB::raw('SUM(quantity) as totalQuantity'))
+        ->groupBy('coi_id')
+        ->get()
+        ->keyBy('coi_id');
+
+    // Calculate average rates and store them
+    $averageRates = [];
+    foreach ($coiIds as $coi_id) {
+        $rmData = $rmRates->get($coi_id);
+        $fgData = $fgRates->get($coi_id);
+
+        $rmRate = ($rmData && $rmData->totalQuantity != 0) ? $rmData->totalAmount / $rmData->totalQuantity : 0;
+        $fgRate = ($fgData && $fgData->totalQuantity != 0) ? $fgData->totalAmount / $fgData->totalQuantity : 0;
+
+        $averageRates[$coi_id] = [
+            'rm_rate' => $rmRate,
+            'fg_rate' => $fgRate,
+        ];
+    }
+
+    return $averageRates;
+}

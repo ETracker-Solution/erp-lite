@@ -7,6 +7,7 @@ use App\Models\ChartOfAccount;
 use App\Models\ChartOfInventory;
 use App\Models\Consumption;
 use App\Models\ConsumptionItem;
+use App\Models\InventoryTransaction;
 use App\Models\InventoryTransfer;
 use App\Models\OthersOutletSale;
 use App\Models\Product;
@@ -240,43 +241,69 @@ class ApiController extends Controller
 
     public function fetchRequisitionById($id, $store_id = null)
     {
-        $requisition = Requisition::with('items')->where('id', $id)->first();
-        $r_items = $requisition->availableItems();
+        // Eager load requisition items and deliveries in one query
+        $requisition = Requisition::with(['items.coi.unit', 'items.coi.parent', 'deliveries.items'])
+            ->where('id', $id)
+            ->firstOrFail();
+
+        // Collect all coi_ids from requisition items
+        $coiIds = $requisition->items->pluck('coi_id')->toArray();
+
+        // Pre-fetch available inventory balances for all requisition items
+        $inventoryBalances = InventoryTransaction::whereIn('coi_id', $coiIds)
+            ->where('store_id', $store_id)
+            ->select('coi_id', DB::raw('SUM(quantity * type) AS total_sum'))
+            ->groupBy('coi_id')
+            ->pluck('total_sum', 'coi_id')
+            ->toArray();
+
+        // Pre-fetch delivery quantities for all requisition items
+        $deliveryQuantities = [];
+        foreach ($requisition->deliveries as $delivery) {
+            foreach ($delivery->items as $deliveryItem) {
+                if (!isset($deliveryQuantities[$deliveryItem->pivot->coi_id])) {
+                    $deliveryQuantities[$deliveryItem->pivot->coi_id] = 0;
+                }
+                $deliveryQuantities[$deliveryItem->pivot->coi_id] += $deliveryItem->pivot->quantity;
+            }
+        }
+
+        // Pre-fetch average rates for all items at once (for both RM and FG)
+        $averageRates = fetchAverageRates($coiIds, $store_id);
+
         $items = [];
-
-        foreach ($r_items as $row) {
+        foreach ($requisition->items as $row) {
             if ($row->quantity > 0) {
-                $balance_quantity = availableInventoryBalance($row->coi_id, $store_id);
-                $requisition_quantity = $row->quantity;
-                if ($balance_quantity < $requisition_quantity) {
-                    if ($balance_quantity <= 0) {
-                        $quantity = '';
-                    } else {
-                        $quantity = $balance_quantity;
-                    }
+                $delivered_qty = $deliveryQuantities[$row->coi_id] ?? 0;
+                $balance_quantity = $inventoryBalances[$row->coi_id] ?? 0;
 
-                } elseif ($balance_quantity > $requisition_quantity) {
-                    $quantity = $requisition_quantity;
-                } elseif ($balance_quantity = $requisition_quantity) {
-                    $quantity = $requisition_quantity;
-                } else {
+                $requisition_quantity = $row->quantity;
+                $balance_quantity = $balance_quantity - $delivered_qty;
+
+                // Determine final quantity to show based on balances
+                if ($balance_quantity <= 0) {
                     $quantity = '';
+                } else {
+                    $quantity = min($balance_quantity, $requisition_quantity);
                 }
 
+                // Populate the items array with necessary details
                 $items[] = [
                     'requisition_id' => $id,
                     'coi_id' => $row->coi_id,
                     'unit' => $row->coi->unit->name ?? '',
                     'name' => $row->coi->name ?? '',
                     'group' => $row->coi->parent->name ?? '',
-                    'rm_average_rate' => averageRMRate($row->coi_id, $store_id),
-                    'fg_average_rate' => averageFGRate($row->coi_id, $store_id),
-                    'balance_quantity' => $balance_quantity,
+                    'rm_average_rate' => $averageRates[$row->coi_id]['rm_rate'] ?? 0,
+                    'fg_average_rate' => $averageRates[$row->coi_id]['rm_rate'] ?? 0,
+                    'balance_quantity' => max($balance_quantity, 0),
                     'requisition_quantity' => $requisition_quantity,
                     'quantity' => $quantity,
                 ];
             }
         }
+
+        // Prepare the final response data
         $data = [
             'items' => $items,
             'date' => $requisition->date,
@@ -285,8 +312,10 @@ class ApiController extends Controller
             'reference_no' => $requisition->reference_no,
             'remark' => $requisition->remark,
         ];
+
         return response()->json($data);
     }
+
 
     public function fetchRequisitionDeliveryById($id)
     {
