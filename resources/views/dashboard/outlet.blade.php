@@ -1088,9 +1088,9 @@
         goalOverviewChart.render();
     </script>
 
-    <script>
-        setInterval(function() {
-            location.reload(); // This will reload the entire page
-        }, 60000); // 60000 milliseconds = 60 seconds
-    </script>
+{{--    <script>--}}
+{{--        setInterval(function() {--}}
+{{--            location.reload(); // This will reload the entire page--}}
+{{--        }, 60000); // 60000 milliseconds = 60 seconds--}}
+{{--    </script>--}}
 @endpush

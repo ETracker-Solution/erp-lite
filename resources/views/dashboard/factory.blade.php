@@ -226,7 +226,7 @@
                                         <td> {{$row->fromStore->name ?? ''}}</td>
                                         <td>{!! showStatus($row->status) !!}</td>
                                         <td>{{$row->created_at->format('d-m-Y')}}</td>
-                                        <td><a href="{{ route('requisitions.show', encrypt($row->id)) }}" class="btn btn-primary btn-sm"><i class="fa fa-eye"></i></a></td>   
+                                        <td><a href="{{ route('requisitions.show', encrypt($row->id)) }}" class="btn btn-primary btn-sm"><i class="fa fa-eye"></i></a></td>
                                     </tr>
                                 @endforeach
                                 </tbody>
@@ -877,9 +877,9 @@
         goalOverviewChart.render();
     </script>
 
-    <script>
-        setInterval(function() {
-            location.reload(); // This will reload the entire page
-        }, 60000); // 60000 milliseconds = 60 seconds
-    </script>
+{{--    <script>--}}
+{{--        setInterval(function() {--}}
+{{--            location.reload(); // This will reload the entire page--}}
+{{--        }, 60000); // 60000 milliseconds = 60 seconds--}}
+{{--    </script>--}}
 @endpush
