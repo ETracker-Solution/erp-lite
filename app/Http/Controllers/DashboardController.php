@@ -13,25 +13,22 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        $outletDash = (new OutletDashboardController())->outletDashboard();
-        $factoryDash = (new FactoryDashboardController())->factoryDashboard();
-        $adminDash = (new AdminDashboardController())->adminDashboard();
 
         if(auth()->user()->is_super){
-            return $adminDash;
+            return (new AdminDashboardController())->adminDashboard();
         }else{
             if(auth()->user()->employee){
                 if(auth()->user()->employee->user_of == 'factory'){
-                    return $factoryDash;
+                    return (new FactoryDashboardController())->factoryDashboard();
                 }elseif(auth()->user()->employee->user_of == 'outlet'){
-                    return $outletDash;
+                    return (new OutletDashboardController())->outletDashboard();
                 }else{
-                    return $adminDash;
+                    return (new AdminDashboardController())->adminDashboard();
                 }
             }
         }
-        return $adminDash;
-    
+        return (new AdminDashboardController())->adminDashboard();
+
         $stock_ins = StockIn::select(DB::raw('count(*) as product_count, product_id'))
             ->groupBy('product_id')
             ->get();

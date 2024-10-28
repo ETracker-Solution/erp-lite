@@ -24,5 +24,10 @@ class Outlet extends Model
     {
         return $this->belongsToMany(OutletAccount::class,'outlet_id');
     }
-    
+
+    public function preOrders()
+    {
+        return $this->hasMany(PreOrder::class,'outlet_id');
+    }
+
 }

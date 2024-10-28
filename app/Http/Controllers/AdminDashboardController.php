@@ -2,44 +2,26 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Models\AccountTransaction;
-use App\Models\ChartOfAccount;
 use App\Models\ChartOfInventory;
 use App\Models\Customer;
-use App\Models\Expense;
 use App\Models\InventoryAdjustment;
-use App\Models\InventoryTransaction;
 use App\Models\Outlet;
-use App\Models\PreOrder;
-use App\Models\Product;
 use App\Models\Purchase;
 use App\Models\Requisition;
 use App\Models\Sale;
-use App\Models\Store;
-use App\Repository\Interfaces\AdminInterface;
 use Carbon\Carbon;
-use Carbon\CarbonPeriod;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Facades\DataTables;
 
 class AdminDashboardController extends Controller
 {
-
-    protected $adminRepo;
-
-    // public function __construct(AdminInterface $admin)
-    // {
-    //     $this->adminRepo = $admin;
-    // }
-
     public function adminDashboard()
     {
         $total_sales = Sale::whereDate('created_at', date('Y-m-d'))->sum('grand_total');
         $outlets = Outlet::whereStatus('active')->count();
         $customers = Customer::where('type', 'regular')->count();
-        $wastage_amount = InventoryAdjustment::whereDate('created_at',date('Y-m-d'))->where(['transaction_type'=>'decrease'])->sum('subtotal');
+        $wastage_amount = InventoryAdjustment::whereDate('created_at', date('Y-m-d'))->where(['transaction_type' => 'decrease'])->sum('subtotal');
         $products = ChartOfInventory::where('type', 'item')->where('rootAccountType', 'FG')->count();
         $todayInvoice = Sale::whereDate('created_at', Carbon::now()->format('Y-m-d'))->count();
 
@@ -80,17 +62,32 @@ class AdminDashboardController extends Controller
         // Initialize an array to store sales data for each part
         $parts = [];
 
-        // Iterate over each part
+        // Retrieve all sales in a single query
+        $sales = Sale::whereBetween('created_at', [$startDate->startOfDay(), $endDate->endOfDay()])
+            ->select('created_at', 'grand_total')
+            ->get();
+
+// Initialize an array to store the totals for each part
+        $parts = [];
+
+// Iterate over each part
         for ($part = 0; $part < $noOfWeeks; $part++) {
             // Calculate the start and end dates of the current part
-            $partStartDate = $startDate->copy()->addDays($part * $daysPerPart);
+            $partStartDate = $startDate->copy()->addDays($part * $daysPerPart)->startOfDay();
             $partEndDate = $startDate->copy()->addDays(($part + 1) * $daysPerPart - 1)->endOfDay();
 
+            // Adjust the end date if it exceeds the overall end date
             if ($partEndDate->gt($endDate)) {
                 $partEndDate = $endDate->copy()->endOfDay();
             }
-            $salesTotal = Sale::whereBetween('created_at', [$partStartDate, $partEndDate])
-                ->sum('grand_total');
+
+            // Filter the sales for the current part based on the created_at date
+            $salesForPart = $sales->filter(function ($sale) use ($partStartDate, $partEndDate) {
+                return $sale->created_at->between($partStartDate, $partEndDate);
+            });
+
+            // Sum the grand_total for the current part
+            $salesTotal = $salesForPart->sum('grand_total');
             $parts[] = $salesTotal;
         }
 
@@ -105,49 +102,110 @@ class AdminDashboardController extends Controller
         }
 
         $outletWiseDiscount = [];
+        // Get all outlets
         $allOutlets = Outlet::all();
 
+// Retrieve all sales data for the current year, month, and day in a single query
+        $salesData = Sale::whereYear('created_at', $currentDate->year)
+            ->whereMonth('created_at', $currentDate->month)
+            ->whereDay('created_at', $currentDate->day)
+            ->select('outlet_id', Sale::raw('SUM(discount) as total_discount'))
+            ->groupBy('outlet_id')
+            ->get();
+
+// Create a collection for easy access to discount totals by outlet
+        $salesDataByOutlet = $salesData->keyBy('outlet_id');
+
+// Initialize the outlet-wise discount array
+        $outletWiseDiscount = ['outletName' => [], 'discount' => []];
+
+// Iterate over all outlets
         foreach ($allOutlets as $ol) {
             $outletWiseDiscount['outletName'][] = $ol->name;
-            $outletWiseDiscount['discount'][] = Sale::whereYear('created_at', $currentDate->year)->whereMonth('created_at', $currentDate->month)->whereDay('created_at',$currentDate->day)->where('outlet_id', $ol->id)->sum('discount');
-        }
 
+            // Check if the outlet has sales data and get the discount, otherwise set it to 0
+            $discount = $salesDataByOutlet->has($ol->id) ? $salesDataByOutlet->get($ol->id)->total_discount : 0;
+
+            $outletWiseDiscount['discount'][] = $discount;
+        }
         $productWiseStock = [];
         $productWiseStock['products'] = [];
         $productWiseStock['stock'] = [];
         $totalStock = 0;
+
+// Get all products (outlets in your case)
         $allProducts = Outlet::select('name', 'id')->get();
+
+// Fetch all stock data for all outlets in a single query
+        $allStocks = DB::table('inventory_transactions')
+            ->join('stores', 'inventory_transactions.store_id', '=', 'stores.id')
+            ->where('stores.doc_type', 'outlet')  // Make sure this filters only outlets
+            ->select('stores.doc_id', DB::raw('SUM(inventory_transactions.amount * inventory_transactions.type) as total_stock'))
+            ->groupBy('stores.doc_id')  // Group by outlet ID
+            ->pluck('total_stock', 'stores.doc_id');  // Get total_stock mapped by outlet_id
+
+// Initialize variables for product-wise stock
+        $productWiseStock = ['products' => [], 'stock' => []];
+        $totalStock = 0;
+
+// Loop through each product and get stock from the pre-fetched stock data
         foreach ($allProducts as $product) {
-            $stock = inventoryAmount($product->id);
+            // Retrieve stock for the current product (outlet), or set to 0 if no stock is found
+            $stock = $allStocks->get($product->id, 0);
+
+            // Store the product's name and stock in the result array
             $productWiseStock['products'][] = $product->name;
             $productWiseStock['stock'][] = $stock;
+
+            // Accumulate the total stock
             $totalStock += $stock;
         }
-
         $outletWiseExpense = [];
         $outletWiseOrders = [];
         $totalExpense = 0;
         $totalOrders = 0;
-        $allOutlets = Outlet::all();
+        // Get the current year and month for filtering
+        $currentYear = $currentDate->year;
+        $currentMonth = $currentDate->month;
 
+// Fetch all outlets and their corresponding order counts in one query
+        $allOutlets = Outlet::withCount([
+            'preOrders' => function ($query) use ($currentYear, $currentMonth) {
+                $query->whereYear('created_at', $currentYear)
+                    ->whereMonth('created_at', $currentMonth);
+            }
+        ])->get();
+
+// Initialize variables
+        $outletWiseOrders = [];
+        $totalOrders = 0;
+
+// Loop through each outlet to build the result
         foreach ($allOutlets as $outlet) {
-            // $expense = Expense::whereYear('created_at', $currentDate->year)->whereMonth('created_at', $currentDate->month)->where('expenseable_type', Outlet::class)->where('expenseable_id', $ol->id)->sum('amount');
-            // $outletWiseExpense['outletName'][] = $ol->name;
-            // $outletWiseExpense['expense'][] = $expense;
-            // $totalExpense += $expense;
-            $order = PreOrder::whereYear('created_at', $currentDate->year)->whereMonth('created_at', $currentDate->month)->where('outlet_id', $outlet->id)->count();
-            $outletWiseOrders[$outlet->name] = $order;
-            $totalOrders += $order;
+            $outletWiseOrders[$outlet->name] = $outlet->pre_orders_count; // This uses the count from the eager loading
+            $totalOrders += $outlet->pre_orders_count; // Aggregate the total orders
         }
 
+        // Initialize variables
         $outletWiseSales = [];
         $totalSales = 0;
-        $all_dates_till_today = CarbonPeriod::create(Carbon::now()->startOfMonth(), Carbon::now())->toArray();
-        foreach ($all_dates_till_today as $item) {
-            $sale = Sale::whereDate('created_at', $item->format('Y-m-d'))->sum('grand_total');
-            $outletWiseSales['sales'][] = $sale;
-            $outletWiseSales['date'][] = $item->isoFormat('Do');
-            $totalSales += $sale;
+
+// Get the start and end of the month
+        $startOfMonth = Carbon::now()->startOfMonth();
+        $endOfMonth = Carbon::now();
+
+// Fetch sales grouped by date in a single query
+        $salesData = Sale::selectRaw('DATE(created_at) as sale_date, SUM(grand_total) as total')
+            ->whereBetween('created_at', [$startOfMonth, $endOfMonth])
+            ->groupBy('sale_date')
+            ->orderBy('sale_date')
+            ->get();
+
+// Prepare the result
+        foreach ($salesData as $sale) {
+            $outletWiseSales['sales'][] = $sale->total;
+            $outletWiseSales['date'][] = Carbon::parse($sale->sale_date)->isoFormat('Do');
+            $totalSales += $sale->total; // Aggregate total sales
         }
 
         // return $requisitions = Requisition::get();
@@ -173,10 +231,10 @@ class AdminDashboardController extends Controller
                 ->make(true);
         }
 
-        $customersWithPoint = Customer::where('type','regular')
-            ->has('membership')
-            ->with(['membership', 'sales'])
+        $customersWithPoint = Customer::where('type', 'regular')
             ->join('memberships', 'customers.id', '=', 'memberships.customer_id')
+            ->with(['membership', 'sales'])
+            ->has('membership')
             ->orderByDesc('memberships.point')
             ->select('customers.*')
             ->take(10) // Limit to the top 10 customers
@@ -197,7 +255,7 @@ class AdminDashboardController extends Controller
             ->orderByDesc('total_sold')
             ->get();
 
-        $slowSellingProducts = ChartOfInventory::where(['type'=>'item','rootAccountType'=>'FG'])->select('chart_of_inventories.*', DB::raw('COALESCE(SUM(sale_items.quantity), 0) as total_sold'))
+        $slowSellingProducts = ChartOfInventory::where(['type' => 'item', 'rootAccountType' => 'FG'])->select('chart_of_inventories.*', DB::raw('COALESCE(SUM(sale_items.quantity), 0) as total_sold'))
             ->leftJoin('sale_items', function ($join) {
                 $join->on('chart_of_inventories.id', '=', 'sale_items.product_id')
                     ->join('sales', 'sale_items.sale_id', '=', 'sales.id')
@@ -252,25 +310,11 @@ class AdminDashboardController extends Controller
             'customersWithPoint' => $customersWithPoint,
             'todaySale' => $todaySale,
             'todayPurchase' => $todayPurchase,
-            // 'todayExpense' => $todayExpense,
             'bestSellingProducts' => $bestProducts,
             'slowSellingProducts' => $slowSellingProducts,
             'todayInvoice' => $todayInvoice
         ];
-//        return $data;
         return view('dashboard.admin', $data);
     }
 
-//     protected function getReq()
-//     {
-//         $q = DB::select(
-//             "select id,uid, status,date,created_at, 'FG' as type
-// from requisitions
-// UNION ALL
-// select id,uid, status,date,created_at, 'RM' as type
-// from requisitions"
-//         );
-//         return $requisitions = collect($q)->sortByDesc('created_at')->values()->all();
-
-//     }
 }
