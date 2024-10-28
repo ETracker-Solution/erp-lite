@@ -106,19 +106,22 @@ class Requisition extends Model
 
     public static function todayFGAvailableRequisitions($to_factory_id)
     {
-        $requisitions = \App\Models\Requisition::where(['to_factory_id' => $to_factory_id])
-            ->where(['type' => 'FG', 'status' => 'approved'])
-            ->whereIn('delivery_status', ['pending', 'partial'])->get();
-        $available_requisitions = [];
-        foreach ($requisitions as $requisition) {
-            $quantity = 0;
-            foreach ($requisition->deliveries as $delivery) {
-                $quantity += $delivery->items->sum('quantity');
-            }
-            if ($requisition->items->sum('quantity') > $quantity) {
-                $available_requisitions[] = $requisition;
-            }
-        }
-        return $available_requisitions;
+        $requisitions = Requisition::with(['deliveries.items','items'])
+            ->where('to_factory_id', $to_factory_id)
+            ->where('type', 'FG')
+            ->where('status', 'approved')
+            ->whereIn('delivery_status', ['pending', 'partial'])
+            ->get();
+
+        $available_requisitions = $requisitions->filter(function ($requisition) {
+            $deliveredQuantity = $requisition->deliveries->flatMap(function ($delivery) {
+                return $delivery->items;
+            })->sum('quantity');
+
+            return $requisition->items->sum('quantity') > $deliveredQuantity;
+        });
+
+// Return the available requisitions as an array
+        return $available_requisitions->values()->all();
     }
 }

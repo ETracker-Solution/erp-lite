@@ -67,3 +67,22 @@ function inventoryAmount(int $outletId)
         ->value('total_stock') ?? 0;
     return $totalStock;
 }
+
+
+function fetchStoreProductBalances(array $productIds, array $storeIds)
+{
+    // Fetch balances for all products and stores in one query
+    $inventoryTransactions = InventoryTransaction::whereIn('coi_id', $productIds)
+        ->whereIn('store_id', $storeIds)
+        ->select('coi_id', 'store_id', DB::raw('SUM(quantity * type) AS total_sum'))
+        ->groupBy('coi_id', 'store_id')
+        ->get();
+
+    // Organize the results into a [store_id][product_id] => total_sum array
+    $storeProductBalances = [];
+    foreach ($inventoryTransactions as $transaction) {
+        $storeProductBalances[$transaction->store_id][$transaction->coi_id] = $transaction->total_sum;
+    }
+
+    return $storeProductBalances;
+}
