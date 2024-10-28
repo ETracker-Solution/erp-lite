@@ -8,7 +8,7 @@
 
     <link rel="stylesheet" href="style.css">
     <style>
-        *{
+        * {
 
             margin: 0;
 
@@ -20,7 +20,7 @@
 
         }
 
-        body{
+        body {
 
             display: flex;
 
@@ -30,15 +30,13 @@
 
             min-height: 100vh;
 
-            background:url(https://images.unsplash.com/photo-1501975558162-0be7b8ca95ea?crop=entropy&cs=srgb&fm=jpg&ixid=M3wzMjM4NDZ8MHwxfHJhbmRvbXx8fHx8fHx8fDE3MDk2NTI3NDJ8&ixlib=rb-4.0.3&q=85) no-repeat;
-
             background-size: cover;
 
-            background-position: center;
+            background: url(https://images.unsplash.com/photo-1501975558162-0be7b8ca95ea?crop=entropy&cs=srgb&fm=jpg&ixid=M3wzMjM4NDZ8MHwxfHJhbmRvbXx8fHx8fHx8fDE3MDk2NTI3NDJ8&ixlib=rb-4.0.3&q=85) no-repeat center;
 
         }
 
-        .wrapper{
+        .wrapper {
 
             width: 420px;
 
@@ -58,7 +56,7 @@
 
         }
 
-        .wrapper h1{
+        .wrapper h1 {
 
             font-size: 36px;
 
@@ -66,7 +64,7 @@
 
         }
 
-        .wrapper .input-box{
+        .wrapper .input-box {
 
             position: relative;
 
@@ -75,12 +73,11 @@
             height: 50px;
 
 
-
             margin: 30px 0;
 
         }
 
-        .input-box input{
+        .input-box input {
 
             width: 100%;
 
@@ -104,13 +101,13 @@
 
         }
 
-        .input-box input::placeholder{
+        .input-box input::placeholder {
 
             color: #fff;
 
         }
 
-        .input-box i{
+        .input-box i {
 
             position: absolute;
 
@@ -124,7 +121,7 @@
 
         }
 
-        .wrapper .checkbox1{
+        .wrapper .checkbox1 {
 
             display: flex;
 
@@ -136,7 +133,7 @@
 
         }
 
-        .checkbox1 label input{
+        .checkbox1 label input {
 
             accent-color: #fff;
 
@@ -144,7 +141,7 @@
 
         }
 
-        .checkbox1 a{
+        .checkbox1 a {
 
             color: #fff;
 
@@ -152,13 +149,13 @@
 
         }
 
-        .checkbox1 a:hover{
+        .checkbox1 a:hover {
 
             text-decoration: underline;
 
         }
 
-        .wrapper .btn{
+        .wrapper .btn {
 
             width: 100%;
 
@@ -171,7 +168,6 @@
             outline: none;
 
             border-radius: 40px;
-
 
 
             border: 1px solid white;
@@ -188,7 +184,7 @@
 
         }
 
-        .wrapper .link{
+        .wrapper .link {
 
             font-size: 14.5px;
 
@@ -198,7 +194,7 @@
 
         }
 
-        .link p a{
+        .link p a {
 
             color: #fff;
 
@@ -208,16 +204,14 @@
 
         }
 
-        .link p a:hover{
+        .link p a:hover {
 
             text-decoration: underline;
 
         }
 
         #loginForm:checked ~ #loginFormContent,
-
         #registerForm:checked ~ #registerFormContent,
-
         #forgotForm:checked ~ #forgotFormContent {
 
             display: block;
@@ -241,121 +235,26 @@
 <input type="radio" id="forgotForm" name="formToggle">
 
 
-
 <div class="wrapper" id="loginFormContent">
-
     <form action="{{ route('login') }}" method="post">
         @csrf
         <h1>Login</h1>
-
         <div class="input-box">
-
-            <input type="text" placeholder="Enter Email" name="email" @if(isset($_COOKIE["email"])) value="{{ $_COOKIE['email'] }}" @endif required>
-
-
+            <x-input-error :messages="$errors->get('email')" class="mt-2"/>
+            <x-input-error :messages="$errors->get('password')" class="mt-2"/>
+            <input type="text" placeholder="Enter Email" name="email"
+                   @if(isset($_COOKIE["email"])) value="{{ $_COOKIE['email'] }}" @endif required>
 
         </div>
-
         <div class="input-box">
-
-            <input type="password" placeholder="Password"  name="password" @if(isset($_COOKIE["password"])) value="{{ $_COOKIE['password'] }}" @endif required>
-
-
-
+            <input type="password" placeholder="Password" name="password"
+                   @if(isset($_COOKIE["password"])) value="{{ $_COOKIE['password'] }}" @endif required>
         </div>
-
         <div class="checkbox1">
-
             <label><input type="checkbox" @if(isset($_COOKIE['email'])) checked ="checked" @endif>Remember Me</label>
-
-{{--            <label for="forgotForm">Forgot Password</label>--}}
-
         </div>
-
         <button type="submit" class="btn">Login</button>
-
-{{--        <div class="link">--}}
-
-{{--            <p>Don't have an account? <label for="registerForm">Register</label></p>--}}
-
-{{--        </div>--}}
-
     </form>
-
-</div>
-
-<div class="wrapper" id="registerFormContent">
-
-    <form action="">
-
-        <h1>Register</h1>
-
-        <div class="input-box">
-
-            <input type="text" placeholder="Username" required>
-
-
-
-        </div>
-
-        <div class="input-box">
-
-            <input type="email" placeholder="Email" required>
-
-
-
-        </div>
-
-        <div class="input-box">
-
-            <input type="password" placeholder="Password" required>
-
-
-
-        </div>
-
-        <div class="checkbox1">
-
-            <label><input type="checkbox" required>I agree to terms & conditions</label>
-
-        </div>
-
-        <button type="submit" class="btn">Register</button>
-
-        <div class="link">
-
-            <p>Already have an account? <label for="loginForm">Login</label></p>
-
-        </div>
-
-    </form>
-
-</div>
-
-<div class="wrapper" id="forgotFormContent">
-
-    <form action="">
-
-        <h1>Reset your password</h1>
-
-        <div class="input-box">
-
-            <input type="email" placeholder="Email" required>
-
-        </div>
-
-        <div class="input-box">
-
-            <button type="submit" class="btn">Send Request</button>
-
-            <div class="link">
-
-                <p>Don't have an account? <label for="registerForm">Register</label></p>
-
-            </div>
-
-    </form>
-
 </div>
 
 </body>
