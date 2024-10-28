@@ -32,43 +32,68 @@ class FactoryDashboardController extends Controller
 
     public function factoryDashboard()
     {
-        $today =  Carbon::today()->format('Y-m-d');
+        $today = Carbon::today()->format('Y-m-d');
         //first Section
         $factory_id = Auth::user()->employee->factory_id;
-        $store_ids = Store::where(['doc_type'=>'factory','doc_id'=> $factory_id])->pluck('id');
+        $store_ids = Store::where(['doc_type' => 'factory', 'doc_id' => $factory_id])->pluck('id');
 
 
-        $monthlyTotalRequisitions = Requisition::where('to_factory_id',$factory_id)->whereMonth('created_at', Carbon::now()->month)->count();
+        $monthlyTotalRequisitions = Requisition::where('to_factory_id', $factory_id)->whereMonth('created_at', Carbon::now()->month)->count();
 
-        $productWiseStock = [];
-        $productWiseStock['products'] = [];
-        $productWiseStock['stock'] = [];
+        // Get all products with their respective stock in a single query
+        $allProducts = ChartOfInventory::where(['type' => 'item', 'rootAccountType' => 'RM'])
+            ->with(['inventoryTransactions' => function ($query) use ($store_ids) {
+                $query->whereIn('store_id', $store_ids);
+            }])
+            ->select('name', 'id')
+            ->get();
+
+// Initialize the productWiseStock array and totalStock
+        $productWiseStock = ['products' => [], 'stock' => []];
         $totalStock = 0;
-        $allProducts = ChartOfInventory::where(['type'=>'item','rootAccountType'=>'RM'])->select('name', 'id')->get();
+
+// Calculate stock for each product
         foreach ($allProducts as $product) {
-            $stock = InventoryTransaction::whereIn('store_id', $store_ids)->where('coi_id', $product->id)->sum(DB::raw('amount * type'));
+            $stock = $product->inventoryTransactions->sum(function ($transaction) {
+                return $transaction->amount * $transaction->type; // Assuming type is either 1 or -1
+            });
+
             $productWiseStock['products'][] = $product->name;
             $productWiseStock['stock'][] = $stock;
             $totalStock += $stock;
         }
 
-        $fgProductWiseStock = [];
-        $fgProductWiseStock['products'] = [];
-        $fgProductWiseStock['stock'] = [];
+        // Initialize the stock arrays
+        $fgProductWiseStock = [
+            'products' => [],
+            'stock' => [],
+        ];
         $fgTotalStock = 0;
-        $allProducts = ChartOfInventory::where(['type'=>'item','rootAccountType'=>'FG'])->select('name', 'id')->get();
+
+// Fetch all products with their respective stock in a single query
+        $allProducts = ChartOfInventory::where(['type' => 'item', 'rootAccountType' => 'FG'])
+            ->with(['inventoryTransactions']) // Eager load the inventory transactions
+            ->select('name', 'id')
+            ->get();
+
+// Calculate stock for each product
         foreach ($allProducts as $product) {
-            $stock = InventoryTransaction::where('coi_id', $product->id)->sum(DB::raw('amount * type'));
+            // Calculate stock using the eager loaded transactions
+            $stock = $product->inventoryTransactions->sum(function ($transaction) {
+                return $transaction->amount * $transaction->type; // Assuming type is either 1 or -1
+            });
+
+            // Populate the stock arrays
             $fgProductWiseStock['products'][] = $product->name;
             $fgProductWiseStock['stock'][] = $stock;
             $fgTotalStock += $stock;
         }
 
-        $TotalNewRequisitions = Requisition::where('to_factory_id',$factory_id)->whereType('FG')->whereIn('status',['approved'])->where('delivery_status','pending')->count();
+        $TotalNewRequisitions = Requisition::where('to_factory_id', $factory_id)->whereType('FG')->whereIn('status', ['approved'])->where('delivery_status', 'pending')->count();
 
-        $todayTotalRequisitions = Requisition::where('to_factory_id',$factory_id)->whereDate('created_at', Carbon::today())->whereIn('status',['pending'])->count();
+        $todayTotalRequisitions = Requisition::where('to_factory_id', $factory_id)->whereDate('created_at', Carbon::today())->whereIn('status', ['pending'])->count();
         $todayTotalDeliveries = RequisitionDelivery::where(['type' => 'FG', 'date' => $today])->count();
-        $todayTotalWastages = InventoryAdjustment::whereIn('store_id', $store_ids)->where(['date' => $today,'transaction_type'=>'decrease'])->sum('subtotal');
+        $todayTotalWastages = InventoryAdjustment::whereIn('store_id', $store_ids)->where(['date' => $today, 'transaction_type' => 'decrease'])->sum('subtotal');
         $todayPreOrderDeliveries = PreOrder::where(['status' => 'pending', 'delivery_date' => $today])->count();
 
         $todayInvoice = Sale::whereDate('created_at', Carbon::now()->format('Y-m-d'))->count();
@@ -161,11 +186,11 @@ class FactoryDashboardController extends Controller
             ->groupBy('from_store_id')
             ->with('fromStore')
             ->get();
-        $todayRequisitions = Requisition::where('to_factory_id',$factory_id)->whereDate('created_at', Carbon::today())->get();
+        $todayRequisitions = Requisition::where('to_factory_id', $factory_id)->whereDate('created_at', Carbon::today())->get();
 
 
         //5th Section
-        $monthlyRequisitions = Requisition::where('to_factory_id',$factory_id)->whereMonth('created_at', Carbon::now()->month)->get();
+        $monthlyRequisitions = Requisition::where('to_factory_id', $factory_id)->whereMonth('created_at', Carbon::now()->month)->get();
 
         $data = [
 
