@@ -105,23 +105,6 @@
         <div class="row match-height">
             <div class="col-lg-4 col-12">
                 <div class="row match-height">
-                    <!-- Bar Chart - Orders -->
-                    {{-- <div class="col-lg-6 col-md-3 col-6">
-                        <div class="card">
-                            <div class="card-header bg-info">
-                                <h3 class="card-title">{{ $currentMonthExpense }} BDT</h3>
-                                <div class="card-tools">
-                                    Expenses
-                                </div>
-                            </div>
-                            <div class="card-body pb-50">
-                                <div id="expense-radial-bar-chart" class="my-2"></div>
-                                <p>{{ $expenseMessage }}</p>
-                            </div>
-                        </div>
-                    </div> --}}
-                    <!--/ Bar Chart - Orders -->
-
 
                     <!-- Earnings Card -->
                     <div class="col-lg-12 col-md-6 col-12">

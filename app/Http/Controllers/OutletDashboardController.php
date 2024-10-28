@@ -2,23 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Models\ChartOfInventory;
 use App\Models\Customer;
-use App\Models\Expense;
 use App\Models\InventoryAdjustment;
 use App\Models\InventoryTransaction;
 use App\Models\OthersOutletSale;
 use App\Models\Outlet;
 use App\Models\OutletAccount;
-use App\Models\Product;
 use App\Models\RequisitionDelivery;
 use App\Models\Sale;
 use App\Models\Store;
-use App\Models\User;
-use App\Repository\Interfaces\AdminInterface;
 use Carbon\Carbon;
-use Carbon\CarbonPeriod;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Facades\DataTables;
@@ -26,18 +20,8 @@ use Yajra\DataTables\Facades\DataTables;
 class OutletDashboardController extends Controller
 {
 
-    protected $adminRepo;
-
-    // public function __construct(AdminInterface $admin)
-    // {
-    //     $this->adminRepo = $admin;
-    // }
-
     public function outletDashboard()
     {
-        $total_sales = Sale::sum('grand_total');
-        $outlets = Outlet::count();
-        $customers = Customer::where('type', 'regular')->count();
         $outlet_id = Auth::user()->employee->outlet_id;
         $store_ids = Store::where(['doc_type' => 'outlet', 'doc_id' => $outlet_id])->pluck('id');
 
@@ -47,30 +31,15 @@ class OutletDashboardController extends Controller
             $query->where(['outlet_id' => $outlet_id]);
         })->where(['type' => 'FG', 'status' => 'completed'])->get();
 
-        $requisition_deliveries_count = RequisitionDelivery::whereHas('requisition', function ($query) use($outlet_id) {
-            $query->where(['outlet_id' => $outlet_id]);
-        })->where(['type' => 'FG','status' => 'completed'])->count();
+        $requisition_deliveries_count = $requisition_deliveries->count();
 
         $otherOutletSales = OthersOutletSale::where(['status' => 'delivered','outlet_id' => $outlet_id])->count();
 
         $products = ChartOfInventory::where(['type' => 'item', 'rootAccountType' => 'FG','status'=>'active'])->count();
 
-        $year = Carbon::now()->month == 1 ? Carbon::now()->subYear()->year : Carbon::now()->year;
-        $lastMonth = Carbon::now()->subMonth();
         $lastMonthExpense = 0;
         $currentMonthExpense = 0;
-        $expenseMessage = 'No Expense Added';
-        if ($lastMonthExpense === 0) {
-            $expensePercentage = 100;
-        } else {
-            $expensePercentage = (100 / $lastMonthExpense) * $currentMonthExpense;
-        }
-        if ($currentMonthExpense > $lastMonthExpense) {
-            $expenseMessage = ($currentMonthExpense - $lastMonthExpense) . ' BDT more than last month';
-        } elseif ($currentMonthExpense < $lastMonthExpense) {
-            $expenseMessage = ($currentMonthExpense - $lastMonthExpense) . ' BDT less than last month';
-        }
-
+        $expensePercentage = $lastMonthExpense === 0 ? 100 : (100 / $lastMonthExpense) * $currentMonthExpense;
 
         $currentDate = Carbon::now();
         $startDate = $currentDate->copy()->subMonth()->startOfMonth();
@@ -79,10 +48,11 @@ class OutletDashboardController extends Controller
         $totalDays = $startDate->daysInMonth;
 
         $currentMonthStartDate = $currentDate->copy()->startOfMonth();
-        $currentMonthEndtDate = $currentDate->copy()->endOfMonth();
+        $currentMonthEndDate = $currentDate->copy()->endOfMonth();
 
-        $currentMonthAmount = Sale::where('outlet_id', $outlet_id)->whereBetween('created_at', [$currentMonthStartDate, $currentMonthEndtDate])
-                ->sum('grand_total');
+        $currentMonthAmount = Sale::where('outlet_id', $outlet_id)->whereBetween('created_at', [$currentMonthStartDate, $currentMonthEndDate])
+            ->sum('grand_total');
+
         // Calculate the number of days in each part
         $daysPerPart = ceil($totalDays / $noOfWeeks);
 
@@ -90,76 +60,78 @@ class OutletDashboardController extends Controller
         $parts = [];
         $lastMonthSaleAmount = 0;
 
+        // Pre-fetch sales data for the entire date range
+        $salesData = Sale::where('outlet_id', $outlet_id)
+            ->whereBetween('created_at', [$startDate, $endDate])
+            ->select('created_at', 'grand_total')
+            ->get();
+
         // Iterate over each part
         for ($part = 0; $part < $noOfWeeks; $part++) {
             // Calculate the start and end dates of the current part
             $partStartDate = $startDate->copy()->addDays($part * $daysPerPart);
-            $partEndDate = $startDate->copy()->addDays(($part + 1) * $daysPerPart - 1)->endOfDay();
+            $partEndDate = $partStartDate->copy()->addDays($daysPerPart - 1)->endOfDay();
 
             if ($partEndDate->gt($endDate)) {
                 $partEndDate = $endDate->copy()->endOfDay();
             }
-            $salesTotal = Sale::where('outlet_id', $outlet_id)->whereBetween('created_at', [$partStartDate, $partEndDate])
-                ->sum('grand_total');
+
+            // Filter the sales data for the current part
+            $salesTotal = $salesData->filter(function ($sale) use ($partStartDate, $partEndDate) {
+                return $sale->created_at->between($partStartDate, $partEndDate);
+            })->sum('grand_total');
+
             $parts[] = $salesTotal;
             $lastMonthSaleAmount += $salesTotal;
         }
 
         $totalDiscountToday = Sale::where('outlet_id', $outlet_id)->whereDate('created_at', Carbon::today())->sum('discount');
 
-        $totalDiscountThisMonth = Sale::where('outlet_id', $outlet_id)->whereYear('created_at', $currentDate->year)->whereMonth('created_at', $currentDate->month)->sum('discount');
-        $totalDiscountLastMonth = Sale::where('outlet_id', $outlet_id)->whereYear('created_at', $year)->whereMonth('created_at', $lastMonth->month)->sum('discount');
 
-        if ($totalDiscountLastMonth === 0) {
-            $discountPercentage = 100;
-        } else {
-            $discountPercentage = (100 / $totalDiscountLastMonth) * $totalDiscountThisMonth;
-        }
+        // Get the current year and month
+        $currentYear = $currentDate->year;
+        $currentMonth = $currentDate->month;
 
-        $outletWiseDiscount = [];
         $allOutlets = Outlet::all();
 
+        // Fetch discounts for the current month and year
+        $salesData = Sale::whereYear('created_at', $currentYear)
+            ->whereMonth('created_at', $currentMonth)
+            ->whereIn('outlet_id', $allOutlets->pluck('id')) // Get all outlet ids
+            ->select('outlet_id', DB::raw('SUM(discount) as total_discount')) // Aggregate discounts
+            ->groupBy('outlet_id')
+            ->get()
+            ->keyBy('outlet_id'); // Key by outlet_id for easy access
+
+// Populate the outlet-wise discount array
         foreach ($allOutlets as $ol) {
             $outletWiseDiscount['outletName'][] = $ol->name;
-            $outletWiseDiscount['discount'][] = Sale::where('outlet_id', $outlet_id)->whereYear('created_at', $currentDate->year)->whereMonth('created_at', $currentDate->month)->where('outlet_id', $ol->id)->sum('discount');
+            $outletWiseDiscount['discount'][] = $salesData->get($ol->id)->total_discount ?? 0; // Use null coalescing for safety
         }
-
-        $productWiseStock = [];
-        $productWiseStock['products'] = [];
-        $productWiseStock['stock'] = [];
+        // Initialize the product-wise stock array
+        $productWiseStock = [
+            'products' => [],
+            'stock' => [],
+        ];
         $totalStock = 0;
+
+// Fetch all products with the specified criteria
         $allProducts = ChartOfInventory::where(['type' => 'item', 'rootAccountType' => 'FG'])->get();
+
+// Pre-fetch inventory transaction data for the relevant products and stores
+        $inventoryData = InventoryTransaction::whereIn('store_id', $store_ids)
+            ->whereIn('coi_id', $allProducts->pluck('id')) // Get all product IDs
+            ->select('coi_id', DB::raw('SUM(quantity * type) as total_stock')) // Aggregate stock
+            ->groupBy('coi_id')
+            ->get()
+            ->keyBy('coi_id'); // Key by coi_id for easy access
+
+// Populate the product-wise stock array
         foreach ($allProducts as $product) {
-            $stock = InventoryTransaction::whereIn('store_id', $store_ids)->where('coi_id', $product->id)->sum(DB::raw('quantity * type'));
+            $stock = $inventoryData->get($product->id)->total_stock ?? 0; // Use null coalescing for safety
             $productWiseStock['products'][] = $product->name;
             $productWiseStock['stock'][] = $stock;
             $totalStock += $stock;
-        }
-
-        $outletWiseExpense = [];
-        $outletWiseOrders = [];
-        $totalExpense = 0;
-        $totalOrders = 0;
-        $allOutlets = Outlet::all();
-
-        foreach ($allOutlets as $ol) {
-            $expense = Expense::whereYear('created_at', $currentDate->year)->whereMonth('created_at', $currentDate->month)->sum('amount');
-            $outletWiseExpense['outletName'][] = $ol->name;
-            $outletWiseExpense['expense'][] = $expense;
-            $totalExpense += $expense;
-            $order = Sale::whereYear('created_at', $currentDate->year)->whereMonth('created_at', $currentDate->month)->count();
-            $outletWiseOrders[$ol->name] = $order;
-            $totalOrders += $order;
-        }
-
-        $outletWiseSales = [];
-        $totalSales = 0;
-        $all_dates_till_today = CarbonPeriod::create(Carbon::now()->startOfMonth(), Carbon::now())->toArray();
-        foreach ($all_dates_till_today as $item) {
-            $sale = Sale::whereDate('created_at', $item->format('Y-m-d'))->sum('grand_total');
-            $outletWiseSales['sales'][] = $sale;
-            $outletWiseSales['date'][] = $item->isoFormat('Do');
-            $totalSales += $sale;
         }
 
         if (\request()->ajax()) {
@@ -234,7 +206,7 @@ class OutletDashboardController extends Controller
         $salesWastageCompare['wastage'][] = $wastage_amount;
 
         $outletPettyCashAmount = 0;
-        $outletAccounts = OutletAccount::where('outlet_id',$outlet_id)->get();
+        $outletAccounts = OutletAccount::with('coa')->where('outlet_id',$outlet_id)->get();
         foreach ($outletAccounts as $outletAccount) {
             if ($outletAccount->coa->default_type == 'petty_cash'){
                 $outletPettyCashAmount =  $outletAccount->coa->transactions()->sum(DB::raw('transaction_type* amount'));
@@ -244,39 +216,18 @@ class OutletDashboardController extends Controller
         $data = [
             'requisition_deliveries' => $requisition_deliveries,
             'requisition_deliveries_count' => $requisition_deliveries_count,
-            'totalSales' => $total_sales,
-            'outlets' => $outlets,
-            'customers' => $customers,
             'products' => $products,
             'wastageAmount' => round($wastage_amount),
             'latestFiveSales' => $latestFiveSales,
-            'lastMonthExpense' => $lastMonthExpense,
-            'expensePercentage' => $expensePercentage,
-            'currentMonthExpense' => $currentMonthExpense,
-            'expenseMessage' => $expenseMessage,
             'lastMonthSales' => $parts,
+            'expensePercentage' => $expensePercentage,
             'discount' => [
                 'thisDay' => $totalDiscountToday,
-                'thisMonth' => $totalDiscountThisMonth,
-                'lastMonth' => $totalDiscountLastMonth,
-                'percentage' => $discountPercentage,
                 'outletWiseDiscount' => $outletWiseDiscount
             ],
             'stock' => [
                 'total' => round($totalStock),
                 'productWise' => $productWiseStock
-            ],
-            'expense' => [
-                'total' => $totalExpense,
-                'outletWise' => $outletWiseExpense
-            ],
-            'sales' => [
-                'total' => $totalSales,
-                'outletWise' => $outletWiseSales
-            ],
-            'order' => [
-                'total' => $totalOrders,
-                'outletWise' => $outletWiseOrders
             ],
             'customersWithPoint' => $customersWithPoint,
             'todaySale' => $todaySale,
