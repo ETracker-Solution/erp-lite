@@ -7,6 +7,11 @@
           href="{{asset('admin/app-assets/css/pages/dashboard-ecommerce.css')}}">
     <link rel="stylesheet" type="text/css"
           href="{{asset('admin/app-assets/css/plugins/charts/chart-apex.css')}}">
+    <style>
+        #piechart  svg{
+            width: 450px !important;
+        }
+    </style>
 @endpush
 @section('content')
     <section id="dashboard-ecommerce">
