@@ -155,6 +155,14 @@
                                                 @click="showReport('Single Customer Discount')">
                                             Show Single Customer Discount
                                         </button>
+                                        <button class="btn btn-sm btn-dark w-50 mb-2"
+                                                @click="showReport('Product Wise Discount')">
+                                            Show Product Wise Discount
+                                        </button>
+                                        <button class="btn btn-sm btn-dark w-50 mb-2"
+                                                @click="showReport('All Outlet Discount')">
+                                            Show All Outlet Discount
+                                        </button>
                                         {{-- End Due and Discount Report --}}
                                         @endif
                                     </div>
@@ -239,7 +247,7 @@
                 methods: {
                     showReport(reportType) {
                         const vm = this;
-                        if (reportType === 'Single Item Sales Details') {
+                        if (reportType === 'Single Item Sales Details' || reportType === 'Product Wise Discount') {
                             if (!vm.item_id) {
                                 toastr.error('Please Select an Item', {
                                     closeButton: true,

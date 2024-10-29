@@ -24,9 +24,9 @@ class SaleReportController extends Controller
 
     public function getAllFGStores()
     {
-        if(\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->outlet_id){
-            $outlets = Outlet::where('id',\auth()->user()->employee->outlet_id)->get();
-        }else{
+        if (\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->outlet_id) {
+            $outlets = Outlet::where('id', \auth()->user()->employee->outlet_id)->get();
+        } else {
             $outlets = Outlet::all();
         }
         return $outlets;
@@ -97,22 +97,45 @@ class SaleReportController extends Controller
             $page_title = 'Outlet Name :: ' . $outlet->name;
             $data = [
                 'dateRange' => $dateRange,
-                'data' => Sale::with('customer', 'outlet')->where('outlet_id', $outlet->id)->where('date', '>=', $from_date)->where('date', '<=', $to_date)->get(),
+                'data' => Sale::with('customer', 'outlet', 'items')->where(function ($q) {
+                    return $q->where('discount', '>', 0)->orWhereHas('items', function ($q) {
+                        return $q->where('discount', '>', 0);
+                    });
+                })->where('outlet_id', $outlet->id)->where('date', '>=', $from_date)->where('date', '<=', $to_date)->get(),
                 'page_title' => $page_title,
                 'report_header' => $report_header
             ];
             $pdf = Pdf::loadView('sale.report.all_discount', $data);
             $pdf->stream();
-        } elseif ($report_type == 'Single Customer Discount') {
-            $customer = Customer::find(\request()->customer_id);
-            $page_title = 'Customer Name :: ' . $customer->name;
+        } elseif ($report_type == 'Product Wise Discount') {
+            $product = ChartOfInventory::find(\request()->item_id);
+            $page_title = 'Product Name :: ' . $product->name;
             $data = [
                 'dateRange' => $dateRange,
-                'data' => Sale::with('customer', 'outlet')->where('customer_id', $customer->id)->where('date', '>=', $from_date)->where('date', '<=', $to_date)->get(),
+                'data' => Sale::with(['customer', 'outlet','items'=>function ($q) use ($product){
+                    return $q->where('product_id', $product->id);
+                }])->whereHas('items', function ($q) use ($product){
+                    return $q->where('product_id', $product->id);
+                })->where('date', '>=', $from_date)->where('date', '<=', $to_date)->get(),
                 'page_title' => $page_title,
                 'report_header' => $report_header
             ];
-            $pdf = Pdf::loadView('sale.report.single_discount', $data);
+            $pdf = Pdf::loadView('sale.report.product_discount', $data);
+            $pdf->stream();
+        }elseif ($report_type == 'All Outlet Discount') {
+            $page_title = 'All Discounts';
+            $data = [
+                'dateRange' => $dateRange,
+                'data' => Sale::with('customer', 'outlet', 'items')->where(function ($q) {
+                    return $q->where('discount', '>', 0)->orWhereHas('items', function ($q) {
+                        return $q->where('discount', '>', 0);
+                    });
+                })->where('date', '>=', $from_date)->where('date', '<=', $to_date)->get(),
+                'page_title' => $page_title,
+                'report_header' => $report_header
+            ];
+            return view('sale.report.all_discount', $data);
+            $pdf = Pdf::loadView('sale.report.all_discount', $data);
             $pdf->stream();
         }
 

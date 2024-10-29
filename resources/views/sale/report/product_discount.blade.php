@@ -98,18 +98,16 @@
         @foreach($data as $row)
             @php
                 $itemWiseDiscount = $row->items->sum('discount');
-                $saleDiscount = $row->discount;
-                $totalDiscount = $itemWiseDiscount + $saleDiscount;
             @endphp
             <tr class="items">
                 <td>{{$row->date}}</td>
                 <td>{{$row->invoice_number}}</td>
                 <td>{{$row->customer->name}}</td>
                 <td>{{$row->customer->mobile}}</td>
-                <td>{{$totalDiscount}}</td>
+                <td>{{$itemWiseDiscount}}</td>
             </tr>
             @php
-                $total +=$totalDiscount;
+                $total +=$itemWiseDiscount;
             @endphp
         @endforeach
         <tr>
