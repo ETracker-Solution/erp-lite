@@ -94,7 +94,7 @@ class FundTransferVoucherController extends Controller
      * Store a newly created resource in storage.
      *
      * @param \App\Http\Requests\StoreFundTransferVoucherRequest $request
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function store(StoreFundTransferVoucherRequest $request)
     {
@@ -106,6 +106,14 @@ class FundTransferVoucherController extends Controller
                 return back();
             }
             foreach ($validated['products'] as $product) {
+                $creditAccount = ChartOfAccount::find($product['credit_account_id']);
+                $pendingAmount = FundTransferVoucher::where(['credit_account_id'=> $product['credit_account_id'],'status'=>'pending'])->sum('amount');
+                $currentBalance = AccountTransaction::where('chart_of_account_id',$product['credit_account_id'])->sum(\DB::raw('amount * transaction_type'));
+                $actualBalance = $currentBalance - $pendingAmount;
+                if (max($actualBalance,0) < $product['amount']){
+                    Toastr::warning("No Available Balance in ".$creditAccount->name);
+                    return back();
+                }
                 $product['date'] = $validated['date'];
                 $product['narration'] = $validated['narration'];
                 $product['created_by'] = $validated['created_by'];
@@ -114,6 +122,7 @@ class FundTransferVoucherController extends Controller
             DB::commit();
         } catch (\Exception $error) {
             DB::rollBack();
+            return $error;
             Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
             return back();
         }
