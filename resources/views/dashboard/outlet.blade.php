@@ -20,7 +20,7 @@
     <section class="content">
         <div class="row match-height">
             <!-- Medal Card -->
-            <div class="col-xl-2 col-md-6 col-12">
+            <div class="col-xl-3 col-md-6 col-12">
                 <div class="card card-congratulation-medal">
                     <div class="card-body">
                         <h5 class="text-info">Congratulations Outlet!</h5>
@@ -31,7 +31,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-xl-2 col-md-4 col-12">
+            <div class="col-xl-3 col-md-4 col-12">
                 <div class="card card-congratulation-medal">
                     <div class="card-body">
                         <a href="{{route('fg-delivery-receives.create')}}" class="btn btn-sm btn-block btn-info">
@@ -43,7 +43,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-xl-1 col-md-4 col-12">
+            <div class="col-xl-3 col-md-4 col-12">
                 <div class="card card-congratulation-medal">
                     <div class="card-body">
                         <a href="{{route('sales-deliveries.index')}}" class="btn btn-sm btn-block btn-info">
@@ -55,7 +55,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-xl-2 col-md-4 col-12">
+            <div class="col-xl-3 col-md-4 col-12">
                 <div class="card card-congratulation-medal">
                     <div class="card-body">
                         <a href="javascript:void(0)" class="btn btn-sm btn-block btn-info">
@@ -68,9 +68,10 @@
                 </div>
             </div>
             <!--/ Medal Card -->
-
+        </div>
+        <div class="row">
             <!-- Statistics Card -->
-            <div class="col-xl-5 col-md-6 col-12">
+            <div class="col-xl-12 col-md-12 col-12">
                 <div class="card card-statistics">
                     <div class="card-header bg-info">
                         <h3 class="card-title">Statistics</h3>
