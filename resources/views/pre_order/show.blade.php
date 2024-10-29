@@ -39,8 +39,8 @@
                         <div class="row invoice-info">
                             <div class="col-sm-4 invoice-col pl-4" style="padding: 10px">
                                 <b>Delivery Date :</b> {{ $model->delivery_date }}, <br>
-                                <b>Delivery Time :</b> {{ \Carbon\Carbon::parse($model->delivery_time)->format('h:i A') }}, <br>
-                                <b>Size :</b> {{ $model->remark }}, <br>
+                                <b>Delivery Time :</b> {{ $model->delivery_time ? \Carbon\Carbon::parse($model->delivery_time)->format('h:i A') : 'N/A'}}, <br>
+                                <b>Size :</b> {{ $model->size }}, <br>
                                 <b>Flavour :</b> {{ $model->flavour }}, <br>
                                 <b>Cake Message :</b> {{ $model->cake_message }}, <br>
                                 <b>Description :</b> {{ $model->remark }}.
@@ -49,6 +49,7 @@
                             <div class="col-sm-4 invoice-col pl-4" style="padding: 10px">
                                 <b>Order No :</b> {{ $model->order_number }}, <br>
                                 <b>Customer :</b> {{ $model->customer->name }}, <br>
+                                <b>Customer Number:</b> {{ $model->customer->type == 'default' ? 'N/A' : $model->customer->mobile }}, <br>
                                 <b>Outlet :</b> {{ $model->outlet->name }}, <br>
                             </div>
                             <!-- /.col -->
@@ -104,12 +105,16 @@
                                             <td class="text-right">{{ $model->subtotal }}</td>
                                         </tr>
                                         <tr>
+                                            <th style="width:50%">Delivery Charge:</th>
+                                            <td class="text-right">{{ $model->sale->delivery_charge ?? 0 }}</td>
+                                        </tr>
+                                        <tr>
                                             <th style="width:50%">Discount:</th>
-                                            <td class="text-right">{{ $item->discount }}</td>
+                                            <td class="text-right">{{ $model->discount }}</td>
                                         </tr>
                                         <tr>
                                             <th style="width:50%">Grand Total</th>
-                                            <td class="text-right">{{ $model->grand_total - $item->discount }}</td>
+                                            <td class="text-right">{{ $model->grand_total }}</td>
 
                                         </tr>
                                     </table>

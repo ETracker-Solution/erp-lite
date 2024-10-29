@@ -162,7 +162,7 @@ class PreOrderController extends Controller
     public function update(Request $request, string $id)
     {
         $preOrder = PreOrder::findOrFail(decrypt($id));
-        $preOrder->update($request->only(['size', 'flavour', 'cake_message', 'remarks']));
+        $preOrder->update($request->only(['size', 'flavour', 'cake_message', 'remark']));
         Toastr::success('Pre Order Updated Successfully!.', '', ["progressBar" => true]);
         return redirect()->back();
     }

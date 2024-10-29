@@ -59,37 +59,40 @@
                     <div class="panel panel-default invoice" id="invoice">
                         <div class="panel-body">
                             <div class="invoice-ribbon">
-                                @include('common.pdf_header')
+{{--                                @include('common.pdf_header')--}}
                             </div>
 
                             <hr>
                             <b>Delivery Date :</b> {{ $model->delivery_date }},<br>
-                            <b>Delivery Time :</b> {{ \Carbon\Carbon::parse($model->delivery_time)->format('h:i A') }}, <br>
+                            <b>Delivery Time :</b> {{ \Carbon\Carbon::parse($model->delivery_time)->format('h:i A') }},
+                            <br>
                             <b>Order No :</b> {{ $model->order_number }}, <br>
                             <b>Customer :</b> {{ $model->customer->name ?? '' }}, <br>
+                            <b>Customer Number
+                                :</b> {{ $model->customer->type == 'default' ? 'N/A' : $model->customer->mobile }}, <br>
                             <b>Outlet :</b> {{ $model->outlet->name ?? '' }}, <br>
                             <b>Size :</b> {{ $model->size }}, <br>
                             <b>Flavour :</b> {{ $model->flavour }}, <br>
                             <b>Cake Message :</b> {{ $model->cake_message }}, <br>
                             <b>Description :</b> {{ $model->remark }}. <br>
 
-                            <table border="1"cellspacing="0" width="100%" style="text-align: center; margin-top:20px;">
+                            <table border="1" cellspacing="0" width="100%" style="text-align: center; margin-top:20px;">
                                 <thead style="background:#cdced2;">
-                                    <tr style="background-color: #cdced2;">
-                                        <th>#</th>
-                                        <th>Group</th>
-                                        <th>Item</th>
-                                        <th>Rate</th>
-                                        <th>Qty</th>
-                                        <th>Discount</th>
-                                        <th class="text-right">Item Total</th>
-                                    </tr>
+                                <tr style="background-color: #cdced2;">
+                                    <th>#</th>
+                                    <th>Group</th>
+                                    <th>Item</th>
+                                    <th>Rate</th>
+                                    <th>Qty</th>
+                                    <th>Discount</th>
+                                    <th class="text-right">Item Total</th>
+                                </tr>
                                 </thead>
                                 @php
                                     $i=1;
                                 @endphp
                                 <tbody>
-                                    @foreach ($model->items as $item)
+                                @foreach ($model->items as $item)
                                     <tr>
                                         <td>{{ $loop->iteration }}</td>
                                         <td>{{ $item->coi->parent ? $item->coi->parent->name : '' }}</td>
@@ -99,24 +102,29 @@
                                         <td>{{ $item->discount }}</td>
                                         <td class="text-right">{{ $item->unit_price * $item->quantity }}</td>
                                     </tr>
-                                    @endforeach
+                                @endforeach
 
-                                    <tr>
-                                        <td colspan="5"></td>
-                                        <td class="text-left">Sub Total:</td>
-                                        <td class="text-right">{{$model->subtotal}} </td>
-                                    </tr>
-                                    <tr>
-                                        <td colspan="5"></td>
-                                        <td class="text-left">Discount:</td>
-                                        <td class="text-right">{{ $item->discount }}</td>
-                                    </tr>
-                                    <tr>
-                                        <td colspan="5"></td>
-                                        <td class="text-left">Grand Total:</td>
-                                        <td class="text-right">{{ $model->grand_total - $item->discount }}</td>
+                                <tr>
+                                    <td colspan="5"></td>
+                                    <td class="text-left">Sub Total:</td>
+                                    <td class="text-right">{{$model->subtotal}} </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="5"></td>
+                                    <td class="text-left">Delivery Charge:</td>
+                                    <td class="text-right">{{$model->sale->delivery_charge ?? 0}} </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="5"></td>
+                                    <td class="text-left">Discount:</td>
+                                    <td class="text-right">{{ $model->discount }}</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="5"></td>
+                                    <td class="text-left">Grand Total:</td>
+                                    <td class="text-right">{{ $model->grand_total }}</td>
 
-                                    </tr>
+                                </tr>
 
                                 </tbody>
                             </table>
