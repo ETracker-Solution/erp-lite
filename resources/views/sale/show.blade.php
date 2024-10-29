@@ -33,11 +33,11 @@ Sales Details
                                             <p><b>Outlet :</b> {{ $sale->outlet->name }}</p>
                                             <p><b>Customer Name :</b> {{ $sale->customer ? $sale->customer->name : 'N/A' }} </p>
                                             <p><b>Customer Number :</b> {{ $sale->customer ? $sale->customer->mobile ?? 'N/A' : 'N/A' }} </p>
-                                            @if(isset($sale->delivery_time))
-                                                <b>Delivery Time :</b> {{ \Carbon\Carbon::parse($sale->delivery_time)->format('h:i A') }}
-                                            @else
+{{--                                            @if(isset($sale->delivery_time))--}}
+{{--                                                <b>Delivery Time :</b> {{ \Carbon\Carbon::parse($sale->delivery_time)->format('h:i A') }}--}}
+{{--                                            @else--}}
 
-                                            @endif
+{{--                                            @endif--}}
 {{--                                            <p><b>Status :</b> {!! showStatus($sale->status) !!}</p>--}}
                                         </td>
                                     </tr>
@@ -99,10 +99,10 @@ Sales Details
                                             <td>{{ $loop->iteration }}</td>
                                             <td>{{ $sale->invoice_number }}</td>
                                             <td>{{ $item->coi->name ?? '' }}</td>
-                                            <td>{{ $item->unit_price ?? '' }}</td>
-                                            <td>{{ $item->quantity ?? '' }}</td>
-                                            <td>{{ $sale->discount }}</td>
-                                            <td class="text-right">{{ $sale->grand_total }}</td>
+                                            <td>{{ $item->unit_price ?? 0 }}</td>
+                                            <td>{{ $item->quantity ?? 0 }}</td>
+                                            <td>{{ $item->discount ?? 0 }}</td>
+                                            <td class="text-right">{{ ($item->unit_price * $item->quantity) - $item->discount }}</td>
                                         </tr>
                                     @endforeach
                                 </tbody>

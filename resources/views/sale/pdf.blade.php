@@ -72,11 +72,11 @@
                                             <p><b>Email :</b> {{ $sale->customer->email }} </p>
                                             <p><b>Phone :</b> {{ $sale->customer->mobile }} </p>
                                             <p><b>Address :</b> {{ $sale->customer->address }}</p>
-                                            @if(isset($sale->delivery_time))
-                                                <p><b>Delivery Time :</b> {{ \Carbon\Carbon::parse($sale->delivery_time)->format('h:i A') }}</p>
-                                            @else
+{{--                                            @if(isset($sale->delivery_time))--}}
+{{--                                                <p><b>Delivery Time :</b> {{ \Carbon\Carbon::parse($sale->delivery_time)->format('h:i A') }}</p>--}}
+{{--                                            @else--}}
 
-                                            @endif
+{{--                                            @endif--}}
 										</td>
 									</tr>
 								</tbody>
@@ -102,10 +102,10 @@
                                         <td>{{ $loop->iteration }}</td>
                                         <td>{{ $sale->invoice_number }}</td>
                                         <td>{{ $item->coi->name ?? '' }}</td>
-                                        <td>{{ $item->unit_price ?? '' }}</td>
-                                        <td>{{ $item->quantity ?? '' }}</td>
-                                        <td>{{ $sale->discount }}</td>
-                                        <td class="text-right">{{ $sale->grand_total }}</td>
+                                        <td>{{ $item->unit_price ?? 0 }}</td>
+                                        <td>{{ $item->quantity ?? 0 }}</td>
+                                        <td>{{ $item->discount ?? 0 }}</td>
+                                        <td class="text-right">{{ ($item->unit_price * $item->quantity) - $item->discount }}</td>
                                     </tr>
                                 @endforeach
 
@@ -127,7 +127,7 @@
                                 <tr>
                                     <td colspan="5"></td>
                                     <td class="text-left">Grand Total:</td>
-                                    <td class="text-right">{{ $sale->grand_total - ($sale->discount * $item->quantity)}}</td>
+                                    <td class="text-right">{{ $sale->grand_total }}</td>
 
                                 </tr>
 
