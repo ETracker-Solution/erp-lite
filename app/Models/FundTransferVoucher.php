@@ -16,4 +16,9 @@ class FundTransferVoucher extends Model
     public function debitAccount(){
         return $this->belongsTo(ChartOfAccount::class,'debit_account_id');
     }
+
+    public function createdBy()
+    {
+        return $this->belongsTo(User::class,'created_by');
+    }
 }

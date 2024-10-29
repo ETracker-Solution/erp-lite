@@ -100,8 +100,9 @@ Route::middleware('auth')->group(function () {
     Route::get('journal-voucher-pdf/{id}', [App\Http\Controllers\JournalVoucherController::class, 'Pdf'])->name('journal-voucher.pdf');
     Route::resource('journal-vouchers', JournalVoucherController::class);
     Route::get('fund-transfer-voucher-pdf/{id}', [App\Http\Controllers\FundTransferVoucherController::class, 'Pdf'])->name('fund-transfer-voucher.pdf');
-    Route::resource('fund-transfer-vouchers', FundTransferVoucherController::class);
     Route::get('fund-transfer-voucher-receive/{id}', [App\Http\Controllers\FundTransferVoucherController::class, 'receive'])->name('fund-transfer-vouchers.receive');
+    Route::post('fund-transfer-voucher-receive-report', [App\Http\Controllers\FundTransferVoucherController::class, 'receiveReport'])->name('fund-transfer-vouchers.receive.report');
+    Route::resource('fund-transfer-vouchers', FundTransferVoucherController::class);
     Route::resource('departments', DepartmentController::class);
     Route::resource('designations', DesignationController::class);
     Route::resource('factories', FactoryController::class);
