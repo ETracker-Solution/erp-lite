@@ -186,7 +186,7 @@ class FactoryDashboardController extends Controller
             ->groupBy('from_store_id')
             ->with('fromStore')
             ->get();
-        $todayRequisitions = Requisition::where('to_factory_id', $factory_id)->whereDate('created_at', Carbon::today())->get();
+        $todayRequisitions = Requisition::where('to_factory_id', $factory_id)->whereDate('created_at', Carbon::now()->format('Y-m-d'))->get();
 
 
         //5th Section
