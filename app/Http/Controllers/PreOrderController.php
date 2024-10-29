@@ -162,7 +162,7 @@ class PreOrderController extends Controller
     public function update(Request $request, string $id)
     {
         $preOrder = PreOrder::findOrFail(decrypt($id));
-        $preOrder->update($request->only(['size','flavour','cake_message','remarks']));
+        $preOrder->update($request->only(['size', 'flavour', 'cake_message', 'remarks']));
         Toastr::success('Pre Order Updated Successfully!.', '', ["progressBar" => true]);
         return redirect()->back();
     }
@@ -225,10 +225,23 @@ class PreOrderController extends Controller
         DB::beginTransaction();
         try {
             $req = PreOrder::findOrFail($id);
+            $products = $req->items;
+            $productIds = $req->items()->pluck('coi_id')->toArray();
             $updatableData = [
                 'status' => $request->status,
             ];
             if ($request->status == 'delivered') {
+                $store = Store::find($request->factory_store);
+
+                $storeStocks = fetchStoreProductBalances($productIds, [$request->factory_store]);
+                foreach ($products as $product) {
+                    $current_stock = count($storeStocks) > 0 ? $storeStocks[$store->id][$product->coi_id] : 0;
+                    if ($current_stock < $product->quantity) {
+                        DB::rollBack();
+                        Toastr::error($product->coi->name . ' is not available');
+                        return back();
+                    }
+                }
                 $updatableData = [
                     'status' => $request->status,
                     'factory_delivery_store_id' => $request->factory_store
@@ -239,9 +252,8 @@ class PreOrderController extends Controller
                     'status' => $request->status,
                     'outlet_receive_store_id' => $request->outlet_store
                 ];
-                $products = $req->items;
 
-                foreach ($products as $product){
+                foreach ($products as $product) {
                     InventoryTransaction::query()->create([
                         'store_id' => $req->factory_delivery_store_id,
                         'doc_type' => 'PO',
@@ -270,9 +282,9 @@ class PreOrderController extends Controller
 
 
             DB::commit();
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             DB::rollBack();
-            return $exception->getMessage();
+            return $exception;
         }
         Toastr::success('Pre Order Status Updated Successfully!.', '', ["progressBar" => true]);
         return redirect()->route('pre-orders.index');
