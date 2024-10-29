@@ -244,6 +244,7 @@ class RequisitionController extends Controller
             ->where('rootAccountType', 'FG')
             ->whereIn('id', $product_ids)
             ->orderBy('parent_id')
+            ->orderBy('id')
             ->get();
 
 // Fetch all requisitions for the outlets in one query
@@ -279,6 +280,10 @@ class RequisitionController extends Controller
             $values[$key]['group_name'] = $product->parent->name;
             $values[$key]['product_name'] = $product->name;
 
+            $delivered_qty += $product->requisitionDeliveryItems()->whereHas('requisitionDelivery', function ($q){
+                return $q->where('status','completed');
+            })->sum('quantity');
+
             foreach ($outlets as $outlet) {
                 $outlet_req_qty = 0;
                 $outlet_req_delivery_qty = 0;
@@ -288,7 +293,7 @@ class RequisitionController extends Controller
                         $req_qty += $req->items->where('coi_id', $product->id)->sum('quantity');
                         $outlet_req_qty += $req->items->where('coi_id', $product->id)->sum('quantity');
                         foreach ($req->deliveries as $delivery) {
-                            $delivered_qty += $delivery->items->where('coi_id', $product->id)->sum('quantity');
+//                            $delivered_qty += $delivery->items->where('coi_id', $product->id)->sum('quantity');
                             $outlet_req_delivery_qty += $delivery->items->where('coi_id', $product->id)->sum('quantity');
                         }
                     }

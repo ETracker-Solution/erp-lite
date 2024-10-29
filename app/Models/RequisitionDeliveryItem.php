@@ -16,6 +16,11 @@ class RequisitionDeliveryItem extends Model
         return $this->belongsTo(Requisition::class);
     }
 
+    public function requisitionDelivery(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(RequisitionDelivery::class);
+    }
+
     public function coi(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(ChartOfInventory::class, 'coi_id');

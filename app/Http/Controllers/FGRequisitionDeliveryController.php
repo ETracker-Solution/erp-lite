@@ -116,6 +116,22 @@ class FGRequisitionDeliveryController extends Controller
             $totalQty = 0;
             foreach ($items as $key => $item) {
                 $prev = $fgRequisitionDelivery->items()->where('id', $key)->first();
+
+                $currentStock = InventoryTransaction::where('coi_id', $prev->coi->id)
+                    ->where('store_id', $fgRequisitionDelivery->from_store_id)
+                    ->select('coi_id', DB::raw('SUM(quantity * type) AS total_sum'))
+                    ->groupBy('coi_id')
+                    ->pluck('total_sum')
+                    ->toArray();
+
+                $deliveredQty = $prev->coi->requisitionDeliveryItems()->where('requisition_delivery_id','!=', $fgRequisitionDelivery->id)->whereHas('requisitionDelivery', function ($q){
+                    return $q->where('status','completed');
+                })->sum('quantity');
+                $currentStock = $currentStock[0] - $deliveredQty;
+                if (max($currentStock,0) < $item){
+                    Toastr::warning('No Available Stock for '.$prev->coi->name, '', ["progressBar" => true]);
+                    return back();
+                }
                 $price = $prev->rate / $prev->quantity;
                 $prev->update([
                     'quantity' => $item,
@@ -129,6 +145,7 @@ class FGRequisitionDeliveryController extends Controller
             return redirect()->route('fg-requisition-deliveries.index');
         } catch (\Exception $e) {
             DB::rollBack();
+            return $e;
             Log::emergency("File:" . $e->getFile() . "Line:" . $e->getLine() . "Message:" . $e->getMessage());
             Toastr::info('Something went wrong!.', '', ["progressbar" => true]);
             return back();
