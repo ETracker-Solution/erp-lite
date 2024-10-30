@@ -25,6 +25,10 @@ class FGDeliveryReceiveController extends Controller
     {
         if (\request()->ajax()) {
             $data = DeliveryReceive::with('fromStore', 'toStore', 'requisitionDelivery')->where('type', 'FG')->latest();
+            if (auth()->user()->employee && auth()->user()->employee->outlet_id){
+                $storeIds = auth()->user()->employee->outlet->stores()->pluck('id')->toArray();
+                $data = $data->whereIn('to_store_id',$storeIds);
+            }
             return DataTables::of($data)
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
