@@ -89,7 +89,7 @@
                                                             class="form-control bSelect" v-model="transaction_type"
                                                             required>
                                                         <option value="">Select one</option>
-                                                        @if(auth()->user()->is_super)
+                                                        @if(auth()->user()->is_super || (auth()->user()->employee && auth()->user()->employee->user_of == 'ho'))
                                                         <option value="increase">Increase</option>
                                                         @endif
                                                         <option value="decrease">Wastage</option>
