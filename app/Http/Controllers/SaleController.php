@@ -416,6 +416,7 @@ class SaleController extends Controller
                 $preOrder->attachments()->create([
                     'image' => $filename
                 ]);
+                $filename = '';
             }
         }
 
