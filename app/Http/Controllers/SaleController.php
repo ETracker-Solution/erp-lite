@@ -163,10 +163,11 @@ class SaleController extends Controller
 
             foreach ($products as $row) {
                 if ($row['is_readonly'] == 'false') {
+                    $find = ChartOfInventory::find($row['item_id']);
                     $newProduct = ChartOfInventory::create([
                         'name' => $row['item_name'] . '-' . date('ymdhis'),
                         'type' => 'item',
-                        'parent_id' => $row->parent_id,
+                        'parent_id' => $find->parent_id,
                         'rootAccountType' => 'FG',
                         'status' => 'active',
                     ]);
