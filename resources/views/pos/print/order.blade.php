@@ -179,8 +179,8 @@
         $earned_point = 0;
         $current_point = 0;
         if (isset($sale->membershipPointHistory[0])){
-        $earned_point = $sale->membershipPointHistory[0] && $sale->membershipPointHistory[0]->member_type_id != 1 ? $sale->membershipPointHistory()->where('point','>', 0)->first()->point : 0;
-        $current_point = $sale->customer && $sale->customer->membership  && $sale->customer->membership->member_type_id == $sale->membershipPointHistory[0]->member_type_id && $sale->customer->id != 1 ? $sale->customer->currentReedemablePoint() : 0;
+        $earned_point = $sale->customer->type == 'regular' && $sale->membershipPointHistory[0] && $sale->membershipPointHistory[0]->member_type_id != 1 ? $sale->membershipPointHistory()->where('point','>', 0)->first()->point : 0;
+        $current_point = $sale->customer->type == 'regular' && $sale->customer && $sale->customer->membership  && $sale->customer->membership->member_type_id == $sale->membershipPointHistory[0]->member_type_id && $sale->customer->id != 1 ? $sale->customer->currentReedemablePoint() : 0;
 }
         $previous_point = $sale->customer->type == 'regular' && $sale->customer->currentReedemablePoint() > 0 ? $sale->customer->currentReedemablePoint() - $earned_point : 0;
 
