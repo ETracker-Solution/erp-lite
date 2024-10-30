@@ -237,45 +237,45 @@
                 </div>
             </div>
         </div>
-        <div class="row match-height">
-            <div class="col-xl-12 col-12">
-                <div class="card">
-                    <div class="card-header bg-info">
-                        <h3 class="card-title">Outlet Requisition</h3>
-                        <div class="card-tools">
-                            Total {{$monthlyRequisitions->count()}} Requisition in this Month
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table">
-                                <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Outlet</th>
-                                    <th>Status</th>
-                                    <th>Date</th>
-                                    <th>Action</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                @foreach($monthlyRequisitions as $row)
-                                    <tr>
-                                        <td>{{$loop->iteration}}</td>
-                                        <td> {{$row->fromStore->name ?? ''}}</td>
-                                        <td>{!! showStatus($row->status) !!}</td>
-                                        <td>{{$row->created_at->format('d-m-Y')}}</td>
-                                        <td><a href="{{ route('requisitions.show', encrypt($row->id)) }}" class="btn btn-primary btn-sm"><i class="fa fa-eye"></i></a></td>
-                                    </tr>
-                                @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+{{--        <div class="row match-height">--}}
+{{--            <div class="col-xl-12 col-12">--}}
+{{--                <div class="card">--}}
+{{--                    <div class="card-header bg-info">--}}
+{{--                        <h3 class="card-title">Outlet Requisition</h3>--}}
+{{--                        <div class="card-tools">--}}
+{{--                            Total {{$monthlyRequisitions->count()}} Requisition in this Month--}}
+{{--                        </div>--}}
+{{--                    </div>--}}
+{{--                    <div class="card-body">--}}
+{{--                        <div class="table-responsive">--}}
+{{--                            <table class="table">--}}
+{{--                                <thead>--}}
+{{--                                <tr>--}}
+{{--                                    <th>ID</th>--}}
+{{--                                    <th>Outlet</th>--}}
+{{--                                    <th>Status</th>--}}
+{{--                                    <th>Date</th>--}}
+{{--                                    <th>Action</th>--}}
+{{--                                </tr>--}}
+{{--                                </thead>--}}
+{{--                                <tbody>--}}
+{{--                                @foreach($monthlyRequisitions as $row)--}}
+{{--                                    <tr>--}}
+{{--                                        <td>{{$loop->iteration}}</td>--}}
+{{--                                        <td> {{$row->fromStore->name ?? ''}}</td>--}}
+{{--                                        <td>{!! showStatus($row->status) !!}</td>--}}
+{{--                                        <td>{{$row->created_at->format('d-m-Y')}}</td>--}}
+{{--                                        <td><a href="{{ route('requisitions.show', encrypt($row->id)) }}" class="btn btn-primary btn-sm"><i class="fa fa-eye"></i></a></td>--}}
+{{--                                    </tr>--}}
+{{--                                @endforeach--}}
+{{--                                </tbody>--}}
+{{--                            </table>--}}
+{{--                        </div>--}}
+{{--                    </div>--}}
 
-                </div>
-            </div>
-        </div>
+{{--                </div>--}}
+{{--            </div>--}}
+{{--        </div>--}}
     </section>
 @endsection
 <?php
