@@ -411,8 +411,7 @@ class SaleController extends Controller
         }
         if (isset($images)) {
             foreach ($images as $image) {
-                $filename = '';
-                $filename = date('Ymdmhs') . '.' . $image->getClientOriginalExtension();
+                $filename = date('Ymdmhs').uniqid() . '.' . $image->getClientOriginalExtension();
                 $image->move(public_path('/upload'), $filename);
                 $preOrder->attachments()->create([
                     'image' => $filename
