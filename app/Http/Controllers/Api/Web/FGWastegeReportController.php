@@ -31,33 +31,20 @@ class FGWastegeReportController extends Controller
 
         $report_type = \request()->report_type;
         $store_id = \request()->store_id;
+        $report_header = 'FG Wastage Report | '.$report_type;
 
-
-
-
-
-        $statement = "SELECT
-     ia.created_at as Date,
-    s.name as StoreName,
-    coi.name as ItemName,
-    iat.rate as Rate,
-    SUM(iat.quantity) AS Qty,
-    SUM(iat.quantity * iat.rate) AS Value
-FROM
-    inventory_adjustments ia
-JOIN
-    stores s ON ia.store_id = s.id
-
-JOIN
-    inventory_adjustment_items iat ON ia.id = iat.inventory_adjustment_id
- JOIN
-    chart_of_inventories coi ON coi.id = iat.coi_id
-             WHERE ia.store_id='$store_id'AND ia.transaction_type='decrease' AND ia.date >= '$startDate' AND ia.date <= '$endDate'
-GROUP BY
-    ia.store_id, ia.created_at, iat.coi_id
-ORDER BY
-    ia.store_id, ia.created_at";
-
+        $statement = '';
+        if ($report_type == 'Store Wise Summary'){
+            $store = Store::find($store_id);
+            $page_title = 'Store Name :: '.$store->name;
+            $statement = $this->storeWiseReportStatement($store_id,$startDate, $endDate);
+        }
+        if ($report_type == 'Product Wise'){
+            $statement = $this->productWiseReportStatement($startDate, $endDate);
+        }
+        if ($report_type == 'All Store'){
+            $statement = $this->allStoreReportStatement($startDate, $endDate);
+        }
         $getPost = DB::select($statement);
 
         if (!count($getPost) > 0) {
@@ -73,5 +60,106 @@ ORDER BY
         ];
         $pdf = Pdf::loadView('common.report_main', $data);
         $pdf->stream();
+    }
+
+    private function storeWiseReportStatement($store_id,$startDate,$endDate){
+       return  "SELECT
+     ia.created_at as Date,
+    coi.name as ItemName,
+    iat.rate as Rate,
+    SUM(iat.quantity) AS Qty,
+    SUM(iat.quantity * iat.rate) AS Value
+FROM
+    inventory_adjustments ia
+JOIN
+    stores s ON ia.store_id = s.id
+JOIN
+    inventory_adjustment_items iat ON ia.id = iat.inventory_adjustment_id
+ JOIN
+    chart_of_inventories coi ON coi.id = iat.coi_id
+             WHERE ia.store_id='$store_id'AND ia.transaction_type='decrease' AND ia.date >= '$startDate' AND ia.date <= '$endDate'
+GROUP BY
+    ia.store_id, ia.created_at, iat.coi_id
+UNION ALL
+SELECT
+     'Total' as Date,
+    '' as ItemName,
+    '' as Rate,
+    '' AS Qty,
+    SUM(iat.quantity * iat.rate) AS Value
+FROM
+    inventory_adjustments ia
+JOIN
+    stores s ON ia.store_id = s.id
+JOIN
+    inventory_adjustment_items iat ON ia.id = iat.inventory_adjustment_id
+ JOIN
+    chart_of_inventories coi ON coi.id = iat.coi_id
+             WHERE ia.store_id='$store_id'AND ia.transaction_type='decrease' AND ia.date >= '$startDate' AND ia.date <= '$endDate'
+";
+    }
+
+    public function productWiseReportStatement($startDate, $endDate)
+    {
+        return "SELECT
+    coi.name as ItemName,
+    iat.rate as Rate,
+    SUM(iat.quantity) AS Qty,
+    SUM(iat.quantity * iat.rate) AS Value
+FROM
+    inventory_adjustments ia
+JOIN
+    inventory_adjustment_items iat ON ia.id = iat.inventory_adjustment_id
+ JOIN
+    chart_of_inventories coi ON coi.id = iat.coi_id
+WHERE ia.transaction_type='decrease' AND ia.date >= '$startDate' AND ia.date <= '$endDate'
+GROUP BY
+    iat.coi_id
+UNION ALL
+SELECT
+    'Total' AS ItemName,
+    '' AS Rate,
+    '' AS TotalQty,
+    SUM(iat.quantity * iat.rate) AS TotalValue
+FROM
+    inventory_adjustments ia
+JOIN
+    inventory_adjustment_items iat ON ia.id = iat.inventory_adjustment_id
+WHERE
+    ia.transaction_type = 'decrease'
+    AND ia.date >= '$startDate'
+    AND ia.date <= '$endDate';";
+    }
+
+    public function allStoreReportStatement($startDate, $endDate)
+    {
+        return "SELECT
+    s.name as StoreName,
+    SUM(iat.quantity * iat.rate) AS Value
+FROM
+    inventory_adjustments ia
+JOIN
+stores s ON ia.store_id = s.id
+JOIN
+    inventory_adjustment_items iat ON ia.id = iat.inventory_adjustment_id
+ JOIN
+    chart_of_inventories coi ON coi.id = iat.coi_id
+WHERE ia.transaction_type='decrease' AND ia.date >= '$startDate' AND ia.date <= '$endDate'
+GROUP BY
+    ia.store_id
+UNION ALL
+SELECT
+    'Total' AS StoreName,
+    SUM(iat.quantity * iat.rate) AS TotalValue
+FROM
+    inventory_adjustments ia
+    JOIN
+stores s ON ia.store_id = s.id
+JOIN
+    inventory_adjustment_items iat ON ia.id = iat.inventory_adjustment_id
+WHERE
+    ia.transaction_type = 'decrease'
+    AND ia.date >= '$startDate'
+    AND ia.date <= '$endDate';";
     }
 }

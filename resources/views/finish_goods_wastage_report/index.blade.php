@@ -106,8 +106,16 @@
                                 <div class="col-12">
                                     <div class="text-center">
                                         <button class="btn btn-sm btn-dark w-50 mb-2"
-                                                @click="showReport('all_summary')">
-                                            Show All Summary
+                                                @click="showReport('Store Wise Summary')">
+                                            Show Store Wise Report
+                                        </button>
+                                        <button class="btn btn-sm btn-dark w-50 mb-2"
+                                                @click="showReport('Product Wise')">
+                                            Show Product Wise Report
+                                        </button>
+                                        <button class="btn btn-sm btn-dark w-50 mb-2"
+                                                @click="showReport('All Store')">
+                                            Show All Store Report
                                         </button>
                                         @if(\auth()->user() && \auth()->user()->employee && !\auth()->user()->employee->outlet_id)
 {{--                                            <button class="btn btn-sm btn-dark w-50 mb-2"--}}
