@@ -166,7 +166,7 @@ class SaleController extends Controller
                     $newProduct = ChartOfInventory::create([
                         'name' => $row['item_name'] . '-' . date('ymdhis'),
                         'type' => 'item',
-                        'parent_id' => 174,
+                        'parent_id' => $row->parent_id,
                         'rootAccountType' => 'FG',
                         'status' => 'active',
                     ]);
