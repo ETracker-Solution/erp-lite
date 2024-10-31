@@ -163,6 +163,10 @@
                                                 @click="showReport('All Outlet Discount')">
                                             Show All Outlet Discount
                                         </button>
+                                        <button class="btn btn-sm btn-dark w-50 mb-2"
+                                                @click="showReport('All Outlet Sale Amount Report')">
+                                            Show All Outlet Sale Amount Report
+                                        </button>
                                         {{-- End Due and Discount Report --}}
                                         @endif
                                     </div>
