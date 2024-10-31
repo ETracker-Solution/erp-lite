@@ -363,7 +363,6 @@
                             } else {
                                 if (item_id) {
                                     axios.get(this.config.get_item_info_url + '/' + item_id).then(function (response) {
-
                                         let product_details = response.data;
                                         vm.selected_items.push({
                                             coi_id: product_details.coi_id,
@@ -390,7 +389,6 @@
 
                                     });
                                 } else {
-
                                     vm.pageLoading = true;
                                     axios.get(this.config.get_items_info_by_group_id_url + '/' + vm.group_id).then(function (response) {
                                        // vm.selected_items=[];
@@ -399,9 +397,10 @@
 
                                         for (let key in items) {
                                             let exists = vm.selected_items.some(function (field) {
-                                                return field.id == items[key].id
+                                                return field.coi_id == items[key].id
                                             });
                                             if (exists){
+                                                vm.pageLoading = false;
                                                 toastr.error('Item Already Selected Fom this group', {
                                                     closeButton: true,
                                                     progressBar: true,
@@ -416,7 +415,7 @@
                                         vm.pageLoading = false;
 
                                     }).catch(function (error) {
-
+                                        vm.pageLoading = false;
                                         toastr.error('Something went to wrong', {
                                             closeButton: true,
                                             progressBar: true,
