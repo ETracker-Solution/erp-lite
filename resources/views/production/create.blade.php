@@ -456,6 +456,17 @@
                                         vm.item_id = '';
                                         let items = response.data.products;
                                         for (let key in items) {
+                                            let exists = vm.selected_items.some(function (field) {
+                                                return field.id == items[key].id
+                                            });
+                                            if (exists){
+                                                vm.pageLoading = false;
+                                                toastr.error('Item Already Selected Fom this group', {
+                                                    closeButton: true,
+                                                    progressBar: true,
+                                                });
+                                                return
+                                            }
                                             vm.selected_items.push(items[key]);
                                         }
                                         console.log(vm.selected_items);
