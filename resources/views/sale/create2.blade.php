@@ -511,7 +511,7 @@
                                 <input type="hidden" name="exchangeAmount" v-model="exchangeAmount">
                             </div>
                             <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 text-right"
-                                 v-if="items.length > 0 && ((!customerNumber && total_payable_bill <= total_paying) || customerNumber)">
+                                 v-if="items.length > 0 && ((sales_type == 'sales' && !customerNumber && total_payable_bill <= total_paying) || (sales_type == 'pre_order' && customerNumber) || customerNumber)">
                                 <button class="float-right btn btn-primary" type="submit"><i
                                         class="fa fa-fw fa-lg fa-save"></i>Save
                                 </button>
@@ -750,7 +750,7 @@
                     },
                     total_payable_bill: function () {
                         var vm = this
-                        return (this.total_bill - vm.couponCodeDiscountAmount - this.allDiscountAmount) + + this.delivery_charge
+                        return (this.total_bill - vm.couponCodeDiscountAmount - this.allDiscountAmount) + this.delivery_charge
                     },
                     total_due: function () {
                         return this.total_payable_bill
