@@ -456,7 +456,7 @@ WHERE at2.doc_type ='POS' AND at2.`type` ='debit' AND coa.id in (oa.coa_id)
 AND s.date >= '$from_date'
 AND s.date <= '$to_date'
 GROUP By s.outlet_id, coa.id
-ORDER BY o.name
+ORDER BY o.id
 
         ";
     }
