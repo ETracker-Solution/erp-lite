@@ -242,7 +242,7 @@ class ApiController extends Controller
     public function fetchRequisitionById($id, $store_id = null)
     {
         // Eager load requisition items and deliveries in one query
-        $requisition = Requisition::with(['items.coi.unit', 'items.coi.parent', 'deliveries.items','items.coi.requisitionDeliveryItems.requisitionDelivery'])
+        $requisition = Requisition::with(['items.coi.unit', 'items.coi.parent', 'deliveries.items','items.coi.requisitionDeliveryItems.requisitionDelivery','items.coi.preOrderItems.preOrder'])
             ->where('id', $id)
             ->firstOrFail();
 
@@ -259,9 +259,13 @@ class ApiController extends Controller
 
         // Pre-fetch delivery quantities for all requisition items
         $deliveryQuantities = [];
+        $preOrderDeliveryQuantities = [];
         foreach ($requisition->items as $reqItem) {
             $deliveryQuantities[$reqItem->coi_id] = $reqItem->coi->requisitionDeliveryItems()->whereHas('requisitionDelivery', function ($q){
                 return $q->where('status','completed');
+            })->sum('quantity');
+            $preOrderDeliveryQuantities[$reqItem->coi_id] = $reqItem->coi->preOrderItems()->whereHas('preOrder', function ($q){
+                return $q->where('status','delivered');
             })->sum('quantity');
         }
         // Pre-fetch average rates for all items at once (for both RM and FG)

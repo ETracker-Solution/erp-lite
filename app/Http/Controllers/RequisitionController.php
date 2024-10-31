@@ -277,11 +277,16 @@ class RequisitionController extends Controller
             $current_stock = 0;
             $req_qty = 0;
             $delivered_qty = 0;
+            $preOrderDeliveredQty = 0;
             $values[$key]['group_name'] = $product->parent->name;
             $values[$key]['product_name'] = $product->name;
 
             $delivered_qty += $product->requisitionDeliveryItems()->whereHas('requisitionDelivery', function ($q){
                 return $q->where('status','completed');
+            })->sum('quantity');
+
+            $preOrderDeliveredQty += $product->preOrderItems()->whereHas('preOrder', function ($q){
+                return $q->where('status','delivered');
             })->sum('quantity');
 
             foreach ($outlets as $outlet) {
@@ -311,7 +316,7 @@ class RequisitionController extends Controller
             $diff = $req_qty - $current_stock;
 
             $values[$key]['total'] = $totalQty;
-            $values[$key]['current_stock'][] = $current_stock - $delivered_qty;
+            $values[$key]['current_stock'][] = max(($current_stock - $delivered_qty - $preOrderDeliveredQty),0);
             $values[$key]['productionable'][] = max($diff, 0);
 
             if (($req_qty - $delivered_qty) == 0) {

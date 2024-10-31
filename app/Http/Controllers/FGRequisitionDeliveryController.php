@@ -128,7 +128,12 @@ class FGRequisitionDeliveryController extends Controller
                 $deliveredQty = $prev->coi->requisitionDeliveryItems()->where('requisition_delivery_id','!=', $fgRequisitionDelivery->id)->whereHas('requisitionDelivery', function ($q){
                     return $q->where('status','completed');
                 })->sum('quantity');
-                $currentStock = $currentStock[0] - $deliveredQty;
+
+                $preOrderDeliveredQty = $prev->coi->preOrderItems()->whereHas('preOrder', function ($q){
+                    return $q->where('status','delivered');
+                })->sum('quantity');
+
+                $currentStock = $currentStock[0] - $deliveredQty - $preOrderDeliveredQty;
                 if (max($currentStock,0) < $item){
                     Toastr::warning('No Available Stock for '.$prev->coi->name, '', ["progressBar" => true]);
                     return back();

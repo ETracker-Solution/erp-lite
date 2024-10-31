@@ -34,4 +34,9 @@ class ChartOfInventory extends Model
     {
         return $this->hasMany(RequisitionDeliveryItem::class, 'coi_id');
     }
+
+    public function preOrderItems()
+    {
+        return $this->hasMany(PreOrderItem::class, 'coi_id');
+    }
 }
