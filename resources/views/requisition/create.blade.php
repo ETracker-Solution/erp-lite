@@ -352,7 +352,7 @@
                         } else {
                             let item_id = vm.item_id;
                             let exists = vm.selected_items.some(function (field) {
-                                return field.id == item_id
+                                return field.coi_id == item_id
                             });
 
                             if (exists) {
@@ -399,7 +399,7 @@
 
                                         for (let key in items) {
                                             let exists = vm.selected_items.some(function (field) {
-                                                return field.id == items[key].id
+                                                return field.coi_id == items[key].id
                                             });
                                             if (exists){
                                                 toastr.error('Item Already Selected Fom this group', {
