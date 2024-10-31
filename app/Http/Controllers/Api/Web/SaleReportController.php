@@ -107,6 +107,21 @@ class SaleReportController extends Controller
             ];
             $pdf = Pdf::loadView('sale.report.all_discount', $data);
             $pdf->stream();
+        } elseif ($report_type == 'Single Customer Discount') {
+            $customer = Customer::find(\request()->customer_id);
+            $page_title = 'Customer Name :: ' . $customer->name;
+            $data = [
+                'dateRange' => $dateRange,
+                'data' => Sale::with('customer', 'outlet', 'items')->where(function ($q) {
+                    return $q->where('discount', '>', 0)->orWhereHas('items', function ($q) {
+                        return $q->where('discount', '>', 0);
+                    });
+                })->where('customer_id', $customer->id)->where('date', '>=', $from_date)->where('date', '<=', $to_date)->get(),
+                'page_title' => $page_title,
+                'report_header' => $report_header
+            ];
+            $pdf = Pdf::loadView('sale.report.all_discount', $data);
+            $pdf->stream();
         } elseif ($report_type == 'Product Wise Discount') {
             $product = ChartOfInventory::find(\request()->item_id);
             $page_title = 'Product Name :: ' . $product->name;
