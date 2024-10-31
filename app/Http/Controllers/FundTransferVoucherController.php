@@ -72,7 +72,7 @@ class FundTransferVoucherController extends Controller
             //     foreach ($cons as $con) {
             //         $chartOfAccounts[] = $con->coa;
             //     }
-            $chartOfAccounts = OutletAccount::with('coa')->where('outlet_id', \auth()->user()->employee->outlet_id)->get();
+            $chartOfAccounts = OutletAccount::with('coa')->where('default_type', '!=','petty_cash')->where('outlet_id', \auth()->user()->employee->outlet_id)->get();
             $toChartOfAccounts = ChartOfAccount::where(['default_type' => 'office_account', 'is_bank_cash' => 'yes', 'type' => 'ledger', 'status' => 'active'])->get();
 
         } else {
