@@ -49,10 +49,20 @@ class ApiController extends Controller
                 $req_qty += $req->items()->where('coi_id', $coi->id)->sum('quantity');
             }
 
+            $delivered_qty = $coi->requisitionDeliveryItems()->whereHas('requisitionDelivery', function ($q){
+                return $q->where('status','completed');
+            })->sum('quantity');
+
+            $preOrderDeliveredQty = $coi->preOrderItems()->whereHas('preOrder', function ($q){
+                return $q->where('status','delivered');
+            })->sum('quantity');
+
             foreach (auth()->user()->employee->factory->stores as $store) {
                 $current_stock += availableInventoryBalance($coi->id, $store->id);
             }
-            $diff = $req_qty - $current_stock;
+
+            $current_stock = $current_stock- $delivered_qty - $preOrderDeliveredQty;
+            $diff = $req_qty - max($current_stock,0);
 
             $coi->quantity = max($diff, 0);
         }
@@ -179,7 +189,17 @@ class ApiController extends Controller
                 foreach (auth()->user()->employee->factory->stores as $store) {
                     $current_stock += availableInventoryBalance($product->id, $store->id);
                 }
-                $diff = $req_qty - $current_stock;
+
+                $delivered_qty = $product->requisitionDeliveryItems()->whereHas('requisitionDelivery', function ($q){
+                    return $q->where('status','completed');
+                })->sum('quantity');
+
+                $preOrderDeliveredQty = $product->preOrderItems()->whereHas('preOrder', function ($q){
+                    return $q->where('status','delivered');
+                })->sum('quantity');
+
+                $current_stock = $current_stock- $delivered_qty - $preOrderDeliveredQty;
+                $diff = $req_qty - max($current_stock,0);
 
                 $product['quantity'] = $diff ? max($diff, 0) : 0;
             } else {
