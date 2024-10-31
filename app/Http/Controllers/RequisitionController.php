@@ -320,7 +320,7 @@ class RequisitionController extends Controller
             $values[$key]['current_stock'][] = $current_stock;
             $values[$key]['productionable'][] = max($diff, 0);
 
-            if (($req_qty - $delivered_qty - $preOrderDeliveredQty) == 0) {
+            if (($req_qty - $delivered_qty) == 0) {
                 unset($values[$key]);
             }
         }
