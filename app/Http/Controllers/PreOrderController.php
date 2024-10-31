@@ -236,6 +236,16 @@ class PreOrderController extends Controller
                 $storeStocks = fetchStoreProductBalances($productIds, [$request->factory_store]);
                 foreach ($products as $product) {
                     $current_stock = count($storeStocks) > 0 ? $storeStocks[$store->id][$product->coi_id] : 0;
+
+                    $deliveredQty = $product->coi->requisitionDeliveryItems()->whereHas('requisitionDelivery', function ($q) {
+                        return $q->where('status', 'completed');
+                    })->sum('quantity');
+
+                    $preOrderDeliveredQty = $product->whereHas('preOrder', function ($q) {
+                        return $q->where('status', 'delivered');
+                    })->sum('quantity');
+
+                    $current_stock = max(($current_stock - $deliveredQty - $preOrderDeliveredQty), 0);
                     if ($current_stock < $product->quantity) {
                         DB::rollBack();
                         Toastr::error($product->coi->name . ' is not available');
