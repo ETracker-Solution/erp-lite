@@ -275,10 +275,11 @@ class ApiController extends Controller
         foreach ($requisition->items as $row) {
             if ($row->quantity > 0) {
                 $delivered_qty = $deliveryQuantities[$row->coi_id] ?? 0;
+                $pre_order_delivered_qty = $preOrderDeliveryQuantities[$row->coi_id] ?? 0;
                 $balance_quantity = $inventoryBalances[$row->coi_id] ?? 0;
 
                 $requisition_quantity = $row->quantity;
-                $balance_quantity = $balance_quantity - $delivered_qty;
+                $balance_quantity = $balance_quantity - $delivered_qty -  $pre_order_delivered_qty;
 
                 // Determine final quantity to show based on balances
                 if ($balance_quantity <= 0) {
