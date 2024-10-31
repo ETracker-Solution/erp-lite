@@ -81,7 +81,7 @@ function fetchStoreProductBalances(array $productIds, array $storeIds)
     // Organize the results into a [store_id][product_id] => total_sum array
     $storeProductBalances = [];
     foreach ($inventoryTransactions as $transaction) {
-        $storeProductBalances[$transaction->store_id][$transaction->coi_id] = $transaction->total_sum;
+        $storeProductBalances[$transaction->store_id][$transaction->coi_id] = max($transaction->total_sum,0);
     }
 
     return $storeProductBalances;
