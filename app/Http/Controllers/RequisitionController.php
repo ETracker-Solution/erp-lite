@@ -313,13 +313,14 @@ class RequisitionController extends Controller
                 $current_stock += $storeStocks[$store->id][$product->id] ?? 0;
             }
 
+            $current_stock = max(($current_stock - $delivered_qty - $preOrderDeliveredQty),0);
             $diff = $req_qty - $current_stock;
 
             $values[$key]['total'] = $totalQty;
-            $values[$key]['current_stock'][] = max(($current_stock - $delivered_qty - $preOrderDeliveredQty),0);
+            $values[$key]['current_stock'][] = $current_stock;
             $values[$key]['productionable'][] = max($diff, 0);
 
-            if (($req_qty - $delivered_qty) == 0) {
+            if (($req_qty - $delivered_qty - $preOrderDeliveredQty) == 0) {
                 unset($values[$key]);
             }
         }
