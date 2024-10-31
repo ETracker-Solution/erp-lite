@@ -127,9 +127,9 @@ class SaleReportController extends Controller
             $page_title = 'Product Name :: ' . $product->name;
             $data = [
                 'dateRange' => $dateRange,
-                'data' => Sale::with(['customer', 'outlet','items'=>function ($q) use ($product){
+                'data' => Sale::with(['customer', 'outlet', 'items' => function ($q) use ($product) {
                     return $q->where('product_id', $product->id);
-                }])->whereHas('items', function ($q) use ($product){
+                }])->whereHas('items', function ($q) use ($product) {
                     return $q->where('product_id', $product->id);
                 })->where('date', '>=', $from_date)->where('date', '<=', $to_date)->get(),
                 'page_title' => $page_title,
@@ -137,7 +137,7 @@ class SaleReportController extends Controller
             ];
             $pdf = Pdf::loadView('sale.report.product_discount', $data);
             $pdf->stream();
-        }elseif ($report_type == 'All Outlet Discount') {
+        } elseif ($report_type == 'All Outlet Discount') {
             $page_title = 'All Discounts';
             $data = [
                 'dateRange' => $dateRange,
@@ -301,7 +301,7 @@ group by COI.id";
 
     public function getOutletWiseSalesReport($from_date, $to_date)
     {
-        return "
+        $query = "
 select OT.name as 'Outlet', COI.name as 'Item Name', sum(SI.quantity) as 'Quantity', sum(SI.quantity * SI.unit_price) as 'Sale Value'
 from sales SS
 join outlets OT
@@ -316,8 +316,16 @@ where ATT.doc_type='POS'
 AND ATT.chart_of_account_id = 43
 AND SS.date >= '$from_date'
 AND SS.date <= '$to_date'
-group by SS.outlet_id, SI.product_id
 ";
+        // Add the outlet filter if outlet_id is provided
+        if (\request()->filled('store_id')) {
+            $outlet_id = Outlet::find(\request()->store_id)->id;
+            $query .= " AND SS.outlet_id = $outlet_id ";
+        }
+
+        // Grouping as per your existing logic
+        $query .= " group by SS.outlet_id, SI.product_id";
+        return $query;
     }
 
     public function getAllCustomerSalesDetails($from_date, $to_date)
