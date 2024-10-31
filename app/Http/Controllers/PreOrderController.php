@@ -241,7 +241,7 @@ class PreOrderController extends Controller
                         return $q->where('status', 'completed');
                     })->sum('quantity');
 
-                    $preOrderDeliveredQty = $product->whereHas('preOrder', function ($q) {
+                    $preOrderDeliveredQty = $product->coi->preOrderItems()->whereHas('preOrder', function ($q) {
                         return $q->where('status', 'delivered');
                     })->sum('quantity');
 
