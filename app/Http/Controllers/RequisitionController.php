@@ -212,7 +212,7 @@ class RequisitionController extends Controller
 
     public function todayRequisition()
     {
-        $data = $this->getRequisitionData2();
+        $data = $this->getRequisitionData();
         return view('requisition.today_requisition', $data);
     }
 
