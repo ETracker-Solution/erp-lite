@@ -146,7 +146,7 @@ function fetchStoreDeliveredPreOrderQuantities($product, array $storeIds)
 function fetchStoreInventoryTransferQuantities($product, array $storeIds)
 {
     return $product->inventoryTransferItems()->whereHas('inventoryTransfer', function ($q) use ($storeIds) {
-        return $q->where('status', 'pending')->whereIn('from_store_id', $storeIds);
+        return $q->where('status', 'pending')->whereIn('from_store_id', $storeIds)->where('type','FG');
     })->sum('quantity');
 }
 
@@ -161,7 +161,7 @@ function transactionAbleStock($product, array $storeIds)
     $requisitionDeliveredQuantity = fetchStoreCompletedRequisitionDeliveryQuantities($product, $storeIds);
     $preOrderDeliveredQuantity = fetchStoreDeliveredPreOrderQuantities($product, $storeIds);
     $InventoryTransferredQuantity = fetchStoreInventoryTransferQuantities($product, $storeIds);
-    return max($originalStock, 0) - max($requisitionDeliveredQuantity, 0) - max($preOrderDeliveredQuantity, 0) - min($InventoryTransferredQuantity, 0);
+    return $originalStock - $requisitionDeliveredQuantity - $preOrderDeliveredQuantity - $InventoryTransferredQuantity;
 }
 
 function fetchStoreRequisitionQuantities($product, array $storeIds, $column = 'to_store_id')

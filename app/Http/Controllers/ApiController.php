@@ -120,14 +120,14 @@ class ApiController extends Controller
             $sale = OthersOutletSale::find(\request()->sale_id);
             $item = $sale->items()->where('product_id', $coi->id)->first();
         }
-        $current_stock = availableInventoryBalance($id, request()->store_id);
-        if (\request()->from == 'adjustment'){
-            $store = Store::find(\request()->sale_id);
-            if($store->doc_type == 'factory'){
-                $storeIds = [$store->id];
-                $current_stock = transactionAbleStock($coi, $storeIds);
-            }
-        }
+        $current_stock  = transactionAbleStock($coi, [\request()->store_id]);
+//        if (\request()->from == 'adjustment'){
+//            $store = Store::find(\request()->sale_id);
+//            if($store->doc_type == 'factory'){
+//                $storeIds = [$store->id];
+//                $current_stock = transactionAbleStock($coi, $storeIds);
+//            }
+//        }
         $data = [
             'group' => $coi->parent->name,
             'parent_id' => $coi->parent_id,
