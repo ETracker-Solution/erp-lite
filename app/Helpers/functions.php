@@ -207,6 +207,10 @@ function generateUniqueUUID($outlet_or_factory_id, $model, $column_name, $is_fac
             $acronym = $acronym.'-';
         }
     }
+    if ($is_factory){
+        $acronym = 'CT-F-';
+
+    }
 
     $nameWithDate = $acronym . date('ym');
     $lastCode = $model::where($column_name, 'like', '%' . $nameWithDate . '%')->orderBy($column_name, 'DESC')->first();

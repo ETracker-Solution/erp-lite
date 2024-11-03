@@ -314,9 +314,9 @@ class RequisitionController extends Controller
             }
 
             $current_stock = max(($current_stock - $delivered_qty - $preOrderDeliveredQty),0);
-            $diff = $req_qty - $current_stock;
+            $diff = $totalQty - $current_stock;
 
-            $values[$key]['total'] = $req_qty;
+            $values[$key]['total'] = $totalQty;
             $values[$key]['current_stock'][] = $current_stock;
             $values[$key]['productionable'][] = max($diff, 0);
 
