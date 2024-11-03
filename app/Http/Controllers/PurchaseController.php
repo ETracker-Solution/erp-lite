@@ -119,7 +119,7 @@ class PurchaseController extends Controller
                 'amount' => $purchase->net_payable,
                 'date' => $purchase->date,
                 'transaction_type' => 1,
-                'chart_of_account_id' => 12,
+                'chart_of_account_id' => 22,
                 'description' => 'Purchase of goods',
             ]);
             DB::commit();
