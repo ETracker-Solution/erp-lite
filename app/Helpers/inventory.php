@@ -129,10 +129,17 @@ function fetchAverageRates(array $coiIds, int $store_id = null)
     return $averageRates;
 }
 
-function fetchStoreCompletedRequisitionDeliveryQuantities($product, array $storeIds)
+function fetchStoreCompletedRequisitionDeliveryQuantities($product, array $storeIds, $column ='from_store_id' )
 {
-    return $product->requisitionDeliveryItems()->whereHas('requisitionDelivery', function ($q) use ($storeIds) {
-        return $q->where('status', 'completed')->whereIn('from_store_id', $storeIds);
+    return $product->requisitionDeliveryItems()->whereHas('requisitionDelivery', function ($q) use ($storeIds, $column) {
+        return $q->where('status', 'completed')->whereIn($column, $storeIds);
+    })->sum('quantity');
+}
+
+function fetchStoreReceivedRequisitionDeliveryQuantities($product, array $storeIds, $column ='from_store_id' )
+{
+    return $product->requisitionDeliveryItems()->whereHas('requisitionDelivery', function ($q) use ($storeIds, $column) {
+        return $q->where('status', 'received')->whereIn($column, $storeIds);
     })->sum('quantity');
 }
 

@@ -222,7 +222,6 @@ class ApiController extends Controller
 
     public function fetchRequisitionById($id, $store_id = null)
     {
-        // Eager load requisition items and deliveries in one query
         $requisition = Requisition::with(['items.coi.unit', 'items.coi.parent', 'deliveries.items','items.coi.requisitionDeliveryItems.requisitionDelivery','items.coi.preOrderItems.preOrder'])
             ->where('id', $id)
             ->firstOrFail();
@@ -230,50 +229,23 @@ class ApiController extends Controller
         // Collect all coi_ids from requisition items
         $coiIds = $requisition->items->pluck('coi_id')->toArray();
 
-        // Pre-fetch available inventory balances for all requisition items
-        $inventoryBalances = InventoryTransaction::whereIn('coi_id', $coiIds)
-            ->where('store_id', $store_id)
-            ->select('coi_id', DB::raw('SUM(quantity * type) AS total_sum'))
-            ->groupBy('coi_id')
-            ->pluck('total_sum', 'coi_id')
-            ->toArray();
-
-        // Pre-fetch delivery quantities for all requisition items
-        $deliveryQuantities = [];
-        $preOrderDeliveryQuantities = [];
-        $totalDeliveryQuantities = [];
-        foreach ($requisition->items as $reqItem) {
-            $totalDeliveryQuantities[$reqItem->coi_id] = $reqItem->coi->requisitionDeliveryItems()->whereHas('requisitionDelivery', function ($q){
-                return $q->where('status','completed');
-            })->sum('quantity');
-            $deliveryQuantities[$reqItem->coi_id] = $reqItem->coi->requisitionDeliveryItems()->whereHas('requisitionDelivery', function ($q) use ($id){
-                return $q->where('id',$id)->where('status','completed');
-            })->sum('quantity');
-            $preOrderDeliveryQuantities[$reqItem->coi_id] = $reqItem->coi->preOrderItems()->whereHas('preOrder', function ($q){
-                return $q->where('status','delivered');
-            })->sum('quantity');
-        }
         // Pre-fetch average rates for all items at once (for both RM and FG)
         $averageRates = fetchAverageRates($coiIds, $store_id);
 
         $items = [];
         foreach ($requisition->items as $row) {
             if ($row->quantity > 0) {
-                $delivered_qty = $deliveryQuantities[$row->coi_id] ?? 0;
-                $total_delivered_qty = $totalDeliveryQuantities[$row->coi_id] ?? 0;
-                $pre_order_delivered_qty = $preOrderDeliveryQuantities[$row->coi_id] ?? 0;
-                $balance_quantity = $inventoryBalances[$row->coi_id] ?? 0;
-
-                $requisition_quantity = $row->quantity - $delivered_qty ;
-                $balance_quantity = $balance_quantity - $total_delivered_qty -  $pre_order_delivered_qty;
+                $current_stock = transactionAbleStock($row->coi, [$store_id]);
+                $totalRequisitionLeft = fetchStoreRequisitionQuantities($row->coi, [$store_id]) - fetchStoreCompletedRequisitionDeliveryQuantities($row->coi, [$store_id]) - fetchStoreReceivedRequisitionDeliveryQuantities($row->coi, [$store_id]);
+                $balance_quantity = $current_stock;
 
                 // Determine final quantity to show based on balances
                 if ($balance_quantity <= 0) {
                     $quantity = '';
                 } else {
-                    $quantity = min($balance_quantity, $requisition_quantity);
+                    $quantity = min($balance_quantity, $totalRequisitionLeft);
                 }
-                if ($requisition_quantity > 0)
+                if ($totalRequisitionLeft > 0)
                 {
                     // Populate the items array with necessary details
                     $items[] = [
@@ -285,7 +257,7 @@ class ApiController extends Controller
                         'rm_average_rate' => $averageRates[$row->coi_id]['rm_rate'] ?? 0,
                         'fg_average_rate' => $averageRates[$row->coi_id]['rm_rate'] ?? 0,
                         'balance_quantity' => max($balance_quantity, 0),
-                        'requisition_quantity' => $requisition_quantity,
+                        'requisition_quantity' => $totalRequisitionLeft,
                         'quantity' => $quantity,
                     ];
                 }
