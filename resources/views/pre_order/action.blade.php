@@ -9,7 +9,7 @@
             </button>
         </form>
     @endif
-    <form action="{{route('pre-orders.destroy', encrypt($row->id))}}" method="post">
+    <form action="#" method="post">
         <input type="hidden" name="_method" value="DELETE">
         @csrf
         @if($row->status == 'pending')
@@ -23,11 +23,11 @@
             <i class="fas fa-folder">
             </i> Show
         </a>
-        @if($row->status == 'pending')
-            <button id="btnDelete" class="btn btn-danger btn-xs"><i class="fas fa-trash">
-                </i> Delete
-            </button>
-        @endif
+{{--        @if($row->status == 'pending')--}}
+{{--            <button id="btnDelete" class="btn btn-danger btn-xs"><i class="fas fa-trash">--}}
+{{--                </i> Delete--}}
+{{--            </button>--}}
+{{--        @endif--}}
 
     </form>
     @if($row->status == 'approved' && auth()->user()->employee->user_of != 'outlet')
