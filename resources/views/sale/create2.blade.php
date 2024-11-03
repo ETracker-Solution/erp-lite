@@ -124,7 +124,7 @@
                                             <div class="col-3" v-if="sales_type=='pre_order'">
                                                 <div class="form-group">
                                                     <label for="" class="small">Delivery Charge</label>
-                                                    <input type="text" name="delivery_charge" id="" v-model="delivery_charge"
+                                                    <input type="number" name="delivery_charge" id="" v-model="delivery_charge"
                                                            class="form-control form-control-sm" placeholder="Enter Delivery Charge">
                                                 </div>
                                             </div>
@@ -717,7 +717,7 @@
                         }, 0)
                     },
                     grandtotal: function () {
-                        return this.subtotal - this.discount + this.delivery_charge
+                        return this.subtotal - this.discount + Number(this.delivery_charge)
                     },
                     change_amount: function () {
                         return this.grandtotal - this.receive_amount
@@ -750,7 +750,7 @@
                     },
                     total_payable_bill: function () {
                         var vm = this
-                        return (this.total_bill - vm.couponCodeDiscountAmount - this.allDiscountAmount) + this.delivery_charge
+                        return (this.total_bill - vm.couponCodeDiscountAmount - this.allDiscountAmount) + Number(this.delivery_charge)
                     },
                     total_due: function () {
                         return this.total_payable_bill
