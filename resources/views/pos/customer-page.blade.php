@@ -3,7 +3,7 @@
         <div class="col-6  header-gap" style="background-color: #cbcbcb21">
             <div class="m-2 mt-3 d-flex">
                 <h4 style="margin-right: 10px">Customers</h4>
-                <input type="text" class="form-control" placeholder="Search Customer By Name">
+                <input type="text" class="form-control" placeholder="Search Customer By Name" v-model="customer_search_string" @keyup="getCustomers">
             </div>
             <div class="row" style="margin: 10px; max-height: 100vh; overflow-y: auto">
                 <div class="col-12 customerInfo"  v-for="(row, index) in customers">

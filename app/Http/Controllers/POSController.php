@@ -335,6 +335,11 @@ class POSController extends Controller
     public function getAllCustomers(Request $request)
     {
         $data = Customer::where(['status' => 'active', 'type' => 'regular']);
+        if ($request->filled('search_string')){
+            $data = $data->where('name','like','%'.$request->search_string.'%')
+                ->orWhere('mobile','like','%'.$request->search_string.'%')
+                ->orWhere('email','like','%'.$request->search_string.'%');
+        }
         return $data->get();
     }
 

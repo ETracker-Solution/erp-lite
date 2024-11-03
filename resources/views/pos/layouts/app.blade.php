@@ -293,7 +293,8 @@
                 pre_orders: [],
                 selectedPreOrderId: null,
                 waiter_id: '',
-                selectedSpecialDiscount: false
+                selectedSpecialDiscount: false,
+                customer_search_string: ''
             },
             mounted() {
                 this.getAllProducts();
@@ -456,7 +457,11 @@
                 },
                 getCustomers() {
                     var vm = this;
-                    axios.get(this.config.get_all_customers_url)
+                    axios.get(this.config.get_all_customers_url,{
+                        params:{
+                            search_string: vm.customer_search_string
+                        }
+                    })
                         .then(function (response) {
                             vm.customers = (response.data);
                         }).catch(function (error) {
