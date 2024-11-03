@@ -81,7 +81,7 @@ function fetchStoreProductBalances(array $productIds, array $storeIds)
     // Organize the results into a [store_id][product_id] => total_sum array
     $storeProductBalances = [];
     foreach ($inventoryTransactions as $transaction) {
-        $storeProductBalances[$transaction->store_id][$transaction->coi_id] = max($transaction->total_sum,0);
+        $storeProductBalances[$transaction->store_id][$transaction->coi_id] = max($transaction->total_sum, 0);
     }
 
     return $storeProductBalances;
@@ -127,4 +127,46 @@ function fetchAverageRates(array $coiIds, int $store_id = null)
     }
 
     return $averageRates;
+}
+
+function fetchStoreCompletedRequisitionDeliveryQuantities($product, array $storeIds)
+{
+    return $product->requisitionDeliveryItems()->whereHas('requisitionDelivery', function ($q) use ($storeIds) {
+        return $q->where('status', 'completed')->whereIn('from_store_id', $storeIds);
+    })->sum('quantity');
+}
+
+function fetchStoreDeliveredPreOrderQuantities($product, array $storeIds)
+{
+    return $product->preOrderItems()->whereHas('preOrder', function ($q) use ($storeIds) {
+        return $q->where('status', 'delivered')->whereIn('factory_delivery_store_id', $storeIds);
+    })->sum('quantity');
+}
+
+function fetchStoreInventoryTransferQuantities($product, array $storeIds)
+{
+    return $product->inventoryTransferItems()->whereHas('inventoryTransfer', function ($q) use ($storeIds) {
+        return $q->where('status', 'pending')->whereIn('from_store_id', $storeIds);
+    })->sum('quantity');
+}
+
+function fetchStoreAvailableInventoryQuantities($product, array $storeIds)
+{
+    return $product->inventoryTransactions()->whereIn('store_id', $storeIds)->sum(DB::raw('quantity * type'));
+}
+
+function transactionAbleStock($product, array $storeIds)
+{
+    $originalStock = fetchStoreAvailableInventoryQuantities($product, $storeIds);
+    $requisitionDeliveredQuantity = fetchStoreCompletedRequisitionDeliveryQuantities($product, $storeIds);
+    $preOrderDeliveredQuantity = fetchStoreDeliveredPreOrderQuantities($product, $storeIds);
+    $InventoryTransferredQuantity = fetchStoreInventoryTransferQuantities($product, $storeIds);
+    return max($originalStock, 0) - max($requisitionDeliveredQuantity, 0) - max($preOrderDeliveredQuantity, 0) - min($InventoryTransferredQuantity, 0);
+}
+
+function fetchStoreRequisitionQuantities($product, array $storeIds, $column = 'to_store_id')
+{
+    return $product->requisitionItems()->whereHas('requisition', function ($q) use ($storeIds, $column) {
+        return $q->where('status', 'approved')->whereIn('delivery_status', ['pending', 'partial'])->whereIn($column, $storeIds);
+    })->sum('quantity');
 }

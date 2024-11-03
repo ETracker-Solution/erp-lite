@@ -193,6 +193,48 @@ class ApiController extends Controller
             $sale = OthersOutletSale::find(\request()->sale_id);
             $item = $sale->items()->where('product_id', $coi->id)->first();
         }
+        $current_stock = availableInventoryBalance($id, request()->store_id);
+        if (\request()->from == 'adjustment'){
+            $store = Store::find(\request()->sale_id);
+            if($store->doc_type == 'factory'){
+//                ==============
+                $all_requisitions = \App\Models\Requisition::todayFGAvailableRequisitions($store->doc_id);
+
+                $outlet_ids = collect($all_requisitions)->pluck('outlet_id')->toArray();
+
+                $product_ids = [$id];
+
+
+                $products = ChartOfInventory::where('type', 'item')
+                    ->with('parent')
+                    ->where('rootAccountType', 'FG')
+                    ->whereIn('id', $product_ids)
+                    ->orderBy('parent_id')
+                    ->orderBy('id')
+                    ->get();
+
+                $storeStocks = fetchStoreProductBalances($product_ids, [$store->id]);
+
+                foreach ($products as $key => $product) {
+                    $delivered_qty = 0;
+                    $preOrderDeliveredQty = 0;
+
+                    $delivered_qty += $product->requisitionDeliveryItems()->whereHas('requisitionDelivery', function ($q){
+                        return $q->where('status','completed');
+                    })->sum('quantity');
+
+                    $preOrderDeliveredQty += $product->preOrderItems()->whereHas('preOrder', function ($q){
+                        return $q->where('status','delivered');
+                    })->sum('quantity');
+
+                    $current_stock = $storeStocks[$store->id][$product->id] ?? 0;
+
+                    $current_stock = max(($current_stock - $delivered_qty - $preOrderDeliveredQty),0);
+
+                }
+//                ============
+            }
+        }
         $data = [
             'group' => $coi->parent->name,
             'parent_id' => $coi->parent_id,
@@ -201,7 +243,7 @@ class ApiController extends Controller
             'price' => isset($item) ? $item->unit_price : $coi->price,
             'discountable' => !$coi->parent->non_discountable,
             'coi_id' => $id,
-            'balance_qty' => availableInventoryBalance($id, request()->store_id),
+            'balance_qty' => $current_stock,
             'is_readonly' => $coi->price > 0 ? true : false,
             'product_discount' => isset($item) ? $item->discount : 0,
         ];

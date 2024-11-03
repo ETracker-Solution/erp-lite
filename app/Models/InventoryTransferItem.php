@@ -17,4 +17,9 @@ class InventoryTransferItem extends Model
         return $this->belongsTo('App\Models\ChartOfInventory', 'coi_id');
 
     }
+
+    public function inventoryTransfer()
+    {
+        return $this->belongsTo(InventoryTransfer::class, 'inventory_transfer_id');
+    }
 }

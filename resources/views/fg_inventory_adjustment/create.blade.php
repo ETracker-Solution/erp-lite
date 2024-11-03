@@ -424,7 +424,8 @@
                                 if (slug) {
                                     axios.get(this.config.get_item_info_url + '/' + slug, {
                                         params: {
-                                            store_id: vm.store_id
+                                            store_id: vm.store_id,
+                                            from: 'adjustment'
                                         }
                                     }).then(function (response) {
 
