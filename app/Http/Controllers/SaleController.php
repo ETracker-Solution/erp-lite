@@ -374,7 +374,7 @@ class SaleController extends Controller
     public function getInvoiceByOutlet(Request $request, $store_id)
     {
         $store = Store::find($store_id);
-        $store->invoice = generateInvoiceCode($store->doc_id, $request->date);
+        $store->invoice = generateUniqueUUID($store->doc_id, Sale::class, 'invoice_number');
         $store->outlet = $store->doc_type == 'outlet' ? $store->doc_id : null;
         return $store;
     }

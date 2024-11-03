@@ -201,6 +201,13 @@ function generateUniqueUUID($outlet_or_factory_id, $model, $column_name, $is_fac
 
     $acronym .= mb_substr($words, 0, $length) . mb_substr($words, -1);
 
+    if (!$is_factory && !$is_headOffice){
+        $acronym = $outlet->name;
+        if (!str_ends_with($acronym, '-')) {
+            $acronym = $acronym.'-';
+        }
+    }
+
     $nameWithDate = $acronym . date('ym');
     $lastCode = $model::where($column_name, 'like', '%' . $nameWithDate . '%')->orderBy($column_name, 'DESC')->first();
     if ($lastCode) {
