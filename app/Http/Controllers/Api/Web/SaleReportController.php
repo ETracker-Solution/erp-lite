@@ -151,7 +151,6 @@ class SaleReportController extends Controller
                 'page_title' => $page_title,
                 'report_header' => $report_header
             ];
-            return view('sale.report.all_discount', $data);
             $pdf = Pdf::loadView('sale.report.all_discount', $data);
             $pdf->stream();
         }
