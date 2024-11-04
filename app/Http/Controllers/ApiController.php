@@ -44,7 +44,7 @@ class ApiController extends Controller
         if (auth()->user()->employee->user_of == 'factory') {
             $storeIds = auth()->user()->employee->factory->stores()->where('type', 'FG')->pluck('id')->toArray();
             $current_stock = transactionAbleStock($coi, $storeIds);
-            $totalRequisitionLeft = fetchStoreRequisitionQuantities($coi, $storeIds) - fetchStoreCompletedRequisitionDeliveryQuantities($coi,$storeIds);
+            $totalRequisitionLeft = fetchStoreRequisitionQuantities($coi, $storeIds) - fetchStoreCompletedRequisitionDeliveryQuantities($coi, $storeIds);
             $needToProduction = $totalRequisitionLeft - $current_stock;
             $coi->quantity = max($needToProduction, 0);
         }
@@ -120,7 +120,7 @@ class ApiController extends Controller
             $sale = OthersOutletSale::find(\request()->sale_id);
             $item = $sale->items()->where('product_id', $coi->id)->first();
         }
-        $current_stock  = transactionAbleStock($coi, [\request()->store_id]);
+        $current_stock = transactionAbleStock($coi, [\request()->store_id]);
 //        if (\request()->from == 'adjustment'){
 //            $store = Store::find(\request()->sale_id);
 //            if($store->doc_type == 'factory'){
@@ -161,25 +161,26 @@ class ApiController extends Controller
     {
 
         $products = ChartOfInventory::where(['status' => 'active', 'parent_id' => $id])->get();
-        if (auth()->user()->employee->user_of == 'factory') {
-            $storeIds = auth()->user()->employee->factory->stores()->where('type', 'FG')->pluck('id')->toArray();
-            foreach ($products as $product){
+        $needToProduction = 0;
+        foreach ($products as $product) {
+            if (auth()->user()->employee->user_of == 'factory') {
+                $storeIds = auth()->user()->employee->factory->stores()->where('type', 'FG')->pluck('id')->toArray();
                 $current_stock = transactionAbleStock($product, $storeIds);
-                $totalRequisitionLeft = fetchStoreRequisitionQuantities($product, $storeIds) - fetchStoreCompletedRequisitionDeliveryQuantities($product,$storeIds);
+                $totalRequisitionLeft = fetchStoreRequisitionQuantities($product, $storeIds) - fetchStoreCompletedRequisitionDeliveryQuantities($product, $storeIds);
                 $needToProduction = $totalRequisitionLeft - $current_stock;
-                $product['quantity'] = $needToProduction;
-                $product['group'] = $product->parent ? $product->parent->name : '';
-                $product['uom'] = $product->unit ? $product->unit->name : '';
-                $product['coi_id'] = $product->id;
-                $product['stock'] = '';
-                $product['price'] = $product->price;
-                $product['rate'] = $product->price;
-                $product['selling_price'] = '';
             }
+
+            $product['quantity'] = $needToProduction;
+            $product['group'] = $product->parent ? $product->parent->name : '';
+            $product['uom'] = $product->unit ? $product->unit->name : '';
+            $product['coi_id'] = $product->id;
+            $product['stock'] = '';
+            $product['price'] = $product->price;
+            $product['rate'] = $product->price;
+            $product['selling_price'] = '';
         }
         return [
-
-            'products' => $products,
+            'products' => $products
         ];
     }
 
@@ -222,7 +223,7 @@ class ApiController extends Controller
 
     public function fetchRequisitionById($id, $store_id = null)
     {
-        $requisition = Requisition::with(['items.coi.unit', 'items.coi.parent', 'deliveries.items','items.coi.requisitionDeliveryItems.requisitionDelivery','items.coi.preOrderItems.preOrder'])
+        $requisition = Requisition::with(['items.coi.unit', 'items.coi.parent', 'deliveries.items', 'items.coi.requisitionDeliveryItems.requisitionDelivery', 'items.coi.preOrderItems.preOrder'])
             ->where('id', $id)
             ->firstOrFail();
 
@@ -245,8 +246,7 @@ class ApiController extends Controller
                 } else {
                     $quantity = min($balance_quantity, $totalRequisitionLeft);
                 }
-                if ($totalRequisitionLeft > 0)
-                {
+                if ($totalRequisitionLeft > 0) {
                     // Populate the items array with necessary details
                     $items[] = [
                         'requisition_id' => $id,
@@ -426,6 +426,7 @@ class ApiController extends Controller
         ];
         return response()->json($data);
     }
+
     public function fetchFromAccountBalanceById($coa_id)
     {
         $data = [
