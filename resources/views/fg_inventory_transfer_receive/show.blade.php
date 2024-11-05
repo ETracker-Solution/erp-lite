@@ -66,10 +66,19 @@ FG Inventory Transfer Receive Details
                                             <th>Item</th>
                                             <th>Quantity</th>
                                             <th>Rate</th>
+                                            <th>Value</th>
                                         </tr>
                                     </thead>
                                     <tbody>
+                                    @php
+                                    $totalQty = 0;
+                                    $totalValue = 0;
+                                    @endphp
                                         @foreach ($fgTransferReceive->items as $item)
+                                            @php
+                                                $totalQty += $item->quantity;
+                                                $totalValue += ($item->quantity * $item->rate);
+                                            @endphp
                                         <tr>
                                             <td>{{ $loop->iteration }}</td>
                                             <td>{{ $fgTransferReceive->date }}</td>
@@ -78,9 +87,17 @@ FG Inventory Transfer Receive Details
                                             <td>{{ $item->coi->parent->name ?? '' }}</td>
                                             <td>{{ $item->coi->name ?? '' }}</td>
                                             <td>{{ $item->quantity ?? '' }}</td>
-                                            <td>{{ $item->rate ?? '' }} TK</td>
+                                            <td>{{ $item->rate ?? '' }}</td>
+                                            <td>{{ $item->quantity * $item->rate }} TK</td>
                                         </tr>
                                         @endforeach
+                                    <tr>
+
+                                        <td colspan="6">Total</td>
+                                        <td>{{ $totalQty }}</td>
+                                        <td></td>
+                                        <td>{{ $totalValue }}</td>
+                                    </tr>
                                     </tbody>
                                 </table>
                             </div>
