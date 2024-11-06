@@ -181,7 +181,7 @@
                                                                 @{{ row.uom }}
                                                             </td>
                                                             <td style="vertical-align: middle" class="text-right">
-                                                                <input type="number" v-model="row.quantity"
+                                                                <input type="number" step="0.01" v-model="row.quantity"
                                                                        :name="'products['+index+'][quantity]'"
                                                                        class="form-control input-sm"
                                                                        @change="valid(row)" required>

@@ -220,7 +220,7 @@
                                                                 @{{ row.uom }}
                                                             </td>
                                                             <td>
-                                                                <input type="number" v-model="row.quantity"
+                                                                <input type="number" step="0.01" v-model="row.quantity"
                                                                        :name="'products['+index+'][quantity]'"
                                                                        class="form-control input-sm"
                                                                        @change="itemtotal(row);valid_quantity(row)"

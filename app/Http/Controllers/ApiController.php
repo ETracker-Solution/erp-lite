@@ -237,7 +237,14 @@ class ApiController extends Controller
         foreach ($requisition->items as $row) {
             if ($row->quantity > 0) {
                 $current_stock = transactionAbleStock($row->coi, [$store_id]);
-                $totalRequisitionLeft = fetchStoreRequisitionQuantities($row->coi, [$store_id]) - fetchStoreCompletedRequisitionDeliveryQuantities($row->coi, [$store_id]) - fetchStoreReceivedRequisitionDeliveryQuantities($row->coi, [$store_id]);
+
+                $req_qty = $row->quantity;
+                $delivered_qty = 0;
+                foreach ($requisition->deliveries as $delivery) {
+                    $delivered_qty += $delivery->items->where('coi_id', $row->coi->id)->sum('quantity');
+                }
+
+                $totalRequisitionLeft = $req_qty - $delivered_qty;
                 $balance_quantity = $current_stock;
 
                 // Determine final quantity to show based on balances

@@ -167,19 +167,19 @@
                                                                 @{{ row.unit }}
                                                             </td>
                                                             <td style="vertical-align: middle" class="text-right">
-                                                                <input type="number" v-model="row.balance_quantity"
+                                                                <input type="number" step="0.01" v-model="row.balance_quantity"
                                                                        :name="'products['+index+'][balance_quantity]'"
                                                                        class="form-control input-sm"
                                                                        required readonly>
                                                             </td>
                                                             <td style="vertical-align: middle" class="text-right">
-                                                                <input type="number" v-model="row.requisition_quantity"
+                                                                <input type="number" step="0.01" v-model="row.requisition_quantity"
                                                                        :name="'products['+index+'][requisition_quantity]'"
                                                                        class="form-control input-sm"
                                                                        required readonly>
                                                             </td>
                                                             <td style="vertical-align: middle" class="text-right">
-                                                                <input type="number" v-model="row.quantity"
+                                                                <input type="number" step="0.01" v-model="row.quantity"
                                                                        :name="'products['+index+'][quantity]'"
                                                                        class="form-control input-sm"
                                                                        @change="valid(row)" required>
