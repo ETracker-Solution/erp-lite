@@ -42,7 +42,7 @@ Route::resource('registers', \App\Http\Controllers\RegisterController::class);
 
 Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])->middleware(['auth'])->name('dashboard');
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth','prevent_duplicate_submission'])->group(function () {
 
     Route::get('/admin-dashboard', [\App\Http\Controllers\AdminDashboardController::class, 'adminDashboard'])->name('admin.dashboard');
     Route::get('/factory-dashboard', [\App\Http\Controllers\FactoryDashboardController::class, 'factoryDashboard'])->name('factory.dashboard');
@@ -117,8 +117,6 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('outlet-accounts', OutletAccountController::class);
     Route::patch('outlet-account-active-or-inactive/{id}', [\App\Http\Controllers\OutletAccountController::class, 'changeStatus'])->name('outlet-account.change');
-
-
 
 
     //Promo Code

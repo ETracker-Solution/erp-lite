@@ -21,6 +21,8 @@
                 <div class="col-lg-12 col-md-12">
                     <form action="{{ route('fg-requisition-deliveries.store') }}" method="POST" class="">
                         @csrf
+                        <input type="hidden" name="submission_token"
+                               value="{{ session()->get('submission_token') ?? Str::random(40) }}">
                         <div class="card">
                             <div class="card-header bg-info">
                                 <h3 class="card-title">FG Requisition Entry</h3>
@@ -79,7 +81,10 @@
                                                             class="form-control bSelect"
                                                             v-model="requisition_id" required @change="load_old">
                                                         <option value="">Select One</option>
-                                                        <option :value="requisition.id" v-for="requisition in requisitions">@{{ requisition.uid }}</option>
+                                                        <option :value="requisition.id"
+                                                                v-for="requisition in requisitions">@{{ requisition.uid
+                                                            }}
+                                                        </option>
                                                     </select>
                                                 </div>
                                             </div>
@@ -102,7 +107,8 @@
                                             <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                                 <div class="form-group">
                                                     <label for="delivery_status">Delivery Status</label>
-                                                    <select name="delivery_status" id="delivery_status" class="form-control">
+                                                    <select name="delivery_status" id="delivery_status"
+                                                            class="form-control">
                                                         <option value="full">Full Delivery</option>
                                                         <option value="close">Partial & Close</option>
                                                         <option value="partial">Partial</option>
@@ -167,13 +173,15 @@
                                                                 @{{ row.unit }}
                                                             </td>
                                                             <td style="vertical-align: middle" class="text-right">
-                                                                <input type="number" step="0.01" v-model="row.balance_quantity"
+                                                                <input type="number" step="0.01"
+                                                                       v-model="row.balance_quantity"
                                                                        :name="'products['+index+'][balance_quantity]'"
                                                                        class="form-control input-sm"
                                                                        required readonly>
                                                             </td>
                                                             <td style="vertical-align: middle" class="text-right">
-                                                                <input type="number" step="0.01" v-model="row.requisition_quantity"
+                                                                <input type="number" step="0.01"
+                                                                       v-model="row.requisition_quantity"
                                                                        :name="'products['+index+'][requisition_quantity]'"
                                                                        class="form-control input-sm"
                                                                        required readonly>
@@ -355,11 +363,11 @@
                     },
                     getPendingRequisitions() {
                         var vm = this;
-                       axios.get('/fetch-requisitions-by-store-id/'+vm.to_store_id)
-                           .then(function (res){
-                               vm.requisitions = res.data.requisitions
-                               vm.items = [];
-                           })
+                        axios.get('/fetch-requisitions-by-store-id/' + vm.to_store_id)
+                            .then(function (res) {
+                                vm.requisitions = res.data.requisitions
+                                vm.items = [];
+                            })
                     },
                 },
 

@@ -21,6 +21,7 @@
                 <div class="col-lg-12 col-md-12">
                     <form action="{{ route('requisitions.store') }}" method="POST" class="">
                         @csrf
+                        <input type="hidden" name="submission_token" value="{{ session()->get('submission_token') ?? Str::random(40) }}">
                         <div class="card">
                             <div class="card-header bg-info">
                                 <h3 class="card-title">Requisition Entry</h3>
@@ -323,7 +324,6 @@
                             axios.get(this.config.get_items_info_by_group_id_url + '/' + group_id).then(function (response) {
                                 vm.products=[];
                                 vm.item_id='';
-                                console.log('products.....empty');
                                 vm.products = response.data.products;
                                 vm.pageLoading = false;
 

@@ -28,6 +28,43 @@
 
     <!-- Main Footer -->
     @include('partials.footer')
+
+    <style>
+        .loader {
+            display: none;
+            border: 4px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 4px solid #3498db;
+            width: 20px;
+            height: 20px;
+            -webkit-animation: spin 2s linear infinite;
+            animation: spin 2s linear infinite;
+        }
+
+        @-webkit-keyframes spin {
+            0% {
+                -webkit-transform: rotate(0deg);
+            }
+            100% {
+                -webkit-transform: rotate(360deg);
+            }
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .disabled {
+            pointer-events: none;
+            opacity: 0.6;
+        }
+    </style>
+
 </div>
 <!-- ./wrapper -->
 
@@ -60,5 +97,44 @@
         });
     }
 </script>
+<script>
+    $("input").keypress(function(event) {
+        if (event.which == 13) {
+            event.preventDefault();
+            $("form").submit();
+            $.blockUI;
+        }
+    });
+    document.addEventListener('DOMContentLoaded', function () {
+        let isSubmitting = false; // Flag to track form submission state
+
+        // Capture the 'Enter' key press in any form
+        document.querySelectorAll('form').forEach(form => {
+            form.addEventListener('keydown', function (event) {
+                if (event.key === 'Enter') {
+                    // If already submitting, prevent further submissions
+                    if (isSubmitting) {
+                        event.preventDefault();
+                        return false;
+                    }
+                }
+            });
+        });
+
+        // Capture the form submission to disable further submissions
+        document.querySelectorAll('form').forEach(form => {
+            form.addEventListener('submit', function (event) {
+                if (isSubmitting) {
+                    event.preventDefault(); // Prevent form submission
+                    return false;
+                }
+                isSubmitting = true; // Mark as submitting
+                // Optionally, disable submit button to prevent clicks
+                form.querySelector('button[type="submit"]').disabled = true;
+            });
+        });
+    });
+</script>
+
 </body>
 </html>

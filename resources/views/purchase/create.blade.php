@@ -20,6 +20,8 @@
                 <div class="col-lg-12 col-md-12">
                     <form action="{{ route('purchases.store') }}" method="POST" class="">
                         @csrf
+                        <input type="hidden" name="submission_token"
+                               value="{{ session()->get('submission_token') ?? Str::random(40) }}">
                         <div class="card">
                             <div class="card-header bg-info">
                                 <h3 class="card-title">Goods Purchase Bill (GPB) Entry</h3>
