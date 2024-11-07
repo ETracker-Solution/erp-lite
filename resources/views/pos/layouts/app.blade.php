@@ -64,13 +64,13 @@
             display: block;
             position: relative;
             width: 100%;
-            max-height: 100vh;
+            max-height: 70vh;
             overflow-y: scroll;
-            scrollbar-width: none;
+            /*scrollbar-width: none;*/
         }
 
         .table-scroll tbody::-webkit-scrollbar {
-            width: 0; /* Chrome & Edge */
+            width: 3; /* Chrome & Edge */
         }
 
         .table-scroll tr {
@@ -203,10 +203,13 @@
             font-weight: 600;
         }
 
+        .smallFont{
+            font-size: 12px !important;
+        }
 
     </style>
 </head>
-<body style="height: 100%; overflow: hidden; padding-right: 20px">
+<body style="height: 90%; overflow: hidden; padding-right: 20px">
 <section style="position:relative;">
     <div id="vue_app">
         @include('pos.partials.header')

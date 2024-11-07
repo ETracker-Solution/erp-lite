@@ -15,8 +15,6 @@ class PreventDuplicateSubmission
         // Retrieve the submission token from the request
         if($request->isMethod('POST')){
             $token = $request->input('submission_token');
-            info($token);
-            info(session('submission_token'));
             // If the token exists in the request, compare it with the session token
             if (($token && session('submission_token')) &&  $token !== session('submission_token')) {
                 // If tokens do not match, it’s a duplicate submission

@@ -109,7 +109,7 @@ class PurchaseReturnController extends Controller
             'amount' => $purchase_return->net_payable,
             'date' => $purchase_return->date,
             'transaction_type' => -1,
-            'chart_of_account_id' => 12,
+            'chart_of_account_id' => 22,
             'description' => 'Purchase of goods',
         ]);
 //            DB::commit();

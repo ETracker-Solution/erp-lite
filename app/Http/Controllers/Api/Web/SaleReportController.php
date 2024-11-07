@@ -455,8 +455,24 @@ WHERE at2.doc_type ='POS' AND at2.`type` ='debit' AND coa.id in (oa.coa_id)
 AND s.date >= '$from_date'
 AND s.date <= '$to_date'
 GROUP By s.outlet_id, coa.id
-ORDER BY o.id
-
+UNION ALL
+SELECT
+	'' as OutletName,
+	'TOTAL' as AccountName,
+	sum(at2.amount) as Amount
+FROM
+	account_transactions at2
+JOIN chart_of_accounts coa
+ON coa.id = at2.chart_of_account_id
+JOIN sales s
+ON s.id = at2.doc_id
+JOIN outlets o
+ON o.id = s.outlet_id
+JOIN outlet_accounts oa
+ON oa.outlet_id  = s.outlet_id
+WHERE at2.doc_type ='POS' AND at2.`type` ='debit' AND coa.id in (oa.coa_id)
+AND s.date >= '$from_date'
+AND s.date <= '$to_date'
         ";
     }
 }

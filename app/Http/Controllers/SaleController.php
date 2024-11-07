@@ -229,6 +229,15 @@ class SaleController extends Controller
                         'exchange_id' => $ret->id
                     ]);
                 }
+                if ($paymentMethod['method'] == 'nexus') {
+                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'Nexus'), getAccountsReceiveableGLId());
+                }
+                if ($paymentMethod['method'] == 'pbl') {
+                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'PBL'), getAccountsReceiveableGLId());
+                }
+                if ($paymentMethod['method'] == 'due') {
+                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'Due'), getAccountsReceiveableGLId());
+                }
                 if ($paymentMethod['method'] == 'upay') {
                     addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'Upay'), getAccountsReceiveableGLId());
                 }

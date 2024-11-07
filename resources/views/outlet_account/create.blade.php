@@ -58,12 +58,12 @@
                                     <div class="col-xl-3 col-md-3 col-12 mb-1">
                                         <x-forms.select label="Chart Of Account" inputName="coa_id" placeholder="Select One" :isRequired='true'  :isReadonly='false' defaultValue="" :options="$chartOfAccounts" optionId="id" optionValue="name"/>
                                     </div>
-                                    
+
                                     <div class="col-xl-3 col-md-3 col-12 mb-1">
                                         <x-forms.static-select label="Status" inputName="status" placeholder="Select One" :isRequired='true'  :isReadonly='false' :defaultValue="isset($outletAccount) ? $outletAccount->status : ''" :options="['active','inactive']"/>
                                     </div>
                                     <div class="col-xl-3 col-md-3 col-12 mb-1">
-                                        <x-forms.static-select label="Type" inputName="type" placeholder="Select One" :isRequired='true'  :isReadonly='false' :defaultValue="isset($outletAccount) ? $outletAccount->status : ''" :options="['Cash','Bkash','Nagad','Rocket','Upay','DBBL','UCB']"/>
+                                        <x-forms.static-select label="Type" inputName="type" placeholder="Select One" :isRequired='true'  :isReadonly='false' :defaultValue="isset($outletAccount) ? $outletAccount->status : ''" :options="['Cash','Bkash','Nagad','Rocket','Upay','DBBL','UCB','Nexus','PBL','Due']"/>
                                     </div>
                                 </div>
                             </div>

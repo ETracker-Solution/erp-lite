@@ -180,13 +180,22 @@ class FundTransferVoucherController extends Controller
         $validated = $request->validated();
         DB::beginTransaction();
         try {
+            $creditAccount = ChartOfAccount::find($fundTransferVoucher->credit_account_id);
+            $pendingAmount = FundTransferVoucher::where(['credit_account_id'=> $fundTransferVoucher->credit_account_id,'status'=>'pending'])->sum('amount');
+            $currentBalance = AccountTransaction::where('chart_of_account_id',$fundTransferVoucher->credit_account_id)->sum(\DB::raw('amount * transaction_type'));
+            $actualBalance = $currentBalance + $fundTransferVoucher->amount;
+            if (max($actualBalance,0) < $validated['amount']){
+                Toastr::warning("No Available Balance in ".$creditAccount->name);
+                return back();
+            }
             $fundTransferVoucher->update($validated);
             // Accounts Effect
             AccountTransaction::where('doc_type', 'FTV')->where('doc_id', $fundTransferVoucher->id)->delete();
-            addAccountsTransaction('FTV', $fundTransferVoucher, $validated['debit_account_id'], $validated['credit_account_id']);
+            addAccountsTransaction('FTV', $fundTransferVoucher, $fundTransferVoucher->debit_account_id, $fundTransferVoucher->credit_account_id);
             DB::commit();
         } catch (\Exception $error) {
             DB::rollBack();
+            return $error;
             Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
             return back();
         }

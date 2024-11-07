@@ -46,6 +46,9 @@
                                                 <th>UCB Account</th>
                                                 <th>Rocket Account</th>
                                                 <th>Upay Account</th>
+                                                <th>NEXUS Account</th>
+                                                <th>PBL Account</th>
+                                                <th>DUE Account</th>
                                             </tr>
                                             </thead>
                                             @foreach ($outlets as $row)
@@ -64,6 +67,12 @@
                                                     \App\Models\OutletTransactionConfig::where(['outlet_id'=>$row->id,'type'=>'Rocket'])->first();
                                                     $upayConfig =
                                                     \App\Models\OutletTransactionConfig::where(['outlet_id'=>$row->id,'type'=>'Upay'])->first();
+                                                    $nexusConfig =
+                                                    \App\Models\OutletTransactionConfig::where(['outlet_id'=>$row->id,'type'=>'Nexus'])->first();
+                                                    $pblConfig =
+                                                    \App\Models\OutletTransactionConfig::where(['outlet_id'=>$row->id,'type'=>'PBL'])->first();
+                                                    $dueConfig =
+                                                    \App\Models\OutletTransactionConfig::where(['outlet_id'=>$row->id,'type'=>'Due'])->first();
                                                     $bkash = $bkashConfig ? $bkashConfig->coa_id : null;
                                                     $cash = $cashConfig ? $cashConfig->coa_id : null;
                                                     $nagad = $nagadConfig ? $nagadConfig->coa_id : null;
@@ -71,6 +80,9 @@
                                                     $ucb = $ucbConfig ? $ucbConfig->coa_id : null;
                                                     $rocket = $rocketConfig ? $rocketConfig->coa_id : null;
                                                     $upay = $upayConfig ? $upayConfig->coa_id : null;
+                                                    $nexus = $nexusConfig ? $nexusConfig->coa_id : null;
+                                                    $pbl = $pblConfig ? $pblConfig->coa_id : null;
+                                                    $due = $dueConfig ? $dueConfig->coa_id : null;
                                                 @endphp
                                                 <tr>
                                                     <td>{{ $row->name }}</td>
@@ -140,6 +152,36 @@
                                                             @foreach(getAllLedgers() as $account)
 
                                                                 <option value="{{ $account->id }}" {{ $account->id == $upay ?
+                                                        'selected' : '' }}>{{ $account->display_name }}</option>
+                                                            @endforeach
+                                                        </select>
+                                                    </td>
+                                                    <td>
+                                                        <select name="settings[{{ $row->id }}][Nexus]" id=""
+                                                                class="form-control">
+                                                            @foreach(getAllLedgers() as $account)
+
+                                                                <option value="{{ $account->id }}" {{ $account->id == $nexus ?
+                                                        'selected' : '' }}>{{ $account->display_name }}</option>
+                                                            @endforeach
+                                                        </select>
+                                                    </td>
+                                                    <td>
+                                                        <select name="settings[{{ $row->id }}][PBL]" id=""
+                                                                class="form-control">
+                                                            @foreach(getAllLedgers() as $account)
+
+                                                                <option value="{{ $account->id }}" {{ $account->id == $pbl ?
+                                                        'selected' : '' }}>{{ $account->display_name }}</option>
+                                                            @endforeach
+                                                        </select>
+                                                    </td>
+                                                    <td>
+                                                        <select name="settings[{{ $row->id }}][Due]" id=""
+                                                                class="form-control">
+                                                            @foreach(getAllLedgers() as $account)
+
+                                                                <option value="{{ $account->id }}" {{ $account->id == $due ?
                                                         'selected' : '' }}>{{ $account->display_name }}</option>
                                                             @endforeach
                                                         </select>

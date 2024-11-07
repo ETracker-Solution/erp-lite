@@ -23,7 +23,7 @@ class UpdateFundTransferVoucherRequest extends FormRequest
     {
         return [
 //            'date' => 'required',
-            'amount' => 'required',
+            'amount' => 'required|numeric|min:1',
 //            'credit_account_id' => ['required','different:debit_account_id'],
 //            'debit_account_id' => ['required', 'different:credit_account_id'],
             'narration' => 'nullable',

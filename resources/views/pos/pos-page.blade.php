@@ -5,7 +5,7 @@
                 <div class="row">
                     <div class="col-4 text-center header-gap">
                         <h4>All Items</h4>
-                        <ul style="list-style-type: none; height: 100vh; overflow-y: auto; padding-right: 25px; cursor: pointer">
+                        <ul style="list-style-type: none; height: 80vh; overflow-y: auto; padding-right: 25px; cursor: pointer">
                             <li style="border: 1px solid #dedede; border-radius: 5px; margin-bottom: 10px"
                                 v-for="(category, index) in categories" v-bind:value="category.id"
                                 @click="clickedOnCategory(category.id)">
@@ -63,9 +63,9 @@
                         </div>
                     </div>
                 </div>
-                <div style="min-height: 55vh">
+                <div style="min-height: 45vh">
                     <h4>Cart Items</h4>
-                    <div class="row" style="max-height: 55vh; overflow-y: auto">
+                    <div class="row" style="max-height: 45vh; overflow-y: auto">
                         <div class="col-12 mb-2" v-for="(product,index) in selectedProducts">
                             <div class="product-info p-2">
                                 <div>
@@ -103,7 +103,7 @@
                     </div>
                 </div>
                 <div>
-                    <ul style="list-style-type: none">
+                    <ul style="list-style-type: none; font-size:12px">
                         <li><span>Subtotal</span><span style="float: right">TK.@{{ total_bill }}</span></li>
                         <li><span>Products Discount</span><span style="float: right">TK.@{{ productWiseDiscount }}</span></li>
 
@@ -117,13 +117,10 @@
                     </ul>
                 </div>
                 <div class="container text-center btn-group btn-group-justified" style="gap: 10px">
-                    <button class="btn discount-button" @click="openCouponModal">Coupon</button>
-                    <button class="btn discount-button" @click="openDiscountModal" :disabled="selectedNotDiscountableProduct" :style="selectedNotDiscountableProduct ? {cursor: 'not-allowed'} : ''">% Discount</button>
-                    <button class="btn discount-button" @click="addSpecialDiscount" :class="selectedSpecialDiscount ? 'text-danger' : ''"  :disabled="selectedNotDiscountableProduct" :style="selectedNotDiscountableProduct ? {cursor: 'not-allowed'} : ''">@{{ special_discount_value }}% Special Discount</button>
-                </div>
-                <div class="container text-center btn-group btn-group-justified mt-2" style="gap: 10px">
-                    <button class="btn pause-button" @click="openOnHoldModal">On Hold</button>
-{{--                    <button class="btn pause-button"  @click="openPreOrderModal">Pre-Order</button>--}}
+                    <button class="btn discount-button smallFont" @click="openCouponModal">Coupon</button>
+                    <button class="btn discount-button smallFont" @click="openDiscountModal" :disabled="selectedNotDiscountableProduct" :style="selectedNotDiscountableProduct ? {cursor: 'not-allowed'} : ''">% Discount</button>
+                    <button class="btn discount-button smallFont" @click="addSpecialDiscount" :class="selectedSpecialDiscount ? 'text-danger' : ''"  :disabled="selectedNotDiscountableProduct" :style="selectedNotDiscountableProduct ? {cursor: 'not-allowed'} : ''">@{{ special_discount_value }}% Special Discount</button>
+                    <button class="btn pause-button smallFont" @click="openOnHoldModal">On Hold</button>
                 </div>
                 <div class=" payment-button mt-2 p-3" style="cursor: pointer" @click="openPaymentModal">
                     <div>
@@ -217,6 +214,9 @@
                             <option value="DBBL">DBBL</option>
                             <option value="UCB">UCB</option>
                             <option value="upay">Upay</option>
+                            <option value="nexus">Nexus</option>
+                            <option value="pbl">PBL POS</option>
+                            <option value="due">Due Sale</option>
                             <option value="point">Redeem Point</option>
                         </select>
                     </b-col>
