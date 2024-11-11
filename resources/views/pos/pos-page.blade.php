@@ -236,7 +236,7 @@
         </div>
         <div class="text-center">
             <b-button class="mt-3" variant="btn btn-secondary" @click="closePaymentModal">Cancel</b-button>
-            <b-button class="mt-3" variant="btn btn-info"  :disabled="pay_left > 0" @click="submitOrder">  Pay </b-button>
+            <b-button class="mt-3" variant="btn btn-info"  :disabled="(pay_left > 0) || isDisabled" @click="submitOrder">  Pay </b-button>
         </div>
     </b-modal>
 

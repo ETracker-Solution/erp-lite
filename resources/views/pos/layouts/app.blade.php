@@ -297,7 +297,8 @@
                 selectedPreOrderId: null,
                 waiter_id: '',
                 selectedSpecialDiscount: false,
-                customer_search_string: ''
+                customer_search_string: '',
+                isDisabled: false
             },
             mounted() {
                 this.getAllProducts();
@@ -500,6 +501,7 @@
                         });
                     } else {
                         var vm = this;
+                        vm.isDisabled = true
                         axios.post(this.config.store_sell_url, {
                             products: this.selectedProducts,
                             discount_type: this.total_discount_type,
@@ -549,12 +551,14 @@
                                 vm.holdOrders.splice(vm.holdOrders.indexOf(vm.selectedOnHoldOrderToPos), 1);
                                 sessionStorage.setItem('holdOrder', JSON.stringify(vm.holdOrders))
                             }
+                            vm.isDisabled = false
                             vm.printInvoice(response.data.sale.id)
                         }).catch(function (error) {
                             toastr.error(error?.response?.data?.message, {
                                 closeButton: true,
                                 progressBar: true,
                             });
+                            vm.isDisabled = false
                             return false;
                         });
                     }

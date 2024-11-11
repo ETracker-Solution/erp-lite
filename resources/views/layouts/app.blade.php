@@ -98,43 +98,16 @@
     }
 </script>
 <script>
-    $("input").keypress(function(event) {
-        if (event.which == 13) {
-            event.preventDefault();
-            $("form").submit();
-            $.blockUI;
-        }
-    });
     document.addEventListener('DOMContentLoaded', function () {
-        let isSubmitting = false; // Flag to track form submission state
-
-        // Capture the 'Enter' key press in any form
-        document.querySelectorAll('form').forEach(form => {
-            form.addEventListener('keydown', function (event) {
+        document.querySelectorAll('form').forEach(function (form) {
+            form.addEventListener('keypress', function (event) {
                 if (event.key === 'Enter') {
-                    // If already submitting, prevent further submissions
-                    if (isSubmitting) {
-                        event.preventDefault();
-                        return false;
-                    }
-                }
-            });
-        });
-
-        // Capture the form submission to disable further submissions
-        document.querySelectorAll('form').forEach(form => {
-            form.addEventListener('submit', function (event) {
-                if (isSubmitting) {
+                    console.log(event.key)
                     event.preventDefault(); // Prevent form submission
-                    return false;
                 }
-                isSubmitting = true; // Mark as submitting
-                // Optionally, disable submit button to prevent clicks
-                form.querySelector('button[type="submit"]').disabled = true;
             });
         });
     });
 </script>
-
 </body>
 </html>
