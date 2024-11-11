@@ -24,6 +24,7 @@ Batch List
                             @if(isset($batch))
                             @method('PUT')
                             @endif
+                            <input type="hidden" name="submission_token" value="{{ session()->get('submission_token') ?? Str::random(40) }}">
                             <div class="card card-info">
                                 <div class="card-header">
                                     <h3 class="card-title">Batch Entry</h3>
@@ -185,6 +186,6 @@ Batch List
         // console.log(data.type).val();
         data.name = $('input[name="name"]').val();
     }
-    
+
 </script>
 @endpush

@@ -19,7 +19,7 @@
                             <img src="{{ asset('loading.gif') }}" alt="loading">
                         </span>
                 <div class="col-lg-12 col-md-12">
-                    <form action="{{ route('fg-delivery-receives.store') }}" method="POST" class="">
+                    <form method="POST" id="receiveForm">
                         @csrf
                         <input type="hidden" name="submission_token" value="{{ session()->get('submission_token') ?? Str::random(40) }}">
                         <div class="card">
@@ -213,7 +213,7 @@
                             </div>
                             <div class="card-footer">
                                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 text-right" v-if="items.length > 0">
-                                    <button class="float-right btn btn-primary" type="submit"><i
+                                    <button class="float-right btn btn-primary" type="button" @click="formSubmit"><i
                                             class="fa fa-fw fa-lg fa-check-circle"></i>Submit
                                     </button>
                                 </div>
@@ -327,8 +327,6 @@
 
                     },
                     valid: function (index) {
-
-
                         if (index.delivery_quantity < index.quantity) {
                             console.log('2');
                             index.quantity = index.delivery_quantity;
@@ -337,6 +335,15 @@
                             console.log('3');
                             index.quantity = index.quantity;
                         }
+                    },
+                    formSubmit(){
+                        var vm = this;
+                        const url = "{{ route('fg-delivery-receives.store') }}";
+                        let form = $('#receiveForm')
+                        form.attr('action',url)
+                        $('#formSubmit').attr('disabled', true)
+                        form.submit()
+                        vm.items = []
                     }
                 },
 
