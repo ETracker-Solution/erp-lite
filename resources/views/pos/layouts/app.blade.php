@@ -203,7 +203,7 @@
             font-weight: 600;
         }
 
-        .smallFont{
+        .smallFont {
             font-size: 12px !important;
         }
 
@@ -354,7 +354,7 @@
                 },
                 membership_discount_amount: function () {
                     var vm = this
-                    return vm.customer &&  vm.total_bill > vm.customer.minimum_purchase ? (Number(vm.total_bill) * Number(vm.customer.purchase_discount) / 100) : 0
+                    return vm.customer && vm.total_bill > vm.customer.minimum_purchase ? (Number(vm.total_bill) * Number(vm.customer.purchase_discount) / 100) : 0
                 },
 
             },
@@ -430,9 +430,26 @@
                             discountable: product.discountable
                         })
                     }
+                    vm.updateDiscount()
                 },
                 delete_selected_product: function (row) {
                     this.selectedProducts.splice(this.selectedProducts.indexOf(row), 1);
+                    this.updateDiscount()
+                    let vm = this
+                  if (this.selectedProducts.length < 1){
+                      vm.customer = {};
+                      vm.discount_type = '';
+                      vm.customerNumber = '';
+                      vm.total_discount_type = '';
+                      vm.total_discount_value = 0;
+                      vm.total_discount_amount = 0;
+                      vm.special_discount_amount = 0;
+                      this.allDiscountAmount = 0;
+                      vm.couponCodeDiscountValue = 0;
+                      vm.couponCodeDiscountAmount = 0;
+                      vm.selectedSpecialDiscount = false;
+                  }
+
                 },
                 setDiscountType(discountType) {
                     this.total_discount_type = discountType
@@ -462,8 +479,8 @@
                 },
                 getCustomers() {
                     var vm = this;
-                    axios.get(this.config.get_all_customers_url,{
-                        params:{
+                    axios.get(this.config.get_all_customers_url, {
+                        params: {
                             search_string: vm.customer_search_string
                         }
                     })
@@ -769,7 +786,7 @@
                     var printWindow = window.open(url, '_blank');
 
                     // Wait for the PDF to load and then print
-                    printWindow.onload = function() {
+                    printWindow.onload = function () {
                         printWindow.print();
                     };
                     // window.location.href = url
@@ -790,7 +807,7 @@
                         } else {
                             return false;
                         }
-                    }else{
+                    } else {
                         vm.$refs['discount-modal'].show()
                     }
 
@@ -814,7 +831,7 @@
                         } else {
                             return false;
                         }
-                    }else{
+                    } else {
                         if (vm.selectedSpecialDiscount) {
                             vm.selectedSpecialDiscount = false
                             vm.special_discount_amount = 0
@@ -845,7 +862,7 @@
                             sp.discountValue = 0
                             return false;
                         }
-                    }else{
+                    } else {
                         this.selectedProducts.some(function (product) {
                             var total_cost = (product.quantity * product.price);
                             if (product.discountType == 'p') {
