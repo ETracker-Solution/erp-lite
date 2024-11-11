@@ -153,7 +153,7 @@
 
                                             <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12" style="margin-top: 26px;">
                                                 <button type="button" class="btn btn-info btn-block"
-                                                        @click="data_input">Add
+                                                        @click="data_input" :disabled="isDisabled">Add
                                                 </button>
                                             </div>
 
@@ -334,7 +334,8 @@
                     item_id: '',
                     products: [],
                     items: [],
-                    pageLoading: false
+                    pageLoading: false,
+                    isDisabled: false
 
                 },
                 components: {
@@ -379,6 +380,7 @@
                     data_input() {
 
                         let vm = this;
+
                         if (!vm.from_store_id) {
                             toastr.error('Enter Store', {
                                 closeButton: true,
@@ -397,7 +399,7 @@
                             return false;
 
                         } else {
-
+                            vm.isDisabled = true
                             let slug = vm.item_id;
                             let exists = vm.items.some(function (field) {
                                 return field.coi_id == slug
@@ -408,6 +410,8 @@
                                     closeButton: true,
                                     progressBar: true,
                                 });
+                                vm.isDisabled = false
+                                return
                             } else {
                                 if (slug) {
                                     axios.get(this.config.get_item_info_url + '/' + slug, {
@@ -426,8 +430,7 @@
                                             quantity: '',
                                         });
 
-                                        // vm.item_id = '';
-                                        // vm.group_id = '';
+                                        vm.isDisabled = false
 
                                     }).catch(function (error) {
 
@@ -435,6 +438,7 @@
                                             closeButton: true,
                                             progressBar: true,
                                         });
+                                        vm.isDisabled = false
                                         return false;
 
                                     });
@@ -462,7 +466,6 @@
                             index.quantity = '';
                         }
                         if (index.balance_qty < index.quantity) {
-                            console.log('2');
                             index.quantity = index.balance_qty;
                         }
                     },

@@ -152,7 +152,7 @@
 
                                             <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12" style="margin-top: 26px;">
                                                 <button type="button" class="btn btn-info btn-block"
-                                                        @click="data_input">Add
+                                                        @click="data_input" :disabled="isDisabled">Add
                                                 </button>
                                             </div>
 
@@ -339,6 +339,7 @@
                     product_discount: 0,
                     receive_amount: 0,
                     selling_price: 0,
+                    isDisabled: false
 
                 },
                 components: {

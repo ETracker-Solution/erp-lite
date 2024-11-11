@@ -149,7 +149,7 @@
 
                                             <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12" style="margin-top: 26px;">
                                                 <button type="button" class="btn btn-info btn-block"
-                                                        @click="data_input">Add
+                                                        @click="data_input"  :disabled="isDisabled">Add
                                                 </button>
                                             </div>
 
@@ -336,6 +336,7 @@
                     product_discount: 0,
                     receive_amount: 0,
                     selling_price: 0,
+                    isDisabled: false
 
                 },
                 components: {
@@ -399,7 +400,7 @@
                             return false;
 
                         } else {
-
+                            vm.isDisabled = true
                             let slug = vm.item_id;
                             let exists = vm.items.some(function (field) {
                                 return field.coi_id == slug
@@ -410,6 +411,8 @@
                                     closeButton: true,
                                     progressBar: true,
                                 });
+                                vm.isDisabled = false
+                                return
                             } else {
                                 if (slug) {
                                     axios.get(this.config.get_item_info_url + '/' + slug,{
@@ -430,8 +433,7 @@
                                             item_total: 0,
                                         });
 
-                                        // vm.item_id = '';
-                                        // vm.category_id = '';
+                                        vm.isDisabled = false
 
                                     }).catch(function (error) {
 
@@ -439,7 +441,7 @@
                                             closeButton: true,
                                             progressBar: true,
                                         });
-
+                                        vm.isDisabled = false
                                         return false;
 
                                     });
@@ -454,14 +456,7 @@
                         this.items.splice(this.items.indexOf(row), 1);
                     },
                     item_total: function (index) {
-
-                        //   console.log(index.quantity * index.price);
                         return (index.quantity * index.price);
-
-
-                        //   alert(quantity);
-                        //  var total= row.quantity);
-                        //  row.item_total=total;
                     },
                     valid: function (index) {
                         let vm = this;

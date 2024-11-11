@@ -353,7 +353,7 @@
                     data_input() {
 
                         let vm = this;
-                        vm.isDisabled = true
+
                         if (!vm.group_id) {
                             toastr.error('Please Select Group', {
                                 closeButton: true,
@@ -361,6 +361,7 @@
                             });
                             return false;
                         } else {
+                            vm.isDisabled = true
                             let item_id = vm.item_id;
                             let exists = vm.selected_items.some(function (field) {
                                 return field.coi_id == item_id

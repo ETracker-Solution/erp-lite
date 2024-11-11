@@ -176,7 +176,7 @@
                                             </div>
                                             <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12" style="margin-top: 30px;">
                                                 <button type="button" class="btn btn-info btn-block"
-                                                        @click="data_input">Add
+                                                        @click="data_input" :disabled="isDisabled">Add
                                                 </button>
                                             </div>
                                         </div>
@@ -355,7 +355,8 @@
                     item_id: '',
                     items: [],
                     selected_items: [],
-                    pageLoading: false
+                    pageLoading: false,
+                    isDisabled: false
                 },
                 components: {
                     vuejsDatepicker
@@ -404,6 +405,7 @@
                     data_input() {
 
                         let vm = this;
+
                         if (!vm.group_id) {
                             toastr.error('Please Select Group', {
                                 closeButton: true,
@@ -411,6 +413,7 @@
                             });
                             return false;
                         } else {
+                            vm.isDisabled = true
                             let item_id = vm.item_id;
                             let exists = vm.selected_items.some(function (field) {
                                 return field.id == item_id
@@ -421,6 +424,8 @@
                                     closeButton: true,
                                     progressBar: true,
                                 });
+                                vm.isDisabled = false
+                                return
                             } else {
                                 if (item_id) {
                                     vm.pageLoading = true;
@@ -435,9 +440,7 @@
                                             rate: item_info.price,
                                             quantity: item_info?.quantity,
                                         });
-                                        console.log(vm.selected_items);
-                                        // vm.item_id = '';
-                                        // vm.group_id = '';
+                                        vm.isDisabled = false
                                         vm.pageLoading = false;
 
                                     }).catch(function (error) {
@@ -445,12 +448,11 @@
                                             closeButton: true,
                                             progressBar: true,
                                         });
-
+                                        vm.isDisabled = false
                                         return false;
 
                                     });
                                 } else {
-
                                     vm.pageLoading = true;
                                     axios.get(this.config.get_items_info_by_group_id_url + '/' + vm.group_id).then(function (response) {
                                       //  vm.selected_items = [];
@@ -466,24 +468,20 @@
                                                     closeButton: true,
                                                     progressBar: true,
                                                 });
+                                                vm.isDisabled = false
                                                 return
                                             }
                                             vm.selected_items.push(items[key]);
                                         }
-                                        console.log(vm.selected_items);
-                                        // vm.item_id = '';
-                                        // vm.group_id = '';
                                         vm.pageLoading = false;
-
+                                        vm.isDisabled = false
                                     }).catch(function (error) {
-
                                         toastr.error('Something went to wrong', {
                                             closeButton: true,
                                             progressBar: true,
                                         });
-
+                                        vm.isDisabled = false
                                         return false;
-
                                     });
 
                                 }
@@ -492,9 +490,6 @@
                     },
 
                     data_edit() {
-                        var vm = this;
-
-                        // alert(vm.serial_no);
                         toastr.error('Under Construction-------', {
                             closeButton: true,
                             progressBar: true,
@@ -505,14 +500,7 @@
                         this.selected_items.splice(this.selected_items.indexOf(row), 1);
                     },
                     itemtotal: function (index) {
-
-                        console.log(index.quantity * index.rate);
                         return index.quantity * index.rate;
-
-
-                        //   alert(quantity);
-                        //  var total= row.quantity);
-                        //  row.itemtotal=total;
                     },
                     valid_quantity: function (index) {
                         if (index.quantity <= 0) {

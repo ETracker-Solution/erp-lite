@@ -223,7 +223,7 @@
 
                                             <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12" style="margin-top: 26px;">
                                                 <button type="button" class="btn btn-sm btn-info btn-block"
-                                                        @click="data_input">Add
+                                                        @click="data_input" :disabled="isDisabled">Add
                                                 </button>
                                             </div>
                                             <br>
@@ -706,6 +706,7 @@
                     returnNumber: '',
                     exchangeAmount: 0,
                     user_outlet_id: "",
+                    isDisabled: false,
                 },
                 components: {
                     vuejsDatepicker
@@ -808,6 +809,7 @@
                             });
                             return false;
                         } else {
+                            vm.isDisabled = true
                             let slug = vm.item_id;
                             let exists = vm.items.some(function (field) {
                                 return field.item_id == slug
@@ -818,6 +820,8 @@
                                     closeButton: true,
                                     progressBar: true,
                                 });
+                                vm.isDisabled = false
+                                return
                             } else {
                                 if (slug) {
                                     axios.get(this.config.get_product_info_url + '/' + slug, {
@@ -843,14 +847,14 @@
                                             discountValue: 0,
                                             discountAmount: 0,
                                         });
-                                        // vm.item_id = '';
-                                        // vm.category_id = '';
+                                        vm.isDisabled = false
 
                                     }).catch(function (error) {
                                         toastr.error('Something went to wrong', {
                                             closeButton: true,
                                             progressBar: true,
                                         });
+                                        vm.isDisabled = false
                                         return false;
                                     });
                                 }

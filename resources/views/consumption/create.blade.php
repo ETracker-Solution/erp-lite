@@ -165,7 +165,7 @@
                                             </div>
                                             <div class="col-lg-2 col-md-2 col-sm-6 col-xs-12" style="margin-top: 30px;">
                                                 <button type="button" class="btn btn-info btn-block"
-                                                        @click="data_input">Add
+                                                        @click="data_input" :disabled="isDisabled">Add
                                                 </button>
                                             </div>
                                         </div>
@@ -349,7 +349,8 @@
                     reference_no: '',
                     items: [],
                     selected_items: [],
-                    pageLoading: false
+                    pageLoading: false,
+                    isDisabled: false
                 },
                 components: {
                     vuejsDatepicker
@@ -455,6 +456,7 @@
                             });
                             return false;
                         } else {
+                            vm.isDisabled = true
                             let item_id = vm.item_id;
                             let exists = vm.selected_items.some(function (field) {
                                 return field.id == item_id
@@ -465,14 +467,13 @@
                                     closeButton: true,
                                     progressBar: true,
                                 });
+                                vm.isDisabled = false
+                                return
                             } else {
-
-
                                 if (item_id) {
                                     vm.pageLoading = true;
                                     axios.get(this.config.get_item_info_url + '/' + item_id + '/' + store_id).then(function (response) {
                                         let data = response.data;
-                                        console.log(data);
                                         vm.selected_items.push({
                                             id: data.item.id,
                                             group: data.item.parent.name,
@@ -487,40 +488,34 @@
                                         vm.group_id = '';
                                         vm.items = [];
                                         vm.pageLoading = false;
-
+                                        vm.isDisabled = false
                                     }).catch(function (error) {
-
                                         toastr.error('Something went to wrong', {
                                             closeButton: true,
                                             progressBar: true,
                                         });
-
+                                        vm.isDisabled = false
                                         return false;
 
                                     });
                                 } else {
                                     vm.pageLoading = true;
                                     axios.get(this.config.get_items_by_group_id_rm_consumption_url + '/' + vm.group_id + '/' + store_id).then(function (response) {
-                                      //  vm.selected_items = [];
+
                                         vm.item_id = '';
                                         let items = response.data.products;
                                         for (let key in items) {
                                             vm.selected_items.push(items[key]);
                                         }
-                                        console.log(vm.selected_items);
-                                        // vm.item_id = '';
-                                        // vm.group_id = '';
                                         vm.pageLoading = false;
-
+                                        vm.isDisabled = false
                                     }).catch(function (error) {
-
                                         toastr.error('Something went to wrong', {
                                             closeButton: true,
                                             progressBar: true,
                                         });
-
+                                        vm.isDisabled = false
                                         return false;
-
                                     });
                                 }
                             }
@@ -563,11 +558,6 @@
                     },
                     itemtotal: function (index) {
                         return parseFloat(index.quantity * index.rate).toFixed(2);
-
-
-                        //   alert(quantity);
-                        //  var total= row.quantity);
-                        //  row.itemtotal=total;
                     },
                     valid: function (index) {
                         //console.log(index.stock_quantity);
