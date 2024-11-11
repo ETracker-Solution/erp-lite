@@ -185,8 +185,8 @@
         $previous_point = $sale->customer->type == 'regular' && $sale->customer->currentReedemablePoint() > 0 ? $sale->customer->currentReedemablePoint() - $earned_point : 0;
 
 
-        $paid_amount = $sale->payments->sum('amount');
-        $change_amount =  $paid_amount - $net_amount
+        $paid_amount = $sale->receive_amount;
+        $change_amount =  $sale->change_amount
     @endphp
     <tr>
         <td class="tc bl-none br-none"></td>

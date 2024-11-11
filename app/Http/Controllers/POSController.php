@@ -164,6 +164,11 @@ class POSController extends Controller
             $receive_amount = 0;
             foreach ($request->payment_methods as $paymentMethod) {
                 $receive_amount += $paymentMethod['amount'];
+            }
+            $sale->receive_amount = $receive_amount;
+            $sale->change_amount = $receive_amount - $sale->grand_total;
+            $sale->save();
+            foreach ($request->payment_methods as $paymentMethod) {
                 $payment = Payment::create([
                     'sale_id' => $sale->id,
                     'customer_id' => $customer_id ?? null,
@@ -207,10 +212,6 @@ class POSController extends Controller
                 }
                 unset($sale->amount);
             }
-
-            $sale->receive_amount = $receive_amount;
-            $sale->change_amount = $receive_amount - $sale->grand_total;
-            $sale->save();
             //Start Loyalty Effect
             pointEarnAndUpgradeMember($sale->id, $customer_id ?? null, $request->grand_total);
             //End Loyalty Effect
