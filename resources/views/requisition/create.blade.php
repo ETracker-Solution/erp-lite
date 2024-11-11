@@ -140,7 +140,7 @@
 
                                             <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12" style="margin-top: 26px;">
                                                 <button type="button" class="btn btn-info btn-block"
-                                                        @click="data_input">Add
+                                                        @click="data_input" :disabled="isDisabled">Add
                                                 </button>
                                             </div>
 
@@ -299,6 +299,7 @@
                     products: [],
                     selected_items: [],
                     pageLoading: false,
+                    isDisabled: false
 
                 },
                 components: {
@@ -343,6 +344,7 @@
                     data_input() {
 
                         let vm = this;
+                        vm.isDisabled = true
                         if (!vm.group_id) {
                             toastr.error('Please Select Group', {
                                 closeButton: true,
@@ -360,6 +362,8 @@
                                     closeButton: true,
                                     progressBar: true,
                                 });
+                                vm.isDisabled = false;
+                                return
                             } else {
                                 if (item_id) {
                                     axios.get(this.config.get_item_info_url + '/' + item_id).then(function (response) {
@@ -375,8 +379,7 @@
 
                                         });
 
-                                        // vm.item_id = '';
-                                        // vm.group_id = '';
+                                        vm.isDisabled = false
 
                                     }).catch(function (error) {
 
@@ -384,7 +387,7 @@
                                             closeButton: true,
                                             progressBar: true,
                                         });
-
+                                        vm.isDisabled = false;
                                         return false;
 
                                     });
@@ -405,14 +408,14 @@
                                                     closeButton: true,
                                                     progressBar: true,
                                                 });
+                                                vm.isDisabled = false;
                                                 return
                                             }
                                             vm.selected_items.push(items[key]);
                                         }
-                                        console.log(vm.selected_items);
-                                        // vm.item_id = '';
-                                        // vm.group_id = '';
+
                                         vm.pageLoading = false;
+                                        vm.isDisabled = false;
 
                                     }).catch(function (error) {
                                         vm.pageLoading = false;
@@ -420,7 +423,7 @@
                                             closeButton: true,
                                             progressBar: true,
                                         });
-
+                                        vm.isDisabled = false;
                                         return false;
 
                                     });
