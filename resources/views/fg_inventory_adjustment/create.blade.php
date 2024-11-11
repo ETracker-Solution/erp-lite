@@ -412,7 +412,7 @@
                             return false;
 
                         } else {
-
+                            vm.isDisabled = true
                             let slug = vm.item_id;
                             let exists = vm.items.some(function (field) {
                                 return field.coi_id == slug
@@ -423,6 +423,8 @@
                                     closeButton: true,
                                     progressBar: true,
                                 });
+                                vm.isDisabled = false
+                                return
                             } else {
                                 if (slug) {
                                     axios.get(this.config.get_item_info_url + '/' + slug, {
@@ -444,8 +446,7 @@
                                             item_total: 0,
                                         });
 
-                                        // vm.item_id = '';
-                                        // vm.category_id = '';
+                                        vm.isDisabled = false
 
                                     }).catch(function (error) {
 
@@ -453,7 +454,7 @@
                                             closeButton: true,
                                             progressBar: true,
                                         });
-
+                                        vm.isDisabled = false
                                         return false;
 
                                     });
