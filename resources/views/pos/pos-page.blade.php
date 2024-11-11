@@ -207,7 +207,7 @@
                         <input type="text" class="form-control"   v-model="payment.amount" :step="payment.method == 'point' ? 100 : 1" @key.press="checkPointInput">
                     </b-col>
                     <b-col  cols="5" class="mr-2">
-                        <select class="form-control"  v-model="payment.method">
+                        <select class="form-control"  v-model="payment.method" @change="checkAvail(index)">
                             <option value="cash">Cash</option>
                             <option value="bkash">Bkash</option>
                             <option value="nagad">Nagad</option>

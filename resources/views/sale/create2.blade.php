@@ -415,7 +415,7 @@
                                                                     <td>
                                                                         <select v-model="payment.method"
                                                                                 :name="'payment_methods['+index+'][method]'"
-                                                                                class="form-control form-control-sm">
+                                                                                class="form-control form-control-sm" @change="checkAvail(index)">
                                                                             <option value="cash">Cash</option>
                                                                             <option value="bkash">Bkash</option>
                                                                             <option value="nagad">Nagad</option>
@@ -923,6 +923,20 @@
                     },
                     addMorePaymentMethod() {
                         this.paymentMethods.push({amount: 0, method: ''})
+                    },
+                    checkAvail(index) {
+                        let currentMethod = this.paymentMethods[index].method
+                        let count = this.paymentMethods.filter(function (method) {
+                            return currentMethod == method.method
+                        })
+                        if (count.length > 1) {
+                            toastr.error(currentMethod + ' is already selected', {
+                                closeButton: true,
+                                progressBar: true,
+                            });
+                            this.paymentMethods[index].method = ''
+                            return
+                        }
                     },
                     setStoreId() {
                         const vm = this

@@ -431,30 +431,30 @@
                         })
                     }
                     vm.updateDiscount()
-                    if (vm.selectedSpecialDiscount){
+                    if (vm.selectedSpecialDiscount) {
                         vm.addSpecialDiscount(false)
                     }
                 },
                 delete_selected_product: function (row) {
                     this.selectedProducts.splice(this.selectedProducts.indexOf(row), 1);
                     this.updateDiscount()
-                    if (this.selectedSpecialDiscount){
+                    if (this.selectedSpecialDiscount) {
                         this.addSpecialDiscount(false)
                     }
                     let vm = this
-                  if (this.selectedProducts.length < 1){
-                      vm.customer = {};
-                      vm.discount_type = '';
-                      vm.customerNumber = '';
-                      vm.total_discount_type = '';
-                      vm.total_discount_value = 0;
-                      vm.total_discount_amount = 0;
-                      vm.special_discount_amount = 0;
-                      this.allDiscountAmount = 0;
-                      vm.couponCodeDiscountValue = 0;
-                      vm.couponCodeDiscountAmount = 0;
-                      vm.selectedSpecialDiscount = false;
-                  }
+                    if (this.selectedProducts.length < 1) {
+                        vm.customer = {};
+                        vm.discount_type = '';
+                        vm.customerNumber = '';
+                        vm.total_discount_type = '';
+                        vm.total_discount_value = 0;
+                        vm.total_discount_amount = 0;
+                        vm.special_discount_amount = 0;
+                        this.allDiscountAmount = 0;
+                        vm.couponCodeDiscountValue = 0;
+                        vm.couponCodeDiscountAmount = 0;
+                        vm.selectedSpecialDiscount = false;
+                    }
 
                 },
                 setDiscountType(discountType) {
@@ -625,7 +625,21 @@
                     console.log(this.selectedInvoice)
                 },
                 addMorePaymentMethod() {
-                    this.paymentMethods.push({amount: 0, method: 'cash'})
+                    this.paymentMethods.push({amount: 0, method: ''})
+                },
+                checkAvail(index) {
+                    let currentMethod = this.paymentMethods[index].method
+                    let count = this.paymentMethods.filter(function (method) {
+                        return currentMethod == method.method
+                    })
+                    if (count.length > 1) {
+                        toastr.error(currentMethod + ' is already selected', {
+                            closeButton: true,
+                            progressBar: true,
+                        });
+                        this.paymentMethods[index].method = ''
+                        return
+                    }
                 },
                 updateQuantity(item, update_type) {
                     vm = this
@@ -822,7 +836,7 @@
                     var vm = this
                     vm.$refs['discount-modal'].hide()
                 },
-                addSpecialDiscount(computed=true) {
+                addSpecialDiscount(computed = true) {
                     var vm = this
                     if (vm.productWiseDiscount > 0) {
                         if (confirm("Single Product Discount Applied, Sure to add Total Discount ?")) {
