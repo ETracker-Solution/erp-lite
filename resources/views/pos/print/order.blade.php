@@ -211,8 +211,7 @@
     <tr>
         <td class="tc bl-none br-none"></td>
         <td class="tc bl-none br-none"></td>
-        <td class="tc bl-none br-none"></td>
-        <td class="tc bl-none br-none">Discount:</td>
+        <td class="tc bl-none br-none"  colspan="2">Discount:</td>
         <td class="tc bl-none br-none tr">{{ $discount }}</td>
     </tr>
     <tr>
