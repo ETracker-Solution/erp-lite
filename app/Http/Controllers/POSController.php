@@ -170,7 +170,7 @@ class POSController extends Controller
                     'payment_method' => $paymentMethod['method'],
                     'amount' => ($paymentMethod['method'] == 'cash' && $sale->change_amount > 0) ? ($paymentMethod['amount'] - $sale->change_amount) : $paymentMethod['amount'],
                 ]);
-                $sale->amount = $paymentMethod['amount'];
+                $sale->amount = $payment->amount;
                 if ($paymentMethod['method'] == 'nexus') {
                     addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'Nexus'), getAccountsReceiveableGLId());
                 }
