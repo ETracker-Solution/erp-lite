@@ -168,7 +168,7 @@ class POSController extends Controller
                     'sale_id' => $sale->id,
                     'customer_id' => $customer_id ?? null,
                     'payment_method' => $paymentMethod['method'],
-                    'amount' => $paymentMethod['amount'],
+                    'amount' => ($paymentMethod['method'] == 'cash' && $sale->change_amount > 0) ? ($paymentMethod['amount'] - $sale->change_amount) : $paymentMethod['amount'],
                 ]);
                 $sale->amount = $paymentMethod['amount'];
                 if ($paymentMethod['method'] == 'nexus') {
