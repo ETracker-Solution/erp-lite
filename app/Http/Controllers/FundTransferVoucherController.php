@@ -36,7 +36,7 @@ class FundTransferVoucherController extends Controller
         $outlet_accounts = [];
         foreach ($oas as $key => $row) {
             $outlet_accounts[$key]['name'] = $row->coa->name;
-            $outlet_accounts[$key]['balance'] = AccountTransaction::where('chart_of_account_id',$row->coa_id)->sum(\DB::raw('amount * transaction_type'));
+            $outlet_accounts[$key]['balance'] = AccountTransaction::where('chart_of_account_id', $row->coa_id)->sum(\DB::raw('amount * transaction_type'));
         }
 
         $outlets = Outlet::all();
@@ -72,7 +72,7 @@ class FundTransferVoucherController extends Controller
             //     foreach ($cons as $con) {
             //         $chartOfAccounts[] = $con->coa;
             //     }
-            $chartOfAccounts = OutletAccount::with(['coa'])->whereHas('coa', function ($coa){
+            $chartOfAccounts = OutletAccount::with(['coa'])->whereHas('coa', function ($coa) {
                 return $coa->whereNull('default_type');
             })->where('outlet_id', \auth()->user()->employee->outlet_id)->get();
             $toChartOfAccounts = ChartOfAccount::where(['default_type' => 'office_account', 'is_bank_cash' => 'yes', 'type' => 'ledger', 'status' => 'active'])->get();
@@ -109,11 +109,11 @@ class FundTransferVoucherController extends Controller
             }
             foreach ($validated['products'] as $product) {
                 $creditAccount = ChartOfAccount::find($product['credit_account_id']);
-                $pendingAmount = FundTransferVoucher::where(['credit_account_id'=> $product['credit_account_id'],'status'=>'pending'])->sum('amount');
-                $currentBalance = AccountTransaction::where('chart_of_account_id',$product['credit_account_id'])->sum(\DB::raw('amount * transaction_type'));
+                $pendingAmount = FundTransferVoucher::where(['credit_account_id' => $product['credit_account_id'], 'status' => 'pending'])->sum('amount');
+                $currentBalance = AccountTransaction::where('chart_of_account_id', $product['credit_account_id'])->sum(\DB::raw('amount * transaction_type'));
                 $actualBalance = $currentBalance - $pendingAmount;
-                if (max($actualBalance,0) < $product['amount']){
-                    Toastr::warning("No Available Balance in ".$creditAccount->name);
+                if (max($actualBalance, 0) < $product['amount']) {
+                    Toastr::warning("No Available Balance in " . $creditAccount->name);
                     return back();
                 }
                 $product['date'] = $validated['date'];
@@ -181,11 +181,11 @@ class FundTransferVoucherController extends Controller
         DB::beginTransaction();
         try {
             $creditAccount = ChartOfAccount::find($fundTransferVoucher->credit_account_id);
-            $pendingAmount = FundTransferVoucher::where(['credit_account_id'=> $fundTransferVoucher->credit_account_id,'status'=>'pending'])->sum('amount');
-            $currentBalance = AccountTransaction::where('chart_of_account_id',$fundTransferVoucher->credit_account_id)->sum(\DB::raw('amount * transaction_type'));
-            $actualBalance = $currentBalance;
-            if (max($actualBalance,0) < $validated['amount']){
-                Toastr::warning("No Available Balance in ".$creditAccount->name);
+            $pendingAmount = FundTransferVoucher::where('id', '!=', $fundTransferVoucher->id)->where(['credit_account_id' => $fundTransferVoucher->credit_account_id, 'status' => 'pending'])->sum('amount');
+            $currentBalance = AccountTransaction::where('chart_of_account_id', $fundTransferVoucher->credit_account_id)->sum(\DB::raw('amount * transaction_type'));
+            $actualBalance = $currentBalance - $pendingAmount;
+            if (max($actualBalance, 0) < $validated['amount']) {
+                Toastr::warning("No Available Balance in " . $creditAccount->name);
                 return back();
             }
             $fundTransferVoucher->update($validated);
@@ -306,7 +306,7 @@ class FundTransferVoucherController extends Controller
 
     public function receiveReport(Request $request)
     {
-        $data = FundTransferVoucher::query()->with('creditAccount','debitAccount','createdBy.employee.outlet')->where('status','received');
+        $data = FundTransferVoucher::query()->with('creditAccount', 'debitAccount', 'createdBy.employee.outlet')->where('status', 'received');
 
         if (\request()->filled('date_range') && $request->date_range != null) {
             $data = searchColumnByDateRange($data);
@@ -349,7 +349,7 @@ class FundTransferVoucherController extends Controller
 
             ]
         );
-        $name = 'fund_transfer_receive_report_'.\Carbon\Carbon::now()->format('ymdHis');
+        $name = 'fund_transfer_receive_report_' . \Carbon\Carbon::now()->format('ymdHis');
 
         return $pdf->stream($name . '.pdf');
     }

@@ -319,15 +319,24 @@
                             });
                             return false;
                         } else {
-                            if (vm.from_ac_balance < vm.amount || vm.amount < 0) {
+                            if ((vm.from_ac_balance < vm.amount) || (vm.amount < 1)) {
                                 toastr.error('Please Valid amount Input', {
                                     closeButton: true,
                                     progressBar: true,
                                 });
                                 return false;
                             }
-                            console.log(vm.amount)
                             let slug = vm.from_account_id;
+                            let exists = vm.selected_items.some(function (field) {
+                               return field.from_account_id == slug
+                            });
+                            if (exists) {
+                                toastr.info('Item Already Selected', {
+                                    closeButton: true,
+                                    progressBar: true,
+                                });
+                                return
+                            }
                             let to_account_id=vm.to_account_id
 
                             if (slug) {
