@@ -164,7 +164,7 @@ class POSController extends Controller
             $receive_amount = 0;
             foreach ($request->payment_methods as $paymentMethod) {
                 $receive_amount += $paymentMethod['amount'];
-                $payment = = Payment::create([
+                $payment = Payment::create([
                     'sale_id' => $sale->id,
                     'customer_id' => $customer_id ?? null,
                     'payment_method' => $paymentMethod['method'],
