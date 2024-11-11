@@ -151,7 +151,7 @@
                                     <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12"
                                          style="margin-top: 30px;">
                                         <button type="button" class="btn btn-info btn-block"
-                                                @click="data_input">Add
+                                                @click="data_input" :disabled="isDisabled">Add
                                         </button>
                                     </div>
                                 </div>
@@ -350,7 +350,8 @@
                     selected_items: [],
                     pageLoading: false,
                     uid: "{{$uid}}",
-                    store_id: ''
+                    store_id: '',
+                    isDisabled: false
                 },
                 components: {
                     vuejsDatepicker
@@ -433,9 +434,10 @@
                             return false;
                         }
                         else {
-
+                            vm.isDisabled = true
                             let group_id = vm.group_id;
                             let item_id = vm.item_id;
+
                             let exists = vm.selected_items.some(function (field) {
                                 return field.id == item_id
                             });
@@ -445,6 +447,8 @@
                                     closeButton: true,
                                     progressBar: true,
                                 });
+                                vm.isDisabled = false
+                                return
                             } else {
                                 if (item_id) {
                                     vm.pageLoading = true;
@@ -462,6 +466,7 @@
                                         // vm.item_id = '';
                                         // vm.group_id = '';
                                         vm.pageLoading = false;
+                                        vm.isDisabled = false
                                         toastr.success('Added New Item', {
                                             closeButton: true,
                                             progressBar: true,
@@ -473,7 +478,7 @@
                                             closeButton: true,
                                             progressBar: true,
                                         });
-
+                                        vm.isDisabled = false
                                         return false;
 
                                     });
@@ -484,11 +489,22 @@
                                       //  vm.selected_items=[];
                                         let items = response.data.products;
                                         for (let key in items) {
+                                            let exists = vm.selected_items.some(function (field) {
+                                                return field.coi_id == items[key].id
+                                            });
+                                            if (exists){
+                                                vm.pageLoading = false;
+                                                toastr.error('Item Already Selected Fom this group', {
+                                                    closeButton: true,
+                                                    progressBar: true,
+                                                });
+                                                vm.isDisabled = false;
+                                                return
+                                            }
                                             vm.selected_items.push(items[key]);
                                         }
                                         console.log(vm.selected_items);
-                                        // vm.item_id = '';
-                                        // vm.group_id = '';
+                                        vm.isDisabled = false;
                                         vm.pageLoading = false;
 
                                     }).catch(function (error) {
@@ -497,7 +513,7 @@
                                             closeButton: true,
                                             progressBar: true,
                                         });
-
+                                        vm.isDisabled = false;
                                         return false;
 
                                     });

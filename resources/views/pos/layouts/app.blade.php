@@ -431,10 +431,16 @@
                         })
                     }
                     vm.updateDiscount()
+                    if (vm.selectedSpecialDiscount){
+                        vm.addSpecialDiscount(false)
+                    }
                 },
                 delete_selected_product: function (row) {
                     this.selectedProducts.splice(this.selectedProducts.indexOf(row), 1);
                     this.updateDiscount()
+                    if (this.selectedSpecialDiscount){
+                        this.addSpecialDiscount(false)
+                    }
                     let vm = this
                   if (this.selectedProducts.length < 1){
                       vm.customer = {};
@@ -816,11 +822,11 @@
                     var vm = this
                     vm.$refs['discount-modal'].hide()
                 },
-                addSpecialDiscount() {
+                addSpecialDiscount(computed=true) {
                     var vm = this
                     if (vm.productWiseDiscount > 0) {
                         if (confirm("Single Product Discount Applied, Sure to add Total Discount ?")) {
-                            if (vm.selectedSpecialDiscount) {
+                            if (vm.selectedSpecialDiscount && computed) {
                                 vm.selectedSpecialDiscount = false
                                 vm.special_discount_amount = 0
                             } else {
@@ -832,7 +838,7 @@
                             return false;
                         }
                     } else {
-                        if (vm.selectedSpecialDiscount) {
+                        if (vm.selectedSpecialDiscount && computed) {
                             vm.selectedSpecialDiscount = false
                             vm.special_discount_amount = 0
                         } else {
