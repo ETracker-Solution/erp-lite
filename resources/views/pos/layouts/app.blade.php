@@ -445,6 +445,7 @@
                     if (this.total_discount_type === 'percentage') {
                         vm.total_discount_amount = (vm.total_bill * vm.total_discount_value) / 100
                     }
+                    vm.total_discount_amount = Math.round(vm.total_discount_amount)
                     vm.closeDiscountModal()
                 },
                 clickedOnCategory(category) {
@@ -809,6 +810,7 @@
                                 vm.selectedSpecialDiscount = true
                                 vm.special_discount_amount = (vm.total_bill * vm.special_discount_value) / 100
                             }
+                            vm.special_discount_amount = Math.round(vm.special_discount_amount)
                         } else {
                             return false;
                         }
@@ -820,6 +822,7 @@
                             vm.selectedSpecialDiscount = true
                             vm.special_discount_amount = (vm.total_bill * vm.special_discount_value) / 100
                         }
+                        vm.special_discount_amount = Math.round(vm.special_discount_amount)
                     }
 
                 },
@@ -835,6 +838,7 @@
                                 if (product.discountType == 'f') {
                                     product.discountAmount = product.discountValue;
                                 }
+                                product.discountAmount = Math.round(product.discountAmount);
                             });
                         } else {
                             sp.discountType = ''
@@ -850,6 +854,7 @@
                             if (product.discountType == 'f') {
                                 product.discountAmount = product.discountValue;
                             }
+                            product.discountAmount = Math.round(product.discountAmount);
                         });
                     }
 
