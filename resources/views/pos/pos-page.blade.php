@@ -5,7 +5,7 @@
                 <div class="row">
                     <div class="col-4 text-center header-gap">
                         <h4>All Items</h4>
-                        <ul style="list-style-type: none; height: 80vh; overflow-y: auto; padding-right: 25px; cursor: pointer">
+                        <ul style="list-style-type: none; height: 80vh; overflow-y: auto; cursor: pointer">
                             <li style="border: 1px solid #dedede; border-radius: 5px; margin-bottom: 10px"
                                 v-for="(category, index) in categories" v-bind:value="category.id"
                                 @click="clickedOnCategory(category.id)">
@@ -13,7 +13,7 @@
                                     <img
                                         src="https://as2.ftcdn.net/v2/jpg/03/33/60/19/1000_F_333601933_hSdfWhDfRG3zaiVRvYZF24KixdVBdGfB.jpg"
                                         alt="" width="100%" height="70px">
-                                    <p style="position:absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-weight: 600;">
+                                    <p style="position:absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-weight: 700; font-size: small; color: black">
                                         @{{ category.name }}</p>
                                 </div>
                             </li>
