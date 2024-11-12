@@ -133,6 +133,7 @@ class ApiController extends Controller
             'parent_id' => $coi->parent_id,
             'name' => $coi->name,
             'unit' => $coi->unit->name ?? 'No Unit',
+            'uom' => $coi->unit->name ?? 'No Unit',
             'price' => isset($item) ? $item->unit_price : $coi->price,
             'discountable' => !$coi->parent->non_discountable,
             'coi_id' => $id,
