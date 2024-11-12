@@ -373,7 +373,7 @@
                                             coi_id: product_details.coi_id,
                                             group: product_details.group,
                                             name: product_details.name,
-                                            uom: product_details.unit.name,
+                                            uom: product_details.unit,
                                             balance_qty: product_details.balance_qty,
                                             price: product_details.price,
                                             quantity: '',
