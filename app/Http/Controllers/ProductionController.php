@@ -109,7 +109,8 @@ class ProductionController extends Controller
                 Toastr::info('At Least One Product Required.', '', ["progressBar" => true]);
                 return back();
             }
-            $validated['uid'] = generateUniqueUUID($validated['store_id'], Production::class, 'uid');
+            $store = Store::find($validated['store_id']);
+            $validated['uid'] = generateUniqueUUID($store->doc_id, Production::class, 'uid');
             $production = Production::query()->create($validated);
             Batch::where('id', $validated['batch_id'])->update(['is_production' => true]);
             $production->amount = $production->subtotal;
