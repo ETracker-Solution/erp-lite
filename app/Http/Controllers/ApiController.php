@@ -39,13 +39,48 @@ class ApiController extends Controller
 
     public function fetchItemById($id)
     {
-        $coi = ChartOfInventory::with('unit', 'parent')->findOrFail($id);
 
+        $coi = ChartOfInventory::with('unit', 'parent')->findOrFail($id);
+        $products = ChartOfInventory::with('unit', 'parent')->where('id',$id)->get();
+        $needToProduction = 0;
         if (auth()->user()->employee->user_of == 'factory') {
-            $storeIds = auth()->user()->employee->factory->stores()->where('type', 'FG')->pluck('id')->toArray();
-            $current_stock = transactionAbleStock($coi, $storeIds);
-            $totalRequisitionLeft = fetchStoreRequisitionQuantities($coi, $storeIds) - fetchStoreCompletedRequisitionDeliveryQuantities($coi, $storeIds);
-            $needToProduction = $totalRequisitionLeft - $current_stock;
+            $all_requisitions = \App\Models\Requisition::todayFGAvailableRequisitions(auth('web')->user()->employee->factory_id);
+
+            $outlet_ids = collect($all_requisitions)->pluck('outlet_id')->toArray();
+            $outlets = Outlet::with(['requisitions.items'])->select('id', 'name')->whereIn('id', $outlet_ids)->get();
+            $requisitions = Requisition::whereIn('outlet_id', $outlet_ids)
+                ->where('type', 'FG')
+                ->where('status', 'approved')
+                ->whereIn('delivery_status', ['pending', 'partial'])
+                ->with(['items', 'deliveries.items'])
+                ->get()
+                ->groupBy('outlet_id');
+
+
+            foreach ($products as $product) {
+                $reqLeft = 0;
+                if (auth()->user()->employee->user_of == 'factory') {
+                    $storeIds = auth()->user()->employee->factory->stores()->where('type', 'FG')->pluck('id')->toArray();
+                    $current_stock = transactionAbleStock($product, $storeIds);
+
+                    foreach ($outlets as $outlet) {
+                        $outlet_req_qty = 0;
+                        $outlet_req_delivery_qty = 0;
+                        if (isset($requisitions[$outlet->id])) {
+                            foreach ($requisitions[$outlet->id] as $req) {
+                                $outlet_req_qty += $req->items->where('coi_id', $product->id)->sum('quantity');
+                                foreach ($req->deliveries as $delivery) {
+                                    $outlet_req_delivery_qty += $delivery->items->where('coi_id', $product->id)->sum('quantity');
+                                }
+                            }
+                        }
+                        $reqLeft += ($outlet_req_qty - $outlet_req_delivery_qty);
+                    }
+
+                    $needToProduction = $reqLeft - $current_stock;
+                }
+            }
+
             $coi->quantity = max($needToProduction, 0);
         }
         return $coi;
@@ -160,15 +195,42 @@ class ApiController extends Controller
 
     public function fetch_products_by_cat_id($id)
     {
+        $all_requisitions = \App\Models\Requisition::todayFGAvailableRequisitions(auth('web')->user()->employee->factory_id);
+
+        $outlet_ids = collect($all_requisitions)->pluck('outlet_id')->toArray();
+        $outlets = Outlet::with(['requisitions.items'])->select('id', 'name')->whereIn('id', $outlet_ids)->get();
 
         $products = ChartOfInventory::where(['status' => 'active', 'parent_id' => $id])->get();
         $needToProduction = 0;
+
+        $requisitions = Requisition::whereIn('outlet_id', $outlet_ids)
+            ->where('type', 'FG')
+            ->where('status', 'approved')
+            ->whereIn('delivery_status', ['pending', 'partial'])
+            ->with(['items', 'deliveries.items'])
+            ->get()
+            ->groupBy('outlet_id'); // Group by outlet_id for easier access later
         foreach ($products as $product) {
+            $reqLeft = 0;
             if (auth()->user()->employee->user_of == 'factory') {
                 $storeIds = auth()->user()->employee->factory->stores()->where('type', 'FG')->pluck('id')->toArray();
                 $current_stock = transactionAbleStock($product, $storeIds);
-                $totalRequisitionLeft = fetchStoreRequisitionQuantities($product, $storeIds) - fetchStoreCompletedRequisitionDeliveryQuantities($product, $storeIds);
-                $needToProduction = $totalRequisitionLeft - $current_stock;
+
+                foreach ($outlets as $outlet) {
+                    $outlet_req_qty = 0;
+                    $outlet_req_delivery_qty = 0;
+                    if (isset($requisitions[$outlet->id])) {
+                        foreach ($requisitions[$outlet->id] as $req) {
+                            $outlet_req_qty += $req->items->where('coi_id', $product->id)->sum('quantity');
+                            foreach ($req->deliveries as $delivery) {
+                                $outlet_req_delivery_qty += $delivery->items->where('coi_id', $product->id)->sum('quantity');
+                            }
+                        }
+                    }
+                    $reqLeft += ($outlet_req_qty - $outlet_req_delivery_qty);
+                }
+
+                $needToProduction = $reqLeft - $current_stock;
             }
 
             $product['quantity'] = $needToProduction;
