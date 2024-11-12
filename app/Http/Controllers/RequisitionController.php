@@ -285,7 +285,7 @@ class RequisitionController extends Controller
 
             $current_stock = transactionAbleStock($product, $storeIds);
             $totalRequisitionLeft = fetchStoreRequisitionQuantities($product, $storeIds) - fetchStoreCompletedRequisitionDeliveryQuantities($product,$storeIds) - fetchStoreReceivedRequisitionDeliveryQuantities($product, $storeIds);
-            $needToProduction = $totalRequisitionLeft - $current_stock;
+            $needToProduction = $reqLeft - $current_stock;
 
             $values[$key]['total'] = $reqLeft;
             $values[$key]['current_stock'][] = $current_stock;
