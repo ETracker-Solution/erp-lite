@@ -143,15 +143,31 @@ class SalesDeliveryController extends Controller
 
             }
             $delivery_receive = 0;
+
+            $receivable_amount = $salesAmount - $sale->receive_amount;
+            $receive_amount = 0;
+
             foreach ($request->payment_methods as $paymentMethod) {
                 $delivery_receive += $paymentMethod['amount'];
-                Payment::create([
+            }
+            $change_amount = $delivery_receive - $receivable_amount;
+            foreach ($request->payment_methods as $paymentMethod) {
+                $payment = Payment::create([
                     'sale_id' => $sale->id,
                     'customer_id' => $customer_id ?? null,
                     'payment_method' => $paymentMethod['method'],
-                    'amount' => $paymentMethod['amount'],
+                    'amount' => ($paymentMethod['method'] == 'cash' && $change_amount > 0) ? ($paymentMethod['amount'] - $change_amount) : $paymentMethod['amount'],
                 ]);
-                $sale->amount = $paymentMethod['amount'];
+                $sale->amount = $payment->amount;
+                if ($paymentMethod['method'] == 'nexus') {
+                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'Nexus'), getAccountsReceiveableGLId());
+                }
+                if ($paymentMethod['method'] == 'pbl') {
+                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'PBL'), getAccountsReceiveableGLId());
+                }
+                if ($paymentMethod['method'] == 'due') {
+                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'Due'), getAccountsReceiveableGLId());
+                }
                 if ($paymentMethod['method'] == 'upay') {
                     addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'upay'), getAccountsReceiveableGLId());
                 }

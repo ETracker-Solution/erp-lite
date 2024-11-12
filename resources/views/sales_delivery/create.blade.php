@@ -319,6 +319,9 @@
                                                                             <option value="UCB">UCB</option>
                                                                             <option value="rocket">Rocket</option>
                                                                             <option value="upay">Upay</option>
+                                                                            <option value="nexus">Nexus</option>
+                                                                            <option value="pbl">PBL POS</option>
+                                                                            <option value="due">Due Sale</option>
                                                                             <option value="point">Redeem Point</option>
                                                                             <option value="exchange">Exchange</option>
                                                                         </select>
