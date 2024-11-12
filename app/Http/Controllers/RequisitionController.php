@@ -264,6 +264,7 @@ class RequisitionController extends Controller
 
         foreach ($products as $key => $product) {
             $req_qty = 0;
+            $reqLeft = 0;
             $values[$key]['group_name'] = $product->parent->name;
             $values[$key]['product_name'] = $product->name;
 
@@ -279,13 +280,14 @@ class RequisitionController extends Controller
                     }
                 }
                 $values[$key]['product_quantity'][] = $outlet_req_qty - $outlet_req_delivery_qty;
+                $reqLeft += ($outlet_req_qty - $outlet_req_delivery_qty);
             }
 
             $current_stock = transactionAbleStock($product, $storeIds);
             $totalRequisitionLeft = fetchStoreRequisitionQuantities($product, $storeIds) - fetchStoreCompletedRequisitionDeliveryQuantities($product,$storeIds) - fetchStoreReceivedRequisitionDeliveryQuantities($product, $storeIds);
             $needToProduction = $totalRequisitionLeft - $current_stock;
 
-            $values[$key]['total'] = $totalRequisitionLeft;
+            $values[$key]['total'] = $reqLeft;
             $values[$key]['current_stock'][] = $current_stock;
             $values[$key]['productionable'][] = max($needToProduction, 0);
 
