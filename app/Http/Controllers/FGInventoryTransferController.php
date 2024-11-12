@@ -85,7 +85,8 @@ class FGInventoryTransferController extends Controller
         $data = $request->validated();
 //        DB::beginTransaction();
 //        try {
-        $data['uid'] = generateUniqueUUID($data['from_store_id'],InventoryTransfer::class,'uid');
+        $store = Store::find($data['from_store_id']);
+        $data['uid'] = generateUniqueUUID($store->doc_id,InventoryTransfer::class,'uid');
         $fGInventoryTransfer = InventoryTransfer::create($data);
         foreach ($data['products'] as $product) {
             $fGInventoryTransfer->items()->create($product);
