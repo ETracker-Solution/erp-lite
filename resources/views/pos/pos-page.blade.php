@@ -13,7 +13,7 @@
                                     <img
                                         src="https://as2.ftcdn.net/v2/jpg/03/33/60/19/1000_F_333601933_hSdfWhDfRG3zaiVRvYZF24KixdVBdGfB.jpg"
                                         alt="" width="100%" height="70px">
-                                    <p style="position:absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-weight: 700; font-size: small; color: black">
+                                    <p style="position:absolute; top: 50%; left: 20%; transform: translate(-10%, -50%); font-weight: 700; font-size: small; color: black">
                                         @{{ category.name }}</p>
                                 </div>
                             </li>
