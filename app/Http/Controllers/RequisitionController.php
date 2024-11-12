@@ -291,7 +291,7 @@ class RequisitionController extends Controller
             $values[$key]['current_stock'][] = $current_stock;
             $values[$key]['productionable'][] = max($needToProduction, 0);
 
-            if ($totalRequisitionLeft == 0) {
+            if ($reqLeft == 0) {
                 unset($values[$key]);
             }
         }
