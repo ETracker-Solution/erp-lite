@@ -83,20 +83,28 @@ class FGInventoryTransferController extends Controller
     public function store(StoreFGInventoryTransferRequest $request)
     {
         $data = $request->validated();
-//        DB::beginTransaction();
-//        try {
+        DB::beginTransaction();
+        try {
         $store = Store::find($data['from_store_id']);
-        $data['uid'] = generateUniqueUUID($store->doc_id,InventoryTransfer::class,'uid', true);
+        $headOffice  = false;
+        $factory = false;
+        if ($store->doc_type == 'factory'){
+            $factory = true;
+        }
+        if ($store->doc_type == 'ho'){
+            $headOffice = true;
+        }
+        $data['uid'] = generateUniqueUUID($store->doc_id,InventoryTransfer::class,'uid', $factory, $headOffice);
         $fGInventoryTransfer = InventoryTransfer::create($data);
         foreach ($data['products'] as $product) {
             $fGInventoryTransfer->items()->create($product);
         }
-//            DB::commit();
-//        } catch (\Exception $error) {
-//            DB::rollBack();
-//            Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
-//            return back();
-//        }
+            DB::commit();
+        } catch (\Exception $error) {
+            DB::rollBack();
+            Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
+            return back();
+        }
         Toastr::success('FG Inventory Transfer Successful!.', '', ["progressBar" => true]);
         return redirect()->route('fg-inventory-transfers.index');
     }

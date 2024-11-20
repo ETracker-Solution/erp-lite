@@ -401,7 +401,7 @@
                 selectProductToSell(product) {
                     var vm = this;
                     var product_id = product.id;
-                    if (product.stock < 1) {
+                    if (! product.stock > 0) {
                         toastr.warning('No Stock Available')
                         return false;
                     }
