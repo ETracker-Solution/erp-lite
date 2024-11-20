@@ -313,7 +313,7 @@ class POSController extends Controller
 
     public function getAllProductCategories(Request $request)
     {
-        return ChartOfInventory::where(['rootAccountType' => 'FG', 'status' => 'active'])->whereHas('subChartOfInventories', function ($q) {
+        return ChartOfInventory::where(['rootAccountType' => 'FG', 'status' => 'active'])->where('type','group')->whereHas('subChartOfInventories', function ($q) {
             return $q->where('type', 'item');
         })->get();
     }
