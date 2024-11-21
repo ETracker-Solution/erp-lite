@@ -11,5 +11,14 @@ return [
 	'tempDir'               => base_path('storage/app/mpdf'),
 	'pdf_a'                 => false,
 	'pdf_a_auto'            => false,
-	'icc_profile_path'      => ''
+	'icc_profile_path'      => '',
+    'default_font'          => 'notoserifbengali',
+    'font_path'       => base_path('storage/fonts/'), // Path to font directory
+    'font_data'      => [
+        'notoserifbengali' => [
+            'R' => 'NotoSerifBengali-Regular.ttf', // Bangla font file
+        ],
+    ],
+    'useOTL'                => true, // Enable OpenType Layout for proper shaping
+    'useKashida'            => false, // Disa
 ];

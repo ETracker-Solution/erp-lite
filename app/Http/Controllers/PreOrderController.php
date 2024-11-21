@@ -191,32 +191,10 @@ class PreOrderController extends Controller
             'model' => PreOrder::find($id),
 
         ];
+//        return view( 'pre_order.pdf',$data);
+        $pdf = PDF::loadView('pre_order.pdf',$data);
 
-        $pdf = PDF::loadView(
-            'pre_order.pdf',
-            $data,
-            [],
-            [
-                'format' => 'A4-P',
-                'orientation' => 'P',
-                'margin-left' => 1,
-
-                '', // mode - default ''
-                '', // format - A4, for example, default ''
-                0, // font size - default 0
-                '', // default font family
-                1, // margin_left
-                1, // margin right
-                1, // margin top
-                1, // margin bottom
-                1, // margin header
-                1, // margin footer
-                'L', // L - landscape, P - portrait
-
-            ]
-        );
         $name = \Carbon\Carbon::now()->format('d-m-Y');
-
         return $pdf->stream($name . '.pdf');
     }
 
@@ -231,6 +209,10 @@ class PreOrderController extends Controller
                 'status' => $request->status,
             ];
             if ($request->status == 'delivered') {
+                if(!$request->factory_store){
+                    Toastr::error('Select A Store');
+                    return back();
+                }
                 $store = Store::find($request->factory_store);
 
                 $storeStocks = fetchStoreProductBalances($productIds, [$request->factory_store]);
@@ -258,6 +240,12 @@ class PreOrderController extends Controller
                 ];
             }
             if ($request->status == 'received') {
+
+                if(!$request->outlet_store){
+                    Toastr::error('Select A Store');
+                    return back();
+                }
+
                 $updatableData = [
                     'status' => $request->status,
                     'outlet_receive_store_id' => $request->outlet_store
