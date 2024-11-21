@@ -235,7 +235,7 @@ class PreOrderController extends Controller
 
                 $storeStocks = fetchStoreProductBalances($productIds, [$request->factory_store]);
                 foreach ($products as $product) {
-                    $current_stock = count($storeStocks) > 0 ? $storeStocks[$store->id][$product->coi_id] : 0;
+                    $current_stock = count($storeStocks) > 0 && isset($storeStocks[$store->id][$product->coi_id]) ? $storeStocks[$store->id][$product->coi_id] : 0;
 
                     $deliveredQty = $product->coi->requisitionDeliveryItems()->whereHas('requisitionDelivery', function ($q) {
                         return $q->where('status', 'completed');
