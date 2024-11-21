@@ -190,7 +190,7 @@ class SaleController extends Controller
                 if ($discount_type == 'p') {
                     $discount = ($amount * $discount_value) / 100;
                 } elseif ($discount_type == 'f') {
-                    $discount = ($amount - $discount_value);
+                    $discount = $discount_value;
                 } else {
                     $discount = 0;
                 }
