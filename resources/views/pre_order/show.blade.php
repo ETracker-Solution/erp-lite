@@ -50,7 +50,7 @@
                                 <b>Order No :</b> {{ $model->order_number }}, <br>
                                 <b>Customer :</b> {{ $model->customer->name }}, <br>
                                 <b>Customer Number:</b> {{ $model->customer->type == 'default' ? 'N/A' : $model->customer->mobile }}, <br>
-                                <b>Outlet :</b> {{ $model->outlet->name }}, <br>
+                                <b>Outlet :</b> {{ $model->deliveryPoint ? $model->deliveryPoint->name : '' }}, <br>
                             </div>
                             <!-- /.col -->
                             <!-- /.col -->

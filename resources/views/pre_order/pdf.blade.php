@@ -76,7 +76,7 @@
                     <b>Customer :</b> {{ $model->customer->name ?? '' }}, <br>
                     <b>Customer Number
                         :</b> {{ $model->customer->type == 'default' ? 'N/A' : $model->customer->mobile }}, <br>
-                    <b>Outlet :</b> {{ $model->outlet->name ?? '' }}, <br>
+                    <b>Outlet :</b> {{ $model->deliveryPoint ? $model->deliveryPoint->name : '' }}, <br>
                     <b>Size :</b> {{ $model->size }}, <br>
                     <b>Flavour :</b> {{ $model->flavour }}, <br>
                     <b>Cake Message :</b> {{ $model->cake_message }}, <br>
