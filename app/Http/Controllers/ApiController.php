@@ -200,7 +200,10 @@ class ApiController extends Controller
         $outlet_ids = collect($all_requisitions)->pluck('outlet_id')->toArray();
         $outlets = Outlet::with(['requisitions.items'])->select('id', 'name')->whereIn('id', $outlet_ids)->get();
 
-        $products = ChartOfInventory::where(['status' => 'active', 'parent_id' => $id])->get();
+        $requisition_ids = collect($all_requisitions)->pluck('id')->toArray();
+        $product_ids = RequisitionItem::whereIn('requisition_id', $requisition_ids)->whereNotNull('coi_id')->pluck('coi_id')->toArray();
+
+        $products = ChartOfInventory::where(['status' => 'active', 'parent_id' => $id])->whereIn('id',$product_ids)->get();
         $needToProduction = 0;
 
         $requisitions = Requisition::whereIn('outlet_id', $outlet_ids)
@@ -233,7 +236,7 @@ class ApiController extends Controller
                 $needToProduction = $reqLeft - $current_stock;
             }
 
-            $product['quantity'] = $needToProduction;
+            $product['quantity'] = max($needToProduction, 0);
             $product['group'] = $product->parent ? $product->parent->name : '';
             $product['uom'] = $product->unit ? $product->unit->name : '';
             $product['coi_id'] = $product->id;

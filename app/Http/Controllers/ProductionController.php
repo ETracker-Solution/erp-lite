@@ -103,6 +103,7 @@ class ProductionController extends Controller
     public function store(StoreProductionRequest $request)
     {
         $validated = $request->validated();
+        return $validated['products'];
         DB::beginTransaction();
         try {
             if (count($validated['products']) < 1) {
@@ -113,24 +114,32 @@ class ProductionController extends Controller
             $validated['uid'] = generateUniqueUUID($store->doc_id, Production::class, 'uid');
             $production = Production::query()->create($validated);
             Batch::where('id', $validated['batch_id'])->update(['is_production' => true]);
-            $production->amount = $production->subtotal;
+            $totalRate = 0;
             foreach ($validated['products'] as $product) {
-                $production->items()->create($product);
-                // Inventory Transaction Effect
-                InventoryTransaction::query()->create([
-                    'store_id' => $production->store_id,
-                    'doc_type' => 'FGP',
-                    'doc_id' => $production->id,
-                    'quantity' => $product['quantity'],
-                    'rate' => $product['rate'],
-                    'amount' => $product['quantity'] * $product['rate'],
-                    'date' => $production->date,
-                    'type' => 1,
-                    'coi_id' => $product['coi_id'],
-                ]);
+                if ($product['quantity'] > 0){
+                    $totalRate += $product['quantity'] * $product['rate'];
+                    $production->items()->create($product);
+                    // Inventory Transaction Effect
+                    InventoryTransaction::query()->create([
+                        'store_id' => $production->store_id,
+                        'doc_type' => 'FGP',
+                        'doc_id' => $production->id,
+                        'quantity' => $product['quantity'],
+                        'rate' => $product['rate'],
+                        'amount' => $product['quantity'] * $product['rate'],
+                        'date' => $production->date,
+                        'type' => 1,
+                        'coi_id' => $product['coi_id'],
+                    ]);
+                }
+
             }
+            $production->amount = $totalRate;
             // Accounts Transaction Effect
             addAccountsTransaction('FGP', $production, 16, 17);
+            $production->update([
+               'subtotal'=>$totalRate
+            ]);
             DB::commit();
         } catch (\Exception $exception) {
             DB::rollBack();
