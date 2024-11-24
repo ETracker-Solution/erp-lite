@@ -203,7 +203,7 @@ class ApiController extends Controller
         $requisition_ids = collect($all_requisitions)->pluck('id')->toArray();
         $product_ids = RequisitionItem::whereIn('requisition_id', $requisition_ids)->whereNotNull('coi_id')->pluck('coi_id')->toArray();
 
-        $products = ChartOfInventory::where(['status' => 'active', 'parent_id' => $id])->whereIn('id',$product_ids)->get();
+        $products = ChartOfInventory::where(['status' => 'active', 'parent_id' => $id])->get();
         $needToProduction = 0;
 
         $requisitions = Requisition::whereIn('outlet_id', $outlet_ids)
