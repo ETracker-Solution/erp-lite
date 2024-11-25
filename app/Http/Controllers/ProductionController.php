@@ -103,7 +103,6 @@ class ProductionController extends Controller
     public function store(StoreProductionRequest $request)
     {
         $validated = $request->validated();
-        return $validated['products'];
         DB::beginTransaction();
         try {
             if (count($validated['products']) < 1) {
