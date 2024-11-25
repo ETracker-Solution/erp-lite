@@ -169,29 +169,34 @@
                     {
                         data: "date",
                         title: "Date",
-                        searchable: true
+                        searchable: true,
+                        orderable: false
                     },
                     {
                         data: "id",
                         title: "FTV No",
-                        searchable: true
+                        searchable: true,
+                        orderable: false
                     },
                     {
                         data: "credit_account.name",
                         title: "Transfer From",
                         searchable: false,
-                        defaultContent: '-'
+                        defaultContent: '-',
+                        orderable: false
                     },
                     {
                         data: "debit_account.name",
                         title: "Transfer To",
                         searchable: false,
-                        defaultContent: '-'
+                        defaultContent: '-',
+                        orderable: false
                     },
                     {
                         data: "amount",
                         title: "Amount",
-                        searchable: false
+                        searchable: false,
+                        orderable: false
                     },
                     // {
                     //     data: "created_at",
