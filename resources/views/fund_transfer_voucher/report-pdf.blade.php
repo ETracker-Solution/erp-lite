@@ -68,7 +68,7 @@
 <table width="100%" style="text-align: center;">
     <thead>
     <tr>
-        <th>Outlet</th>
+{{--        <th>Outlet</th>--}}
         <th>Date</th>
         <th>From Account</th>
         <th>To Account</th>
@@ -78,7 +78,7 @@
     <tbody>
     @foreach($transactions as $transaction)
         <tr>
-            <td>{{ $transaction->createdBy->employee ? $transaction->createdBy->employee->outlet->name : 'NA' }}</td>
+{{--            <td>{{ $transaction->createdBy->employee ? $transaction->createdBy->employee->outlet->name : 'NA' }}</td>--}}
             <td>{{ $transaction->date }}</td>
             <td>{{ $transaction->creditAccount->name }}</td>
             <td>{{ $transaction->debitAccount->name }}</td>
