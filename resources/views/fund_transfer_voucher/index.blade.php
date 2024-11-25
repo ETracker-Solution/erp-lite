@@ -179,12 +179,14 @@
                     {
                         data: "credit_account.name",
                         title: "Transfer From",
-                        searchable: false
+                        searchable: false,
+                        defaultContent: '-'
                     },
                     {
                         data: "debit_account.name",
                         title: "Transfer To",
-                        searchable: false
+                        searchable: false,
+                        defaultContent: '-'
                     },
                     {
                         data: "amount",
