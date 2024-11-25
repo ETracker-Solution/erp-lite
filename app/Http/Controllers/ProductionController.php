@@ -133,12 +133,14 @@ class ProductionController extends Controller
                 }
 
             }
+            $production->update([
+                'subtotal'=>$totalRate
+            ]);
+
             $production->amount = $totalRate;
             // Accounts Transaction Effect
             addAccountsTransaction('FGP', $production, 16, 17);
-            $production->update([
-               'subtotal'=>$totalRate
-            ]);
+
             DB::commit();
         } catch (\Exception $exception) {
             DB::rollBack();

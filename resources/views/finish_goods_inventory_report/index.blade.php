@@ -297,7 +297,7 @@
                         axios.get(this.config.inventoryReportUrl + '/create', {
                             params: {
                                 report_type: reportType,
-                                as_on_date: vm.as_on_date,
+                                as_on_date: vm.from_date,
                                 group_id: vm.group_id,
                                 item_id: vm.item_id,
                                 store_id: vm.store_id,
