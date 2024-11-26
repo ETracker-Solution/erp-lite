@@ -426,6 +426,7 @@ class POSController extends Controller
     public function printInvoice($id)
     {
         $sale = Sale::find($id);
+//        return $sale->membershipPointHistory[0];
         $message = 'Sold Goods are not returnable.';
         if ($sale->preOrder){
             $message = "Pre-order goods can be  cancelled before 24 hours of delivery.";
