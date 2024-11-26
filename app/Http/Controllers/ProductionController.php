@@ -110,7 +110,7 @@ class ProductionController extends Controller
                 return back();
             }
             $store = Store::find($validated['store_id']);
-            $validated['uid'] = generateUniqueUUID($store->doc_id, Production::class, 'uid');
+            $validated['uid'] = generateUniqueUUID($store->doc_id, Production::class, 'uid',$store->doc_type == 'factory');
             $production = Production::query()->create($validated);
             Batch::where('id', $validated['batch_id'])->update(['is_production' => true]);
             $totalRate = 0;

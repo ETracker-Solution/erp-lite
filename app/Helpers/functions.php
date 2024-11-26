@@ -66,6 +66,8 @@ function showStatus($status)
             return '<span class="badge badge-pill badge-glow badge-danger">Wastage</span>';
         case 'increase':
             return '<span class="badge badge-pill badge-glow badge-success">Increase</span>';
+        case 'ready_to_delivery':
+            return '<span class="badge badge-pill badge-glow badge-dark">' . ucwords(str_replace('_',' ',$status)) . '</span>';
     }
 }
 

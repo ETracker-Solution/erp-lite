@@ -9,38 +9,36 @@
             </button>
         </form>
     @endif
-        @if($row->status == 'pending' && (in_array(auth()->user()->employee->user_of,['ho']) || auth()->user()->is_super))
-            <form action="{{ route('pre-orders.status-update', $row->id) }}" method="POST">
-                @csrf
-                @method('PUT')
-                <input type="hidden" name="status" value="cancelled">
-                <button class="btn btn-danger btn-xs"><i class="fas fa-check-circle">
-                    </i> Cancel
-                </button>
-            </form>
-        @endif
-    <form action="#" method="post">
-        <input type="hidden" name="_method" value="DELETE">
-        @csrf
-        @if($row->status == 'pending')
-            <a href="{{ route('pre-orders.edit', encrypt($row->id)) }}" class="btn btn-info btn-xs">
-                <i class="fas fa-pencil-alt">
-                </i>
-                Edit
-            </a>
-        @endif
-        <a href="{{ route('pre-orders.show', $row->id) }}" class="btn btn-xs btn-primary">
-            <i class="fas fa-folder">
-            </i> Show
+    @if($row->status == 'pending' && (in_array(auth()->user()->employee->user_of,['ho']) || auth()->user()->is_super))
+        <form action="{{ route('pre-orders.status-update', $row->id) }}" method="POST">
+            @csrf
+            @method('PUT')
+            <input type="hidden" name="status" value="cancelled">
+            <button class="btn btn-danger btn-xs"><i class="fas fa-check-circle">
+                </i> Cancel
+            </button>
+        </form>
+    @endif
+    @if($row->status == 'pending')
+        <a href="{{ route('pre-orders.edit', encrypt($row->id)) }}" class="btn btn-info btn-xs">
+            <i class="fas fa-pencil-alt">
+            </i>
+            Edit
         </a>
-{{--        @if($row->status == 'pending')--}}
-{{--            <button id="btnDelete" class="btn btn-danger btn-xs"><i class="fas fa-trash">--}}
-{{--                </i> Delete--}}
-{{--            </button>--}}
-{{--        @endif--}}
-
-    </form>
+    @endif
+    <a href="{{ route('pre-orders.show', $row->id) }}" class="btn btn-xs btn-primary">
+        <i class="fas fa-folder">
+        </i> Show
+    </a>
     @if($row->status == 'approved' && auth()->user()->employee->user_of != 'outlet')
+        <button class="btn btn-dark btn-xs" data-toggle="modal" data-target="#productionModal"
+                data-id="{{ $row->id }}"
+                type="button"><i
+                class="fas fa-arrow-alt-circle-up">
+            </i> Production
+        </button>
+    @endif
+    @if($row->status == 'ready_to_delivery' && auth()->user()->employee->user_of != 'outlet')
         <button class="btn btn-success btn-xs" data-toggle="modal" data-target="#deliverModal" data-id="{{ $row->id }}"
                 type="button"><i
                 class="fas fa-check-circle">

@@ -146,6 +146,39 @@
                 </form>
             </div>
         </div>
+        <div class="modal fade" id="productionModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+             aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <form method="POST" id="productionForm">
+                    @csrf
+                    @method('PUT')
+                    <input type="hidden" name="status" value="ready_to_delivery">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalLabel">Production Pre Order</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label for="">Select Store</label>
+                                <select name="factory_store" id="" class="form-control">
+                                    <option value="">Choose One</option>
+                                    @foreach($factoryStores as $store)
+                                        <option value="{{ $store->id }}">{{ $store->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-primary do-production">Confirm Production</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
     </section>
     <!-- /.content -->
 @endsection
@@ -247,6 +280,11 @@
             preOrderId = button.data('id')
             submitUrl = "/pre-orders.status-update/" + preOrderId
         })
+        $('#productionModal').on('show.bs.modal', function (event) {
+            let button = $(event.relatedTarget)
+            preOrderId = button.data('id')
+            submitUrl = "/pre-orders.status-update/" + preOrderId
+        })
         $('#receiveModal').on('show.bs.modal', function (event) {
             let button = $(event.relatedTarget)
             preOrderId = button.data('id')
@@ -259,6 +297,10 @@
         $(document).on("click", ".do-receive", function (e) {
             e.preventDefault()
             $("#receiveForm").attr('action', submitUrl).submit();
+        })
+        $(document).on("click", ".do-production", function (e) {
+            e.preventDefault()
+            $("#productionForm").attr('action', submitUrl).submit();
         })
     </script>
 @endpush

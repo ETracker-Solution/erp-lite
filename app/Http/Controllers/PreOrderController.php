@@ -11,6 +11,7 @@ use App\Models\InventoryTransaction;
 use App\Models\OthersOutletSale;
 use App\Models\Outlet;
 use App\Models\PreOrder;
+use App\Models\Production;
 use App\Models\Store;
 use App\Models\Supplier;
 use App\Models\SupplierGroup;
@@ -194,7 +195,7 @@ class PreOrderController extends Controller
 
         ];
 //        return view( 'pre_order.pdf',$data);
-        $pdf = PDF::loadView('pre_order.pdf',$data);
+        $pdf = PDF::loadView('pre_order.pdf', $data);
 
         $name = \Carbon\Carbon::now()->format('d-m-Y');
         return $pdf->stream($name . '.pdf');
@@ -211,7 +212,7 @@ class PreOrderController extends Controller
                 'status' => $request->status,
             ];
             if ($request->status == 'delivered') {
-                if(!$request->factory_store){
+                if (!$request->factory_store) {
                     Toastr::error('Select A Store');
                     return back();
                 }
@@ -243,7 +244,7 @@ class PreOrderController extends Controller
             }
             if ($request->status == 'received') {
 
-                if(!$request->outlet_store){
+                if (!$request->outlet_store) {
                     Toastr::error('Select A Store');
                     return back();
                 }
@@ -279,24 +280,78 @@ class PreOrderController extends Controller
                 }
             }
 
-            if($request->status == 'cancelled'){
+            if ($request->status == 'cancelled') {
                 $sale_of_pre_order = $req->sale;
-                $delivery_of_pre_order = OthersOutletSale::where('invoice_number',$sale_of_pre_order->invoice_number)->first();
+                $delivery_of_pre_order = OthersOutletSale::where('invoice_number', $sale_of_pre_order->invoice_number)->first();
                 $customer = $sale_of_pre_order->customer;
                 $membership = $customer->membership;
-                $membershipPointHistory = $customer->membershipPointHistories()->where('sale_id',$sale_of_pre_order->id)->first();
+                $membershipPointHistory = $customer->membershipPointHistories()->where('sale_id', $sale_of_pre_order->id)->first();
                 AccountTransaction::where([
-                   'doc_type'=>'POS',
-                   'doc_id'=>$sale_of_pre_order->id,
+                    'doc_type' => 'POS',
+                    'doc_id' => $sale_of_pre_order->id,
                 ])->delete();
-                if ($membershipPointHistory){
+                if ($membershipPointHistory) {
                     $membership->decrement('point', $membershipPointHistory->point);
                     $membershipPointHistory->delete();
                 }
-                if ($delivery_of_pre_order){
+                if ($delivery_of_pre_order) {
                     $delivery_of_pre_order->delete();
                 }
                 $sale_of_pre_order->delete();
+            }
+
+            if ($request->status == 'ready_to_delivery') {
+                if (!$request->factory_store) {
+                    Toastr::error('Select A Store');
+                    return back();
+                }
+                $store = Store::find($request->factory_store);
+                $uid = generateUniqueUUID($store->doc_id, Production::class, 'uid', $store->doc_type == 'factory');
+                $productionData = [
+                    'uid' => $uid,
+                    'store_id' => $store->id,
+                    'factory_id' => $store->doc_id,
+                    'date' => date('Y-m-d'),
+                    'status' => 'completed',
+                    'remark' => 'Auto Production From Pre Order',
+                    'subtotal' => 0,
+                    'total_quantity' => 0,
+                    'created_by' => auth()->user()->id,
+                ];
+                $production = Production::query()->create($productionData);
+
+                $totalRate = 0;
+                $totalQty = 0;
+                foreach ($req->items as $item) {
+                    $qty = $item->quantity;
+                    $rate = $item->unit_price;
+                    $amount = $qty * $rate;
+                    $totalRate += $amount;
+                    $totalQty += $qty;
+                    $itemData = [
+                        'coi_id' => $item->coi_id,
+                        'rate' => $rate,
+                        'quantity' => $qty,
+                    ];
+                    $production->items()->create($itemData);
+                    // Inventory Transaction Effect
+                    InventoryTransaction::query()->create([
+                        'store_id' => $production->store_id,
+                        'doc_type' => 'FGP',
+                        'doc_id' => $production->id,
+                        'quantity' => $qty,
+                        'rate' => $rate,
+                        'amount' => $amount,
+                        'date' => $production->date,
+                        'type' => 1,
+                        'coi_id' => $item->coi_id,
+                    ]);
+
+                }
+                $production->update([
+                    'subtotal' => $totalRate,
+                    'total_quantity' => $totalQty,
+                ]);
             }
 
             $req->update($updatableData);
