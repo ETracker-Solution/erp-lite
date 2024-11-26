@@ -9,7 +9,7 @@
             </button>
         </form>
     @endif
-        @if($row->status == 'pending' && (!in_array(auth()->user()->employee->user_of,['user','factory']) || auth()->user()->is_super))
+        @if($row->status == 'pending' && (in_array(auth()->user()->employee->user_of,['ho']) || auth()->user()->is_super))
             <form action="{{ route('pre-orders.status-update', $row->id) }}" method="POST">
                 @csrf
                 @method('PUT')
