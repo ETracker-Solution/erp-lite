@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Classes\PreOrderNumber;
 use App\Http\Requests\StorePreOrderRequest;
+use App\Models\AccountTransaction;
 use App\Models\ChartOfInventory;
 use App\Models\Customer;
 use App\Models\InventoryTransaction;
+use App\Models\OthersOutletSale;
 use App\Models\Outlet;
 use App\Models\PreOrder;
 use App\Models\Store;
@@ -276,8 +278,28 @@ class PreOrderController extends Controller
                     ]);
                 }
             }
-            $req->update($updatableData);
 
+            if($request->status == 'cancelled'){
+                $sale_of_pre_order = $req->sale;
+                $delivery_of_pre_order = OthersOutletSale::where('invoice_number',$sale_of_pre_order->invoice_number)->first();
+                $customer = $sale_of_pre_order->customer;
+                $membership = $customer->membership;
+                $membershipPointHistory = $customer->membershipPointHistories()->where('sale_id',$sale_of_pre_order->id)->first();
+                AccountTransaction::where([
+                   'doc_type'=>'POS',
+                   'doc_id'=>$sale_of_pre_order->id,
+                ])->delete();
+                if ($membershipPointHistory){
+                    $membership->decrement('point', $membershipPointHistory->point);
+                    $membershipPointHistory->delete();
+                }
+                if ($delivery_of_pre_order){
+                    $delivery_of_pre_order->delete();
+                }
+                $sale_of_pre_order->delete();
+            }
+
+            $req->update($updatableData);
 
             DB::commit();
         } catch (\Exception $exception) {

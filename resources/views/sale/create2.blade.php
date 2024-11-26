@@ -144,7 +144,7 @@
                                             </div>
                                             <div class="col-4" v-if="sales_type=='pre_order'">
                                                 <div class="form-group">
-                                                    <label for="" class="small">Size</label>
+                                                    <label for="" class="small">Size and Shape</label>
                                                     <input type="text" name="size" id=""
                                                            class="form-control form-control-sm">
                                                 </div>

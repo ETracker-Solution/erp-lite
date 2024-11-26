@@ -9,6 +9,16 @@
             </button>
         </form>
     @endif
+        @if($row->status == 'pending' && (!in_array(auth()->user()->employee->user_of,['user','factory']) || auth()->user()->is_super))
+            <form action="{{ route('pre-orders.status-update', $row->id) }}" method="POST">
+                @csrf
+                @method('PUT')
+                <input type="hidden" name="status" value="cancelled">
+                <button class="btn btn-danger btn-xs"><i class="fas fa-check-circle">
+                    </i> Cancel
+                </button>
+            </form>
+        @endif
     <form action="#" method="post">
         <input type="hidden" name="_method" value="DELETE">
         @csrf
