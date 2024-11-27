@@ -65,9 +65,19 @@
             <div class="panel panel-default invoice" id="invoice">
                 <div class="panel-body">
                     <div class="invoice-ribbon">
-                        {{--                                @include('common.pdf_header')--}}
+                        @include('common.pdf_header')
                     </div>
-
+                    <table style="margin-top: 70px; width:100%; text-align: center !important;">
+                        <tr style="text-align: center !important;">
+                            <td><strong style="border-top: 1px solid black;text-align: end !important; ">Authorized
+                                    By</strong></td>
+                            <td><strong
+                                    style="border-top: 1px solid black;text-align: center !important; ">Supervisor</strong>
+                            </td>
+                            <td><strong style="border-top: 1px solid black;text-align: start !important; ">Delivery
+                                    Man</strong></td>
+                        </tr>
+                    </table>
                     <hr>
                     <b>Delivery Date :</b> {{ $model->delivery_date }},<br>
                     <b>Delivery Time :</b> {{ \Carbon\Carbon::parse($model->delivery_time)->format('h:i A') }},
@@ -135,26 +145,7 @@
 
                         </tbody>
                     </table>
-                    <htmlpagefooter name="page-footer">
-                        @php
-                            $date = new DateTime('now', new DateTimezone('Asia/Dhaka'));
-                        @endphp
-                        <br>
-                        <strong style="font-size: 8px">
-                            Printing Time:- {{ $date->format('F j, Y, g:i a') }}
-                        </strong>
-                        <hr>
-                        <br>
-                        {{-- <table width="100%">
-                            <tbody>
-                                <tr>
-                                    <td style="text-align: left;">Customer Signature</td>
-                                    <td style="text-align: right;">Saller Signature</td>
-                                </tr>
-                            </tbody>
-                        </table> --}}
-                    </htmlpagefooter>
-
+                    @include('common.report_footer')
                 </div>
             </div>
         </div>

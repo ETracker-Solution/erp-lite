@@ -305,6 +305,7 @@
                                 type: 'application/pdf'
                             });
                             const url = window.URL.createObjectURL(blob);
+                            console.log(response)
                             window.open(url)
                             vm.pageLoading = false;
                         }).catch(function(error) {

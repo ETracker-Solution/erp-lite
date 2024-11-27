@@ -61,14 +61,21 @@
 
 <body>
 <div class="invoice-ribbon">
-{{--            @include('common.pdf_header')--}}
+    {{--            @include('common.pdf_header')--}}
 </div>
 <p style="text-align:center;  font-size: 20px;">Fund Transfer Receive </p>
+<table style="margin-top: 70px">
+    <tr>
+        <td style="
+        border-top: 1px solid black;
+        "><strong>Authorized By</strong></td>
+    </tr>
+</table>
 <hr>
 <table width="100%" style="text-align: center;">
     <thead>
     <tr>
-{{--        <th>Outlet</th>--}}
+        {{--        <th>Outlet</th>--}}
         <th>Date</th>
         <th>From Account</th>
         <th>To Account</th>
@@ -78,7 +85,7 @@
     <tbody>
     @foreach($transactions as $transaction)
         <tr>
-{{--            <td>{{ $transaction->createdBy->employee ? $transaction->createdBy->employee->outlet->name : 'NA' }}</td>--}}
+            {{--            <td>{{ $transaction->createdBy->employee ? $transaction->createdBy->employee->outlet->name : 'NA' }}</td>--}}
             <td>{{ $transaction->date }}</td>
             <td>{{ $transaction->creditAccount->name }}</td>
             <td>{{ $transaction->debitAccount->name }}</td>
@@ -86,35 +93,15 @@
         </tr>
     @endforeach
     <tr>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td>Total </td>
-    <td>{{ $totalAmount }}</td>
+{{--        <td></td>--}}
+        <td></td>
+        <td></td>
+        <td>Total</td>
+        <td>{{ $totalAmount }}</td>
     </tr>
     </tbody>
 </table>
-{{--    <htmlpagefooter name="page-footer">--}}
-
-{{--        <table width="100%">--}}
-{{--            <tbody>--}}
-{{--                <tr>--}}
-{{--                    <td style="text-align: left;"><span style="border-top: 1px solid hsl(0, 0%, 2%);">Showroom In charge :</span> </td>--}}
-{{--                    <td style="text-align: right;"><span style="border-top: 1px solid hsl(0, 0%, 2%);">Accounts :</span> </td>--}}
-{{--                </tr>--}}
-{{--            </tbody>--}}
-{{--        </table>--}}
-{{--        <hr>--}}
-
-{{--        @php--}}
-{{--            $date = new DateTime('now', new DateTimezone('Asia/Dhaka'));--}}
-{{--        @endphp--}}
-{{--        <br>--}}
-{{--        <strong>--}}
-{{--            Printing Time:- {{ $date->format('F j, Y, g:i a') }}--}}
-{{--        </strong>--}}
-{{--        <br>--}}
-{{--    </htmlpagefooter>--}}
+@include('common.report_footer')
 </body>
 
 </html>

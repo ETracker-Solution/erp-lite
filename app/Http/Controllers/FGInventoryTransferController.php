@@ -23,6 +23,8 @@ class FGInventoryTransferController extends Controller
     {
 
         if (\request()->ajax()) {
+            $fGInventoryTransfers = InventoryTransfer::with('toStore', 'fromStore')->where(['type' => 'FG'])->latest();
+
             if (!auth()->user()->is_super) {
                 if (auth()->user()->employee){
                     if (auth()->user()->employee->factory_id){
@@ -34,8 +36,6 @@ class FGInventoryTransferController extends Controller
                             ->where(['type' => 'FG'])->whereIn('from_store_id', auth()->user()->employee->outlet->stores()->pluck('id')->toArray())->latest();
                     }
                 }
-            }else{
-                $fGInventoryTransfers = InventoryTransfer::with('toStore', 'fromStore')->where(['type' => 'FG'])->latest();
             }
             return DataTables::of($fGInventoryTransfers)
                 ->addIndexColumn()

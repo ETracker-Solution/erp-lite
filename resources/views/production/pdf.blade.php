@@ -3,8 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FG Requisiton Delivery Pdf</title>
+    <title>Production PDF</title>
     <style>
+        @page {
+            header: page-header;
+            footer: page-footer;
+        }
+
         body {
             font-family: Arial, sans-serif;
             margin: 20px;
@@ -126,6 +131,11 @@
 <div class="company-info">
     @include('common.pdf_header')
 </div>
+<div class="signature-section" style="display: flex; justify-content: space-between; margin-top: 100px">
+    <span style="border-top: 1px solid hsl(0, 0%, 2%);">Authorized By</span>&emsp;&emsp;&emsp;&emsp;&emsp; &emsp;&emsp;&emsp;&emsp;&emsp;
+    <span style="border-top: 1px solid hsl(0, 0%, 2%);">Supervisor</span>&emsp;&emsp;&emsp;&emsp;&emsp; &emsp;&emsp;&emsp;&emsp;&emsp;
+    <span style="border-top: 1px solid hsl(0, 0%, 2%);">Factory In-charge</span>
+</div>
 <div class="row">
     <div style="text-align: right">
         <h3 class="marginright">Production No:{{ $production->uid }}</h3>
@@ -176,22 +186,9 @@
     </tbody>
 </table>
 
-<div class="signature-section" style="display: flex; justify-content: space-between; margin-top: 100px">
-    <span style="border-top: 1px solid hsl(0, 0%, 2%);">Factory Supervisor</span>&emsp;&emsp;&emsp;&emsp;&emsp; &emsp;&emsp;&emsp;&emsp;&emsp;
-    <span style="border-top: 1px solid hsl(0, 0%, 2%);">Delivery Man</span>&emsp;&emsp;&emsp;&emsp;&emsp; &emsp;&emsp;&emsp;&emsp;&emsp;
-    <span style="border-top: 1px solid hsl(0, 0%, 2%);">Showroom In-charge</span>
-</div>
-<hr>
-<div class="footer">
-    @php
-        $date = new DateTime('now', new DateTimezone('Asia/Dhaka'));
-    @endphp
-    <br>
-    <strong style="font-size: 8px">
-        Printing Time:- {{ $date->format('F j, Y, g:i a') }}
-    </strong>
-</div>
 
+<hr>
+@include('common.report_footer')
 </body>
 </html>
 
