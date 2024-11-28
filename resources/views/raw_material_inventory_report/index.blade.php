@@ -301,11 +301,21 @@
                             },
                             responseType: 'blob',
                         }).then(function(response) {
+                            if (response.data?.size == 0){
+                                toastr.error('No Data to Generate Report', {
+                                    closeButton: true,
+                                    progressBar: true,
+                                });
+                                vm.pageLoading = false;
+                                return;
+                            }
+
                             const blob = new Blob([response.data], {
                                 type: 'application/pdf'
                             });
+
                             const url = window.URL.createObjectURL(blob);
-                            console.log(response)
+
                             window.open(url)
                             vm.pageLoading = false;
                         }).catch(function(error) {

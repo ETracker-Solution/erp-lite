@@ -330,7 +330,7 @@ FROM (
 FROM (
     SELECT
         IF(Group_Name = @prev_group, '', IFNULL(Group_Name, '')) AS `Group Name`,
-        IF(Subgroup_ID IS NULL, '', IFNULL(Subgroup_ID, '')) AS `Item ID`,
+        IF(Subgroup_ID IS NULL, if(@is_last_row = 1, 'Grand Total','Total'), IFNULL(Subgroup_ID, '')) AS `Item ID`,
         IF(Subgroup_ID IS NULL, '', IFNULL(Subgroup_Name, '')) AS `Item Name`,
         `Balance Qty`,
         IF(Subgroup_ID IS NULL, '', IFNULL(
@@ -340,7 +340,11 @@ FROM (
     END
         , ''))  AS `Rate`,
         CASE WHEN '$ac_type' = 'RM' THEN format(`Value`,0) ELSE format(( `Balance Qty` * ORate),0) END AS `Value`,
-        @prev_group := Group_Name
+        @prev_group := Group_Name,
+        @is_last_row := CASE
+            WHEN Subgroup_ID IS NULL THEN 1
+            ELSE 0
+        END
     FROM (
         SELECT
             IF(CIP.name IS NULL, 'Total', CIP.name) AS Group_Name,
@@ -363,7 +367,7 @@ FROM (
         GROUP BY
             CIP.id, CI.id WITH ROLLUP
     ) AS subquery,
-    (SELECT @prev_group := null) AS prev
+    (SELECT @prev_group := null, @is_last_row := 0) AS prev
 ) AS result";
  }
 
@@ -437,7 +441,7 @@ FROM (
     SELECT
 		IF(Store_Name = @prev_store, '', IFNULL(Store_Name, '')) AS `Store Name`,
         IF(Group_Name = @prev_group, '', IFNULL(Group_Name, '')) AS `Group Name`,
-        IF(Subgroup_ID IS NULL, '', IFNULL(Subgroup_ID, '')) AS `Item ID`,
+        IF(Subgroup_ID IS NULL, if(@is_last_row = 1, 'Grand Total','Total'), IFNULL(Subgroup_ID, '')) AS `Item ID`,
         IF(Subgroup_ID IS NULL, '', IFNULL(Subgroup_Name, '')) AS `Item Name`,
         `Balance Qty`,
         IF(Subgroup_ID IS NULL, '', IFNULL(
@@ -454,7 +458,11 @@ FROM (
         , ''))  AS `Value`,
         @prev_group := Group_Name,
          @prev_store:= Store_Name,
-        @total_a := @total_a + `Value`
+        @total_a := @total_a + `Value`,
+            @is_last_row := CASE
+            WHEN Subgroup_ID IS NULL THEN 1
+            ELSE 0
+        END
     FROM (
         SELECT
 			ST.id AS Store_ID,
@@ -480,9 +488,9 @@ FROM (
 			AND IT.date <= '$date'
 			 AND CI.rootAccountType = '$ac_type'
         GROUP BY
-             ST.id,CIP.id, CI.id WITH ROLLUP
+             CIP.id, CI.id WITH ROLLUP
     ) AS subquery,
-    (SELECT @prev_group := null, @prev_store:= null, @total_a :=0) AS prev
+    (SELECT @prev_group := null, @prev_store:= null, @total_a :=0, @is_last_row := 0) AS prev
 ) AS result";
 }
 

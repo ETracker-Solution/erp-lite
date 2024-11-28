@@ -69,7 +69,7 @@
 </head>
 <body>
 <table class="w-full">
-    @include('common.report_header')
+{{--    @include('common.report_header')--}}
     <tr>
         <td class="w-full headers">
             <span style="font-size: 14px;font-weight: bold">{{ $report_header }}</span>
