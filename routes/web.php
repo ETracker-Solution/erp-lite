@@ -75,6 +75,7 @@ Route::middleware(['auth','prevent_duplicate_submission'])->group(function () {
     Route::resource('supplier-groups', App\Http\Controllers\SupplierGroupController::class);
     Route::resource('suppliers', App\Http\Controllers\SupplierController::class);
     Route::resource('customers', App\Http\Controllers\CustomerController::class);
+    Route::resource('fg-purchases', \App\Http\Controllers\FGPurchaseController::class);
     Route::resource('purchases', PurchaseController::class);
     Route::get('purchase-return-pdf/{id}', [App\Http\Controllers\PurchaseReturnController::class, 'pdfDownload'])->name('purchase_return.pdf');
     Route::resource('purchase-returns', \App\Http\Controllers\PurchaseReturnController::class);

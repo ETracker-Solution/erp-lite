@@ -2,42 +2,33 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StorePurchaseRequest;
+use App\Http\Requests\UpdatePurchaseRequest;
 use App\Models\AccountTransaction;
 use App\Models\ChartOfInventory;
 use App\Models\InventoryTransaction;
-use App\Models\Product;
 use App\Models\Purchase;
-use App\Http\Requests\StorePurchaseRequest;
-use App\Http\Requests\UpdatePurchaseRequest;
 use App\Models\PurchaseItem;
-use App\Models\Requisition;
 use App\Models\Store;
 use App\Models\Supplier;
 use App\Models\SupplierGroup;
 use App\Models\SupplierTransaction;
-use App\Models\Transaction;
 use Brian2694\Toastr\Facades\Toastr;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
-use Yajra\DataTables\Facades\DataTables;
 use niklasravnsborg\LaravelPdf\Facades\Pdf;
+use Yajra\DataTables\Facades\DataTables;
 
-
-class PurchaseController extends Controller
+class FGPurchaseController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
         if (\request()->ajax()) {
-            $purchases = Purchase::with('supplier', 'store')->where('type','rm')->latest();
+            $purchases = Purchase::with('supplier', 'store')->where('type','fg')->latest();
             return DataTables::of($purchases)
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
-                    return view('purchase.action', compact('row'));
+                    return view('fg_purchase.action', compact('row'));
                 })
                 ->addColumn('created_at', function ($row) {
                     return view('common.created_at', compact('row'));
@@ -48,7 +39,7 @@ class PurchaseController extends Controller
                 ->rawColumns(['action', 'created_at', 'status'])
                 ->make(true);
         }
-        return view('purchase.index');
+        return view('fg_purchase.index');
     }
 
     /**
@@ -57,7 +48,7 @@ class PurchaseController extends Controller
     public function create()
     {
         $serial_no = null;
-        if (!auth()->user()->is_super) {
+        if (auth()->user() && auth()->user()->employee && auth()->user()->employee->user_of != 'ho') {
             $doc_id = \auth()->user()->employee->outlet_id ?? \auth()->user()->employee->factory_id;
             $doc_type = \auth()->user()->employee->outlet_id ? 'outlet' : 'factory';
             $user_store = Store::where(['doc_type' => $doc_type, 'doc_id' => $doc_id])->first();
@@ -65,15 +56,15 @@ class PurchaseController extends Controller
             $serial_no = generateUniqueUUID($outlet_id, Purchase::class, 'uid',\auth()->user()->employee->factory_id);
         }
         $data = [
-            'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'RM'])->get(),
+            'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'FG'])->get(),
             'supplier_groups' => SupplierGroup::where('status', 'active')->get(),
             'suppliers' => Supplier::all(),
-            'stores' => Store::where(['type' => 'RM', 'doc_type' => 'ho', 'doc_id' => null])->get(),
+            'stores' => Store::where(['type' => 'FG', 'doc_type' => 'factory'])->get(),
             'uid' => $serial_no,
 
         ];
 
-        return view('purchase.create', $data);
+        return view('fg_purchase.create', $data);
     }
 
     /**
@@ -82,6 +73,7 @@ class PurchaseController extends Controller
     public function store(StorePurchaseRequest $request)
     {
         $validated = $request->validated();
+        $validated['type']='fg';
         DB::beginTransaction();
         try {
             if (count($validated['products']) < 1) {
@@ -129,7 +121,7 @@ class PurchaseController extends Controller
             return back();
         }
         Toastr::success('Purchase Created Successfully!.', '', ["progressBar" => true]);
-        return redirect()->route('purchases.index');
+        return redirect()->route('fg-purchases.index');
 
     }
 
@@ -158,7 +150,7 @@ class PurchaseController extends Controller
             'stores' => Store::where(['type' => 'RM'])->get(),
             'purchase' => Purchase::with('supplier')->find(decrypt($id))
         ];
-        return view('purchase.edit', $data);
+        return view('fg_purchase.edit', $data);
     }
 
     /**
@@ -169,6 +161,7 @@ class PurchaseController extends Controller
         DB::beginTransaction();
         try {
             $validated = $request->validated();
+            $validated['type'] = 'fg';
             $purchase->update($validated);
             PurchaseItem::where('purchase_id', $purchase->id)->delete();
             InventoryTransaction::where(['doc_id' => $purchase->id, 'doc_type' => 'GPB'])->delete();
@@ -192,7 +185,7 @@ class PurchaseController extends Controller
 
             // Accounts Transaction Effect
             AccountTransaction::where(['doc_id' => $purchase->id, 'doc_type' => 'GPB'])->delete();
-            addAccountsTransaction('GPB', $purchase, 13, 12);
+            addAccountsTransaction('GPB', $purchase, 13, 22);
 
             // Supplier Transaction Effect
             SupplierTransaction::where(['doc_id' => $purchase->id, 'doc_type' => 'GPB'])->delete();
@@ -203,7 +196,7 @@ class PurchaseController extends Controller
                 'amount' => $purchase->net_payable,
                 'date' => $purchase->date,
                 'transaction_type' => 1,
-                'chart_of_account_id' => 12,
+                'chart_of_account_id' => 22,
                 'description' => 'Purchase of goods',
             ]);
             DB::commit();
@@ -215,7 +208,7 @@ class PurchaseController extends Controller
         }
 
         Toastr::success('Goods Purchase Updated Successful!.', '', ["progressbar" => true]);
-        return redirect()->route('purchases.index');
+        return redirect()->route('fg-purchases.index');
     }
 
     /**

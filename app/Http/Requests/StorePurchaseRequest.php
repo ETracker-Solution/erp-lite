@@ -42,7 +42,7 @@ class StorePurchaseRequest extends FormRequest
     {
 
         $this->merge([
-            'uid' => generateUniqueUUID(null, Purchase::class, 'uid', false, true),
+            'uid' => generateUniqueUUID(null, Purchase::class, 'uid', true, true),
             'created_by' => auth()->user()->id,
             'date' => Carbon::parse($this->date)->format('Y-m-d'),
         ]);

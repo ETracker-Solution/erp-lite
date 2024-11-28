@@ -11,41 +11,41 @@ return new class extends Migration
      */
     public function up(): void
     {
-        $tables=$this->allTables(); //DB::select('SHOW TABLES');
-        for($i=0;$i<count($tables);$i++){
-            if (Schema::hasColumn($tables[$i], 'company_id'))
-            {
-                Schema::table($tables[$i], function (Blueprint $table)
-                {
-                    $table->dropColumn('company_id');
-                });
-            }
-            Schema::table($tables[$i], function (Blueprint $table) {
-                $table->foreignId('company_id')->nullable()->references('id')->on('companies')->onDelete('cascade');
-            });
-        }
+//        $tables=$this->allTables(); //DB::select('SHOW TABLES');
+//        for($i=0;$i<count($tables);$i++){
+//            if (Schema::hasColumn($tables[$i], 'company_id'))
+//            {
+//                Schema::table($tables[$i], function (Blueprint $table)
+//                {
+//                    $table->dropColumn('company_id');
+//                });
+//            }
+//            Schema::table($tables[$i], function (Blueprint $table) {
+//                $table->foreignId('company_id')->nullable()->references('id')->on('companies')->onDelete('cascade');
+//            });
+//        }
     }
     /**
      * Reverse the migrations.
      */
     public function down(): void
     {
-        $tables=$this->allTables(); //DB::select('SHOW TABLES');
-        for($i=0;$i<count($tables);$i++){
-            if (Schema::hasColumn($tables[$i], 'company_id'))
-            {
-                Schema::table($tables[$i], function (Blueprint $table)
-                {
-                    $table->dropColumn('company_id');
-                });
-            }
-        }
+//        $tables=$this->allTables(); //DB::select('SHOW TABLES');
+//        for($i=0;$i<count($tables);$i++){
+//            if (Schema::hasColumn($tables[$i], 'company_id'))
+//            {
+//                Schema::table($tables[$i], function (Blueprint $table)
+//                {
+//                    $table->dropColumn('company_id');
+//                });
+//            }
+//        }
     }
 
     public function allTables()
     {
         return [
-            
+
             app(\App\Models\AccountTransaction::class)->getTable(),
             app(\App\Models\Attribute::class)->getTable(),
             app(\App\Models\AttributeOption::class)->getTable(),

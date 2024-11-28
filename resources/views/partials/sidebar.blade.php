@@ -199,6 +199,15 @@
                                                 </a>
                                             </li>
                                         @endcan
+                                            @can('purchase-goods-purchase-bill')
+                                                <li class="nav-item">
+                                                    <a href="{{route('fg-purchases.index')}}"
+                                                       class="nav-link {{ (Request::segment(1) == 'fg-purchases' )?' active':''}}">
+                                                        <i class="far fa-circle nav-icon"></i>
+                                                        <p>Finish Goods Purchase</p>
+                                                    </a>
+                                                </li>
+                                            @endcan
                                     </ul>
                                 </li>
                             @endcanany
