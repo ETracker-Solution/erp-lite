@@ -15,6 +15,7 @@ class FGInventoryReportController extends Controller
 
     public function index()
     {
+//        return testFGreport(3, '2024,12-01');
         return view('finish_goods_inventory_report.index');
     }
 
@@ -25,6 +26,7 @@ class FGInventoryReportController extends Controller
 
         $page_title = false;
         $report_header = 'FG Inventory Report';
+        $run_query = true;
 
         $report_type = \request()->report_type;
         if ($report_type == 'all_groups') {
@@ -38,15 +40,19 @@ class FGInventoryReportController extends Controller
             $statement = get_all_stores($asOnDate,'FG');
         } elseif ($report_type == 'store_group_item') {
             $page_title = 'Store Name: ' . Store::find(\request()->store_id)->name;
-            $statement = get_all_items_by_store(\request()->store_id, $asOnDate,'FG');
+            $run_query = false;
+//            $statement = get_all_items_by_store(\request()->store_id, $asOnDate,'FG');
+            $getPost = testFGreport(\request()->store_id, $asOnDate);
         }
-
-        $getPost = DB::select($statement);
+        if ($run_query){
+            $getPost = DB::select($statement);
+        }
 
         if (!count($getPost) > 0){
             return false;
         }
         $columns = array_keys((array)$getPost[0]);
+//        dd($getPost) ;
         $data = [
             'dateRange' => 'as On  ' . $asOnDate,
             'data' => $getPost,

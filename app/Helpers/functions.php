@@ -67,7 +67,7 @@ function showStatus($status)
         case 'increase':
             return '<span class="badge badge-pill badge-glow badge-success">Increase</span>';
         case 'ready_to_delivery':
-            return '<span class="badge badge-pill badge-glow badge-dark">' . ucwords(str_replace('_',' ',$status)) . '</span>';
+            return '<span class="badge badge-pill badge-glow badge-dark">' . ucwords(str_replace('_', ' ', $status)) . '</span>';
     }
 }
 
@@ -203,13 +203,13 @@ function generateUniqueUUID($outlet_or_factory_id, $model, $column_name, $is_fac
 
     $acronym .= mb_substr($words, 0, $length) . mb_substr($words, -1);
 
-    if (!$is_factory && !$is_headOffice){
+    if (!$is_factory && !$is_headOffice) {
         $acronym = $outlet->name;
         if (!str_ends_with($acronym, '-')) {
-            $acronym = $acronym.'-';
+            $acronym = $acronym . '-';
         }
     }
-    if ($is_factory){
+    if ($is_factory) {
         $acronym = 'CT-F-';
 
     }
@@ -232,27 +232,29 @@ function generateUniqueUUID($outlet_or_factory_id, $model, $column_name, $is_fac
 function getRequisitionQty($requisition_id, $product_id)
 {
     $requisition = \App\Models\Requisition::find($requisition_id);
-    $found =  $requisition->items()->where('coi_id', $product_id)->first();
-    if ($found){
+    $found = $requisition->items()->where('coi_id', $product_id)->first();
+    if ($found) {
         return $found->quantity;
-    }else{
+    } else {
         return 0;
     }
 }
 
-function getReturnedQty($sale_return_id, $coi_id){
+function getReturnedQty($sale_return_id, $coi_id)
+{
     $sale_return = \App\Models\SalesReturn::find($sale_return_id);
-    $found =  $sale_return->items()->where('coi_id', $coi_id)->first();
-    if ($found){
+    $found = $sale_return->items()->where('coi_id', $coi_id)->first();
+    if ($found) {
         return $found->quantity;
-    }else{
+    } else {
         return 0;
     }
 }
 
 
-function get_all_groups_report($date, $ac_type){
-        return "SELECT
+function get_all_groups_report($date, $ac_type)
+{
+    return "SELECT
     CIP.name as `Group Name`,
     SUM(IT.quantity * IT.type) as `Balance Qty`,
     -- FORMAT((IT.amount / SUM(IT.quantity * IT.type)),0) as RATE,
@@ -269,8 +271,9 @@ function get_all_groups_report($date, $ac_type){
     GROUP BY
     CIP.id";
 }
- function get_all_items_by_group($group_id, $date, $ac_type)
- {
+
+function get_all_items_by_group($group_id, $date, $ac_type)
+{
     return "SELECT
     `Item ID`,
     `Item Name`,
@@ -316,10 +319,10 @@ FROM (
     ) AS subquery,
     (SELECT @prev_group := null) AS prev
 ) AS result";
- }
+}
 
- function get_all_items($date, $ac_type)
- {
+function get_all_items($date, $ac_type)
+{
     return "SELECT
     `Group Name`,
     `Item ID`,
@@ -369,7 +372,7 @@ FROM (
     ) AS subquery,
     (SELECT @prev_group := null, @is_last_row := 0) AS prev
 ) AS result";
- }
+}
 
 function get_all_stores($date, $ac_type)
 {
@@ -429,7 +432,9 @@ FROM (
 
 function get_all_items_by_store($store_id, $date, $ac_type)
 {
-
+    if ($ac_type == 'FG') {
+        return get_all_items_by_fg_store($store_id, $date);
+    }
     return "SELECT
     `Group Name`,
     `Item ID`,
@@ -492,6 +497,212 @@ FROM (
     ) AS subquery,
     (SELECT @prev_group := null, @prev_store:= null, @total_a :=0, @is_last_row := 0) AS prev
 ) AS result";
+}
+
+
+function get_all_items_by_fg_store($store_id, $date)
+{
+    return "WITH TransitStockRequisition AS (
+    SELECT
+        rdi.coi_id,
+        SUM(rdi.quantity) AS transit_stock
+    FROM
+        requisition_delivery_items rdi
+    JOIN
+        requisition_deliveries rd ON rd.id = rdi.requisition_delivery_id
+    WHERE
+        rd.status = 'completed'
+        AND rd.type = 'FG'
+        AND rd.from_store_id = '$store_id'
+    GROUP BY
+        rdi.coi_id
+),
+TransitStockInventory AS (
+    SELECT
+        iti.coi_id,
+        SUM(iti.quantity) AS transit_stock
+    FROM
+        inventory_transfer_items iti
+    JOIN
+        inventory_transfers it ON it.id = iti.inventory_transfer_id
+    WHERE
+        it.status = 'completed'
+        AND it.type = 'FG'
+         AND it.from_store_id = '$store_id'
+    GROUP BY
+        iti.coi_id
+),
+TransitStockPreOrder AS (
+    SELECT
+        poi.coi_id,
+        SUM(poi.quantity) AS transit_stock
+    FROM
+        pre_order_items poi
+    JOIN
+        pre_orders po ON po.id = poi.pre_order_id
+    WHERE
+        po.status = 'delivered'
+         AND po.factory_delivery_store_id = '$store_id'
+    GROUP BY
+        poi.coi_id
+),
+CombinedTransitStock AS (
+    SELECT
+        coi_id,
+        SUM(transit_stock) AS total_transit_stock
+    FROM (
+        SELECT * FROM TransitStockRequisition
+        UNION ALL
+        SELECT * FROM TransitStockInventory
+        UNION ALL
+        SELECT * FROM TransitStockPreOrder
+    ) AS combined
+    GROUP BY
+        coi_id
+)
+SELECT
+    `Group Name`,
+    `Item ID`,
+    `Item Name`,
+    `Balance Qty`,
+    IFNULL(ts.total_transit_stock, 0) AS `Transit Stock`,
+    `Rate`,
+    `Value`
+FROM (
+    SELECT
+        IF(Store_Name = @prev_store, '', IFNULL(Store_Name, '')) AS `Store Name`,
+        IF(Group_Name = @prev_group, '', IFNULL(Group_Name, '')) AS `Group Name`,
+        IF(Subgroup_ID IS NULL, IF(@is_last_row = 1, 'Grand Total', 'Total'), IFNULL(Subgroup_ID, '')) AS `Item ID`,
+        IF(Subgroup_ID IS NULL, '', IFNULL(Subgroup_Name, '')) AS `Item Name`,
+        `Balance Qty`,
+        IF(Subgroup_ID IS NULL, '', IFNULL(
+            CASE
+                WHEN 'FG' = 'RM' THEN IF(`AllQ` = 0, NULL, FORMAT(`AllA` / `AllQ`, 0))
+                ELSE FORMAT(ORate, 0)
+            END,
+        '')) AS `Rate`,
+        IF(Subgroup_ID IS NULL, '', IFNULL(
+            CASE
+                WHEN 'FG' = 'RM' THEN FORMAT(`Value`, 0)
+                ELSE FORMAT((ORate * `Balance Qty`), 0)
+            END,
+        '')) AS `Value`,
+        @prev_group := Group_Name,
+        @prev_store := Store_Name,
+        @total_a := @total_a + `Value`,
+        @is_last_row := CASE
+            WHEN Subgroup_ID IS NULL THEN 1
+            ELSE 0
+        END
+    FROM (
+        SELECT
+            ST.id AS Store_ID,
+            ST.name AS Store_Name,
+            IF(CIP.name IS NULL, 'Total', CIP.name) AS Group_Name,
+            CI.id AS Subgroup_ID,
+            CI.name AS Subgroup_Name,
+            SUM(IT.quantity * IT.type) AS `Balance Qty`,
+            SUM(CASE WHEN IT.type = 1 THEN IT.quantity ELSE 0 END) AS `AllQ`,
+            SUM(CASE WHEN IT.type = 1 THEN IT.amount ELSE 0 END) AS `AllA`,
+            CI.price AS ORate,
+            SUM(IT.quantity * IT.type) * (
+                SUM(CASE WHEN IT.type = 1 THEN IT.amount ELSE 0 END) /
+                SUM(CASE WHEN IT.type = 1 THEN IT.quantity ELSE 0 END)
+            ) AS `Value`
+        FROM
+            inventory_transactions IT
+        JOIN
+            chart_of_inventories CI ON CI.id = IT.coi_id
+        JOIN
+            chart_of_inventories CIP ON CIP.id = CI.parent_id
+        LEFT JOIN
+            stores ST ON ST.id = IT.store_id
+        WHERE
+            IT.store_id = '$store_id'
+            AND IT.date <= '$date'
+            AND CI.rootAccountType = 'FG'
+        GROUP BY
+            CIP.id, CI.id WITH ROLLUP
+    ) AS subquery
+) AS result
+LEFT JOIN
+    CombinedTransitStock ts ON ts.coi_id = result.`Item ID`;
+";
+}
+
+function testFGreport($store_id, $date)
+{
+    $data = [];
+    $parents = \App\Models\ChartOfInventory::with([
+        'parent',
+        'inventoryTransactions',
+        'requisitionDeliveryItems.requisitionDelivery',
+        'inventoryTransferItems.inventoryTransfer',
+        'preOrderItems.preOrder'])
+        ->whereHas('parent')
+        ->where(['rootAccountType' => 'FG', 'type' => 'item'])
+        ->orderBy('parent_id')
+        ->get()
+        ->groupBy('parent_id');
+    $grand_total_transit_stock = 0;
+    $grand_total_balance_qty = 0;
+    foreach ($parents as $parent_id => $parent) {
+        $parent_total_transit_stock = 0;
+        $parent_total_balance_qty = 0;
+        foreach ($parent as $key => $item) {
+            $transit_delivery_qty = $item->requisitionDeliveryItems()->whereHas('requisitionDelivery', function ($q) use ($store_id) {
+                return $q->where(['status' => 'completed', 'type' => 'FG', 'from_store_id' => $store_id]);
+            })->sum('quantity');
+
+            $transit_transfer_qty = $item->inventoryTransferItems()->whereHas('inventoryTransfer', function ($q) use ($store_id) {
+                return $q->where(['status' => 'pending', 'type' => 'FG', 'from_store_id' => $store_id]);
+            })->sum('quantity');
+
+            $transit_pre_order_qty = $item->preOrderItems()->whereHas('preOrder', function ($q) use ($store_id) {
+                return $q->where(['status' => 'delivered', 'factory_delivery_store_id' => $store_id]);
+            })->sum('quantity');
+
+            $total_transit_stock = $transit_delivery_qty + $transit_transfer_qty + $transit_pre_order_qty;
+            $main_balance = $item->inventoryTransactions()->where('store_id', $store_id)->whereDate('date', '<=', $date)->sum(DB::raw('type * quantity'));
+
+            $parent_total_transit_stock += $total_transit_stock;
+            $parent_total_balance_qty += $main_balance;
+
+            $data[] = [
+                'Group Name' => $item->parent->name,
+                'Item ID' => $item->id,
+                'Item Name' => $item->name,
+                'Transit Stock' => $total_transit_stock,
+                'Balance Qty' => $main_balance,
+                'Rate' => $item->price,
+                'Value' => $item->price * $main_balance,
+            ];
+
+        }
+//        dd($parent);
+        $grand_total_transit_stock += $parent_total_transit_stock;
+        $grand_total_balance_qty += $parent_total_balance_qty;
+        $data[] = [
+            'Group Name' => '', // This could be set to the parent's name or left blank
+            'Item ID' => '',
+            'Item Name' => $parent[0]->parent->name .' Total',
+            'Transit Stock' => $parent_total_transit_stock,
+            'Balance Qty' => $parent_total_balance_qty,
+            'Rate' => '', // Total rate is typically not used
+            'Value' => ''
+        ];
+//        return $data;
+    }
+    $data[] = [
+        'Group Name' => '', // This could be set to the parent's name or left blank
+        'Item ID' => '',
+        'Item Name' => 'Grand Total',
+        'Transit Stock' => $grand_total_transit_stock,
+        'Balance Qty' => $grand_total_balance_qty,
+        'Rate' => '', // Total rate is typically not used
+        'Value' => '0'
+    ];
+    return $data;
 }
 
 // function extracode()
