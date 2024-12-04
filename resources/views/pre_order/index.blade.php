@@ -296,11 +296,17 @@
         })
         $(document).on("click", ".do-receive", function (e) {
             e.preventDefault()
-            $("#receiveForm").attr('action', submitUrl).submit();
+            let form =$("#receiveForm")
+            form.attr('action',submitUrl)
+            $('.do-receive').attr('disabled', true)
+            form.submit()
         })
         $(document).on("click", ".do-production", function (e) {
             e.preventDefault()
-            $("#productionForm").attr('action', submitUrl).submit();
+            let form =$("#productionForm")
+            form.attr('action',submitUrl)
+            $('.do-production').attr('disabled', true)
+            form.submit()
         })
     </script>
 @endpush
