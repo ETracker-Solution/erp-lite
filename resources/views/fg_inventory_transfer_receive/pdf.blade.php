@@ -62,22 +62,19 @@
             <div class="panel panel-default invoice" id="invoice">
                 <div class="panel-body">
                     <div class="invoice-ribbon">
-                        @include('common.pdf_header')
-                    </div>
-                    <div class="row">
-                        <div class="col-sm-6 top-right">
-                            <span
-                                class="marginright">{{ \Carbon\Carbon::parse($fgTransferReceive->created_at)->isoFormat('MMM Do, YYYY') }}</span>
-                        </div>
+{{--                        @include('common.pdf_header')--}}
                     </div>
                     <hr>
                     <table width="100%">
                         <tbody>
                         <tr>
                             <td style="text-align: left; padding:8px; line-height: 1.6">
+                                <p><b>User :</b> {{ auth()->user()->name }} -- ({{ auth()->user()->email }})</p>
                                 <p><b>FGITR No :</b> {{ $fgTransferReceive->uid }}</p>
                                 <p><b>Date :</b> {{ $fgTransferReceive->date }} </p>
                                 <p><b>Status :</b> {!! showStatus($fgTransferReceive->status) !!}</p>
+                                <p><b>Receiver :</b> {{ $fgTransferReceive->createdBy->name }} -- ({{ $fgTransferReceive->createdBy->email }})</p>
+
                             </td>
                         </tr>
                         </tbody>
@@ -123,26 +120,15 @@
                         </tr>
                         </tbody>
                     </table>
-                    <htmlpagefooter name="page-footer">
-                        @php
-                            $date = new DateTime('now', new DateTimezone('Asia/Dhaka'));
-                        @endphp
-                        <br>
-                        <strong>
-                            Printing Time:- {{ $date->format('F j, Y, g:i a') }}
-                        </strong>
-                        <hr>
-                        {{-- <br>
-                        <table width="100%">
-                            <tbody>
-                                <tr>
-                                    <td style="text-align: left;">Customer Signature</td>
-                                    <td style="text-align: right;">Saller Signature</td>
-                                </tr>
-                            </tbody>
-                        </table> --}}
-                    </htmlpagefooter>
-
+                    <table style="margin-top: 100px; width:100%; text-align: center !important;">
+                        <tr style="text-align: center !important;">
+                            <td><strong style="border-top: 1px solid black;text-align: start !important; ">Delivery
+                                    Man</strong></td>
+                            <td><strong style="border-top: 1px solid black;text-align: end !important; ">Received
+                                    By</strong></td>
+                        </tr>
+                    </table>
+                    @include('common.report_footer')
                 </div>
             </div>
         </div>
