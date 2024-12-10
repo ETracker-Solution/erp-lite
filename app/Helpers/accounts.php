@@ -1,7 +1,11 @@
 <?php
 
 
+use App\Models\AccountTransaction;
 use App\Models\ChartOfAccount;
+use App\Models\OthersOutletSale;
+use App\Models\OutletAccount;
+use App\Models\Sale;
 use Illuminate\Support\Facades\DB;
 
 
@@ -123,4 +127,20 @@ function addCustomerTransaction($item, $transaction_type = 1)
         'chart_of_account_id' => getAccountsReceiveableGLId(),
         'description' => 'Product Sales',
     ]);
+}
+
+
+function accountBalanceForOtherOutletSales($chart_of_account_id){
+    $other_outlet_sales_balance = 0;
+    $account_outlet = OutletAccount::where('coa_id', $chart_of_account_id)->first();
+    if ($account_outlet) {
+        $otherOutletSales = OthersOutletSale::where('outlet_id', '!=', $account_outlet->outlet_id)
+            ->where('delivery_point_id', '=', $account_outlet->outlet_id)
+            ->where('payment_status', 'paid')
+            ->pluck('invoice_number')->toArray();
+
+        $originalSales = Sale::whereIn('invoice_number', $otherOutletSales)->pluck('id')->toArray();
+        $other_outlet_sales_balance = AccountTransaction::where('chart_of_account_id', $chart_of_account_id)->where('doc_type', 'POS')->whereIn('doc_id', $originalSales)->sum(\DB::raw('amount * transaction_type'));
+    }
+    return $other_outlet_sales_balance;
 }

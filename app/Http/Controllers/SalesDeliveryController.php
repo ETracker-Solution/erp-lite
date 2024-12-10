@@ -118,7 +118,7 @@ class SalesDeliveryController extends Controller
             $outlet = Outlet::find($store->doc_id);
             $outlet_id = $outlet->id;
             $sale = Sale::where('invoice_number',$originalSale->invoice_number)->first();
-
+            $sale->date = date('Y-m-d');
             $salesAmount = $sale->grand_total;
 
             if ($sale->preOrder || ($sale->outlet_id != $sale->delivery_point_id)) {

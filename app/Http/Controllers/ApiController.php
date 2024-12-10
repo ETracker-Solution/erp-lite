@@ -11,6 +11,7 @@ use App\Models\InventoryTransaction;
 use App\Models\InventoryTransfer;
 use App\Models\OthersOutletSale;
 use App\Models\Outlet;
+use App\Models\OutletAccount;
 use App\Models\Product;
 use App\Models\Production;
 use App\Models\Purchase;
@@ -41,7 +42,7 @@ class ApiController extends Controller
     {
 
         $coi = ChartOfInventory::with('unit', 'parent')->findOrFail($id);
-        $products = ChartOfInventory::with('unit', 'parent')->where('id',$id)->get();
+        $products = ChartOfInventory::with('unit', 'parent')->where('id', $id)->get();
         $needToProduction = 0;
         if (auth()->user()->employee->user_of == 'factory') {
             $all_requisitions = \App\Models\Requisition::todayFGAvailableRequisitions(auth('web')->user()->employee->factory_id);
@@ -502,8 +503,11 @@ class ApiController extends Controller
 
     public function fetchFromAccountBalanceById($coa_id)
     {
+        $other_outlet_sales_balance = accountBalanceForOtherOutletSales($coa_id);
+        $main_balance = AccountTransaction::where('chart_of_account_id', $coa_id)->sum(\DB::raw('amount * transaction_type'));
+
         $data = [
-            'from_ac_balance' => AccountTransaction::where('chart_of_account_id', $coa_id)->sum(\DB::raw('amount * transaction_type'))
+            'from_ac_balance' => max(($main_balance - $other_outlet_sales_balance), 0)
         ];
         return response()->json($data);
     }

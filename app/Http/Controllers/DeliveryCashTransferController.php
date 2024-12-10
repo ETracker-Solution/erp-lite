@@ -47,31 +47,21 @@ class DeliveryCashTransferController extends Controller
      */
     public function create()
     {
+        $exceptToAccountIds = [];
         if (\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->outlet_id) {
-
             $cons = OutletAccount::with('coa')->where('outlet_id', \auth()->user()->employee->outlet_id)->get();
             foreach ($cons as $con) {
                 $chartOfAccounts[] = $con->coa;
+                $exceptToAccountIds[] = $con->coa->id;
             }
-
-            $othersOutlets = OthersOutletSale::where('payment_status', 'paid')->where('outlet_id', \auth()->user()->employee->outlet_id)->get();
-
-
+            $othersOutlets = OthersOutletSale::where('payment_status', 'paid')->where('delivery_point_id', \auth()->user()->employee->outlet_id)->get();
         } else {
             $chartOfAccounts = ChartOfAccount::where(['is_bank_cash' => 'yes', 'type' => 'ledger', 'status' => 'active'])->get();
             $othersOutlets = OthersOutletSale::where('payment_status', 'paid')->get();
-
-
         }
-        // $chartOfAccounts = ChartOfAccount::where(['type' => 'ledger', 'status' => 'active'])->where(function ($q){
-        //     return $q->where('name','like','%bkash%')->orWhere('name','like','%bank%')->orWhere('name','like','%cash%');
-        // })->get();
-        // $toChartOfAccounts = ChartOfAccount::where(['type' => 'ledger', 'status' => 'active'])->where(function ($q){
-        //     return $q->where('name','like','%bkash%')->orWhere('name','like','%bank%')->orWhere('name','like','%cash%');
-        // })->get();
-        $toChartOfAccounts = ChartOfAccount::where(['is_bank_cash' => 'yes', 'type' => 'ledger', 'status' => 'active'])->get();
 
-        // $othersOutlets = OthersOutletSale::where('payment_status', 'payable')->get();
+        $toChartOfAccounts = ChartOfAccount::where(['is_bank_cash' => 'yes', 'type' => 'ledger', 'status' => 'active'])->whereNotIn('id',$exceptToAccountIds)->get();
+
         return view('delivery_cash_transfer.create', compact('othersOutlets','chartOfAccounts','toChartOfAccounts'));
     }
 
