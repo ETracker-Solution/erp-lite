@@ -39,6 +39,9 @@ class SaleReportController extends Controller
 
     public function create()
     {
+
+        ini_set('pcre.backtrack_limit', '2000000');
+        ini_set('pcre.recursion_limit', '1000000');
         $report_type = \request()->report_type;
 
 
@@ -368,7 +371,8 @@ AND SS.outlet_id = '$outlet_id'
         $outlet_id = auth()->user()->employee && auth()->user()->employee->outlet_id ? auth()->user()->employee->outlet_id : null;
         if (auth()->user()->is_super || (auth()->user()->employee && auth()->user()->employee->user_of == 'ho')) {
             return "
-        select SS.invoice_number as 'Invoice Number', SS.date as 'Date', SI.quantity as 'Quantity', SI.unit_price as 'Rate', (SI.quantity * SI.unit_price) as 'Sales Value', OT.name as 'Outlet'
+        (
+        select SS.invoice_number as 'Invoice Number', SS.date as 'Date', SI.quantity as 'Quantity', SI.unit_price as 'Rate', FORMAT((SI.quantity * SI.unit_price),2) as 'Sales Value', OT.name as 'Outlet'
 from sales SS
 join sale_items as SI
 on SI.sale_id = SS.id
@@ -377,10 +381,22 @@ on OT.id = SS.outlet_id
 WHERE SI.product_id = $item_id
         AND SS.date >= '$from_date'
 AND SS.date <= '$to_date'
+ORDER BY OT.id
+        )
+        UNION ALL
+        (
+        select 'TOTAL' as 'Invoice Number', '' as 'Date', SUM(SI.quantity) as 'Quantity', '' as 'Rate', FORMAT(SUM((SI.quantity * SI.unit_price)),2) as 'Sales Value', '' as 'Outlet'
+from sales SS
+join sale_items as SI
+on SI.sale_id = SS.id
+WHERE SI.product_id = $item_id
+        AND SS.date >= '$from_date'
+AND SS.date <= '$to_date'
+        )
         ";
         } else {
             return "
-        select SS.invoice_number as 'Invoice Number', SS.date as 'Date', SI.quantity as 'Quantity', SI.unit_price as 'Rate', (SI.quantity * SI.unit_price) as 'Sales Value', OT.name as 'Outlet'
+       select SS.invoice_number as 'Invoice Number', SS.date as 'Date', SI.quantity as 'Quantity', SI.unit_price as 'Rate', FORMAT((SI.quantity * SI.unit_price),2) as 'Sales Value', OT.name as 'Outlet'
 from sales SS
 join sale_items as SI
 on SI.sale_id = SS.id
@@ -389,8 +405,20 @@ on OT.id = SS.outlet_id
 WHERE SI.product_id = $item_id
         AND SS.date >= '$from_date'
 AND SS.date <= '$to_date'
-        AND SS.outlet_id = '$outlet_id'
-        ";
+AND SS.outlet_id = '$outlet_id'
+ORDER BY OT.id
+        )
+        UNION ALL
+        (
+        select 'TOTAL' as 'Invoice Number', '' as 'Date', SUM(SI.quantity) as 'Quantity', '' as 'Rate', FORMAT(SUM((SI.quantity * SI.unit_price)),2) as 'Sales Value', '' as 'Outlet'
+from sales SS
+join sale_items as SI
+on SI.sale_id = SS.id
+WHERE SI.product_id = $item_id
+        AND SS.date >= '$from_date'
+AND SS.date <= '$to_date'
+AND SS.outlet_id = '$outlet_id'
+        )";
         }
 
     }
