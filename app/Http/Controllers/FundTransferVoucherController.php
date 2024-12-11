@@ -7,9 +7,11 @@ use App\Models\FundTransferVoucher;
 use App\Http\Requests\StoreFundTransferVoucherRequest;
 use App\Http\Requests\UpdateFundTransferVoucherRequest;
 use App\Models\ChartOfAccount;
+use App\Models\OthersOutletSale;
 use App\Models\Outlet;
 use App\Models\OutletAccount;
 use App\Models\OutletTransactionConfig;
+use App\Models\Sale;
 use App\Models\Transaction;
 use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Http\Request;
@@ -28,15 +30,18 @@ class FundTransferVoucherController extends Controller
     public function index()
     {
         if (\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->outlet_id) {
-
             $oas = OutletAccount::with('coa')->where('outlet_id', \auth()->user()->employee->outlet_id)->get();
+
         } else {
             $oas = OutletAccount::with('coa')->get();
         }
         $outlet_accounts = [];
         foreach ($oas as $key => $row) {
+            $original_account_balance = AccountTransaction::where('chart_of_account_id', $row->coa_id)->sum(\DB::raw('amount * transaction_type'));
+            $other_outlet_sales_balance = accountBalanceForOtherOutletSales($row->coa_id);
             $outlet_accounts[$key]['name'] = $row->coa->name;
-            $outlet_accounts[$key]['balance'] = AccountTransaction::where('chart_of_account_id', $row->coa_id)->sum(\DB::raw('amount * transaction_type'));
+            $outlet_accounts[$key]['balance'] = max(($original_account_balance - $other_outlet_sales_balance),0);
+            $outlet_accounts[$key]['other_outlet_balance'] = $other_outlet_sales_balance;
         }
 
         $outlets = Outlet::all();
@@ -107,11 +112,13 @@ class FundTransferVoucherController extends Controller
                 Toastr::info('At Least One Product Required.', '', ["progressBar" => true]);
                 return back();
             }
+
             foreach ($validated['products'] as $product) {
                 $creditAccount = ChartOfAccount::find($product['credit_account_id']);
                 $pendingAmount = FundTransferVoucher::where(['credit_account_id' => $product['credit_account_id'], 'status' => 'pending'])->sum('amount');
                 $currentBalance = AccountTransaction::where('chart_of_account_id', $product['credit_account_id'])->sum(\DB::raw('amount * transaction_type'));
-                $actualBalance = $currentBalance - $pendingAmount;
+                $other_outlet_sales_balance = accountBalanceForOtherOutletSales($product['credit_account_id']);
+                $actualBalance = $currentBalance - $pendingAmount - $other_outlet_sales_balance;
                 if (max($actualBalance, 0) < $product['amount']) {
                     Toastr::warning("No Available Balance in " . $creditAccount->name);
                     return back();
