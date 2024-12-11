@@ -13,7 +13,7 @@ class DashboardController extends Controller
 {
     public function index()
     {
-
+        ini_set('memory_limit', '512M');
         if(auth()->user()->is_super){
             return (new AdminDashboardController())->adminDashboard();
         }else{
