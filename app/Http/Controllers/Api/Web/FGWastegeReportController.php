@@ -133,9 +133,11 @@ WHERE
 
     public function allStoreReportStatement($startDate, $endDate)
     {
-        return "SELECT
+        return "
+(
+SELECT
     s.name as StoreName,
-    SUM(iat.quantity * iat.rate) AS Value
+    FORMAT(SUM(iat.quantity * iat.rate),2) AS Value
 FROM
     inventory_adjustments ia
 JOIN
@@ -147,10 +149,13 @@ JOIN
 WHERE ia.transaction_type='decrease' AND ia.date >= '$startDate' AND ia.date <= '$endDate'
 GROUP BY
     ia.store_id
+ORDER BY  s.doc_id
+)
 UNION ALL
+(
 SELECT
     'Total' AS StoreName,
-    SUM(iat.quantity * iat.rate) AS TotalValue
+    FORMAT(SUM(iat.quantity * iat.rate),2) AS TotalValue
 FROM
     inventory_adjustments ia
     JOIN
@@ -160,6 +165,7 @@ JOIN
 WHERE
     ia.transaction_type = 'decrease'
     AND ia.date >= '$startDate'
-    AND ia.date <= '$endDate';";
+    AND ia.date <= '$endDate'
+);";
     }
 }

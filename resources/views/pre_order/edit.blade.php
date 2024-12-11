@@ -32,6 +32,9 @@
 
                         </div>
                         <div class="card-body">
+                            <form action="{{ route('pre-orders.update',encrypt($model->id)) }}" method="POST">
+                                @csrf
+                                @method('PUT')
                             <div class="row">
                                 <div class="col-md-2">
                                     <div class="form-group">
@@ -57,23 +60,19 @@
                                 <div class="col-md-2">
                                     <div class="form-group">
                                         <label for="">Delivery Date </label>
-                                        <input type="text" class="form-control" disabled
+                                        <input type="date" class="form-control" name="delivery_date"
                                                value="{{ $model->delivery_date }}">
                                     </div>
                                 </div>
                                 <div class="col-md-2">
                                     <div class="form-group">
                                         <label for="">Delivery Time </label>
-                                        <input type="text" class="form-control" disabled
-                                               value="{{ \Carbon\Carbon::parse($model->delivery_time)->format('h:i A') }}">
+                                        <input type="time" class="form-control" name="delivery_time"
+                                               value="{{ $model->delivery_time }}">
                                     </div>
                                 </div>
                             </div>
-                            <form action="{{ route('pre-orders.update',encrypt($model->id)) }}" method="POST">
-                                @csrf
-                                @method('PUT')
                                 <div class="row">
-
                                     <div class="col-md-4">
                                         <div class="form-group">
                                             <label for="">Size </label>

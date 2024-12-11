@@ -18,8 +18,11 @@ class InventoryAdjustment extends Model
 
     public function items()
     {
-
         return $this->hasMany('App\Models\InventoryAdjustmentItem', 'inventory_adjustment_id');
+    }
 
+    public function createdBy()
+    {
+        return $this->belongsTo(User::class, 'created_by');
     }
 }

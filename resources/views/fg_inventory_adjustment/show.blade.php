@@ -3,7 +3,7 @@
 FGInventory Adjustment Details
 @endsection
 @section('content')
-    @php    
+    @php
         $links = [
         'Home'=>route('dashboard'),
         'FG Inventory Adjustment'=>''
@@ -25,12 +25,15 @@ FGInventory Adjustment Details
                                 <tbody>
                                     <tr>
                                         <td style="text-align: left; padding:8px; line-height: 0.6">
+                                            <p><b>Adjusted By :</b> {{ $fGInventoryAdjustment->createdBy->name }}</p>
                                             <p><b>FGID No :</b> {{ $fGInventoryAdjustment->uid }}</p>
                                             <p><b>Date :</b> {{ $fGInventoryAdjustment->date }} </p>
                                             <p><b>Store :</b> {{ $fGInventoryAdjustment->store->name }} </p>
                                             <p><b>Transaction Type :</b> {!! showStatus($fGInventoryAdjustment->transaction_type) !!}</p>
                                             <p><b>Status :</b> {!! showStatus($fGInventoryAdjustment->status) !!}</p>
-                                        </td> 
+                                            <p><b>Remarks :</b> {{ $fGInventoryAdjustment->remarks ??'N/A' }} </p>
+                                            <p><b>Reference :</b> {{ $fGInventoryAdjustment->reference_no ?? 'N/A' }} </p>
+                                        </td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -40,7 +43,7 @@ FGInventory Adjustment Details
                         </div>
                         <!-- /.col -->
                         <div class="col-sm-4 invoice-col">
-                             
+
                         </div>
                         <!-- /.col -->
                     </div>

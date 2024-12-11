@@ -177,7 +177,7 @@ class SaleReportController extends Controller
     public function getAllSaleQuery($from_date, $to_date)
     {
         $outlet_id = auth()->user()->employee && auth()->user()->employee->outlet_id ? auth()->user()->employee->outlet_id : null;
-        if (auth()->user()->is_super) {
+        if (auth()->user()->is_super || (auth()->user()->employee && auth()->user()->employee->user_of == 'ho')) {
             return "
                 SELECT
                     SS.invoice_number AS 'Invoice Number',
@@ -274,7 +274,7 @@ class SaleReportController extends Controller
     public function getItemWiseSalesSummary($from_date, $to_date)
     {
         $outlet_id = auth()->user()->employee && auth()->user()->employee->outlet_id ? auth()->user()->employee->outlet_id : null;
-        if (auth()->user()->is_super) {
+        if (auth()->user()->is_super || (auth()->user()->employee && auth()->user()->employee->user_of == 'ho')) {
             return "
 select COI.name as 'Item', SUM(SI.quantity) as 'Quantity', SUM(SI.quantity * SI.unit_price) as 'Sales Amount'
 from sales SS
@@ -332,7 +332,7 @@ AND SS.date <= '$to_date'
     public function getAllCustomerSalesDetails($from_date, $to_date)
     {
         $outlet_id = auth()->user()->employee && auth()->user()->employee->outlet_id ? auth()->user()->employee->outlet_id : null;
-        if (auth()->user()->is_super) {
+        if (auth()->user()->is_super || (auth()->user()->employee && auth()->user()->employee->user_of == 'ho')) {
             return "
 select SS.invoice_number as 'Invoice Number', SS.date as 'Date', CU.name as 'Customer Name', COI.name as 'Item Name', SI.quantity as 'Quantity', SI.unit_price  as 'Rate', (SI.quantity * SI.unit_price)  as 'Value'
 from sales SS
@@ -366,7 +366,7 @@ AND SS.outlet_id = '$outlet_id'
     public function getSinlgeItemDetails($item_id, $from_date, $to_date)
     {
         $outlet_id = auth()->user()->employee && auth()->user()->employee->outlet_id ? auth()->user()->employee->outlet_id : null;
-        if (auth()->user()->is_super) {
+        if (auth()->user()->is_super || (auth()->user()->employee && auth()->user()->employee->user_of == 'ho')) {
             return "
         select SS.invoice_number as 'Invoice Number', SS.date as 'Date', SI.quantity as 'Quantity', SI.unit_price as 'Rate', (SI.quantity * SI.unit_price) as 'Sales Value', OT.name as 'Outlet'
 from sales SS
@@ -398,7 +398,7 @@ AND SS.date <= '$to_date'
     public function getSingleCustomerDetails($customer_id, $from_date, $to_date)
     {
         $outlet_id = auth()->user()->employee && auth()->user()->employee->outlet_id ? auth()->user()->employee->outlet_id : null;
-        if (auth()->user()->is_super) {
+        if (auth()->user()->is_super || (auth()->user()->employee && auth()->user()->employee->user_of == 'ho')) {
             return "
         select SS.invoice_number as 'Invoice Number', SS.date as 'Date', COI.name as 'Item Name', SI.quantity as 'Quantity', SI.unit_price as 'Rate', (SI.quantity * SI.unit_price) as 'Sales Value', OT.name as 'Outlet'
 from sales SS
