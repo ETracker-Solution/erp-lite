@@ -28,13 +28,44 @@
                                 </a>
                             </div>
                         </div>
-                        <!-- /.card-header -->
+
                         <div class="card-body table-responsive">
-                            <table id="dataTable" class="table table-bordered">
-                                {{-- show from datatable--}}
-                            </table>
+                            <div class="row">
+                                <div class="col-3">
+                                    <div class="form-group">
+                                        <label for="">Transaction Type</label>
+                                        <select name="transaction_type" id="" class="form-control">
+                                            <option value="">All</option>
+                                            <option value="increase">Increase</option>
+                                            <option value="decrease">Decrease</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-3">
+                                    <div class="form-group">
+                                        <label for="">From Date</label>
+                                        <input type="date" name="from_date" id="from_date" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="col-3">
+                                    <div class="form-group">
+                                        <label for="">To Date</label>
+                                        <input type="date" name="to_date" id="to_date" class="form-control">
+                                    </div>
+                                </div>
+{{--                                <div class="col-12">--}}
+{{--                                    <button class="btn btn-primary" type="button" id="search-btn">Search</button>--}}
+{{--                                </div>--}}
+                            </div>
+                            <hr>
+                            <!-- /.card-header -->
+                            <div class="card-body table-responsive">
+                                <table id="dataTable" class="table table-bordered">
+                                    {{-- show from datatable--}}
+                                </table>
+                            </div>
+                            <!-- /.card-body -->
                         </div>
-                        <!-- /.card-body -->
                     </div>
                     <!-- /.card -->
 
@@ -61,6 +92,16 @@
     <!-- page script -->
     <script>
         $(document).ready(function () {
+            if (sessionStorage.getItem('transaction_type')) {
+                $('select[name="transaction_type"]').val(sessionStorage.getItem('transaction_type'));
+            }
+            if (sessionStorage.getItem('from_date')) {
+                $('input[name="from_date"]').val(sessionStorage.getItem('from_date'));
+            }
+            if (sessionStorage.getItem('to_date')) {
+                $('input[name="to_date"]').val(sessionStorage.getItem('to_date'));
+            }
+
             $('#dataTable').dataTable({
                 stateSave: true,
                 responsive: true,
@@ -68,6 +109,11 @@
                 processing: true,
                 ajax: {
                     url: "{{ route('fg-inventory-adjustments.index') }}",
+                    data: function (d) {
+                        d.transaction_type = $('select[name="transaction_type"]').val();
+                        d.from_date = $('input[name="from_date"]').val();
+                        d.to_date = $('input[name="to_date"]').val();
+                    }
                 },
                 columns: [{
                     data: "DT_RowIndex",
@@ -119,5 +165,21 @@
                 ],
             });
         })
+
+        function recallDatatable() {
+            $('#dataTable').DataTable().draw(true);
+        }
+
+        // On filter change, store the filter values in sessionStorage and recall the DataTable
+        $('select[name="transaction_type"], input[name="from_date"], input[name="to_date"]').on('change', function () {
+            sessionStorage.setItem('transaction_type', $('select[name="transaction_type"]').val());
+            sessionStorage.setItem('from_date', $('input[name="from_date"]').val());
+            sessionStorage.setItem('to_date', $('input[name="to_date"]').val());
+            recallDatatable();
+        });
+
+        $('#search-btn').on('click', function () {
+            recallDatatable();
+        });
     </script>
 @endpush

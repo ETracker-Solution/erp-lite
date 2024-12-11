@@ -318,7 +318,7 @@ class RequisitionController extends Controller
         if (\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->outlet_id) {
             $data = $data->where(['outlet_id' => \auth()->user()->employee->outlet_id]);
         }
-        if (\request()->filled('status')) {
+        if (\request()->filled(key: 'status')) {
             $data = $data->where('status', \request()->status);
         }
         if (\request()->filled('from_date') && \request()->filled('to_date')) {

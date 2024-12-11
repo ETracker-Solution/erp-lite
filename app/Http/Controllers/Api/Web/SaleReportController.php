@@ -276,6 +276,7 @@ class SaleReportController extends Controller
         $outlet_id = auth()->user()->employee && auth()->user()->employee->outlet_id ? auth()->user()->employee->outlet_id : null;
         if (auth()->user()->is_super) {
             return "
+(           
 select COI.name as 'Item', SUM(SI.quantity) as 'Quantity', SUM(SI.quantity * SI.unit_price) as 'Sales Amount'
 from sales SS
 join sale_items SI
@@ -284,9 +285,25 @@ join chart_of_inventories COI
 on COI.id = SI.product_id
 WHERE SS.date >= '$from_date'
 AND SS.date <= '$to_date'
-group by COI.id";
+group by COI.id
+order by COI.parent_id, COI.id
+)
+union all
+(
+ SELECT 'Total' AS 'Item', 
+    SUM(SI.quantity) AS 'Quantity', 
+    SUM(SI.quantity * SI.unit_price) AS 'Sales Amount'
+    FROM sales SS
+    join sale_items SI
+on SI.sale_id = SS.id
+    WHERE SS.date >= '$from_date'
+    AND SS.date <= '$to_date'
+
+)";
+
         } else {
             return "
+            (           
 select COI.name as 'Item', SUM(SI.quantity) as 'Quantity', SUM(SI.quantity * SI.unit_price) as 'Sales Amount'
 from sales SS
 join sale_items SI
@@ -296,7 +313,21 @@ on COI.id = SI.product_id
 WHERE SS.date >= '$from_date'
 AND SS.date <= '$to_date'
 AND SS.outlet_id = '$outlet_id'
-group by COI.id";
+group by COI.id
+order by COI.parent_id, COI.id
+)
+union all
+(
+ SELECT 'Total' AS 'Item', 
+    SUM(SI.quantity) AS 'Quantity', 
+    SUM(SI.quantity * SI.unit_price) AS 'Sales Amount'
+    FROM sales SS
+    JOIN sale_items SI ON SI.sale_id = SS.id
+    WHERE SS.date >= '$from_date'
+    AND SS.date <= '$to_date'
+    AND SS.outlet_id = '$outlet_id'
+
+)";
         }
     }
 

@@ -10,6 +10,7 @@ use App\Models\InventoryAdjustmentItem;
 use App\Models\InventoryTransaction;
 use App\Models\Store;
 use Brian2694\Toastr\Facades\Toastr;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -20,19 +21,8 @@ class FGInventoryAdjustmentController extends Controller
      */
     public function index()
     {
-        if (auth()->user()->employee && auth()->user()->employee->user_of != 'ho'){
-            if (auth()->user()->employee->factory_id){
-                $store_id = auth()->user()->employee->factory->stores()->pluck('id')->toArray();
-            }
-            if (auth()->user()->employee->outlet_id){
-                $store_id = auth()->user()->employee->outlet->stores()->pluck('id')->toArray();
-            }
-            $fGInventoryAdjustments = InventoryAdjustment::with('store')
-                ->where(['type' => 'FG'])->whereIn('store_id', $store_id)->latest();
-        }else{
-            $fGInventoryAdjustments = InventoryAdjustment::with('store')->where(['type' => 'FG'])->latest();
-        }
         if (\request()->ajax()) {
+            $fGInventoryAdjustments = $this->getFilteredData();
             return DataTables::of($fGInventoryAdjustments)
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
@@ -172,5 +162,34 @@ class FGInventoryAdjustmentController extends Controller
         }
         Toastr::success('FG Inventory Transfer Deleted Successfully!.', '', ["progressBar" => true]);
         return redirect()->route('fg-inventory-adjustments.index');
+    }
+
+    private function getFilteredData()
+    {
+        if (auth()->user()->employee && auth()->user()->employee->user_of != 'ho'){
+            if (auth()->user()->employee->factory_id){
+                $store_id = auth()->user()->employee->factory->stores()->pluck('id')->toArray();
+            }
+            if (auth()->user()->employee->outlet_id){
+                $store_id = auth()->user()->employee->outlet->stores()->pluck('id')->toArray();
+            }
+            $data = InventoryAdjustment::with('store')
+                ->where(['type' => 'FG'])->whereIn('store_id', $store_id)->latest();
+        }else{
+            $data = InventoryAdjustment::with('store')->where(['type' => 'FG'])->latest();
+        }
+
+        if (\request()->filled(key: 'transaction_type')) {
+            // dd(\request()->transaction_type);
+            $data = $data->where('transaction_type', \request()->transaction_type);
+        }
+        if (\request()->filled('from_date') && \request()->filled('to_date')) {
+            $from_date = Carbon::parse(request()->from_date)->format('Y-m-d');
+            $to_date = Carbon::parse(request()->to_date)->format('Y-m-d');
+            // dd($from_date, $to_date);
+            $data = $data->whereDate('date', '>=', $from_date)->whereDate('date', '<=', $to_date);
+            // dd($data);
+        }
+        return $data->latest();
     }
 }
