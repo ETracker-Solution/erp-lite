@@ -131,17 +131,20 @@
 <div class="company-info">
     @include('common.pdf_header')
 </div>
-<div class="signature-section" style="display: flex; justify-content: space-between; margin-top: 100px">
-    <span style="border-top: 1px solid hsl(0, 0%, 2%);">Authorized By</span>&emsp;&emsp;&emsp;&emsp;&emsp; &emsp;&emsp;&emsp;&emsp;&emsp;
-    <span style="border-top: 1px solid hsl(0, 0%, 2%);">Supervisor</span>&emsp;&emsp;&emsp;&emsp;&emsp; &emsp;&emsp;&emsp;&emsp;&emsp;
-    <span style="border-top: 1px solid hsl(0, 0%, 2%);">Factory In-charge</span>
-</div>
-<div class="row">
-    <div style="text-align: right">
-        <h3 class="marginright">Production No:{{ $production->uid }}</h3>
-        <span class="marginright">{{ \Carbon\Carbon::parse($production->created_at)->isoFormat('MMM Do, YYYY') }}</span>
-    </div>
-</div>
+
+<table style="width: 100%;margin-top: 60%;">
+    <tr>
+        <td style="text-align: left">
+            @if (auth()->check())
+                <h3 class="marginright">User: {{ auth()->user()->name }}</h3>
+            @endif
+        </td>
+        <td style="text-align: right">
+            <h3 class="marginright">Production No: {{ $production->uid }}</h3>
+        </td>
+    </tr>
+</table>
+
 <hr>
 
 <table class="details">
@@ -152,6 +155,9 @@
             <p><b>Batch No : </b> {{ $production->batch->batch_no }} </p>
             <p><b>Status :</b> {{ $production->status }}</p>
             <p><b>Reference :</b> {{ $production->reference_no }}</p>
+        </td>
+        <td style="text-align: right">
+            <p><b>Description :</b> {{ $production->remark ?? "N/A" }}</p>
         </td>
     </tr>
 </table>
@@ -186,6 +192,12 @@
     </tbody>
 </table>
 
+
+<div class="signature-section" style="display: flex; justify-content: space-between; margin-top: 100px">
+    <span style="border-top: 1px solid hsl(0, 0%, 2%);">Authorized By</span>&emsp;&emsp;&emsp;&emsp;&emsp; &emsp;&emsp;&emsp;&emsp;&emsp;
+    <span style="border-top: 1px solid hsl(0, 0%, 2%);">Supervisor</span>&emsp;&emsp;&emsp;&emsp;&emsp; &emsp;&emsp;&emsp;&emsp;&emsp;
+    <span style="border-top: 1px solid hsl(0, 0%, 2%);">Factory In-charge</span>
+</div>
 
 <hr>
 @include('common.report_footer')
