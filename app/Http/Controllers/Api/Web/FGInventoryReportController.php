@@ -38,8 +38,10 @@ class FGInventoryReportController extends Controller
         } elseif ($report_type == 'all_item') {
             $statement = get_all_items($asOnDate,'FG');
         } elseif ($report_type == 'store_group') {
+            $report_header .= ' ( All Store Summary)';
             $statement = get_all_stores($asOnDate,'FG');
         } elseif ($report_type == 'store_group_item') {
+            $report_header .= ' ( Single Store)';
             $page_title = 'Store Name: ' . Store::find(\request()->store_id)->name;
             $run_query = false;
 //            $statement = get_all_items_by_store(\request()->store_id, $asOnDate,'FG');

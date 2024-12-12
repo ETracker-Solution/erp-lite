@@ -31,9 +31,9 @@ class OutletDashboardController extends Controller
             $query->where(['outlet_id' => $outlet_id]);
         })->where(['type' => 'FG', 'status' => 'completed'])->get();
 
-        $requisition_deliveries_count = $requisition_deliveries->count();
+        $requisition_deliveries_count = count($requisition_deliveries);
 
-        $otherOutletSales = OthersOutletSale::where(['status' => 'delivered','outlet_id' => $outlet_id])->count();
+        $otherOutletSales = OthersOutletSale::where('outlet_id','!=',$outlet_id)->where(['status' => 'pending','delivery_point_id' => $outlet_id])->count();
 
         $products = ChartOfInventory::where(['type' => 'item', 'rootAccountType' => 'FG','status'=>'active'])->count();
 
@@ -129,9 +129,10 @@ class OutletDashboardController extends Controller
 // Populate the product-wise stock array
         foreach ($allProducts as $product) {
             $stock = $inventoryData->get($product->id)->total_stock ?? 0; // Use null coalescing for safety
+            $with_price = $stock * $product->price;
             $productWiseStock['products'][] = $product->name;
-            $productWiseStock['stock'][] = $stock;
-            $totalStock += $stock;
+            $productWiseStock['stock'][] = $with_price;
+            $totalStock += $with_price;
         }
 
         if (\request()->ajax()) {

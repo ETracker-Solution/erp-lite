@@ -376,11 +376,11 @@ FROM (
 
 function get_all_stores($date, $ac_type)
 {
+//    if ($ac_type == 'FG'){
+//        return all_store_fg_report_query($date);
+//    }
     return "SELECT
     `Store Name`,
-    `Group Name`,
-    `Item ID`,
-    `Item Name`,
     `Balance Qty`,
     `Value`
 FROM (
@@ -428,6 +428,41 @@ FROM (
     ) AS subquery,
     (SELECT @prev_group := null, @prev_store:= null, @total_a :=0) AS prev
 ) AS result";
+}
+
+function all_store_fg_report_query($date){
+    return "
+   select
+	s.name as 'STORE NAME',
+	SUM(it.quantity * it.`type`) as 'Balance QTY',
+	FORMAT(SUM(it.quantity * it.type) * (SUM(CASE WHEN it.type = 1 THEN it.amount ELSE 0 END)/ SUM(CASE WHEN it.type = 1 THEN it.quantity ELSE 0 END)), 0) AS `Value`
+from
+	inventory_transactions it
+join chart_of_inventories coi
+on
+	coi.id = it.coi_id
+left join stores s
+on
+	s.id = it.store_id
+WHERE
+	it.date <= '$date'
+	AND coi.rootAccountType = 'FG'
+group by
+	s.id
+UNION ALL
+select
+	'TOTAL' as 'STORE NAME',
+	SUM(it.quantity * it.`type`) as 'Balance QTY',
+	FORMAT(SUM(it.quantity * it.type) * (SUM(CASE WHEN it.type = 1 THEN it.amount ELSE 0 END)/ SUM(CASE WHEN it.type = 1 THEN it.quantity ELSE 0 END)), 0) AS `Value`
+from
+	inventory_transactions it
+join chart_of_inventories coi
+on
+	coi.id = it.coi_id
+WHERE
+	it.date <= '$date'
+	AND coi.rootAccountType = 'FG'
+    ";
 }
 
 function get_all_items_by_store($store_id, $date, $ac_type)
