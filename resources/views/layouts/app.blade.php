@@ -71,6 +71,7 @@
 <!-- REQUIRED SCRIPTS -->
 @include('partials.script')
 
+@stack('js_scripts')
 <script>
     function confirmAlert(element, message = "You won't be able to revert this!", buttonText = 'Yes, delete it!', title = 'Are you sure?') {
         $(document).on('click', element, function (event) {

@@ -14,7 +14,8 @@ function addInventoryTransaction(int $type, string $doc_type, $doc)
         'store_id' => $doc->store_id,
         'coi_id' => $doc->coi_id,
         'doc_type' => $doc_type,
-        'doc_id' => $doc->id
+        'doc_id' => $doc->id,
+        'created_at' => now()
     ]);
 }
 
@@ -129,14 +130,14 @@ function fetchAverageRates(array $coiIds, int $store_id = null)
     return $averageRates;
 }
 
-function fetchStoreCompletedRequisitionDeliveryQuantities($product, array $storeIds, $column ='from_store_id' )
+function fetchStoreCompletedRequisitionDeliveryQuantities($product, array $storeIds, $column = 'from_store_id')
 {
     return $product->requisitionDeliveryItems()->whereHas('requisitionDelivery', function ($q) use ($storeIds, $column) {
         return $q->where('status', 'completed')->whereIn($column, $storeIds);
     })->sum('quantity');
 }
 
-function fetchStoreReceivedRequisitionDeliveryQuantities($product, array $storeIds, $column ='from_store_id' )
+function fetchStoreReceivedRequisitionDeliveryQuantities($product, array $storeIds, $column = 'from_store_id')
 {
     return $product->requisitionDeliveryItems()->whereHas('requisitionDelivery', function ($q) use ($storeIds, $column) {
         return $q->where('status', 'received')->whereIn($column, $storeIds);
@@ -153,7 +154,7 @@ function fetchStoreDeliveredPreOrderQuantities($product, array $storeIds)
 function fetchStoreInventoryTransferQuantities($product, array $storeIds)
 {
     return $product->inventoryTransferItems()->whereHas('inventoryTransfer', function ($q) use ($storeIds) {
-        return $q->where('status', 'pending')->whereIn('from_store_id', $storeIds)->where('type','FG');
+        return $q->where('status', 'pending')->whereIn('from_store_id', $storeIds)->where('type', 'FG');
     })->sum('quantity');
 }
 

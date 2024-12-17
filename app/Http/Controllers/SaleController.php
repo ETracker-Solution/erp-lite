@@ -6,8 +6,10 @@ use App\Classes\InvoiceNumber;
 use App\Classes\PreOrderNumber;
 use App\Http\Requests\StoreSaleRequest;
 use App\Http\Requests\UpdateSaleRequest;
+use App\Models\AccountTransaction;
 use App\Models\ChartOfInventory;
 use App\Models\Customer;
+use App\Models\InventoryTransaction;
 use App\Models\OthersOutletSale;
 use App\Models\Outlet;
 use App\Models\Payment;
@@ -329,7 +331,37 @@ class SaleController extends Controller
      */
     public function destroy(Sale $sale)
     {
-        //
+        try {
+            $customer = $sale->customer;
+            $membership = $customer->membership;
+            $membershipPointHistory = $customer->membershipPointHistories()->where('sale_id', $sale->id)->first();
+            AccountTransaction::where([
+                'doc_type' => 'POS',
+                'doc_id' => $sale->id,
+            ])->delete();
+            if ($membershipPointHistory) {
+                $membership->decrement('point', $membershipPointHistory->point);
+                $membershipPointHistory->delete();
+            }
+            $preOrder = $sale->preOrder;
+            if ($preOrder) {
+                $preOrder->delete();
+            }
+
+            $delivery_of_pre_order = OthersOutletSale::where('invoice_number', $sale->invoice_number)->first();
+            if ($delivery_of_pre_order) {
+                $delivery_of_pre_order->delete();
+            }
+
+            InventoryTransaction::where('doc_type','POS')->whereIn('doc_id',$sale->items()->pluck('id')->toArray())->delete();
+
+            $sale->delete();
+
+        }catch (\Exception $e) {
+            return $e;
+        }
+        Toastr::success('Successfully Cancelled!.', '', ["progressbar" => true]);
+        return redirect()->route('sales.index');
     }
 
     public function fetch_product_sale($id)
