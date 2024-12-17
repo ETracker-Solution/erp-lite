@@ -54,7 +54,7 @@ class DeliveryCashTransferController extends Controller
                 $chartOfAccounts[] = $con->coa;
                 $exceptToAccountIds[] = $con->coa->id;
             }
-            $othersOutlets = OthersOutletSale::where('payment_status', 'paid')->where('delivery_point_id', \auth()->user()->employee->outlet_id)->get();
+            $othersOutlets = OthersOutletSale::where('payment_status', 'paid')->where('outlet_id','!=',\auth()->user()->employee->outlet_id)->where('delivery_point_id', \auth()->user()->employee->outlet_id)->get();
         } else {
             $chartOfAccounts = ChartOfAccount::where(['is_bank_cash' => 'yes', 'type' => 'ledger', 'status' => 'active'])->get();
             $othersOutlets = OthersOutletSale::where('payment_status', 'paid')->get();

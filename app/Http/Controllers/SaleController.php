@@ -204,7 +204,7 @@ class SaleController extends Controller
                 $sale_item['rate'] = averageFGRate($row['product_id']);
                 $sale_item['amount'] = $sale_item['rate'] * $row['quantity'];
                 $sale_item['store_id'] = $store->id;
-                if ($row['is_readonly'] == 'true' && $request->sales_type != 'pre_order') {
+                if ($row['is_readonly'] == 'true' && ($request->sales_type != 'pre_order' && $outlet_id == $request->delivery_point_id)) {
                     addInventoryTransaction(-1, 'POS', $sale_item);
                 }
                 $avgProductionPrice += $sale_item['amount'];
