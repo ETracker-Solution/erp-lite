@@ -30,6 +30,14 @@
                         </div>
                         <!-- /.card-header -->
                         <div class="card-body table-responsive">
+                            <div class="row">
+                                <div class="col-md-3 form-group">
+                                    <label for="fp-range" class="font-weight-bold">DATE RANGE</label>
+                                    <input type="text" id="fp-range" class="form-control flatpickr-range"
+                                           placeholder="YYYY-MM-DD to YYYY-MM-DD" name="date_range"/>
+                                </div>
+                            </div>
+
                             <table id="dataTable" class="table table-bordered">
                                 {{-- show from datatable--}}
                             </table>
@@ -46,12 +54,26 @@
     <!-- /.content -->
 @endsection
 @section('css')
+    <link rel="stylesheet" type="text/css"
+          href="{{ asset('datepicker/app-assets/vendors/css/pickers/pickadate/pickadate.css') }}">
+    <link rel="stylesheet" type="text/css"
+          href="{{ asset('datepicker/app-assets/vendors/css/pickers/flatpickr/flatpickr.min.css') }}">
+    <link rel="stylesheet" type="text/css"
+          href="{{ asset('datepicker/app-assets/css/plugins/forms/pickers/form-flat-pickr.css') }}">
+    <link rel="stylesheet" type="text/css"
+          href="{{ asset('datepicker/app-assets/css/plugins/forms/pickers/form-pickadate.css') }}">
     <!-- DataTables -->
     <link rel="stylesheet" href="{{ asset('assets/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css')}}">
 @endsection
 @push('style')
 @endpush
 @section('js')
+    <script src="{{ asset('datepicker/app-assets/vendors/js/pickers/pickadate/picker.js') }}"></script>
+    <script src="{{ asset('datepicker/app-assets/vendors/js/pickers/pickadate/picker.date.js') }}"></script>
+    <script src="{{ asset('datepicker/app-assets/vendors/js/pickers/pickadate/picker.time.js') }}"></script>
+    <script src="{{ asset('datepicker/app-assets/vendors/js/pickers/pickadate/legacy.js') }}"></script>
+    <script src="{{ asset('datepicker/app-assets/vendors/js/pickers/flatpickr/flatpickr.min.js') }}"></script>
+    <script src="{{ asset('datepicker/app-assets/js/scripts/forms/pickers/form-pickers.js') }}"></script>
     <!-- DataTables -->
     <script src="{{ asset('assets/plugins/datatables/jquery.dataTables.min.js')}}"></script>
     <script src="{{ asset('assets/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js')}}"></script>
@@ -62,6 +84,12 @@
     <!-- page script -->
     <script>
         $(document).ready(function () {
+
+            if (sessionStorage.getItem('production_date_range')) {
+                $('input[name="date_range"]').val(sessionStorage.getItem('production_date_range'));
+            }
+
+
             $('#dataTable').dataTable({
                 stateSave: true,
                 responsive: true,
@@ -69,6 +97,9 @@
                 processing: true,
                 ajax: {
                     url: "{{ route('productions.index') }}",
+                    data: function (d) {
+                        d.date_range = $('input[name="date_range"]').val();
+                    }
                 },
                 columns: [{
                     data: "DT_RowIndex",
@@ -124,5 +155,14 @@
                 ],
             });
         })
+
+        $('#fp-range').on('change', function () {
+            sessionStorage.setItem('production_date_range', $('input[name="date_range"]').val());
+            recallDatatable();
+        })
+
+        function recallDatatable() {
+            $('#dataTable').DataTable().draw(true);
+        }
     </script>
 @endpush

@@ -55,7 +55,7 @@ class ProductionController extends Controller
     public function index()
     {
         if (\request()->ajax()) {
-            $productions = Production::with('batch', 'factory', 'store')->latest();
+            $productions = $this->getFilteredData();
             return DataTables::of($productions)
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
@@ -71,6 +71,16 @@ class ProductionController extends Controller
                 ->make(true);
         }
         return view('production.index');
+    }
+
+    protected function getFilteredData()
+    {
+        $data =  Production::with('batch', 'factory', 'store');
+        if (request()->filled('date_range')){
+            searchColumnByDateRange($data);
+        }
+
+        return $data->latest();
     }
 
     /**
