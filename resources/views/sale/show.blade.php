@@ -132,6 +132,10 @@
                                             <td class="text-right">{{ $sale->delivery_charge }}</td>
                                         </tr>
                                         <tr>
+                                            <th style="width:50%">Additional Charge:</th>
+                                            <td class="text-right">{{ $sale->additional_charge }}</td>
+                                        </tr>
+                                        <tr>
                                             <th style="width:50%">Discount:</th>
                                             <td class="text-right">{{ $sale->discount }}</td>
                                         </tr>

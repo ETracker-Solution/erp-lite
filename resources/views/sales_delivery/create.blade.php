@@ -239,6 +239,19 @@
 
                                                             </td>
                                                             <td>
+                                                                Additional Charge
+                                                            </td>
+                                                            <td>
+                                                                <input type="text"
+                                                                       class="form-control input-sm"
+                                                                       v-bind:value="additional_charge" readonly>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td colspan="7">
+
+                                                            </td>
+                                                            <td>
                                                                 Total Discount
                                                             </td>
                                                             <td>
@@ -486,6 +499,7 @@
                     receivable_amount: 0,
                     orderDiscount: 0,
                     delivery_charge: 0,
+                    additional_charge: 0,
                     orderAmount: 0,
                 },
                 components: {
@@ -581,6 +595,7 @@
                                 vm.receivable_amount = Math.round(vm.receivable_amount)
                                 vm.oldPaid = vm.receivable_amount > 0 ? resData.receive_amount : resData.grand_total
                                 vm.delivery_charge = resData.delivery_charge
+                                vm.additional_charge = resData.additional_charge
                                 vm.orderAmount = resData.grand_total
                             }).catch(function (error) {
                                 toastr.error('Something went to wrong', {

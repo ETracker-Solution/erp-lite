@@ -23,7 +23,7 @@ class DeliveryCashTransferController extends Controller
     {
         if (\request()->ajax()) {
             if (\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->outlet_id) {
-                $dcTransfers = DeliveryCashTransfer::with('creditAccount', 'debitAccount')->where(['from_outlet'=>\auth()->user()->employee->outlet_id])->latest();
+                $dcTransfers = DeliveryCashTransfer::with('creditAccount', 'debitAccount')->where(['from_outlet' => \auth()->user()->employee->outlet_id])->latest();
 
             } else {
                 $dcTransfers = DeliveryCashTransfer::with('creditAccount', 'debitAccount')->latest();
@@ -54,16 +54,16 @@ class DeliveryCashTransferController extends Controller
                 $chartOfAccounts[] = $con->coa;
                 $exceptToAccountIds[] = $con->coa->id;
             }
-            $alreadyTransferred = DeliveryCashTransfer::where('from_outlet',\auth()->user()->employee->outlet_id)->pluck('other_outlet_sale_id')->toArray();
-            $othersOutlets = OthersOutletSale::where('payment_status', 'paid')->where('outlet_id','!=',\auth()->user()->employee->outlet_id)->where('delivery_point_id', \auth()->user()->employee->outlet_id)->whereNotIn('id',$alreadyTransferred)->get();
+            $alreadyTransferred = DeliveryCashTransfer::where('from_outlet', \auth()->user()->employee->outlet_id)->pluck('other_outlet_sale_id')->toArray();
+            $othersOutlets = OthersOutletSale::where('payment_status', 'paid')->where('outlet_id', '!=', \auth()->user()->employee->outlet_id)->where('delivery_point_id', \auth()->user()->employee->outlet_id)->whereNotIn('id', $alreadyTransferred)->get();
         } else {
             $chartOfAccounts = ChartOfAccount::where(['is_bank_cash' => 'yes', 'type' => 'ledger', 'status' => 'active'])->get();
             $othersOutlets = OthersOutletSale::where('payment_status', 'paid')->get();
         }
 
-        $toChartOfAccounts = ChartOfAccount::where(['is_bank_cash' => 'yes', 'type' => 'ledger', 'status' => 'active'])->whereNotIn('id',$exceptToAccountIds)->get();
+        $toChartOfAccounts = ChartOfAccount::where(['is_bank_cash' => 'yes', 'type' => 'ledger', 'status' => 'active'])->whereNotIn('id', $exceptToAccountIds)->get();
 
-        return view('delivery_cash_transfer.create', compact('othersOutlets','chartOfAccounts','toChartOfAccounts'));
+        return view('delivery_cash_transfer.create', compact('othersOutlets', 'chartOfAccounts', 'toChartOfAccounts'));
     }
 
     /**
@@ -74,11 +74,11 @@ class DeliveryCashTransferController extends Controller
         $validated = $request->validated();
         DB::beginTransaction();
         try {
-           $otherOutlet = OthersOutletSale::find($request->sale_id);
-            $validated['other_outlet_sale_id']=$otherOutlet->id;
-            $validated['invoice_number']=$otherOutlet->invoice_number;
-            $validated['from_outlet']=$otherOutlet->delivery_point_id;
-            $validated['to_outlet']=$otherOutlet->outlet_id;
+            $otherOutlet = OthersOutletSale::find($request->sale_id);
+            $validated['other_outlet_sale_id'] = $otherOutlet->id;
+            $validated['invoice_number'] = $otherOutlet->invoice_number;
+            $validated['from_outlet'] = $otherOutlet->delivery_point_id;
+            $validated['to_outlet'] = $otherOutlet->outlet_id;
             DeliveryCashTransfer::create($validated);
             DB::commit();
         } catch (\Exception $error) {

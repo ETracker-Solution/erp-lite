@@ -77,7 +77,7 @@ class DeliveryCashReceiveController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateDeliveryCashTransferRequest $request, $id )
+    public function update(Request $request, $id )
     {
         $deliveryCashTransfer = DeliveryCashTransfer::find(decrypt($id));
         try {

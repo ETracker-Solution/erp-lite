@@ -108,6 +108,11 @@
                                     </tr>
                                     <tr>
                                         <td colspan="5"></td>
+                                        <td class="text-left">Additional Charge:</td>
+                                        <td class="text-right">{{ $otherOutletSale->additional_charge }} </td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="5"></td>
                                         <td class="text-left">Discount:</td>
                                         <td class="text-right">{{ $otherOutletSale->discount }}</td>
                                     </tr>

@@ -305,7 +305,7 @@
                 this.getAllCategories();
                 this.getCustomers();
                 this.getAllOrders();
-                this.getAllPreOrders();
+                // this.getAllPreOrders();
             },
             computed: {
                 total_items: function () {

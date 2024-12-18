@@ -110,6 +110,10 @@
                                             <td class="text-right">{{ $model->sale->delivery_charge ?? 0 }}</td>
                                         </tr>
                                         <tr>
+                                            <th style="width:50%">Additional Charge:</th>
+                                            <td class="text-right">{{ $model->sale->additional_charge ?? 0 }}</td>
+                                        </tr>
+                                        <tr>
                                             <th style="width:50%">Discount:</th>
                                             <td class="text-right">{{ $model->discount }}</td>
                                         </tr>

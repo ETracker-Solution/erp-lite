@@ -133,6 +133,11 @@
                         </tr>
                         <tr>
                             <td colspan="5"></td>
+                            <td class="text-left">Delivery Charge:</td>
+                            <td class="text-right">{{$model->sale->additional_charge ?? 0}} </td>
+                        </tr>
+                        <tr>
+                            <td colspan="5"></td>
                             <td class="text-left">Discount:</td>
                             <td class="text-right">{{ $model->discount }}</td>
                         </tr>

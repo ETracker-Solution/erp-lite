@@ -106,6 +106,10 @@
                                             <td class="text-right">{{ $otherOutletSale->delivery_charge }}</td>
                                         </tr>
                                         <tr>
+                                            <th style="width:50%">Additional Charge:</th>
+                                            <td class="text-right">{{ $otherOutletSale->additional_charge }}</td>
+                                        </tr>
+                                        <tr>
                                             <th style="width:50%">Discount:</th>
                                             <td class="text-right">{{ $otherOutletSale->discount }}</td>
                                         </tr>

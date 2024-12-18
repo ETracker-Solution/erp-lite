@@ -121,17 +121,40 @@
                                                     </select>
                                                 </div>
                                             </div>
-                                            <div class="col-3" v-if="sales_type=='pre_order'">
+                                            <div class="col-3">
                                                 <div class="form-group">
                                                     <label for="" class="small">Delivery Charge</label>
                                                     <input type="number" name="delivery_charge" id="" v-model="delivery_charge"
                                                            class="form-control form-control-sm" placeholder="Enter Delivery Charge">
                                                 </div>
                                             </div>
-                                            <div class="col-3" v-if="sales_type=='pre_order'">
+                                            <div class="col-3">
+                                                <div class="form-group">
+                                                    <label for="" class="small">Additional Charge</label>
+                                                    <input type="number" name="additional_charge" id="" v-model="additional_charge"
+                                                           class="form-control form-control-sm" placeholder="Enter Additional Charge">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-2" v-if="sales_type=='pre_order'">
                                                 <div class="form-group">
                                                     <label for="" class="small">Attachments</label>
                                                     <input type="file" name="attachments[]" id="" multiple
+                                                           class="form-control form-control-sm">
+                                                </div>
+                                            </div>
+                                            <div class="col-2" v-if="sales_type=='pre_order'">
+                                                <div class="form-group">
+                                                    <label for="" class="small">Size and Shape</label>
+                                                    <input type="text" name="size" id=""
+                                                           class="form-control form-control-sm">
+                                                </div>
+                                            </div>
+                                            <div class="col-2" v-if="sales_type=='pre_order'">
+                                                <div class="form-group">
+                                                    <label for="" class="small">Flavour</label>
+                                                    <input type="text" name="flavour" id=""
                                                            class="form-control form-control-sm">
                                                 </div>
                                             </div>
@@ -142,21 +165,7 @@
                                                            class="form-control form-control-sm">
                                                 </div>
                                             </div>
-                                            <div class="col-4" v-if="sales_type=='pre_order'">
-                                                <div class="form-group">
-                                                    <label for="" class="small">Size and Shape</label>
-                                                    <input type="text" name="size" id=""
-                                                           class="form-control form-control-sm">
-                                                </div>
-                                            </div>
-                                            <div class="col-4" v-if="sales_type=='pre_order'">
-                                                <div class="form-group">
-                                                    <label for="" class="small">Flavour</label>
-                                                    <input type="text" name="flavour" id=""
-                                                           class="form-control form-control-sm">
-                                                </div>
-                                            </div>
-                                            <div class="col-4" v-if="sales_type=='pre_order'">
+                                            <div class="col-3" v-if="sales_type=='pre_order'">
                                                 <div class="form-group">
                                                     <label for="" class="small">Cake Message</label>
                                                     <input type="text" name="cake_message" id=""
@@ -375,6 +384,7 @@
                                                                 <span v-if="membership_discount_percentage > 0">Minimum Purchase <span>( @{{ minimum_purchase_amount }} TK )</span></span></th>
                                                             <th>Total Discount</th>
                                                             <th>Delivery Charge</th>
+                                                            <th>Additional Charge</th>
                                                             <th>Grand Total</th>
                                                         </tr>
                                                         </thead>
@@ -387,6 +397,7 @@
                                                             <td>@{{ membership_discount_amount }}</td>
                                                             <td>@{{ allDiscountAmount }}</td>
                                                             <td>@{{ delivery_charge }}</td>
+                                                            <td>@{{ additional_charge }}</td>
                                                             <td>@{{ total_payable_bill }}</td>
                                                         </tr>
                                                         </tbody>
@@ -707,6 +718,7 @@
                     exchangeAmount: 0,
                     user_outlet_id: "",
                     isDisabled: false,
+                    additional_charge: 0,
                 },
                 components: {
                     vuejsDatepicker
@@ -721,7 +733,7 @@
                         }, 0)
                     },
                     grandtotal: function () {
-                        return this.subtotal - this.discount + Number(this.delivery_charge)
+                        return this.subtotal - this.discount + Number(this.delivery_charge) + Number(this.additional_charge)
                     },
                     change_amount: function () {
                         return this.grandtotal - this.receive_amount
@@ -754,7 +766,7 @@
                     },
                     total_payable_bill: function () {
                         var vm = this
-                        return (this.total_bill - vm.couponCodeDiscountAmount - this.allDiscountAmount) + Number(this.delivery_charge)
+                        return (this.total_bill - vm.couponCodeDiscountAmount - this.allDiscountAmount) + Number(this.delivery_charge) + Number(this.additional_charge)
                     },
                     total_due: function () {
                         return this.total_payable_bill

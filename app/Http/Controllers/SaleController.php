@@ -109,6 +109,7 @@ class SaleController extends Controller
             $selectedDate = Carbon::parse($request->date)->format('Y-m-d');
             $deliveryDate = Carbon::parse($request->delivery_date)->format('Y-m-d');
             $delivery_charge = $request->delivery_charge ?? 0;
+            $additional_charge = $request->additional_charge ?? 0;
             $delivery_time = $request->delivery_time ?? null;
             $customer_id = 1;
             if ($request->customer_number) {
@@ -141,7 +142,7 @@ class SaleController extends Controller
             $sale->date = $selectedDate;
             $sale->delivery_time = $delivery_time;
             $sale->delivery_charge = $delivery_charge;
-//            $sale->description = $request->description;
+            $sale->additional_charge = $additional_charge;
             $sale->created_by = Auth::id();
             $sale->outlet_id = $outlet_id;
 //            New Columns
@@ -480,6 +481,7 @@ class SaleController extends Controller
         $sale->outlet_id = $oldSale->outlet_id;
         $sale->delivery_point_id = $delivery_point_id;
         $sale->delivery_charge = $oldSale->delivery_charge;
+        $sale->additional_charge = $oldSale->additional_charge;
         $sale->save();
 
         $products = $oldSale->items;
