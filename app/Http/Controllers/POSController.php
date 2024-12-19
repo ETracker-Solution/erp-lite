@@ -305,7 +305,8 @@ class POSController extends Controller
         $outlet = Outlet::find($outlet_id);
         $store = Store::where(['doc_type' => 'outlet', 'doc_id' => $outlet->id])->first();
         foreach ($products as $product) {
-            $product->stock = availableInventoryBalance($product->id, $store->id);
+            $product->stock = transactionAbleStock($product, [$store->id]);
+//            $product->stock = availableInventoryBalance($product->id, $store->id);
             $product->discountable = !$product->parent->non_discountable;
         }
         return $products;

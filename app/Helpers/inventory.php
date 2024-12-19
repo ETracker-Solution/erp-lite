@@ -169,7 +169,8 @@ function transactionAbleStock($product, array $storeIds)
     $requisitionDeliveredQuantity = fetchStoreCompletedRequisitionDeliveryQuantities($product, $storeIds);
     $preOrderDeliveredQuantity = fetchStoreDeliveredPreOrderQuantities($product, $storeIds);
     $InventoryTransferredQuantity = fetchStoreInventoryTransferQuantities($product, $storeIds);
-    return $originalStock - $requisitionDeliveredQuantity - $preOrderDeliveredQuantity - $InventoryTransferredQuantity;
+    $stock =  $originalStock - $requisitionDeliveredQuantity - $preOrderDeliveredQuantity - $InventoryTransferredQuantity;
+    return max($stock,0);
 }
 
 function fetchStoreRequisitionQuantities($product, array $storeIds, $column = 'to_store_id')
