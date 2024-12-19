@@ -32,4 +32,9 @@ class DeliveryReceive extends Model
     {
         return $this->belongsTo(RequisitionDelivery::class, 'requisition_delivery_id');
     }
+
+    public function createdBy()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
 }
