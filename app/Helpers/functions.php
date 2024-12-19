@@ -256,9 +256,9 @@ function get_all_groups_report($date, $ac_type)
 {
     return "SELECT
     CIP.name as `Group Name`,
-    SUM(IT.quantity * IT.type) as `Balance Qty`,
+    FORMAT(SUM(IT.quantity * IT.type),0) as `Balance Qty`,
     -- FORMAT((IT.amount / SUM(IT.quantity * IT.type)),0) as RATE,
-    IT.amount as `Value`
+    FORMAT(IT.amount,0) as `Value`
     FROM
     inventory_transactions IT
     JOIN
@@ -378,9 +378,9 @@ function get_all_stores($date, $ac_type)
 {
     return "SELECT
     `Store Name`,
-    `Group Name`,
-    `Item ID`,
-    `Item Name`,
+    -- `Group Name`,
+    -- `Item ID`,
+    -- `Item Name`,
     `Balance Qty`,
     `Value`
 FROM (
@@ -673,13 +673,13 @@ function testFGreport($store_id, $date)
                 'Item ID' => $item->id,
                 'Item Name' => $item->name,
                 'Transit Stock' => $total_transit_stock,
-                'Balance Qty' => $main_balance,
-                'Rate' => $item->price,
-                'Value' => $item->price * $main_balance,
+                'Balance Qty' => number_format($main_balance, 2),
+                'Rate' => number_format($item->price, 2, '.', ','),
+                'Value' => number_format($item->price * $main_balance, 2, '.', ','),
             ];
 
         }
-//        dd($parent);
+
         $grand_total_transit_stock += $parent_total_transit_stock;
         $grand_total_balance_qty += $parent_total_balance_qty;
         $data[] = [
@@ -687,7 +687,7 @@ function testFGreport($store_id, $date)
             'Item ID' => '',
             'Item Name' => $parent[0]->parent->name .' Total',
             'Transit Stock' => $parent_total_transit_stock,
-            'Balance Qty' => $parent_total_balance_qty,
+            'Balance Qty' => number_format($parent_total_balance_qty, 2),
             'Rate' => '', // Total rate is typically not used
             'Value' => ''
         ];
@@ -698,7 +698,7 @@ function testFGreport($store_id, $date)
         'Item ID' => '',
         'Item Name' => 'Grand Total',
         'Transit Stock' => $grand_total_transit_stock,
-        'Balance Qty' => $grand_total_balance_qty,
+        'Balance Qty' => number_format($grand_total_balance_qty, 2),
         'Rate' => '', // Total rate is typically not used
         'Value' => '0'
     ];
@@ -712,3 +712,7 @@ function testFGreport($store_id, $date)
 //     ELSE FORMAT(rate,0)
 //     END AS RATE,
 // }
+
+function showUserInfo($user){
+    return $user->name . ' (' . $user->email . ') ';
+}

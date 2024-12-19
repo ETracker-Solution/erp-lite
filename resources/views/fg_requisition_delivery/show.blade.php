@@ -26,13 +26,14 @@ FG Requisition Details
                     <!-- Main content -->
                     <div class="invoice p-3 mb-3">
                         <div class="row invoice-info">
-                            <div class="col-sm-4 invoice-col">
+                            <div class="col-sm-6 invoice-col">
                                 <table width="100%">
                                     <tbody>
                                         <tr>
                                             <td style="text-align: left; padding:8px; line-height: 0.6">
                                                 <p><b>FGR No :</b> {{ $fgRequisitionDelivery->requisition ? $fgRequisitionDelivery->requisition->uid : 'Not Available' }}</p>
                                                 <p><b>Date :</b> {{ $fgRequisitionDelivery->date }} </p>
+                                                <p><b>Delivered By :</b> {{ showUserInfo($fgRequisitionDelivery->createdBy) }} </p>
                                                 <p><b>Status :</b> {!! showStatus($fgRequisitionDelivery->status) !!}</p>
                                             </td> 
                                         </tr>
@@ -40,7 +41,7 @@ FG Requisition Details
                                 </table>
                             </div>
                             <!-- /.col -->
-                            <div class="col-sm-4 invoice-col">
+                            <div class="col-sm-6 invoice-col">
                                 <table width="100%">
                                     <tbody>
                                         <tr>

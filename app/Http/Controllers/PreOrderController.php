@@ -16,6 +16,7 @@ use App\Models\Store;
 use App\Models\Supplier;
 use App\Models\SupplierGroup;
 use Brian2694\Toastr\Facades\Toastr;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Facades\DataTables;
@@ -68,14 +69,26 @@ class PreOrderController extends Controller
             $orders->where('status', \request()->status);
         }
         if (\request()->filled('filter_by')) {
-            if (\request()->filter_by == 'delivery_today') {
-                $orders->whereDate('delivery_date', now()->format('Y-m-d'));
-            }
-            if (\request()->filter_by == 'order_today') {
-                $orders->whereDate('created_at', now()->format('Y-m-d'));
-            }
+            $column = \request()->filter_by;
+            $from_date = Carbon::parse(request()->from_date)->format('Y-m-d');
+            $to_date = Carbon::parse(request()->to_date)->format('Y-m-d');
+            $orders = $orders->whereDate($column, '>=', $from_date)->whereDate($column, '<=', $to_date);
 
         }
+
+        $orders = $orders->get()->map(function ($order) {
+            $othersOutletSale = OthersOutletSale::where('invoice_number', $order->order_number)
+                                               ->first();
+            if ($othersOutletSale) {
+                $receivedAmount = (float) $othersOutletSale->delivery_point_receive_amount;
+                $order->due_amount = $order->grand_total - ($order->advance_amount + $receivedAmount);
+            } else {
+                $order->due_amount = 'N/A';
+            }
+    
+            return $order;
+        });
+
         return $orders;
     }
 

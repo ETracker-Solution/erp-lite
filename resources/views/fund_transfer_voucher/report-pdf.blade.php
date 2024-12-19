@@ -83,15 +83,44 @@
     </tr>
     </thead>
     <tbody>
-    @foreach($transactions as $transaction)
+        @php
+        $oid = null;
+        $o_name = '';
+        $subtotal = 0;
+    @endphp
+    
+    @foreach($transactions as $key=>$transaction)
+        @if ($oid != null && ($oid != $transaction->creditAccount->outlets[0]->id))
+            <tr>
+                <td colspan="3"><strong>Subtotal for {{ $o_name }}:</strong></td>
+                <td><strong>{{ number_format($subtotal, 2) }}</strong></td>
+            </tr>
+
+            @php
+                $subtotal = 0;
+            @endphp
+        @endif
         <tr>
-            {{--            <td>{{ $transaction->createdBy->employee ? $transaction->createdBy->employee->outlet->name : 'NA' }}</td>--}}
             <td>{{ $transaction->date }}</td>
             <td>{{ $transaction->creditAccount->name }}</td>
             <td>{{ $transaction->debitAccount->name }}</td>
-            <td>{{ $transaction->amount }}</td>
+            <td>{{ number_format($transaction->amount,2) }}</td>
         </tr>
+    
+        @php
+            $subtotal += $transaction->amount;
+            $oid = $transaction->creditAccount->outlets[0]->id;
+            $o_name = $transaction->creditAccount->outlets[0]->name;
+        @endphp
     @endforeach
+    
+    @if ($oid != null)
+        <tr>
+            <td colspan="3"><strong>Subtotal for {{ $o_name }}:</strong></td>
+            <td><strong>{{ number_format($subtotal, 2) }}</strong></td>
+        </tr>
+    @endif
+    
     <tr>
 {{--        <td></td>--}}
         <td></td>

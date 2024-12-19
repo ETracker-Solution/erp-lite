@@ -81,7 +81,12 @@ class Requisition extends Model
 
     public function createdBy()
     {
-        return $this->morphTo('created_by', 'created_type', 'created_id');
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function approvedBy()
+    {
+        return $this->belongsTo(User::class, 'approved_by');
     }
 
     public function outlet()

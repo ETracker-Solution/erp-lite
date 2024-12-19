@@ -91,7 +91,7 @@ class FGRequisitionDeliveryController extends Controller
      */
     public function show(string $id)
     {
-        $fgRequisitionDelivery = RequisitionDelivery::with('toStore', 'fromStore', 'requisition')->find(decrypt($id));
+        $fgRequisitionDelivery = RequisitionDelivery::with('toStore', 'fromStore', 'requisition','createdBy')->find(decrypt($id));
         return view('fg_requisition_delivery.show', compact('fgRequisitionDelivery'));
     }
 
@@ -179,7 +179,7 @@ class FGRequisitionDeliveryController extends Controller
     public function pdfDownload($id)
     {
         $data = [
-            'fgRequisitionDelivery' => RequisitionDelivery::with('toStore', 'fromStore', 'requisition')->find(decrypt($id)),
+            'fgRequisitionDelivery' => RequisitionDelivery::with('toStore', 'fromStore', 'requisition','createdBy')->find(decrypt($id)),
         ];
 
         $pdf = PDF::loadView(

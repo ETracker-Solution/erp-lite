@@ -32,4 +32,9 @@ class RequisitionDelivery extends Model
     {
         return $this->belongsTo(Requisition::class, 'requisition_id');
     }
+
+    public function createdBy()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
 }

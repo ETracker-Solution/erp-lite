@@ -120,7 +120,7 @@ class FGDeliveryReceiveController extends Controller
      */
     public function show($id)
     {
-        $fgDeliveryReceive = DeliveryReceive::with('toStore', 'fromStore')->find(decrypt($id));
+        $fgDeliveryReceive = DeliveryReceive::with('toStore', 'fromStore','requisitionDelivery')->find(decrypt($id));
         return view('fg_requisition_delivery_receive.show', compact('fgDeliveryReceive'));
     }
 
@@ -161,7 +161,7 @@ class FGDeliveryReceiveController extends Controller
     public function pdf($id)
     {
         $data = [
-            'fgDeliveryReceive' => DeliveryReceive::with('toStore', 'fromStore')->find(decrypt($id)),
+            'fgDeliveryReceive' => DeliveryReceive::with('toStore', 'fromStore','requisitionDelivery')->find(decrypt($id)),
         ];
 
         $pdf = PDF::loadView(

@@ -32,14 +32,15 @@ class SalesDeliveryController extends Controller
      */
     public function index()
     {
-        if (\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->outlet_id) {
-            $data = OthersOutletSale::with('deliveryPoint', 'outlet')->where(['delivery_point_id' => \auth()->user()->employee->outlet_id])->latest();
-        } elseif (\auth()->user()->is_super) {
-            $data = OthersOutletSale::with('deliveryPoint', 'outlet')->latest();
-        } else {
-            $data = null;
-        }
+        // if (\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->outlet_id) {
+        //     $data = OthersOutletSale::with('deliveryPoint', 'outlet')->where(['delivery_point_id' => \auth()->user()->employee->outlet_id])->latest();
+        // } elseif (\auth()->user()->is_super) {
+        //     $data = OthersOutletSale::with('deliveryPoint', 'outlet')->latest();
+        // } else {
+        //     $data = null;
+        // }
         if (\request()->ajax()) {
+            $data = $this->getFilteredData();
             return DataTables::of($data)
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
@@ -297,6 +298,27 @@ class SalesDeliveryController extends Controller
 
         // Extract the printer name from the output
         return count($output) > 0 ? trim(str_replace("system default destination:", "", $output[0])) : null;
+    }
+
+     private function getFilteredData()
+    {
+        if (\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->outlet_id) {
+            $data = OthersOutletSale::with('deliveryPoint', 'outlet')->where(['delivery_point_id' => \auth()->user()->employee->outlet_id])->latest();
+        } elseif (\auth()->user()->is_super) {
+            $data = OthersOutletSale::with('deliveryPoint', 'outlet')->latest();
+        } else {
+            $data = null;
+        }
+
+        if (\request()->filled(key: 'status')) {
+            $data = $data->where('status', \request()->status);
+        }
+        if (\request()->filled('from_date') && \request()->filled('to_date')) {
+            $from_date = Carbon::parse(request()->from_date)->format('Y-m-d');
+            $to_date = Carbon::parse(request()->to_date)->format('Y-m-d');
+            $data = $data->whereDate('date', '>=', $from_date)->whereDate('date', '<=', $to_date);
+        }
+        return $data->latest();
     }
 
 }

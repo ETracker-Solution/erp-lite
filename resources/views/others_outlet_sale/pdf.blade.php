@@ -123,6 +123,7 @@
                             <div class="invoice-ribbon">
                                 <p><b>Order From :</b> {{ $otherOutletSale->outlet->name }}</p>
                                 <p><b>Delivery Point :</b> {{ $otherOutletSale->deliveryPoint->name }}</p>
+                                <p><b> Seller Name :</b> {{ $otherOutletSale->createdBy->name }}
                             </div>
                             <htmlpagefooter name="page-footer">
                                 @php

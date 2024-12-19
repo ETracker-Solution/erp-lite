@@ -47,11 +47,27 @@ class OutletDashboardController extends Controller
         $noOfWeeks = $currentDate->copy()->subMonth()->weekOfMonth;
         $totalDays = $startDate->daysInMonth;
 
-        $currentMonthStartDate = $currentDate->copy()->startOfMonth();
-        $currentMonthEndDate = $currentDate->copy()->endOfMonth();
+        $currentMonth = Carbon::now()->month;
+        $currentYear = Carbon::now()->year;
 
-        $currentMonthAmount = Sale::where('outlet_id', $outlet_id)->whereBetween('created_at', [$currentMonthStartDate, $currentMonthEndDate])
-            ->sum('grand_total');
+        $currentMonthAmount = InventoryAdjustment::with('store')->where('transaction_type', 'decrease')->whereMonth('created_at', $currentMonth)
+            ->whereYear('created_at', $currentYear)
+            ->whereHas('store', function ($query) use ($outlet_id) {
+                $query->where('doc_type', 'outlet')
+                      ->where('doc_id', $outlet_id);
+            })
+            ->sum('subtotal');
+
+        $lastMonth = Carbon::now()->subMonth()->month;
+        $lastYear = Carbon::now()->subMonth()->year; 
+
+        $lastMonthAmount = InventoryAdjustment::with('store')->where('transaction_type','decrease')->whereMonth('created_at', $lastMonth)
+        ->whereYear('created_at', $lastYear)
+        ->whereHas('store', function ($query) use ($outlet_id) {
+                $query->where('doc_type', 'outlet')
+                      ->where('doc_id', $outlet_id);
+            })
+            ->sum('subtotal');
 
         // Calculate the number of days in each part
         $daysPerPart = ceil($totalDays / $noOfWeeks);
@@ -200,10 +216,10 @@ class OutletDashboardController extends Controller
         $salesCompare['month'][] = 'Current Month';
         $salesCompare['sale'][] = $currentMonthAmount;
 
-        $salesWastageCompare['sales'][] = 'Sales';
+        $salesWastageCompare['sales'][] = 'Last Month';
+        $salesWastageCompare['wastage'][] = $lastMonthAmount;
+        $salesWastageCompare['sales'][] = 'Current Month';
         $salesWastageCompare['wastage'][] = $currentMonthAmount;
-        $salesWastageCompare['sales'][] = 'Wastage';
-        $salesWastageCompare['wastage'][] = $wastage_amount;
 
         $outletPettyCashAmount = 0;
         $outletAccounts = OutletAccount::with('coa')->where('outlet_id',$outlet_id)->get();

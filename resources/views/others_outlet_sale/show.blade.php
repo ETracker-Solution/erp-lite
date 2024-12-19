@@ -1,6 +1,6 @@
 @extends('layouts.app')
 @section('title')
-    Other Outlet Sales Details
+    Sales delivery details
 @endsection
 @section('content')
     <!-- Content Wrapper. Contains page content -->
@@ -8,10 +8,10 @@
     @php
         $links = [
         'Home'=>route('dashboard'),
-        'Other Outlet Sales Details'=>''
+        'Sales delivery details'=>''
         ]
     @endphp
-    <x-breadcrumb title='Other Outlet Sales Details' :links="$links"/>
+    <x-breadcrumb title='Sales delivery details' :links="$links"/>
 
     <section class="content">
         <div class="container-fluid">
@@ -19,12 +19,15 @@
                 <div class="col-12">
                     <div class="card card-info">
                         <div class="card-header">
-                            <h3 class="card-title">Other Outlet Sales Details</h3>
+                            <h3 class="card-title">Sales delivery details</h3>
                             <a href="{{route('others.outlet.pdf-download',encrypt($otherOutletSale->id))}}"
                                class="btn btn-sm btn-primary float-right" target="_blank"><i class="fa fa-download"></i>
                                 PDF</a>
                         </div>
                         <!-- Main content -->
+                        {{-- @php
+                            dd($otherOutletSale);
+                        @endphp --}}
                         <div class="row invoice-info">
                             <div class="col-sm-4 invoice-col">
                                 <table width="100%">
@@ -37,6 +40,7 @@
                                             <p><b>Date :</b> {{ $otherOutletSale->date }} </p>
                                             <p><b>Sub Total :</b> {{ $otherOutletSale->subtotal }} </p>
                                             <p><b> Delivery Status :</b> {!! showStatus($otherOutletSale->status) !!}
+                                            <p><b> Seller Name :</b> {{ $otherOutletSale->createdBy->name }}
                                             </p>
                                         </td>
                                     </tr>

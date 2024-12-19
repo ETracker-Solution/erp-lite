@@ -49,9 +49,11 @@
 
         .footer div {
             display: inline-block;
-            width: 30%;
             text-align: center;
-            font-weight: bold;
+            font-size: 10px;
+        }
+        .footer p {
+            font-size: 10px;
         }
 
         .signature-section {
@@ -71,9 +73,7 @@
             margin-top: 20px;
         }
 
-        .footer p {
-            font-weight: bold;
-        }
+        
 
         @media (max-width: 768px) {
             .details, .items th, .items td, .details th, .details td {
@@ -126,11 +126,11 @@
     <div class="company-info">
         @include('common.pdf_header')
     </div>
-    <div class="row">
+    {{-- <div class="row">
         <div style="text-align: right">
             <span class="marginright">{{ \Carbon\Carbon::parse($requisition->created_at)->isoFormat('MMM Do, YYYY') }}</span>
         </div>
-    </div>
+    </div> --}}
     <hr>
 
     <table class="details">
@@ -138,9 +138,14 @@
             <td style="text-align: left; padding:8px; line-height: 1.6">
                 <p><b>Requisition No :</b> {{ $requisition->uid }}</p>
                 <p><b>Date :</b> {{ $requisition->date }} </p>
-                <p><b>Status :</b> {!! showStatus($requisition->status) !!}</p>
                 <p><b>Outlet :</b> {{ $requisition->outlet->name }}</p>
                 <p><b>Address :</b> {{ $requisition->outlet->address }} </p>
+            </td>
+            <td style="text-align: left; padding:8px; line-height: 1.6">
+                <p><b>Created By :</b> {{ showUserInfo($requisition->createdBy) }} </p>
+                <p><b>Approved By :</b> {{ $requisition->approvedBy ? showUserInfo($requisition->approvedBy) : "N/A"  }} </p>
+                <p><b>Status :</b> {!! showStatus($requisition->status) !!}</p>                                            
+                <p><b>Remarks :</b> {{ $requisition->remark }} </p>
             </td>
         </tr>
     </table>
@@ -178,9 +183,7 @@
             $date = new DateTime('now', new DateTimezone('Asia/Dhaka'));
         @endphp
         <br>
-        <strong>
-            Printing Time:- {{ $date->format('F j, Y, g:i a') }}
-        </strong>
+            <p>Printing Time:- {{ $date->format('F j, Y, g:i a') }}</p>
     </div>
 
 </body>

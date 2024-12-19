@@ -34,10 +34,9 @@
                                 <div class="col-3">
                                     <div class="form-group">
                                         <label for="">Filter By</label>
-                                        <select name="filter_by" id="" class="form-control">
-                                            <option value="">All</option>
-                                            <option value="delivery_today">Todays Delivery</option>
-                                            <option value="order_today">Todays Ordered</option>
+                                        <select name="filter_by" id="filter_by" class="form-control">
+                                            <option value="delivery_date">Delivery</option>
+                                            <option value="order_date">Ordered</option>
                                         </select>
                                     </div>
                                 </div>
@@ -56,12 +55,26 @@
                                 <div class="col-3">
                                     <div class="form-group">
                                         <label for="">Outlet</label>
-                                        <select name="outlet_id" id="" class="form-control">
+                                        <select name="outlet_id" id="outlet_id" class="form-control">
                                             <option value="">All</option>
                                             @foreach($outlets as $outlet)
                                                 <option value="{{ $outlet->id }}">{{ $outlet->name }}</option>
                                             @endforeach
                                         </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-3">
+                                    <div class="form-group">
+                                        <label for="">From Date</label>
+                                        <input type="date" name="from_date" id="from_date" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="col-3">
+                                    <div class="form-group">
+                                        <label for="">To Date</label>
+                                        <input type="date" name="to_date" id="to_date" class="form-control">
                                     </div>
                                 </div>
                             </div>
@@ -199,6 +212,23 @@
     <!-- page script -->
     <script>
         $(document).ready(function () {
+
+            if (sessionStorage.getItem('filter_by')) {
+                $('select[name="filter_by"]').val(sessionStorage.getItem('filter_by'));
+            }
+            if (sessionStorage.getItem('from_date')) {
+                $('input[name="from_date"]').val(sessionStorage.getItem('from_date'));
+            }
+            if (sessionStorage.getItem('to_date')) {
+                $('input[name="to_date"]').val(sessionStorage.getItem('to_date'));
+            }
+            if (sessionStorage.getItem('status')) {
+                $('select[name="status"]').val(sessionStorage.getItem('status'));
+            }
+            if (sessionStorage.getItem('outlet_id')) {
+                $('select[name="outlet_id"]').val(sessionStorage.getItem('outlet_id'));
+            }
+
             $('#dataTable').dataTable({
                 stateSave: true,
                 responsive: true,
@@ -210,6 +240,8 @@
                         d.filter_by = $('select[name="filter_by"]').val();
                         d.status = $('select[name="status"]').val();
                         d.outlet_id = $('select[name="outlet_id"]').val();
+                        d.from_date = $('input[name="from_date"]').val();
+                        d.to_date = $('input[name="to_date"]').val();
                     }
                 },
                 columns: [{
@@ -236,9 +268,10 @@
                         "defaultContent": '<span class="text-danger">N/A</span>'
                     }, {
                         data: "delivery_point.name",
+                        name: "delivery_point.name",
                         title: "Delivery From",
                         "defaultContent": '<span class="text-danger">N/A</span>',
-                        searchable: true
+                        searchable: false
                     },
                     {
                         data: "subtotal",
@@ -256,6 +289,11 @@
                         searchable: true
                     },
                     {
+                        data: "due_amount",
+                        title: "Due Amount",
+                        searchable: true
+                    },
+                    {
                         data: "action",
                         title: "Action",
                         orderable: false,
@@ -263,7 +301,39 @@
                     },
                 ],
             });
-        })
+
+            $('#filter_by').on('change', function () {
+            sessionStorage.setItem('filter_by', $('input[name="filter_by"]').val());
+                recallDatatable();
+            })
+            $('#from_date').on('change', function () {
+            sessionStorage.setItem('from_date', $('input[name="from_date"]').val());
+                recallDatatable();
+            })
+            $('#to_date').on('change', function () {
+            sessionStorage.setItem('to_date', $('input[name="to_date"]').val());
+                recallDatatable();
+            })
+
+            $('#status').on('change', function () {
+                sessionStorage.setItem('status', $('select[name="status"]').val());
+                recallDatatable();
+            }) 
+
+            $('#outlet_id').on('change', function () {
+                sessionStorage.setItem('outlet_id', $('select[name="outlet_id"]').val());
+                recallDatatable();
+            }) 
+
+            $('select[name="filter_by"],select[name="status"], select[name="outlet_id"], input[name="from_date"], input[name="to_date"]').on('change', function () {
+            sessionStorage.setItem('status', $('select[name="status"]').val());
+            sessionStorage.setItem('outlet_id', $('select[name="outlet_id"]').val());
+            sessionStorage.setItem('filter_by', $('select[name="filter_by"]').val());
+            sessionStorage.setItem('from_date', $('input[name="from_date"]').val());
+            sessionStorage.setItem('to_date', $('input[name="to_date"]').val());
+            recallDatatable();
+            });
+        });
 
         $('#search-btn').on('click', function () {
             recallDatatable();

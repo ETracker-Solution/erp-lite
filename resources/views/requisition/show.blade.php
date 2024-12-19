@@ -25,13 +25,14 @@ FG Requisition Details
                     </div>
                     <!-- Main content -->
                     <div class="row invoice-info">
-                        <div class="col-sm-4 invoice-col">
+                        <div class="col-sm-6 invoice-col">
                             <table width="100%">
                                 <tbody>
                                     <tr>
                                         <td style="text-align: left; padding:8px; line-height: 0.6">
                                             <p><b>Requisition No :</b> {{ $requisition->uid }}</p>
                                             <p><b>Date :</b> {{ $requisition->date }} </p>
+                                            <p><b>Created By :</b> {{ showUserInfo($requisition->createdBy) }} </p>
                                             <p><b>Status :</b> {!! showStatus($requisition->status) !!}</p>
                                         </td> 
                                     </tr>
@@ -39,13 +40,15 @@ FG Requisition Details
                             </table>
                         </div>
                         <!-- /.col -->
-                        <div class="col-sm-4 invoice-col">
+                        <div class="col-sm-6 invoice-col">
                             <table width="100%">
                                 <tbody>
                                     <tr>
                                         <td style="text-align: left; padding:8px; line-height: 0.6">
                                             <p><b>Outlet :</b> {{ $requisition->outlet->name }}</p>
                                             <p><b>Address :</b> {{ $requisition->outlet->address }} </p>
+                                            <p><b>Approved By :</b> {{ $requisition->approvedBy ? showUserInfo($requisition->approvedBy) : "N/A"  }} </p>                                            
+                                            <p><b>Remarks :</b> {{ $requisition->remark }} </p>
                                         </td> 
                                     </tr>
                                 </tbody>
