@@ -26,7 +26,7 @@ FG Delivery Receive Details
                     <!-- Main content -->
                     <div class="invoice p-3 mb-3">
                         <div class="row invoice-info">
-                            <div class="col-sm-4 invoice-col">
+                            <div class="col-sm-12 invoice-col">
                                 <table width="100%">
                                     <tbody>
                                         <tr>
@@ -34,6 +34,9 @@ FG Delivery Receive Details
                                                 <p><b>FGR No :</b> {{ $fgDeliveryReceive->requisitionDelivery ? $fgDeliveryReceive->requisitionDelivery->uid : 'Not Available' }}</p>
                                                 <p><b>Date :</b> {{ $fgDeliveryReceive->date }} </p>
                                                 <p><b>Status :</b> {!! showStatus($fgDeliveryReceive->status) !!}</p>
+                                                <p><b>Delivered By:</b> {{ $fgDeliveryReceive->requisitionDelivery ? showUserInfo($fgDeliveryReceive->requisitionDelivery->createdBy) : 'Not Available' }}</p>
+                                                <p><b>Received By :</b> {{ showUserInfo($fgDeliveryReceive->createdBy) }} </p>
+                                                <p><b>Remark :</b> {{ $fgDeliveryReceive->remark ?? '' }} </p>
                                             </td> 
                                         </tr>
                                     </tbody>

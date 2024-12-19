@@ -178,7 +178,7 @@ class OthersOutletSaleController extends Controller
      */
     public function show($id)
     {
-        $otherOutletSale = OthersOutletSale::findOrFail(decrypt($id));
+        $otherOutletSale = OthersOutletSale::with('createdBy')->findOrFail(decrypt($id));
         return view('others_outlet_sale.show', compact('otherOutletSale'));
     }
 
@@ -208,7 +208,7 @@ class OthersOutletSaleController extends Controller
     public function pdfDownload($id)
     {
         $data = [
-            'otherOutletSale' => OthersOutletSale::findOrFail(decrypt($id)),
+            'otherOutletSale' => OthersOutletSale::with('createdBy')->findOrFail(decrypt($id)),
         ];
 
         $pdf = PDF::loadView(

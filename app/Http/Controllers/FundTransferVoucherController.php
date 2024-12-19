@@ -45,6 +45,7 @@ class FundTransferVoucherController extends Controller
         }
 
         $outlets = Outlet::all();
+        $accounts = ChartOfAccount::where('type', 'ledger')->select('id','name')->get();
         if (\request()->ajax()) {
             $fundTransferVouchers = $this->getFilteredData();
             return DataTables::of($fundTransferVouchers)
@@ -61,7 +62,7 @@ class FundTransferVoucherController extends Controller
                 ->rawColumns(['action', 'created_at', 'status'])
                 ->make(true);
         }
-        return view('fund_transfer_voucher.index', compact('outlets', 'outlet_accounts'));
+        return view('fund_transfer_voucher.index', compact('outlets', 'outlet_accounts','accounts'));
     }
 
     /**
@@ -305,6 +306,9 @@ class FundTransferVoucherController extends Controller
                 });
             });
         }
+        if (\request()->filled('account_id')) {
+            $fundTransferVoucher->where('credit_account_id',\request()->account_id);
+        }
         if (\request()->filled('date_range')) {
             searchColumnByDateRange($fundTransferVoucher);
         }
@@ -313,11 +317,10 @@ class FundTransferVoucherController extends Controller
 
     public function receiveReport(Request $request)
     {
-        $data = FundTransferVoucher::query()->with('creditAccount', 'debitAccount', 'createdBy.employee.outlet')->where('status', 'received');
-
+        $data = FundTransferVoucher::query()->with('creditAccount.outlets', 'debitAccount', 'createdBy.employee.outlet')->where('status', 'received');
         if (\request()->filled('date_range') && $request->date_range != null) {
             $data = searchColumnByDateRange($data);
-        }
+        } 
         if (\request()->filled('outlet_id')) {
             $data->whereHas('creditAccount', function ($q) {
                 $q->whereHas('outlets', function ($query) {
@@ -329,7 +332,9 @@ class FundTransferVoucherController extends Controller
         $totalAmount = $data->sum('amount');
 
         $passVariable = [
-            'transactions' => $data->get(),
+            'transactions' => $data->get()->sortBy(function ($transaction) {
+                return $transaction->creditAccount->name;
+            }),
             'totalAmount' => $totalAmount,
         ];
 

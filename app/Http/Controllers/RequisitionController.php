@@ -112,7 +112,7 @@ class RequisitionController extends Controller
      */
     public function show($id)
     {
-        $requisition = Requisition::findOrFail(decrypt($id));
+        $requisition = Requisition::with(['createdBy', 'approvedBy'])->findOrFail(decrypt($id));
         return view('requisition.show', compact('requisition'));
     }
 
@@ -180,7 +180,7 @@ class RequisitionController extends Controller
     public function pdfDownload($id)
     {
         $data = [
-            'requisition' => Requisition::findOrFail(decrypt($id)),
+            'requisition' => Requisition::with(['createdBy', 'approvedBy'])->findOrFail(decrypt($id)),
         ];
 
         $pdf = PDF::loadView(

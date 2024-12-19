@@ -72,7 +72,7 @@
         }
 
         .footer p {
-            font-weight: bold;
+            font-size: 10px;
         }
 
         @media (max-width: 768px) {
@@ -128,7 +128,6 @@
     </div>
     <div class="row">
         <div style="text-align: right">
-        <span class="marginright"><b> Date : {{ \Carbon\Carbon::parse($fgRequisitionDelivery->created_at)->isoFormat('MMM Do, YYYY') }}</b></span><br>
             <h3> Delivery Challan No : {{ $fgRequisitionDelivery->uid }}</h3>
         </div>
     </div>
@@ -143,6 +142,7 @@
                 <p><b>Outlet :</b> {{ $fgRequisitionDelivery->requisition->outlet ? $fgRequisitionDelivery->requisition->outlet->name : '' }}</p>
                 <p><b>Store :</b> {{ $fgRequisitionDelivery->toStore->name ?? ''}}</p>
                 <p><b>Address :</b> {{ $fgRequisitionDelivery->requisition->outlet ? $fgRequisitionDelivery->requisition->outlet->address : '' }}</p>
+                <p><b>Delivered By :</b> {{ showUserInfo($fgRequisitionDelivery->createdBy) }} </p>
             </td>
         </tr>
     </table>
@@ -191,9 +191,9 @@
             $date = new DateTime('now', new DateTimezone('Asia/Dhaka'));
         @endphp
         <br>
-        <strong>
+        <p>
             Printing Time:- {{ $date->format('F j, Y, g:i a') }}
-        </strong>
+        </p>
     </div>
 
 </body>

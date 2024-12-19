@@ -1,10 +1,14 @@
 <htmlpagefooter name="page-footer">
-    <table>
-        <tbody>
-        <tr style="font-size: 11px !important;">
-            <td><em>Printing on: <strong>{{ Carbon\Carbon::now()->format('m-d-Y h:i a') }}</strong></em></td>
-            <td style="text-align:right"><em>Page {PAGENO} out of {nbpg}</em></td>
-        </tr>
-        </tbody>
+    <table width="100%">
+       <tbody>
+       <tr>
+           <td>
+               <p style="font-size: 8px; margin: 0;"><em>Printing on: {{ Carbon\Carbon::now()->format('m-d-Y h:i a') }}</em></p>
+           </td>
+           <td style="text-align:right">
+               <p style="font-size: 8px; text-align:right; margin: 0;"><em>Page {PAGENO} out of {nbpg}</em></p>
+           </td>
+       </tr>
+       </tbody>
     </table>
 </htmlpagefooter>

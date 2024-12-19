@@ -39,6 +39,18 @@
                                                     @endforeach
                                                 </select>
                                             </div>
+
+                                            <div class="form-group col-md-3">
+                                                <label for="account_id" class="font-weight-bold">Select Account</label>
+                                                <select class="form-control select2" name="account_id" id="account_id"
+                                                        required>
+                                                    <option value="" selected>All</option>
+                                                    @foreach ($accounts as $row)
+                                                        <option value="{{ $row->id }}">{{ $row->name }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                            
                                         </div>
                                         </form>
                                     </div>
@@ -142,6 +154,9 @@
             if (sessionStorage.getItem('outlet_id')) {
                 $('select[name="outlet_id"]').val(sessionStorage.getItem('outlet_id'));
             }
+            if (sessionStorage.getItem('account_id')) {
+                $('select[name="account_id"]').val(sessionStorage.getItem('account_id'));
+            }
             if (sessionStorage.getItem('date_range')) {
                 $('input[name="date_range"]').val(sessionStorage.getItem('date_range'));
             }
@@ -155,6 +170,7 @@
                     url: "{{ route('fund-transfer-vouchers.index') }}",
                     data: function (d) {
                         d.outlet_id = $('select[name="outlet_id"]').val();
+                        d.account_id = $('select[name="account_id"]').val();
                         d.date_range = $('input[name="date_range"]').val();
                         // d.title = $('input[name="title"]').val();
                     }
@@ -219,6 +235,10 @@
         })
         $('#outlet_id').on('change', function () {
             sessionStorage.setItem('outlet_id', $('select[name="outlet_id"]').val());
+            recallDatatable();
+        });
+        $('#account_id').on('change', function () {
+            sessionStorage.setItem('account_id', $('select[name="account_id"]').val());
             recallDatatable();
         });
         $('#receiveReportButton').on('click', function () {
