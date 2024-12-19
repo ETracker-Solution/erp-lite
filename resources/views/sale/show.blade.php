@@ -154,7 +154,7 @@
                 </div>
                 <!-- /.invoice -->
             </div><!-- /.row -->
-            @if(getTimeByFormat($sale->created_at,'Y-m-d') && (auth()->user()->is_super || (auth()->user()->employee && auth()->user()->employee->user_of == 'ho')))
+            @if(getTimeByFormat($sale->created_at,'Y-m-d') == date('Y-m-d') && (auth()->user()->is_super || (auth()->user()->employee && auth()->user()->employee->user_of == 'ho')))
                 <div class="row">
                     <div class="col-12">
                         <div class="card">
