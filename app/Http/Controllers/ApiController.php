@@ -507,7 +507,7 @@ class ApiController extends Controller
         $main_balance = AccountTransaction::where('chart_of_account_id', $coa_id)->sum(\DB::raw('amount * transaction_type'));
 
         $data = [
-            'from_ac_balance' => max(($main_balance - $other_outlet_sales_balance), 0)
+            'from_ac_balance' => $main_balance - $other_outlet_sales_balance
         ];
         return response()->json($data);
     }
