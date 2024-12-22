@@ -90,4 +90,9 @@ class Sale extends Model
     {
         return $this->hasMany(SalesReturn::class,'sale_id');
     }
+
+    public function accountTransactions()
+    {
+        return $this->hasMany(AccountTransaction::class,'doc_id')->where('doc_type','POS');
+    }
 }

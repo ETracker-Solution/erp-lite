@@ -10,6 +10,7 @@ use App\Models\OthersOutletSale;
 use App\Models\Outlet;
 use App\Models\OutletAccount;
 use App\Models\OutletTransactionConfig;
+use App\Models\Sale;
 use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Facades\DataTables;
@@ -54,12 +55,26 @@ class DeliveryCashTransferController extends Controller
                 $chartOfAccounts[] = $con->coa;
                 $exceptToAccountIds[] = $con->coa->id;
             }
+
             $alreadyTransferred = DeliveryCashTransfer::where('from_outlet', \auth()->user()->employee->outlet_id)->pluck('other_outlet_sale_id')->toArray();
-            $othersOutlets = OthersOutletSale::where('payment_status', 'paid')->where('outlet_id', '!=', \auth()->user()->employee->outlet_id)->where('delivery_point_id', \auth()->user()->employee->outlet_id)->whereNotIn('id', $alreadyTransferred)->get();
+            $othersOutlets = OthersOutletSale::where('payment_status', 'paid')
+                ->where('outlet_id', '!=', \auth()->user()->employee->outlet_id)
+                ->where('delivery_point_id', \auth()->user()->employee->outlet_id)
+                ->whereNotIn('id', $alreadyTransferred)->get();
         } else {
             $chartOfAccounts = ChartOfAccount::where(['is_bank_cash' => 'yes', 'type' => 'ledger', 'status' => 'active'])->get();
             $othersOutlets = OthersOutletSale::where('payment_status', 'paid')->get();
         }
+
+        $othersOutlets = $othersOutlets->map(function ($item){
+            $outlet_accounts = OutletAccount::with('coa')->where('outlet_id', $item->delivery_point_id)->get();
+            $ids = $outlet_accounts->pluck('coa_id')->toArray();
+            $sale = Sale::where('invoice_number',$item->invoice_number)->with(['accountTransactions'=>function ($q) use ($ids) {
+                return $q->whereIn('chart_of_account_id',$ids)->value('amount');
+            }])->first();
+            $item->paid_account = optional($sale)->accountTransactions->pluck('chart_of_account_id')[0];
+            return $item;
+        });
 
         $toChartOfAccounts = ChartOfAccount::where(['is_bank_cash' => 'yes', 'type' => 'ledger', 'status' => 'active'])->whereNotIn('id', $exceptToAccountIds)->get();
 

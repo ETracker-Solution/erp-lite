@@ -72,11 +72,13 @@
                         {{-- adjust modal --}}
 
                     </div>
+                    @if($deliveryCashTransfer->status == 'pending')
                     <form action="{{ route('delivery-cash-receives.update', encrypt($deliveryCashTransfer->id)) }}" method="POST">
                         @csrf
                         @method('PUT')
                         <button class="btn btn-success">Received</button>
                     </form>
+                    @endif
                 </div>
             </div>
         </div>
