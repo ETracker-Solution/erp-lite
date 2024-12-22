@@ -67,17 +67,6 @@
                     <div class="invoice-ribbon">
                         @include('common.pdf_header')
                     </div>
-                    <table style="margin-top: 70px; width:100%; text-align: center !important;">
-                        <tr style="text-align: center !important;">
-                            <td><strong style="border-top: 1px solid black;text-align: end !important; ">Authorized
-                                    By</strong></td>
-                            <td><strong
-                                    style="border-top: 1px solid black;text-align: center !important; ">Supervisor</strong>
-                            </td>
-                            <td><strong style="border-top: 1px solid black;text-align: start !important; ">Delivery
-                                    Man</strong></td>
-                        </tr>
-                    </table>
                     <hr>
                     <b>Delivery Date :</b> {{ $model->delivery_date }},<br>
                     <b>Delivery Time :</b> {{ \Carbon\Carbon::parse($model->delivery_time)->format('h:i A') }},
@@ -133,11 +122,6 @@
                         </tr>
                         <tr>
                             <td colspan="5"></td>
-                            <td class="text-left">Delivery Charge:</td>
-                            <td class="text-right">{{$model->sale->additional_charge ?? 0}} </td>
-                        </tr>
-                        <tr>
-                            <td colspan="5"></td>
                             <td class="text-left">Discount:</td>
                             <td class="text-right">{{ $model->discount }}</td>
                         </tr>
@@ -149,6 +133,17 @@
                         </tr>
 
                         </tbody>
+                    </table>
+                    <table style="margin-top: 250px; width:100%; text-align: center !important;">
+                        <tr style="text-align: center !important;">
+                            <td><strong style="border-top: 1px solid black;text-align: end !important; ">Authorized
+                                    By</strong></td>
+                            <td><strong
+                                    style="border-top: 1px solid black;text-align: center !important; ">Supervisor</strong>
+                            </td>
+                            <td><strong style="border-top: 1px solid black;text-align: start !important; ">Delivery
+                                    Man</strong></td>
+                        </tr>
                     </table>
                     @include('common.report_footer')
                 </div>
