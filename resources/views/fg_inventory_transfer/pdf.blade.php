@@ -75,7 +75,7 @@
 											<p><b>Status :</b> {!! showStatus($FGInventoryTransfer->status) !!}</p>
                                             <p><b>Creator :</b> {{ $FGInventoryTransfer->createdBy->name }} -- ({{ $FGInventoryTransfer->createdBy->email }})</p>
                                             <p><b>Reference Number :</b> {{ $FGInventoryTransfer->reference_no ?? '' }}</p>
-                                            <p><b>Remarks :</b> {{ $FGInventoryTransfer->remarks ?? '' }}</p>
+                                            <p><b>Remarks :</b> {{ $FGInventoryTransfer->remark ?? '' }}</p>
                                         </td>
 									</tr>
 								</tbody>

@@ -75,7 +75,7 @@
                                 <p><b>Status :</b> {!! showStatus($fgTransferReceive->status) !!}</p>
                                 <p><b>Receiver :</b> {{ $fgTransferReceive->createdBy->name }} -- ({{ $fgTransferReceive->createdBy->email }})</p>
                                 <p><b>Reference Number :</b> {{ $fgTransferReceive->reference_no ?? '' }}</p>
-                                <p><b>Remarks :</b> {{ $fgTransferReceive->remarks ?? '' }}</p>
+                                <p><b>Remarks :</b> {{ $fgTransferReceive->remark ?? '' }}</p>
                             </td>
                         </tr>
                         </tbody>

@@ -40,7 +40,7 @@ class FundTransferVoucherController extends Controller
             $original_account_balance = AccountTransaction::where('chart_of_account_id', $row->coa_id)->sum(\DB::raw('amount * transaction_type'));
             $other_outlet_sales_balance = accountBalanceForOtherOutletSales($row->coa_id);
             $outlet_accounts[$key]['name'] = $row->coa->name;
-            $outlet_accounts[$key]['balance'] = max(($original_account_balance - $other_outlet_sales_balance),0);
+            $outlet_accounts[$key]['balance'] = $original_account_balance - $other_outlet_sales_balance;
             $outlet_accounts[$key]['other_outlet_balance'] = $other_outlet_sales_balance;
         }
 
@@ -325,7 +325,7 @@ class FundTransferVoucherController extends Controller
         $data = FundTransferVoucher::query()->with('creditAccount.outlets', 'debitAccount', 'createdBy.employee.outlet')->where('status', 'received');
         if (\request()->filled('date_range') && $request->date_range != null) {
             $data = searchColumnByDateRange($data);
-        } 
+        }
         if (\request()->filled('outlet_id')) {
             $data->whereHas('creditAccount', function ($q) {
                 $q->whereHas('outlets', function ($query) {
@@ -338,7 +338,9 @@ class FundTransferVoucherController extends Controller
 
         $passVariable = [
             'transactions' => $data->get()->sortBy(function ($transaction) {
-                return $transaction->creditAccount->name;
+                if (isset($transaction->creditAccount->outlets[0])){
+                    return $transaction->creditAccount->outlets[0]->id;
+                }
             }),
             'totalAmount' => $totalAmount,
         ];
