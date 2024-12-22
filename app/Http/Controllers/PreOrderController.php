@@ -85,7 +85,7 @@ class PreOrderController extends Controller
             } else {
                 $order->due_amount = 'N/A';
             }
-    
+
             return $order;
         });
 
@@ -178,7 +178,7 @@ class PreOrderController extends Controller
     public function update(Request $request, string $id)
     {
         $preOrder = PreOrder::findOrFail(decrypt($id));
-        $preOrder->update($request->only(['size', 'flavour', 'cake_message', 'remark']));
+        $preOrder->update($request->only(['size', 'flavour', 'cake_message', 'remark','delivery_date','delivery_time']));
         Toastr::success('Pre Order Updated Successfully!.', '', ["progressBar" => true]);
         return redirect()->back();
     }
