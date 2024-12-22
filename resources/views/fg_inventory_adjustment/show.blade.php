@@ -31,7 +31,7 @@ FGInventory Adjustment Details
                                             <p><b>Store :</b> {{ $fGInventoryAdjustment->store->name }} </p>
                                             <p><b>Transaction Type :</b> {!! showStatus($fGInventoryAdjustment->transaction_type) !!}</p>
                                             <p><b>Status :</b> {!! showStatus($fGInventoryAdjustment->status) !!}</p>
-                                            <p><b>Remarks :</b> {{ $fGInventoryAdjustment->remarks ??'N/A' }} </p>
+                                            <p><b>Remarks :</b> {{ $fGInventoryAdjustment->remark ??'N/A' }} </p>
                                             <p><b>Reference :</b> {{ $fGInventoryAdjustment->reference_no ?? 'N/A' }} </p>
                                         </td>
                                     </tr>

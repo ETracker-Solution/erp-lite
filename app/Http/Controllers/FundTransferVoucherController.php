@@ -320,7 +320,7 @@ class FundTransferVoucherController extends Controller
         $data = FundTransferVoucher::query()->with('creditAccount.outlets', 'debitAccount', 'createdBy.employee.outlet')->where('status', 'received');
         if (\request()->filled('date_range') && $request->date_range != null) {
             $data = searchColumnByDateRange($data);
-        } 
+        }
         if (\request()->filled('outlet_id')) {
             $data->whereHas('creditAccount', function ($q) {
                 $q->whereHas('outlets', function ($query) {
@@ -333,7 +333,9 @@ class FundTransferVoucherController extends Controller
 
         $passVariable = [
             'transactions' => $data->get()->sortBy(function ($transaction) {
-                return $transaction->creditAccount->name;
+                if (isset($transaction->creditAccount->outlets[0])){
+                    return $transaction->creditAccount->outlets[0]->id;
+                }
             }),
             'totalAmount' => $totalAmount,
         ];
