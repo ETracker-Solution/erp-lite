@@ -307,7 +307,7 @@ class RequisitionController extends Controller
     public function updateStatus(Request $request, $id)
     {
         $req = Requisition::findOrFail($id);
-        $req->update(['status' => $request->status]);
+        $req->update(['status' => $request->status,'approved_by' => $request->status == "approved" ? auth()->id() : null,]);
         Toastr::success('Requisition Approved Successfully!.', '', ["progressBar" => true]);
         return redirect()->route('requisitions.index');
     }
