@@ -82,7 +82,8 @@
                     <div class="card-body statistics-body">
                         <div class="row">
                             <div class="col-xl-3 col-sm-6 col-12 mb-2 mb-xl-0">
-                                <x-card-statistics title="Total Stock" value="{{ $stock['total'].' TK.'  }}" icon="layers"
+
+                                <x-card-statistics title="Total Stock" value="{{ number_format($stock['total'] ) .' TK.' }}" icon="layers"
                                                    colorClass="bg-light-primary"/>
                             </div>
                             <div class="col-xl-3 col-sm-6 col-12 mb-2 mb-xl-0">
@@ -94,7 +95,7 @@
                                                    colorClass="bg-light-danger"/>
                             </div>
                             <div class="col-xl-3 col-sm-6 col-12">
-                                <x-card-statistics title="Wastage Amount" value="{{ $wastageAmount . 'TK.' }}" icon="trash-2"
+                                <x-card-statistics title="Wastage Amount" value="{{ number_format($wastageAmount) .' TK.' }}" icon="trash-2"
                                                    colorClass="bg-light-success"/>
                             </div>
                         </div>

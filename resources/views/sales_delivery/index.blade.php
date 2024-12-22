@@ -135,6 +135,7 @@
                     },
                     {
                         data: "delivery_point.name",
+                        name: "deliveryPoint.name",
                         title: "Delivery Point",
                         searchable: true
                     },

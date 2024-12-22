@@ -137,14 +137,16 @@
                     },
                     {
                         data: "from_store.name",
+                        name: "fromStore.name",
                         title: "From Store",
-                        searchable: false,orderable: false,
+                        searchable: true,orderable: false,
                         "defaultContent": "Not Set"
                     },
                     {
                         data: "to_store.name",
+                        name: "toStore.name",
                         title: "To Store",
-                        searchable: false,orderable: false,
+                        searchable: true,orderable: false,
                         "defaultContent": "Not Set"
                     },
                     {

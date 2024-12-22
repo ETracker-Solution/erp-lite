@@ -161,7 +161,7 @@
                     </li>
                 @endcanany
                 @canany(['purchase-goods-purchase-bill','purchase-purchase-return-bill'])
-                    <li class="nav-item {{ (Request::segment(1) == 'purchases' || Request::segment(1) == 'purchase-returns' )?'menu-open':''}}">
+                    <li class="nav-item {{ (Request::segment(1) == 'purchases' || Request::segment(1) == 'purchase-returns'  || Request::segment(1) == 'fg-purchases' )?'menu-open':''}}">
                         <a href="#"
                            class="nav-link {{Request::segment(1) == 'purchases' || Request::segment(1) == 'purchase-returns'?'active':''}}">
                             <i class="nav-icon fas fa-shopping-cart"></i>
@@ -172,7 +172,7 @@
                         </a>
                         <ul class="nav nav-treeview second-child">
                             @canany(['purchase-goods-purchase-bill','purchase-purchase-return-bill'])
-                                <li class="nav-item {{ (Request::segment(1) == 'purchases'||Request::segment(1) == 'purchase-returns')?'menu-open':''}}">
+                                <li class="nav-item {{ (Request::segment(1) == 'purchases'||Request::segment(1) == 'purchase-returns' || Request::segment(1) == 'fg-purchases' )?'menu-open':''}}">
                                     <a href="#" class="nav-link {{ (Request::segment(1) == 'purchases')?' active':''}}">
                                         <i class="nav-icon fa fa-folder-open"></i>
                                         <p>
@@ -401,9 +401,9 @@
                     </li>
                 @endcanany
                 @canany(['store-fg-fg-inventory-transfer','store-fg-fg-inventory-transfer-receive','store-fg-fg-inventory-adjustment','store-fg-fg-requisition-list','store-fg-fg-requisition-delivery','store-fg-fg-inventory-report','store-fg-fg-delivery-receive'])
-                    <li class="nav-item {{ (Request::segment(1) == 'fg-inventory-transfers'|| Request::segment(1) == 'fg-transfer-receives'|| Request::segment(1) == 'fg-inventory-adjustments'|| Request::segment(1) == 'requisitions'|| Request::segment(1) == 'fg-requisition-deliveries'|| Request::segment(1) == 'fg-delivery-receives'|| Request::segment(1) == 'finish-goods-inventory-report' )?'menu-open':''}}">
+                    <li class="nav-item {{ (Request::segment(1) == 'fg-inventory-transfers'|| Request::segment(1) == 'fg-transfer-receives'|| Request::segment(1) == 'fg-inventory-adjustments'|| Request::segment(1) == 'requisitions'|| Request::segment(1) == 'fg-requisition-deliveries'|| Request::segment(1) == 'fg-delivery-receives'|| Request::segment(1) == 'finish-goods-inventory-report' || Request::segment(1) == 'finish-goods-wastage-report' )?'menu-open':''}}">
                         <a href="#"
-                           class="nav-link {{ (Request::segment(1) == 'fg-inventory-transfers'|| Request::segment(1) == 'fg-transfer-receives'|| Request::segment(1) == 'fg-inventory-adjustments'|| Request::segment(1) == 'requisitions'|| Request::segment(1) == 'fg-requisition-deliveries'|| Request::segment(1) == 'fg-delivery-receives'|| Request::segment(1) == 'finish-goods-inventory-report')?' active':''}}">
+                           class="nav-link {{ (Request::segment(1) == 'fg-inventory-transfers'|| Request::segment(1) == 'fg-transfer-receives'|| Request::segment(1) == 'fg-inventory-adjustments'|| Request::segment(1) == 'requisitions'|| Request::segment(1) == 'fg-requisition-deliveries'|| Request::segment(1) == 'fg-delivery-receives'|| Request::segment(1) == 'finish-goods-inventory-report' || Request::segment(1) == 'finish-goods-wastage-report')?' active':''}}">
                             <i class="nav-icon fas fa-shopping-cart"></i>
                             <p>
                                 Store FG Module
@@ -494,9 +494,9 @@
                                 </li>
                             @endcanany
                             @canany(['store-fg-fg-inventory-report'])
-                                <li class="nav-item {{ (Request::segment(1) == 'finish-goods-inventory-report' )?'menu-open':''}}">
+                                <li class="nav-item {{ (Request::segment(1) == 'finish-goods-inventory-report' || Request::segment(1) == 'finish-goods-wastage-report')?'menu-open':''}}">
                                     <a href="#"
-                                       class="nav-link {{ (Request::segment(1) == 'finish-goods-inventory-report'  )?' active':''}}">
+                                       class="nav-link {{ (Request::segment(1) == 'finish-goods-inventory-report' || Request::segment(1) == 'finish-goods-wastage-report' )?' active':''}}">
                                         <i class="nav-icon fa fa-folder-open"></i>
                                         <p>
                                             Store FG Report

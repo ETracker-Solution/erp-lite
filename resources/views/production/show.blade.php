@@ -31,7 +31,7 @@
                                             <tr>
                                                 <td style="text-align: left; padding:8px;" width="50%">
                                                   <p><b>Production No : </b> {{ $production->uid }} </p>
-                                                  <p><b>Batch No : </b> {{ $production->batch->batch_no }} </p>
+                                                  <p><b>Batch No : </b> {{ $production->batch ? $production->batch->batch_no : "Batch Not Found" }} </p>
                                                   <p><b>Date : </b> {{ $production->created_at->format('Y-m-d') }} </p>
                                                 </td>
                                                 <td style="text-align: left; padding:8px;" width="50%">

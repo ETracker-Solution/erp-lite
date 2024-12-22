@@ -92,7 +92,9 @@
         @foreach($data as $key=>$item)
             <tr class="items">
                 @foreach($columns as $column)
-                    <td style="white-space: pre">{!!  str_replace(' ',"&nbsp;",(isset($item->$column) ? $item->$column : $item[$column])) !!}</td>
+                    <td style="white-space: pre">
+                        {!! str_replace(' ', "&nbsp;", (isset($item->$column) ? $item->$column : (is_array($item) ? $item[$column] : ''))) !!}
+                    </td>
                 @endforeach
             </tr>
         @endforeach

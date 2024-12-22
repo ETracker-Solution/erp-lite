@@ -314,7 +314,7 @@ class RequisitionController extends Controller
 
     private function getFilteredData()
     {
-        $data = Requisition::with('fromStore', 'toStore')->where('type', 'FG');
+        $data = Requisition::with('fromStore', 'toStore')->where('requisitions.type', 'FG');
         if (\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->outlet_id) {
             $data = $data->where(['outlet_id' => \auth()->user()->employee->outlet_id]);
         }

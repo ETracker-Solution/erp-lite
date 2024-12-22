@@ -82,6 +82,7 @@ $links = [
                     // },
                     {
                         data: "member_type.name",
+                        name: "memberType.name",
                         title: "Type",
                         searchable: true
                     },

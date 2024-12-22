@@ -22,7 +22,7 @@ class RMInventoryTransferController extends Controller
      */
     public function index()
     {
-        $inventoryTransfers = InventoryTransfer::with('toStore', 'fromStore')->where(['type' => 'RM'])->latest();
+        $inventoryTransfers = InventoryTransfer::with('toStore', 'fromStore')->where(['inventory_transfers.type' => 'RM'])->latest('inventory_transfers.created_at');
         if (\request()->ajax()) {
             return DataTables::of($inventoryTransfers)
                 ->addIndexColumn()
