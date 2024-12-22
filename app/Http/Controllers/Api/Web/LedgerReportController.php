@@ -151,7 +151,7 @@ SELECT
      CASE WHEN TR.date < '$start_date' THEN ' ' ELSE COA.name END AS 'Account Head',
      doc_type AS 'Doc Type',
      doc_id AS 'Doc No',
-    CASE WHEN TR.date < '$start_date' THEN 'Opening Balance' ELSE TR.narration END AS Particulars,
+    CASE WHEN TR.date < '$start_date' THEN 'Opening Balance' ELSE IFNULL(TR.narration, '') END AS Particulars,
     CASE WHEN TR.date < '$start_date' THEN ' ' ELSE CASE WHEN TR.type = 'debit' THEN TR.amount ELSE 0 END END AS Debit,
     CASE WHEN TR.date < '$start_date' THEN ' ' ELSE CASE WHEN TR.type = 'credit' THEN TR.amount ELSE 0 END END AS Credit,
 
@@ -180,7 +180,7 @@ AND TR.date >= '$start_date' AND TR.date <= '$end_date'
      CASE WHEN TR.date < '$start_date' THEN ' ' ELSE COA.name END AS 'Account Head',
      CASE WHEN TR.date < '$start_date' THEN ' ' ELSE TR.doc_type END AS 'Doc Type',
      CASE WHEN TR.date < '$start_date' THEN ' ' ELSE TR.doc_id END AS 'Doc No',
-    CASE WHEN TR.date < '$start_date' THEN 'Opening Balance' ELSE TR.narration END AS Particulars,
+    CASE WHEN TR.date < '$start_date' THEN 'Opening Balance' ELSE IFNULL(TR.narration, '') END AS Particulars,
     CASE WHEN TR.date < '$start_date' THEN ' ' ELSE CASE WHEN TR.type = 'debit' THEN TR.amount ELSE 0 END END AS Debit,
     CASE WHEN TR.date < '$start_date' THEN ' ' ELSE CASE WHEN TR.type = 'credit' THEN TR.amount ELSE 0 END END AS Credit,
     IF(COAM.root_account_type='ex', SUM(CASE WHEN TR.type = 'debit' THEN TR.amount ELSE -TR.amount END) OVER (ORDER BY TR.date, TR.id),(SUM(CASE WHEN TR.type = 'debit' THEN TR.amount ELSE -TR.amount END) OVER (ORDER BY TR.date, TR.id))*-1) AS Balance

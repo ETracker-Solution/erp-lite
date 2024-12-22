@@ -177,6 +177,7 @@
                 console.log(othersoutlet)
                 $('input[name=sale_id]').val(othersoutlet.id)
                 $('input[name=amount]').val(othersoutlet.delivery_point_receive_amount)
+                $('select[name=credit_account_id]').val(othersoutlet.paid_account).trigger('change')
             })
     </script>
 @endpush
