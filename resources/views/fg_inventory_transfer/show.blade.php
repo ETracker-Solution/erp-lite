@@ -25,7 +25,7 @@ FG Inventory Transfer Details
                         <!-- title row -->
                         <!-- info row -->
                         <div class="row invoice-info">
-                            <div class="col-sm-4 invoice-col">
+                            <div class="col-sm-12 invoice-col">
                                 <table width="100%">
                                     <tbody>
                                         <tr>
@@ -34,6 +34,9 @@ FG Inventory Transfer Details
                                                 <p><b>Date :</b> {{ $fGInventoryTransfer->date }} </p>
                                                 <p><b>Transfer From :</b> {{ $fGInventoryTransfer->fromStore->name }} </p>
                                                 <p><b>Transfer To :</b> {{ $fGInventoryTransfer->toStore->name }} </p>
+                                                <p><b>Creator :</b> {{ $fGInventoryTransfer->createdBy->name }} </p>
+                                                <p><b>Remarks :</b> {{ $fGInventoryTransfer->remark }} </p>
+                                                <p><b>Reference No :</b> {{ $fGInventoryTransfer->reference_no }} </p>
                                                 <p><b>Status :</b> {!! showStatus($fGInventoryTransfer->status) !!}</p>
                                             </td> 
                                         </tr>

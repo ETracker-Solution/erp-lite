@@ -33,6 +33,9 @@ FG Inventory Transfer Receive Details
                                             <td style="text-align: left; padding:8px; line-height: 0.6">
                                                 <p><b>FGITR No :</b> {{ $fgTransferReceive->uid }}</p>
                                                 <p><b>Date :</b> {{ $fgTransferReceive->date }} </p>
+                                                <p><b>Receiver Name :</b> {{ $fgTransferReceive->createdBy->name }} </p>
+                                                <p><b>Remarks :</b> {{ $fgTransferReceive->remark }} </p>
+                                                <p><b>Reference No :</b> {{ $fgTransferReceive->reference_no }} </p>
                                                 <p><b>Status :</b> {!! showStatus($fgTransferReceive->status) !!}</p>
                                             </td>
                                         </tr>

@@ -41,7 +41,7 @@
                                             </div>
 
                                             <div class="form-group col-md-3">
-                                                <label for="account_id" class="font-weight-bold">Select Account</label>
+                                                <label for="account_id" class="font-weight-bold">From Account</label>
                                                 <select class="form-control select2" name="account_id" id="account_id"
                                                         required>
                                                     <option value="" selected>All</option>

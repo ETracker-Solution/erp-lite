@@ -35,6 +35,7 @@
                                     <div class="form-group">
                                         <label for="">Filter By</label>
                                         <select name="filter_by" id="filter_by" class="form-control">
+                                            <option value="">All</option>
                                             <option value="delivery_date">Delivery</option>
                                             <option value="order_date">Ordered</option>
                                         </select>
@@ -52,17 +53,19 @@
                                         </select>
                                     </div>
                                 </div>
-                                <div class="col-3">
-                                    <div class="form-group">
-                                        <label for="">Outlet</label>
-                                        <select name="outlet_id" id="outlet_id" class="form-control">
-                                            <option value="">All</option>
-                                            @foreach($outlets as $outlet)
-                                                <option value="{{ $outlet->id }}">{{ $outlet->name }}</option>
-                                            @endforeach
-                                        </select>
+                                @if(!isset(auth()->user()?->employee?->outlet_id))
+                                    <div class="col-3">
+                                        <div class="form-group">
+                                            <label for="">Outlet</label>
+                                            <select name="outlet_id" id="outlet_id" class="form-control">
+                                                <option value="">All</option>
+                                                @foreach($outlets as $outlet)
+                                                    <option value="{{ $outlet->id }}">{{ $outlet->name }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
                                     </div>
-                                </div>
+                                @endif    
                             </div>
                             <div class="row">
                                 <div class="col-3">
