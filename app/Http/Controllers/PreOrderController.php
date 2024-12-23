@@ -68,12 +68,13 @@ class PreOrderController extends Controller
         if (\request()->filled('status')) {
             $orders->where('status', \request()->status);
         }
-        if (\request()->filled('filter_by')) {
+        if (\request()->filled('filter_by') && \request()->filled('from_date') && \request()->filled('to_date')) {
             $column = \request()->filter_by;
             $from_date = Carbon::parse(request()->from_date)->format('Y-m-d');
             $to_date = Carbon::parse(request()->to_date)->format('Y-m-d');
-            $orders = $orders->whereDate($column, '>=', $from_date)->whereDate($column, '<=', $to_date);
 
+            info($column);
+            $orders = $orders->whereDate($column, '>=', $from_date)->whereDate($column, '<=', $to_date);
         }
 
         $orders = $orders->get()->map(function ($order) {

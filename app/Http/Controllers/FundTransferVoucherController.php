@@ -45,7 +45,12 @@ class FundTransferVoucherController extends Controller
         }
 
         $outlets = Outlet::all();
-        $accounts = ChartOfAccount::where('type', 'ledger')->select('id','name')->get();
+        $accounts = ChartOfAccount::where('type', 'ledger')
+        ->whereIn('id', function ($query) {
+            $query->select('coa_id')->from('outlet_accounts');
+        })
+        ->select('id', 'name')
+        ->get();
         if (\request()->ajax()) {
             $fundTransferVouchers = $this->getFilteredData();
             return DataTables::of($fundTransferVouchers)

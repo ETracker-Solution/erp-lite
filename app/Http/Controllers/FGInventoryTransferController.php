@@ -115,7 +115,7 @@ class FGInventoryTransferController extends Controller
     public function show($id)
     {
         $items = InventoryTransferItem::where('inventory_transfer_id', decrypt($id))->get();
-        $fGInventoryTransfer = InventoryTransfer::with('toStore', 'fromStore')->find(decrypt($id));
+        $fGInventoryTransfer = InventoryTransfer::with('toStore', 'fromStore','createdBy')->find(decrypt($id));
         return view('fg_inventory_transfer.show', compact('fGInventoryTransfer', 'items'));
     }
 

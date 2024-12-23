@@ -152,7 +152,7 @@
         <td style="text-align: left">
             <p class="lead marginbottom payment-info"><b> Production Details</b></p>
             <p><b>Date :</b> {{ $production->created_at->format('Y-m-d') }}</p>
-            <p><b>Batch No : </b> {{ $production->batch->batch_no }} </p>
+            <p><b>Batch No : </b> {{ $production->batch ? $production->batch->batch_no : "Batch Not Found" }} </p>
             <p><b>Status :</b> {{ $production->status }}</p>
             <p><b>Reference :</b> {{ $production->reference_no }}</p>
         </td>

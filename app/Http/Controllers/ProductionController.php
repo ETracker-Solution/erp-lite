@@ -170,7 +170,7 @@ class ProductionController extends Controller
      */
     public function show(Production $production)
     {
-        return view('production.show', compact('production'));
+        return view('production.show', compact(var_name: 'production'));
     }
 
     /**

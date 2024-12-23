@@ -95,12 +95,14 @@
                     },
                     {
                         data: "from_store.name",
+                        name: "fromStore.name",
                         title: "From Store",
                         searchable: true,
                         "defaultContent": "Not Set"
                     },
                     {
                         data: "to_store.name",
+                        name: "toStore.name",
                         title: "To Store",
                         searchable: true,
                         "defaultContent": "Not Set"

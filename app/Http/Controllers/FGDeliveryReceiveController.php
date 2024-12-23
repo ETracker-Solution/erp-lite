@@ -24,7 +24,9 @@ class FGDeliveryReceiveController extends Controller
     public function index()
     {
         if (\request()->ajax()) {
-            $data = DeliveryReceive::with('fromStore', 'toStore', 'requisitionDelivery')->where('type', 'FG')->latest();
+            $data = DeliveryReceive::with([ 'toStore','fromStore','requisitionDelivery' ])
+            ->where('delivery_receives.type', 'FG')->latest('delivery_receives.created_at');
+
             if (auth()->user()->employee && auth()->user()->employee->outlet_id){
                 $storeIds = auth()->user()->employee->outlet->stores()->pluck('id')->toArray();
                 $data = $data->whereIn('to_store_id',$storeIds);
