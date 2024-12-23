@@ -65,7 +65,7 @@
                                             </select>
                                         </div>
                                     </div>
-                                @endif    
+                                @endif
                             </div>
                             <div class="row">
                                 <div class="col-3">
@@ -292,6 +292,11 @@
                         searchable: true
                     },
                     {
+                        data: "order_date",
+                        title: "order date",
+                        searchable: true
+                    },
+                    {
                         data: "due_amount",
                         title: "Due Amount",
                         searchable: true
@@ -321,12 +326,12 @@
             $('#status').on('change', function () {
                 sessionStorage.setItem('status', $('select[name="status"]').val());
                 recallDatatable();
-            }) 
+            })
 
             $('#outlet_id').on('change', function () {
                 sessionStorage.setItem('outlet_id', $('select[name="outlet_id"]').val());
                 recallDatatable();
-            }) 
+            })
 
             $('select[name="filter_by"],select[name="status"], select[name="outlet_id"], input[name="from_date"], input[name="to_date"]').on('change', function () {
             sessionStorage.setItem('status', $('select[name="status"]').val());
