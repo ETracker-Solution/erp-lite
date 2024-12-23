@@ -304,7 +304,7 @@ class SalesDeliveryController extends Controller
     {
         if (\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->outlet_id) {
             $data = OthersOutletSale::with('deliveryPoint', 'outlet')->where(['delivery_point_id' => \auth()->user()->employee->outlet_id])->latest();
-        } elseif (\auth()->user()->is_super) {
+        } elseif (\auth()->user()->is_super || (\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->user_of == 'ho')) {
             $data = OthersOutletSale::with('deliveryPoint', 'outlet')->latest();
         } else {
             $data = null;
