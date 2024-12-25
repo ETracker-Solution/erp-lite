@@ -25,7 +25,7 @@ class OutletDashboardController extends Controller
         $outlet_id = Auth::user()->employee->outlet_id;
         $store_ids = Store::where(['doc_type' => 'outlet', 'doc_id' => $outlet_id])->pluck('id');
 
-        $wastage_amount = InventoryAdjustment::whereIn('store_id', $store_ids)->sum('subtotal');
+        $wastage_amount = InventoryAdjustment::whereIn('store_id', $store_ids)->whereDate('date',Carbon::today()->subDay()->format('Y-m-d'))->sum('subtotal');
 
         $requisition_deliveries = RequisitionDelivery::whereHas('requisition', function ($query) use($outlet_id) {
             $query->where(['outlet_id' => $outlet_id]);
@@ -59,7 +59,7 @@ class OutletDashboardController extends Controller
             ->sum('subtotal');
 
         $lastMonth = Carbon::now()->subMonth()->month;
-        $lastYear = Carbon::now()->subMonth()->year; 
+        $lastYear = Carbon::now()->subMonth()->year;
 
         $lastMonthAmount = InventoryAdjustment::with('store')->where('transaction_type','decrease')->whereMonth('created_at', $lastMonth)
         ->whereYear('created_at', $lastYear)

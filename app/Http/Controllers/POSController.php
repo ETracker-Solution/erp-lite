@@ -204,7 +204,7 @@ class POSController extends Controller
                     addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'Bkash'), getAccountsReceiveableGLId());
                 }
                 if ($paymentMethod['method'] == 'cash') {
-                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id,), getAccountsReceiveableGLId());
+                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id), getAccountsReceiveableGLId());
                 }
                 if ($paymentMethod['method'] == 'point') {
                     redeemPoint($sale->id, $customer_id, $paymentMethod['amount']);
@@ -236,13 +236,13 @@ class POSController extends Controller
             DB::rollBack();
             $message = $error->getMessage();
             Log::emergency("File:" . $error->getFile() . "Line:" . $error->getLine() . "Message:" . $error->getMessage());
-            if ($error->getCode() == 23000){
+            if ($error->getCode() == 23000) {
                 $message = 'Please Set Account Config';
             }
 
-            return response()->json(['success'=>false,'message' => $message], 500);
+            return response()->json(['success' => false, 'message' => $message], 500);
         }
-        return response()->json(['success'=>true,'message' => 'success', 'sale' => $sale]);
+        return response()->json(['success' => true, 'message' => 'success', 'sale' => $sale]);
     }
 
     /**
@@ -314,7 +314,7 @@ class POSController extends Controller
 
     public function getAllProductCategories(Request $request)
     {
-        return ChartOfInventory::where(['rootAccountType' => 'FG', 'status' => 'active'])->where('type','group')->whereHas('subChartOfInventories', function ($q) {
+        return ChartOfInventory::where(['rootAccountType' => 'FG', 'status' => 'active'])->where('type', 'group')->whereHas('subChartOfInventories', function ($q) {
             return $q->where('type', 'item');
         })->get();
     }
@@ -346,10 +346,10 @@ class POSController extends Controller
     public function getAllCustomers(Request $request)
     {
         $data = Customer::where(['status' => 'active', 'type' => 'regular']);
-        if ($request->filled('search_string')){
-            $data = $data->where('name','like','%'.$request->search_string.'%')
-                ->orWhere('mobile','like','%'.$request->search_string.'%')
-                ->orWhere('email','like','%'.$request->search_string.'%');
+        if ($request->filled('search_string')) {
+            $data = $data->where('name', 'like', '%' . $request->search_string . '%')
+                ->orWhere('mobile', 'like', '%' . $request->search_string . '%')
+                ->orWhere('email', 'like', '%' . $request->search_string . '%');
         }
         return $data->get();
     }
@@ -370,8 +370,14 @@ class POSController extends Controller
     public function getAllOrders()
     {
         $orders = [];
-        if (\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->outlet_id){
-            $orders = Sale::where(['outlet_id' => \auth()->user()->employee->outlet_id])->with('items.coi', 'customer')->withSum('items', 'quantity')->latest()->get();
+        if (\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->outlet_id) {
+            $orders = Sale::where(['outlet_id' => \auth()->user()->employee->outlet_id])->with('items.coi', 'customer')->withSum('items', 'quantity');
+            if (\request()->filled('inv')) {
+                $orders = $orders->where('invoice_number', \request()->inv);
+            } else {
+                $orders = $orders->whereDate('date', date('Y-m-d'));
+            }
+            $orders = $orders->get();
         }
         return $orders;
     }
@@ -429,7 +435,7 @@ class POSController extends Controller
         $sale = Sale::find($id);
 //        return $sale->membershipPointHistory[0];
         $message = 'Sold Goods are not returnable.';
-        if ($sale->preOrder){
+        if ($sale->preOrder) {
             $message = "Pre-order goods can be  cancelled before 24 hours of delivery.";
         }
         $sale->message = $message;
@@ -446,7 +452,6 @@ class POSController extends Controller
 //        file_put_contents($pdfFilePath, $output);
         // Serve the PDF URL
 //        return response()->file($pdfFilePath);
-
 
 
         // (Optional) Set paper size and orientation

@@ -95,7 +95,7 @@
                                                    colorClass="bg-light-danger"/>
                             </div>
                             <div class="col-xl-3 col-sm-6 col-12">
-                                <x-card-statistics title="Wastage Amount" value="{{ number_format($wastageAmount) .' TK.' }}" icon="trash-2"
+                                <x-card-statistics title="Last Day Wastage Amount" value="{{ number_format($wastageAmount) .' TK.' }}" icon="trash-2"
                                                    colorClass="bg-light-success"/>
                             </div>
                         </div>
