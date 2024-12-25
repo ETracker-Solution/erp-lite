@@ -235,6 +235,9 @@ class SaleController extends Controller
                 if ($paymentMethod['method'] == 'nexus') {
                     addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'Nexus'), getAccountsReceiveableGLId());
                 }
+                if ($paymentMethod['method'] == 'city') {
+                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'City'), getAccountsReceiveableGLId());
+                }
                 if ($paymentMethod['method'] == 'pbl') {
                     addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'PBL'), getAccountsReceiveableGLId());
                 }

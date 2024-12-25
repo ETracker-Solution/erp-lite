@@ -49,6 +49,7 @@
                                                 <th>NEXUS Account</th>
                                                 <th>PBL Account</th>
                                                 <th>DUE Account</th>
+                                                <th>City Account</th>
                                             </tr>
                                             </thead>
                                             @foreach ($outlets as $row)
@@ -73,6 +74,8 @@
                                                     \App\Models\OutletTransactionConfig::where(['outlet_id'=>$row->id,'type'=>'PBL'])->first();
                                                     $dueConfig =
                                                     \App\Models\OutletTransactionConfig::where(['outlet_id'=>$row->id,'type'=>'Due'])->first();
+                                                    $cityConfig =
+                                                    \App\Models\OutletTransactionConfig::where(['outlet_id'=>$row->id,'type'=>'City'])->first();
                                                     $bkash = $bkashConfig ? $bkashConfig->coa_id : null;
                                                     $cash = $cashConfig ? $cashConfig->coa_id : null;
                                                     $nagad = $nagadConfig ? $nagadConfig->coa_id : null;
@@ -83,6 +86,7 @@
                                                     $nexus = $nexusConfig ? $nexusConfig->coa_id : null;
                                                     $pbl = $pblConfig ? $pblConfig->coa_id : null;
                                                     $due = $dueConfig ? $dueConfig->coa_id : null;
+                                                    $city = $cityConfig ? $cityConfig->coa_id : null;
                                                 @endphp
                                                 <tr>
                                                     <td>{{ $row->name }}</td>
@@ -182,6 +186,16 @@
                                                             @foreach(getAllLedgers() as $account)
 
                                                                 <option value="{{ $account->id }}" {{ $account->id == $due ?
+                                                        'selected' : '' }}>{{ $account->display_name }}</option>
+                                                            @endforeach
+                                                        </select>
+                                                    </td>
+                                                    <td>
+                                                        <select name="settings[{{ $row->id }}][City]" id=""
+                                                                class="form-control">
+                                                            @foreach(getAllLedgers() as $account)
+
+                                                                <option value="{{ $account->id }}" {{ $account->id == $city ?
                                                         'selected' : '' }}>{{ $account->display_name }}</option>
                                                             @endforeach
                                                         </select>
