@@ -377,7 +377,7 @@ class POSController extends Controller
             } else {
                 $orders = $orders->whereDate('date', date('Y-m-d'));
             }
-            $orders = $orders->get();
+            $orders = $orders->latest()->get();
         }
         return $orders;
     }
