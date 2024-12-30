@@ -102,6 +102,26 @@
                                     </div>
                                 </div>
 
+                                <div class="row callout callout-info" id="vatlInfo">
+                                    <div class="col-xl-12 col-md-12 col-12">
+                                        <x-forms.static-select 
+                                            label="Vat Type" 
+                                            inputName="vat_type" 
+                                            placeholder="Select VAT Type" 
+                                            :isRequired="true" 
+                                            :isReadonly="false" 
+                                            :options="['including' => 'Including', 'excluding' => 'Excluding', 'zero' => 'Zero Vat']"
+                                            defaultValue=""
+                                        />
+                                    </div>   
+
+                                    <div class="col-xl-12 col-md-12 col-12">
+                                        <x-forms.text label="Vat Amount(%)" inputName="vat_amount"
+                                                      placeholder="Enter Vat Amount" :isRequired='true'
+                                                      :isReadonly='false' defaultValue=""/>
+                                    </div>
+                                </div>
+
                             </div>
                             <div class="card-footer ">
                                 <div class="text-center">
@@ -159,7 +179,8 @@
         let newItemNameInput = $("input[name=new_item_name]")
         let newItemTypeInput = $("select[name=new_item_type]")
         let nonDiscountableCheckbox = $("select[name=non_discountable]")
-
+        let vatTypeInput = $("select[name=vat_type]");
+        let vatAmountInput = $("input[name=vat_amount]");
 
         function makeHidden(element) {
             element.prop('hidden', true)
@@ -170,7 +191,7 @@
         }
 
         function setValue(element, value) {
-            if (element == itemUnitInput || element == itemStatusInput || element == nonDiscountableCheckbox) {
+            if (element == itemUnitInput || element == itemStatusInput || element == nonDiscountableCheckbox || element == vatTypeInput) {
                 element.val(value).trigger('change')
             } else {
                 element.val(value)
@@ -198,6 +219,10 @@
                     setValue(itemStatusInput, '')
                     setValue(itemPriceInput, '')
                     setValue(nonDiscountableCheckbox, result.non_discountable)
+
+                    setValue(vatTypeInput, result.vat_type);
+                    setValue(vatAmountInput, result.vat_amount);
+
                     makeVisible(updateButton)
                     makeVisible(addButton)
                     makeVisible(deleteButton)
@@ -245,7 +270,9 @@
                             unit: getValue(itemUnitInput),
                             price: getValue(itemPriceInput),
                             status: getValue(itemStatusInput),
-                            non_discountable: getValue(nonDiscountableCheckbox)
+                            non_discountable: getValue(nonDiscountableCheckbox),
+                            vat_type: getValue(vatTypeInput),
+                            vat_amount: getValue(vatAmountInput),
                         },
                         headers: {
                             'X-CSRF-TOKEN': csrfToken
@@ -297,7 +324,9 @@
                     unit: getValue(itemUnitInput),
                     status: getValue(itemStatusInput),
                     price: getValue(itemPriceInput),
-                    non_discountable: getValue(nonDiscountableCheckbox)
+                    non_discountable: getValue(nonDiscountableCheckbox),
+                    vat_type: getValue(vatTypeInput),
+                    vat_amount: getValue(vatAmountInput),
                 },
                 headers: {
                     'X-CSRF-TOKEN': csrfToken

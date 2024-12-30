@@ -171,9 +171,11 @@
             return $q->unit_price * $q->quantity;
         });
         $vat = $sale->vat ?? 0;
-        $sub_total = $total + $vat;
+        $sub_total = $total;
         $discount = $sale->discount ?? 0;
-        $net_amount = $sub_total- $discount;
+        $delivery_charge = $sale->delivery_charge;
+        $additional_charge = $sale->additional_charge;
+        $net_amount = $sale->grand_total;
         $payment_point = $sale->payments()->where('payment_method','point')->first();
         $point_redeem = $payment_point ? $payment_point->amount : 0;
         $earned_point = 0;
@@ -196,13 +198,6 @@
         <td class="tc bl-none br-none tr">{{$total}}</td>
     </tr>
     <tr>
-        <td class="tc bl-none br-none bt-none"></td>
-        <td class="tc bl-none br-none bt-none"></td>
-        <td class="tc bl-none br-none bt-none"></td>
-        <td class="tc bl-none br-none bt-none">VAT:</td>
-        <td class="tc bl-none br-none bt-none tr">{{ $vat }}</td>
-    </tr>
-    <tr>
         <td class="tc bl-none br-none bb-none"></td>
         <td class="tc bl-none br-none bb-none"></td>
         <td class="tc bl-none br-none bb-none" colspan="2">Sub Total:</td>
@@ -213,6 +208,33 @@
         <td class="tc bl-none br-none"></td>
         <td class="tc bl-none br-none"  colspan="2">Discount:</td>
         <td class="tc bl-none br-none tr">{{ $discount }}</td>
+    </tr>
+    <tr>
+        <td class="tc bl-none br-none"></td>
+        <td class="tc bl-none br-none"></td>
+        <td class="tc bl-none br-none"  colspan="2">Taxable Amount:</td>
+        <td class="tc bl-none br-none tr">{{ round($sale->taxable_amount, 0) }}</td>
+    </tr>
+    <tr>
+        <td class="tc bl-none br-none bt-none"></td>
+        <td class="tc bl-none br-none bt-none"></td>
+        <td class="tc bl-none br-none bt-none"></td>
+        <td class="tc bl-none br-none bt-none">VAT:</td>
+        <td class="tc bl-none br-none bt-none tr">{{ $vat }}</td>
+    </tr>
+    <tr>
+        <td class="tc bl-none br-none bt-none"></td>
+        <td class="tc bl-none br-none bt-none"></td>
+        <td class="tc bl-none br-none bt-none"></td>
+        <td class="tc bl-none br-none bt-none">Delivery Charge:</td>
+        <td class="tc bl-none br-none bt-none tr">{{ $delivery_charge }}</td>
+    </tr>
+    <tr>
+        <td class="tc bl-none br-none bt-none"></td>
+        <td class="tc bl-none br-none bt-none"></td>
+        <td class="tc bl-none br-none bt-none"></td>
+        <td class="tc bl-none br-none bt-none">Additional Charge:</td>
+        <td class="tc bl-none br-none bt-none tr">{{ $additional_charge }}</td>
     </tr>
     <tr>
         <td class="tc bl-none br-none bt-none"></td>

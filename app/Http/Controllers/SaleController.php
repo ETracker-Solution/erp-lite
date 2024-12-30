@@ -102,7 +102,7 @@ class SaleController extends Controller
             'description' => 'nullable',
         ]);
 
-        // dd( $request->all());
+        // dd($request->all());
         try {
             DB::beginTransaction();
 
@@ -136,6 +136,7 @@ class SaleController extends Controller
             $sale->subtotal = $request->subtotal;
             $sale->discount = $request->discount ?? 0;
             $sale->grand_total = $request->grandtotal;
+            $sale->vat = $request->vat ?? null;
             $sale->receive_amount = $request->receive_amount ?? 0;
             $sale->change_amount = $request->change_amount ?? 0;
             $sale->customer_id = $customer_id;
@@ -157,9 +158,12 @@ class SaleController extends Controller
             $sale->total_discount_type = $request->total_discount_type;
             $sale->total_discount_value = $request->total_discount_value;
             $sale->total_discount_amount = $request->total_discount_amount;
+            //            New Columns
+            $sale->taxable_amount = $request->taxable_amount;
             $sale->save();
 
             $products = $request->get('products');
+            // dd($products);
 
             $salesAmount = $sale->grand_total;
             $avgProductionPrice = 0;
@@ -190,6 +194,7 @@ class SaleController extends Controller
                 $row['discount_type'] = $discount_type;
                 $row['discount_value'] = $discount_value;
                 $amount = $row['unit_price'] * $row['quantity'];
+
                 if ($discount_type == 'p') {
                     $discount = ($amount * $discount_value) / 100;
                 } elseif ($discount_type == 'f') {
@@ -198,6 +203,12 @@ class SaleController extends Controller
                     $discount = 0;
                 }
                 $row['discount'] = $discount;
+
+                $result = calculateVatDetails($row['product_id'], $row['quantity']);
+
+                $row['vat_amount'] = $result['vat_amount'];
+                $row['unit_vat'] = $result['unit_vat'];
+                $row['vat'] = $result['vat'];
 
                 $sale_item = $sale->items()->create($row);
                 $sale_item['date'] = date('Y-m-d');
@@ -432,7 +443,7 @@ class SaleController extends Controller
             'delivery_time' => $delivery_time,
             'subtotal' => $sale->subtotal,
             'discount' => $sale->discount,
-            'vat' => $sale->vat,
+            'vat' => $sale->vat ?? null,
             'grand_total' => $sale->grand_total,
             'advance_amount' => $sale->receive_amount,
             'remark' => $description,
@@ -442,7 +453,8 @@ class SaleController extends Controller
             'created_by' => auth()->user()->id,
             'order_number' => $sale->invoice_number,
             'delivery_point_id' => $delivery_point_id,
-            'sale_id' => $sale->id
+            'sale_id' => $sale->id,
+            'taxable_amount' => $sale->taxable_amount,
         ];
         $preOrder = PreOrder::create($data);
 
@@ -470,6 +482,7 @@ class SaleController extends Controller
         $sale->invoice_number = $oldSale->invoice_number;
         $sale->subtotal = $oldSale->subtotal;
         $sale->discount = $oldSale->discount ?? 0;
+        $sale->vat = $oldSale->vat ?? null;
         $sale->grand_total = $oldSale->grand_total;
         $sale->receive_amount = $oldSale->receive_amount ?? 0;
         $sale->change_amount = $oldSale->change_amount ?? 0;
@@ -482,6 +495,7 @@ class SaleController extends Controller
         $sale->delivery_point_id = $delivery_point_id;
         $sale->delivery_charge = $oldSale->delivery_charge;
         $sale->additional_charge = $oldSale->additional_charge;
+        $sale->taxable_amount = $oldSale->taxable_amount;
         $sale->save();
 
         $products = $oldSale->items;

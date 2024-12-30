@@ -116,13 +116,23 @@
                                 </tr>
                                 <tr>
                                     <td colspan="5"></td>
-                                    <td class="text-left">Delivery Charge:</td>
-                                    <td class="text-right">{{ $sale->delivery_charge }} </td>
+                                    <td class="text-left">Taxable Amount :</td>
+                                    <td class="text-right">{{ round($sale->taxable_amount, 0) }} </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="5"></td>
+                                    <td class="text-left">Vat Charge :</td>
+                                    <td class="text-right">{{ $sale->vat }} </td>
                                 </tr>
                                 <tr>
                                     <td colspan="5"></td>
                                     <td class="text-left">Delivery Charge:</td>
                                     <td class="text-right">{{ $sale->delivery_charge }} </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="5"></td>
+                                    <td class="text-left">Additional Charge:</td>
+                                    <td class="text-right">{{ $sale->additional_charge }} </td>
                                 </tr>
                                 <tr>
                                     <td colspan="5"></td>

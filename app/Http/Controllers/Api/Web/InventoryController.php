@@ -35,6 +35,12 @@ class InventoryController extends Controller
             'price' => $inventory->price,
             'status' => $inventory->status,
             'non_discountable' => $inventory->non_discountable,
+            'base_price' => $inventory->base_price,
+            'vat' => $inventory->vat,
+            'total_price'=> $inventory->total,
+            'vat_type' =>  $inventory->vat_type,
+            'vat_amount' => $inventory->vat_amount,
+
         ];
         return response()->json($data);
     }
@@ -52,8 +58,20 @@ class InventoryController extends Controller
                 $inventory->status = \request()->status;
                 $inventory->price = \request()->price;
             }
+            $inventory->vat_type = \request()->vat_type;
+            $inventory->vat_amount = \request()->vat_amount;
+
+            $calculateVat = calculateVat(\request()->price, \request()->vat_type, \request()->vat_amount);
+
+            $inventory->base_price = $calculateVat['base_price'];
+            $inventory->vat = $calculateVat['vat'];
+            $inventory->total_price = $calculateVat['total'];
+
+            // dd($inventory);
+            
             $inventory->updated_by = auth()->user()->id;
             $inventory->update();
+            
         } catch (\Exception $exception) {
             return response()->json([
                 'message' => $exception->getMessage(),
@@ -70,6 +88,9 @@ class InventoryController extends Controller
     {
         try {
             $inventory = $this->base_model->find($id);
+            
+            $calculateVat = calculateVat(\request()->price, \request()->vat_type, \request()->vat_amount);
+
             $inventory->subChartOfInventories()->create([
                 'name' => \request()->item_name,
                 'type' => \request()->item_type,
@@ -78,7 +99,12 @@ class InventoryController extends Controller
                 'status' => \request()->status?? 'active',
                 'price' => \request()->price ?? 0,
                 'created_by' => auth()->user()->id,
-                'non_discountable'=>\request()->non_discountable ? 1 : 0
+                'non_discountable'=>\request()->non_discountable ? 1 : 0,
+                'base_price' => $calculateVat['base_price'],
+                'vat' => $calculateVat['vat'],
+                'total_price'=> $calculateVat['total'],
+                'vat_type' => \request()->vat_type ?? 'zero',
+                'vat_amount' => \request()->vat_amount ?? 0,
             ]);
         } catch (\Exception $exception) {
             return response()->json([

@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\ChartOfInventory;
 use App\Models\Outlet;
 use App\Models\Sale;
 use Illuminate\Support\Carbon;
@@ -118,7 +119,7 @@ function getAllPermissions()
 
 function getSettingValue($key)
 {
-    $setting = \App\Models\SystemConfig::where('key', $key)->first();
+    $setting = \App\Models\SystemConfig::where('key',  $key)->first();
     if ($setting) {
         return $setting->value;
     }
@@ -211,7 +212,6 @@ function generateUniqueUUID($outlet_or_factory_id, $model, $column_name, $is_fac
     }
     if ($is_factory) {
         $acronym = 'CT-F-';
-
     }
 
     $nameWithDate = $acronym . date('ym');
@@ -376,9 +376,9 @@ FROM (
 
 function get_all_stores($date, $ac_type)
 {
-//    if ($ac_type == 'FG'){
-//        return all_store_fg_report_query($date);
-//    }
+    //    if ($ac_type == 'FG'){
+    //        return all_store_fg_report_query($date);
+    //    }
     return "SELECT
     `Store Name`,
     -- `Group Name`,
@@ -433,7 +433,8 @@ FROM (
 ) AS result";
 }
 
-function all_store_fg_report_query($date){
+function all_store_fg_report_query($date)
+{
     return "
    select
 	s.name as 'STORE NAME',
@@ -715,7 +716,6 @@ function testFGreport($store_id, $date)
                 'Rate' => number_format($item->price, 2, '.', ','),
                 'Value' => number_format($item->price * $main_balance, 2, '.', ','),
             ];
-
         }
 
         $grand_total_transit_stock += $parent_total_transit_stock;
@@ -723,13 +723,12 @@ function testFGreport($store_id, $date)
         $data[] = [
             'Group Name' => '', // This could be set to the parent's name or left blank
             'Item ID' => '',
-            'Item Name' => $parent[0]->parent->name .' Total',
+            'Item Name' => $parent[0]->parent->name . ' Total',
             'Transit Stock' => $parent_total_transit_stock,
             'Balance Qty' => number_format($parent_total_balance_qty, 2),
             'Rate' => '', // Total rate is typically not used
             'Value' => ''
         ];
-//        return $data;
     }
     $data[] = [
         'Group Name' => '', // This could be set to the parent's name or left blank
@@ -751,6 +750,46 @@ function testFGreport($store_id, $date)
 //     END AS RATE,
 // }
 
-function showUserInfo($user){
+function showUserInfo($user)
+{
     return $user->name . ' (' . $user->email . ') ';
+}
+
+function calculateVat(float $price, string $vatType, float $vatAmount): array
+{
+    if (strtolower($vatType) === 'including') {
+        $basePrice = $price / (1 + $vatAmount / 100);
+        $vat = $price - $basePrice;
+    } elseif (strtolower($vatType) === 'excluding') {
+        $basePrice = $price;
+        $vat = ($price * $vatAmount) / 100;
+    } else {
+        $basePrice = $price;
+        $vat = 0;
+    }
+
+    return [
+        'base_price' => $basePrice,
+        'vat' => $vat,
+        'total' => $basePrice + $vat,
+    ];
+}
+
+function calculateVatDetails($coi_id, $quantity)
+{
+    if (empty($coi_id) || $quantity < 0) {
+        return null;
+    }
+
+    $product = ChartOfInventory::find($coi_id);
+
+    if ($product) {
+        return [
+            'vat_amount' => $product->vat_amount ?? 0,
+            'unit_vat' => $product->vat ?? 0,
+            'vat' => $quantity * $product->vat ?? 0,
+        ];
+    } else {
+        return null;
+    }
 }

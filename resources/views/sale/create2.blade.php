@@ -367,7 +367,7 @@
                                                             <td>
                                                                 <input type="text" name="subtotal"
                                                                        class="form-control input-sm form-control-sm"
-                                                                       v-bind:value="total_bill" readonly>
+                                                                       v-bind:value="subtotal2" readonly>
 
                                                             </td>
                                                         </tr>
@@ -385,6 +385,8 @@
                                                             <th>Total Discount</th>
                                                             <th>Delivery Charge</th>
                                                             <th>Additional Charge</th>
+                                                            <th>Taxable Amount</th>
+                                                            <th>Vat Charge</th>
                                                             <th>Grand Total</th>
                                                         </tr>
                                                         </thead>
@@ -398,6 +400,8 @@
                                                             <td>@{{ allDiscountAmount }}</td>
                                                             <td>@{{ delivery_charge }}</td>
                                                             <td>@{{ additional_charge }}</td>
+                                                            <td>@{{ taxableAmount }}</td>
+                                                            <td>@{{ vatTotal }}</td>
                                                             <td>@{{ total_payable_bill }}</td>
                                                         </tr>
                                                         </tbody>
@@ -523,6 +527,8 @@
                                 <input type="hidden" name="grandtotal" v-model="total_payable_bill">
                                 <input type="hidden" name="returnNumber" v-model="returnNumber">
                                 <input type="hidden" name="exchangeAmount" v-model="exchangeAmount">
+                                <input type="hidden" name="taxable_amount" v-model="taxableAmount">
+                                <input type="hidden" name="vat" v-model="vatTotal">
                             </div>
                             <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 text-right"
                                  v-if="items.length > 0 && ((sales_type == 'sales' && !customerNumber && total_payable_bill <= total_paying) || (sales_type == 'pre_order' && customerNumber) || customerNumber)">
@@ -721,13 +727,18 @@
                     additional_charge: 0,
                 },
                 components: {
-                    vuejsDatepicker
+                    vuejsDatepicker  
                 },
                 mounted: function () {
                     this.setStoreId()
                 },
                 computed: {
                     subtotal: function () {
+                        return this.items.reduce((total, item) => {
+                            return total + ((item.quantity * item.price) - item.product_discount)
+                        }, 0)
+                    },
+                    subtotal2: function () {
                         return this.items.reduce((total, item) => {
                             return total + ((item.quantity * item.price) - item.product_discount)
                         }, 0)
@@ -740,7 +751,7 @@
                     },
                     total_bill: function () {
                         return this.items.reduce((total, item) => {
-                            return total + ((item.quantity * item.price))
+                            return total + ((item.quantity * item.total_price_with_vat))
                         }, 0)
                     },
                     total_paying: function () {
@@ -766,7 +777,7 @@
                     },
                     total_payable_bill: function () {
                         var vm = this
-                        return (this.total_bill - vm.couponCodeDiscountAmount - this.allDiscountAmount) + Number(this.delivery_charge) + Number(this.additional_charge)
+                        return (this.total_bill - vm.couponCodeDiscountAmount - this.allDiscountAmount) + Number(this.delivery_charge) + Number(this.additional_charge) 
                     },
                     total_due: function () {
                         return this.total_payable_bill
@@ -786,7 +797,18 @@
                     },
                     selectedNotDiscountableProduct: function () {
                         return this.items.some(item => !item.discountable);
-                    }
+                    },
+                    vatTotal: function () {
+                        return  Math.round(this.items.reduce((total, item) => {
+                            return total + ((item.quantity * item.vat))
+                        }, 0))
+                    },
+                    taxableAmount: function () {
+
+                        return Math.round(this.items.reduce((total, item) => {
+                            return total + this.itemtotal(item,item.base_price)
+                        }, 0))
+                    },
                 },
                 methods: {
                     fetch_item() {
@@ -858,6 +880,10 @@
                                             discountType: '',
                                             discountValue: 0,
                                             discountAmount: 0,
+                                            discount_price : product_details.discount_price,
+                                            vat: product_details.vat,
+                                            total_price_with_vat : product_details.total_price,
+                                            base_price : product_details.base_price,
                                         });
                                         vm.isDisabled = false
 
@@ -894,10 +920,13 @@
                             vm.selectedSpecialDiscount = false;
                         }
                     },
-                    itemtotal: function (index) {
+                    itemtotal: function (index,price = false) {
+                        if(!price){
+                            console.log(index.price);
 
-                        return (index.quantity * index.price) - index.discountAmount;
-
+                            price = index.price
+                        }
+                        return (index.quantity * price) - index.discountAmount;
                     },
                     valid: function (index) {
                         const vm=this

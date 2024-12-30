@@ -157,13 +157,35 @@ class ApiController extends Controller
             $item = $sale->items()->where('product_id', $coi->id)->first();
         }
         $current_stock = transactionAbleStock($coi, [\request()->store_id]);
-//        if (\request()->from == 'adjustment'){
-//            $store = Store::find(\request()->sale_id);
-//            if($store->doc_type == 'factory'){
-//                $storeIds = [$store->id];
-//                $current_stock = transactionAbleStock($coi, $storeIds);
-//            }
-//        }
+        //        if (\request()->from == 'adjustment'){
+        //            $store = Store::find(\request()->sale_id);
+        //            if($store->doc_type == 'factory'){
+        //                $storeIds = [$store->id];
+        //                $current_stock = transactionAbleStock($coi, $storeIds);
+        //            }
+        //        }
+        $discount_price = $coi->price;
+
+        if ($coi->vat_type == 'including') {
+            $discount_type = getSettingValue('vat_including_item_discount');
+            if ($discount_type == 'with_vat') {
+                $discount_price = $coi->total_price;
+            }
+            if ($discount_type == 'without_vat') {
+                $discount_price = $coi->base_price;
+            }
+        }
+
+        if ($coi->vat_type == 'excluding') {
+            $discount_type = getSettingValue('vat_excluding_item_discount');
+            if ($discount_type == 'with_vat') {
+                $discount_price = $coi->total_price;
+            }
+            if ($discount_type == 'without_vat') {
+                $discount_price = $coi->base_price;
+            }
+        }
+
         $data = [
             'group' => $coi->parent->name,
             'parent_id' => $coi->parent_id,
@@ -176,6 +198,10 @@ class ApiController extends Controller
             'balance_qty' => $current_stock,
             'is_readonly' => $coi->price > 0 ? true : false,
             'product_discount' => isset($item) ? $item->discount : 0,
+            'vat' => $coi->vat ?? 0,
+            'discount_price' => $discount_price ?? 0,
+            'total_price' => $coi->total_price > 0 ? $coi->total_price : $coi->price,
+            'base_price' => $coi->base_price > 0 ? $coi->base_price : $coi->price,
         ];
         return $data;
     }
@@ -245,6 +271,7 @@ class ApiController extends Controller
             $product['price'] = $product->price;
             $product['rate'] = $product->price;
             $product['selling_price'] = '';
+            $product['vat'] = $product->vat;
         }
         return [
             'products' => $products
