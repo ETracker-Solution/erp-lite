@@ -791,6 +791,10 @@
                         var vm = this
                         return Number(vm.total_discount_amount) + Number(vm.special_discount_amount) + Number(this.productWiseDiscount) + Number(this.membership_discount_amount)
                     },
+                    withoutIndivitualDiscountAmount: function () {
+                        var vm = this
+                        return Number(vm.total_discount_amount) + Number(vm.special_discount_amount) + Number(this.membership_discount_amount);
+                    },
                     membership_discount_amount: function () {
                         var vm = this
                         return vm.total_bill > vm.minimum_purchase_amount ? (Number(vm.total_bill) * Number(vm.membership_discount_percentage) / 100) : 0
@@ -800,15 +804,26 @@
                     },
                     vatTotal: function () {
                         return  Math.round(this.items.reduce((total, item) => {
-                            return total + ((item.quantity * item.vat))
+                            let result = this.baseprice(item);
+                            return total + ((item.quantity * result.vat))
                         }, 0))
                     },
                     taxableAmount: function () {
-
-                        return Math.round(this.items.reduce((total, item) => {
-                            return total + this.itemtotal(item,item.base_price)
-                        }, 0))
+                        // return Math.round(this.items.reduce((total, item) => {
+                        //     return total + this.itemtotal(item,item.base_price)
+                        // }, 0))
+                        return (this.total_payable_bill - this.vatTotal) - (Number(this.delivery_charge) + Number(this.additional_charge));
                     },
+                    discountFromGrandTotal: function () {
+                        var vm = this
+                        let totalItem = vm.items.filter(item => item.quantity > 0).length;
+                        let discountedPriceItemWise = 0;
+                        if(vm.withoutIndivitualDiscountAmount > 0){
+                            discountedPriceItemWise = Number(vm.withoutIndivitualDiscountAmount) / Number(totalItem) 
+                        }
+                        return discountedPriceItemWise;
+                    },
+                    
                 },
                 methods: {
                     fetch_item() {
@@ -884,6 +899,10 @@
                                             vat: product_details.vat,
                                             total_price_with_vat : product_details.total_price,
                                             base_price : product_details.base_price,
+                                            vat_type : product_details.vat_type,
+                                            vat_amount : product_details.vat_amount,
+                                            vat_discount_type : product_details.discount_type,
+
                                         });
                                         vm.isDisabled = false
 
@@ -922,7 +941,6 @@
                     },
                     itemtotal: function (index,price = false) {
                         if(!price){
-                            console.log(index.price);
 
                             price = index.price
                         }
@@ -1065,6 +1083,8 @@
                             }
                             vm.total_discount_value = 0;
                         }
+                        this.vatTotal;
+                        this.taxableAmount;
 
                     },
                     setDiscountType(discountType) {
@@ -1159,6 +1179,44 @@
                             vm.returnNumber = "";
                             return false;
                         });
+                    },
+                    baseprice: function (item) {
+                        let vatType = item.vat_type;
+                        let vatAmount = item.vat_amount;
+                        let price = item.price;
+                        let discountedPriceItemWise = this.discountFromGrandTotal;
+
+                        if (discountedPriceItemWise > 0) {
+                            price = price - discountedPriceItemWise;
+                        }
+
+                        if (vatType == 'including') {
+                            basePrice = price / (1 + vatAmount / 100) ;
+
+                            if (item.vat_discount_type == 'with_vat'){
+                                basePrice = (price - item.discountAmount ) / (1 + vatAmount / 100) ;
+                            }else if(item.vat_discount_type == 'without_vat'){
+                                basePrice = basePrice - item.discountAmount ;
+                            }
+                            vat = (basePrice * vatAmount) / 100;
+                        } else if (vatType == 'excluding') {
+                            basePrice = price;
+                            if (item.vat_discount_type == 'with_vat'){
+                                vat = (basePrice * vatAmount) / 100;
+                                basePrice = (basePrice + vat) - item.discountAmount ;
+                            } else if (item.vat_discount_type == 'without_vat'){
+                                basePrice = basePrice - item.discountAmount ;
+                            }
+                            vat = (basePrice * vatAmount) / 100;
+                        } else {
+                            basePrice = price;
+                            vat = 0;
+                        }
+
+                        return {
+                            basePrice: basePrice,
+                            vat: vat,
+                        };
                     },
                 },
                 updated() {

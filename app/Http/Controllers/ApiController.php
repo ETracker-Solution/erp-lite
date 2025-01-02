@@ -202,6 +202,9 @@ class ApiController extends Controller
             'discount_price' => $discount_price ?? 0,
             'total_price' => $coi->total_price > 0 ? $coi->total_price : $coi->price,
             'base_price' => $coi->base_price > 0 ? $coi->base_price : $coi->price,
+            'vat_amount' => $coi->vat_amount,
+            'vat_type' => $coi->vat_type,
+            'discount_type' => $discount_type ?? 'with_vat',
         ];
         return $data;
     }
