@@ -755,7 +755,7 @@ function showUserInfo($user)
     return $user->name . ' (' . $user->email . ') ';
 }
 
-function calculateVat(float $price, string $vatType, float $vatAmount): array
+function calculateVat(float $price, string $vatType = null, float $vatAmount = null): array
 {
     if (strtolower($vatType) === 'including') {
         $basePrice = $price / (1 + $vatAmount / 100);

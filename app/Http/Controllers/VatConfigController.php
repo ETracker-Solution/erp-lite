@@ -31,34 +31,37 @@ class VatConfigController extends Controller
     public function store(Request $request)
     {
         $settings =  $request->settings;
+        // dd($settings);
         DB::beginTransaction();
         try {
-            if (isset($settings['global_vat_type']) && isset($settings['global_vat_amount'])) {
+            if (array_key_exists('global_vat_type', $settings) && array_key_exists('global_vat_amount', $settings)) {
                 $inventories = ChartOfInventory::whereIn('type', ['item', 'group'])
                     ->where('rootAccountType', 'FG')->get();
+
+                $inventories->each(function ($inventory) use ($settings) {
+                    if ($inventory->type === 'group') {
+
+                        $inventory->update([
+                            'vat_type' => $settings['global_vat_type'],
+                            'vat_amount' => $settings['global_vat_amount'],
+                        ]);
+                    } elseif ($inventory->type === 'item') {
+
+                        $inventory->vat_type = $settings['global_vat_type'];
+                        $inventory->vat_amount = $settings['global_vat_amount'];
+
+                        if ($inventory->price !== null) {
+                            $calculateVat = calculateVat($inventory->price, $settings['global_vat_type'], $settings['global_vat_amount']);
+                        }
+
+                        $inventory->base_price = $calculateVat['base_price'];
+                        $inventory->vat = $calculateVat['vat'];
+                        $inventory->total_price = $calculateVat['total'];
+
+                        $inventory->save();
+                    }
+                });
             }
-
-            $inventories->each(function ($inventory) use ($settings) {
-                if ($inventory->type === 'group') {
-
-                    $inventory->update([
-                        'vat_type' => $settings['global_vat_type'],
-                        'vat_amount' => $settings['global_vat_amount'],
-                    ]);
-                } elseif ($inventory->type === 'item') {
-
-                    $inventory->vat_type = $settings['global_vat_type'];
-                    $inventory->vat_amount = $settings['global_vat_amount'];
-
-                    $calculateVat = calculateVat($inventory->price, $settings['global_vat_type'], $settings['global_vat_amount']);
-
-                    $inventory->base_price = $calculateVat['base_price'];
-                    $inventory->vat = $calculateVat['vat'];
-                    $inventory->total_price = $calculateVat['total'];
-
-                    $inventory->save();
-                }
-            });
 
             foreach ($settings as $key => $value) {
                 storeValue($key, $value);
