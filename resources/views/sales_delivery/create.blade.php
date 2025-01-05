@@ -80,7 +80,7 @@
                                             <div class="col-3">
                                                 <div class="form-group">
                                                     <label for="">Delivery Invoice Number</label>
-                                                    <select name="sale_id" id="" class="form-control select2" v-model="sale_id"
+                                                    <select name="sale_id" id="" class="form-control" v-model="sale_id"
                                                             @change="getAllData">
                                                         <option value="">None</option>
                                                         @foreach($sales as $sale)
