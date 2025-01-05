@@ -23,86 +23,49 @@ class OutletDashboardController extends Controller
     public function outletDashboard()
     {
         $outlet_id = Auth::user()->employee->outlet_id;
+
         $store_ids = Store::where(['doc_type' => 'outlet', 'doc_id' => $outlet_id])->pluck('id');
 
-        $wastage_amount = InventoryAdjustment::whereIn('store_id', $store_ids)->whereDate('date',Carbon::today()->subDay()->format('Y-m-d'))->sum('subtotal');
+        $wastage_amount = InventoryAdjustment::whereIn('store_id', $store_ids)->whereDate('date', now()->subDay())->sum('subtotal');
 
-        $requisition_deliveries = RequisitionDelivery::whereHas('requisition', function ($query) use($outlet_id) {
+        $requisition_deliveries = RequisitionDelivery::whereHas('requisition', function ($query) use ($outlet_id) {
             $query->where(['outlet_id' => $outlet_id]);
         })->where(['type' => 'FG', 'status' => 'completed'])->get();
 
         $requisition_deliveries_count = count($requisition_deliveries);
 
-        $otherOutletSales = OthersOutletSale::where('outlet_id','!=',$outlet_id)->where(['status' => 'pending','delivery_point_id' => $outlet_id])->count();
+        $otherOutletSales = OthersOutletSale::where('outlet_id', '!=', $outlet_id)
+            ->where(['status' => 'pending', 'delivery_point_id' => $outlet_id])
+            ->count();
 
-        $products = ChartOfInventory::where(['type' => 'item', 'rootAccountType' => 'FG','status'=>'active'])->count();
-
-        $lastMonthExpense = 0;
-        $currentMonthExpense = 0;
-        $expensePercentage = $lastMonthExpense === 0 ? 100 : (100 / $lastMonthExpense) * $currentMonthExpense;
+        $products = ChartOfInventory::where(['type' => 'item', 'rootAccountType' => 'FG', 'status' => 'active'])->count();
 
         $currentDate = Carbon::now();
-        $startDate = $currentDate->copy()->subMonth()->startOfMonth();
-        $endDate = $currentDate->copy()->subMonth()->endOfMonth();
-        $noOfWeeks = $currentDate->copy()->subMonth()->weekOfMonth;
-        $totalDays = $startDate->daysInMonth;
 
-        $currentMonth = Carbon::now()->month;
-        $currentYear = Carbon::now()->year;
-
-        $currentMonthAmount = InventoryAdjustment::with('store')->where('transaction_type', 'decrease')->whereMonth('created_at', $currentMonth)
-            ->whereYear('created_at', $currentYear)
+        $currentMonthAmount = InventoryAdjustment::with('store')
+            ->where('transaction_type', 'decrease')
+            ->whereMonth('created_at', $currentDate->month)
+            ->whereYear('created_at', $currentDate->month)
             ->whereHas('store', function ($query) use ($outlet_id) {
                 $query->where('doc_type', 'outlet')
-                      ->where('doc_id', $outlet_id);
+                    ->where('doc_id', $outlet_id);
             })
             ->sum('subtotal');
 
-        $lastMonth = Carbon::now()->subMonth()->month;
-        $lastYear = Carbon::now()->subMonth()->year;
+        $lastMonth = Carbon::now()->subMonth();
 
-        $lastMonthAmount = InventoryAdjustment::with('store')->where('transaction_type','decrease')->whereMonth('created_at', $lastMonth)
-        ->whereYear('created_at', $lastYear)
-        ->whereHas('store', function ($query) use ($outlet_id) {
+        $lastMonthAmount = InventoryAdjustment::with('store')
+            ->where('transaction_type', 'decrease')
+            ->whereMonth('created_at', $lastMonth->month)
+            ->whereYear('created_at', $lastMonth->year)
+            ->whereHas('store', function ($query) use ($outlet_id) {
                 $query->where('doc_type', 'outlet')
-                      ->where('doc_id', $outlet_id);
+                    ->where('doc_id', $outlet_id);
             })
             ->sum('subtotal');
 
-        // Calculate the number of days in each part
-        $daysPerPart = ceil($totalDays / $noOfWeeks);
-
-        // Initialize an array to store sales data for each part
-        $parts = [];
-        $lastMonthSaleAmount = 0;
-
-        // Pre-fetch sales data for the entire date range
-        $salesData = Sale::where('outlet_id', $outlet_id)
-            ->whereBetween('created_at', [$startDate, $endDate])
-            ->select('created_at', 'grand_total')
-            ->get();
-
-        // Iterate over each part
-        for ($part = 0; $part < $noOfWeeks; $part++) {
-            // Calculate the start and end dates of the current part
-            $partStartDate = $startDate->copy()->addDays($part * $daysPerPart);
-            $partEndDate = $partStartDate->copy()->addDays($daysPerPart - 1)->endOfDay();
-
-            if ($partEndDate->gt($endDate)) {
-                $partEndDate = $endDate->copy()->endOfDay();
-            }
-
-            // Filter the sales data for the current part
-            $salesTotal = $salesData->filter(function ($sale) use ($partStartDate, $partEndDate) {
-                return $sale->created_at->between($partStartDate, $partEndDate);
-            })->sum('grand_total');
-
-            $parts[] = $salesTotal;
-            $lastMonthSaleAmount += $salesTotal;
-        }
 
         $totalDiscountToday = Sale::where('outlet_id', $outlet_id)->whereDate('created_at', Carbon::today())->sum('discount');
-
 
         // Get the current year and month
         $currentYear = $currentDate->year;
@@ -110,44 +73,38 @@ class OutletDashboardController extends Controller
 
         $allOutlets = Outlet::all();
 
-        // Fetch discounts for the current month and year
         $salesData = Sale::whereYear('created_at', $currentYear)
             ->whereMonth('created_at', $currentMonth)
             ->whereIn('outlet_id', $allOutlets->pluck('id')) // Get all outlet ids
             ->select('outlet_id', DB::raw('SUM(discount) as total_discount')) // Aggregate discounts
             ->groupBy('outlet_id')
-            ->get()
-            ->keyBy('outlet_id'); // Key by outlet_id for easy access
+            ->pluck('total_discount', 'outlet_id'); // Pluck total_discount by outlet_id for efficiency
 
-// Populate the outlet-wise discount array
-        foreach ($allOutlets as $ol) {
-            $outletWiseDiscount['outletName'][] = $ol->name;
-            $outletWiseDiscount['discount'][] = $salesData->get($ol->id)->total_discount ?? 0; // Use null coalescing for safety
-        }
-        // Initialize the product-wise stock array
+        $outletWiseDiscount = [
+            'outletName' => $allOutlets->pluck('name')->toArray(), // Extract outlet names
+            'discount' => $allOutlets->map(fn($outlet) => $salesData[$outlet->id] ?? 0)->toArray(), // Map discounts or default to 0
+        ];
         $productWiseStock = [
             'products' => [],
             'stock' => [],
         ];
         $totalStock = 0;
 
-// Fetch all products with the specified criteria
-        $allProducts = ChartOfInventory::where(['type' => 'item', 'rootAccountType' => 'FG'])->get();
+        $allProducts = ChartOfInventory::where(['type' => 'item', 'rootAccountType' => 'FG',])->where('price', '>', 0)->get();
 
-// Pre-fetch inventory transaction data for the relevant products and stores
         $inventoryData = InventoryTransaction::whereIn('store_id', $store_ids)
-            ->whereIn('coi_id', $allProducts->pluck('id')) // Get all product IDs
-            ->select('coi_id', DB::raw('SUM(quantity * type) as total_stock')) // Aggregate stock
+            ->whereIn('coi_id', $allProducts->pluck('id'))
+            ->select('coi_id', DB::raw('SUM(quantity * type) as total_stock'))
             ->groupBy('coi_id')
-            ->get()
-            ->keyBy('coi_id'); // Key by coi_id for easy access
+            ->pluck('total_stock', 'coi_id'); // Pluck for efficient key-value pairing
 
-// Populate the product-wise stock array
         foreach ($allProducts as $product) {
-            $stock = $inventoryData->get($product->id)->total_stock ?? 0; // Use null coalescing for safety
+            $stock = $inventoryData[$product->id] ?? 0; // Use null coalescing for missing products
             $with_price = $stock * $product->price;
+
             $productWiseStock['products'][] = $product->name;
             $productWiseStock['stock'][] = $with_price;
+
             $totalStock += $with_price;
         }
 
@@ -172,7 +129,7 @@ class OutletDashboardController extends Controller
                 ->make(true);
         }
 
-        $customersWithPoint = Customer::where('type','regular')
+        $customersWithPoint = Customer::where('type', 'regular')
             ->has('membership')
             ->with(['membership', 'sales'])
             ->join('memberships', 'customers.id', '=', 'memberships.customer_id')
@@ -180,42 +137,27 @@ class OutletDashboardController extends Controller
             ->select('customers.*')
             ->take(10) // Limit to the top 10 customers
             ->get();
+
         $latestFiveSales = Sale::where('outlet_id', $outlet_id)->take(5)->latest()->get();
         $todaySale = Sale::where('outlet_id', $outlet_id)->whereDate('created_at', Carbon::now()->format('Y-m-d'))->sum('grand_total');
         $todayInvoice = Sale::where('outlet_id', $outlet_id)->whereDate('created_at', Carbon::now()->format('Y-m-d'))->count();
-        $todayExpense = 0;
 
-        $bestProducts = [];
-        $bestSellingProducts = ChartOfInventory::where(['type' => 'item', 'rootAccountType' => 'FG'])->select('chart_of_inventories.*', DB::raw('SUM(sale_items.quantity) as total_sold'))
-            ->join('sale_items', 'chart_of_inventories.id', '=', 'sale_items.product_id')
+        $productSales = ChartOfInventory::select('chart_of_inventories.*', DB::raw('SUM(sale_items.quantity) as total_sold'))
+            ->leftJoin('sale_items', 'chart_of_inventories.id', '=', 'sale_items.product_id')
             ->join('sales', 'sale_items.sale_id', '=', 'sales.id')
-            ->whereYear('sales.created_at', '=', now()->year)
-            ->whereMonth('sales.created_at', '=', now()->month)
+            ->whereYear('sales.created_at', $currentDate->year)
+            ->whereMonth('sales.created_at', $currentDate->month)
             ->groupBy('chart_of_inventories.id')
             ->orderByDesc('total_sold')
             ->get();
 
-        $slowSellingProducts = ChartOfInventory::where(['type' => 'item', 'rootAccountType' => 'FG'])->select('chart_of_inventories.*', DB::raw('COALESCE(SUM(sale_items.quantity), 0) as total_sold'))
-            ->leftJoin('sale_items', function ($join) {
-                $join->on('chart_of_inventories.id', '=', 'sale_items.product_id')
-                    ->join('sales', 'sale_items.sale_id', '=', 'sales.id')
-                    ->whereYear('sales.created_at', '=', now()->year)
-                    ->whereMonth('sales.created_at', '=', now()->month);
-            })
-            ->groupBy('chart_of_inventories.id')
-            ->orderBy('total_sold')
-            ->limit(5)
-            ->get();
+        $bestProducts = [
+            'name' => $productSales->pluck('name')->toArray(),
+            'qty' => $productSales->pluck('total_sold')->toArray(),
+        ];
 
-        foreach ($bestSellingProducts as $product) {
-            $bestProducts['name'][] = $product->name;
-            $bestProducts['qty'][] = $product->total_sold;
-        }
+        $slowSellingProducts = $productSales->sortBy('total_sold')->take(5);
 
-        $salesCompare['month'][] = 'Last Month';
-        $salesCompare['sale'][] = $lastMonthSaleAmount;
-        $salesCompare['month'][] = 'Current Month';
-        $salesCompare['sale'][] = $currentMonthAmount;
 
         $salesWastageCompare['sales'][] = 'Last Month';
         $salesWastageCompare['wastage'][] = $lastMonthAmount;
@@ -223,10 +165,10 @@ class OutletDashboardController extends Controller
         $salesWastageCompare['wastage'][] = $currentMonthAmount;
 
         $outletPettyCashAmount = 0;
-        $outletAccounts = OutletAccount::with('coa')->where('outlet_id',$outlet_id)->get();
+        $outletAccounts = OutletAccount::with('coa')->where('outlet_id', $outlet_id)->get();
         foreach ($outletAccounts as $outletAccount) {
-            if ($outletAccount->coa->default_type == 'petty_cash'){
-                $outletPettyCashAmount =  $outletAccount->coa->transactions()->sum(DB::raw('transaction_type* amount'));
+            if ($outletAccount->coa->default_type == 'petty_cash') {
+                $outletPettyCashAmount = $outletAccount->coa->transactions()->sum(DB::raw('transaction_type* amount'));
             }
         }
 
@@ -236,8 +178,6 @@ class OutletDashboardController extends Controller
             'products' => $products,
             'wastageAmount' => round($wastage_amount),
             'latestFiveSales' => $latestFiveSales,
-            'lastMonthSales' => $parts,
-            'expensePercentage' => $expensePercentage,
             'discount' => [
                 'thisDay' => $totalDiscountToday,
                 'outletWiseDiscount' => $outletWiseDiscount
@@ -249,13 +189,11 @@ class OutletDashboardController extends Controller
             'customersWithPoint' => $customersWithPoint,
             'todaySale' => $todaySale,
             'todayInvoice' => $todayInvoice,
-            'todayExpense' => $todayExpense,
             'bestSellingProducts' => $bestProducts,
             'slowSellingProducts' => $slowSellingProducts,
-            'salesComparision' => $salesCompare,
             'salesWastageCompare' => $salesWastageCompare,
             'otherOutletSales' => $otherOutletSales,
-            'outletPettyCashAmount'=>$outletPettyCashAmount
+            'outletPettyCashAmount' => $outletPettyCashAmount
         ];
 //        return $data;
         return view('dashboard.outlet', $data);
