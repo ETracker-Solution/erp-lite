@@ -308,6 +308,30 @@ class POSController extends Controller
             $product->stock = transactionAbleStock($product, [$store->id]);
 //            $product->stock = availableInventoryBalance($product->id, $store->id);
             $product->discountable = !$product->parent->non_discountable;
+
+            $discount_price = $product->price;
+
+            if ($product->vat_type == 'including') {
+                $discount_type = getSettingValue('vat_including_item_discount');
+                if ($discount_type == 'with_vat') {
+                    $discount_price = $product->total_price;
+                }
+                if ($discount_type == 'without_vat') {
+                    $discount_price = $product->base_price;
+                }
+            }
+
+            if ($product->vat_type == 'excluding') {
+                $discount_type = getSettingValue('vat_excluding_item_discount');
+                if ($discount_type == 'with_vat') {
+                    $discount_price = $product->total_price;
+                }
+                if ($discount_type == 'without_vat') {
+                    $discount_price = $product->base_price;
+                }
+            }
+            $product->discount_type = $discount_type;
+            $product->vat_total_price = $discount_price;
         }
         return $products;
     }

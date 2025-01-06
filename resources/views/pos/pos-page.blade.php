@@ -106,6 +106,8 @@
                     <ul style="list-style-type: none; font-size:12px">
                         <li><span>Subtotal</span><span style="float: right">TK.@{{ total_bill }}</span></li>
                         <li><span>Products Discount</span><span style="float: right">TK.@{{ productWiseDiscount }}</span></li>
+                        <li><span>Taxable Amount</span><span style="float: right">TK.@{{ taxableAmount  }}</span></li>
+                        <li><span>Vat</span><span style="float: right">TK.@{{ vatTotal }}</span></li>
 
                         <li><span>Coupon Discount</span><span style="float: right"><strong><span
                                         v-if="couponCodeDiscountShowValue">( @{{ couponCodeDiscountShowValue }} )</span>@{{ couponCodeDiscountAmount ?? 'N/A' }}</strong></span>
