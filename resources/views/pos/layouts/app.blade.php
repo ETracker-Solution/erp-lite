@@ -315,6 +315,7 @@
                 },
                 total_bill: function () {
                     return this.selectedProducts.reduce((total, item) => {
+                        return total + ((item.quantity * (item.total_price_with_vat)))
                     }, 0)
                 },
                 // total_payable_bill: function () {
