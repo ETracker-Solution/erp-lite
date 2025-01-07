@@ -527,9 +527,9 @@
                     </li>
                 @endcanany
                 @canany(['sales-sales','sales-sales-report','sales-pre-orders-list','sales-pre-order-entry','sales-other-outlet-sales','sales-sales-delivery','sales-sales-exchanges',])
-                    <li class="nav-item {{ (Request::segment(1) == 'sales'|| Request::segment(1) == 'others-outlet-sales'||Request::segment(1) == 'sales-deliveries'||Request::segment(1) == 'sales-exchanges' ||Request::segment(1) == 'sale-reports'||Request::segment(1) == 'pre-orders'||Request::segment(1) == 'sales-returns' )?'menu-open':''}}">
+                    <li class="nav-item {{ (Request::segment(1) == 'sales'|| Request::segment(1) == 'others-outlet-sales'||Request::segment(1) == 'sales-deliveries'||Request::segment(1) == 'sales-exchanges' ||Request::segment(1) == 'sale-reports'||Request::segment(1) == 'pre-orders'||Request::segment(1) == 'sales-returns' || Request::segment(1) == 'sale-deleted-list' || Request::segment(1) == 'sale-deleted-show')?'menu-open':''}}">
                         <a href="#"
-                           class="nav-link {{ (Request::segment(1) == 'sales'|| Request::segment(1) == 'others-outlet-sales'||Request::segment(1) == 'sales-deliveries'||Request::segment(1) == 'sales-exchanges' ||Request::segment(1) == 'sale-reports'||Request::segment(1) == 'pre-orders'||Request::segment(1) == 'sales-returns')?' active':''}}">
+                           class="nav-link {{ (Request::segment(1) == 'sales'|| Request::segment(1) == 'others-outlet-sales'||Request::segment(1) == 'sales-deliveries'||Request::segment(1) == 'sales-exchanges' ||Request::segment(1) == 'sale-reports'||Request::segment(1) == 'pre-orders'||Request::segment(1) == 'sales-returns' || Request::segment(1) == 'sale-deleted-list' || Request::segment(1) == 'sale-deleted-show')?' active':''}}">
                             <i class="nav-icon fas fa-shopping-cart"></i>
                             <p>
                                 Sales Module
@@ -570,9 +570,9 @@
                                 </li>
                             @endcanany
                             @canany(['sales-sales','sales-other-outlet-sales','sales-sales-delivery','sales-sales-exchanges'])
-                                <li class="nav-item {{ (Request::segment(1) == 'sales' || Request::segment(1) == 'others-outlet-sales'||Request::segment(1) == 'sales-exchanges'||Request::segment(1) == 'sales-deliveries'||Request::segment(1) == 'sales-returns')?'menu-open':''}}">
+                                <li class="nav-item {{ (Request::segment(1) == 'sales' || Request::segment(1) == 'others-outlet-sales'||Request::segment(1) == 'sales-exchanges'||Request::segment(1) == 'sales-deliveries'||Request::segment(1) == 'sales-returns' ||Request::segment(1) == 'sale-deleted-list' || Request::segment(1) == 'sale-deleted-show')?'menu-open':''}}">
                                     <a href="#"
-                                       class="nav-link {{ (Request::segment(1) == 'sales' || Request::segment(1) == 'others-outlet-sales'||Request::segment(1) == 'sales-exchanges'||Request::segment(1) == 'sales-deliveries'||Request::segment(1) == 'sales-returns')?' active':''}}">
+                                       class="nav-link {{ (Request::segment(1) == 'sales' || Request::segment(1) == 'others-outlet-sales'||Request::segment(1) == 'sales-exchanges'||Request::segment(1) == 'sales-deliveries'||Request::segment(1) == 'sales-returns'||Request::segment(1) == 'sale-deleted-list' || Request::segment(1) == 'sale-deleted-show')?' active':''}}">
                                         <i class="nav-icon fa fa-folder-open"></i>
                                         <p>
                                             Sales Entry
@@ -616,6 +616,13 @@
                                                 </a>
                                             </li>
                                         @endcan
+                                        <li class="nav-item">
+                                            <a href="{{route('sale_deleted_list')}}"
+                                               class="nav-link {{ (Request::segment(1) == 'sale-deleted-list' || Request::segment(1) == 'sale-deleted-show')?' active':''}}">
+                                                <i class="far fa-circle nav-icon"></i>
+                                                <p>Deleted Sale Lists</p>
+                                            </a>
+                                        </li>
                                     </ul>
                                 </li>
                             @endcanany

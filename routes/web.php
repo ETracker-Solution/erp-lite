@@ -79,6 +79,8 @@ Route::middleware(['auth','prevent_duplicate_submission'])->group(function () {
     Route::resource('purchases', PurchaseController::class);
     Route::get('purchase-return-pdf/{id}', [App\Http\Controllers\PurchaseReturnController::class, 'pdfDownload'])->name('purchase_return.pdf');
     Route::resource('purchase-returns', \App\Http\Controllers\PurchaseReturnController::class);
+    Route::get('sale-deleted-list', [SaleController::class,'deleted_sales'])->name('sale_deleted_list');
+    Route::get('sale-deleted-show/{id}', [SaleController::class,'deleted_sales_show'])->name('deleted_sales_show');
     Route::resource('sales', SaleController::class);
 
     Route::resource('others-outlet-sales', OthersOutletSaleController::class);

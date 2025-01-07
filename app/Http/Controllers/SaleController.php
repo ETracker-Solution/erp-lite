@@ -335,7 +335,29 @@ class SaleController extends Controller
      */
     public function destroy(Sale $sale)
     {
+        // dd($sale->items);
         try {
+            DB::transaction(function () use ($sale) {
+                // dd($sale);
+                $saleCancelData = collect($sale->toArray())->except([
+                    'created_at',
+                    'updated_at',
+                    'deleted_at',
+                    'readable_sell_date_time',
+                ])->toArray();
+                $saleCancelData['cancelled_at'] = now();
+                $saleCancelData['cancelled_by'] = auth()->id();
+
+                DB::table('sale_cancels')->insert($saleCancelData);
+
+                $saleItemCancelData = collect($sale->items->toArray())->except([
+                    'created_at',
+                    'updated_at',
+                ])->toArray();
+
+                DB::table('sale_item_cancels')->insert($saleItemCancelData);
+
+
             $customer = $sale->customer;
             $membership = $customer->membership;
             $membershipPointHistory = $customer->membershipPointHistories()->where('sale_id', $sale->id)->first();
@@ -343,10 +365,12 @@ class SaleController extends Controller
                 'doc_type' => 'POS',
                 'doc_id' => $sale->id,
             ])->delete();
+
             if ($membershipPointHistory) {
                 $membership->decrement('point', $membershipPointHistory->point);
                 $membershipPointHistory->delete();
             }
+
             $preOrder = $sale->preOrder;
             if ($preOrder) {
                 $preOrder->delete();
@@ -357,16 +381,20 @@ class SaleController extends Controller
                 $delivery_of_pre_order->delete();
             }
 
-            InventoryTransaction::where('doc_type','POS')->whereIn('doc_id',$sale->items()->pluck('id')->toArray())->delete();
+                InventoryTransaction::where('doc_type', 'POS')
+                ->whereIn('doc_id', $sale->items()->pluck('id')->toArray())
+                ->delete();
 
             $sale->delete();
-
-        }catch (\Exception $e) {
+            });
+        } catch (\Exception $e) {
             return $e;
         }
-        Toastr::success('Successfully Cancelled!.', '', ["progressbar" => true]);
+
+        Toastr::success('Successfully Cancelled!', '', ["progressbar" => true]);
         return redirect()->route('sales.index');
     }
+
 
     public function fetch_product_sale($id)
     {
@@ -492,5 +520,55 @@ class SaleController extends Controller
             $sale->items()->create($product->toArray());
         }
         $sale->save();
+    }
+
+    public function deleted_sales()
+    {
+        if (\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->outlet_id) {
+            $data = DB::table('sale_cancels')
+            ->where('outlet_id', \auth()->user()->employee->outlet_id)
+                ->latest('cancelled_at')
+                ->get();
+        } else {
+            $data = DB::table('sale_cancels')->latest('cancelled_at')->get();
+        }
+        if (\request()->ajax()) {
+            return DataTables::of($data)
+                ->addIndexColumn()
+                ->addColumn('action', function ($row) {
+                    return '<a href="' . route('deleted_sales_show', encrypt($row->id)) . '" class="btn btn-xs btn-primary">
+                                <i class="fas fa-folder"></i> Show
+                            </a>';
+                })
+                ->editColumn('status', function ($row) {
+                    return showStatus($row->status);
+                })
+                ->rawColumns(['action', 'status'])
+                ->make(true);
+        }
+        return view('sale.deleted_sale');
+    }
+
+    public function deleted_sales_show($id)
+    {
+        $sale = DB::table('sale_cancels')
+        ->join('users', 'sale_cancels.created_by', '=', 'users.id')
+        ->join('customers', 'sale_cancels.customer_id', '=', 'customers.id')
+        ->join('outlets', 'sale_cancels.outlet_id', '=', 'outlets.id')
+        ->where('sale_cancels.id', decrypt($id))
+            ->select(
+                'sale_cancels.*',
+                'users.name as user_name',
+                'users.email as user_email',
+                'customers.name as customer_name',
+                'customers.mobile as customer_phone',
+                'customers.email as customer_email',
+                'customers.address as customer_address',
+                'outlets.name as outlet_name',
+                'outlets.address as outlet_location'
+            )->first();
+        $items = DB::table('sale_item_cancels')->where('sale_id', $sale->id)->get();
+        // dd($items);
+        return view('sale.deleted-sales-show', compact('sale', 'items'));
     }
 }
