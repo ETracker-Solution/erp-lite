@@ -82,6 +82,10 @@
                                 </div>
                             </div>
                             <button class="btn btn-primary mb-2" type="button" id="search-btn">Search</button>
+                            <form method="GET" action="{{route('pre-order.excel.export','xlsx')}}" id="excelForm">
+                                @csrf
+                                <button class="btn btn-success mb-2" type="button" id="excel-btn">EXCEL</button>
+                            </form>
                             <table id="dataTable" class="table table-bordered">
                                 {{-- show from datatable--}}
                             </table>
@@ -386,5 +390,21 @@
             $('.do-production').attr('disabled', true)
             form.submit()
         })
+
+        $(document).on("click", "#excel-btn", function (e) {
+            e.preventDefault();
+            
+            let form = $("#excelForm");
+           
+            let filterBy = $('select[name="filter_by"]');
+            let status = $('select[name="status"]');
+            let outletId = $('select[name="outlet_id"]');
+            let fromDate = $('input[name="from_date"]');
+            let toDate = $('input[name="to_date"]');
+            
+            form.append(filterBy,status,outletId,fromDate,fromDate,toDate)
+            form.submit();
+        });
+
     </script>
 @endpush

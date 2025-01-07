@@ -21,9 +21,41 @@ use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Support\Facades\DB;
 use niklasravnsborg\LaravelPdf\Facades\Pdf;
 use Yajra\DataTables\Facades\DataTables;
+use App\Services\ExportService;
+use Carbon\Carbon;
 
 class ProductionController extends Controller
 {
+    protected $exportService;
+
+    public function __construct(ExportService $exportService)
+    {
+        $this->exportService = $exportService;
+    }
+    public function exportFGProduction($type)
+    {
+        $data = ProductionItem::with('coi.parent', 'production.batch')->latest();
+
+        if (\request()->filled('date_range')) {
+            [$from_date, $to_date] = explode(' to ', request()->date_range);
+
+            $from_date = Carbon::parse($from_date)->format('Y-m-d');
+            $to_date = Carbon::parse($to_date)->format('Y-m-d');
+
+            $data = $data->whereHas('production', function ($query) use ($from_date, $to_date) {
+                $query->whereDate('date', '>=', $from_date)
+                    ->whereDate('date', '<=', $to_date);
+            });
+        }
+
+        $exportableData = [
+            'productions' => $data->get()
+        ];
+        $viewFileName = 'fg_production';
+        $filenameToDownload = date('ymdHis') . '_fg_production';
+        return $this->exportService->exportFile($type, $viewFileName, $exportableData, $filenameToDownload, 'L'); // L stands for Landscape, if Portrait needed, just remove this params
+
+    }
     public function stock($production_id)
     {
         DB::beginTransaction();

@@ -38,6 +38,11 @@
                                 </div>
                             </div>
 
+                            <form method="GET" action="{{route('fg.production.export','xlsx')}}" id="excelForm">
+                                @csrf
+                                <button class="btn btn-success mb-2" type="button" id="excel-btn">EXCEL</button>
+                            </form>
+
                             <table id="dataTable" class="table table-bordered">
                                 {{-- show from datatable--}}
                             </table>
@@ -164,5 +169,16 @@
         function recallDatatable() {
             $('#dataTable').DataTable().draw(true);
         }
+
+        $(document).on("click", "#excel-btn", function (e) {
+            e.preventDefault();
+            
+            let form = $("#excelForm");
+           
+            let date_range = $('input[name="date_range"]');
+            
+            form.append(date_range)
+            form.submit();
+        });
     </script>
 @endpush
