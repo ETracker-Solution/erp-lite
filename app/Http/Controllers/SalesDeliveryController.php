@@ -175,9 +175,15 @@ class SalesDeliveryController extends Controller
                 if ($paymentMethod['method'] == 'rocket') {
                     addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'rocket'), getAccountsReceiveableGLId());
                 }
-                if ($paymentMethod['method'] == 'bank') {
-                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'bank'), getAccountsReceiveableGLId());
+                if ($paymentMethod['method'] == 'DBBL') {
+                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'DBBL'), getAccountsReceiveableGLId());
                 }
+                if ($paymentMethod['method'] == 'UCB') {
+                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'UCB'), getAccountsReceiveableGLId());
+                }
+//                if ($paymentMethod['method'] == 'bank') {
+//                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'bank'), getAccountsReceiveableGLId());
+//                }
                 if ($paymentMethod['method'] == 'nagad') {
                     addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'nagad'), getAccountsReceiveableGLId());
                 }
