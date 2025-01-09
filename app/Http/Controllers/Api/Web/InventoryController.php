@@ -57,21 +57,33 @@ class InventoryController extends Controller
                 $inventory->unit_id = \request()->unit;
                 $inventory->status = \request()->status;
                 $inventory->price = \request()->price;
+                $inventory->vat_type = \request()->vat_type;
+                $inventory->vat_amount = \request()->vat_amount;
+
+                $calculateVat = calculateVat(\request()->price, \request()->vat_type, \request()->vat_amount);
+
+                $inventory->base_price = $calculateVat['base_price'];
+                $inventory->vat = $calculateVat['vat'];
+                $inventory->total_price = $calculateVat['total'];
+            }else if($inventory->type == 'group'){
+                $items = ChartOfInventory::where('parent_id', $inventory->id)->get();
+                foreach ($items as $item){
+                    $calculateVat = calculateVat($item->price, \request()->vat_type, \request()->vat_amount);
+                    $item->vat_type = \request()->vat_type;
+                    $item->vat_amount = \request()->vat_amount;
+                    $item->base_price = $calculateVat['base_price'];
+                    $item->vat = $calculateVat['vat'];
+                    $item->total_price = $calculateVat['total'];
+                    $item->updated_by = auth()->user()->id;
+                    $item->save();
+                }
             }
-            $inventory->vat_type = \request()->vat_type;
-            $inventory->vat_amount = \request()->vat_amount;
-
-            $calculateVat = calculateVat(\request()->price, \request()->vat_type, \request()->vat_amount);
-
-            $inventory->base_price = $calculateVat['base_price'];
-            $inventory->vat = $calculateVat['vat'];
-            $inventory->total_price = $calculateVat['total'];
 
             // dd($inventory);
-            
+
             $inventory->updated_by = auth()->user()->id;
             $inventory->update();
-            
+
         } catch (\Exception $exception) {
             return response()->json([
                 'message' => $exception->getMessage(),
@@ -88,7 +100,7 @@ class InventoryController extends Controller
     {
         try {
             $inventory = $this->base_model->find($id);
-            
+
             $calculateVat = calculateVat(\request()->price, \request()->vat_type, \request()->vat_amount);
 
             $inventory->subChartOfInventories()->create([
