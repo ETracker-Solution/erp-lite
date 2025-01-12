@@ -110,7 +110,7 @@
                                             placeholder="Select VAT Type"
                                             :isRequired="true"
                                             :isReadonly="false"
-                                            :options="['including' => 'Including', 'excluding' => 'Excluding', 'zero' => 'Zero Vat']"
+                                            :options="['including', 'excluding', 'zero']"
                                             defaultValue=""
                                         />
                                     </div>

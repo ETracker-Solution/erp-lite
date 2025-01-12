@@ -38,7 +38,7 @@ class InventoryController extends Controller
             'base_price' => $inventory->base_price,
             'vat' => $inventory->vat,
             'total_price'=> $inventory->total,
-            'vat_type' =>  $inventory->vat_type,
+            'vat_type' =>  strtolower($inventory->vat_type),
             'vat_amount' => $inventory->vat_amount,
 
         ];
