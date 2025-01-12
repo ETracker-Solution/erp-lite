@@ -298,7 +298,8 @@
                 waiter_id: '',
                 selectedSpecialDiscount: false,
                 customer_search_string: '',
-                isDisabled: false
+                isDisabled: false,
+                orderInvoiceNumber:''
             },
             mounted() {
                 this.getAllProducts();
@@ -383,7 +384,7 @@
             methods: {
                 getAllOrders() {
                     var vm = this;
-                    axios.get(this.config.get_all_orders_url)
+                    axios.get(this.config.get_all_orders_url+'?inv='+vm.orderInvoiceNumber)
                         .then(function (response) {
                             vm.orders = (response.data);
                         }).catch(function (error) {

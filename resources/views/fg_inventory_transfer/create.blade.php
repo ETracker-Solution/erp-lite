@@ -216,6 +216,7 @@
                                                                 <input type="number" v-model="row.quantity"
                                                                        :name="'products['+index+'][quantity]'"
                                                                        class="form-control input-sm"
+                                                                       step="0.01"
                                                                        @change="valid(row);itemtotal(row)" required>
                                                             </td>
                                                             <td class="text-right">

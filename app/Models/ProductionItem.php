@@ -15,4 +15,9 @@ class ProductionItem extends Model
     {
         return $this->belongsTo(ChartOfInventory::class, 'coi_id');
     }
+
+    public function production(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Production::class, 'production_id');
+    }
 }

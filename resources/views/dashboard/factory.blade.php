@@ -83,23 +83,6 @@
         <div class="row match-height">
             <div class="col-lg-4 col-12">
                 <div class="row match-height">
-                    <!-- Bar Chart - Orders -->
-                    {{-- <div class="col-lg-6 col-md-3 col-6">
-                        <div class="card">
-                            <div class="card-header bg-info">
-                                <h3 class="card-title">{{ $currentMonthExpense }}</h3>
-                                <div class="card-tools">
-                                    Expenses
-                                </div>
-                            </div>
-                            <div class="card-body pb-50">
-                                <div id="expense-radial-bar-chart" class="my-2"></div>
-                                <p>{{ $expenseMessage }}</p>
-                            </div>
-                        </div>
-                    </div> --}}
-                    <!--/ Bar Chart - Orders -->
-
                     <!-- Line Chart - Profit -->
                     <div class="col-xl-12 col-12">
                         <div class="card card-tiny-line-stats">
@@ -237,45 +220,6 @@
                 </div>
             </div>
         </div>
-{{--        <div class="row match-height">--}}
-{{--            <div class="col-xl-12 col-12">--}}
-{{--                <div class="card">--}}
-{{--                    <div class="card-header bg-info">--}}
-{{--                        <h3 class="card-title">Outlet Requisition</h3>--}}
-{{--                        <div class="card-tools">--}}
-{{--                            Total {{$monthlyRequisitions->count()}} Requisition in this Month--}}
-{{--                        </div>--}}
-{{--                    </div>--}}
-{{--                    <div class="card-body">--}}
-{{--                        <div class="table-responsive">--}}
-{{--                            <table class="table">--}}
-{{--                                <thead>--}}
-{{--                                <tr>--}}
-{{--                                    <th>ID</th>--}}
-{{--                                    <th>Outlet</th>--}}
-{{--                                    <th>Status</th>--}}
-{{--                                    <th>Date</th>--}}
-{{--                                    <th>Action</th>--}}
-{{--                                </tr>--}}
-{{--                                </thead>--}}
-{{--                                <tbody>--}}
-{{--                                @foreach($monthlyRequisitions as $row)--}}
-{{--                                    <tr>--}}
-{{--                                        <td>{{$loop->iteration}}</td>--}}
-{{--                                        <td> {{$row->fromStore->name ?? ''}}</td>--}}
-{{--                                        <td>{!! showStatus($row->status) !!}</td>--}}
-{{--                                        <td>{{$row->created_at->format('d-m-Y')}}</td>--}}
-{{--                                        <td><a href="{{ route('requisitions.show', encrypt($row->id)) }}" class="btn btn-primary btn-sm"><i class="fa fa-eye"></i></a></td>--}}
-{{--                                    </tr>--}}
-{{--                                @endforeach--}}
-{{--                                </tbody>--}}
-{{--                            </table>--}}
-{{--                        </div>--}}
-{{--                    </div>--}}
-
-{{--                </div>--}}
-{{--            </div>--}}
-{{--        </div>--}}
     </section>
 @endsection
 <?php
@@ -705,35 +649,6 @@
         });
     </script>
     <script>
-        new Chart("sale-purchase-expense-chart", {
-            type: "doughnut",
-            data: {
-                labels: JSON.parse('<?= json_encode($outletWiseWastage['outlet']??'Not Found') ?>'),
-                datasets: [{
-                    backgroundColor: [
-                        "#b91d47",
-                        "#00aba9",
-                        "#2b5797",
-                        "#e8c3b9",
-                        "#1e7145"
-                    ],
-                    data: JSON.parse('<?= json_encode($outletWiseWastage['total']??0) ?>'),
-                }]
-            },
-            options: {
-                title: {
-                    display: false,
-                    text: "World Wide Wine Production 2018"
-                },
-                legend: {
-                    display: false
-                },
-                responsive: true,
-                maintainAspectRatio: false
-            }
-        });
-    </script>
-    <script>
         new Chart("best-selling-product-chart", {
             type: 'horizontalBar',
             data: {
@@ -804,77 +719,6 @@
                 }
             }
         });
-    </script>
-    <script>
-        var $goalOverviewChart = document.querySelector('#expense-radial-bar-chart');
-        var goalOverviewChartOptions;
-        var goalOverviewChart;
-        goalOverviewChartOptions = {
-            chart: {
-                height: 200,
-                type: 'radialBar',
-                sparkline: {
-                    enabled: true
-                },
-                dropShadow: {
-                    enabled: true,
-                    blur: 3,
-                    left: 1,
-                    top: 1,
-                    opacity: 0.1
-                }
-            },
-            colors: ['#51e5a8'],
-            plotOptions: {
-                radialBar: {
-                    offsetY: -10,
-                    startAngle: -90,
-                    endAngle: 90,
-                    hollow: {
-                        size: '60%'
-                    },
-                    track: {
-                        background: '#ebe9f1',
-                        strokeWidth: '30%'
-                    },
-                    dataLabels: {
-                        name: {
-                            show: false
-                        },
-                        value: {
-                            color: '#5e5873',
-                            fontSize: '1rem',
-                            fontWeight: '600',
-                            paddingTop: 0
-                        }
-                    }
-                }
-            },
-            fill: {
-                type: 'gradient',
-                gradient: {
-                    shade: 'dark',
-                    type: 'horizontal',
-                    shadeIntensity: 0.5,
-                    gradientToColors: [window.colors.solid.success],
-                    inverseColors: true,
-                    opacityFrom: 1,
-                    opacityTo: 1,
-                    stops: [0, 100]
-                }
-            },
-            series: ["{{ $expensePercentage }}"],
-            stroke: {
-                lineCap: 'round'
-            },
-            grid: {
-                padding: {
-                    bottom: 30
-                }
-            }
-        };
-        goalOverviewChart = new ApexCharts($goalOverviewChart, goalOverviewChartOptions);
-        goalOverviewChart.render();
     </script>
 
 {{--    <script>--}}

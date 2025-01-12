@@ -126,8 +126,8 @@
                                 </tr>
                                 <tr>
                                     <td colspan="5"></td>
-                                    <td class="text-left">Delivery Charge:</td>
-                                    <td class="text-right">{{ $sale->delivery_charge }} </td>
+                                    <td class="text-left">Additional Charge:</td>
+                                    <td class="text-right">{{ $sale->additional_charge }} </td>
                                 </tr>
                                 <tr>
                                     <td colspan="5"></td>

@@ -77,7 +77,7 @@
                                                             <div class="form-group">
                                                                 <label for="credit_account_id">Transfer From</label>
                                                                 <select class="form-control select2" name="credit_account_id"
-                                                                    id="credit_account_id">
+                                                                    id="credit_account_id" readonly>
                                                                     <option value="">---Select Account---</option>
                                                                     @foreach ($chartOfAccounts as $row)
                                                                         <option value="{{ $row->id }}" {{ old('credit_account_id') == $row->id ? 'selected' : '' }}>{{ $row->name }}

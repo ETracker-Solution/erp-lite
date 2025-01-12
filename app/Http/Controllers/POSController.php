@@ -204,7 +204,7 @@ class POSController extends Controller
                     addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'Bkash'), getAccountsReceiveableGLId());
                 }
                 if ($paymentMethod['method'] == 'cash') {
-                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id,), getAccountsReceiveableGLId());
+                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id), getAccountsReceiveableGLId());
                 }
                 if ($paymentMethod['method'] == 'point') {
                     redeemPoint($sale->id, $customer_id, $paymentMethod['amount']);
@@ -236,13 +236,13 @@ class POSController extends Controller
             DB::rollBack();
             $message = $error->getMessage();
             Log::emergency("File:" . $error->getFile() . "Line:" . $error->getLine() . "Message:" . $error->getMessage());
-            if ($error->getCode() == 23000){
+            if ($error->getCode() == 23000) {
                 $message = 'Please Set Account Config';
             }
 
-            return response()->json(['success'=>false,'message' => $message], 500);
+            return response()->json(['success' => false, 'message' => $message], 500);
         }
-        return response()->json(['success'=>true,'message' => 'success', 'sale' => $sale]);
+        return response()->json(['success' => true, 'message' => 'success', 'sale' => $sale]);
     }
 
     /**
@@ -292,21 +292,49 @@ class POSController extends Controller
 
     public function getAllProducts(Request $request)
     {
-        $products = ChartOfInventory::where(['type' => 'item', 'status' => 'active', 'rootAccountType' => 'FG']);
-        if ($request->category && $request->category != null) {
-            $products->where('parent_id', $request->category);
-        }
-        if ($request->search_term && $request->search_term != null) {
-            $products->where('name', 'like', '%' . $request->search_term . '%');
-        }
-        $products = $products->get();
-
-        $outlet_id = \auth('web')->user()->employee->outlet_id;
-        $outlet = Outlet::find($outlet_id);
+        $outlet = auth('web')->user()->employee->outlet;
         $store = Store::where(['doc_type' => 'outlet', 'doc_id' => $outlet->id])->first();
-        foreach ($products as $product) {
-            $product->stock = transactionAbleStock($product, [$store->id]);
-//            $product->stock = availableInventoryBalance($product->id, $store->id);
+        $storeId = $store->id;
+
+        // Fetch products with the necessary filters
+        $productsQuery = ChartOfInventory::with('parent') // Eager load the parent relationship
+        ->where([
+            'type' => 'item',
+            'status' => 'active',
+            'rootAccountType' => 'FG'
+        ])
+            ->where('price', '>', 0)
+            ->when($request->category, function ($query, $category) {
+                return $query->where('parent_id', $category);
+            })
+            ->when($request->search_term, function ($query, $searchTerm) {
+                return $query->where('name', 'like', '%' . $searchTerm . '%');
+            });
+
+        $products = $productsQuery->get();
+        $productIds = $products->pluck('id'); // Get product IDs for batch fetching
+
+        // Fetch all necessary data in batches for the products
+        $inventoryQuantities = getInventoryQuantities($productIds, $storeId);
+        $requisitionQuantities = getRequisitionQuantities($productIds, $storeId);
+        $preOrderQuantities = getPreOrderQuantities($productIds, $storeId);
+        $transferQuantities = getTransferQuantities($productIds, $storeId);
+
+        // Map the data to the products
+        $products->map(function ($product) use (
+            $inventoryQuantities, $requisitionQuantities, $preOrderQuantities, $transferQuantities
+        ) {
+            $productId = $product->id;
+
+            $originalStock = $inventoryQuantities[$productId] ?? 0;
+            $requisitionDelivered = $requisitionQuantities[$productId] ?? 0;
+            $preOrderDelivered = $preOrderQuantities[$productId] ?? 0;
+            $inventoryTransferred = $transferQuantities[$productId] ?? 0;
+
+            $stock = $originalStock - $requisitionDelivered - $preOrderDelivered - $inventoryTransferred;
+
+            // Add stock and discountable status to the product
+            $product->stock = max($stock, 0);
             $product->discountable = !$product->parent->non_discountable;
 
             $discount_price = $product->price;
@@ -332,13 +360,37 @@ class POSController extends Controller
             }
             $product->discount_type = $discount_type;
             $product->vat_total_price = $discount_price;
-        }
+            return $product;
+        });
+
         return $products;
     }
 
+//    public function getAllProducts(Request $request)
+//    {
+//        $products = ChartOfInventory::where(['type' => 'item', 'status' => 'active', 'rootAccountType' => 'FG']);
+//        if ($request->category && $request->category != null) {
+//            $products->where('parent_id', $request->category);
+//        }
+//        if ($request->search_term && $request->search_term != null) {
+//            $products->where('name', 'like', '%' . $request->search_term . '%');
+//        }
+//        $products = $products->get();
+//
+//        $outlet_id = \auth('web')->user()->employee->outlet_id;
+//        $outlet = Outlet::find($outlet_id);
+//        $store = Store::where(['doc_type' => 'outlet', 'doc_id' => $outlet->id])->first();
+//        foreach ($products as $product) {
+//            $product->stock = transactionAbleStock($product, [$store->id]);
+////            $product->stock = availableInventoryBalance($product->id, $store->id);
+//            $product->discountable = !$product->parent->non_discountable;
+//        }
+//        return $products;
+//    }
+
     public function getAllProductCategories(Request $request)
     {
-        return ChartOfInventory::where(['rootAccountType' => 'FG', 'status' => 'active'])->where('type','group')->whereHas('subChartOfInventories', function ($q) {
+        return ChartOfInventory::where(['rootAccountType' => 'FG', 'status' => 'active'])->where('type', 'group')->whereHas('subChartOfInventories', function ($q) {
             return $q->where('type', 'item');
         })->get();
     }
@@ -370,10 +422,10 @@ class POSController extends Controller
     public function getAllCustomers(Request $request)
     {
         $data = Customer::where(['status' => 'active', 'type' => 'regular']);
-        if ($request->filled('search_string')){
-            $data = $data->where('name','like','%'.$request->search_string.'%')
-                ->orWhere('mobile','like','%'.$request->search_string.'%')
-                ->orWhere('email','like','%'.$request->search_string.'%');
+        if ($request->filled('search_string')) {
+            $data = $data->where('name', 'like', '%' . $request->search_string . '%')
+                ->orWhere('mobile', 'like', '%' . $request->search_string . '%')
+                ->orWhere('email', 'like', '%' . $request->search_string . '%');
         }
         return $data->get();
     }
@@ -394,8 +446,14 @@ class POSController extends Controller
     public function getAllOrders()
     {
         $orders = [];
-        if (\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->outlet_id){
-            $orders = Sale::where(['outlet_id' => \auth()->user()->employee->outlet_id])->with('items.coi', 'customer')->withSum('items', 'quantity')->latest()->get();
+        if (\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->outlet_id) {
+            $orders = Sale::where(['outlet_id' => \auth()->user()->employee->outlet_id])->with('items.coi', 'customer')->withSum('items', 'quantity');
+            if (\request()->filled('inv')) {
+                $orders = $orders->where('invoice_number', \request()->inv);
+            } else {
+                $orders = $orders->whereDate('date', date('Y-m-d'));
+            }
+            $orders = $orders->latest()->get();
         }
         return $orders;
     }
@@ -453,7 +511,7 @@ class POSController extends Controller
         $sale = Sale::find($id);
 //        return $sale->membershipPointHistory[0];
         $message = 'Sold Goods are not returnable.';
-        if ($sale->preOrder){
+        if ($sale->preOrder) {
             $message = "Pre-order goods can be  cancelled before 24 hours of delivery.";
         }
         $sale->message = $message;
@@ -470,7 +528,6 @@ class POSController extends Controller
 //        file_put_contents($pdfFilePath, $output);
         // Serve the PDF URL
 //        return response()->file($pdfFilePath);
-
 
 
         // (Optional) Set paper size and orientation

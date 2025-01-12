@@ -175,9 +175,15 @@ class SalesDeliveryController extends Controller
                 if ($paymentMethod['method'] == 'rocket') {
                     addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'rocket'), getAccountsReceiveableGLId());
                 }
-                if ($paymentMethod['method'] == 'bank') {
-                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'bank'), getAccountsReceiveableGLId());
+                if ($paymentMethod['method'] == 'DBBL') {
+                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'DBBL'), getAccountsReceiveableGLId());
                 }
+                if ($paymentMethod['method'] == 'UCB') {
+                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'UCB'), getAccountsReceiveableGLId());
+                }
+//                if ($paymentMethod['method'] == 'bank') {
+//                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'bank'), getAccountsReceiveableGLId());
+//                }
                 if ($paymentMethod['method'] == 'nagad') {
                     addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'nagad'), getAccountsReceiveableGLId());
                 }
@@ -304,7 +310,7 @@ class SalesDeliveryController extends Controller
     {
         if (\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->outlet_id) {
             $data = OthersOutletSale::with('deliveryPoint', 'outlet')->where(['delivery_point_id' => \auth()->user()->employee->outlet_id])->latest();
-        } elseif (\auth()->user()->is_super) {
+        } elseif (\auth()->user()->is_super || (\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->user_of == 'ho')) {
             $data = OthersOutletSale::with('deliveryPoint', 'outlet')->latest();
         } else {
             $data = null;

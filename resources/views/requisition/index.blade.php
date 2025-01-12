@@ -61,6 +61,10 @@
 {{--                                </div>--}}
                             </div>
                             <hr>
+                            <form method="GET" action="{{route('fg.requisitions.export','xlsx')}}" id="excelForm">
+                                @csrf
+                                <button class="btn btn-success mb-2" type="button" id="excel-btn">EXCEL</button>
+                            </form>
                             <table id="dataTable" class="table table-bordered">
                                 {{-- show from datatable--}}
                             </table>
@@ -183,6 +187,19 @@
 
         $('#search-btn').on('click', function () {
             recallDatatable();
+        });
+
+        $(document).on("click", "#excel-btn", function (e) {
+            e.preventDefault();
+            
+            let form = $("#excelForm");
+           
+            let status = $('select[name="status"]');
+            let fromDate = $('input[name="from_date"]');
+            let toDate = $('input[name="to_date"]');
+            
+            form.append(status,fromDate,fromDate,toDate)
+            form.submit();
         });
     </script>
 @endpush

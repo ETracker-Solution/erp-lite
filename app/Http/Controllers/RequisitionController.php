@@ -41,6 +41,48 @@ class RequisitionController extends Controller
 
     }
 
+    public function exportFGRequisition($type)
+    {
+        $data = RequisitionItem::with('coi.parent', 'requisition.outlet')
+        ->whereHas('requisition', function ($query) {
+            $query->where('type', 'FG');
+        })->latest();
+
+        if (\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->outlet_id) {
+            $outlet_id = \auth()->user()->employee->outlet_id;
+            $data = $data->whereHas('requisition', function ($query) use ($outlet_id) {
+                $query->where('outlet_id', $outlet_id);
+            });
+        }
+
+        if (\request()->filled(key: 'status')) {
+            $status = \request()->status;
+
+            $data = $data->whereHas('requisition', function ($query) use ($status) {
+                $query->where('status', $status);
+            });
+        }
+
+        if (\request()->filled('from_date') && \request()->filled('to_date')) {
+            $from_date = Carbon::parse(request()->from_date)->format('Y-m-d');
+            $to_date = Carbon::parse(request()->to_date)->format('Y-m-d');
+
+            $data = $data->whereHas('requisition', function ($query) use ($from_date, $to_date) {
+                $query->whereDate('date', '>=', $from_date)
+                    ->whereDate('date', '<=', $to_date);
+            });
+        }
+
+
+        $exportableData = [
+            'requisitions' => $data->get()
+        ];
+        $viewFileName = 'fg_requisition';
+        $filenameToDownload = date('ymdHis') . '_fg_requisition';
+        return $this->exportService->exportFile($type, $viewFileName, $exportableData, $filenameToDownload, 'L'); // L stands for Landscape, if Portrait needed, just remove this params
+
+    }
+
     public function index()
     {
 

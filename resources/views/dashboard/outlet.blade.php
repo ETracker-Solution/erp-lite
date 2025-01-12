@@ -95,7 +95,7 @@
                                                    colorClass="bg-light-danger"/>
                             </div>
                             <div class="col-xl-3 col-sm-6 col-12">
-                                <x-card-statistics title="Wastage Amount" value="{{ number_format($wastageAmount) .' TK.' }}" icon="trash-2"
+                                <x-card-statistics title="Last Day Wastage Amount" value="{{ number_format($wastageAmount) .' TK.' }}" icon="trash-2"
                                                    colorClass="bg-light-success"/>
                             </div>
                         </div>
@@ -533,48 +533,6 @@
             }
         });
     </script>
-    {{--    <script>--}}
-    {{--        var ctx = document.getElementById("myChart").getContext("2d");--}}
-
-    {{--        var data = {--}}
-    {{--            labels: ["product-1", "product-2", "product-3", "product-4", "product-5", "product-6", "product-7", "product-8", "product-9", "product-10"],--}}
-    {{--            datasets: [{--}}
-    {{--                label: "Stock",--}}
-    {{--                backgroundColor: "blue",--}}
-    {{--                data: [100, 85, 80, 86, 70, 60, 30, 17, 14, 10]--}}
-    {{--            }]--}}
-    {{--        };--}}
-
-    {{--        var myBarChart = new Chart(ctx, {--}}
-    {{--            type: 'bar',--}}
-    {{--            data: data,--}}
-    {{--            options: {--}}
-    {{--                responsive: true,--}}
-    {{--                maintainAspectRatio: false,--}}
-    {{--                responsiveAnimationDuration: 600,--}}
-    {{--                cutoutPercentage: 80,--}}
-    {{--                barValueSpacing: 10,--}}
-    {{--                plugins: {--}}
-    {{--                    legend: {--}}
-    {{--                        position: 'left',--}}
-    {{--                    },--}}
-    {{--                    title: {--}}
-    {{--                        display: true,--}}
-    {{--                        text: 'Chart.js Bar Chart'--}}
-    {{--                    }--}}
-    {{--                },--}}
-    {{--                scales: {--}}
-    {{--                    yAxes: [{--}}
-    {{--                        ticks: {--}}
-    {{--                            min: 0,--}}
-    {{--                        }--}}
-    {{--                    }]--}}
-    {{--                },--}}
-
-    {{--            }--}}
-    {{--        });--}}
-
-    {{--    </script>--}}
     <script>
         new Chart(document.getElementById("discount-chart"), {
             type: "doughnut",
@@ -684,125 +642,6 @@
         statisticsOrderChart.render();
     </script>
     <script>
-        var $statisticsProfitChart = document.querySelector('#statistics-profit-chart');
-        var statisticsProfitChartOptions;
-        var statisticsProfitChart;
-        statisticsProfitChartOptions = {
-            chart: {
-                height: 70,
-                type: 'line',
-                toolbar: {
-                    show: false
-                },
-                zoom: {
-                    enabled: false
-                }
-            },
-            grid: {
-                borderColor: '#000000',
-                strokeDashArray: 5,
-                xaxis: {
-                    lines: {
-                        show: true
-                    }
-                },
-                yaxis: {
-                    lines: {
-                        show: false
-                    }
-                },
-                padding: {
-                    top: -30,
-                    bottom: -10
-                }
-            },
-            stroke: {
-                width: 3
-            },
-            colors: [window.colors.solid.info],
-            series: [
-                {
-                    data: JSON.parse("{{json_encode($lastMonthSales)}}")
-                }
-            ],
-            markers: {
-                size: 2,
-                colors: window.colors.solid.info,
-                strokeColors: window.colors.solid.info,
-                strokeWidth: 2,
-                strokeOpacity: 1,
-                strokeDashArray: 0,
-                fillOpacity: 1,
-                discrete: [
-                    {
-                        seriesIndex: 0,
-                        dataPointIndex: 5,
-                        fillColor: '#ffffff',
-                        strokeColor: window.colors.solid.info,
-                        size: 5
-                    }
-                ],
-                shape: 'circle',
-                radius: 2,
-                hover: {
-                    size: 3
-                }
-            },
-            xaxis: {
-                labels: {
-                    show: true,
-                    style: {
-                        fontSize: '0px'
-                    }
-                },
-                axisBorder: {
-                    show: false
-                },
-                axisTicks: {
-                    show: false
-                }
-            },
-            yaxis: {
-                show: false
-            },
-            tooltip: {
-                x: {
-                    show: false
-                }
-            }
-        };
-        statisticsProfitChart = new ApexCharts($statisticsProfitChart, statisticsProfitChartOptions);
-        statisticsProfitChart.render();
-    </script>
-
-    <script>
-        new Chart("sale-expense-chart", {
-            type: "doughnut",
-            data: {
-                labels: ["Sale - ({{ $todaySale }})", "Expense - ({{ $todayExpense }})",],
-                datasets: [{
-                    backgroundColor: [
-                        "#b91d47",
-                        "#00aba9",
-                        "#2b5797",
-                        "#e8c3b9",
-                        "#1e7145"
-                    ],
-                    data: ["{{ $todaySale }}", "{{ $todayExpense }}"]
-                }]
-            },
-            options: {
-                title: {
-                    display: false,
-                    text: "World Wide Wine Production 2018"
-                },
-                legend: {
-                    position: 'left'
-                }
-            }
-        });
-    </script>
-    <script>
         new Chart("best-selling-product-chart", {
             type: 'horizontalBar',
             data: {
@@ -874,78 +713,6 @@
             }
         });
      </script>
-    // <script>
-    //     new Chart("sales-comparison-chart", {
-    //         type: 'horizontalBar',
-    //         data: {
-    //             labels: JSON.parse('<?= json_encode($salesComparision['month'] ?? 0) ?>'),
-    //             datasets: [{
-    //                 data: JSON.parse('<?= json_encode($salesComparision['sale'] ?? 0) ?>'),
-    //                 backgroundColor: ["#73BFB8", "#73BFB8", "#73BFB8", "#73BFB8", "#73BFB8", "#73BFB8", "#73BFB8"],
-    //             }]
-    //         },
-    //         options: {
-    //             tooltips: {
-    //                 enabled: false
-    //             },
-    //             responsive: true,
-    //             legend: {
-    //                 display: false,
-    //                 position: 'bottom',
-    //                 fullWidth: true,
-    //                 labels: {
-    //                     boxWidth: 10,
-    //                     padding: 50
-    //                 }
-    //             },
-    //             scales: {
-    //                 yAxes: [{
-    //                     barPercentage: 0.75,
-    //                     gridLines: {
-    //                         display: true,
-    //                         drawTicks: true,
-    //                         drawOnChartArea: false
-    //                     },
-    //                     ticks: {
-    //                         fontColor: '#555759',
-    //                         fontFamily: 'Lato',
-    //                         fontSize: 11
-    //                     }
-
-    //                 }],
-    //                 xAxes: [{
-    //                     gridLines: {
-    //                         display: true,
-    //                         drawTicks: false,
-    //                         tickMarkLength: 5,
-    //                         drawBorder: false
-    //                     },
-    //                     ticks: {
-    //                         padding: 5,
-    //                         beginAtZero: true,
-    //                         fontColor: '#555759',
-    //                         fontFamily: 'Lato',
-    //                         fontSize: 11,
-    //                         // callback: function (label, index, labels) {
-    //                         //     return label / 1000;
-    //                         // }
-
-    //                     },
-    //                     scaleLabel: {
-    //                         display: false,
-    //                         padding: 10,
-    //                         fontFamily: 'Lato',
-    //                         fontColor: '#555759',
-    //                         fontSize: 16,
-    //                         fontStyle: 700,
-    //                         labelString: 'Scale Label'
-    //                     },
-
-    //                 }]
-    //             }
-    //         }
-    //     });
-    // </script>
     <script>
         new Chart("sales-and-wastage-comparison-chart", {
             type: 'horizontalBar',
@@ -1017,77 +784,6 @@
                 }
             }
         });
-    </script>
-    <script>
-        var $goalOverviewChart = document.querySelector('#expense-radial-bar-chart');
-        var goalOverviewChartOptions;
-        var goalOverviewChart;
-        goalOverviewChartOptions = {
-            chart: {
-                height: 200,
-                type: 'radialBar',
-                sparkline: {
-                    enabled: true
-                },
-                dropShadow: {
-                    enabled: true,
-                    blur: 3,
-                    left: 1,
-                    top: 1,
-                    opacity: 0.1
-                }
-            },
-            colors: ['#51e5a8'],
-            plotOptions: {
-                radialBar: {
-                    offsetY: -10,
-                    startAngle: -90,
-                    endAngle: 90,
-                    hollow: {
-                        size: '60%'
-                    },
-                    track: {
-                        background: '#ebe9f1',
-                        strokeWidth: '30%'
-                    },
-                    dataLabels: {
-                        name: {
-                            show: false
-                        },
-                        value: {
-                            color: '#5e5873',
-                            fontSize: '1rem',
-                            fontWeight: '600',
-                            paddingTop: 0
-                        }
-                    }
-                }
-            },
-            fill: {
-                type: 'gradient',
-                gradient: {
-                    shade: 'dark',
-                    type: 'horizontal',
-                    shadeIntensity: 0.5,
-                    gradientToColors: [window.colors.solid.success],
-                    inverseColors: true,
-                    opacityFrom: 1,
-                    opacityTo: 1,
-                    stops: [0, 100]
-                }
-            },
-            series: ["{{ $expensePercentage }}"],
-            stroke: {
-                lineCap: 'round'
-            },
-            grid: {
-                padding: {
-                    bottom: 30
-                }
-            }
-        };
-        goalOverviewChart = new ApexCharts($goalOverviewChart, goalOverviewChartOptions);
-        goalOverviewChart.render();
     </script>
 
 {{--    <script>--}}

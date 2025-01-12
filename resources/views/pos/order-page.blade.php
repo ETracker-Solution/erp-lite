@@ -3,10 +3,15 @@
         <div class="col-6  header-gap" style="background-color: #cbcbcb21">
             <div class="m-2 mt-3 d-flex">
                 <h4 style="margin-right: 10px">Orders</h4>
-                <input type="text" class="form-control" placeholder="Search Order By ID">
+                <input type="text" class="form-control" placeholder="Search Order By ID" @keyup="getAllOrders" v-model="orderInvoiceNumber">
             </div>
             <div class="row" style="margin: 10px; max-height: 100vh; overflow-y: auto">
-                <div class="col-12 customerInfo"  v-for="(row,index) in orders" @click="addToSelectedInvoice(row)">
+                <div class="col-12"  v-if="orders.length < 1" >
+                    <div class="row">
+                       <h4>No Orders Found</h4>
+                    </div>
+                </div>
+                <div class="col-12 customerInfo" v-else v-for="(row,index) in orders" @click="addToSelectedInvoice(row)">
                     <div class="row">
                         <div class="col-8">
                             <span class="customerName">#@{{ row.invoice_number }}</span><br>
