@@ -77,9 +77,9 @@ class InventoryController extends Controller
                     $item->updated_by = auth()->user()->id;
                     $item->save();
                 }
+                $inventory->vat_type = \request()->vat_type;
+                $inventory->vat_amount = \request()->vat_amount;
             }
-
-            // dd($inventory);
 
             $inventory->updated_by = auth()->user()->id;
             $inventory->update();

@@ -104,16 +104,16 @@
 
                                 <div class="row callout callout-info" id="vatlInfo">
                                     <div class="col-xl-12 col-md-12 col-12">
-                                        <x-forms.static-select 
-                                            label="Vat Type" 
-                                            inputName="vat_type" 
-                                            placeholder="Select VAT Type" 
-                                            :isRequired="true" 
-                                            :isReadonly="false" 
+                                        <x-forms.static-select
+                                            label="Vat Type"
+                                            inputName="vat_type"
+                                            placeholder="Select VAT Type"
+                                            :isRequired="true"
+                                            :isReadonly="false"
                                             :options="['including' => 'Including', 'excluding' => 'Excluding', 'zero' => 'Zero Vat']"
                                             defaultValue=""
                                         />
-                                    </div>   
+                                    </div>
 
                                     <div class="col-xl-12 col-md-12 col-12">
                                         <x-forms.text label="Vat Amount(%)" inputName="vat_amount"
