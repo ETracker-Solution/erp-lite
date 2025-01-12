@@ -246,8 +246,10 @@ class FundTransferVoucherController extends Controller
             $voucher->status = "received";
             $voucher->save();
 
-            // Accounts Effect
-            addAccountsTransaction('FTV', $voucher, $voucher->debit_account_id, $voucher->credit_account_id);
+            if (!AccountTransaction::where('doc_type', 'FTV')->where('doc_id', $voucher->id)->exists()) {
+                addAccountsTransaction('FTV', $voucher, $voucher->debit_account_id, $voucher->credit_account_id);
+
+            }
             DB::commit();
         } catch (\Exception $error) {
             DB::rollBack();
