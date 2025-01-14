@@ -128,8 +128,6 @@ class PreOrderController extends Controller
             $column = \request()->filter_by;
             $from_date = Carbon::parse(request()->from_date)->format('Y-m-d');
             $to_date = Carbon::parse(request()->to_date)->format('Y-m-d');
-
-            info($column);
             $orders = $orders->whereDate($column, '>=', $from_date)->whereDate($column, '<=', $to_date);
         }
 
@@ -138,7 +136,7 @@ class PreOrderController extends Controller
                                                ->first();
             if ($othersOutletSale) {
                 $receivedAmount = (float) $othersOutletSale->delivery_point_receive_amount;
-                $order->due_amount = $order->grand_total - ($order->advance_amount + $receivedAmount);
+                $order->due_amount = max($order->grand_total - ($order->advance_amount + $receivedAmount),0);
             } else {
                 $order->due_amount = 'N/A';
             }
