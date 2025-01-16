@@ -172,7 +172,7 @@
                                                                 <input type="number" v-model="row.quantity"
                                                                        :name="'products['+index+'][quantity]'"
                                                                        class="form-control input-sm"
-                                                                       @change="valid(row)" readonly>
+                                                                       @change="valid(row)">
                                                             </td>
                                                             {{-- <td style="vertical-align: middle">
                                                                 <button type="button" class="btn btn-danger"
@@ -334,6 +334,9 @@
                         if (index.quantity <= 0) {
                             console.log('3');
                             index.quantity = index.quantity;
+                        }
+                        if (index.quantity < 0) {
+                            index.quantity = index.delivery_quantity;
                         }
                     },
                     formSubmit(){

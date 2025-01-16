@@ -720,6 +720,7 @@
                     user_outlet_id: "",
                     isDisabled: false,
                     additional_charge: 0,
+                    recipeProduct: false,
                 },
                 components: {
                     vuejsDatepicker
@@ -859,6 +860,7 @@
                                             discountType: '',
                                             discountValue: 0,
                                             discountAmount: 0,
+                                            recipeProduct: product_details.recipeProduct,
                                         });
                                         vm.isDisabled = false
 
@@ -902,8 +904,12 @@
                     },
                     valid: function (index) {
                         const vm=this
-                        if (index.quantity > index.stock && index.is_readonly && (!vm.delivery_point_id || vm.user_outlet_id == vm.delivery_point_id) && vm.sales_type == 'sales') {
+                        if (index.quantity > index.stock && index.is_readonly && (!vm.delivery_point_id || vm.user_outlet_id == vm.delivery_point_id) && vm.sales_type == 'sales' && ! (index.recipeProduct)) {
                             index.quantity = index.stock;
+                        }
+                        if((index.recipeProduct)){
+                            index.quantity = index.quantity;
+                            index.stock = index.quantity;
                         }
                         if (index.quantity <= 0) {
                             index.quantity = '';

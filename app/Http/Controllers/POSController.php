@@ -12,6 +12,7 @@ use App\Models\Outlet;
 use App\Models\Payment;
 use App\Models\PreOrder;
 use App\Models\PromoCode;
+use App\Models\Recipe;
 use App\Models\SalesReturn;
 use App\Models\Store;
 use Carbon\Carbon;
@@ -157,6 +158,14 @@ class POSController extends Controller
                 $sale_item['amount'] = $sale_item['rate'] * $row['quantity'];
                 $sale_item['store_id'] = $store->id;
 
+                if($row['recipeProduct'] == true){
+
+                    $recipes_items = Recipe::where('fg_id',$sale_item['coi_id'])->get();
+                    foreach ($recipes_items as $recipe_item){
+
+                    }
+                    addInventoryTransaction(1, 'POS', $sale_item);
+                }
                 addInventoryTransaction(-1, 'POS', $sale_item);
 
                 $avgProductionPrice += $sale_item['amount'];
@@ -311,6 +320,7 @@ class POSController extends Controller
             $product->stock = transactionAbleStock($product, [$store->id]);
 //            $product->stock = availableInventoryBalance($product->id, $store->id);
             $product->discountable = !$product->parent->non_discountable;
+            $product->recipeProduct = $product->recipes()->count() > 0;
         }
         return $products;
     }

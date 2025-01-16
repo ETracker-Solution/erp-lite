@@ -820,6 +820,13 @@
                                                 </a>
                                             </li>
                                         @endcan
+                                        <li class="nav-item">
+                                            <a href="{{route('recipes.index')}}"
+                                               class="nav-link {{ (Request::segment(1) == 'recipes' )?' active':''}}">
+                                                <i class="far fa-circle nav-icon"></i>
+                                                <p>Recipes</p>
+                                            </a>
+                                        </li>
                                     </ul>
                                 </li>
                             @endcanany

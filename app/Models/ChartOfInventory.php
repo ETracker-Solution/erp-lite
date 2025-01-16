@@ -49,4 +49,9 @@ class ChartOfInventory extends Model
     {
         return $this->hasMany(RequisitionItem::class, 'coi_id');
     }
+
+    public function recipes()
+    {
+        return $this->hasMany(Recipe::class, 'fg_id');
+    }
 }

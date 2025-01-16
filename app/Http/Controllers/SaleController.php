@@ -85,7 +85,7 @@ class SaleController extends Controller
             'user_store' => $user_store,
             'invoice_number' => $serial_no,
             'delivery_points' => Outlet::all(),
-            'user_outlet_id' => $outlet_id
+            'user_outlet_id' => $outlet_id,
 
         ];
 //        return $data;

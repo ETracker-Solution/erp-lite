@@ -96,6 +96,7 @@
 {{--                                            </div>--}}
                                         </div>
                                         <button class="btn btn-sm btn-danger" @click="delete_selected_product(product)">X</button>
+                                        <button class="btn btn-sm btn-success" @click="markAsGift(product)">Gift</button>
                                     </div>
                                 </div>
                             </div>
@@ -259,7 +260,10 @@
                <div class="col-12" v-for="(row, index) in holdOrders" style="border: 2px solid #dedede; border-radius: 5px; cursor: pointer" @click="addHoldOrderToPos(row)">
                    <span class="float-left">Identifier: @{{ row.identifier }}</span>
                    <span>Product: @{{ row.items.length }}</span>
-                   <span class="float-right">Quantity: @{{ row.total }}</span>
+                   <span class="float-right" style="margin-right: 66px !important">Quantity: @{{ row.total }}
+                    <button class="btn btn-danger btn-sm" style="margin-left: 10px;" @click.stop="deleteHoldOrder(index)">x</button>
+                    <button class="btn btn-secondary btn-sm position-absolute" style="margin-left: 10px;" @click.stop="printHoldOrder(row)">🖨️ Print</button>
+                   </span>
                </div>
            </div>
         </div>

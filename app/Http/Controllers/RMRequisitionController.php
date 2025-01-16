@@ -56,7 +56,7 @@ class RMRequisitionController extends Controller
         }
         $data = [
             'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'RM'])->get(),
-            'from_stores' => Store::where(['type' => 'RM', 'doc_type' => 'factory'])->get(),
+            'from_stores' => Store::where(['type' => 'RM'])->get(),
             'to_stores' => Store::where(['type' => 'RM', 'doc_type' => 'ho'])->get(),
             'serial_no' => $serial_no
         ];
@@ -103,7 +103,7 @@ class RMRequisitionController extends Controller
     {
         $data = [
             'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'RM'])->get(),
-            'from_stores' => Store::where(['type' => 'RM', 'doc_type' => 'factory'])->get(),
+            'from_stores' => Store::where(['type' => 'RM'])->get(),
             'to_stores' => Store::where(['type' => 'RM', 'doc_type' => 'ho'])->get(),
             'requisition' => Requisition::find(decrypt($id))
         ];

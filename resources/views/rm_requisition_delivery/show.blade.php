@@ -27,7 +27,7 @@ RM Requisition Delivery Details
                     <!-- Main content -->
                     <div class="invoice p-3 mb-3">
                         <div class="row invoice-info">
-                            <div class="col-sm-4 invoice-col">
+                            <div class="col-sm-6 invoice-col">
                                 <table width="100%">
                                     <tbody>
                                         <tr>

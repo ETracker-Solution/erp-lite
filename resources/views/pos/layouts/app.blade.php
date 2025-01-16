@@ -402,7 +402,7 @@
                 selectProductToSell(product) {
                     var vm = this;
                     var product_id = product.id;
-                    if (! product.stock > 0) {
+                    if ( ! (product.stock > 0) && ! (product.recipeProduct) ) {
                         toastr.warning('No Stock Available')
                         return false;
                     }
@@ -428,7 +428,8 @@
                             discountType: '',
                             discountValue: 0,
                             discountAmount: 0,
-                            discountable: product.discountable
+                            discountable: product.discountable,
+                            recipeProduct : product.recipeProduct
                         })
                     }
                     vm.updateDiscount()
@@ -457,6 +458,20 @@
                         vm.selectedSpecialDiscount = false;
                     }
 
+                },
+                markAsGift(product) {
+                    const selectedProduct = this.selectedProducts.find(
+                        (selected) => selected.id === product.id
+                    );
+                    if (selectedProduct) {
+                        selectedProduct.price = 0;
+                        selectedProduct.total = 0;
+                        selectedProduct.discountType = '';
+                        selectedProduct.discountValue = 0;
+                        selectedProduct.discountAmount = 0;
+                        selectedProduct.isGift = true;
+                        toastr.success(`${selectedProduct.name} marked as a gift`);
+                    }
                 },
                 setDiscountType(discountType) {
                     this.total_discount_type = discountType
@@ -648,19 +663,26 @@
                         if (product.id === item.id) {
                             if (update_type === 'add') {
                                 product.quantity++
-                                if (Number(product.quantity) >= product.stock) {
+                                if(product.recipeProduct){
+                                    product.quantity = product.quantity
+                                }else if (Number(product.quantity) >= product.stock) {
                                     product.quantity = product.stock
-                                } else {
+                                }else {
                                     product.quantity++
                                 }
                             } else if (update_type === 'sub') {
-                                if (Number(product.quantity) < 1) {
+                                if(product.recipeProduct){
+                                    product.quantity = product.quantity
+                                }else if (Number(product.quantity) < 1) {
                                     product.quantity = 1
                                 } else {
                                     product.quantity--
                                 }
                             } else {
-                                if (Number(product.quantity) >= product.stock) {
+                                if(product.recipeProduct){
+                                    console.log(product.recipeProduct);
+                                    product.quantity = product.quantity
+                                }else if (Number(product.quantity) >= product.stock) {
                                     product.quantity = product.stock
                                 } else if (Number(product.quantity) < 1) {
                                     // product.quantity = 1
@@ -945,6 +967,100 @@
                         this.closeOnHoldModal()
                     }
 
+                },
+                deleteHoldOrder(index) {
+                    this.holdOrders.splice(index, 1);
+                    sessionStorage.setItem('holdOrder', JSON.stringify(this.holdOrders));
+                    toastr.success('Hold Order Deleted');
+                },
+                printHoldOrder(order) {
+                    console.log(order)
+                    const orderDetails = `
+                        <!doctype html>
+                        <html lang="en">
+                        <head>
+                            <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+                            <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+                            <meta http-equiv="X-UA-Compatible" content="ie=edge">
+                            <title>Print Hold Order</title>
+                            <style>
+                                @page {
+                                    size: 72mm 250mm;
+                                    margin: 0 !important;
+                                }
+                                table {
+                                    border-collapse: collapse;
+                                    width: 100%;
+                                }
+                                table, td, th {
+                                    border: 1px solid #08010C;
+                                }
+                                .text-bold {
+                                    font-weight: 600;
+                                }
+                                .tc {
+                                    text-align: center;
+                                }
+                                .tr {
+                                    text-align: right;
+                                }
+                                body {
+                                    font-family: Arial, sans-serif;
+                                    font-size: 13px;
+                                    margin: 0;
+                                    padding: 0;
+                                }
+                                .fs {
+                                    font-size: 12px;
+                                }
+                            </style>
+                        </head>
+                        <body>
+                            <table style="border: 2px solid #fff;">
+                                <tr>
+                                    <td class="tc text-bold" colspan="2">Hold Order Invoice</td>
+                                </tr>
+                                <tr>
+                                    <td class="b-none">Order ID:</td>
+                                    <td class="b-none">${order.identifier}</td>
+                                </tr>
+                                <tr>
+                                    <td class="b-none">Date:</td>
+                                    <td class="b-none">${new Date(order.date).toLocaleDateString()}</td>
+                                </tr>
+                            </table>
+
+                            <table>
+                                <tr>
+                                    <td class="text-bold tc">Product Description</td>
+                                    <td class="text-bold tc">Quantity</td>
+                                </tr>
+                                ${order.items.map(item => `
+                                    <tr>
+                                        <td class="tc">${item.name}</td>
+                                        <td class="tc">${item.quantity}</td>
+                                    </tr>
+                                `).join('')}
+                            </table>
+
+                            <table style="margin-top: 20px;">
+                                <tr>
+                                    <td class="b-none">Total Quantity:</td>
+                                    <td class="b-none tr">${order.total}</td>
+                                </tr>
+                            </table>
+
+                            <div class="tc" style="margin-top: 20px; font-size: 12px; color: #888;">
+                                <p>Thank you for using our service!</p>
+                            </div>
+                        </body>
+                        </html>
+                    `;
+
+                    const printWindow = window.open('', '', 'width=500,height=300');
+                    printWindow.document.write(orderDetails);
+                    printWindow.document.close();
+                    printWindow.print();
                 },
                 openOnHoldOrderModal() {
                     var vm = this

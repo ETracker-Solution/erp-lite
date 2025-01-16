@@ -176,6 +176,9 @@ class ApiController extends Controller
             'balance_qty' => $current_stock,
             'is_readonly' => $coi->price > 0 ? true : false,
             'product_discount' => isset($item) ? $item->discount : 0,
+            'recipeProduct' => $coi->recipes()->count() > 0,
+
+
         ];
         return $data;
     }
@@ -293,6 +296,10 @@ class ApiController extends Controller
         $requisition = Requisition::with(['items.coi.unit', 'items.coi.parent', 'deliveries.items', 'items.coi.requisitionDeliveryItems.requisitionDelivery', 'items.coi.preOrderItems.preOrder'])
             ->where('id', $id)
             ->firstOrFail();
+
+        if (!$store_id) {
+            $store_id = $requisition->to_store_id;
+        }
 
         // Collect all coi_ids from requisition items
         $coiIds = $requisition->items->pluck('coi_id')->toArray();
@@ -477,15 +484,21 @@ class ApiController extends Controller
         return response()->json(['requisitions' => $requisitions]);
     }
 
-    public function getUUIDbyStore(Request $request, $store_id)
+    public function getUUIDbyStore(Request $request, $store_id = null)
     {
         $modelNamespace = 'App\\Models\\';
         $modelName = ucfirst($request->input('model')); // Capitalize the first letter
         $modelClass = $modelNamespace . $modelName;
         $is_factory = $request->is_factory ?? false;
-        $is_headOffice = $request->is_headOffice ?? false;
-        $store = Store::find($store_id);
-        return generateUniqueUUID($store->doc_id, $modelClass, $request->column, $is_factory, $is_headOffice);
+        $is_headOffice = $request->is_headOffice ?? true;
+        if($store_id)
+        {
+            $store = Store::find($store_id)->select('doc_id');
+        }else{
+            $store = null;
+        }
+       
+        return generateUniqueUUID($store, $modelClass, $request->column, $is_factory, $is_headOffice);
     }
 
     public function fetchAccountDetailsById($id)
