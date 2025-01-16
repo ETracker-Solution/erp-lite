@@ -66,10 +66,18 @@ class RMTransferReceiveController extends Controller
     public function store(StoreRMTransferReceiveRequest $request)
     {
         try {
+            
             DB::beginTransaction();
             $data = $request->validated();
             $store = Store::find($data['to_store_id']);
-            $data['uid'] = generateUniqueUUID($store->id, TransferReceive::class, 'uid');
+            $headOffice = false;
+            $factory = false;
+            if($store->doc_type == 'factory'){
+                $factory = true;
+            }elseif($store->doc_type == 'ho'){
+                $headOffice = true;
+            }
+            $data['uid'] = generateUniqueUUID($store->doc_id, TransferReceive::class, 'uid',$factory,$headOffice);
             $inventoryTransfer = TransferReceive::query()->create($data);
             $products = $request->get('products');
             foreach ($products as $product) {

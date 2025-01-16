@@ -275,6 +275,10 @@
                                                                        :name="'products['+index+'][is_readonly]'"
                                                                        class="form-control input-sm form-control-sm"
                                                                        v-bind:value="row.is_readonly">
+                                                                       <input type="hidden"
+                                                                       :name="'products['+index+'][recipeProduct]'"
+                                                                       class="form-control input-sm form-control-sm"
+                                                                       v-bind:value="row.recipeProduct">
                                                                 <input type="text"
                                                                        class="form-control input-sm  form-control-sm"
                                                                        :name="'products['+index+'][item_name]'"
