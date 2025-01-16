@@ -11,6 +11,7 @@ use App\Models\InventoryTransaction;
 use App\Models\OthersOutletSale;
 use App\Models\Outlet;
 use App\Models\PreOrder;
+use App\Models\PreOrderItem;
 use App\Models\Production;
 use App\Models\Store;
 use App\Models\Supplier;
@@ -21,12 +22,67 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Facades\DataTables;
 use niklasravnsborg\LaravelPdf\Facades\Pdf;
+use App\Services\ExportService;
 
 class PreOrderController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
+    protected $exportService;
+
+    public function __construct(ExportService $exportService)
+    {
+        $this->exportService = $exportService;
+    }
+
+
+    public function exportPreOrder($type)
+    {
+        if (auth()->user()->employee && auth()->user()->employee->outlet_id) {
+            $outlet_id = auth()->user()->employee->outlet_id;
+            $preOrderItem = PreOrderItem::with('coi.parent', 'preOrder.outlet', 'preOrder.customer')
+            ->latest();
+        } else {
+            if (\request()->filled('outlet_id')) {
+                $outlet_id = \request()->outlet_id;
+            }
+            $preOrderItem = PreOrderItem::with('coi.parent', 'preOrder.outlet', 'preOrder.customer')->latest();
+        }
+
+        if ($outlet_id) {
+            $preOrderItem = $preOrderItem->whereHas('preOrder', function ($query) use ($outlet_id) {
+                $query->where('delivery_point_id', $outlet_id);
+            });
+        }
+
+        if (\request()->filled('status')) {
+            $status = \request()->status;
+            $preOrderItem = $preOrderItem->whereHas('preOrder', function ($query) use ($status) {
+                $query->where('status', $status);
+            });
+        }
+
+        if (\request()->filled('filter_by') && \request()->filled('from_date') && \request()->filled('to_date')) {
+            $column = \request()->filter_by;
+            $from_date = Carbon::parse(request()->from_date)->format('Y-m-d');
+            $to_date = Carbon::parse(request()->to_date)->format('Y-m-d');
+
+            $preOrderItem = $preOrderItem->whereHas('preOrder', function ($query) use ($column, $from_date, $to_date) {
+                $query->whereDate($column, '>=', $from_date)
+                    ->whereDate($column, '<=', $to_date);
+            });
+        }
+
+        $exportableData = [
+            'preOrderItems' => $preOrderItem->get()
+        ];
+
+        $viewFileName = 'pre_orders';
+        $filenameToDownload = date('ymdHis') . '_pre_orders';
+        return $this->exportService->exportFile($type, $viewFileName, $exportableData, $filenameToDownload, 'L'); // L stands for Landscape, if Portrait needed, just remove this params
+
+    }
     public function index()
     {
         if (\request()->ajax()) {
@@ -72,8 +128,6 @@ class PreOrderController extends Controller
             $column = \request()->filter_by;
             $from_date = Carbon::parse(request()->from_date)->format('Y-m-d');
             $to_date = Carbon::parse(request()->to_date)->format('Y-m-d');
-
-            info($column);
             $orders = $orders->whereDate($column, '>=', $from_date)->whereDate($column, '<=', $to_date);
         }
 
@@ -82,7 +136,7 @@ class PreOrderController extends Controller
                                                ->first();
             if ($othersOutletSale) {
                 $receivedAmount = (float) $othersOutletSale->delivery_point_receive_amount;
-                $order->due_amount = $order->grand_total - ($order->advance_amount + $receivedAmount);
+                $order->due_amount = max($order->grand_total - ($order->advance_amount + $receivedAmount),0);
             } else {
                 $order->due_amount = 'N/A';
             }

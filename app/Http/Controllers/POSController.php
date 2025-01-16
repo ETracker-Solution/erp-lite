@@ -86,7 +86,7 @@ class POSController extends Controller
             $outlet_id = \auth('web')->user()->employee->outlet_id;
             $outlet = Outlet::find($outlet_id);
             $store = Store::where(['doc_type' => 'outlet', 'doc_id' => $outlet->id,'type'=> 'FG'])->first();
-            $rm_store = Store::where(['doc_type' => 'outlet', 'doc_id' => $outlet->id, 'type'=> 'RM'])->first();            
+            $rm_store = Store::where(['doc_type' => 'outlet', 'doc_id' => $outlet->id, 'type'=> 'RM'])->first();
             $sale = new Sale();
 
             $sale->invoice_number = generateUniqueUUID($outlet_id, Sale::class, 'invoice_number');
@@ -160,13 +160,13 @@ class POSController extends Controller
                 $sale_item['amount'] = $sale_item['rate'] * $row['quantity'];
                 $sale_item['store_id'] = $store->id;
 
-              
+
                 if($row['recipeProduct'] == true){
                     if(!$rm_store){
                         Toastr::error('Please Set RM Store', '', ["progressBar" => true]);
                         return back();
                     }
-                    
+
                     $recipes_items = Recipe::where('fg_id', $sale_item['coi_id'])->get();
                     $currentRMStock = 0;
                     foreach ($recipes_items as $recipe_item) {
@@ -270,7 +270,6 @@ class POSController extends Controller
         } catch (\Exception $error) {
             DB::rollBack();
             $message = $error->getMessage();
-            dd($error);
             Log::emergency("File:" . $error->getFile() . "Line:" . $error->getLine() . "Message:" . $error->getMessage());
             if ($error->getCode() == 23000) {
                 $message = 'Please Set Account Config';
@@ -328,27 +327,78 @@ class POSController extends Controller
 
     public function getAllProducts(Request $request)
     {
-        $products = ChartOfInventory::where(['type' => 'item', 'status' => 'active', 'rootAccountType' => 'FG']);
-        if ($request->category && $request->category != null) {
-            $products->where('parent_id', $request->category);
-        }
-        if ($request->search_term && $request->search_term != null) {
-            $products->where('name', 'like', '%' . $request->search_term . '%');
-        }
-        $products = $products->get();
+        $outlet = auth('web')->user()->employee->outlet;
+        $store = Store::where(['doc_type' => 'outlet', 'doc_id' => $outlet->id])->first();
+        $storeId = $store->id;
 
-        $outlet_id = \auth('web')->user()->employee->outlet_id;
-        $outlet = Outlet::find($outlet_id);
-        $store = Store::where(['doc_type' => 'outlet', 'doc_id' => $outlet->id,'type'=> 'FG'])->first();
-        $rm_store = Store::where(['doc_type' => 'outlet', 'doc_id' => $outlet->id, 'type'=> 'RM'])->first();
-        foreach ($products as $product) {
-            $product->stock = transactionAbleStock($product, [$store->id]);
-//            $product->stock = availableInventoryBalance($product->id, $store->id);
+        // Fetch products with the necessary filters
+        $productsQuery = ChartOfInventory::with('parent') // Eager load the parent relationship
+        ->where([
+            'type' => 'item',
+            'status' => 'active',
+            'rootAccountType' => 'FG'
+        ])
+            ->where('price', '>', 0)
+            ->when($request->category, function ($query, $category) {
+                return $query->where('parent_id', $category);
+            })
+            ->when($request->search_term, function ($query, $searchTerm) {
+                return $query->where('name', 'like', '%' . $searchTerm . '%');
+            });
+
+        $products = $productsQuery->get();
+        $productIds = $products->pluck('id'); // Get product IDs for batch fetching
+
+        // Fetch all necessary data in batches for the products
+        $inventoryQuantities = getInventoryQuantities($productIds, $storeId);
+        $requisitionQuantities = getRequisitionQuantities($productIds, $storeId);
+        $preOrderQuantities = getPreOrderQuantities($productIds, $storeId);
+        $transferQuantities = getTransferQuantities($productIds, $storeId);
+
+        // Map the data to the products
+        $products->map(function ($product) use (
+            $inventoryQuantities, $requisitionQuantities, $preOrderQuantities, $transferQuantities
+        ) {
+            $productId = $product->id;
+
+            $originalStock = $inventoryQuantities[$productId] ?? 0;
+            $requisitionDelivered = $requisitionQuantities[$productId] ?? 0;
+            $preOrderDelivered = $preOrderQuantities[$productId] ?? 0;
+            $inventoryTransferred = $transferQuantities[$productId] ?? 0;
+
+            $stock = $originalStock - $requisitionDelivered - $preOrderDelivered - $inventoryTransferred;
+
+            // Add stock and discountable status to the product
+            $product->stock = max($stock, 0);
             $product->discountable = !$product->parent->non_discountable;
             $product->recipeProduct = $product->recipes()->count() > 0;
-        }
+            return $product;
+        });
+
         return $products;
     }
+
+//    public function getAllProducts(Request $request)
+//    {
+//        $products = ChartOfInventory::where(['type' => 'item', 'status' => 'active', 'rootAccountType' => 'FG']);
+//        if ($request->category && $request->category != null) {
+//            $products->where('parent_id', $request->category);
+//        }
+//        if ($request->search_term && $request->search_term != null) {
+//            $products->where('name', 'like', '%' . $request->search_term . '%');
+//        }
+//        $products = $products->get();
+//
+//        $outlet_id = \auth('web')->user()->employee->outlet_id;
+//        $outlet = Outlet::find($outlet_id);
+//        $store = Store::where(['doc_type' => 'outlet', 'doc_id' => $outlet->id])->first();
+//        foreach ($products as $product) {
+//            $product->stock = transactionAbleStock($product, [$store->id]);
+////            $product->stock = availableInventoryBalance($product->id, $store->id);
+//            $product->discountable = !$product->parent->non_discountable;
+//        }
+//        return $products;
+//    }
 
     public function getAllProductCategories(Request $request)
     {
@@ -415,7 +465,7 @@ class POSController extends Controller
             } else {
                 $orders = $orders->whereDate('date', date('Y-m-d'));
             }
-            $orders = $orders->get();
+            $orders = $orders->latest()->get();
         }
         return $orders;
     }

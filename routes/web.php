@@ -137,6 +137,7 @@ Route::middleware(['auth','prevent_duplicate_submission'])->group(function () {
     Route::put('pre-orders.status-update/{id}', [\App\Http\Controllers\PreOrderController::class, 'updateStatus'])->name('pre-orders.status-update');
     Route::resource('pre-orders', \App\Http\Controllers\PreOrderController::class);
     Route::get('pre-order-pdf/{id}', [App\Http\Controllers\PreOrderController::class, 'Pdf'])->name('pre-order.pdf');
+    Route::get('pre-order-excel/{type}', [App\Http\Controllers\PreOrderController::class, 'exportPreOrder'])->name('pre-order.excel.export');
 
     //-----End Pre Order---------
 
@@ -395,6 +396,8 @@ Route::group(['prefix' => 'reports', 'middleware' => 'auth'], function () {
 });
 Route::group(['middleware' => 'auth'], function () {
     Route::get('today-requisitions/{type}', [App\Http\Controllers\RequisitionController::class, 'exportRequisition'])->name('today.requisitions.export');
+    Route::get('fg-requisitions/{type}', [App\Http\Controllers\RequisitionController::class, 'exportFGRequisition'])->name('fg.requisitions.export');
+    Route::get('fg-productions-export/{type}', [App\Http\Controllers\ProductionController::class, 'exportFGProduction'])->name('fg.production.export');
     Route::get('today-requisitions', [App\Http\Controllers\RequisitionController::class, 'todayRequisition'])->name('today.requisitions');
 
 });
