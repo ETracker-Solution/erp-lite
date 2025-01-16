@@ -299,7 +299,7 @@
                 selectedSpecialDiscount: false,
                 customer_search_string: '',
                 isDisabled: false,
-                orderInvoiceNumber:''
+                orderInvoiceNumber: ''
             },
             mounted() {
                 this.getAllProducts();
@@ -362,7 +362,7 @@
             methods: {
                 getAllOrders() {
                     var vm = this;
-                    axios.get(this.config.get_all_orders_url+'?inv='+vm.orderInvoiceNumber)
+                    axios.get(this.config.get_all_orders_url + '?inv=' + vm.orderInvoiceNumber)
                         .then(function (response) {
                             vm.orders = (response.data);
                         }).catch(function (error) {
@@ -402,7 +402,7 @@
                 selectProductToSell(product) {
                     var vm = this;
                     var product_id = product.id;
-                    if ( ! (product.stock > 0) && ! (product.recipeProduct) ) {
+                    if (!(product.stock > 0) && !(product.recipeProduct)) {
                         toastr.warning('No Stock Available')
                         return false;
                     }
@@ -429,7 +429,7 @@
                             discountValue: 0,
                             discountAmount: 0,
                             discountable: product.discountable,
-                            recipeProduct : product.recipeProduct
+                            recipeProduct: product.recipeProduct
                         })
                     }
                     vm.updateDiscount()
@@ -663,26 +663,26 @@
                         if (product.id === item.id) {
                             if (update_type === 'add') {
                                 product.quantity++
-                                if(product.recipeProduct){
+                                if (product.recipeProduct) {
                                     product.quantity = product.quantity
-                                }else if (Number(product.quantity) >= product.stock) {
+                                } else if (Number(product.quantity) >= product.stock) {
                                     product.quantity = product.stock
-                                }else {
+                                } else {
                                     product.quantity++
                                 }
                             } else if (update_type === 'sub') {
-                                if(product.recipeProduct){
+                                if (product.recipeProduct) {
                                     product.quantity = product.quantity
-                                }else if (Number(product.quantity) < 1) {
+                                } else if (Number(product.quantity) < 1) {
                                     product.quantity = 1
                                 } else {
                                     product.quantity--
                                 }
                             } else {
-                                if(product.recipeProduct){
+                                if (product.recipeProduct) {
                                     console.log(product.recipeProduct);
                                     product.quantity = product.quantity
-                                }else if (Number(product.quantity) >= product.stock) {
+                                } else if (Number(product.quantity) >= product.stock) {
                                     product.quantity = product.stock
                                 } else if (Number(product.quantity) < 1) {
                                     // product.quantity = 1
@@ -975,92 +975,32 @@
                 },
                 printHoldOrder(order) {
                     console.log(order)
-                    const orderDetails = `
-                        <!doctype html>
-                        <html lang="en">
-                        <head>
-                            <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-                            <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-                            <meta http-equiv="X-UA-Compatible" content="ie=edge">
-                            <title>Print Hold Order</title>
-                            <style>
-                                @page {
-                                    size: 72mm 250mm;
-                                    margin: 0 !important;
-                                }
-                                table {
-                                    border-collapse: collapse;
-                                    width: 100%;
-                                }
-                                table, td, th {
-                                    border: 1px solid #08010C;
-                                }
-                                .text-bold {
-                                    font-weight: 600;
-                                }
-                                .tc {
-                                    text-align: center;
-                                }
-                                .tr {
-                                    text-align: right;
-                                }
-                                body {
-                                    font-family: Arial, sans-serif;
-                                    font-size: 13px;
-                                    margin: 0;
-                                    padding: 0;
-                                }
-                                .fs {
-                                    font-size: 12px;
-                                }
-                            </style>
-                        </head>
-                        <body>
-                            <table style="border: 2px solid #fff;">
-                                <tr>
-                                    <td class="tc text-bold" colspan="2">Hold Order Invoice</td>
-                                </tr>
-                                <tr>
-                                    <td class="b-none">Order ID:</td>
-                                    <td class="b-none">${order.identifier}</td>
-                                </tr>
-                                <tr>
-                                    <td class="b-none">Date:</td>
-                                    <td class="b-none">${new Date(order.date).toLocaleDateString()}</td>
-                                </tr>
-                            </table>
+                    axios.post("{{url('pos-hold-order-print')}}",order).then(function (response) {
+                        var html = response.data
+                        // Create a hidden iframe
+                        const iframe = document.createElement('iframe');
+                        iframe.style.visibility = 'hidden'; // Completely hides the iframe
+                        iframe.style.position = 'absolute';
+                        iframe.style.width = '0';
+                        iframe.style.height = '0';
+                        iframe.style.border = '0';
 
-                            <table>
-                                <tr>
-                                    <td class="text-bold tc">Product Description</td>
-                                    <td class="text-bold tc">Quantity</td>
-                                </tr>
-                                ${order.items.map(item => `
-                                    <tr>
-                                        <td class="tc">${item.name}</td>
-                                        <td class="tc">${item.quantity}</td>
-                                    </tr>
-                                `).join('')}
-                            </table>
+                        // Append the iframe to the document body
+                        document.body.appendChild(iframe);
 
-                            <table style="margin-top: 20px;">
-                                <tr>
-                                    <td class="b-none">Total Quantity:</td>
-                                    <td class="b-none tr">${order.total}</td>
-                                </tr>
-                            </table>
+                        // Write the response HTML to the iframe's document
+                        iframe.contentDocument.open();
+                        iframe.contentDocument.write(html);
+                        iframe.contentDocument.close();
 
-                            <div class="tc" style="margin-top: 20px; font-size: 12px; color: #888;">
-                                <p>Thank you for using our service!</p>
-                            </div>
-                        </body>
-                        </html>
-                    `;
+                        // Trigger the print dialog for the iframe's content
+                        iframe.contentWindow.print();
 
-                    const printWindow = window.open('', '', 'width=500,height=300');
-                    printWindow.document.write(orderDetails);
-                    printWindow.document.close();
-                    printWindow.print();
+                        // Remove the iframe after printing
+                        setTimeout(() => document.body.removeChild(iframe), 500);
+                    })
+
+
                 },
                 openOnHoldOrderModal() {
                     var vm = this

@@ -612,4 +612,18 @@ class POSController extends Controller
             return null; // Unsupported OS
         }
     }
+
+    public function printHoldOrder(Request $request)
+    {
+        $identifier = $request->identifier;
+        $items = $request->items;
+//        $options = new Options();
+//        $options = ['chroot' => base_path()];
+//        $dompdf = new Dompdf($options);
+//        $dompdf->loadHtml(view('pos.print.hold-order', compact('identifier','items'))->render());
+        return view('pos.print.hold-order', compact('identifier','items'));
+
+        $dompdf->render();
+        return $dompdf->stream('order', ["Attachment" => false]);
+    }
 }

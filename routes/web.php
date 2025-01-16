@@ -145,6 +145,7 @@ Route::middleware(['auth','prevent_duplicate_submission'])->group(function () {
     //-----start Pos---------
     Route::get('pos-pre-orders', [POSController::class, 'getAllPreOrders'])->name('pos.pre.orders');
     Route::post('pos-pre-order', [POSController::class, 'storePreOrder'])->name('pos.pre.order');
+    Route::post('pos-hold-order-print', [POSController::class, 'printHoldOrder'])->name('pos.hold-order.print');
     Route::get('pos-invoice-print/{id}', [POSController::class, 'printInvoice'])->name('pos.invoice.print');
     Route::post('pos-add-customer', [POSController::class, 'addCustomer'])->name('pos.add.customer');
     Route::post('pos-update-customer/{id}', [POSController::class, 'updateCustomer'])->name('pos.update.customer');
