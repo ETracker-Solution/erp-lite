@@ -63,18 +63,16 @@ class RecipeController extends Controller
                 Toastr::info('At Least One Product Required.', '', ["progressBar" => true]);
                 return back();
             }
+
+            $exists = Recipe::where('fg_id', $validated['fg_item_id'])->exists();
+
+            if ($exists) {
+                Toastr::info('Item Already Exists.', '', ["progressBar" => true]);
+                return back();
+            }
+
             $uid = generateUniqueUUID(null, Recipe::class, 'uid', false, true);
             foreach ($validated['products'] as $product) {
-
-                $exists = Recipe::query()
-                    ->where('fg_id', $validated['fg_item_id'])
-                    ->exists();
-
-                if ($exists) {
-                    Toastr::info('Item Already Exists.', '', ["progressBar" => true]);
-                    return back();
-                }
-
                 Recipe::query()->create([
                     'uid' => $uid,
                     'fg_id' => $validated['fg_item_id'],

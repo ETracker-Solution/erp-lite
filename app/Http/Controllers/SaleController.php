@@ -15,6 +15,7 @@ use App\Models\Outlet;
 use App\Models\Payment;
 use App\Models\PreOrder;
 use App\Models\Product;
+use App\Models\Recipe;
 use App\Models\Sale;
 use App\Models\SalesReturn;
 use App\Models\Store;
@@ -25,6 +26,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use niklasravnsborg\LaravelPdf\Facades\Pdf;
+use stdClass;
 use Yajra\DataTables\Facades\DataTables;
 
 class SaleController extends Controller
@@ -101,8 +103,6 @@ class SaleController extends Controller
             'products' => 'array',
             'description' => 'nullable',
         ]);
-
-        // dd( $request->all());
         try {
             DB::beginTransaction();
 
@@ -124,11 +124,12 @@ class SaleController extends Controller
             }
             if ($request->store_id) {
                 $store = Store::find($request->store_id);
-            } else {
-                $store = Store::where(['doc_type' => 'outlet', 'doc_id' => \auth()->user()->employee->outlet_id])->first();
+            }else {
+                $store = Store::where(['doc_type' => 'outlet', 'doc_id' => \auth()->user()->employee->outlet_id, 'type' => 'FG'])->first();
             }
             $outlet = Outlet::find($store->doc_id);
             $outlet_id = $outlet->id;
+            $rm_store = Store::where(['doc_type' => 'outlet', 'doc_id' => $outlet_id, 'type'=> 'RM'])->first();
             $request->merge(['delivery_point_id' => $request->delivery_point_id ?? $outlet_id]);
             $sale = new Sale();
             $sale->invoice_number = generateUniqueUUID($outlet_id, Sale::class, 'invoice_number');
@@ -179,7 +180,7 @@ class SaleController extends Controller
                 $row['product_id'] = $row['item_id'];
                 $row['unit_price'] = $row['rate'];
                 $currentStock = availableInventoryBalance($row['product_id'], $store->id);
-                if (($currentStock < $row['quantity']) && $row['is_readonly'] == 'true' && ($request->sales_type != 'pre_order' && $outlet_id == $request->delivery_point_id)) {
+                if (($currentStock < $row['quantity']) && $row['is_readonly'] == 'true' && ($request->sales_type != 'pre_order' && $outlet_id == $request->delivery_point_id) && $row['recipeProduct'] == false) {
                     Toastr::error('Quantity cannot more then ' . $currentStock . ' !', '', ["progressBar" => true]);
                     return back();
                 }
@@ -205,6 +206,39 @@ class SaleController extends Controller
                 $sale_item['rate'] = averageFGRate($row['product_id']);
                 $sale_item['amount'] = $sale_item['rate'] * $row['quantity'];
                 $sale_item['store_id'] = $store->id;
+
+                if($row['recipeProduct'] == true){
+                    if(!$rm_store){
+                        Toastr::error('Please Set RM Store', '', ["progressBar" => true]);
+                        return back();
+                    }
+                    
+                    $recipes_items = Recipe::where('fg_id', $sale_item['coi_id'])->get();
+                    $currentRMStock = 0;
+                    foreach ($recipes_items as $recipe_item) {
+
+                        $currentRMStock = availableInventoryBalance($recipe_item->rm_id, $rm_store->id);
+
+                        $rm_qty = $recipe_item->qty * $row['quantity'];
+
+                        if ($currentRMStock < $rm_qty) {
+                            Toastr::error('RM Stock Not Available' . ' !', '', ["progressBar" => true]);
+                            return back();
+                        }
+                        $rm = new stdClass();
+                        $rm->date = date('Y-m-d');
+                        $rm->coi_id = $recipe_item->rm_id;
+                        $rm->rate = 0;
+                        $rm->amount = 0;
+                        $rm->store_id = $rm_store->id;
+                        $rm->quantity = $rm_qty;
+                        $rm->id = $sale_item['id'];
+
+                        addInventoryTransaction(-1, 'POS', $rm);
+                    }
+                    addInventoryTransaction(1, 'POS', $sale_item);
+                }
+
                 if ($row['is_readonly'] == 'true' && ($request->sales_type != 'pre_order' && $outlet_id == $request->delivery_point_id)) {
                     addInventoryTransaction(-1, 'POS', $sale_item);
                 }
@@ -335,10 +369,8 @@ class SaleController extends Controller
      */
     public function destroy(Sale $sale)
     {
-        // dd($sale->items);
         try {
             DB::transaction(function () use ($sale) {
-                // dd($sale);
                 $saleCancelData = collect($sale->toArray())->except([
                     'created_at',
                     'updated_at',
@@ -568,7 +600,6 @@ class SaleController extends Controller
                 'outlets.address as outlet_location'
             )->first();
         $items = DB::table('sale_item_cancels')->where('sale_id', $sale->id)->get();
-        // dd($items);
         return view('sale.deleted-sales-show', compact('sale', 'items'));
     }
 }

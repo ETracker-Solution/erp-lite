@@ -32,6 +32,7 @@ use Illuminate\Support\Facades\Log;
 use Mike42\Escpos\PrintConnectors\CupsPrintConnector;
 use Mike42\Escpos\PrintConnectors\FilePrintConnector;
 use Mike42\Escpos\Printer;
+use stdClass;
 
 class POSController extends Controller
 {
@@ -84,7 +85,8 @@ class POSController extends Controller
             }
             $outlet_id = \auth('web')->user()->employee->outlet_id;
             $outlet = Outlet::find($outlet_id);
-            $store = Store::where(['doc_type' => 'outlet', 'doc_id' => $outlet->id])->first();
+            $store = Store::where(['doc_type' => 'outlet', 'doc_id' => $outlet->id,'type'=> 'FG'])->first();
+            $rm_store = Store::where(['doc_type' => 'outlet', 'doc_id' => $outlet->id, 'type'=> 'RM'])->first();            
             $sale = new Sale();
 
             $sale->invoice_number = generateUniqueUUID($outlet_id, Sale::class, 'invoice_number');
@@ -129,7 +131,7 @@ class POSController extends Controller
                 $row['product_id'] = $row['id'];
                 $row['unit_price'] = $row['price'];
                 $currentStock = availableInventoryBalance($row['id'], $store->id);
-                if ($currentStock < $row['quantity']) {
+                if ($currentStock < $row['quantity'] && !$row['recipeProduct']) {
                     Toastr::error('Delivery Quantity cannot more then ' . $currentStock . ' !', '', ["progressBar" => true]);
                     return back();
                 }
@@ -158,11 +160,32 @@ class POSController extends Controller
                 $sale_item['amount'] = $sale_item['rate'] * $row['quantity'];
                 $sale_item['store_id'] = $store->id;
 
+              
                 if($row['recipeProduct'] == true){
+                    if(!$rm_store){
+                        Toastr::error('Please Set RM Store', '', ["progressBar" => true]);
+                        return back();
+                    }
+                    
+                    $recipes_items = Recipe::where('fg_id', $sale_item['coi_id'])->get();
+                    $currentRMStock = 0;
+                    foreach ($recipes_items as $recipe_item) {
+                        $currentRMStock = availableInventoryBalance($recipe_item->rm_id, $rm_store->id);
+                        $rm_qty = $recipe_item->qty * $row['quantity'];
+                        if ($currentRMStock < $rm_qty) {
+                            Toastr::error('RM Stock Not Available' . ' !', '', ["progressBar" => true]);
+                            return back();
+                        }
+                        $rm = new stdClass();
+                        $rm->date = date('Y-m-d');
+                        $rm->coi_id = $recipe_item->rm_id;
+                        $rm->rate = 0;
+                        $rm->amount = 0;
+                        $rm->store_id = $rm_store->id;
+                        $rm->quantity = $rm_qty;
+                        $rm->id = $sale_item['id'];
 
-                    $recipes_items = Recipe::where('fg_id',$sale_item['coi_id'])->get();
-                    foreach ($recipes_items as $recipe_item){
-
+                        addInventoryTransaction(-1, 'POS', $rm);
                     }
                     addInventoryTransaction(1, 'POS', $sale_item);
                 }
@@ -247,6 +270,7 @@ class POSController extends Controller
         } catch (\Exception $error) {
             DB::rollBack();
             $message = $error->getMessage();
+            dd($error);
             Log::emergency("File:" . $error->getFile() . "Line:" . $error->getLine() . "Message:" . $error->getMessage());
             if ($error->getCode() == 23000) {
                 $message = 'Please Set Account Config';
@@ -315,7 +339,8 @@ class POSController extends Controller
 
         $outlet_id = \auth('web')->user()->employee->outlet_id;
         $outlet = Outlet::find($outlet_id);
-        $store = Store::where(['doc_type' => 'outlet', 'doc_id' => $outlet->id])->first();
+        $store = Store::where(['doc_type' => 'outlet', 'doc_id' => $outlet->id,'type'=> 'FG'])->first();
+        $rm_store = Store::where(['doc_type' => 'outlet', 'doc_id' => $outlet->id, 'type'=> 'RM'])->first();
         foreach ($products as $product) {
             $product->stock = transactionAbleStock($product, [$store->id]);
 //            $product->stock = availableInventoryBalance($product->id, $store->id);
