@@ -86,6 +86,7 @@ class DeliveryCashTransferController extends Controller
      */
     public function store(StoreDeliveryCashTransferRequest $request)
     {
+        dd($request->all());
         $validated = $request->validated();
         DB::beginTransaction();
         try {

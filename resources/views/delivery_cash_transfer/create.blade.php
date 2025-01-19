@@ -76,14 +76,15 @@
                                                         <div class="col-xl-4 col-md-4 col-12">
                                                             <div class="form-group">
                                                                 <label for="credit_account_id">Transfer From</label>
-                                                                <select class="form-control select2" name="credit_account_id"
-                                                                    id="credit_account_id" readonly>
+                                                                <select class="form-control" name="credit_account_id_display"
+                                                                    id="credit_account_id" disabled>
                                                                     <option value="">---Select Account---</option>
                                                                     @foreach ($chartOfAccounts as $row)
                                                                         <option value="{{ $row->id }}" {{ old('credit_account_id') == $row->id ? 'selected' : '' }}>{{ $row->name }}
                                                                         </option>
                                                                     @endforeach
                                                                 </select>
+                                                                <input type="hidden" name="credit_account_id" value="{{ old('credit_account_id') }}">
                                                             </div>
                                                         </div>
                                                     </div>
@@ -177,7 +178,8 @@
                 console.log(othersoutlet)
                 $('input[name=sale_id]').val(othersoutlet.id)
                 $('input[name=amount]').val(othersoutlet.delivery_point_receive_amount)
-                $('select[name=credit_account_id]').val(othersoutlet.paid_account).trigger('change')
+                $('select[name=credit_account_id_display]').val(othersoutlet.paid_account).trigger('change')
+                $('input[name=credit_account_id]').val(othersoutlet.paid_account)
             })
     </script>
 @endpush
