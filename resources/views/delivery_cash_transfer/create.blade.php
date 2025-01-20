@@ -34,6 +34,8 @@
                             </div>
                             <form action="{{ route('delivery-cash-transfers.store') }}" method="POST" class="" enctype="multipart/form-data">
                                 @csrf
+                                <input type="hidden" name="submission_token"
+                                       value="{{ session()->get('submission_token') ?? Str::random(40) }}">
                                 {{-- <div class="card">
                                     <div class="card-header">
                                         <h4 class="card-title">Account Type</h4>
