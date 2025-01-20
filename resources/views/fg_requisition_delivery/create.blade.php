@@ -347,9 +347,9 @@
 
                     },
                     valid: function (index) {
-
-                        if (index.quantity > index.balance_quantity) {
-                            console.log('1st');
+                        index.quantity = parseFloat(index.quantity);
+                        index.balance_quantity = parseFloat(index.balance_quantity);
+                        if (index.quantity >= index.balance_quantity) {
                             index.quantity = index.balance_quantity;
                         }
                         // if (index.requisition_quantity < index.quantity) {
@@ -357,7 +357,6 @@
                         //     index.quantity = index.requisition_quantity;
                         // }
                         if (index.quantity <= 0) {
-                            console.log('3');
                             index.quantity = '';
                         }
                     },
