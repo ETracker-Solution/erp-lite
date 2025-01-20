@@ -68,6 +68,7 @@ class RMInventoryAdjustmentController extends Controller
         DB::beginTransaction();
         try {
             $store = Store::find($data['store_id']);
+            $is_factory = false;
             if ($store->doc_type == 'factory') {
                 $is_factory = true;
             }
