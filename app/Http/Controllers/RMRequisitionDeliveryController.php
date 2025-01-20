@@ -47,10 +47,21 @@ class RMRequisitionDeliveryController extends Controller
      */
     public function create()
     {
+        $toStores = Store::where(['type' => 'RM'])->get();
+        $fromStores = Store::where(['type' => 'RM'])->whereIn('doc_type',['ho','factory'])->get();
+        if (!auth()->user()->is_super) {
+            $doc_id = \auth()->user()->employee->outlet_id ?? \auth()->user()->employee->factory_id;
+            $doc_type = \auth()->user()->employee->outlet_id ? 'outlet' : 'factory';
+            $user_store = Store::where(['doc_type' => $doc_type, 'doc_id' => $doc_id])->first();
+            $outlet_id = $user_store->doc_id;
+            $serial_no = generateUniqueUUID($outlet_id, Requisition::class, 'uid',\auth()->user()->employee->factory_id);
+            $toStores = Store::where(['type' => 'RM','doc_type' => 'RM'])->where('id','!=',$user_store->id)->get();
+            $fromStores = Store::where(['type' => 'RM'])->whereIn('doc_type',['ho','factory'])->where('id',$user_store->id)->get();
+        }
         $data = [
             'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'RM'])->get(),
-            'from_stores' => Store::where(['type' => 'RM', 'doc_type' => 'ho','status' => 'active'])->get(),
-            'to_stores' => Store::where(['type' => 'RM', 'status' => 'active'])->get(),
+            'from_stores' => $fromStores,
+            'to_stores' => $toStores,
             'requisitions' => Requisition::where(['type' => 'RM', 'status' => 'pending'])->get()
         ];
         return view('rm_requisition_delivery.create', $data);

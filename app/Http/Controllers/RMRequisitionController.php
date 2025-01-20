@@ -48,7 +48,7 @@ class RMRequisitionController extends Controller
 
         $serial_no = null;
         $fromStores = Store::where(['type' => 'RM'])->get();
-        $toStores = Store::where(['type' => 'RM', 'doc_type' => 'ho'])->get();
+        $toStores = Store::where(['type' => 'RM'])->whereIn('doc_type',['ho','factory'])->get();
         if (!auth()->user()->is_super) {
             $doc_id = \auth()->user()->employee->outlet_id ?? \auth()->user()->employee->factory_id;
             $doc_type = \auth()->user()->employee->outlet_id ? 'outlet' : 'factory';
