@@ -34,6 +34,8 @@
                             </div>
                             <form action="{{ route('delivery-cash-transfers.store') }}" method="POST" class="" enctype="multipart/form-data">
                                 @csrf
+                                <input type="hidden" name="submission_token"
+                                       value="{{ session()->get('submission_token') ?? Str::random(40) }}">
                                 {{-- <div class="card">
                                     <div class="card-header">
                                         <h4 class="card-title">Account Type</h4>
@@ -176,6 +178,7 @@
         $('#invoice_number').on('select2:select', function (e) {
                 const othersoutlet = JSON.parse(e.params.data.id);
                 console.log(othersoutlet)
+                $('input[name=sale_id]').val(othersoutlet.id)
                 $('input[name=sale_id]').val(othersoutlet.id)
                 $('input[name=amount]').val(othersoutlet.delivery_point_receive_amount)
                 $('select[name=credit_account_id_display]').val(othersoutlet.paid_account).trigger('change')
