@@ -31,7 +31,6 @@ class VatConfigController extends Controller
     public function store(Request $request)
     {
         $settings =  $request->settings;
-        // dd($settings);
         DB::beginTransaction();
         try {
             if (array_key_exists('global_vat_type', $settings) && array_key_exists('global_vat_amount', $settings)) {
