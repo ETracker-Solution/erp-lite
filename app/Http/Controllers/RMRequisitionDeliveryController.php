@@ -54,8 +54,7 @@ class RMRequisitionDeliveryController extends Controller
             $doc_type = \auth()->user()->employee->outlet_id ? 'outlet' : 'factory';
             $user_store = Store::where(['doc_type' => $doc_type, 'doc_id' => $doc_id])->first();
             $outlet_id = $user_store->doc_id;
-            $serial_no = generateUniqueUUID($outlet_id, Requisition::class, 'uid',\auth()->user()->employee->factory_id);
-            $toStores = Store::where(['type' => 'RM','doc_type' => 'RM'])->where('id','!=',$user_store->id)->get();
+            $toStores = Store::where(['type' => 'RM','doc_type' => 'RM'])->get();
             $fromStores = Store::where(['type' => 'RM'])->whereIn('doc_type',['ho','factory'])->where('id',$user_store->id)->get();
         }
         $data = [
