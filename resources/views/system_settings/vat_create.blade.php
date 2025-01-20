@@ -2,12 +2,12 @@
 @section('title', 'Vat Config Create')
 @section('content')
     @php
-        $links = [
-        'Home'=>route('dashboard'),
-        'System Admin Module'=>'',
-        'Vat Config'=>'',
-        'Vat Config Entry'=>''
-        ]
+$links = [
+    'Home' => route('dashboard'),
+    'System Admin Module' => '',
+    'Vat Config' => '',
+    'Vat Config Entry' => ''
+]
     @endphp
     <x-breadcrumb title='Vat Config Entry' :links="$links"/>
     <section class="content">
@@ -43,28 +43,6 @@
                                             <small class="text-danger">{{ $errors->first('global_vat_amount') }}</small>
                                         @endif                                        </div>
                                     </div>
-
-                                    <div class="col-xl-4 col-md-4 col-12 mb-1">
-                                        <div class="form-group">
-                                            <label for="">Vat Including Item Discount</label>
-                                            <select name="settings[vat_including_item_discount]" id="" class="form-control">
-                                                    <option value="">Select Type</option>
-                                                    <option value="with_vat" {{ 'with_vat' == getSettingValue('vat_including_item_discount') ? 'selected' : '' }}>With Vat</option>
-                                                    <option value="without_vat" {{ 'without_vat' == getSettingValue('vat_including_item_discount') ? 'selected' : '' }}>Without Vat</option>
-                                            </select>
-                                        </div>
-                                    </div> 
-
-                                    <div class="col-xl-4 col-md-4 col-12 mb-1">
-                                        <div class="form-group">
-                                            <label for="">Vat Excluding Item Discount</label>
-                                            <select name="settings[vat_excluding_item_discount]" id="" class="form-control">
-                                                    <option value="">Select Type</option>
-                                                    <option value="with_vat" {{ 'with_vat' == getSettingValue('vat_excluding_item_discount') ? 'selected' : '' }}>With Vat</option>
-                                                    <option value="without_vat" {{ 'without_vat' == getSettingValue('vat_excluding_item_discount') ? 'selected' : '' }}>Without Vat</option>
-                                            </select>
-                                        </div>
-                                    </div> 
                                 </div>
                             </div>
                             <div class="card-footer">

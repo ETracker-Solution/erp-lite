@@ -735,24 +735,24 @@
                 computed: {
                     subtotal: function () {
                         return this.items.reduce((total, item) => {
-                            return total + ((item.quantity * item.price) - item.product_discount)
+                            return total + ((item.quantity * item.price) - item.discountAmount)
                         }, 0)
                     },
                     subtotal2: function () {
                         return this.items.reduce((total, item) => {
-                            return total + ((item.quantity * item.price) - item.product_discount)
+                            return total + ((item.quantity * item.price) - item.discountAmount)
                         }, 0)
                     },
                     grandtotal: function () {
-                        return this.subtotal - this.discount + Number(this.delivery_charge) + Number(this.additional_charge)
+                        return this.subtotal - this.discount + Number(this.delivery_charge) + Number(this.additional_charge);
                     },
                     change_amount: function () {
                         return this.grandtotal - this.receive_amount
                     },
                     total_bill: function () {
-                        return this.items.reduce((total, item) => {
-                            return total + ((item.quantity * item.total_price_with_vat))
-                        }, 0)
+                        return Math.round(this.items.reduce((total, item) => {
+                            return total + (item.quantity * item.price);
+                        }, 0));
                     },
                     total_paying: function () {
                         let amount = this.paymentMethods.reduce((total, item) => {
@@ -776,8 +776,8 @@
                         return this.total_paying > this.total_due ? this.total_paying - this.total_due : 0
                     },
                     total_payable_bill: function () {
-                        var vm = this
-                        return (this.total_bill - vm.couponCodeDiscountAmount - this.allDiscountAmount) + Number(this.delivery_charge) + Number(this.additional_charge) 
+                        var vm = this;                    
+                        return (this.total_bill - vm.couponCodeDiscountAmount - this.allDiscountAmount) + Number(this.delivery_charge) + Number(this.additional_charge) + Number(this.excludingitemstotalvat);
                     },
                     total_due: function () {
                         return this.total_payable_bill
@@ -788,8 +788,7 @@
                         }, 0)
                     },
                     allDiscountAmount: function () {
-                        var vm = this
-                        return Number(vm.total_discount_amount) + Number(vm.special_discount_amount) + Number(this.productWiseDiscount) + Number(this.membership_discount_amount)
+                        return Number(this.total_discount_amount) + Number(this.special_discount_amount) + Number(this.productWiseDiscount) + Number(this.membership_discount_amount);
                     },
                     withoutIndivitualDiscountAmount: function () {
                         var vm = this
@@ -803,27 +802,28 @@
                         return this.items.some(item => !item.discountable);
                     },
                     vatTotal: function () {
-                        return  Math.round(this.items.reduce((total, item) => {
-                            let result = this.baseprice(item);
-                            return total + ((item.quantity * result.vat))
-                        }, 0))
+                        var vm = this;
+                        return Math.round(this.items.reduce((total, item) => {
+                            let result = this.discountAmounttk(item);
+                            return total + result.vat;
+                        }, 0));
                     },
                     taxableAmount: function () {
-                        // return Math.round(this.items.reduce((total, item) => {
-                        //     return total + this.itemtotal(item,item.base_price)
-                        // }, 0))
-                        return (this.total_payable_bill - this.vatTotal) - (Number(this.delivery_charge) + Number(this.additional_charge));
+                        return  Math.round(this.items.reduce((total, item) => {
+                            let result = this.discountAmounttk(item);
+                            return total + result.taxable_amount;
+                        }, 0))
                     },
-                    discountFromGrandTotal: function () {
-                        var vm = this
-                        let totalItem = vm.items.filter(item => item.quantity > 0).length;
-                        let discountedPriceItemWise = 0;
-                        if(vm.withoutIndivitualDiscountAmount > 0){
-                            discountedPriceItemWise = Number(vm.withoutIndivitualDiscountAmount) / Number(totalItem) 
-                        }
-                        return discountedPriceItemWise;
+                    excludingitemstotalvat: function () {
+                        return Math.round(this.items.reduce((total, item) => {
+                            let result = this.discountAmounttk(item);
+                            if (result.vat_type == 'excluding') {
+                                return total + result.vat;
+                            }else{
+                                return 0;
+                            }
+                        }, 0))
                     },
-                    
                 },
                 methods: {
                     fetch_item() {
@@ -939,12 +939,8 @@
                             vm.selectedSpecialDiscount = false;
                         }
                     },
-                    itemtotal: function (index,price = false) {
-                        if(!price){
-
-                            price = index.price
-                        }
-                        return (index.quantity * price) - index.discountAmount;
+                    itemtotal: function (index) {
+                        return (index.quantity * index.price) - index.discountAmount;
                     },
                     valid: function (index) {
                         const vm=this
@@ -1180,42 +1176,55 @@
                             return false;
                         });
                     },
-                    baseprice: function (item) {
-                        let vatType = item.vat_type;
-                        let vatAmount = item.vat_amount;
-                        let price = item.price;
-                        let discountedPriceItemWise = this.discountFromGrandTotal;
+                    totaltktopercentage: function (item) {
+                        var vm = this;
+                        let product_discount = 0;
 
-                        if (discountedPriceItemWise > 0) {
-                            price = price - discountedPriceItemWise;
+                        if (item.discountType == 'p') {
+                            product_discount = Number(item.discountValue);
+                        } else {
+                            product_discount = (Number(item.discountAmount) / (item.quantity * item.price)) * 100;
                         }
 
-                        if (vatType == 'including') {
-                            basePrice = price / (1 + vatAmount / 100) ;
+                        let withoutIndivitualDiscountAmount = (Number(vm.withoutIndivitualDiscountAmount) / Number(vm.total_bill)) * 100 || 0;
+                        let total_discount_percentage = (product_discount + withoutIndivitualDiscountAmount) || 0;
 
-                            if (item.vat_discount_type == 'with_vat'){
-                                basePrice = (price - item.discountAmount ) / (1 + vatAmount / 100) ;
-                            }else if(item.vat_discount_type == 'without_vat'){
-                                basePrice = basePrice - item.discountAmount ;
-                            }
-                            vat = (basePrice * vatAmount) / 100;
-                        } else if (vatType == 'excluding') {
-                            basePrice = price;
-                            if (item.vat_discount_type == 'with_vat'){
-                                vat = (basePrice * vatAmount) / 100;
-                                basePrice = (basePrice + vat) - item.discountAmount ;
-                            } else if (item.vat_discount_type == 'without_vat'){
-                                basePrice = basePrice - item.discountAmount ;
-                            }
-                            vat = (basePrice * vatAmount) / 100;
-                        } else {
-                            basePrice = price;
-                            vat = 0;
+                        return total_discount_percentage;
+                    },
+                    discountAmounttk: function(item) {
+                        var vm = this;
+                        var total_cost = item.quantity * item.price;
+
+                        if (!total_cost) {
+                            return {
+                                vat_type: item.vat_type,
+                                vat: 0,
+                                taxable_amount: 0,
+                                after_discount: 0,
+                                discount_amount: 0
+                            };
+                        }
+
+                        let discount_amount = (total_cost * vm.totaltktopercentage(item)) / 100;
+                        let after_discount = total_cost - discount_amount;
+                        let taxable_amount = 0;
+                        let vat = 0;
+
+                        if (item.vat_type == "including") {
+                            taxable_amount = after_discount / (1 + (item.vat_amount / 100)) || 0;
+                            vat = after_discount - taxable_amount;    
+                        } else if (item.vat_type == "excluding") {
+                            taxable_amount = after_discount || 0;
+                            vat = taxable_amount * (item.vat_amount / 100) || 0;
                         }
 
                         return {
-                            basePrice: basePrice,
-                            vat: vat,
+                            vat_type: item.vat_type,
+                            vat,
+                            taxable_amount,
+                            after_discount,
+                            discount_amount,
+                            total_cost
                         };
                     },
                 },
