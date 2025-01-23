@@ -67,8 +67,14 @@ class RMInventoryAdjustmentController extends Controller
         $data = $request->validated();
         DB::beginTransaction();
         try {
-            $is_headOffice  = Store::find($data['store_id'])->doc_type == 'ho';
-            $data['uid'] = generateUniqueUUID($data['store_id'], InventoryAdjustment::class, 'uid', false, $is_headOffice);
+            $store = Store::find($data['store_id']);
+            $is_factory = false;
+            if ($store->doc_type == 'factory') {
+                $is_factory = true;
+            }
+            $outlet_or_factory_id = $store->doc_id;
+            $is_headOffice = $store->doc_type == 'ho';
+            $data['uid'] = generateUniqueUUID($outlet_or_factory_id, InventoryAdjustment::class, 'uid', $is_factory, $is_headOffice);
             $adjustment = InventoryAdjustment::create($data);
             $adjustment->amount = $adjustment->subtotal;
             foreach ($data['products'] as $product) {

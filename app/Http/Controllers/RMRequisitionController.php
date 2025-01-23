@@ -47,17 +47,21 @@ class RMRequisitionController extends Controller
     {
 
         $serial_no = null;
+        $fromStores = Store::where(['type' => 'RM'])->get();
+        $toStores = Store::where(['type' => 'RM'])->whereIn('doc_type',['ho','factory'])->get();
         if (!auth()->user()->is_super) {
             $doc_id = \auth()->user()->employee->outlet_id ?? \auth()->user()->employee->factory_id;
             $doc_type = \auth()->user()->employee->outlet_id ? 'outlet' : 'factory';
             $user_store = Store::where(['doc_type' => $doc_type, 'doc_id' => $doc_id])->first();
             $outlet_id = $user_store->doc_id;
             $serial_no = generateUniqueUUID($outlet_id, Requisition::class, 'uid',\auth()->user()->employee->factory_id);
+            $fromStores = Store::where(['type' => 'RM','doc_type' => $doc_type, 'doc_id' => $doc_id])->get();
+            $toStores = Store::where(['type' => 'RM'])->whereIn('doc_type',['ho','factory'])->where('id','!=',$user_store->id)->get();
         }
         $data = [
             'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'RM'])->get(),
-            'from_stores' => Store::where(['type' => 'RM'])->get(),
-            'to_stores' => Store::where(['type' => 'RM', 'doc_type' => 'ho'])->get(),
+            'from_stores' => $fromStores,
+            'to_stores' => $toStores,
             'serial_no' => $serial_no
         ];
         return view('rm_requisition.create', $data);

@@ -81,10 +81,12 @@ class DeliveryCashReceiveController extends Controller
     {
         $deliveryCashTransfer = DeliveryCashTransfer::find(decrypt($id));
         try {
-            addAccountsTransaction('DCT', $deliveryCashTransfer, $deliveryCashTransfer->debit_account_id, $deliveryCashTransfer->credit_account_id);
-            $deliveryCashTransfer->update([
-                'status'=>'received'
-            ]);
+            if($deliveryCashTransfer->status !== 'received'){
+                addAccountsTransaction('DCT', $deliveryCashTransfer, $deliveryCashTransfer->debit_account_id, $deliveryCashTransfer->credit_account_id);
+                $deliveryCashTransfer->update([
+                    'status'=>'received'
+                ]);
+            }
         }catch (\Exception $exception){
             Toastr::error('Something went wrong!.', '', ["progressBar" => true]);
             return redirect()->route('delivery-cash-receives.index');
