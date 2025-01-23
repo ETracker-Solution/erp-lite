@@ -216,7 +216,7 @@ class ApiController extends Controller
             ->whereIn('delivery_status', ['pending', 'partial'])
             ->with(['items', 'deliveries.items'])
             ->get()
-            ->groupBy('outlet_id'); // Group by outlet_id for easier access later
+            ->groupBy('outlet_id');
         foreach ($products as $product) {
             $reqLeft = 0;
             if (auth()->user()->employee->user_of == 'factory') {

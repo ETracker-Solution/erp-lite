@@ -131,6 +131,9 @@ class SaleController extends Controller
             $outlet_id = $outlet->id;
             $rm_store = Store::where(['doc_type' => 'outlet', 'doc_id' => $outlet_id, 'type'=> 'RM'])->first();
             $request->merge(['delivery_point_id' => $request->delivery_point_id ?? $outlet_id]);
+
+            // dd($request->all(), $store, $rm_store, $outlet, $outlet_id, $customer_id);
+
             $sale = new Sale();
             $sale->invoice_number = generateUniqueUUID($outlet_id, Sale::class, 'invoice_number');
             // $sale->invoice_number = $request->invoice_number ?? InvoiceNumber::generateInvoiceNumber($outlet_id, $selectedDate);
@@ -180,7 +183,7 @@ class SaleController extends Controller
                 $row['product_id'] = $row['item_id'];
                 $row['unit_price'] = $row['rate'];
                 $currentStock = availableInventoryBalance($row['product_id'], $store->id);
-                if (($currentStock < $row['quantity']) && $row['is_readonly'] == 'true' && ($request->sales_type != 'pre_order' && $outlet_id == $request->delivery_point_id) && $row['recipeProduct'] == false) {
+                if (($currentStock < $row['quantity']) && $row['is_readonly'] == 'true' && ($request->sales_type != 'pre_order' && $outlet_id == $request->delivery_point_id) && $row['recipeProduct'] == 'false') {
                     Toastr::error('Quantity cannot more then ' . $currentStock . ' !', '', ["progressBar" => true]);
                     return back();
                 }
@@ -207,7 +210,8 @@ class SaleController extends Controller
                 $sale_item['amount'] = $sale_item['rate'] * $row['quantity'];
                 $sale_item['store_id'] = $store->id;
 
-                if($row['recipeProduct'] == true){
+                if (($row['recipeProduct'] == "true") && ($request->sales_type != 'pre_order' && $outlet_id == $request->delivery_point_id)) {
+
                     if(!$rm_store){
                         Toastr::error('Please Set RM Store', '', ["progressBar" => true]);
                         return back();
