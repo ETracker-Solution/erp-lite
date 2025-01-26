@@ -39,6 +39,7 @@ class PreOrderController extends Controller
 
     public function exportPreOrder($type)
     {
+        $outlet_id = false;
         if (auth()->user()->employee && auth()->user()->employee->outlet_id) {
             $outlet_id = auth()->user()->employee->outlet_id;
             $preOrderItem = PreOrderItem::with('coi.parent', 'preOrder.outlet', 'preOrder.customer')
