@@ -90,7 +90,7 @@ class FundTransferVoucherController extends Controller
 
         } else {
             $chartOfAccounts = ChartOfAccount::where(['is_bank_cash' => 'yes', 'type' => 'ledger', 'status' => 'active'])->get();
-            $toChartOfAccounts = ChartOfAccount::where(['is_bank_cash' => 'yes', 'type' => 'ledger', 'status' => 'active'])->get();
+            $toChartOfAccounts = ChartOfAccount::where(['is_bank_cash' => 'yes', 'type' => 'ledger', 'status' => 'active'])->orWhere(['default_type' => 'petty_cash', 'type' => 'ledger', 'status' => 'active'])->get();
 
         }
 
