@@ -91,6 +91,17 @@
                                                         :options="$units" optionId="id" optionValue="name"/>
                                     </div>
                                     <div class="col-xl-12 col-md-12 col-12">
+                                        <x-forms.select label="Alter Unit" inputName="alter_unit"
+                                                        placeholder="Select Alter Unit" :isRequired='false'
+                                                        :isReadonly='false' defaultValue=""
+                                                        :options="$alter_units" optionId="id" optionValue="name"/>
+                                    </div>
+                                    <div class="col-xl-12 col-md-12 col-12">
+                                        <x-forms.text label="Alter Unit Quantity" inputName="a_unit_quantity"
+                                                      placeholder="Enter Alter Unit Quantity" :isRequired='false'
+                                                      :isReadonly='false' defaultValue=""/>
+                                    </div>
+                                    <div class="col-xl-12 col-md-12 col-12">
                                         <x-forms.text label="Selling Price" inputName="price"
                                                       placeholder="Enter Selling Price" :isRequired='false'
                                                       :isReadonly='false' defaultValue=""/>
@@ -155,6 +166,8 @@
         let accountTypeInput = $("input[name=account_type]")
         let itemUnitInput = $("select[name=unit]")
         let itemStatusInput = $("select[name=status]")
+        let itemAlterUnitInput = $("select[name=alter_unit]")
+        let itemAlterUnitQuantityInput = $("input[name=a_unit_quantity]")
         let itemPriceInput = $("input[name=price]")
         let newItemNameInput = $("input[name=new_item_name]")
         let newItemTypeInput = $("select[name=new_item_type]")
@@ -170,7 +183,7 @@
         }
 
         function setValue(element, value) {
-            if (element == itemUnitInput || element == itemStatusInput || element == nonDiscountableCheckbox) {
+            if (element == itemUnitInput || element == itemStatusInput || element == nonDiscountableCheckbox || element == itemAlterUnitInput || element == itemAlterUnitQuantityInput) {
                 element.val(value).trigger('change')
             } else {
                 element.val(value)
@@ -196,6 +209,8 @@
                     setValue(accountTypeInput, result.account_type)
                     setValue(itemUnitInput, '')
                     setValue(itemStatusInput, '')
+                    setValue(itemAlterUnitInput, '')
+                    setValue(itemAlterUnitQuantityInput, '')
                     setValue(itemPriceInput, '')
                     setValue(nonDiscountableCheckbox, result.non_discountable)
                     makeVisible(updateButton)
@@ -205,6 +220,8 @@
                         makeVisible(additionalInfoDiv)
                         setValue(itemUnitInput, result.unit_id)
                         setValue(itemStatusInput, result.status)
+                        setValue(itemAlterUnitInput, result.alter_unit_id)
+                        setValue(itemAlterUnitQuantityInput, result.a_unit_quantity)
                         setValue(itemPriceInput, result.price)
                         makeHidden(addButton)
                     } else {
@@ -245,6 +262,8 @@
                             unit: getValue(itemUnitInput),
                             price: getValue(itemPriceInput),
                             status: getValue(itemStatusInput),
+                            alter_unit: getValue(itemAlterUnitInput),
+                            a_unit_quantity: getValue(itemAlterUnitQuantityInput),
                             non_discountable: getValue(nonDiscountableCheckbox)
                         },
                         headers: {
@@ -296,6 +315,8 @@
                     item_type: getValue(newItemTypeInput),
                     unit: getValue(itemUnitInput),
                     status: getValue(itemStatusInput),
+                    alter_unit: getValue(itemAlterUnitInput),
+                    a_unit_quantity: getValue(itemAlterUnitQuantityInput),
                     price: getValue(itemPriceInput),
                     non_discountable: getValue(nonDiscountableCheckbox)
                 },
@@ -358,6 +379,8 @@
                     setValue(accountTypeInput, '')
                     setValue(itemUnitInput, '')
                     setValue(itemStatusInput, '')
+                    setValue(itemAlterUnitInput, '')
+                    setValue(itemAlterUnitQuantityInput, '')
                     setValue(itemPriceInput, 0)
 
                     makeHidden(addNewDiv)

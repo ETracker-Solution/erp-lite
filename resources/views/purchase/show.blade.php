@@ -55,74 +55,86 @@ Purchase List
                         <div class="col-sm-4 invoice-col">
 
                         </div>
-                        <!-- /.col -->
                         <div class="col-sm-4 invoice-col">
                             GPB No : {{ $model->uid }} <br>
                             Name : {{ $model->supplier->name }} <br>
-                            Address :  {{ $model->supplier->address }}<br>
+                            Address : {{ $model->supplier->address }}<br>
                         </div>
-                        <!-- /.col -->
-                    </div>
-                    <!-- /.row -->
-
-                    <!-- Table row -->
-                    <div class="row">
-                        <div class="col-12 table-responsive">
-                            <table class="table table-striped">
-                                <thead>
-                                    <tr>
-                                        <th>#</th>
-                                        <th>Group</th>
-                                        <th>Product</th>
-                                        <th>Unit</th>
-                                        <th>Qty</th>
-                                        <th>Price</th>
-                                        <th class="text-right">Item Total</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach ($model->items as $item)
-                                    <tr>
-                                        <td>{{ $loop->iteration }}</td>
-                                        <td>{{ $item->coi->parent->name?? '' }}</td>
-                                        <td>{{ $item->coi->name?? '' }}</td>
-                                        <td>{{ $item->coi->unit->name?? '' }}</td>
-                                        <td>{{ $item->quantity?? '' }} {{ $item->product->unit->name?? '' }}</td>
-                                        <td>{{ $item->rate?? '' }}</td>
-                                        <td class="text-right">{{ $item->rate * $item->quantity?? '' }}</td>
-                                    </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
                         </div>
-                        <!-- /.col -->
-                    </div>
-                    <!-- /.row -->
+                        
+                        <div class="row">
+                            <div class="col-12 table-responsive">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Group</th>
+                                            <th>Product</th>
+                                            <th>Qty</th>
+                                            <th>Price</th>
+                                            <th class="text-right">Item Total</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach ($model->items as $item)
+                                                    <tr>
+                                                        <td>{{ $loop->iteration }}</td>
+                                                        <td>{{ $item->coi->parent->name ?? '' }}</td>
+                                                        <td>{{ $item->coi->name ?? '' }}</td>
 
-                    <div class="row">
-                        <!-- accepted payments column -->
-                        <div class="col-8">
+                                                        <td>
+                                                            {{ $item->quantity ?? '' }} {{ $item->coi->unit->name ?? '' }}
+                                                            @if (isset($item->coi->a_unit_quantity) && $item->coi->a_unit_quantity > 0 && $item->coi->alter_unit_id)
+                                                                ({{ $item->quantity / $item->coi->a_unit_quantity }} {{ $item->coi->alterUnit->name ?? '' }})
+                                                            @endif
+                                                        </td>
 
+                                                        <td>{{ $item->rate ?? '' }}</td>
+                                                        <td class="text-right">{{ $item->rate * $item->quantity ?? '' }}</td>
+                                                    </tr>
+                                                @endforeach
+                                            </tbody>
+                                            </table>
+                                            </div>
+                                            <!-- /.col -->
+                                            </div>
+                                            <!-- /.row -->
+                                            
+                                            <div class="row">
+                                                <!-- accepted payments column -->
+                                                <div class="col-8">
+                                            
+                                                </div>
+                                                <!-- /.col -->
+                                                <div class="col-4">
+                                                    <div class="table-responsive">
+                                                        <table class="table">
+                                                            <tr>
+                                            <th style="width:50%">Discount:</th>
+                                            <td class="text-right">{{ $model->discount }}</td>
+                                            </tr>
+                                            <tr>
+                                            <th style="width:50%">Subtotal:</th>
+                                            <td class="text-right">{{ $model->subtotal }}</td>
+                                            </tr>
+                                            </table>
+                                            </div>
+                                            </div>
+                                            <!-- /.col -->
+                                            </div>
+                                            <!-- /.row -->
+                        <!-- this row will not appear when printing -->
                         </div>
-                        <!-- /.col -->
-                        <div class="col-4">
-                            <div class="table-responsive">
-                                <table class="table">
-                                    <tr>
-                                        <th style="width:50%">Subtotal:</th>
-                                        <td class="text-right">{{ $model->subtotal }}</td>
-                                    </tr>
-                                </table>
+                        <div class="row">
+                            <div class="col-12">
+                                @if ($model->status != 'cancelled')
+                                    <a href="{{ route('purchase.cancel', encrypt($model->id)) }}" class="btn btn-sm btn-danger float-right"><i
+                                            class="fa fa-trash"></i>
+                                        CANCEL</a>
+                                @endif
                             </div>
                         </div>
-                        <!-- /.col -->
-                    </div>
-                    <!-- /.row -->
-
-                    <!-- this row will not appear when printing -->
-                </div>
-                <!-- /.invoice -->
-            </div><!-- /.col -->
+                        </div><!-- /.col -->
         </div><!-- /.row -->
     </div><!-- /.container-fluid -->
 </section>

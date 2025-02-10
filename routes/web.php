@@ -71,6 +71,7 @@ Route::middleware(['auth','prevent_duplicate_submission'])->group(function () {
     Route::resource('categories', App\Http\Controllers\CategoryController::class);
     Route::resource('brands', App\Http\Controllers\BrandController::class);
     Route::resource('units', App\Http\Controllers\UnitController::class);
+    Route::resource('alter_units', App\Http\Controllers\AlterUnitController::class);
     Route::resource('products', App\Http\Controllers\ProductController::class);
     Route::resource('supplier-groups', App\Http\Controllers\SupplierGroupController::class);
     Route::resource('suppliers', App\Http\Controllers\SupplierController::class);
@@ -174,7 +175,7 @@ Route::middleware(['auth','prevent_duplicate_submission'])->group(function () {
 
     Route::get('/fetch-production-by-id/{id}', [App\Http\Controllers\ApiController::class, 'fetchProductionById']);
     Route::get('/fetch-consumption-by-id/{id}', [App\Http\Controllers\ApiController::class, 'fetchConsumptionById']);
-    Route::get('/fetch-items-by-group-id/{id}', [App\Http\Controllers\ApiController::class, 'fetch_products_by_cat_id']);
+    Route::get('/fetch-items-by-group-id/{id?}', [App\Http\Controllers\ApiController::class, 'fetch_products_by_cat_id']);
     Route::get('/fetch-item-available-balance/{item_id}/{store_id?}', [App\Http\Controllers\ApiController::class, 'fetchItemAvailableBalance']);
     Route::get('fetch-item-info-rm-consumption/{item_id}/{store_id?}', [App\Http\Controllers\ApiController::class, 'fetchItemInfoRMConsumption']);
     Route::get('fetch-items-by-group-id-rm-consumption/{group_id}/{store_id?}', [App\Http\Controllers\ApiController::class, 'fetchItemsByGroupIdRMConsumption']);
@@ -208,6 +209,7 @@ Route::middleware(['auth','prevent_duplicate_submission'])->group(function () {
 
     Route::get('purchase-pdf/{id}', [App\Http\Controllers\PurchaseController::class, 'pdf'])->name('purchase.pdf');
     Route::get('purchase-pdf-download/{id}', [App\Http\Controllers\PurchaseController::class, 'pdfDownload'])->name('purchase.pdf-download');
+    Route::get('purchase-cancel/{id}', [App\Http\Controllers\PurchaseController::class, 'purchaseCancel'])->name('purchase.cancel');
 
     Route::resource('users', \App\Http\Controllers\UserController::class);
 

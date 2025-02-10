@@ -977,26 +977,21 @@
                     console.log(order)
                     axios.post("{{url('pos-hold-order-print')}}",order).then(function (response) {
                         var html = response.data
-                        // Create a hidden iframe
                         const iframe = document.createElement('iframe');
-                        iframe.style.visibility = 'hidden'; // Completely hides the iframe
+                        iframe.style.visibility = 'hidden';
                         iframe.style.position = 'absolute';
                         iframe.style.width = '0';
                         iframe.style.height = '0';
                         iframe.style.border = '0';
 
-                        // Append the iframe to the document body
                         document.body.appendChild(iframe);
 
-                        // Write the response HTML to the iframe's document
                         iframe.contentDocument.open();
                         iframe.contentDocument.write(html);
                         iframe.contentDocument.close();
 
-                        // Trigger the print dialog for the iframe's content
                         iframe.contentWindow.print();
 
-                        // Remove the iframe after printing
                         setTimeout(() => document.body.removeChild(iframe), 500);
                     })
 

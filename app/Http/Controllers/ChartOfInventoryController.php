@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AlterUnit;
 use App\Models\Category;
 use App\Models\ChartOfInventory;
 use App\Models\Customer;
@@ -15,9 +16,10 @@ class ChartOfInventoryController extends Controller
     public function index()
     {
         $units = Unit::where('status','active')->get();
+        $alter_units = AlterUnit::where('status', 'active')->get();
         $allChartOfInventories = ChartOfInventory::whereNull('parent_id')->get();
         $groups = ChartOfInventory::whereIn('type',['group','fixed'])->get();
-        return view('chart_of_inventory.index', compact('allChartOfInventories','groups','units'));
+        return view('chart_of_inventory.index', compact('allChartOfInventories', 'groups', 'units', 'alter_units'));
     }
 
     public function store(Request $request)
@@ -33,6 +35,8 @@ class ChartOfInventoryController extends Controller
             'parent_id' => $request->input('parent_id'),
             'type' => $request->input('type'),
             'unit_id' => $request->input('unit_id'),
+            'alter_unit_id' => $request->input('alter_unit_id'),
+            'a_unit_quantity' => $request->input('a_unit_quantity'),
             'price' => $request->input('price'),
             'rootAccountType' => $chartOfAccount->rootAccountType,
             'created_by' => auth()->user()->id,

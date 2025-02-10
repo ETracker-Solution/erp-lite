@@ -32,6 +32,9 @@ class UpdatePurchaseRequest extends FormRequest
             'subtotal' => ['required'],
             'reference_no' => ['nullable'],
             'vat' => ['nullable'],
+            'alter_unit_id' => ['nullable'],
+            'a_unit_quantity' => ['nullable'],
+            'discount' => ['nullable'],
             'net_payable' => ['required'],
             'updated_by' => ['required'],
         ];

@@ -74,6 +74,7 @@ class FGPurchaseController extends Controller
     {
         $validated = $request->validated();
         $validated['type']='fg';
+
         DB::beginTransaction();
         try {
             if (count($validated['products']) < 1) {
@@ -83,6 +84,13 @@ class FGPurchaseController extends Controller
             $purchase = Purchase::query()->create($validated);
             $purchase->amount = $purchase->net_payable;
             foreach ($validated['products'] as $product) {
+
+                if ($product['alter_unit']) {
+                    $total_rate = $product['rate'] * $product['quantity'];
+                    $product['quantity'] = ($product['a_unit_quantity'] > 0 ? $product['a_unit_quantity'] : 1) * $product['quantity'];
+                    $product['rate'] = $total_rate / $product['quantity'];
+                }
+
                 $purchase->items()->create($product);
                 // Inventory Transaction Effect
                 InventoryTransaction::query()->create([
