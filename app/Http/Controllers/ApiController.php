@@ -7,6 +7,7 @@ use App\Models\ChartOfAccount;
 use App\Models\ChartOfInventory;
 use App\Models\Consumption;
 use App\Models\ConsumptionItem;
+use App\Models\CustomerTransaction;
 use App\Models\InventoryTransaction;
 use App\Models\InventoryTransfer;
 use App\Models\OthersOutletSale;
@@ -41,8 +42,8 @@ class ApiController extends Controller
     public function fetchItemById($id)
     {
 
-        $coi = ChartOfInventory::with('unit', 'parent')->findOrFail($id);
-        $products = ChartOfInventory::with('unit', 'parent')->where('id', $id)->get();
+        $coi = ChartOfInventory::with('unit', 'parent','alterUnit')->findOrFail($id);
+        $products = ChartOfInventory::with('unit', 'parent','alterUnit')->where('id', $id)->get();
         $needToProduction = 0;
         if (auth()->user()->employee->user_of == 'factory') {
             $all_requisitions = \App\Models\Requisition::todayFGAvailableRequisitions(auth('web')->user()->employee->factory_id);
@@ -197,7 +198,7 @@ class ApiController extends Controller
         return $data;
     }
 
-    public function fetch_products_by_cat_id($id)
+    public function fetch_products_by_cat_id($id = false)
     {
         $all_requisitions = \App\Models\Requisition::todayFGAvailableRequisitions(auth('web')->user()->employee->factory_id);
 
@@ -207,7 +208,18 @@ class ApiController extends Controller
         $requisition_ids = collect($all_requisitions)->pluck('id')->toArray();
         $product_ids = RequisitionItem::whereIn('requisition_id', $requisition_ids)->whereNotNull('coi_id')->pluck('coi_id')->toArray();
 
-        $products = ChartOfInventory::where(['status' => 'active', 'parent_id' => $id])->get();
+        if ($id) {
+            $products = ChartOfInventory::where(['status' => 'active', 'parent_id' => $id])->get();
+        } else {
+            $products = ChartOfInventory::where(['status' => 'active', 'type' => 'item']);
+            if (request()->rootAccountType == 'FG') {
+                $products = $products->where('rootAccountType', 'FG');
+            } elseif (request()->rootAccountType == 'RM') {
+                $products = $products->where('rootAccountType', 'RM');
+            }
+            $products = $products->get();
+        }
+        
         $needToProduction = 0;
 
         $requisitions = Requisition::whereIn('outlet_id', $outlet_ids)

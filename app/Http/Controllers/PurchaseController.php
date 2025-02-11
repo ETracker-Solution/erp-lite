@@ -88,10 +88,19 @@ class PurchaseController extends Controller
                 Toastr::info('At Least One Product Required.', '', ["progressBar" => true]);
                 return back();
             }
+            
             $purchase = Purchase::query()->create($validated);
             $purchase->amount = $purchase->net_payable;
             foreach ($validated['products'] as $product) {
+
+                if ($product['alter_unit']) {
+                    $total_rate = $product['rate'] * $product['quantity'];
+                    $product['quantity'] = ($product['a_unit_quantity'] > 0 ? $product['a_unit_quantity'] : 1) * $product['quantity'];
+                    $product['rate'] = $total_rate / $product['quantity'];
+                }
+
                 $purchase->items()->create($product);
+
                 // Inventory Transaction Effect
                 InventoryTransaction::query()->create([
                     'store_id' => $purchase->store_id,
@@ -174,6 +183,13 @@ class PurchaseController extends Controller
             InventoryTransaction::where(['doc_id' => $purchase->id, 'doc_type' => 'GPB'])->delete();
             $purchase->amount = $purchase->net_payable;
             foreach ($validated['products'] as $product) {
+
+                if ($product['alter_unit']) {
+                    $total_rate = $product['rate'] * $product['quantity'];
+                    $product['quantity'] = ($product['a_unit_quantity'] > 0 ? $product['a_unit_quantity'] : 1) * $product['quantity'];
+                    $product['rate'] = $total_rate / $product['quantity'];
+                }
+
                 $purchase->items()->create($product);
 
                 // Inventory Transaction Effect
@@ -236,6 +252,26 @@ class PurchaseController extends Controller
             return back();
         }
         Toastr::success('Purchase Deleted Successfully!.', '', ["progressBar" => true]);
+        return redirect()->route('purchases.index');
+    }
+
+    public function purchaseCancel($id)
+    {
+        DB::beginTransaction();
+        try {
+            $purchase = Purchase::findOrFail(decrypt($id));
+            $purchase->status = 'cancelled';
+            $purchase->save();
+            AccountTransaction::where('doc_type', 'GPB')->where('doc_id', $purchase->id)->delete();
+            InventoryTransaction::where('doc_type', 'GPB')->where('doc_id', $purchase->id)->delete();
+            SupplierTransaction::where(['doc_type' => 'GPB', 'doc_id' => $purchase->id])->delete();
+            DB::commit();
+        } catch (\Exception $error) {
+            DB::rollBack();
+            Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
+            return back();
+        }
+        Toastr::success('Purchase Cancelled Successfully!.', '', ["progressBar" => true]);
         return redirect()->route('purchases.index');
     }
 

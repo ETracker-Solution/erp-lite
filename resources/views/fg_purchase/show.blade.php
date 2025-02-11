@@ -30,7 +30,8 @@ Purchase List
                     <div class="card-header">
                         <h3 class="card-title">Goods Purchase Details</h3>
                         <a href="{{ route('fg-purchase.pdf-download', encrypt($model->id)) }}"
-                            class="btn btn-sm btn-primary float-right" target="_blank"><i class="fa fa-download"></i> PDF</a>
+                            class="btn btn-sm btn-primary float-right" target="_blank"><i class="fa fa-download"></i>
+                            PDF</a>
                     </div>
                     <!-- title row -->
                     <div class="row">
@@ -47,7 +48,7 @@ Purchase List
                         <div class="col-sm-4 invoice-col">
                             <address class="pl-3">
                                 Address : {{ getSettingValue('company_address') }} <br>
-                                Phone :  {{ getSettingValue('company_phone') }}<br>
+                                Phone : {{ getSettingValue('company_phone') }}<br>
                                 Email : {{ getSettingValue('company_email') }}
                             </address>
                         </div>
@@ -59,7 +60,7 @@ Purchase List
                         <div class="col-sm-4 invoice-col">
                             GPB No : {{ $model->uid }} <br>
                             Name : {{ $model->supplier->name }} <br>
-                            Address :  {{ $model->supplier->address }}<br>
+                            Address : {{ $model->supplier->address }}<br>
                         </div>
                         <!-- /.col -->
                     </div>
@@ -82,15 +83,21 @@ Purchase List
                                 </thead>
                                 <tbody>
                                     @foreach ($model->items as $item)
-                                    <tr>
-                                        <td>{{ $loop->iteration }}</td>
-                                        <td>{{ $item->coi->parent->name?? '' }}</td>
-                                        <td>{{ $item->coi->name?? '' }}</td>
-                                        <td>{{ $item->coi->unit->name?? '' }}</td>
-                                        <td>{{ $item->quantity?? '' }} {{ $item->product->unit->name?? '' }}</td>
-                                        <td>{{ $item->rate?? '' }}</td>
-                                        <td class="text-right">{{ $item->rate * $item->quantity?? '' }}</td>
-                                    </tr>
+                                        <tr>
+                                            <td>{{ $loop->iteration }}</td>
+                                            <td>{{ $item->coi->parent->name ?? '' }}</td>
+                                            <td>{{ $item->coi->name ?? '' }}</td>
+
+                                            <td>
+                                                {{ $item->quantity ?? '' }} {{ $item->coi->unit->name ?? '' }}
+                                                @if (isset($item->coi->a_unit_quantity) && $item->coi->a_unit_quantity > 0 && $item->coi->alter_unit_id)
+                                                    ({{ $item->quantity / $item->coi->a_unit_quantity }} {{ $item->coi->alterUnit->name ?? '' }})
+                                                @endif
+                                            </td>
+
+                                            <td>{{ $item->rate ?? '' }}</td>
+                                            <td class="text-right">{{ $item->rate * $item->quantity ?? '' }}</td>
+                                            </tr>
                                     @endforeach
                                 </tbody>
                             </table>
@@ -109,6 +116,10 @@ Purchase List
                             <div class="table-responsive">
                                 <table class="table">
                                     <tr>
+                                        <th style="width:50%">Discount:</th>
+                                        <td class="text-right">{{ $model->discount }}</td>
+                                        </tr>
+                                        <tr>
                                         <th style="width:50%">Subtotal:</th>
                                         <td class="text-right">{{ $model->subtotal }}</td>
                                     </tr>

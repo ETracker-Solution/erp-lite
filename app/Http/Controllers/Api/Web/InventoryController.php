@@ -32,6 +32,8 @@ class InventoryController extends Controller
             'group_name' => $inventory->parent_id && $inventory->parent ? $inventory->parent->name : '',
             'account_type' => $inventory->rootAccountType,
             'unit_id' => $inventory->unit_id,
+            'alter_unit_id' => $inventory->alter_unit_id,
+            'a_unit_quantity' => $inventory->a_unit_quantity,
             'price' => $inventory->price,
             'status' => $inventory->status,
             'non_discountable' => $inventory->non_discountable,
@@ -50,6 +52,8 @@ class InventoryController extends Controller
             if ($inventory->type == 'item') {
                 $inventory->unit_id = \request()->unit;
                 $inventory->status = \request()->status;
+                $inventory->alter_unit_id = \request()->alter_unit;
+                $inventory->a_unit_quantity = \request()->a_unit_quantity;
                 $inventory->price = \request()->price;
             }
             $inventory->updated_by = auth()->user()->id;
@@ -75,6 +79,8 @@ class InventoryController extends Controller
                 'type' => \request()->item_type,
                 'rootAccountType' => $inventory->rootAccountType,
                 'unit_id' => \request()->unit ?? null,
+                'alter_unit_id' => \request()->alter_unit ?? null,
+                'a_unit_quantity' => \request()->a_unit_quantity ?? 0,
                 'status' => \request()->status?? 'active',
                 'price' => \request()->price ?? 0,
                 'created_by' => auth()->user()->id,

@@ -72,27 +72,32 @@
                             <table border="1"cellspacing="0" width="100%" style="text-align: center; margin-top:20px;">
                                 <thead style="background:#cdced2;">
                                     <tr style="background-color: #cdced2;">
-                                        <th>#</th>
-                                        <th>Group</th>
-                                        <th>Product</th>
-                                        <th>Unit</th>
-                                        <th>Qty</th>
-                                        <th>Price</th>
-                                        <th class="text-right">Item Total</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach ($model->items as $item)
-                                    <tr>
-                                        <td>{{ $loop->iteration }}</td>
-                                        <td>{{ $item->coi->parent->name?? '' }}</td>
-                                        <td>{{ $item->coi->name?? '' }}</td>
-                                        <td>{{ $item->coi->unit->name?? '' }}</td>
-                                        <td>{{ $item->quantity?? '' }} {{ $item->product->unit->name?? '' }}</td>
-                                        <td>{{ $item->rate?? '' }}</td>
-                                        <td class="text-right">{{ $item->rate * $item->quantity?? '' }}</td>
-                                    </tr>
-                                    @endforeach
+                                        <<th>#</th>
+                                            <th>Group</th>
+                                            <th>Product</th>
+                                            <th>Qty</th>
+                                            <th>Price</th>
+                                            <th class="text-right">Item Total</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach ($model->items as $item)
+                                                                <tr>
+                                                                    <td>{{ $loop->iteration }}</td>
+                                                                    <td>{{ $item->coi->parent->name ?? '' }}</td>
+                                                                    <td>{{ $item->coi->name ?? '' }}</td>
+
+                                                                    <td>
+                                                                        {{ $item->quantity ?? '' }} {{ $item->coi->unit->name ?? '' }}
+                                                                        @if (isset($item->coi->a_unit_quantity) && $item->coi->a_unit_quantity > 0 && $item->coi->alter_unit_id)
+                                                                            ({{ $item->quantity / $item->coi->a_unit_quantity }} {{ $item->coi->alterUnit->name ?? '' }})
+                                                                        @endif
+                                                                    </td>
+
+                                                                    <td>{{ $item->rate ?? '' }}</td>
+                                                                    <td class="text-right">{{ $item->rate * $item->quantity ?? '' }}</td>
+                                                    </tr>
+                                                @endforeach
 
                                     <tr>
                                         <td colspan="5"></td>
@@ -106,7 +111,7 @@
                             </table>
                             <htmlpagefooter name="page-footer">
                                 @php
-                                    $date = new DateTime('now', new DateTimezone('Asia/Dhaka'));
+$date = new DateTime('now', new DateTimezone('Asia/Dhaka'));
                                 @endphp
                                 <br>
                                 <strong style="font-size: 8px">

@@ -25,6 +25,11 @@ class ChartOfInventory extends Model
         return $this->belongsTo(Unit::class, 'unit_id');
     }
 
+    public function alterUnit()
+    {
+        return $this->belongsTo(AlterUnit::class, 'alter_unit_id');
+    }
+
     public function inventoryTransactions()
     {
         return $this->hasMany(InventoryTransaction::class, 'coi_id');
