@@ -49,7 +49,7 @@ class GlobalExports implements FromView, WithStyles, ShouldAutoSize
         $sheet->getStyle($sheet->calculateWorksheetDimension())->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
         $sheet->getStyle($sheet->calculateWorksheetDimension())->getAlignment()->setVertical(Alignment::VERTICAL_CENTER);
         return [
-            1    => ['font' => ['bold' => true, 'size' => 14],  'alignment' => ['horizontal' => 'center']],
+            1    => ['font' => ['bold' => true, 'size' => 14]],
         ];
     }
 }

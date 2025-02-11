@@ -1124,6 +1124,13 @@
                         </ul>
                     </li>
                 @endcanany
+                <li class="nav-item">
+                    <a href="{{route('stock.report.index')}}"
+                       class="nav-link {{ (Request::segment(1) == 'stock-reports') ? ' active' : ''}}">
+                        <i class="nav-icon fas fa-file"></i>
+                        <p>Stock Report</p>
+                    </a>
+                </li>
             </ul>
         </nav>
         <!-- /.sidebar-menu -->
