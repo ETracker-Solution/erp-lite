@@ -18,6 +18,10 @@ use App\Http\Controllers\ReceiveVoucherController;
 use App\Http\Controllers\SaleController;
 use App\Http\Controllers\SupplierPaymentVoucherController;
 use App\Http\Controllers\SystemSettingController;
+use App\Models\ChartOfInventory;
+use App\Models\InventoryTransaction;
+use App\Models\Product;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -32,6 +36,52 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
+    $fromDate = null;
+    $toDate = null;
+    $storeId = 12;
+    $products = ChartOfInventory::where('rootAccountType', 'FG')
+        ->select('id', 'name', 'type', 'rootAccountType', 'price', 'parent_id', 'unit_id')
+        ->with([
+            'subChartOfInventories' => function ($query) use ($fromDate, $toDate, $storeId) {
+                $query->select('id', 'name', 'type', 'parent_id', 'unit_id')
+                    ->addSelect([
+                        'current_stock' => InventoryTransaction::selectRaw('COALESCE(SUM(type * quantity), 0)')
+                            ->whereColumn('coi_id', 'chart_of_inventories.id')
+                            ->when($fromDate, function ($query) use ($fromDate) {
+                                return $query->where('date', '>=', $fromDate);
+                            })
+                            ->when($toDate, function ($query) use ($toDate) {
+                                return $query->where('date', '<=', $toDate);
+                            })
+                            ->when($storeId, function ($query) use ($storeId) {
+                                return $query->where('store_id', $storeId);
+                            })
+                            ->groupBy('coi_id'),
+                        'rate' => InventoryTransaction::selectRaw('COALESCE(ROUND(SUM(amount) / NULLIF(SUM(type * quantity), 0), 2), 0.00)')
+                            ->whereColumn('coi_id', 'chart_of_inventories.id')
+                            ->where('type', 1)
+                            ->when($fromDate, function ($query) use ($fromDate) {
+                                return $query->where('date', '>=', $fromDate);
+                            })
+                            ->when($toDate, function ($query) use ($toDate) {
+                                return $query->where('date', '<=', $toDate);
+                            })
+                            ->when($storeId, function ($query) use ($storeId) {
+                                return $query->where('store_id', $storeId);
+                            })
+                            ->groupBy('coi_id'),
+                    ])
+                    ->with('unit:id,name');
+            },
+        ])
+        ->whereHas('subChartOfInventories', function ($q) {
+            return $q->where('type', 'item');
+        })->get();
+    $pdf = Pdf::loadView('raw_material_inventory_report.welkin.closing_balance', compact('products'));
+    $pdf->setPaper('A4', 'portrait'); // Set page size and orientation
+
+    return $pdf->stream('stock_report.pdf');
+    return view('raw_material_inventory_report.welkin.closing_balance', compact('products'));
     return redirect()->route('login');
 //    return view('welcome');
 });
@@ -42,7 +92,7 @@ Route::resource('registers', \App\Http\Controllers\RegisterController::class);
 
 Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])->middleware(['auth'])->name('dashboard');
 
-Route::middleware(['auth','prevent_duplicate_submission'])->group(function () {
+Route::middleware(['auth', 'prevent_duplicate_submission'])->group(function () {
 
     Route::get('/admin-dashboard', [\App\Http\Controllers\AdminDashboardController::class, 'adminDashboard'])->name('admin.dashboard');
     Route::get('/factory-dashboard', [\App\Http\Controllers\FactoryDashboardController::class, 'factoryDashboard'])->name('factory.dashboard');
@@ -80,8 +130,8 @@ Route::middleware(['auth','prevent_duplicate_submission'])->group(function () {
     Route::resource('purchases', PurchaseController::class);
     Route::get('purchase-return-pdf/{id}', [App\Http\Controllers\PurchaseReturnController::class, 'pdfDownload'])->name('purchase_return.pdf');
     Route::resource('purchase-returns', \App\Http\Controllers\PurchaseReturnController::class);
-    Route::get('sale-deleted-list', [SaleController::class,'deleted_sales'])->name('sale_deleted_list');
-    Route::get('sale-deleted-show/{id}', [SaleController::class,'deleted_sales_show'])->name('deleted_sales_show');
+    Route::get('sale-deleted-list', [SaleController::class, 'deleted_sales'])->name('sale_deleted_list');
+    Route::get('sale-deleted-show/{id}', [SaleController::class, 'deleted_sales_show'])->name('deleted_sales_show');
     Route::resource('sales', SaleController::class);
 
     Route::resource('others-outlet-sales', OthersOutletSaleController::class);
