@@ -55,7 +55,7 @@ $links = [
                                         <div class="form-group">
                                             <label for="store_id">Store</label>
                                             <select name="store_id" id="store_id" class="form-control bSelect"
-                                                @change="getUUID" v-model="store_id" required>
+                                                v-model="store_id" required>
                                                 <option value="">Select Store</option>
                                                 @foreach($stores as $row)
                                                     <option value="{{ $row->id }}">{{ $row->name }}</option>
@@ -446,12 +446,12 @@ $links = [
 
                                         vm.selected_items.push({
                                             id: item_info.id,
-                                            group: item_info.parent?.name || 'N/A',
+                                            group: item_info.parent?.name || '',
                                             name: item_info.name,
-                                            uom: item_info.unit?.name || 'N/A',
-                                            alter_unit: item_info.alter_unit?.name || 'N/A',
+                                            uom: item_info.unit?.name || '',
+                                            alter_unit: item_info.alter_unit?.name || '',
                                             a_unit_quantity: item_info.a_unit_quantity || 0,
-                                            rate: item_info.price || 0,
+                                            rate: item_info.purchase_items.length > 0 ? item_info.purchase_items[item_info.purchase_items.length - 1].rate : 0,
                                             quantity: '',
                                         });
 
@@ -477,7 +477,6 @@ $links = [
                                 } else {
                                     vm.pageLoading = true;
                                     axios.get(this.config.get_items_info_by_group_id_url + '/' + vm.group_id).then(function (response) {
-                                        //  vm.selected_items=[];
                                         let items = response.data.products;
                                         for (let key in items) {
                                             let exists = vm.selected_items.some(function (field) {
@@ -540,25 +539,6 @@ $links = [
                             index.rate = '';
                         }
                     },
-                    getUUID() {
-                        const vm = this
-                        if (!vm.store_id) {
-                            vm.uid = 'Please Select Store First'
-                            toastr.error('Please Select valid Store', {
-                                closeButton: true,
-                                progressBar: true,
-                            });
-                        }
-                        axios.get('/get-uuid/' + vm.store_id, {
-                            params: {
-                                model: "purchase",
-                                column: 'uid',
-                                is_headOffice: false
-                            }
-                        }).then((response) => {
-                            vm.uid = response.data
-                        })
-                    }
                 },
 
                 updated() {

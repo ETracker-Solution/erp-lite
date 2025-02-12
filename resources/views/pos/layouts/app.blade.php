@@ -1030,6 +1030,7 @@
                         vm.couponCodeDiscountType = '';
                         vm.couponCodeDiscountValue = 0;
                         vm.couponCodeDiscountAmount = 0;
+                        vm.discount = 0;
                         vm.paymentMethods = [{ amount: 0, method: 'cash' }];
                         vm.selectedPreOrderId = null;
                         vm.waiter_id = null;
@@ -1098,6 +1099,7 @@
                         vm.couponCodeDiscountType = holdOrder.couponCodeDiscountType || '';
                         vm.couponCodeDiscountValue = holdOrder.couponCodeDiscountValue || 0;
                         vm.couponCodeDiscountAmount = holdOrder.couponCodeDiscountAmount || 0;
+                        vm.discount = holdOrder.discount || 0;
 
                         vm.paymentMethods = holdOrder.payment_methods || [{ amount: 0, method: 'cash' }];
 

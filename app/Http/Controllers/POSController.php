@@ -692,11 +692,12 @@ class POSController extends Controller
     {
         $identifier = $request->identifier;
         $items = $request->items;
+        $discount = $request->discount;
 //        $options = new Options();
 //        $options = ['chroot' => base_path()];
 //        $dompdf = new Dompdf($options);
 //        $dompdf->loadHtml(view('pos.print.hold-order', compact('identifier','items'))->render());
-        return view('pos.print.hold-order', compact('identifier','items'));
+        return view('pos.print.hold-order', compact('identifier','items','discount'));
 
         $dompdf->render();
         return $dompdf->stream('order', ["Attachment" => false]);

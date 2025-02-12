@@ -62,14 +62,13 @@ class PurchaseController extends Controller
             $doc_type = \auth()->user()->employee->outlet_id ? 'outlet' : 'factory';
             $user_store = Store::where(['doc_type' => $doc_type, 'doc_id' => $doc_id])->first();
             $outlet_id = $user_store->doc_id;
-            $serial_no = generateUniqueUUID($outlet_id, Purchase::class, 'uid',\auth()->user()->employee->factory_id);
         }
         $data = [
             'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'RM'])->get(),
             'supplier_groups' => SupplierGroup::where('status', 'active')->get(),
             'suppliers' => Supplier::all(),
             'stores' => Store::where(['type' => 'RM', 'doc_type' => 'ho', 'doc_id' => null])->get(),
-            'uid' => $serial_no,
+            'uid' => generateUniqueCode(Purchase::class, 'uid'),
 
         ];
 

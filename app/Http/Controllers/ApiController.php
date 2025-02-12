@@ -42,8 +42,8 @@ class ApiController extends Controller
     public function fetchItemById($id)
     {
 
-        $coi = ChartOfInventory::with('unit', 'parent','alterUnit')->findOrFail($id);
-        $products = ChartOfInventory::with('unit', 'parent','alterUnit')->where('id', $id)->get();
+        $coi = ChartOfInventory::with('unit', 'parent', 'alterUnit', 'purchaseItems')->findOrFail($id);
+        $products = ChartOfInventory::with('unit', 'parent', 'alterUnit', 'purchaseItems')->where('id', $id)->get();
         $needToProduction = 0;
         if (auth()->user()->employee->user_of == 'factory') {
             $all_requisitions = \App\Models\Requisition::todayFGAvailableRequisitions(auth('web')->user()->employee->factory_id);
