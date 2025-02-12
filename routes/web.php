@@ -18,6 +18,10 @@ use App\Http\Controllers\ReceiveVoucherController;
 use App\Http\Controllers\SaleController;
 use App\Http\Controllers\SupplierPaymentVoucherController;
 use App\Http\Controllers\SystemSettingController;
+use App\Models\ChartOfInventory;
+use App\Models\InventoryTransaction;
+use App\Models\Product;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -33,7 +37,6 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return redirect()->route('login');
-//    return view('welcome');
 });
 //register start
 Route::resource('registers', \App\Http\Controllers\RegisterController::class);
@@ -42,7 +45,7 @@ Route::resource('registers', \App\Http\Controllers\RegisterController::class);
 
 Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])->middleware(['auth'])->name('dashboard');
 
-Route::middleware(['auth','prevent_duplicate_submission'])->group(function () {
+Route::middleware(['auth', 'prevent_duplicate_submission'])->group(function () {
 
     Route::get('/admin-dashboard', [\App\Http\Controllers\AdminDashboardController::class, 'adminDashboard'])->name('admin.dashboard');
     Route::get('/factory-dashboard', [\App\Http\Controllers\FactoryDashboardController::class, 'factoryDashboard'])->name('factory.dashboard');
@@ -81,8 +84,8 @@ Route::middleware(['auth','prevent_duplicate_submission'])->group(function () {
     Route::resource('purchases', PurchaseController::class);
     Route::get('purchase-return-pdf/{id}', [App\Http\Controllers\PurchaseReturnController::class, 'pdfDownload'])->name('purchase_return.pdf');
     Route::resource('purchase-returns', \App\Http\Controllers\PurchaseReturnController::class);
-    Route::get('sale-deleted-list', [SaleController::class,'deleted_sales'])->name('sale_deleted_list');
-    Route::get('sale-deleted-show/{id}', [SaleController::class,'deleted_sales_show'])->name('deleted_sales_show');
+    Route::get('sale-deleted-list', [SaleController::class, 'deleted_sales'])->name('sale_deleted_list');
+    Route::get('sale-deleted-show/{id}', [SaleController::class, 'deleted_sales_show'])->name('deleted_sales_show');
     Route::resource('sales', SaleController::class);
 
     Route::resource('others-outlet-sales', OthersOutletSaleController::class);
@@ -401,6 +404,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('fg-requisitions/{type}', [App\Http\Controllers\RequisitionController::class, 'exportFGRequisition'])->name('fg.requisitions.export');
     Route::get('fg-productions-export/{type}', [App\Http\Controllers\ProductionController::class, 'exportFGProduction'])->name('fg.production.export');
     Route::get('today-requisitions', [App\Http\Controllers\RequisitionController::class, 'todayRequisition'])->name('today.requisitions');
+
+    Route::get('stock-reports', [App\Http\Controllers\Welkin\StockReportController::class, 'index'])->name('stock.report.index');
+    Route::get('stock-reports/generate', [App\Http\Controllers\Welkin\StockReportController::class, 'generateReport'])->name('stock.report.generate');
 
 });
 
