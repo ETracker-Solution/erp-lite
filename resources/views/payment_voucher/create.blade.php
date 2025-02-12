@@ -48,8 +48,8 @@ $links = [
                                                     <div class="col-xl-4 col-md-4 col-12">
                                                         <div class="form-group">
                                                             <label for="uid">PV No</label>
-                                                            <input type="number" class="form-control" id="uid"
-                                                                   name="uid" placeholder="Enter Amount"
+                                                            <input type="text" class="form-control" id="uid"
+                                                                   name="uid"
                                                                    value="{{ old('uid') }}" readonly>
                                                             @if ($errors->has('uid'))
                                                                 <small class="text-danger">{{ $errors->first('uid') }}</small>
@@ -184,8 +184,8 @@ $links = [
 @endsection
 @push('script')
     <script>
-        var i = parseInt(document.getElementById('paymentVoucaher').value);
-    
+        var i = document.getElementById('paymentVoucaher').value;
+
         document.getElementById('uid').value = i;
     </script>
 @endpush

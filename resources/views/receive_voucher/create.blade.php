@@ -52,7 +52,7 @@
                                                         <div class="col-xl-4 col-md-4 col-12">
                                                             <div class="form-group">
                                                                 <label for="uid">RV No</label>
-                                                                <input type="number" class="form-control" id="uid"
+                                                                <input type="text" class="form-control" id="uid"
                                                                         name="uid" placeholder="Enter RV No"
                                                                         value="{{ old('uid') }}" readonly>
                                                                 @if ($errors->has('uid'))
@@ -188,7 +188,7 @@
 @endsection
 @push('script')
     <script>
-        var i = parseInt(document.getElementById('receiveVoucaher').value);
+        var i = (document.getElementById('receiveVoucaher').value);
 
         document.getElementById('uid').value = i;
     </script>

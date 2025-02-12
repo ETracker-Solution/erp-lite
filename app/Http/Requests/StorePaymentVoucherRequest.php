@@ -25,7 +25,7 @@ class StorePaymentVoucherRequest extends FormRequest
     public function rules()
     {
         return [
-            'uid' => 'required',
+            'uid' => ['required', 'unique:payment_vouchers,uid'],
             'date' => 'required',
             'amount' => 'required',
             'credit_account_id' => ['required','different:debit_account_id'],

@@ -187,10 +187,10 @@ $links = [
 @endsection
 @push('script')
     <script>
-        var i = parseInt(document.getElementById('journalVoucaher').value);
-    
+        var i = (document.getElementById('journalVoucaher').value);
+
         // var defaultExpense = `${i++}`;
         document.getElementById('uid').value = i;
     </script>
-    
+
 @endpush

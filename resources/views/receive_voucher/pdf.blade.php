@@ -2,116 +2,145 @@
 <html>
 
 <head>
-    <title>Receive Voucher </title>
-    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
+    <title>Receipt Voucher </title>
     <style>
         @page {
             header: page-header;
             footer: page-footer;
         }
-        body{margin-top:20px;
-        background:#eee;
+
+        body {
+            margin-top: 20px;
         }
 
-        /*Invoice*/
-        .invoice .top-left {
-            font-size:65px;
-            color:#3ba0ff;
+        .textRight{
+            text-align: right;
+        }
+        table {
+            width: 95%;
+            margin: 0 auto;
+            border-spacing: 0;
+            border-collapse: separate;
         }
 
-        .invoice .top-right {
-            text-align:right;
-            padding-right:20px;
-        }
-        /* table tr, th, td{
-            padding-top:10px;
-        } */
-        @media(max-width:575px) {
-            .invoice .top-left,.invoice .top-right,.invoice .payment-details {
-                text-align:center;
-            }
-
-            .invoice .from,.invoice .to,.invoice .payment-details {
-                float:none;
-                width:100%;
-                text-align:center;
-                margin-bottom:25px;
-            }
-
-            .invoice p.lead,.invoice .from p.lead,.invoice .to p.lead,.invoice .payment-details p.lead {
-                font-size:22px;
-            }
-
-            .invoice .btn {
-                margin-top:10px;
-            }
+        td {
+            padding: 5px;
         }
 
-        @media print {
-            .invoice {
-                width:900px;
-                height:800px;
-            }
+        .border {
+            border: 1px solid black;
         }
+
+        .border-left {
+            border-left: 1px solid black;
+        }
+
+        .border-top {
+            border-top: 1px solid black;
+        }
+
+        .border-bottom {
+            border-bottom: 1px solid black;
+        }
+
+        .border-bottom-thick {
+            border-bottom: 2px solid black;
+        }
+
+        .bold {
+            font-weight: bold;
+        }
+
+        .spacer {
+            height: 250px;
+        }
+
+        .detailsDiv {
+            justify-content: space-between;
+        }
+
     </style>
 </head>
 
 <body>
-    <div class="invoice-ribbon">
-        @include('common.pdf_header')
-    </div>
-    <p style="text-align:center;  font-size: 20px;">Receive Voucher</p>
-    <hr>
-    <table width="100%" style="text-align: center;">
-        <thead>
-            <tr>
-                <td style="text-align: left; padding-left:35px;"><strong>RV No. </strong><span style="border-bottom:1px solid gray; width:20px;">{{ $receiveVoucher->uid }}</span></td>
-                <th style="text-align: left; padding-right:-20px;"><strong>Date : </strong>{{ $receiveVoucher->date }}</th>
-            </tr>
-            <tr>
-                <th style="text-align: left; padding-left:35px;"><strong>Credit Account  :</strong></th>
-                <td style="text-align: left; padding-right:-20px;">{{ $receiveVoucher->creditAccount->name }}</td>
-            </tr>
-            <tr>
-                <th style="text-align: left; padding-left:35px;"><strong>Debit Account  :</strong></th>
-                <td style="text-align: left; padding-right:-20px;">{{ $receiveVoucher->debitAccount->name }}</td>
-            </tr>
-            <tr>
-                <th style="text-align: left; padding-left:35px;"><strong>Amount :</strong></th>
-                <td style="text-align: left; padding-right:-20px;">{{ $receiveVoucher->amount }}</td>
-            </tr>
-            <tr>
-                <th style="text-align: left; padding-left:35px;"><strong>Description :</strong></th>
-                <td style="text-align: left; padding-right:-20px;">{{ $receiveVoucher->narration }}</td>
-            </tr>
-            <tr>
-                <th style="text-align: left; padding-left:35px;"><strong>Referance :</strong></th>
-                <td style="text-align: left; padding-right:-20px;">{{ $receiveVoucher->reference_no }}</td>
-            </tr>
-
-        </thead>
-    </table>
-    <htmlpagefooter name="page-footer">
-
-        <table width="100%">
-            <tbody>
-                <tr>
-                    <td style="text-align: left;"><span style="border-top: 1px solid hsl(0, 0%, 2%);">Showroom Incharge :</span> </td>
-                    <td style="text-align: right;"><span style="border-top: 1px solid hsl(0, 0%, 2%);">Accounts :</span> </td>
-                </tr>
-            </tbody>
-        </table>
-        <hr>
-
-        @php
-            $date = new DateTime('now', new DateTimezone('Asia/Dhaka'));
-        @endphp
-        <br>
-        <strong style="font-size: 8px">
-            Printing Time:- {{ $date->format('F j, Y, g:i a') }}
-        </strong>
-        <br>
-    </htmlpagefooter>
+<div class="invoice-ribbon">
+    @include('common.pdf_header')
+</div>
+<p style="text-align:center;  font-size: 20px;">Receipt Voucher</p>
+<table>
+    <tr>
+        <td>No. : <span class="bold">{{ $receiveVoucher->uid }}</span></td>
+        <td class="textRight">Dated : <span class="bold">{{ $receiveVoucher->date }}</span></td>
+    </tr>
+</table>
+<br><br>
+<table>
+    <thead>
+    <tr>
+        <td class="bold border-top border-bottom">Particulars</td>
+        <td class="textRight border border-top">Amount</td>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td class="bold">Account:</td>
+        <td class="border-left">&nbsp;</td>
+    </tr>
+    <tr>
+        <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ $receiveVoucher->creditAccount->name }}</td>
+        <td class="textRight border-left">{{commaSeperated($receiveVoucher->amount)}}</td>
+    </tr>
+    <tr>
+        <td class="spacer"></td>
+        <td class="border-left">&nbsp;</td>
+    </tr>
+    <tr>
+        <td class="bold">Through:</td>
+        <td class="border-left">&nbsp;</td>
+    </tr>
+    <tr>
+        <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ $receiveVoucher->debitAccount->name }}</td>
+        <td class="border-left">&nbsp;</td>
+    </tr>
+    <tr>
+        <td class="bold">On Account Of:</td>
+        <td class="border-left">&nbsp;</td>
+    </tr>
+    <tr>
+        <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ $receiveVoucher->narration }}.</td>
+        <td class="border-left">&nbsp;</td>
+    </tr>
+    <tr>
+        <td class="bold">Amount (in words):</td>
+        <td class="border-left">&nbsp;</td>
+    </tr>
+    <tr>
+        <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Bangladeshi Taka {{ numberToWords($receiveVoucher->amount) }} Only</td>
+        <td class="textRight border-left border-top border-bottom-thick">TK {{ commaSeperated($receiveVoucher->amount) }}</td>
+    </tr>
+    </tbody>
+</table>
+<br>
+<br>
+<br>
+<br>
+<table>
+    <tr>
+        <td></td>
+        <td>Authorised Signatory : </td>
+    </tr>
+</table>
+<br>
+<br>
+<br>
+<br>
+<table>
+    <tr>
+        <td>Prepared by </td>
+        <td>Checked by </td>
+        <td>Verified by </td>
+    </tr>
+</table>
 </body>
 
 </html>

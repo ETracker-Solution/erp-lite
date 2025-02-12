@@ -48,12 +48,7 @@ class JournalVoucherController extends Controller
     {
 
         $chartOfAccounts = ChartOfAccount::where(['type' => 'ledger', 'status' => 'active'])->get();
-        $lastValue = JournalVoucher::latest()->pluck('uid')->first();
-        if ($lastValue !== null) {
-            $JVno = (int)$lastValue + 1;
-        } else {
-            $JVno = 1; // Set the default value to 1
-        }
+        $JVno = generateUniqueCode(JournalVoucher::class,'uid');
         return view('journal_voucher.create', compact('chartOfAccounts','JVno'));
     }
 
@@ -167,21 +162,14 @@ class JournalVoucherController extends Controller
             $data,
             [],
             [
-                'format' => 'A4-P',
-                'orientation' => 'P',
-                'margin-left' => 1,
-
-                '', // mode - default ''
-                '', // format - A4, for example, default ''
-                0, // font size - default 0
-                '', // default font family
-                1, // margin_left
-                1, // margin right
-                1, // margin top
-                1, // margin bottom
-                1, // margin header
-                1, // margin footer
-                'L', // L - landscape, P - portrait
+                'mode'           => 'utf-8',
+                'format'         => 'A4',
+                'orientation'    => 'P',  // Portrait
+                'margin_top'     => 5,
+                'margin_right'   => 5,
+                'margin_bottom'  => 5,
+                'margin_left'    => 5,
+                'default_font'   => 'sans-serif'
 
             ]
         );

@@ -754,3 +754,67 @@ function testFGreport($store_id, $date)
 function showUserInfo($user){
     return $user->name . ' (' . $user->email . ') ';
 }
+
+function generateUniqueCode($model,$column_name){
+    $length = 4;
+
+    $acronym = getShortName($model);
+
+    $nameWithDate = $acronym . date('m-Y-');
+    $lastCode = $model::where($column_name, 'like', '%' . $nameWithDate . '%')->orderBy($column_name, 'DESC')->first();
+    if ($lastCode) {
+        $last3Digits = (int)(substr($lastCode->$column_name, -$length)) + 1;
+    } else {
+        $last3Digits = 001;
+    }
+    $code = $acronym . date('m-Y-') . str_pad($last3Digits, $length, 0, STR_PAD_LEFT);
+
+    if ($model::where($column_name, $code)->exists()) {
+        generateUniqueCode($model,$column_name);
+    }
+    return $code;
+}
+
+function getShortName($model){
+    switch ($model) {
+        case \App\Models\PaymentVoucher::class:
+            return 'PV:';
+        case \App\Models\ReceiveVoucher::class:
+            return 'RV:';
+        case \App\Models\JournalVoucher::class:
+            return 'JV:';
+        default:
+            return 'DD:';
+    }
+}
+
+function numberToWords($number) {
+    $ones = [
+        '', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine',
+        'Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen',
+        'Seventeen', 'Eighteen', 'Nineteen'
+    ];
+    $tens = [
+        '', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'
+    ];
+
+    if ($number < 20) {
+        return $ones[$number];
+    } elseif ($number < 100) {
+        return $tens[intval($number / 10)] . ($number % 10 ? ' ' . $ones[$number % 10] : '');
+    } elseif ($number < 1000) {
+        return $ones[intval($number / 100)] . ' Hundred' . ($number % 100 ? ' ' . numberToWords($number % 100) : '');
+    } elseif ($number < 100000) {
+        return numberToWords(intval($number / 1000)) . ' Thousand' . ($number % 1000 ? ' ' . numberToWords($number % 1000) : '');
+    } elseif ($number < 10000000) {
+        return numberToWords(intval($number / 100000)) . ' Lac' . ($number % 100000 ? ' ' . numberToWords($number % 100000) : '');
+    } elseif ($number < 1000000000) {
+        return numberToWords(intval($number / 10000000)) . ' Crore' . ($number % 10000000 ? ' ' . numberToWords($number % 10000000) : '');
+    }
+
+    return 'Number too large';
+}
+
+function commaSeperated($amount) {
+    return number_format($amount, 2, '.', ',');
+}

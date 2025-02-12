@@ -3,115 +3,263 @@
 
 <head>
     <title>Journal Voucher </title>
-    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
     <style>
         @page {
             header: page-header;
             footer: page-footer;
         }
-        body{margin-top:20px;
-        background:#eee;
+
+        body {
+            margin-top: 20px;
         }
 
-        /*Invoice*/
-        .invoice .top-left {
-            font-size:65px;
-            color:#3ba0ff;
+        .textRight{
+            text-align: right;
+        }
+        table {
+            width: 95%;
+            margin: 0 auto;
+            border-spacing: 0;
+            border-collapse: separate;
         }
 
-        .invoice .top-right {
-            text-align:right;
-            padding-right:20px;
-        }
-        /* table tr, th, td{
-            padding-top:10px;
-        } */
-        @media(max-width:575px) {
-            .invoice .top-left,.invoice .top-right,.invoice .payment-details {
-                text-align:center;
-            }
-
-            .invoice .from,.invoice .to,.invoice .payment-details {
-                float:none;
-                width:100%;
-                text-align:center;
-                margin-bottom:25px;
-            }
-
-            .invoice p.lead,.invoice .from p.lead,.invoice .to p.lead,.invoice .payment-details p.lead {
-                font-size:22px;
-            }
-
-            .invoice .btn {
-                margin-top:10px;
-            }
+        td {
+            padding: 5px;
         }
 
-        @media print {
-            .invoice {
-                width:900px;
-                height:800px;
-            }
+        .border {
+            border: 1px solid black;
         }
+
+        .border-left {
+            border-left: 1px solid black;
+        }
+
+        .border-top {
+            border-top: 1px solid black;
+        }
+
+        .border-bottom {
+            border-bottom: 1px solid black;
+        }
+
+        .border-bottom-thick {
+            border-bottom: 2px solid black;
+        }
+
+        .bold {
+            font-weight: bold;
+        }
+
+        .spacer {
+            height: 250px;
+        }
+
+        .detailsDiv {
+            justify-content: space-between;
+        }
+
     </style>
 </head>
 
 <body>
-    <div class="invoice-ribbon">
-        @include('common.pdf_header')
-    </div>
-    <p style="text-align:center;  font-size: 20px;">Journal Voucher</p>
-    <hr>
-    <table width="100%" style="text-align: center;">
-        <thead>
-            <tr>
-                <td style="text-align: left; padding-left:35px;"><strong>JV No. </strong><span style="border-bottom:1px solid gray; width:20px;">{{ $journalVoucher->uid }}</span></td>
-                <td style="text-align: left; padding-right:-20px;"><strong>Date : </strong>{{ $journalVoucher->date }}</td>
-            </tr>
-            <tr>
-                <th style="text-align: left; padding-left:35px;"><strong>Debit Account  :</strong></th>
-                <td style="text-align: left; padding-right:-20px;">{{ $journalVoucher->debitAccount->name }}</td>
-            </tr>
-            <tr>
-                <th style="text-align: left; padding-left:35px;"><strong>Credit Account  :</strong></th>
-                <td style="text-align: left; padding-right:-20px;">{{ $journalVoucher->creditAccount->name }}</td>
-            </tr>
-            <tr>
-                <th style="text-align: left; padding-left:35px;"><strong>Amount :</strong></th>
-                <td style="text-align: left; padding-right:-20px;">{{ $journalVoucher->amount }}</td>
-            </tr>
-            <tr>
-                <th style="text-align: left; padding-left:35px;"><strong>Description :</strong></th>
-                <td style="text-align: left; padding-right:-20px;">{{ $journalVoucher->narration }}</td>
-            </tr>
-            <tr>
-                <th style="text-align: left; padding-left:35px;"><strong>Referance :</strong></th>
-                <td style="text-align: left; padding-right:-20px;">{{ $journalVoucher->reference_no }}</td>
-            </tr>
-            
-        </thead>
-    </table>
-    <htmlpagefooter name="page-footer">
-                                
-        <table width="100%">
-            <tbody>
-                <tr>
-                    <td style="text-align: left;"><span style="border-top: 1px solid hsl(0, 0%, 2%);">Showroom Incharge :</span> </td>
-                    <td style="text-align: right;"><span style="border-top: 1px solid hsl(0, 0%, 2%);">Accounts :</span> </td>
-                </tr>
-            </tbody>
-        </table>
-        <hr>
-
-        @php
-            $date = new DateTime('now', new DateTimezone('Asia/Dhaka'));
-        @endphp
-        <br>
-        <strong>
-            Printing Time:- {{ $date->format('F j, Y, g:i a') }}
-        </strong>
-        <br>
-    </htmlpagefooter>
+<div class="invoice-ribbon">
+    @include('common.pdf_header')
+</div>
+<p style="text-align:center;  font-size: 20px;">Journal Voucher</p>
+<table>
+    <tr>
+        <td>No. : <span class="bold">{{ $journalVoucher->uid }}</span></td>
+        <td class="textRight">Dated : <span class="bold">{{ $journalVoucher->date }}</span></td>
+    </tr>
+</table>
+<br><br>
+<table>
+    <thead>
+    <tr>
+        <td class="bold border-top border-bottom">Particulars</td>
+        <td class="textRight border border-top">Debit</td>
+        <td class="textRight border border-top">Credit</td>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td class="">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{$journalVoucher->creditAccount->name}}</td>
+        <td class="border-left">{{commaSeperated($journalVoucher->amount)}}</td>
+        <td class="border-left">&nbsp;</td>
+    </tr>
+    <tr>
+        <td><em>To</em>, &nbsp;&nbsp;{{ $journalVoucher->debitAccount->name }}</td>
+        <td class="textRight border-left"></td>
+        <td class="textRight border-left">{{commaSeperated($journalVoucher->amount)}}</td>
+    </tr>
+    <tr>
+        <td class="spacer"></td>
+        <td class="border-left">&nbsp;</td>
+        <td class="border-left">&nbsp;</td>
+    </tr>
+    <tr>
+        <td class="bold">On Account Of:</td>
+        <td class="border-left">&nbsp;</td>
+        <td class="border-left">&nbsp;</td>
+    </tr>
+    <tr>
+        <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ $journalVoucher->narration }}.</td>
+        <td class="border-left">&nbsp;</td>
+        <td class="border-left">&nbsp;</td>
+    </tr>
+    <tr>
+        <td class="bold">Amount (in words):</td>
+        <td class="border-left">&nbsp;</td>
+        <td class="border-left">&nbsp;</td>
+    </tr>
+    <tr>
+        <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Bangladeshi Taka {{ numberToWords($journalVoucher->amount) }} Only</td>
+        <td class="textRight border-left border-top border-bottom-thick">TK {{ commaSeperated($journalVoucher->amount) }}</td>
+        <td class="textRight border-left border-top border-bottom-thick">TK {{ commaSeperated($journalVoucher->amount) }}</td>
+    </tr>
+    </tbody>
+</table>
+<br>
+<br>
+<br>
+<br>
+<table>
+    <tr>
+        <td></td>
+        <td>Authorised Signatory : </td>
+    </tr>
+</table>
+<br>
+<br>
+<br>
+<br>
+<table>
+    <tr>
+        <td>Prepared by </td>
+        <td>Checked by </td>
+        <td>Verified by </td>
+    </tr>
+</table>
 </body>
 
 </html>
+
+
+{{--<!DOCTYPE html>--}}
+{{--<html>--}}
+
+{{--<head>--}}
+{{--    <title>Journal Voucher </title>--}}
+{{--    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">--}}
+{{--    <style>--}}
+{{--        @page {--}}
+{{--            header: page-header;--}}
+{{--            footer: page-footer;--}}
+{{--        }--}}
+{{--        body{margin-top:20px;--}}
+{{--        background:#eee;--}}
+{{--        }--}}
+
+{{--        /*Invoice*/--}}
+{{--        .invoice .top-left {--}}
+{{--            font-size:65px;--}}
+{{--            color:#3ba0ff;--}}
+{{--        }--}}
+
+{{--        .invoice .top-right {--}}
+{{--            text-align:right;--}}
+{{--            padding-right:20px;--}}
+{{--        }--}}
+{{--        /* table tr, th, td{--}}
+{{--            padding-top:10px;--}}
+{{--        } */--}}
+{{--        @media(max-width:575px) {--}}
+{{--            .invoice .top-left,.invoice .top-right,.invoice .payment-details {--}}
+{{--                text-align:center;--}}
+{{--            }--}}
+
+{{--            .invoice .from,.invoice .to,.invoice .payment-details {--}}
+{{--                float:none;--}}
+{{--                width:100%;--}}
+{{--                text-align:center;--}}
+{{--                margin-bottom:25px;--}}
+{{--            }--}}
+
+{{--            .invoice p.lead,.invoice .from p.lead,.invoice .to p.lead,.invoice .payment-details p.lead {--}}
+{{--                font-size:22px;--}}
+{{--            }--}}
+
+{{--            .invoice .btn {--}}
+{{--                margin-top:10px;--}}
+{{--            }--}}
+{{--        }--}}
+
+{{--        @media print {--}}
+{{--            .invoice {--}}
+{{--                width:900px;--}}
+{{--                height:800px;--}}
+{{--            }--}}
+{{--        }--}}
+{{--    </style>--}}
+{{--</head>--}}
+
+{{--<body>--}}
+{{--    <div class="invoice-ribbon">--}}
+{{--        @include('common.pdf_header')--}}
+{{--    </div>--}}
+{{--    <p style="text-align:center;  font-size: 20px;">Journal Voucher</p>--}}
+{{--    <hr>--}}
+{{--    <table width="100%" style="text-align: center;">--}}
+{{--        <thead>--}}
+{{--            <tr>--}}
+{{--                <td style="text-align: left; padding-left:35px;"><strong>JV No. </strong><span style="border-bottom:1px solid gray; width:20px;">{{ $journalVoucher->uid }}</span></td>--}}
+{{--                <td style="text-align: left; padding-right:-20px;"><strong>Date : </strong>{{ $journalVoucher->date }}</td>--}}
+{{--            </tr>--}}
+{{--            <tr>--}}
+{{--                <th style="text-align: left; padding-left:35px;"><strong>Debit Account  :</strong></th>--}}
+{{--                <td style="text-align: left; padding-right:-20px;">{{ $journalVoucher->debitAccount->name }}</td>--}}
+{{--            </tr>--}}
+{{--            <tr>--}}
+{{--                <th style="text-align: left; padding-left:35px;"><strong>Credit Account  :</strong></th>--}}
+{{--                <td style="text-align: left; padding-right:-20px;">{{ $journalVoucher->creditAccount->name }}</td>--}}
+{{--            </tr>--}}
+{{--            <tr>--}}
+{{--                <th style="text-align: left; padding-left:35px;"><strong>Amount :</strong></th>--}}
+{{--                <td style="text-align: left; padding-right:-20px;">{{ $journalVoucher->amount }}</td>--}}
+{{--            </tr>--}}
+{{--            <tr>--}}
+{{--                <th style="text-align: left; padding-left:35px;"><strong>Description :</strong></th>--}}
+{{--                <td style="text-align: left; padding-right:-20px;">{{ $journalVoucher->narration }}</td>--}}
+{{--            </tr>--}}
+{{--            <tr>--}}
+{{--                <th style="text-align: left; padding-left:35px;"><strong>Referance :</strong></th>--}}
+{{--                <td style="text-align: left; padding-right:-20px;">{{ $journalVoucher->reference_no }}</td>--}}
+{{--            </tr>--}}
+{{--            --}}
+{{--        </thead>--}}
+{{--    </table>--}}
+{{--    <htmlpagefooter name="page-footer">--}}
+{{--                                --}}
+{{--        <table width="100%">--}}
+{{--            <tbody>--}}
+{{--                <tr>--}}
+{{--                    <td style="text-align: left;"><span style="border-top: 1px solid hsl(0, 0%, 2%);">Showroom Incharge :</span> </td>--}}
+{{--                    <td style="text-align: right;"><span style="border-top: 1px solid hsl(0, 0%, 2%);">Accounts :</span> </td>--}}
+{{--                </tr>--}}
+{{--            </tbody>--}}
+{{--        </table>--}}
+{{--        <hr>--}}
+
+{{--        @php--}}
+{{--            $date = new DateTime('now', new DateTimezone('Asia/Dhaka'));--}}
+{{--        @endphp--}}
+{{--        <br>--}}
+{{--        <strong>--}}
+{{--            Printing Time:- {{ $date->format('F j, Y, g:i a') }}--}}
+{{--        </strong>--}}
+{{--        <br>--}}
+{{--    </htmlpagefooter>--}}
+{{--</body>--}}
+
+{{--</html>--}}

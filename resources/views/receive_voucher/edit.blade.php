@@ -46,7 +46,7 @@
                                                         <div class="col-xl-4 col-md-4 col-12">
                                                             <div class="form-group">
                                                                 <label for="uid">RV No</label>
-                                                                <input type="number" class="form-control" id="uid"
+                                                                <input type="text" class="form-control" id="uid"
                                                                         placeholder="Enter RV No"
                                                                         value="{{ $receiveVoucher->uid }}" readonly>
                                                             </div>
