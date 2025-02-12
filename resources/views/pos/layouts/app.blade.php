@@ -1,12 +1,13 @@
 <!doctype html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link type="text/css" rel="stylesheet" href="{{ asset('admin/app-assets/css/pos/bootstrap.css') }}">
-    <link type="text/css" rel="stylesheet" href="{{asset('admin/app-assets/css/pos/bootstrap-vue.css')}}"/>
+    <link type="text/css" rel="stylesheet" href="{{asset('admin/app-assets/css/pos/bootstrap-vue.css')}}" />
     <link rel="stylesheet" type="text/css" href="{{ asset('admin/app-assets/vendors/css/extensions/toastr.min.css') }}">
     <script src="{{ asset('admin/app-assets/vendors/js/vendors.min.js') }}"></script>
 
@@ -36,7 +37,8 @@
             border-bottom: unset;
         }
 
-        .table td, .table th {
+        .table td,
+        .table th {
             border-top: unset;
         }
 
@@ -70,7 +72,8 @@
         }
 
         .table-scroll tbody::-webkit-scrollbar {
-            width: 3; /* Chrome & Edge */
+            width: 3;
+            /* Chrome & Edge */
         }
 
         .table-scroll tr {
@@ -78,7 +81,8 @@
             display: flex;
         }
 
-        .table-scroll td, .table-scroll th {
+        .table-scroll td,
+        .table-scroll th {
             flex-basis: 100%;
             flex-grow: 2;
             display: block;
@@ -100,7 +104,8 @@
             border-radius: 5px;
         }
 
-        .input-group-append, .input-group-prepend {
+        .input-group-append,
+        .input-group-prepend {
             display: unset;
         }
 
@@ -206,366 +211,245 @@
         .smallFont {
             font-size: 12px !important;
         }
-
     </style>
 </head>
+
 <body style="height: 90%; overflow: hidden; padding-right: 20px">
-<section style="position:relative;">
-    <div id="vue_app">
-        @include('pos.partials.header')
-        @yield('content')
-    </div>
+    <section style="position:relative;">
+        <div id="vue_app">
+            @include('pos.partials.header')
+            @yield('content')
+        </div>
 
-</section>
-<script src="{{ asset('admin/app-assets/vendors/js/extensions/toastr.min.js') }}"></script>
-<script src="{{ asset('vue-js/vue/dist/vue.js') }}"></script>
-<script src="{{ asset('admin/app-assets/js/pos/bootstrap-vue.js') }}"></script>
-<script src="{{ asset('vue-js/axios/dist/axios.min.js') }}"></script>
-<script>
-    $(document).ready(function () {
-        $('#customer').hide()
-        $('#order').hide()
-        $('#pre-order').hide()
-        new Vue({
-            el: '#vue_app',
-            data: {
-                config: {
-                    get_all_orders_url: "{{ url('pos-orders') }}",
-                    get_all_products_url: "{{ url('pos-products') }}",
-                    get_all_categories_url: "{{ url('pos-categories') }}",
-                    get_all_customers_url: "{{ url('pos-customers') }}",
-                    get_customer_url: "{{ url('pos-customer-by-number') }}",
-                    get_coupon_code_value_url: "{{ url('pos-coupon-code-discount') }}",
-                    store_sell_url: "{{ route('pos.store') }}",
-                    store_customer_url: "{{ route('pos.add.customer') }}",
-                    update_customer_url: "{{ url('pos-update-customer') }}",
-                    print_invoice_url: "{{ url('pos-invoice-print') }}",
-                    get_product_by_search_string_url: "{{ url('pos-product-by-name-sku-bar-code') }}",
-                    store_pre_order_url: "{{ url('pos-pre-order') }}",
-                    get_all_pre_orders_url: "{{ url('pos-pre-orders') }}",
+    </section>
+    <script src="{{ asset('admin/app-assets/vendors/js/extensions/toastr.min.js') }}"></script>
+    <script src="{{ asset('vue-js/vue/dist/vue.js') }}"></script>
+    <script src="{{ asset('admin/app-assets/js/pos/bootstrap-vue.js') }}"></script>
+    <script src="{{ asset('vue-js/axios/dist/axios.min.js') }}"></script>
+    <script>
+        $(document).ready(function () {
+            $('#customer').hide()
+            $('#order').hide()
+            $('#pre-order').hide()
+            new Vue({
+                el: '#vue_app',
+                data: {
+                    config: {
+                        get_all_orders_url: "{{ url('pos-orders') }}",
+                        get_all_products_url: "{{ url('pos-products') }}",
+                        get_all_categories_url: "{{ url('pos-categories') }}",
+                        get_all_customers_url: "{{ url('pos-customers') }}",
+                        get_customer_url: "{{ url('pos-customer-by-number') }}",
+                        get_coupon_code_value_url: "{{ url('pos-coupon-code-discount') }}",
+                        store_sell_url: "{{ route('pos.store') }}",
+                        store_customer_url: "{{ route('pos.add.customer') }}",
+                        update_customer_url: "{{ url('pos-update-customer') }}",
+                        print_invoice_url: "{{ url('pos-invoice-print') }}",
+                        get_product_by_search_string_url: "{{ url('pos-product-by-name-sku-bar-code') }}",
+                        store_pre_order_url: "{{ url('pos-pre-order') }}",
+                        get_all_pre_orders_url: "{{ url('pos-pre-orders') }}",
+                    },
+                    categories: [],
+                    products: [],
+                    customers: [],
+                    orders: [],
+                    selectedProducts: [],
+                    selected_category: '',
+                    search_string: '',
+                    total_discount_type: '',
+                    total_discount_value: 0,
+                    total_discount_amount: 0,
+                    special_discount_value: 2,
+                    special_discount_amount: 0,
+                    modalShow: false,
+                    customerNumber: '',
+                    customer: {},
+                    currentActiveMenu: 'home',
+                    selectedInvoice: {},
+                    couponCode: '',
+                    couponModalShow: false,
+                    paymentMenuShow: false,
+                    change: 0,
+                    paymentMethods: [{
+                        amount: 0,
+                        method: 'cash'
+                    }],
+                    couponCodeDiscountType: '',
+                    couponCodeDiscountValue: 0,
+                    couponCodeDiscountAmount: 0,
+                    minimumPurchaseAmount: 0,
+                    couponCodeDiscountShowValue: '',
+                    newCustomer: {
+                        name: '',
+                        mobile: '',
+                        address: '',
+                        email: '',
+                        date_of_birth: '',
+                        date_of_anniversary: '',
+                    },
+                    editableCustomerId: null,
+                    onHoldIdentifier: 0,
+                    holdOrders: [],
+                    selectedOnHoldOrderToPos: null,
+                    preOrderValues: {
+                        delivery_date: new Date(),
+                        order_from: '',
+                        advance_payment: 0,
+                        paid_by: '',
+                        comment: ''
+                    },
+                    pre_orders: [],
+                    selectedPreOrderId: null,
+                    waiter_id: '',
+                    selectedSpecialDiscount: false,
+                    customer_search_string: '',
+                    isDisabled: false,
+                    orderInvoiceNumber: ''
                 },
-                categories: [],
-                products: [],
-                customers: [],
-                orders: [],
-                selectedProducts: [],
-                selected_category: '',
-                search_string: '',
-                total_discount_type: '',
-                total_discount_value: 0,
-                total_discount_amount: 0,
-                special_discount_value: 2,
-                special_discount_amount: 0,
-                modalShow: false,
-                customerNumber: '',
-                customer: {},
-                currentActiveMenu: 'home',
-                selectedInvoice: {},
-                couponCode: '',
-                couponModalShow: false,
-                paymentMenuShow: false,
-                change: 0,
-                paymentMethods: [{
-                    amount: 0,
-                    method: 'cash'
-                }],
-                couponCodeDiscountType: '',
-                couponCodeDiscountValue: 0,
-                couponCodeDiscountAmount: 0,
-                minimumPurchaseAmount: 0,
-                couponCodeDiscountShowValue: '',
-                newCustomer: {
-                    name: '',
-                    mobile: '',
-                    address: '',
-                    email: '',
-                    date_of_birth: '',
-                    date_of_anniversary: '',
+                mounted() {
+                    this.getAllProducts();
+                    this.getAllCategories();
+                    this.getCustomers();
+                    this.getAllOrders();
+                    // this.getAllPreOrders();
                 },
-                editableCustomerId: null,
-                onHoldIdentifier: '',
-                holdOrders: [],
-                selectedOnHoldOrderToPos: null,
-                preOrderValues: {
-                    delivery_date: new Date(),
-                    order_from: '',
-                    advance_payment: 0,
-                    paid_by: '',
-                    comment: ''
-                },
-                pre_orders: [],
-                selectedPreOrderId: null,
-                waiter_id: '',
-                selectedSpecialDiscount: false,
-                customer_search_string: '',
-                isDisabled: false,
-                orderInvoiceNumber: ''
-            },
-            mounted() {
-                this.getAllProducts();
-                this.getAllCategories();
-                this.getCustomers();
-                this.getAllOrders();
-                // this.getAllPreOrders();
-            },
-            computed: {
-                total_items: function () {
-                    return this.selectedProducts.reduce((total, item) => {
-                        return total + item.quantity
-                    }, 0)
-                },
-                total_bill: function () {
-                    return this.selectedProducts.reduce((total, item) => {
-                        return total + ((item.quantity * item.price))
-                    }, 0)
-                },
-                // total_payable_bill: function () {
-                //     var vm = this
-                //     return (this.total_bill - vm.total_discount_amount - vm.couponCodeDiscountAmount - vm.special_discount_amount)
-                // },
-                total_payable_bill: function () {
-                    var vm = this
-                    return Math.round(this.total_bill - vm.couponCodeDiscountAmount - this.allDiscountAmount)
-                },
-                total_due: function () {
-                    return this.total_payable_bill
-                },
-                total_paying: function () {
-                    return this.paymentMethods.reduce((total, item) => {
-                        return Number(total) + Number(item.amount)
-                    }, 0)
-                },
-                pay_left: function () {
-                    return this.total_paying > this.total_due ? 0 : this.total_due - this.total_paying
-                },
-                cash_change: function () {
-                    return this.total_paying > this.total_due ? this.total_paying - this.total_due : 0
-                },
-                productWiseDiscount: function () {
-                    return this.selectedProducts.reduce((total, item) => {
-                        return total + Number(item.discountAmount)
-                    }, 0)
-                },
-                allDiscountAmount: function () {
-                    var vm = this
-                    return Number(vm.total_discount_amount) + Number(vm.special_discount_amount) + Number(this.productWiseDiscount) + Number(this.membership_discount_amount)
-                },
-                selectedNotDiscountableProduct: function () {
-                    return this.selectedProducts.some(item => !item.discountable);
-                },
-                membership_discount_amount: function () {
-                    var vm = this
-                    return vm.customer && vm.total_bill > vm.customer.minimum_purchase ? (Number(vm.total_bill) * Number(vm.customer.purchase_discount) / 100) : 0
-                },
-
-            },
-            methods: {
-                getAllOrders() {
-                    var vm = this;
-                    axios.get(this.config.get_all_orders_url + '?inv=' + vm.orderInvoiceNumber)
-                        .then(function (response) {
-                            vm.orders = (response.data);
-                        }).catch(function (error) {
-                        toastr.error(error, {
-                            closeButton: true,
-                            progressBar: true,
-                        });
-                        return false;
-                    });
-                },
-                getAllProducts() {
-                    var vm = this;
-                    axios.get(this.config.get_all_products_url + '?category=' + vm.selected_category + '&search_term=' + vm.search_string)
-                        .then(function (response) {
-                            vm.products = (response.data);
-                        }).catch(function (error) {
-                        toastr.error(error, {
-                            closeButton: true,
-                            progressBar: true,
-                        });
-                        return false;
-                    });
-                },
-                getAllCategories() {
-                    var vm = this;
-                    axios.get(this.config.get_all_categories_url)
-                        .then(function (response) {
-                            vm.categories = (response.data);
-                        }).catch(function (error) {
-                        toastr.error(error, {
-                            closeButton: true,
-                            progressBar: true,
-                        });
-                        return false;
-                    });
-                },
-                selectProductToSell(product) {
-                    var vm = this;
-                    var product_id = product.id;
-                    if (!(product.stock > 0) && !(product.recipeProduct)) {
-                        toastr.warning('No Stock Available')
-                        return false;
-                    }
-                    var alreadySelected = vm.selectedProducts.some(function (product) {
-                        if (product.id === product_id) {
-                            product.quantity++
-                            if (Number(product.quantity) >= product.stock) {
-                                product.quantity = product.stock
-                            }
-                            product.total = (product.quantity * product.price)
-                        }
-                        return product.id === product_id
-                    });
-                    if (!alreadySelected) {
-                        vm.selectedProducts.push({
-                            id: product.id,
-                            name: product.name,
-                            quantity: 1,
-                            price: product.price,
-                            total: product.price,
-                            editForm: false,
-                            stock: product.stock,
-                            discountType: '',
-                            discountValue: 0,
-                            discountAmount: 0,
-                            discountable: product.discountable,
-                            recipeProduct: product.recipeProduct
-                        })
-                    }
-                    vm.updateDiscount()
-                    if (vm.selectedSpecialDiscount) {
-                        vm.addSpecialDiscount(false)
-                    }
-                },
-                delete_selected_product: function (row) {
-                    this.selectedProducts.splice(this.selectedProducts.indexOf(row), 1);
-                    this.updateDiscount()
-                    if (this.selectedSpecialDiscount) {
-                        this.addSpecialDiscount(false)
-                    }
-                    let vm = this
-                    if (this.selectedProducts.length < 1) {
-                        vm.customer = {};
-                        vm.discount_type = '';
-                        vm.customerNumber = '';
-                        vm.total_discount_type = '';
-                        vm.total_discount_value = 0;
-                        vm.total_discount_amount = 0;
-                        vm.special_discount_amount = 0;
-                        this.allDiscountAmount = 0;
-                        vm.couponCodeDiscountValue = 0;
-                        vm.couponCodeDiscountAmount = 0;
-                        vm.selectedSpecialDiscount = false;
-                    }
+                computed: {
+                    total_items: function () {
+                        return this.selectedProducts.reduce((total, item) => {
+                            return parseFloat(total) + parseFloat(item.quantity)
+                        }, 0)
+                    },
+                    total_bill: function () {
+                        return this.selectedProducts.reduce((total, item) => {
+                            return total + ((item.quantity * item.price))
+                        }, 0)
+                    },
+                    // total_payable_bill: function () {
+                    //     var vm = this
+                    //     return (this.total_bill - vm.total_discount_amount - vm.couponCodeDiscountAmount - vm.special_discount_amount)
+                    // },
+                    total_payable_bill: function () {
+                        var vm = this
+                        return Math.round(this.total_bill - vm.couponCodeDiscountAmount - this.allDiscountAmount)
+                    },
+                    total_due: function () {
+                        return this.total_payable_bill
+                    },
+                    total_paying: function () {
+                        return this.paymentMethods.reduce((total, item) => {
+                            return Number(total) + Number(item.amount)
+                        }, 0)
+                    },
+                    pay_left: function () {
+                        return this.total_paying > this.total_due ? 0 : this.total_due - this.total_paying
+                    },
+                    cash_change: function () {
+                        return this.total_paying > this.total_due ? this.total_paying - this.total_due : 0
+                    },
+                    productWiseDiscount: function () {
+                        return this.selectedProducts.reduce((total, item) => {
+                            return total + Number(item.discountAmount)
+                        }, 0)
+                    },
+                    allDiscountAmount: function () {
+                        var vm = this
+                        return Number(vm.total_discount_amount) + Number(vm.special_discount_amount) + Number(this.productWiseDiscount) + Number(this.membership_discount_amount)
+                    },
+                    selectedNotDiscountableProduct: function () {
+                        return this.selectedProducts.some(item => !item.discountable);
+                    },
+                    membership_discount_amount: function () {
+                        var vm = this
+                        return vm.customer && vm.total_bill > vm.customer.minimum_purchase ? (Number(vm.total_bill) * Number(vm.customer.purchase_discount) / 100) : 0
+                    },
 
                 },
-                markAsGift(product) {
-                    const selectedProduct = this.selectedProducts.find(
-                        (selected) => selected.id === product.id
-                    );
-                    if (selectedProduct) {
-                        selectedProduct.price = 0;
-                        selectedProduct.total = 0;
-                        selectedProduct.discountType = '';
-                        selectedProduct.discountValue = 0;
-                        selectedProduct.discountAmount = 0;
-                        selectedProduct.isGift = true;
-                        toastr.success(`${selectedProduct.name} marked as a gift`);
-                    }
-                },
-                setDiscountType(discountType) {
-                    this.total_discount_type = discountType
-                },
-                updateDiscount() {
-                    var vm = this
-                    if (this.total_discount_type === 'fixed') {
-                        vm.total_discount_amount = vm.total_discount_value
-                    }
-                    if (this.total_discount_type === 'percentage') {
-                        vm.total_discount_amount = (vm.total_bill * vm.total_discount_value) / 100
-                    }
-                    vm.total_discount_amount = Math.round(vm.total_discount_amount)
-                    vm.closeDiscountModal()
-                },
-                clickedOnCategory(category) {
-                    this.selected_category = category
-                    this.getAllProducts()
-                },
-                modalClick() {
-                    this.discountModal == true ? this.discountModal = false : true
-                    if (this.discountModal) {
-                        $('#exampleModalCenter').modal('show');
-                    } else {
-                        $('#exampleModalCenter').modal('hide');
-                    }
-                },
-                getCustomers() {
-                    var vm = this;
-                    axios.get(this.config.get_all_customers_url, {
-                        params: {
-                            search_string: vm.customer_search_string
-                        }
-                    })
-                        .then(function (response) {
-                            vm.customers = (response.data);
-                        }).catch(function (error) {
-                        toastr.error(error, {
-                            closeButton: true,
-                            progressBar: true,
-                        });
-                        return false;
-                    });
-                },
-                getCustomerInfo() {
-                    var vm = this;
-                    vm.customer = {}
-                    axios.get(this.config.get_customer_url, {
-                        params: {
-                            number: this.customerNumber
-                        }
-                    }).then(function (response) {
-                        vm.customer = (response.data);
-                    }).catch(function (error) {
-                        toastr.error(error, {
-                            closeButton: true,
-                            progressBar: true,
-                        });
-                        return false;
-                    });
-                },
-                submitOrder() {
-                    if (this.selectedProducts.length < 1) {
-                        toastr.error('No Product Added to Sell', {
-                            closeButton: true,
-                            progressBar: true,
-                        });
-                    } else {
+                methods: {
+                    getAllOrders() {
                         var vm = this;
-                        vm.isDisabled = true
-                        axios.post(this.config.store_sell_url, {
-                            products: this.selectedProducts,
-                            discount_type: this.total_discount_type,
-                            discount_value: this.total_discount_value,
-                            sub_total: this.total_bill,
-                            discount: this.allDiscountAmount,
-                            grand_total: this.total_payable_bill,
-                            customer_number: this.customerNumber,
-                            payment_methods: this.paymentMethods,
-                            pre_order_id: this.selectedPreOrderId,
-                            waiter_id: this.waiter_id,
-                            membership_discount_percentage: vm.customer ? vm.customer.purchase_discount : 0,
-                            membership_discount_amount: vm.membership_discount_amount,
-                            special_discount_value: vm.special_discount_value,
-                            special_discount_amount: vm.special_discount_amount,
-                            couponCode: vm.couponCode,
-                            couponCodeDiscountType: vm.couponCodeDiscountType,
-                            couponCodeDiscountValue: vm.couponCodeDiscountValue,
-                            couponCodeDiscountAmount: vm.couponCodeDiscountAmount,
-                            total_discount_type: vm.total_discount_type,
-                            total_discount_value: vm.total_discount_value,
-                            total_discount_amount: vm.total_discount_amount,
-                        }).then(function (response) {
-                            vm.selectedProducts = [];
+                        axios.get(this.config.get_all_orders_url + '?inv=' + vm.orderInvoiceNumber)
+                            .then(function (response) {
+                                vm.orders = (response.data);
+                            }).catch(function (error) {
+                                toastr.error(error, {
+                                    closeButton: true,
+                                    progressBar: true,
+                                });
+                                return false;
+                            });
+                    },
+                    getAllProducts() {
+                        var vm = this;
+                        axios.get(this.config.get_all_products_url + '?category=' + vm.selected_category + '&search_term=' + vm.search_string)
+                            .then(function (response) {
+                                vm.products = (response.data);
+                            }).catch(function (error) {
+                                toastr.error(error, {
+                                    closeButton: true,
+                                    progressBar: true,
+                                });
+                                return false;
+                            });
+                    },
+                    getAllCategories() {
+                        var vm = this;
+                        axios.get(this.config.get_all_categories_url)
+                            .then(function (response) {
+                                vm.categories = (response.data);
+                            }).catch(function (error) {
+                                toastr.error(error, {
+                                    closeButton: true,
+                                    progressBar: true,
+                                });
+                                return false;
+                            });
+                    },
+                    selectProductToSell(product) {
+                        var vm = this;
+                        var product_id = product.id;
+                        if (!(product.stock > 0) && !(product.recipeProduct)) {
+                            toastr.warning('No Stock Available')
+                            return false;
+                        }
+                        var alreadySelected = vm.selectedProducts.some(function (product) {
+                            if (product.id === product_id) {
+                                product.quantity++
+                                if (Number(product.quantity) >= product.stock) {
+                                    product.quantity = product.stock
+                                }
+                                product.total = (product.quantity * product.price)
+                            }
+                            return product.id === product_id
+                        });
+                        if (!alreadySelected) {
+                            vm.selectedProducts.push({
+                                id: product.id,
+                                name: product.name,
+                                quantity: 1,
+                                price: product.price,
+                                total: product.price,
+                                editForm: false,
+                                stock: product.stock,
+                                discountType: '',
+                                discountValue: 0,
+                                discountAmount: 0,
+                                discountable: product.discountable,
+                                recipeProduct: product.recipeProduct
+                            })
+                        }
+                        vm.updateDiscount()
+                        if (vm.selectedSpecialDiscount) {
+                            vm.addSpecialDiscount(false)
+                        }
+                    },
+                    delete_selected_product: function (row) {
+                        this.selectedProducts.splice(this.selectedProducts.indexOf(row), 1);
+                        this.updateDiscount()
+                        if (this.selectedSpecialDiscount) {
+                            this.addSpecialDiscount(false)
+                        }
+                        let vm = this
+                        if (this.selectedProducts.length < 1) {
                             vm.customer = {};
                             vm.discount_type = '';
                             vm.customerNumber = '';
@@ -573,296 +457,427 @@
                             vm.total_discount_value = 0;
                             vm.total_discount_amount = 0;
                             vm.special_discount_amount = 0;
-                            this.allDiscountAmount = 0;
                             vm.couponCodeDiscountValue = 0;
                             vm.couponCodeDiscountAmount = 0;
-                            vm.getAllProducts()
-                            vm.getAllOrders()
-                            vm.paymentMenuShow = false
-                            vm.paymentMethods = [{
-                                amount: 0,
-                                method: 'cash'
-                            }]
-                            toastr.success('Success', {
-                                closeButton: true,
-                                progressBar: true,
-                            });
-                            if (vm.selectedOnHoldOrderToPos) {
-                                vm.holdOrders.splice(vm.holdOrders.indexOf(vm.selectedOnHoldOrderToPos), 1);
-                                sessionStorage.setItem('holdOrder', JSON.stringify(vm.holdOrders))
-                            }
-                            vm.isDisabled = false
-                            vm.printInvoice(response.data.sale.id)
-                        }).catch(function (error) {
-                            toastr.error(error?.response?.data?.message, {
-                                closeButton: true,
-                                progressBar: true,
-                            });
-                            vm.isDisabled = false
-                            return false;
-                        });
-                    }
-
-                },
-                changeToNav(navMenu) {
-                    let posElement = $('#pos-page')
-                    let customerElement = $('#customer')
-                    let orderElement = $('#order')
-                    let preOrderElement = $('#pre-order')
-                    posElement.hide()
-                    customerElement.hide()
-                    orderElement.hide()
-                    preOrderElement.hide()
-                    this.currentActiveMenu = navMenu
-                    switch (navMenu) {
-                        case 'home':
-                            posElement.show()
-                            break;
-                        case 'customers':
-                            customerElement.show()
-                            break;
-                        case 'orders':
-                            orderElement.show()
-                            break;
-                        case 'pre_orders':
-                            preOrderElement.show()
-                            break;
-                        default:
-                            this.currentActiveMenu = 'home'
-                            posElement.hide()
-                            customerElement.hide()
-                            orderElement.hide()
-                            preOrderElement.hide()
-                    }
-
-                },
-                addToSelectedInvoice(invoice) {
-                    this.selectedInvoice = invoice
-                    console.log(this.selectedInvoice)
-                },
-                addMorePaymentMethod() {
-                    this.paymentMethods.push({amount: 0, method: ''})
-                },
-                checkAvail(index) {
-                    let currentMethod = this.paymentMethods[index].method
-                    let count = this.paymentMethods.filter(function (method) {
-                        return currentMethod == method.method
-                    })
-                    if (count.length > 1) {
-                        toastr.error(currentMethod + ' is already selected', {
-                            closeButton: true,
-                            progressBar: true,
-                        });
-                        this.paymentMethods[index].method = ''
-                        return
-                    }
-                },
-                updateQuantity(item, update_type) {
-                    vm = this
-                    this.selectedProducts.some(function (product) {
-                        if (product.id === item.id) {
-                            if (update_type === 'add') {
-                                product.quantity++
-                                if (product.recipeProduct) {
-                                    product.quantity = product.quantity
-                                } else if (Number(product.quantity) >= product.stock) {
-                                    product.quantity = product.stock
-                                } else {
-                                    product.quantity++
-                                }
-                            } else if (update_type === 'sub') {
-                                if (product.recipeProduct) {
-                                    product.quantity = product.quantity
-                                } else if (Number(product.quantity) < 1) {
-                                    product.quantity = 1
-                                } else {
-                                    product.quantity--
-                                }
-                            } else {
-                                if (product.recipeProduct) {
-                                    console.log(product.recipeProduct);
-                                    product.quantity = product.quantity
-                                } else if (Number(product.quantity) >= product.stock) {
-                                    product.quantity = product.stock
-                                } else if (Number(product.quantity) < 1) {
-                                    // product.quantity = 1
-                                } else {
-                                    product.quantity = item.quantity
-                                }
-                            }
-                            product.total = (product.quantity * product.price)
-                            // vm.updatePrice()
+                            vm.selectedSpecialDiscount = false;
                         }
-                    });
-                },
-                updatePrice() {
-                    this.selectedProducts.some(function (product) {
-                        product.total = (product.quantity * product.price)
-                    });
-                },
-                deletePaymentMethod: function (row) {
-                    this.paymentMethods.splice(this.paymentMethods.indexOf(row), 1);
-                },
-                getProductBySearchString() {
-                    var vm = this;
-                    axios.get(this.config.get_product_by_search_string_url + '?search_term=' + vm.search_string)
-                        .then(function (response) {
-                            vm.getAllProducts()
-                            // if (response.data !== 'multiple') {
-                            //     vm.selectProductToSell(response.data)
-                            //     vm.search_string = ''
-                            //     vm.getAllProducts()
-                            // } else {
-                            //     vm.getAllProducts()
-                            // }
-                        }).catch(function (error) {
-                        toastr.error(error, {
-                            closeButton: true,
-                            progressBar: true,
-                        });
-                        return false;
-                    });
-                },
-                getPointRedeemField() {
-                    const vm = this
-                    this.paymentMenuShow = true
-                    if (vm.total_payable_bill > 100) {
-                        this.openPaymentModal()
-                        var amount = parseInt(this.customer.current_point / 100)
-                        this.paymentMethods.push({amount: 100, method: 'point'})
-                    } else {
-                        toastr.error('Bill must me more than TK.100');
-                    }
-                },
-                getCouponDiscountValue() {
-                    var vm = this;
-                    axios.get(this.config.get_coupon_code_value_url + '?code=' + vm.couponCode + '&user=' + vm.customerNumber)
-                        .then(function (response) {
-                            const responseData = response.data
-                            if (responseData.success === false) {
-                                toastr.error(responseData.message, {
+
+                    },
+                    markAsGift(product) {
+                        const selectedProduct = this.selectedProducts.find(
+                            (selected) => selected.id === product.id
+                        );
+                        if (selectedProduct) {
+                            selectedProduct.price = 0;
+                            selectedProduct.total = 0;
+                            selectedProduct.discountType = '';
+                            selectedProduct.discountValue = 0;
+                            selectedProduct.discountAmount = 0;
+                            selectedProduct.isGift = true;
+                            toastr.success(`${selectedProduct.name} marked as a gift`);
+                        }
+                    },
+                    setDiscountType(discountType) {
+                        this.total_discount_type = discountType
+                    },
+                    updateDiscount() {
+                        var vm = this
+                        if (this.total_discount_type === 'fixed') {
+                            vm.total_discount_amount = vm.total_discount_value
+                        }
+                        if (this.total_discount_type === 'percentage') {
+                            vm.total_discount_amount = (vm.total_bill * vm.total_discount_value) / 100
+                        }
+                        vm.total_discount_amount = Math.round(vm.total_discount_amount)
+                        vm.closeDiscountModal()
+                    },
+                    clickedOnCategory(category) {
+                        this.selected_category = category
+                        this.getAllProducts()
+                    },
+                    modalClick() {
+                        this.discountModal == true ? this.discountModal = false : true
+                        if (this.discountModal) {
+                            $('#exampleModalCenter').modal('show');
+                        } else {
+                            $('#exampleModalCenter').modal('hide');
+                        }
+                    },
+                    getCustomers() {
+                        var vm = this;
+                        axios.get(this.config.get_all_customers_url, {
+                            params: {
+                                search_string: vm.customer_search_string
+                            }
+                        })
+                            .then(function (response) {
+                                vm.customers = (response.data);
+                            }).catch(function (error) {
+                                toastr.error(error, {
                                     closeButton: true,
                                     progressBar: true,
                                 });
-                            } else {
-                                if (responseData.data.minimum_purchase && responseData.data.minimum_purchase > vm.total_payable_bill) {
-                                    toastr.error('Minimum Purchase Amount is ' + responseData.data.minimum_purchase, {
+                                return false;
+                            });
+                    },
+                    getCustomerInfo() {
+                        var vm = this;
+                        vm.customer = {}
+                        axios.get(this.config.get_customer_url, {
+                            params: {
+                                number: this.customerNumber
+                            }
+                        }).then(function (response) {
+                            vm.customer = (response.data);
+                        }).catch(function (error) {
+                            toastr.error(error, {
+                                closeButton: true,
+                                progressBar: true,
+                            });
+                            return false;
+                        });
+                    },
+                    submitOrder() {
+                        if (this.selectedProducts.length < 1) {
+                            toastr.error('No Product Added to Sell', {
+                                closeButton: true,
+                                progressBar: true,
+                            });
+                        } else {
+                            var vm = this;
+                            vm.isDisabled = true
+                            axios.post(this.config.store_sell_url, {
+                                products: this.selectedProducts,
+                                discount_type: this.total_discount_type,
+                                discount_value: this.total_discount_value,
+                                sub_total: this.total_bill,
+                                discount: this.allDiscountAmount,
+                                grand_total: this.total_payable_bill,
+                                customer_number: this.customerNumber,
+                                payment_methods: this.paymentMethods,
+                                pre_order_id: this.selectedPreOrderId,
+                                waiter_id: this.waiter_id,
+                                membership_discount_percentage: vm.customer ? vm.customer.purchase_discount : 0,
+                                membership_discount_amount: vm.membership_discount_amount,
+                                special_discount_value: vm.special_discount_value,
+                                special_discount_amount: vm.special_discount_amount,
+                                couponCode: vm.couponCode,
+                                couponCodeDiscountType: vm.couponCodeDiscountType,
+                                couponCodeDiscountValue: vm.couponCodeDiscountValue,
+                                couponCodeDiscountAmount: vm.couponCodeDiscountAmount,
+                                total_discount_type: vm.total_discount_type,
+                                total_discount_value: vm.total_discount_value,
+                                total_discount_amount: vm.total_discount_amount,
+                            }).then(function (response) {
+                                vm.selectedProducts = [];
+                                vm.customer = {};
+                                vm.discount_type = '';
+                                vm.customerNumber = '';
+                                vm.total_discount_type = '';
+                                vm.total_discount_value = 0;
+                                vm.total_discount_amount = 0;
+                                vm.special_discount_amount = 0;
+                                vm.couponCodeDiscountValue = 0;
+                                vm.couponCodeDiscountAmount = 0;
+                                vm.getAllProducts()
+                                vm.getAllOrders()
+                                vm.paymentMenuShow = false
+                                vm.paymentMethods = [{
+                                    amount: 0,
+                                    method: 'cash'
+                                }]
+                                toastr.success('Success', {
+                                    closeButton: true,
+                                    progressBar: true,
+                                });
+                                if (vm.selectedOnHoldOrderToPos) {
+                                    vm.holdOrders.splice(vm.holdOrders.indexOf(vm.selectedOnHoldOrderToPos), 1);
+                                    localStorage.setItem('holdOrder', JSON.stringify(vm.holdOrders))
+                                }
+                                vm.isDisabled = false
+                                vm.printInvoice(response.data.sale.id)
+                            }).catch(function (error) {
+                                toastr.error(error?.response?.data?.message, {
+                                    closeButton: true,
+                                    progressBar: true,
+                                });
+                                vm.isDisabled = false
+                                return false;
+                            });
+                        }
+
+                    },
+                    changeToNav(navMenu) {
+                        let posElement = $('#pos-page')
+                        let customerElement = $('#customer')
+                        let orderElement = $('#order')
+                        let preOrderElement = $('#pre-order')
+                        posElement.hide()
+                        customerElement.hide()
+                        orderElement.hide()
+                        preOrderElement.hide()
+                        this.currentActiveMenu = navMenu
+                        switch (navMenu) {
+                            case 'home':
+                                posElement.show()
+                                break;
+                            case 'customers':
+                                customerElement.show()
+                                break;
+                            case 'orders':
+                                orderElement.show()
+                                break;
+                            case 'pre_orders':
+                                preOrderElement.show()
+                                break;
+                            default:
+                                this.currentActiveMenu = 'home'
+                                posElement.hide()
+                                customerElement.hide()
+                                orderElement.hide()
+                                preOrderElement.hide()
+                        }
+
+                    },
+                    addToSelectedInvoice(invoice) {
+                        this.selectedInvoice = invoice
+                        console.log(this.selectedInvoice)
+                    },
+                    addMorePaymentMethod() {
+                        this.paymentMethods.push({ amount: 0, method: '' })
+                    },
+                    checkAvail(index) {
+                        let currentMethod = this.paymentMethods[index].method
+                        let count = this.paymentMethods.filter(function (method) {
+                            return currentMethod == method.method
+                        })
+                        if (count.length > 1) {
+                            toastr.error(currentMethod + ' is already selected', {
+                                closeButton: true,
+                                progressBar: true,
+                            });
+                            this.paymentMethods[index].method = ''
+                            return
+                        }
+                    },
+                    updateQuantity(item, update_type) {
+                        vm = this
+                        this.selectedProducts.some(function (product) {
+                            if (product.id === item.id) {
+                                if (update_type === 'add') {
+                                    product.quantity++
+                                    if (product.recipeProduct) {
+                                        product.quantity = product.quantity
+                                    } else if (Number(product.quantity) >= product.stock) {
+                                        product.quantity = product.stock
+                                    } else {
+                                        product.quantity++
+                                    }
+                                } else if (update_type === 'sub') {
+                                    if (product.recipeProduct) {
+                                        product.quantity = product.quantity
+                                    } else if (Number(product.quantity) < 1) {
+                                        product.quantity = 1
+                                    } else {
+                                        product.quantity--
+                                    }
+                                } else {
+                                    if (product.recipeProduct) {
+                                        console.log(product.recipeProduct);
+                                        product.quantity = product.quantity
+                                    } else if (Number(product.quantity) >= product.stock) {
+                                        product.quantity = product.stock
+                                    } else if (Number(product.quantity) < 1) {
+                                        // product.quantity = 1
+                                    } else {
+                                        product.quantity = item.quantity
+                                    }
+                                }
+                                product.total = (product.quantity * product.price)
+                                // vm.updatePrice()
+                            }
+                        });
+                    },
+                    updatePrice() {
+                        this.selectedProducts.some(function (product) {
+                            product.total = (product.quantity * product.price)
+                        });
+                    },
+                    deletePaymentMethod: function (row) {
+                        this.paymentMethods.splice(this.paymentMethods.indexOf(row), 1);
+                    },
+                    getProductBySearchString() {
+                        var vm = this;
+                        axios.get(this.config.get_product_by_search_string_url + '?search_term=' + vm.search_string)
+                            .then(function (response) {
+                                vm.getAllProducts()
+                                // if (response.data !== 'multiple') {
+                                //     vm.selectProductToSell(response.data)
+                                //     vm.search_string = ''
+                                //     vm.getAllProducts()
+                                // } else {
+                                //     vm.getAllProducts()
+                                // }
+                            }).catch(function (error) {
+                                toastr.error(error, {
+                                    closeButton: true,
+                                    progressBar: true,
+                                });
+                                return false;
+                            });
+                    },
+                    getPointRedeemField() {
+                        const vm = this
+                        this.paymentMenuShow = true
+                        if (vm.total_payable_bill > 100) {
+                            this.openPaymentModal()
+                            var amount = parseInt(this.customer.current_point / 100)
+                            this.paymentMethods.push({ amount: 100, method: 'point' })
+                        } else {
+                            toastr.error('Bill must me more than TK.100');
+                        }
+                    },
+                    getCouponDiscountValue() {
+                        var vm = this;
+                        axios.get(this.config.get_coupon_code_value_url + '?code=' + vm.couponCode + '&user=' + vm.customerNumber)
+                            .then(function (response) {
+                                const responseData = response.data
+                                if (responseData.success === false) {
+                                    toastr.error(responseData.message, {
                                         closeButton: true,
                                         progressBar: true,
                                     });
+                                } else {
+                                    if (responseData.data.minimum_purchase && responseData.data.minimum_purchase > vm.total_payable_bill) {
+                                        toastr.error('Minimum Purchase Amount is ' + responseData.data.minimum_purchase, {
+                                            closeButton: true,
+                                            progressBar: true,
+                                        });
+                                    }
+                                    vm.couponCodeDiscountType = responseData.data.discount_type
+                                    vm.couponCodeDiscountValue = responseData.data.discount_value
+                                    vm.minimumPurchaseAmount = responseData.data.minimum_purchase
+                                    if (vm.couponCodeDiscountType === 'fixed') {
+                                        vm.couponCodeDiscountAmount = vm.couponCodeDiscountValue
+                                        vm.couponCodeDiscountShowValue = vm.couponCodeDiscountValue + ' TK'
+                                    }
+                                    if (vm.couponCodeDiscountType === 'percentage') {
+                                        vm.couponCodeDiscountAmount = (vm.total_bill * vm.couponCodeDiscountValue) / 100
+                                        vm.couponCodeDiscountShowValue = vm.couponCodeDiscountValue + ' %'
+                                    }
+                                    vm.couponModalShow === true ? vm.couponModalShow = false : true
                                 }
-                                vm.couponCodeDiscountType = responseData.data.discount_type
-                                vm.couponCodeDiscountValue = responseData.data.discount_value
-                                vm.minimumPurchaseAmount = responseData.data.minimum_purchase
-                                if (vm.couponCodeDiscountType === 'fixed') {
-                                    vm.couponCodeDiscountAmount = vm.couponCodeDiscountValue
-                                    vm.couponCodeDiscountShowValue = vm.couponCodeDiscountValue + ' TK'
-                                }
-                                if (vm.couponCodeDiscountType === 'percentage') {
-                                    vm.couponCodeDiscountAmount = (vm.total_bill * vm.couponCodeDiscountValue) / 100
-                                    vm.couponCodeDiscountShowValue = vm.couponCodeDiscountValue + ' %'
-                                }
-                                vm.couponModalShow === true ? vm.couponModalShow = false : true
-                            }
 
-                        }).catch(function (error) {
-                        toastr.error(error, {
-                            closeButton: true,
-                            progressBar: true,
-                        });
-                        return false;
-                    });
-                },
-                submitCustomerInfo() {
-                    let url;
-                    var vm = this;
-                    if (vm.editableCustomerId) {
-                        url = vm.config.update_customer_url + '/' + vm.editableCustomerId;
-                    } else {
-                        url = vm.config.store_customer_url;
-                    }
-                    axios.post(url, vm.newCustomer).then(function (response) {
-                        vm.newCustomer.name = ''
-                        vm.newCustomer.email = ''
-                        vm.newCustomer.mobile = ''
-                        vm.newCustomer.address = ''
-                        vm.newCustomer.dob = ''
-                        vm.newCustomer.doa = ''
-                        toastr.success(response.data.message, {
-                            closeButton: true,
-                            progressBar: true,
-                        });
-                        vm.getCustomers()
-                    }).catch(function (error) {
-                        if (error.response.status === 422) {
-                            let errorData = error.response.data.errors
-                            $.each(errorData, function (key, val) {
-                                toastr.error(val[0], {
+                            }).catch(function (error) {
+                                toastr.error(error, {
                                     closeButton: true,
                                     progressBar: true,
                                 });
-                            })
+                                return false;
+                            });
+                    },
+                    submitCustomerInfo() {
+                        let url;
+                        var vm = this;
+                        if (vm.editableCustomerId) {
+                            url = vm.config.update_customer_url + '/' + vm.editableCustomerId;
                         } else {
-                            toastr.error('Something Went Wrong', {
+                            url = vm.config.store_customer_url;
+                        }
+                        axios.post(url, vm.newCustomer).then(function (response) {
+                            vm.newCustomer.name = ''
+                            vm.newCustomer.email = ''
+                            vm.newCustomer.mobile = ''
+                            vm.newCustomer.address = ''
+                            vm.newCustomer.dob = ''
+                            vm.newCustomer.doa = ''
+                            toastr.success(response.data.message, {
                                 closeButton: true,
                                 progressBar: true,
                             });
-                        }
+                            vm.getCustomers()
+                        }).catch(function (error) {
+                            if (error.response.status === 422) {
+                                let errorData = error.response.data.errors
+                                $.each(errorData, function (key, val) {
+                                    toastr.error(val[0], {
+                                        closeButton: true,
+                                        progressBar: true,
+                                    });
+                                })
+                            } else {
+                                toastr.error('Something Went Wrong', {
+                                    closeButton: true,
+                                    progressBar: true,
+                                });
+                            }
 
-                        return false;
-                    });
-                },
-                editCustomer(customer) {
-                    var vm = this
-                    vm.editableCustomerId = customer.id
-                    vm.newCustomer.name = customer.name
-                    vm.newCustomer.email = customer.email
-                    vm.newCustomer.mobile = customer.mobile
-                    vm.newCustomer.address = customer.address
-                    vm.newCustomer.dob = customer.dob
-                    vm.newCustomer.doa = customer.doa
-                },
-                printInvoice(order_id) {
-                    this.closePaymentModal()
-                    const url = this.config.print_invoice_url + '/' + order_id
-                    // window.open(url, '_blank').focus();
-                    var printWindow = window.open(url, '_blank');
-
-                    // Wait for the PDF to load and then print
-                    printWindow.onload = function () {
-                        printWindow.print();
-                    };
-                    // window.location.href = url
-                },
-                openCouponModal() {
-                    var vm = this
-                    vm.$refs['coupon-modal'].show()
-                },
-                closeCouponModal() {
-                    var vm = this
-                    vm.$refs['coupon-modal'].hide()
-                },
-                openDiscountModal() {
-                    var vm = this
-                    if (vm.productWiseDiscount > 0) {
-                        if (confirm("Single Product Discount Applied, Sure to add Total Discount ?")) {
-                            vm.$refs['discount-modal'].show()
-                        } else {
                             return false;
-                        }
-                    } else {
-                        vm.$refs['discount-modal'].show()
-                    }
+                        });
+                    },
+                    editCustomer(customer) {
+                        var vm = this
+                        vm.editableCustomerId = customer.id
+                        vm.newCustomer.name = customer.name
+                        vm.newCustomer.email = customer.email
+                        vm.newCustomer.mobile = customer.mobile
+                        vm.newCustomer.address = customer.address
+                        vm.newCustomer.dob = customer.dob
+                        vm.newCustomer.doa = customer.doa
+                    },
+                    printInvoice(order_id) {
+                        this.closePaymentModal()
+                        const url = this.config.print_invoice_url + '/' + order_id
+                        // window.open(url, '_blank').focus();
+                        var printWindow = window.open(url, '_blank');
 
-                },
-                closeDiscountModal() {
-                    var vm = this
-                    vm.$refs['discount-modal'].hide()
-                },
-                addSpecialDiscount(computed = true) {
-                    var vm = this
-                    if (vm.productWiseDiscount > 0) {
-                        if (confirm("Single Product Discount Applied, Sure to add Total Discount ?")) {
+                        // Wait for the PDF to load and then print
+                        printWindow.onload = function () {
+                            printWindow.print();
+                        };
+                        // window.location.href = url
+                    },
+                    openCouponModal() {
+                        var vm = this
+                        vm.$refs['coupon-modal'].show()
+                    },
+                    closeCouponModal() {
+                        var vm = this
+                        vm.$refs['coupon-modal'].hide()
+                    },
+                    openDiscountModal() {
+                        var vm = this
+                        if (vm.productWiseDiscount > 0) {
+                            if (confirm("Single Product Discount Applied, Sure to add Total Discount ?")) {
+                                vm.$refs['discount-modal'].show()
+                            } else {
+                                return false;
+                            }
+                        } else {
+                            vm.$refs['discount-modal'].show()
+                        }
+
+                    },
+                    closeDiscountModal() {
+                        var vm = this
+                        vm.$refs['discount-modal'].hide()
+                    },
+                    addSpecialDiscount(computed = true) {
+                        var vm = this
+                        if (vm.productWiseDiscount > 0) {
+                            if (confirm("Single Product Discount Applied, Sure to add Total Discount ?")) {
+                                if (vm.selectedSpecialDiscount && computed) {
+                                    vm.selectedSpecialDiscount = false
+                                    vm.special_discount_amount = 0
+                                } else {
+                                    vm.selectedSpecialDiscount = true
+                                    vm.special_discount_amount = (vm.total_bill * vm.special_discount_value) / 100
+                                }
+                                vm.special_discount_amount = Math.round(vm.special_discount_amount)
+                            } else {
+                                return false;
+                            }
+                        } else {
                             if (vm.selectedSpecialDiscount && computed) {
                                 vm.selectedSpecialDiscount = false
                                 vm.special_discount_amount = 0
@@ -871,25 +886,29 @@
                                 vm.special_discount_amount = (vm.total_bill * vm.special_discount_value) / 100
                             }
                             vm.special_discount_amount = Math.round(vm.special_discount_amount)
-                        } else {
-                            return false;
                         }
-                    } else {
-                        if (vm.selectedSpecialDiscount && computed) {
-                            vm.selectedSpecialDiscount = false
-                            vm.special_discount_amount = 0
-                        } else {
-                            vm.selectedSpecialDiscount = true
-                            vm.special_discount_amount = (vm.total_bill * vm.special_discount_value) / 100
-                        }
-                        vm.special_discount_amount = Math.round(vm.special_discount_amount)
-                    }
 
-                },
-                updateProductDiscount(sp) {
-                    var vm = this
-                    if (vm.total_discount_amount > 0) {
-                        if (confirm("Total Discount Applied, Sure to add Total Discount Single Product Discount?")) {
+                    },
+                    updateProductDiscount(sp) {
+                        var vm = this
+                        if (vm.total_discount_amount > 0) {
+                            if (confirm("Total Discount Applied, Sure to add Total Discount Single Product Discount?")) {
+                                this.selectedProducts.some(function (product) {
+                                    var total_cost = (product.quantity * product.price);
+                                    if (product.discountType == 'p') {
+                                        product.discountAmount = (total_cost * product.discountValue) / 100;
+                                    }
+                                    if (product.discountType == 'f') {
+                                        product.discountAmount = product.discountValue;
+                                    }
+                                    product.discountAmount = Math.round(product.discountAmount);
+                                });
+                            } else {
+                                sp.discountType = ''
+                                sp.discountValue = 0
+                                return false;
+                            }
+                        } else {
                             this.selectedProducts.some(function (product) {
                                 var total_cost = (product.quantity * product.price);
                                 if (product.discountType == 'p') {
@@ -900,237 +919,314 @@
                                 }
                                 product.discountAmount = Math.round(product.discountAmount);
                             });
-                        } else {
-                            sp.discountType = ''
-                            sp.discountValue = 0
-                            return false;
                         }
-                    } else {
-                        this.selectedProducts.some(function (product) {
-                            var total_cost = (product.quantity * product.price);
-                            if (product.discountType == 'p') {
-                                product.discountAmount = (total_cost * product.discountValue) / 100;
-                            }
-                            if (product.discountType == 'f') {
-                                product.discountAmount = product.discountValue;
-                            }
-                            product.discountAmount = Math.round(product.discountAmount);
-                        });
-                    }
 
-                },
-                openPaymentModal() {
-                    var vm = this
-                    vm.$refs['payment-modal'].show()
-                },
-                closePaymentModal() {
-                    const vm = this;
-                    vm.$refs['payment-modal'].hide()
-                },
-                openOnHoldModal() {
-                    const vm = this;
-                    vm.$refs['on-hold-modal'].show()
-                },
-                closeOnHoldModal() {
-                    const vm = this;
-                    vm.$refs['on-hold-modal'].hide()
-                },
-                storeHoldOrder() {
-                    const vm = this;
-                    let identifierExists = false
-                    let currentHoldOrders = []
-                    if (sessionStorage.getItem('holdOrder')) {
-                        currentHoldOrders = JSON.parse(sessionStorage.getItem('holdOrder'))
+                    },
+                    openPaymentModal() {
+                        var vm = this
+                        vm.$refs['payment-modal'].show()
+                    },
+                    closePaymentModal() {
+                        const vm = this;
+                        vm.$refs['payment-modal'].hide()
+                    },
+                    openOnHoldModal() {
+                        const vm = this;
+                        vm.$refs['on-hold-modal'].show()
+                    },
+                    closeOnHoldModal() {
+                        const vm = this;
+                        vm.$refs['on-hold-modal'].hide()
+                    },
+                    storeHoldOrder() {
+                        const vm = this;
+                        let identifierExists = false;
+                        let currentHoldOrders = [];
+
+                        if (localStorage.getItem('holdOrder')) {
+                            currentHoldOrders = JSON.parse(localStorage.getItem('holdOrder'));
+                        }
+
                         currentHoldOrders.some(function (order) {
-                            if (order.identifier == vm.onHoldIdentifier) {
-                                toastr.error('Identifier Already Exists')
-                                identifierExists = true
-                            }
+                            if (order.identifier === vm.onHoldIdentifier) {
+                                const existingItemsJSON = JSON.stringify(order.items);
+                                const newItemsJSON = JSON.stringify(vm.selectedProducts);
 
+                                order.items = vm.selectedProducts;
+                                order.total = vm.total_items;
+                                order.discount_type = vm.total_discount_type;
+                                order.discount_value = vm.total_discount_value;
+                                order.sub_total = vm.total_bill;
+                                order.discount = vm.allDiscountAmount;
+                                order.grand_total = vm.total_payable_bill;
+                                order.payment_methods = vm.paymentMethods;
+                                order.pre_order_id = vm.selectedPreOrderId;
+                                order.waiter_id = vm.waiter_id;
+                                order.customer_number = vm.customerNumber;
+                                order.membership_discount_percentage = vm.customer ? vm.customer.purchase_discount : 0;
+                                order.membership_discount_amount = vm.membership_discount_amount;
+                                if (order.customer_number) {
+                                    order.customer = vm.customer;
+                                }
+                                order.special_discount_value = vm.special_discount_value;
+                                order.couponCode = vm.couponCode;
+                                order.couponCodeDiscountType = vm.couponCodeDiscountType;
+                                order.couponCodeDiscountValue = vm.couponCodeDiscountValue;
+                                order.couponCodeDiscountAmount = vm.couponCodeDiscountAmount;
+                                order.total_discount_amount = vm.total_discount_amount;
+                                order.special_discount_amount = vm.special_discount_amount;
+
+                                localStorage.setItem('holdOrder', JSON.stringify(currentHoldOrders));
+                                toastr.success('Hold Order updated successfully.');
+                                vm.resetForm();
+
+                                identifierExists = true;
+                                return true;
+                            }
                         });
-                    }
-                    if (!identifierExists) {
-                        let holdOrder = {
-                            'identifier': vm.onHoldIdentifier,
-                            'items': vm.selectedProducts,
-                            'total': vm.total_items
-                        };
-                        currentHoldOrders.push(holdOrder)
-                        sessionStorage.setItem('holdOrder', JSON.stringify(currentHoldOrders))
-                        vm.selectedProducts = []
-                        vm.onHoldIdentifier = ''
+
+                        if (!identifierExists) {
+                            const holdOrder = {
+                                identifier: vm.onHoldIdentifier,
+                                items: vm.selectedProducts,
+                                total: vm.total_items,
+                                discount_type: vm.total_discount_type,
+                                discount_value: vm.total_discount_value,
+                                sub_total: vm.total_bill,
+                                discount: vm.allDiscountAmount,
+                                grand_total: vm.total_payable_bill,
+                                payment_methods: vm.paymentMethods,
+                                pre_order_id: vm.selectedPreOrderId,
+                                waiter_id: vm.waiter_id,
+                                customer_number: vm.customerNumber,
+                                membership_discount_percentage: vm.customer ? vm.customer.purchase_discount : 0,
+                                membership_discount_amount: vm.membership_discount_amount,
+                                customer : vm.customer,
+                                special_discount_value: vm.special_discount_value,
+                                couponCode: vm.couponCode,
+                                couponCodeDiscountType: vm.couponCodeDiscountType,
+                                couponCodeDiscountValue: vm.couponCodeDiscountValue,
+                                couponCodeDiscountAmount: vm.couponCodeDiscountAmount,
+                                total_discount_amount: vm.total_discount_amount,
+                                special_discount_amount: vm.special_discount_amount,
+                            };
+
+                            currentHoldOrders.push(holdOrder);
+                            localStorage.setItem('holdOrder', JSON.stringify(currentHoldOrders));
+                            toastr.success('Order held successfully.');
+                            vm.resetForm();
+                        }
+                    },
+                    resetForm() {
+                        const vm = this;
+                        vm.selectedProducts = [];
+                        vm.onHoldIdentifier = 0;
                         vm.total_discount_type = '';
                         vm.total_discount_value = 0;
                         vm.total_discount_amount = 0;
                         vm.special_discount_amount = 0;
-                        this.allDiscountAmount = 0;
-                        this.closeOnHoldModal()
-                    }
+                        vm.special_discount_value = 2;
+                        vm.couponCode = '';
+                        vm.couponCodeDiscountType = '';
+                        vm.couponCodeDiscountValue = 0;
+                        vm.couponCodeDiscountAmount = 0;
+                        vm.paymentMethods = [{ amount: 0, method: 'cash' }];
+                        vm.selectedPreOrderId = null;
+                        vm.waiter_id = null;
+                        vm.customer = {};
+                        vm.customerNumber = '';
+                        vm.customer = '';
+                        vm.closeOnHoldModal();
+                    },
+                    deleteHoldOrder(index) {
+                        this.holdOrders.splice(index, 1);
+                        localStorage.setItem('holdOrder', JSON.stringify(this.holdOrders));
+                        toastr.success('Hold Order Deleted');
+                    },
+                    printHoldOrder(order) {
+                        axios.post("{{url('pos-hold-order-print')}}", order).then(function (response) {
+                            var html = response.data
+                            const iframe = document.createElement('iframe');
+                            iframe.style.visibility = 'hidden';
+                            iframe.style.position = 'absolute';
+                            iframe.style.width = '0';
+                            iframe.style.height = '0';
+                            iframe.style.border = '0';
 
-                },
-                deleteHoldOrder(index) {
-                    this.holdOrders.splice(index, 1);
-                    sessionStorage.setItem('holdOrder', JSON.stringify(this.holdOrders));
-                    toastr.success('Hold Order Deleted');
-                },
-                printHoldOrder(order) {
-                    console.log(order)
-                    axios.post("{{url('pos-hold-order-print')}}",order).then(function (response) {
-                        var html = response.data
-                        const iframe = document.createElement('iframe');
-                        iframe.style.visibility = 'hidden';
-                        iframe.style.position = 'absolute';
-                        iframe.style.width = '0';
-                        iframe.style.height = '0';
-                        iframe.style.border = '0';
+                            document.body.appendChild(iframe);
 
-                        document.body.appendChild(iframe);
+                            iframe.contentDocument.open();
+                            iframe.contentDocument.write(html);
+                            iframe.contentDocument.close();
 
-                        iframe.contentDocument.open();
-                        iframe.contentDocument.write(html);
-                        iframe.contentDocument.close();
+                            iframe.contentWindow.print();
 
-                        iframe.contentWindow.print();
-
-                        setTimeout(() => document.body.removeChild(iframe), 500);
-                    })
+                            setTimeout(() => document.body.removeChild(iframe), 500);
+                        })
 
 
-                },
-                openOnHoldOrderModal() {
-                    var vm = this
-                    if (sessionStorage.getItem('holdOrder')) {
-                        vm.holdOrders = JSON.parse(sessionStorage.getItem('holdOrder'))
-                    }
-                    vm.$refs['on-hold-order-modal'].show()
-                },
-                closeOnHoldOrderModal() {
-                    var vm = this
-                    vm.$refs['on-hold-order-modal'].hide()
-                },
-                addHoldOrderToPos(holdOrder) {
-                    const vm = this;
-                    vm.selectedOnHoldOrderToPos = holdOrder
-                    vm.selectedProducts = holdOrder.items
-                    this.closeOnHoldOrderModal()
-                },
-                openPreOrderModal() {
-                    var vm = this
-                    if (!this.customerNumber) {
-                        toastr.error('Please Enter Customer NUmber', {
-                            closeButton: true,
-                            progressBar: true,
-                        });
-                        return
-                    }
-                    if (this.selectedProducts.length < 1) {
-                        toastr.error('No Product Added', {
-                            closeButton: true,
-                            progressBar: true,
-                        });
-                        return
-                    }
-                    vm.$refs['pre-order-modal'].show()
-                },
-                closePreOrderModal() {
-                    var vm = this
-                    vm.$refs['pre-order-modal'].hide()
-                },
-                storePreOrder() {
-                    if (this.selectedProducts.length < 1) {
-                        toastr.error('No Product Added to Sell', {
-                            closeButton: true,
-                            progressBar: true,
-                        });
-                        return
-                    } else {
+                    },
+                    openOnHoldOrderModal() {
+                        var vm = this
+                        console.log(localStorage.getItem('holdOrder'))
+                        if (localStorage.getItem('holdOrder')) {
+                            vm.holdOrders = JSON.parse(localStorage.getItem('holdOrder'))
+                        }
+                        vm.$refs['on-hold-order-modal'].show()
+                    },
+                    closeOnHoldOrderModal() {
+                        var vm = this
+                        vm.$refs['on-hold-order-modal'].hide()
+                    },
+                    addHoldOrderToPos(holdOrder) {
+                        const vm = this;
+
+                        vm.resetForm();
+
+                        vm.selectedOnHoldOrderToPos = holdOrder;
+                        vm.selectedProducts = holdOrder.items || [];
+                        vm.onHoldIdentifier = holdOrder.identifier;
+
+                        vm.customerNumber = holdOrder.customer_number || '';
+
+                        vm.total_discount_type = holdOrder.discount_type || '';
+                        vm.total_discount_value = holdOrder.discount_value || 0;
+                        vm.total_discount_amount = holdOrder.total_discount_amount || 0;
+                        vm.special_discount_amount = holdOrder.special_discount_amount || 0;
+
+                        vm.couponCode = holdOrder.couponCode || '';
+                        vm.couponCodeDiscountType = holdOrder.couponCodeDiscountType || '';
+                        vm.couponCodeDiscountValue = holdOrder.couponCodeDiscountValue || 0;
+                        vm.couponCodeDiscountAmount = holdOrder.couponCodeDiscountAmount || 0;
+
+                        vm.paymentMethods = holdOrder.payment_methods || [{ amount: 0, method: 'cash' }];
+
+                        vm.selectedPreOrderId = holdOrder.pre_order_id || null;
+                        vm.waiter_id = holdOrder.waiter_id || null;
+                        vm.membership_discount_amount = holdOrder.membership_discount_amount || 0;
+                        vm.special_discount_value = holdOrder.special_discount_value || 0;
+                        vm.customer = holdOrder.customer || [];
+
+                        this.closeOnHoldOrderModal();
+                    },
+                    openPreOrderModal() {
+                        var vm = this
+                        if (!this.customerNumber) {
+                            toastr.error('Please Enter Customer NUmber', {
+                                closeButton: true,
+                                progressBar: true,
+                            });
+                            return
+                        }
+                        if (this.selectedProducts.length < 1) {
+                            toastr.error('No Product Added', {
+                                closeButton: true,
+                                progressBar: true,
+                            });
+                            return
+                        }
+                        vm.$refs['pre-order-modal'].show()
+                    },
+                    closePreOrderModal() {
+                        var vm = this
+                        vm.$refs['pre-order-modal'].hide()
+                    },
+                    storePreOrder() {
+                        if (this.selectedProducts.length < 1) {
+                            toastr.error('No Product Added to Sell', {
+                                closeButton: true,
+                                progressBar: true,
+                            });
+                            return
+                        } else {
+                            var vm = this;
+                            axios.post(this.config.store_pre_order_url, {
+                                products: this.selectedProducts,
+                                customer_number: this.customerNumber,
+                                order_data: this.preOrderValues,
+                                sub_total: this.total_bill,
+                                discount: this.total_discount_amount,
+                                grand_total: this.total_payable_bill,
+                            }).then(function (response) {
+                                vm.selectedProducts = [];
+                                vm.customer = {};
+                                vm.customerNumber = '';
+                                vm.getAllProducts()
+                                vm.getAllPreOrders()
+                                toastr.success('Success', {
+                                    closeButton: true,
+                                    progressBar: true,
+                                });
+
+                                vm.closePreOrderModal()
+
+                                // vm.printInvoice(response.data.sale.id)
+                            }).catch(function (error) {
+                                console.log(error)
+                                toastr.error('Something Went Wrong', {
+                                    closeButton: true,
+                                    progressBar: true,
+                                });
+                                return false;
+                            });
+                        }
+                    },
+                    getAllPreOrders() {
                         var vm = this;
-                        axios.post(this.config.store_pre_order_url, {
-                            products: this.selectedProducts,
-                            customer_number: this.customerNumber,
-                            order_data: this.preOrderValues,
-                            sub_total: this.total_bill,
-                            discount: this.total_discount_amount,
-                            grand_total: this.total_payable_bill,
-                        }).then(function (response) {
-                            vm.selectedProducts = [];
-                            vm.customer = {};
-                            vm.customerNumber = '';
-                            vm.getAllProducts()
-                            vm.getAllPreOrders()
-                            toastr.success('Success', {
-                                closeButton: true,
-                                progressBar: true,
+                        axios.get(this.config.get_all_pre_orders_url)
+                            .then(function (response) {
+                                vm.pre_orders = (response.data);
+                            }).catch(function (error) {
+                                toastr.error(error, {
+                                    closeButton: true,
+                                    progressBar: true,
+                                });
+                                return false;
                             });
-
-                            vm.closePreOrderModal()
-
-                            // vm.printInvoice(response.data.sale.id)
-                        }).catch(function (error) {
-                            console.log(error)
-                            toastr.error('Something Went Wrong', {
-                                closeButton: true,
-                                progressBar: true,
-                            });
-                            return false;
-                        });
-                    }
-                },
-                getAllPreOrders() {
-                    var vm = this;
-                    axios.get(this.config.get_all_pre_orders_url)
-                        .then(function (response) {
-                            vm.pre_orders = (response.data);
-                        }).catch(function (error) {
-                        toastr.error(error, {
-                            closeButton: true,
-                            progressBar: true,
-                        });
-                        return false;
-                    });
-                },
-                transferToSell(order) {
-                    const vm = this;
-                    // toastr.warning('Under Construction', {
-                    //     closeButton: true,
-                    //     progressBar: true,
-                    // });
-                    vm.selectedPreOrderId = order.id
-                    order.items.forEach(function (item) {
-                        vm.selectedProducts.push({
-                            id: item.product.id,
-                            name: item.product.name,
-                            quantity: item.quantity,
-                            price: item.unit_price,
-                            total: item.quantity * item.unit_price,
-                            editForm: false,
-                            stock: item.quantity,
-                            discountType: '',
-                            discountValue: 0,
-                            discountAmount: 0,
+                    },
+                    transferToSell(order) {
+                        const vm = this;
+                        // toastr.warning('Under Construction', {
+                        //     closeButton: true,
+                        //     progressBar: true,
+                        // });
+                        vm.selectedPreOrderId = order.id
+                        order.items.forEach(function (item) {
+                            vm.selectedProducts.push({
+                                id: item.product.id,
+                                name: item.product.name,
+                                quantity: item.quantity,
+                                price: item.unit_price,
+                                total: item.quantity * item.unit_price,
+                                editForm: false,
+                                stock: item.quantity,
+                                discountType: '',
+                                discountValue: 0,
+                                discountAmount: 0,
+                            })
                         })
-                    })
-                    if (order.advance_amount) {
-                        vm.paymentMethods.length = 0
-                        vm.paymentMethods.push({
-                            amount: order.advance_amount,
-                            method: order.paid_by
-                        })
+                        if (order.advance_amount) {
+                            vm.paymentMethods.length = 0
+                            vm.paymentMethods.push({
+                                amount: order.advance_amount,
+                                method: order.paid_by
+                            })
+                        }
+                        vm.customerNumber = order.customer_number
+                        vm.changeToNav('home')
+                        vm.getCustomerInfo()
                     }
-                    vm.customerNumber = order.customer_number
-                    vm.changeToNav('home')
-                    vm.getCustomerInfo()
+                    // checkPointInput(){
+                    //     if (this.)
+                    // }
+                    // updated() {
+                    //     $('.bSelect').selectpicker('refresh');
+                    // }
                 }
-                // checkPointInput(){
-                //     if (this.)
-                // }
-                // updated() {
-                //     $('.bSelect').selectpicker('refresh');
-                // }
-            }
-        });
-    })
-    ;
-</script>
+            });
+        })
+                                        ;
+                                </script>
 </body>
+
 </html>
