@@ -61,6 +61,7 @@
     <h1>Welkin Pastry Ltd.</h1>
     <p>1182/A Nurani Para, East Monipur,<br>Mirpur-2, Dhaka</p>
     <p>Email: welkinpastry@gmail.com</p>
+    <h4>{{ $store->name ?? '' }}</h4>
     <h2>Stock Summary</h2>
     @if(request()->has('from_date') && request()->has('end_date'))
         <p>{{ \Carbon\Carbon::parse(request()->from_date)->format('d-M-y') }}
@@ -101,38 +102,38 @@
 
     @foreach($products as $product)
         @php
-            $parentSum = 0;
+    $parentSum = 0;
         @endphp
         <tr class="category">
             <td colspan="17">{{ $product->name }}</td>
         </tr>
         @foreach($product->subChartOfInventories as $item)
             @php
-                $opening_value = $item->opening_rate * $item->opening_stock;
-                $inward_value = $item->incoming_rate * $item->incoming_stock;
-                $outward_value = $item->outgoing_rate * $item->outgoing_stock;
-                $closing_value = $item->closing_rate * $item->closing_stock;
+        $opening_value = $item->opening_rate * $item->opening_stock;
+        $inward_value = $item->incoming_rate * $item->incoming_stock;
+        $outward_value = $item->outgoing_rate * $item->outgoing_stock;
+        $closing_value = $item->closing_rate * $item->closing_stock;
             @endphp
             <tr>
                 <td style="border-right: 1px solid black">{{$item->name}}</td>
-                <td>{{ $item->opening_stock ?? ''}} {{ $item->opening_stock > 0 && $item->unit_id ? "(" . $item->unit->name.')' : '' }}</td>
-                <td>{{ $item->alter_unit_id && $item->a_unit_quantity > 0 && $item->opening_stock > 0 ? round(($item->opening_stock / $item->a_unit_quantity),2) . '('.$item->alterUnit->name.')' : '' }}</td>
-                <td>{{ $item->opening_stock > 0 ? $item->opening_rate ?? ''  : ''}}</td>
+                <td>{{ $item->opening_stock ?? ''}} {{ $item->opening_stock > 0 && $item->unit_id ? "(" . $item->unit->name . ')' : '' }}</td>
+                <td>{{ $item->alter_unit_id && $item->a_unit_quantity > 0 && $item->opening_stock > 0 ? round(($item->opening_stock / $item->a_unit_quantity), 2) . '(' . $item->alterUnit->name . ')' : '' }}</td>
+                <td>{{ $item->opening_stock > 0 ? $item->opening_rate ?? '' : ''}}</td>
                 <td style="border-right: 1px solid black">{{ $opening_value > 0 ? $opening_value : '' }}</td>
 
-                <td>{{ $item->incoming_stock ?? ''}} {{ $item->incoming_stock > 0 && $item->unit_id ? "(" . $item->unit->name.')' : '' }}</td>
-                <td>{{ $item->alter_unit_id && $item->a_unit_quantity > 0 && $item->incoming_stock > 0 ? round(($item->incoming_stock / $item->a_unit_quantity),2) . '('.$item->alterUnit->name.')' : '' }}</td>
-                <td>{{ $item->incoming_stock > 0 ? $item->incoming_rate ?? ''  : ''}}</td>
+                <td>{{ $item->incoming_stock ?? ''}} {{ $item->incoming_stock > 0 && $item->unit_id ? "(" . $item->unit->name . ')' : '' }}</td>
+                <td>{{ $item->alter_unit_id && $item->a_unit_quantity > 0 && $item->incoming_stock > 0 ? round(($item->incoming_stock / $item->a_unit_quantity), 2) . '(' . $item->alterUnit->name . ')' : '' }}</td>
+                <td>{{ $item->incoming_stock > 0 ? $item->incoming_rate ?? '' : ''}}</td>
                 <td style="border-right: 1px solid black">{{ $inward_value > 0 ? $inward_value : '' }}</td>
 
-                <td>{{ $item->outgoing_stock ?? ''}} {{ $item->outgoing_stock > 0 && $item->unit_id ? "(" . $item->unit->name.')' : '' }}</td>
-                <td>{{ $item->alter_unit_id && $item->a_unit_quantity > 0 && $item->outgoing_stock > 0 ? round(($item->outgoing_stock / $item->a_unit_quantity),2) . '('.$item->alterUnit->name.')' : '' }}</td>
-                <td>{{ $item->outgoing_stock > 0 ? $item->outgoing_rate ?? ''  : ''}}</td>
+                <td>{{ $item->outgoing_stock ?? ''}} {{ $item->outgoing_stock > 0 && $item->unit_id ? "(" . $item->unit->name . ')' : '' }}</td>
+                <td>{{ $item->alter_unit_id && $item->a_unit_quantity > 0 && $item->outgoing_stock > 0 ? round(($item->outgoing_stock / $item->a_unit_quantity), 2) . '(' . $item->alterUnit->name . ')' : '' }}</td>
+                <td>{{ $item->outgoing_stock > 0 ? $item->outgoing_rate ?? '' : ''}}</td>
                 <td style="border-right: 1px solid black">{{ $outward_value > 0 ? $outward_value : '' }}</td>
 
-                <td>{{ $item->closing_stock ?? ''}} {{ $item->closing_stock > 0 && $item->unit_id ? "(" . $item->unit->name.')' : '' }}</td>
-                <td>{{ $item->alter_unit_id && $item->a_unit_quantity > 0 && $item->closing_stock > 0 ? round(($item->closing_stock / $item->a_unit_quantity),2) . '('.$item->alterUnit->name.')' : '' }}</td>
-                <td>{{ $item->closing_stock > 0 ? $item->closing_rate ?? ''  : ''}}</td>
+                <td>{{ $item->closing_stock ?? ''}} {{ $item->closing_stock > 0 && $item->unit_id ? "(" . $item->unit->name . ')' : '' }}</td>
+                <td>{{ $item->alter_unit_id && $item->a_unit_quantity > 0 && $item->closing_stock > 0 ? round(($item->closing_stock / $item->a_unit_quantity), 2) . '(' . $item->alterUnit->name . ')' : '' }}</td>
+                <td>{{ $item->closing_stock > 0 ? $item->closing_rate ?? '' : ''}}</td>
                 <td style="border-right: 1px solid black">{{ $closing_value > 0 ? $closing_value : '' }}</td>
             </tr>
         @endforeach

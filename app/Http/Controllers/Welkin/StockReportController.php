@@ -34,11 +34,14 @@ class StockReportController extends Controller
            Toastr::error('From Date and To Date are required.');
            return back();
        }
-       return $this->exportReport($request->report_type);
+        return $this->exportReport($request->report_type, $request->store_id);
     }
 
-    public function exportReport($report_type)
+    public function exportReport($report_type, $store_id = null)
     {
+        if ($store_id) {
+            $store = Store::find($store_id);
+        }
         $type = 'pdf';
         $viewFileName = 'raw_material_inventory_report.welkin.closing_balance';
         $filenameToDownload = date('ymdHis') . '_closing_balance';
@@ -63,8 +66,12 @@ class StockReportController extends Controller
             $exportableData = $this->getInOutExportableData();
         }
         $data = [
-          'products'=>$exportableData,
+            'products' => $exportableData,
         ];
+
+        if ($store) {
+            $data['store'] = $store;
+        }
 
         return $this->exportService->exportFile($type, $viewFileName, $data, $filenameToDownload, $pageOrientation); // L stands for Landscape, if Portrait needed, just remove this params
     }

@@ -61,6 +61,7 @@
     <h1>Welkin Pastry Ltd.</h1>
     <p>1182/A Nurani Para, East Monipur,<br>Mirpur-2, Dhaka</p>
     <p>Email: welkinpastry@gmail.com</p>
+    <h4>{{ $store->name ?? '' }}</h4>
     <h2>Stock Summary</h2>
 {{--    <p>1-Jul-24 to 27-Jan-25</p>--}}
 </div>
@@ -83,21 +84,21 @@
 
     @foreach($products as $product)
         @php
-            $parentSum = 0;
+    $parentSum = 0;
         @endphp
         <tr class="category">
             <td colspan="5">{{ $product->name }}</td>
         </tr>
         @foreach($product->subChartOfInventories as $item)
             @php
-                $value = $item->rate * $item->current_stock;
-                    $parentSum += $value;
+        $value = $item->rate * $item->current_stock;
+        $parentSum += $value;
             @endphp
             <tr>
                 <td>{{$item->name}}</td>
-                <td>{{ $item->current_stock ?? '0'}} {{ $item->unit_id ? "(" . $item->unit->name.')' : '' }}</td>
-                <td>{{ $item->alter_unit_id && $item->a_unit_quantity ? round(($item->current_stock / $item->a_unit_quantity),2) . '('.$item->alterUnit->name.')' : '' }}</td>
-                <td>{{ $item->current_stock ? $item->rate ?? 0  : 0}}</td>
+                <td>{{ $item->current_stock ?? '0'}} {{ $item->unit_id ? "(" . $item->unit->name . ')' : '' }}</td>
+                <td>{{ $item->alter_unit_id && $item->a_unit_quantity ? round(($item->current_stock / $item->a_unit_quantity), 2) . '(' . $item->alterUnit->name . ')' : '' }}</td>
+                <td>{{ $item->current_stock ? $item->rate ?? 0 : 0}}</td>
                 <td>{{ $value }}</td>
             </tr>
 
