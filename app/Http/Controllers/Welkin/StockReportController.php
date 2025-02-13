@@ -21,8 +21,8 @@ class StockReportController extends Controller
 
     public function index()
     {
-        $stores = Store::select('id','name')->get();
-        return view('exports.raw_material_inventory_report.welkin.index',compact('stores'));
+        // $stores = Store::select('id','name')->get();
+        return view('exports.raw_material_inventory_report.welkin.index');
     }
 
     public function generateReport(Request $request)

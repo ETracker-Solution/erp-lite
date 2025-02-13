@@ -406,6 +406,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('today-requisitions', [App\Http\Controllers\RequisitionController::class, 'todayRequisition'])->name('today.requisitions');
 
     Route::get('stock-reports', [App\Http\Controllers\Welkin\StockReportController::class, 'index'])->name('stock.report.index');
+    Route::get('fetch-stores-info/{type}', [App\Http\Controllers\ApiController::class, 'fetchStoresByType']);
     Route::get('stock-reports/generate', [App\Http\Controllers\Welkin\StockReportController::class, 'generateReport'])->name('stock.report.generate');
 
 });

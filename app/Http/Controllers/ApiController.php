@@ -536,4 +536,10 @@ class ApiController extends Controller
         ];
         return response()->json($data);
     }
+
+    public function fetchStoresByType($type)
+    {
+        $stores = Store::where('type', $type)->get();
+        return response()->json(['stores' => $stores]);
+    }
 }
