@@ -13,6 +13,6 @@
 </style>
 <div class="header">
 <h1>Welkin Pastry Ltd.</h1>
-<p>1182/A Nurani Para, East Monipur,<br>Mirpur-2, Dhaka</p>
+<p>House-54, Road- 11 , Block-C, Caldwell Center ( Ground Floor ),<br>Banani , Dhaka, Bangladesh -1213</p>
 <p>Email: welkinpastry@gmail.com</p>
 </div>

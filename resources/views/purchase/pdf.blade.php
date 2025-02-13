@@ -95,7 +95,7 @@
                                 <thead>
                                     <tr style="background-color: #cdced2;">
                                         <th style="border: 1px solid black; padding: 8px;width: %">SL no.</th>
-                                        <th style="border: 1px solid black; padding: 8px;width: 40%;">Product</th>
+                                        <th style="border: 1px solid black; padding: 8px;width: 40%;">Description of Goods</th>
                                         <th style="border: 1px solid black; padding: 8px;width: 20%">Quantity</th>
                                         <th style="border: 1px solid black; padding: 8px;width: 10%">Rate</th>
                                         <th style="border: 1px solid black; padding: 8px;">Per</th>

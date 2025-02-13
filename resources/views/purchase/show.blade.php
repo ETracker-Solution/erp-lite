@@ -128,7 +128,8 @@ Purchase List
                         <div class="row">
                             <div class="col-12">
                                 @if ($model->status != 'cancelled')
-                                    <a href="{{ route('purchase.cancel', encrypt($model->id)) }}" class="btn btn-sm btn-danger float-right"><i
+                                    <a href="{{ route('purchase.cancel', encrypt($model->id)) }}" class="btn btn-sm btn-danger float-right"
+                                        id="purchaseCancel"><i
                                             class="fa fa-trash"></i>
                                         CANCEL</a>
                                 @endif
@@ -142,3 +143,10 @@ Purchase List
 
 <!-- /.content-wrapper -->
 @endsection
+@push('js_scripts')
+    <script>
+        $(document).ready(() => {
+            confirmAlert('#purchaseCancel', 'Are you sure you want to cancel this Purchase?');
+        })
+    </script>
+@endpush

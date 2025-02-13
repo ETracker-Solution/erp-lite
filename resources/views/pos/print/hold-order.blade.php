@@ -116,13 +116,21 @@
                 {{-- </tr>--}}
             <tr>
                 <td class="bb-none tc">
-                    <p style="font-size: 10px;" class="tc">VAT Reg:001649431-0301</p>
+                    <p style="font-size: 10px;" class="tc">BIN: 006383067-0401</p>
                 </td>
             </tr>
             <tr>
                 <td class="bb-none tc">
                     <p style="font-size: 10px;" class="tc text-bold mm10">
-                        Customer Care: 01638393939</p>
+                        Customer Care: +880 1760-606081
+                    </p>
+                </td>
+            </tr>
+            <tr>
+                <td class="bb-none tc">
+                    <p style="font-size: 10px;" class="tc text-bold mm10">Address: H-54, R- 11 , B-C, Caldwell Center (
+                        Ground Floor
+                        ), Banani , Dhaka, Bangladesh -1213.</p>
                 </td>
             </tr>
             {{-- <tr>--}}
