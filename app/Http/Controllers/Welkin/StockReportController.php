@@ -39,6 +39,7 @@ class StockReportController extends Controller
 
     public function exportReport($report_type, $store_id = null)
     {
+        $store = false;
         if ($store_id) {
             $store = Store::find($store_id);
         }
