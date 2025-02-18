@@ -92,7 +92,7 @@
                                                             <td>{{ $recipe->coi->name }}</td>
                                                             <td>{{ $recipe->coi->unit->name }}</td>
                                                             <td>
-                                                                <input type="number" name="recipes[{{ $recipe->id }}][qty]" class="form-control input-sm"
+                                                                <input type="number" step="0.00001" name="recipes[{{ $recipe->id }}][qty]" class="form-control input-sm"
                                                                     value="{{ $recipe->qty }}" required>
                                                             </td>
                                                             <td>
@@ -165,5 +165,5 @@
     <script src="{{ asset('vue-js/axios/dist/axios.min.js') }}"></script>
     <script src="{{ asset('vue-js/bootstrap-select/dist/js/bootstrap-select.min.js') }}"></script>
     <script src="https://cms.diu.ac/vue/vuejs-datepicker.min.js"></script>
-    
+
 @endpush
