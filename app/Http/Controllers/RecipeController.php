@@ -115,7 +115,7 @@ class RecipeController extends Controller
     {
         try {
             $validated = $request->validate([
-                'recipes.*.qty' => 'required|numeric|min:1',
+                'recipes.*.qty' => 'required|numeric|min:0.0001',
                 'recipes.*.status' => 'required|string|in:active,inactive',
             ]);
 
