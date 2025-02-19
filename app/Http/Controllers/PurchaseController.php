@@ -57,7 +57,7 @@ class PurchaseController extends Controller
     public function create()
     {
         $serial_no = null;
-        if (!auth()->user()->is_super) {
+        if (!auth()->user()->is_super && \auth()->user()->employee->user_of != 'ho') {
             $doc_id = \auth()->user()->employee->outlet_id ?? \auth()->user()->employee->factory_id;
             $doc_type = \auth()->user()->employee->outlet_id ? 'outlet' : 'factory';
             $user_store = Store::where(['doc_type' => $doc_type, 'doc_id' => $doc_id])->first();
@@ -87,7 +87,7 @@ class PurchaseController extends Controller
                 Toastr::info('At Least One Product Required.', '', ["progressBar" => true]);
                 return back();
             }
-            
+
             $purchase = Purchase::query()->create($validated);
             $purchase->amount = $purchase->net_payable;
             foreach ($validated['products'] as $product) {
