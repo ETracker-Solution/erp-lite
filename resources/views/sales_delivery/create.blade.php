@@ -34,6 +34,8 @@
 
                         <form action="{{ route('sales-deliveries.store') }}" method="POST" class="">
                             @csrf
+                            <input type="hidden" name="submission_token"
+                                   value="{{ session()->get('submission_token') ?? Str::random(40) }}">
                             <div class="card-body">
                                 <div class="card-box">
                                     <div id="">
