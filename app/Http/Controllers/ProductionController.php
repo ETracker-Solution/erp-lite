@@ -9,20 +9,24 @@ use App\Models\Batch;
 use App\Models\ChartOfInventory;
 use App\Models\Factory;
 use App\Models\InventoryTransaction;
+use App\Models\Outlet;
 use App\Models\Product;
 use App\Models\Production;
 
 use App\Models\ProductionItem;
+use App\Models\ProductionRecipe;
 use App\Models\Purchase;
 use App\Models\Store;
 use App\Models\Supplier;
 use App\Models\SupplierGroup;
 use Brian2694\Toastr\Facades\Toastr;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use niklasravnsborg\LaravelPdf\Facades\Pdf;
 use Yajra\DataTables\Facades\DataTables;
 use App\Services\ExportService;
 use Carbon\Carbon;
+use stdClass;
 
 class ProductionController extends Controller
 {
@@ -152,6 +156,8 @@ class ProductionController extends Controller
                 return back();
             }
             $store = Store::find($validated['store_id']);
+            $factory = Factory::find($validated['factory_id']);
+            $rm_store = Store::where(['doc_type' => 'factory', 'doc_id' => $factory->id, 'type' => 'RM'])->first();
             $validated['uid'] = generateUniqueUUID($store->doc_id, Production::class, 'uid',$store->doc_type == 'factory');
             $production = Production::query()->create($validated);
             Batch::where('id', $validated['batch_id'])->update(['is_production' => true]);
@@ -160,20 +166,43 @@ class ProductionController extends Controller
                 if ($product['quantity'] > 0){
                     $totalRate += $product['quantity'] * $product['rate'];
                     $production->items()->create($product);
-                    // Inventory Transaction Effect
-                    InventoryTransaction::query()->create([
-                        'store_id' => $production->store_id,
-                        'doc_type' => 'FGP',
-                        'doc_id' => $production->id,
-                        'quantity' => $product['quantity'],
-                        'rate' => $product['rate'],
-                        'amount' => $product['quantity'] * $product['rate'],
-                        'date' => $production->date,
-                        'type' => 1,
-                        'coi_id' => $product['coi_id'],
-                    ]);
-                }
+                    
+                    $items['store_id'] = $production->store_id;
+                    $items['doc_type'] = 'FGP';
+                    $items['id'] = $production->id;
+                    $items['quantity'] = $product['quantity'];
+                    $items['rate'] = averageFGRate($product['coi_id']);
+                    $items['amount'] = $product['quantity'] * $items['rate'];
+                    $items['date'] = $production->date;
+                    $items['type'] = 1;
+                    $items['coi_id'] = $product['coi_id'];
 
+                    if (!$rm_store) {
+                        Toastr::error('Please Set RM Store', '', ["progressBar" => true]);
+                        return back();
+                    }
+
+                    $recipes_items = ProductionRecipe::where('fg_id', $items['coi_id'])->get();
+                    $currentRMStock = 0;
+                    foreach ($recipes_items as $recipe_item) {
+                        $currentRMStock = availableInventoryBalance($recipe_item->rm_id, $rm_store->id);
+                        $rm_qty = $recipe_item->qty * $product['quantity'];
+                        if ($currentRMStock < $rm_qty) {
+                            Toastr::error('Stock Not Available' . ' !', '', ["progressBar" => true]);
+                            return back();
+                        }
+                        $rm = new stdClass();
+                        $rm->date = date('Y-m-d');
+                        $rm->coi_id = $recipe_item->rm_id;
+                        $rm->rate = 0;
+                        $rm->amount = 0;
+                        $rm->store_id = $rm_store->id;
+                        $rm->quantity = $rm_qty;
+                        $rm->id = $recipe_item->id;
+                        addInventoryTransaction(-1, 'FGP', (object)$rm);
+                    }
+                    addInventoryTransaction(1, 'FGP', (object)$items);
+                }
             }
             $production->update([
                 'subtotal'=>$totalRate
@@ -185,6 +214,7 @@ class ProductionController extends Controller
 
             DB::commit();
         } catch (\Exception $exception) {
+            dd($exception);
             DB::rollBack();
             return $exception;
             Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
