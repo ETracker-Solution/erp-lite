@@ -858,6 +858,13 @@
                                                 <p>Recipes</p>
                                             </a>
                                         </li>
+                                        <li class="nav-item">
+                                            <a href="{{route('production-recipes.index')}}"
+                                                class="nav-link {{ (Request::segment(1) == 'production-recipes') ? ' active' : ''}}">
+                                                <i class="far fa-circle nav-icon"></i>
+                                                <p>Production Recipes</p>
+                                            </a>
+                                        </li>
                                     </ul>
                                 </li>
                             @endcanany
