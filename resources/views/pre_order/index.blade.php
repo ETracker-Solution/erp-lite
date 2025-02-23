@@ -182,7 +182,16 @@
                         </div>
                         <div class="modal-body">
                             <div class="form-group">
-                                <label for="">Select Store</label>
+                                <label for="">Select RM Store</label>
+                                <select name="rm_store" id="" class="form-control">
+                                    <option value="">Choose One</option>
+                                    @foreach($rmStores as $store)
+                                        <option value="{{ $store->id }}">{{ $store->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="">Select FG Store</label>
                                 <select name="factory_store" id="" class="form-control">
                                     <option value="">Choose One</option>
                                     @foreach($factoryStores as $store)
@@ -393,15 +402,15 @@
 
         $(document).on("click", "#excel-btn", function (e) {
             e.preventDefault();
-            
+
             let form = $("#excelForm");
-           
+
             let filterBy = $('select[name="filter_by"]');
             let status = $('select[name="status"]');
             let outletId = $('select[name="outlet_id"]');
             let fromDate = $('input[name="from_date"]');
             let toDate = $('input[name="to_date"]');
-            
+
             form.append(filterBy,status,outletId,fromDate,fromDate,toDate)
             form.submit();
         });
