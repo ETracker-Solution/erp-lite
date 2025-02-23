@@ -1,297 +1,297 @@
 @extends('layouts.app')
 @section('title', 'FG Production')
 @section('content')
-    @php
-        $links = [
-        'Home' => route('dashboard'),
-        'FG Production' => route('productions.index'),
-        'FG Production Entry' => '',
-        ];
-    @endphp
-    <x-breadcrumb title='FG Production' :links="$links"/>
+        @php
+$links = [
+    'Home' => route('dashboard'),
+    'FG Production' => route('productions.index'),
+    'FG Production Entry' => '',
+];
+        @endphp
+        <x-breadcrumb title='FG Production' :links="$links"/>
 
-    <!-- Main content -->
-    <section class="content">
-        <div class="container-fluid">
-            <div class="row" id="vue_app">
-                   <span v-if="pageLoading" class="pageLoader">
-                            <img src="{{ asset('loading.gif') }}" alt="loading">
-                        </span>
-                <div class="col-lg-12 col-md-12">
-                    <form action="{{ route('productions.store') }}" method="POST" class="">
-                        @csrf
-                        <input type="hidden" name="submission_token" value="{{ session()->get('submission_token') ?? Str::random(40) }}">
-                        <div class="card">
-                            <div class="card-header bg-info">
-                                <h3 class="card-title">FG Production (FGP) Entry</h3>
-                                <div class="card-tools">
-                                    <a href="{{route('productions.index')}}" class="btn btn-sm btn-primary">
-                                        <i class="fas fa-bars"
-                                           aria-hidden="true"></i> &nbsp;
-                                        See List
-                                    </a>
+        <!-- Main content -->
+        <section class="content">
+            <div class="container-fluid">
+                <div class="row" id="vue_app">
+                       <span v-if="pageLoading" class="pageLoader">
+                                <img src="{{ asset('loading.gif') }}" alt="loading">
+                            </span>
+                    <div class="col-lg-12 col-md-12">
+                        <form action="{{ route('productions.store') }}" method="POST" class="">
+                            @csrf
+                            <input type="hidden" name="submission_token" value="{{ session()->get('submission_token') ?? Str::random(40) }}">
+                            <div class="card">
+                                <div class="card-header bg-info">
+                                    <h3 class="card-title">FG Production (FGP) Entry</h3>
+                                    <div class="card-tools">
+                                        <a href="{{route('productions.index')}}" class="btn btn-sm btn-primary">
+                                            <i class="fas fa-bars"
+                                               aria-hidden="true"></i> &nbsp;
+                                            See List
+                                        </a>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="card-body">
-                                <div class="card-box">
-                                    <hr>
-                                    <div id="">
-                                        <div class="row">
-                                            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                                                <div class="row">
-                                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                                        <div class="form-group">
-                                                            <label for="purchase_id">FGP No</label>
-                                                            <div class="input-group">
-                                                                <input type="text" class="form-control input-sm"
-                                                                       value="{{$serial_no}}" name="serial_no"
-                                                                       id="serial_no" v-model="serial_no">
-                                                                <span class="input-group-append">
-                                                                    {{-- <button type="button" class="btn btn-info btn-flat"
-                                                                            @click="data_edit">Search</button> --}}
-                                                                </span>
+                                <div class="card-body">
+                                    <div class="card-box">
+                                        <hr>
+                                        <div id="">
+                                            <div class="row">
+                                                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                                                    <div class="row">
+                                                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                                            <div class="form-group">
+                                                                <label for="purchase_id">FGP No</label>
+                                                                <div class="input-group">
+                                                                    <input type="text" class="form-control input-sm"
+                                                                           value="{{$serial_no}}" name="serial_no"
+                                                                           id="serial_no" v-model="serial_no">
+                                                                    <span class="input-group-append">
+                                                                        {{-- <button type="button" class="btn btn-info btn-flat"
+                                                                                @click="data_edit">Search</button> --}}
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                                            <div class="form-group">
+                                                                <label for="date">Date</label>
+                                                                <vuejs-datepicker v-model="date" name="date"
+                                                                                  placeholder="Select date"
+                                                                                  format="yyyy-MM-dd"></vuejs-datepicker>
+                                                            </div>
+                                                        </div>
+
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                                                    <div class="row">
+
+                                                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                                            <div class="form-group">
+                                                                <label for="batch_id">Batch</label>
+                                                                <select name="batch_id" id="batch_id"
+                                                                        class="form-control bSelect"
+                                                                        v-model="batch_id" required>
+                                                                    <option value="">Select Batch</option>
+                                                                    @foreach($batches as $row)
+                                                                        <option
+                                                                            value="{{ $row->id }}">{{ $row->batch_no }}</option>
+                                                                    @endforeach
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                                            <div class="form-group">
+                                                                <label for="factory_id">Production Unit</label>
+                                                                <select name="factory_id" id="factory_id"
+                                                                        class="form-control bSelect"
+                                                                        v-model="factory_id" required>
+                                                                    <option value="">Select One</option>
+                                                                    @foreach($factories as $row)
+                                                                        <option
+                                                                            value="{{ $row->id }}">{{ $row->name }}</option>
+                                                                    @endforeach
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                                            <div class="form-group">
+                                                                <label for="store_id">Store</label>
+                                                                <select name="store_id" id="store_id"
+                                                                        class="form-control bSelect"
+                                                                        v-model="store_id" required>
+                                                                    <option value="">Select One</option>
+                                                                    @foreach($stores as $row)
+                                                                        <option
+                                                                            value="{{ $row->id }}">{{ $row->id }}
+                                                                            -{{ $row->name }}</option>
+                                                                    @endforeach
+                                                                </select>
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                                        <div class="form-group">
-                                                            <label for="date">Date</label>
-                                                            <vuejs-datepicker v-model="date" name="date"
-                                                                              placeholder="Select date"
-                                                                              format="yyyy-MM-dd"></vuejs-datepicker>
-                                                        </div>
-                                                    </div>
-
                                                 </div>
-                                            </div>
-                                            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                                                <div class="row">
-
-                                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                                        <div class="form-group">
-                                                            <label for="batch_id">Batch</label>
-                                                            <select name="batch_id" id="batch_id"
-                                                                    class="form-control bSelect"
-                                                                    v-model="batch_id" required>
-                                                                <option value="">Select Batch</option>
-                                                                @foreach($batches as $row)
-                                                                    <option
-                                                                        value="{{ $row->id }}">{{ $row->batch_no }}</option>
-                                                                @endforeach
-                                                            </select>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                                        <div class="form-group">
-                                                            <label for="factory_id">Production Unit</label>
-                                                            <select name="factory_id" id="factory_id"
-                                                                    class="form-control bSelect"
-                                                                    v-model="factory_id" required>
-                                                                <option value="">Select One</option>
-                                                                @foreach($factories as $row)
-                                                                    <option
-                                                                        value="{{ $row->id }}">{{ $row->name }}</option>
-                                                                @endforeach
-                                                            </select>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                                        <div class="form-group">
-                                                            <label for="store_id">Store</label>
-                                                            <select name="store_id" id="store_id"
-                                                                    class="form-control bSelect"
-                                                                    v-model="store_id" required>
-                                                                <option value="">Select One</option>
-                                                                @foreach($stores as $row)
-                                                                    <option
-                                                                        value="{{ $row->id }}">{{ $row->id }}
-                                                                        -{{ $row->name }}</option>
-                                                                @endforeach
-                                                            </select>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                                                <div class="row">
-                                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                                        <div class="form-group">
-                                                            <label for="reference_no">Reference No</label>
-                                                            <input type="text" class="form-control input-sm"
-                                                                   value="{{old('reference_no')}}" name="reference_no">
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                                        <div class="form-group">
-                                                            <label for="remark">Remark</label>
-                                                            <textarea class="form-control" name="remark" rows="1"
-                                                                      placeholder="Enter Remark"></textarea>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-
-                                        </div>
-                                    </div>
-                                </div>
-
-                            </div>
-
-                        </div>
-                        <div class="card">
-                            <div class="card-header bg-info">
-                                <h3 class="card-title">FG Production (FGP) Line Item</h3>
-                            </div>
-                            <div class="card-body">
-
-                                <div class="card-box">
-                                    <div id="">
-                                        <div class="row">
-                                            <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
-                                                <div class="form-group">
-                                                    <label for="group_id" class="control-label">Group</label>
-                                                    <select class="form-control" name="group_id" v-model="group_id"
-                                                            @change="fetch_items">
-                                                        <option value="">Select One</option>
-                                                        @foreach ($groups as $row)
-                                                            <option value="{{ $row->id }}">{{ $row->name }}</option>
-                                                        @endforeach
-                                                    </select>
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
-                                                <div class="form-group">
-                                                    <label for="item_id">Item</label>
-                                                    <select name="item_id" id="item_id"
-                                                            class="form-control bSelect" v-model="item_id">
-                                                        <option value="">Select one</option>
-
-                                                        <option :value="row.id" v-for="row in items"
-                                                                v-html="row.name">
-                                                        </option>
-
-                                                    </select>
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12" style="margin-top: 30px;">
-                                                <button type="button" class="btn btn-info btn-block"
-                                                        @click="data_input" :disabled="isDisabled">Add
-                                                </button>
-                                            </div>
-                                        </div>
-
-                                        <div class="row">
-                                            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12"
-                                                 v-if="selected_items.length>0">
-
-                                                <hr>
-                                                <div class="table-responsive">
-                                                    <table class="table table-bordered">
-                                                        <thead class="bg-secondary">
-                                                        <tr>
-                                                            <th style="width: 10px">#</th>
-                                                            <th style="width: 200px">Group</th>
-                                                            <th>Item</th>
-                                                            <th style="width: 50px">Unit</th>
-                                                            <th style="width: 180px">Qty</th>
-                                                            <th style="width: 180px">Rate</th>
-                                                            <th style="width: 180px">Value</th>
-                                                            <th style="width: 10px"></th>
-                                                        </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                        <tr v-for="(row, index) in selected_items">
-
-                                                            <td>
-                                                                @{{ ++index }}
-                                                            </td>
-                                                            <td>
-                                                                @{{ row.group }}
-                                                            </td>
-                                                            <td>
-                                                                @{{ row.name }}
-                                                                <input type="hidden"
-                                                                       :name="'products['+index+'][coi_id]'"
-                                                                       class="form-control input-sm"
-                                                                       v-bind:value="row.id">
-
-                                                            </td>
-                                                            <td>
-                                                                @{{ row.uom }}
-                                                            </td>
-                                                            <td>
-                                                                <input type="number" step="0.01" v-model="row.quantity"
-                                                                       :name="'products['+index+'][quantity]'"
-                                                                       class="form-control input-sm"
-                                                                       @change="itemtotal(row);valid_quantity(row)"
-                                                                       required>
-                                                            </td>
-                                                            <td>
-                                                                <input type="number" v-model="row.rate"
-                                                                       :name="'products['+index+'][rate]'"
-                                                                       class="form-control input-sm"
-                                                                       @change="itemtotal(row)" required readonly>
-                                                            </td>
-                                                            <td>
+                                                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                                                    <div class="row">
+                                                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                                            <div class="form-group">
+                                                                <label for="reference_no">Reference No</label>
                                                                 <input type="text" class="form-control input-sm"
-                                                                       v-bind:value="itemtotal(row)" readonly>
-                                                            </td>
-                                                            <td>
-                                                                <button type="button" class="btn btn-sm btn-danger"
-                                                                        @click="delete_row(row)"><i
-                                                                        class="fa fa-trash"></i></button>
-                                                            </td>
-                                                        </tr>
-                                                        </tbody>
-                                                        <tfoot>
-                                                        <tr>
-                                                            <td colspan="8" style="background-color: #DDDCDC">
+                                                                       value="{{old('reference_no')}}" name="reference_no">
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                                            <div class="form-group">
+                                                                <label for="remark">Remark</label>
+                                                                <textarea class="form-control" name="remark" rows="1"
+                                                                          placeholder="Enter Remark"></textarea>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
 
-                                                            </td>
-                                                        </tr>
-                                                        <tr class="text-right">
-                                                            <td colspan="4">
-                                                                Total
-                                                            </td>
 
-                                                            <td>
-                                                                @{{ total_quantity? total_quantity:0 }}
-                                                                <input type="hidden" class="form-control input-sm"
-                                                                       name="total_quantity"
-                                                                       v-bind:value="total_quantity" readonly>
-                                                            </td>
-                                                            <td></td>
-                                                            <td>
-                                                                @{{ subtotal }}
-                                                                <input type="hidden" class="form-control input-sm"
-                                                                       name="subtotal" v-bind:value="subtotal" readonly>
-                                                            </td>
-                                                            <td></td>
-                                                        </tr>
-                                                        <tfoot>
-                                                    </table>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                            </div>
+                            <div class="card">
+                                <div class="card-header bg-info">
+                                    <h3 class="card-title">FG Production (FGP) Line Item</h3>
+                                </div>
+                                <div class="card-body">
+
+                                    <div class="card-box">
+                                        <div id="">
+                                            <div class="row">
+                                                <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
+                                                    <div class="form-group">
+                                                        <label for="group_id" class="control-label">Group</label>
+                                                        <select class="form-control" name="group_id" v-model="group_id"
+                                                                @change="fetch_items">
+                                                            <option value="">Select One</option>
+                                                            @foreach ($groups as $row)
+                                                                <option value="{{ $row->id }}">{{ $row->name }}</option>
+                                                            @endforeach
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
+                                                    <div class="form-group">
+                                                        <label for="item_id">Item</label>
+                                                        <select name="item_id" id="item_id"
+                                                                class="form-control bSelect" v-model="item_id">
+                                                            <option value="">Select one</option>
+
+                                                            <option :value="row . id" v-for="row in items"
+                                                                    v-html="row.name">
+                                                            </option>
+
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12" style="margin-top: 30px;">
+                                                    <button type="button" class="btn btn-info btn-block"
+                                                            @click="data_input" :disabled="isDisabled">Add
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12"
+                                                     v-if="selected_items.length>0">
+
+                                                    <hr>
+                                                    <div class="table-responsive">
+                                                        <table class="table table-bordered">
+                                                            <thead class="bg-secondary">
+                                                            <tr>
+                                                                <th style="width: 10px">#</th>
+                                                                <th style="width: 200px">Group</th>
+                                                                <th>Item</th>
+                                                                <th style="width: 50px">Unit</th>
+                                                                <th style="width: 180px">Qty</th>
+                                                                <th style="width: 180px">Rate</th>
+                                                                <th style="width: 180px">Value</th>
+                                                                <th style="width: 10px"></th>
+                                                            </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                            <tr v-for="(row, index) in selected_items">
+
+                                                                <td>
+                                                                    @{{ ++index }}
+                                                                </td>
+                                                                <td>
+                                                                    @{{ row.group }}
+                                                                </td>
+                                                                <td>
+                                                                    @{{ row.name }}
+                                                                    <input type="hidden"
+                                                                           :name="'products[' + index + '][coi_id]'"
+                                                                           class="form-control input-sm"
+                                                                           v-bind:value="row.id">
+
+                                                                </td>
+                                                                <td>
+                                                                    @{{ row.uom }}
+                                                                </td>
+                                                                <td>
+                                                                    <input type="number" step="0.01" v-model="row.quantity"
+                                                                           :name="'products[' + index + '][quantity]'"
+                                                                           class="form-control input-sm"
+                                                                           @change="itemtotal(row);valid_quantity(row)"
+                                                                           required>
+                                                                </td>
+                                                                <td>
+                                                                    <input type="number" v-model="row.rate"
+                                                                           :name="'products[' + index + '][rate]'"
+                                                                           class="form-control input-sm"
+                                                                           @change="itemtotal(row)" required readonly>
+                                                                </td>
+                                                                <td>
+                                                                    <input type="text" class="form-control input-sm"
+                                                                           v-bind:value="itemtotal(row)" readonly>
+                                                                </td>
+                                                                <td>
+                                                                    <button type="button" class="btn btn-sm btn-danger"
+                                                                            @click="delete_row(row)"><i
+                                                                            class="fa fa-trash"></i></button>
+                                                                </td>
+                                                            </tr>
+                                                            </tbody>
+                                                            <tfoot>
+                                                            <tr>
+                                                                <td colspan="8" style="background-color: #DDDCDC">
+
+                                                                </td>
+                                                            </tr>
+                                                            <tr class="text-right">
+                                                                <td colspan="4">
+                                                                    Total
+                                                                </td>
+
+                                                                <td>
+                                                                    @{{ total_quantity? total_quantity:0 }}
+                                                                    <input type="hidden" class="form-control input-sm"
+                                                                           name="total_quantity"
+                                                                           v-bind:value="total_quantity" readonly>
+                                                                </td>
+                                                                <td></td>
+                                                                <td>
+                                                                    @{{ subtotal }}
+                                                                    <input type="hidden" class="form-control input-sm"
+                                                                           name="subtotal" v-bind:value="subtotal" readonly>
+                                                                </td>
+                                                                <td></td>
+                                                            </tr>
+                                                            <tfoot>
+                                                        </table>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
+
                                 </div>
-
+                                <div class="card-footer" v-if="selected_items.length > 0">
+                                    <button class="float-right btn btn-primary" type="submit"><i
+                                            class="fa fa-fw fa-lg fa-check-circle"></i>Submit
+                                    </button>
+                                </div>
                             </div>
-                            <div class="card-footer" v-if="selected_items.length > 0">
-                                <button class="float-right btn btn-primary" type="submit"><i
-                                        class="fa fa-fw fa-lg fa-check-circle"></i>Submit
-                                </button>
-                            </div>
-                        </div>
-                    </form>
-                </div> <!-- end col -->
-            </div>
-            <!-- /.row -->
+                        </form>
+                    </div> <!-- end col -->
+                </div>
+                <!-- /.row -->
 
-        </div><!-- /.container-fluid -->
-    </section>
-    <!-- /.content -->
+            </div><!-- /.container-fluid -->
+        </section>
+        <!-- /.content -->
 @endsection
 @section('css')
 
@@ -354,6 +354,8 @@
                     group_id: '',
                     item_id: '',
                     items: [],
+                    quantity: 0,
+                    rate: '',
                     selected_items: [],
                     pageLoading: false,
                     isDisabled: false
@@ -369,7 +371,9 @@
                     },
                     subtotal: function () {
                         return this.selected_items.reduce((total, item) => {
-                            return total + item.quantity * item.rate
+                            const quantity = parseFloat(item.quantity) || 0;
+                            const rate = parseFloat(item.rate) || 0;
+                            return total + quantity * rate;
                         }, 0)
                     },
 
@@ -455,14 +459,14 @@
                                 } else {
                                     vm.pageLoading = true;
                                     axios.get(this.config.get_items_info_by_group_id_url + '/' + vm.group_id).then(function (response) {
-                                      //  vm.selected_items = [];
+                                        //  vm.selected_items = [];
                                         vm.item_id = '';
                                         let items = response.data.products;
                                         for (let key in items) {
                                             let exists = vm.selected_items.some(function (field) {
                                                 return field.id == items[key].id
                                             });
-                                            if (exists){
+                                            if (exists) {
                                                 vm.pageLoading = false;
                                                 toastr.error('Item Already Selected Fom this group', {
                                                     closeButton: true,
@@ -500,7 +504,9 @@
                         this.selected_items.splice(this.selected_items.indexOf(row), 1);
                     },
                     itemtotal: function (index) {
-                        return index.quantity * index.rate;
+                        const quantity = parseFloat(index.quantity) || 0;
+                        const rate = parseFloat(index.rate) || 0;
+                        return quantity * rate;
                     },
                     valid_quantity: function (index) {
                         if (index.quantity <= 0) {
@@ -508,7 +514,7 @@
                                 closeButton: true,
                                 progressBar: true,
                             });
-                            index.quantity = '';
+                            index.quantity = 0;
                         }
                     },
                 },
