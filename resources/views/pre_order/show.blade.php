@@ -66,7 +66,7 @@
                                         <th>Group</th>
                                         <th>Item</th>
                                         <th>Rate</th>
-                                        <th>Qty</th>
+                                        <th>Qty/Weight</th>
                                         <th>Discount</th>
                                         <th class="text-right">Item Total</th>
                                     </tr>
