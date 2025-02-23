@@ -13,6 +13,7 @@ use App\Models\Outlet;
 use App\Models\PreOrder;
 use App\Models\PreOrderItem;
 use App\Models\Production;
+use App\Models\ProductionRecipe;
 use App\Models\Store;
 use App\Models\Supplier;
 use App\Models\SupplierGroup;
@@ -20,6 +21,7 @@ use Brian2694\Toastr\Facades\Toastr;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use stdClass;
 use Yajra\DataTables\Facades\DataTables;
 use niklasravnsborg\LaravelPdf\Facades\Pdf;
 use App\Services\ExportService;
@@ -103,11 +105,16 @@ class PreOrderController extends Controller
         }
         $outlets = Outlet::where('status', 'active')->get();
         $factoryStores = Store::where(['doc_type' => 'factory', 'type' => 'FG'])->get();
+        $rmStores = Store::where(['type' => 'RM'])->get();
         $outletStores = Store::where(['doc_type' => 'outlet', 'type' => 'FG'])->get();
         if (auth()->user()->employee && auth()->user()->employee->outlet_id) {
             $outletStores = Store::where(['doc_type' => 'outlet', 'type' => 'FG', 'doc_id' => auth()->user()->employee->outlet_id])->get();
+            $rmStores = [];
         }
-        return view('pre_order.index', compact('outlets', 'factoryStores', 'outletStores'));
+        if (auth()->user()->employee && auth()->user()->employee->factory_id) {
+            $rmStores = Store::where(['doc_type' => 'factory', 'type' => 'RM'])->get();
+        }
+        return view('pre_order.index', compact('outlets', 'factoryStores', 'outletStores','rmStores'));
     }
 
     protected function getFilteredData()
@@ -370,10 +377,15 @@ class PreOrderController extends Controller
 
             if ($request->status == 'ready_to_delivery') {
                 if (!$request->factory_store) {
-                    Toastr::error('Select A Store');
+                    Toastr::error('Select FG Store Please');
+                    return back();
+                }
+                if (!$request->rm_store) {
+                    Toastr::error('Select RM Store Please');
                     return back();
                 }
                 $store = Store::find($request->factory_store);
+                $rm_store = Store::find($request->rm_store);
                 $uid = generateUniqueUUID($store->doc_id, Production::class, 'uid', $store->doc_type == 'factory');
                 $productionData = [
                     'uid' => $uid,
@@ -401,7 +413,7 @@ class PreOrderController extends Controller
                         'rate' => $rate,
                         'quantity' => $qty,
                     ];
-                    $production->items()->create($itemData);
+                    $prodItem = $production->items()->create($itemData);
                     // Inventory Transaction Effect
                     InventoryTransaction::query()->create([
                         'store_id' => $production->store_id,
@@ -414,6 +426,26 @@ class PreOrderController extends Controller
                         'type' => 1,
                         'coi_id' => $item->coi_id,
                     ]);
+
+
+                    $recipes_items = ProductionRecipe::where('fg_id', $item->coi_id)->get();
+                    foreach ($recipes_items as $recipe_item) {
+                        $currentRMStock = availableInventoryBalance($recipe_item->rm_id, $rm_store->id);
+                        $rm_qty = $recipe_item->qty * $qty;
+                        if ($currentRMStock < $rm_qty) {
+                            Toastr::error('Raw Material Not Available' . ' !', '', ["progressBar" => true]);
+                            return back();
+                        }
+                        $rm = new stdClass();
+                        $rm->date = date('Y-m-d');
+                        $rm->coi_id = $recipe_item->rm_id;
+                        $rm->rate = 0;
+                        $rm->amount = 0;
+                        $rm->store_id = $rm_store->id;
+                        $rm->quantity = $rm_qty;
+                        $rm->id = $prodItem->id;
+                        addInventoryTransaction(-1, 'PO', (object)$rm);
+                    }
 
                 }
                 $production->update([
