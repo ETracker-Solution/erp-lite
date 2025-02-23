@@ -199,6 +199,13 @@
                                     @endforeach
                                 </select>
                             </div>
+                            <!-- Dynamic Fields for Items and Quantities -->
+                            <div id="items-container">
+
+                            </div>
+                            <div class="form-group">
+                                <button type="button" id="add-item" class="btn btn-success">Add Additional RM</button>
+                            </div>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -225,7 +232,109 @@
     <script src="{{ asset('assets/plugins/datatables-responsive/js/responsive.bootstrap4.min.js')}}"></script>
 @endsection
 @push('script')
-    <!-- page script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const container = document.getElementById('items-container');
+            const selectedItems = new Set(); // Track selected raw material IDs
+
+            // Template for a new item row
+            const itemRowTemplate = `
+            <div class="form-row mb-3 item-row">
+                <div class="col">
+                    <label for="">Raw Material</label>
+                    <select name="rm_ids[]" class="form-control rm-select">
+                        <option value="">Choose Raw Material</option>
+                        @foreach($rawMaterials as $rm)
+            <option value="{{ $rm->id }}" data-unit="{{ $rm->unit->name }}">{{ $rm->name }}</option>
+                        @endforeach
+            </select>
+        </div>
+        <div class="col">
+            <label for="">Quantity</label>
+            <input type="number" name="quantities[]" class="form-control" min="1" required>
+        </div>
+        <div class="col">
+            <label for="">Unit</label>
+            <input type="text" name="units[]" class="form-control unit-field" readonly>
+        </div>
+        <div class="col-auto align-self-end">
+            <button type="button" class="btn btn-danger remove-item">Remove</button>
+        </div>
+    </div>
+`;
+
+            // Add Item
+            document.getElementById('add-item').addEventListener('click', function () {
+                const newRow = document.createElement('div');
+                newRow.innerHTML = itemRowTemplate;
+                container.appendChild(newRow);
+
+                // Attach event listener to the new RM select field
+                const rmSelect = newRow.querySelector('.rm-select');
+                rmSelect.addEventListener('change', function () {
+                    const selectedOption = this.options[this.selectedIndex];
+                    const unitField = this.closest('.item-row').querySelector('.unit-field');
+                    unitField.value = selectedOption.getAttribute('data-unit');
+
+                    // Update selected items and disable options
+                    updateSelectedItems();
+                });
+
+                // Initialize dropdown options
+                updateDropdownOptions(rmSelect);
+            });
+
+            // Remove Item
+            container.addEventListener('click', function (e) {
+                if (e.target.classList.contains('remove-item')) {
+                    const row = e.target.closest('.item-row');
+                    const rmSelect = row.querySelector('.rm-select');
+                    const selectedId = rmSelect.value;
+
+                    // Remove the selected item from the tracking set
+                    if (selectedId) {
+                        selectedItems.delete(selectedId);
+                    }
+
+                    // Remove the row
+                    row.remove();
+
+                    // Update dropdown options in all rows
+                    updateAllDropdowns();
+                }
+            });
+
+            // Function to update selected items and disable options
+            function updateSelectedItems() {
+                selectedItems.clear();
+                document.querySelectorAll('.rm-select').forEach(function (select) {
+                    if (select.value) {
+                        selectedItems.add(select.value);
+                    }
+                });
+                updateAllDropdowns();
+            }
+
+            // Function to update dropdown options in all rows
+            function updateAllDropdowns() {
+                document.querySelectorAll('.rm-select').forEach(function (select) {
+                    updateDropdownOptions(select);
+                });
+            }
+
+            // Function to update dropdown options for a specific select element
+            function updateDropdownOptions(select) {
+                const selectedId = select.value;
+                Array.from(select.options).forEach(function (option) {
+                    if (option.value && option.value !== selectedId && selectedItems.has(option.value)) {
+                        option.disabled = true; // Disable already selected items
+                    } else {
+                        option.disabled = false; // Enable other items
+                    }
+                });
+            }
+        });
+    </script>
     <script>
         $(document).ready(function () {
 

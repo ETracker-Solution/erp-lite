@@ -106,6 +106,7 @@ class PreOrderController extends Controller
         $outlets = Outlet::where('status', 'active')->get();
         $factoryStores = Store::where(['doc_type' => 'factory', 'type' => 'FG'])->get();
         $rmStores = Store::where(['type' => 'RM'])->get();
+        $rawMaterials = ChartOfInventory::with('unit')->where(['type' => 'item','rootAccountType'=>'RM'])->get();
         $outletStores = Store::where(['doc_type' => 'outlet', 'type' => 'FG'])->get();
         if (auth()->user()->employee && auth()->user()->employee->outlet_id) {
             $outletStores = Store::where(['doc_type' => 'outlet', 'type' => 'FG', 'doc_id' => auth()->user()->employee->outlet_id])->get();
@@ -114,7 +115,7 @@ class PreOrderController extends Controller
         if (auth()->user()->employee && auth()->user()->employee->factory_id) {
             $rmStores = Store::where(['doc_type' => 'factory', 'type' => 'RM'])->get();
         }
-        return view('pre_order.index', compact('outlets', 'factoryStores', 'outletStores','rmStores'));
+        return view('pre_order.index', compact('outlets', 'factoryStores', 'outletStores','rmStores','rawMaterials'));
     }
 
     protected function getFilteredData()
@@ -447,6 +448,30 @@ class PreOrderController extends Controller
                         addInventoryTransaction(-1, 'PO', (object)$rm);
                     }
 
+                }
+
+                $rmIds = $request->input('rm_ids');
+                $quantities = $request->input('quantities');
+
+                if($request->rm_ids && count($rmIds) > 0){
+                    foreach ($rmIds as $index => $rmId) {
+                        $quantity = $quantities[$index];
+                        $currentRMStock = availableInventoryBalance($rmId, $rm_store->id);
+                        if ($currentRMStock < $quantity) {
+                            Toastr::error('Additional Raw Material Not Available' . ' !', '', ["progressBar" => true]);
+                            return back();
+                        }
+
+                        $rm = new stdClass();
+                        $rm->date = date('Y-m-d');
+                        $rm->coi_id = $rmId;
+                        $rm->rate = 0;
+                        $rm->amount = 0;
+                        $rm->store_id = $rm_store->id;
+                        $rm->quantity = $quantity;
+                        $rm->id = $prodItem->id;
+                        addInventoryTransaction(-1, 'PO', (object)$rm);
+                    }
                 }
                 $production->update([
                     'subtotal' => $totalRate,
