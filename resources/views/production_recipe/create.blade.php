@@ -6,7 +6,7 @@
     @php
         $links = [
         'Home'=>route('dashboard'),
-        'Pre-define Recipe Entry'=>''
+        'Pre-define  Recipe Entry'=>''
         ]
     @endphp
     <x-breadcrumb title='Pre-define Recipe' :links="$links"/>
