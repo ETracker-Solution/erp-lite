@@ -670,42 +670,75 @@ LEFT JOIN
 
 function testFGreport($store_id, $date)
 {
+    ini_set('memory_limit', '512M'); // Temporarily increase memory limit
+
     $data = [];
+    $grand_total_transit_stock = 0;
+    $grand_total_balance_qty = 0;
+
+    // Fetch parents with necessary relationships
     $parents = \App\Models\ChartOfInventory::with([
         'parent',
-        'inventoryTransactions',
-        'requisitionDeliveryItems.requisitionDelivery',
-        'inventoryTransferItems.inventoryTransfer',
-        'preOrderItems.preOrder'])
+        'inventoryTransactions' => function ($query) use ($store_id, $date) {
+            $query->where('store_id', $store_id)->whereDate('date', '<=', $date);
+        },
+        'requisitionDeliveryItems.requisitionDelivery' => function ($query) use ($store_id) {
+            $query->where(['status' => 'completed', 'type' => 'FG', 'from_store_id' => $store_id]);
+        },
+        'inventoryTransferItems.inventoryTransfer' => function ($query) use ($store_id) {
+            $query->where(['status' => 'pending', 'type' => 'FG', 'from_store_id' => $store_id]);
+        },
+        'preOrderItems.preOrder' => function ($query) use ($store_id) {
+            $query->where(['status' => 'delivered', 'factory_delivery_store_id' => $store_id]);
+        }
+    ])
         ->whereHas('parent')
         ->where(['rootAccountType' => 'FG', 'type' => 'item'])
         ->orderBy('parent_id')
         ->get()
         ->groupBy('parent_id');
-    $grand_total_transit_stock = 0;
-    $grand_total_balance_qty = 0;
+
     foreach ($parents as $parent_id => $parent) {
         $parent_total_transit_stock = 0;
         $parent_total_balance_qty = 0;
-        foreach ($parent as $key => $item) {
-            $transit_delivery_qty = $item->requisitionDeliveryItems()->whereHas('requisitionDelivery', function ($q) use ($store_id) {
-                return $q->where(['status' => 'completed', 'type' => 'FG', 'from_store_id' => $store_id]);
-            })->sum('quantity');
 
-            $transit_transfer_qty = $item->inventoryTransferItems()->whereHas('inventoryTransfer', function ($q) use ($store_id) {
-                return $q->where(['status' => 'pending', 'type' => 'FG', 'from_store_id' => $store_id]);
-            })->sum('quantity');
+        foreach ($parent as $item) {
+            // Calculate Transit Delivery Quantity
+            $transit_delivery_qty = $item->requisitionDeliveryItems
+                ->where('requisitionDelivery.status', 'completed')
+                ->where('requisitionDelivery.type', 'FG')
+                ->where('requisitionDelivery.from_store_id', $store_id)
+                ->sum('quantity');
 
-            $transit_pre_order_qty = $item->preOrderItems()->whereHas('preOrder', function ($q) use ($store_id) {
-                return $q->where(['status' => 'delivered', 'factory_delivery_store_id' => $store_id]);
-            })->sum('quantity');
+            // Calculate Transit Transfer Quantity
+            $transit_transfer_qty = $item->inventoryTransferItems
+                ->where('inventoryTransfer.status', 'pending')
+                ->where('inventoryTransfer.type', 'FG')
+                ->where('inventoryTransfer.from_store_id', $store_id)
+                ->sum('quantity');
 
+            // Calculate Transit Pre-Order Quantity
+            $transit_pre_order_qty = $item->preOrderItems
+                ->where('preOrder.status', 'delivered')
+                ->where('preOrder.factory_delivery_store_id', $store_id)
+                ->sum('quantity');
+
+            // Total Transit Stock
             $total_transit_stock = $transit_delivery_qty + $transit_transfer_qty + $transit_pre_order_qty;
-            $main_balance = $item->inventoryTransactions()->where('store_id', $store_id)->whereDate('date', '<=', $date)->sum(DB::raw('type * quantity'));
 
+            // Calculate Main Balance Quantity
+            $main_balance = $item->inventoryTransactions
+                ->where('store_id', $store_id)
+                ->where('date', '<=', $date)
+                ->sum(function ($transaction) {
+                    return $transaction->type * $transaction->quantity;
+                });
+
+            // Update Parent Totals
             $parent_total_transit_stock += $total_transit_stock;
             $parent_total_balance_qty += $main_balance;
 
+            // Add Item Data to Report
             $data[] = [
                 'Group Name' => $item->parent->name,
                 'Item ID' => $item->id,
@@ -715,31 +748,35 @@ function testFGreport($store_id, $date)
                 'Rate' => number_format($item->price, 2, '.', ','),
                 'Value' => number_format($item->price * $main_balance, 2, '.', ','),
             ];
-
         }
 
+        // Update Grand Totals
         $grand_total_transit_stock += $parent_total_transit_stock;
         $grand_total_balance_qty += $parent_total_balance_qty;
+
+        // Add Parent Total to Report
         $data[] = [
-            'Group Name' => '', // This could be set to the parent's name or left blank
+            'Group Name' => '',
             'Item ID' => '',
-            'Item Name' => $parent[0]->parent->name .' Total',
+            'Item Name' => $parent[0]->parent->name . ' Total',
             'Transit Stock' => $parent_total_transit_stock,
             'Balance Qty' => number_format($parent_total_balance_qty, 2),
-            'Rate' => '', // Total rate is typically not used
+            'Rate' => '',
             'Value' => ''
         ];
-//        return $data;
     }
+
+    // Add Grand Total to Report
     $data[] = [
-        'Group Name' => '', // This could be set to the parent's name or left blank
+        'Group Name' => '',
         'Item ID' => '',
         'Item Name' => 'Grand Total',
         'Transit Stock' => $grand_total_transit_stock,
         'Balance Qty' => number_format($grand_total_balance_qty, 2),
-        'Rate' => '', // Total rate is typically not used
+        'Rate' => '',
         'Value' => '0'
     ];
+
     return $data;
 }
 
