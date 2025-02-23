@@ -58,7 +58,7 @@ Purchase List
                         <!-- /.col -->
                         <div class="col-sm-4 invoice-col">
                             Recipe No : {{ $model[0]->uid }} <br>
-                            Name : {{ $model[0]->coi->name }} <br>
+                            Name : {{ $model[0]->item->name }} <br>
                         </div>
                         <!-- /.col -->
                     </div>
