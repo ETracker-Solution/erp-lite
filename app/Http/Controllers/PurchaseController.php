@@ -92,7 +92,7 @@ class PurchaseController extends Controller
             $purchase->amount = $purchase->net_payable;
             foreach ($validated['products'] as $product) {
 
-                if ($product['alter_unit']) {
+                if (isset($product['alter_unit']) && $product['alter_unit']) {
                     $total_rate = $product['rate'] * $product['quantity'];
                     $product['quantity'] = ($product['a_unit_quantity'] > 0 ? $product['a_unit_quantity'] : 1) * $product['quantity'];
                     $product['rate'] = $total_rate / $product['quantity'];
@@ -105,9 +105,9 @@ class PurchaseController extends Controller
                     'store_id' => $purchase->store_id,
                     'doc_type' => 'GPB',
                     'doc_id' => $purchase->id,
-                    'quantity' => $product['quantity'],
+                    'quantity' => $product['quantity'] ?? $product['a_unit_quantity'],
                     'rate' => $product['rate'],
-                    'amount' => $product['quantity'] * $product['rate'],
+                    'amount' => ($product['quantity'] ?? $product['a_unit_quantity']) * $product['rate'],
                     'date' => $purchase->date,
                     'type' => 1,
                     'coi_id' => $product['coi_id'],
@@ -132,6 +132,7 @@ class PurchaseController extends Controller
             ]);
             DB::commit();
         } catch (\Exception $exception) {
+            dd($exception);
             DB::rollBack();
             Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
             return back();

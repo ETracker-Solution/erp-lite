@@ -3,144 +3,143 @@
     Chart Of Inventory
 @endsection
 @section('content')
-    @php
-        $links = [
-       'Home'=>route('dashboard'),
-       'Master Data'=>'',
-       'Inventory Setting'=>'',
-       'Inventory Item List'=>'',
-        ]
-    @endphp
-    <x-breadcrumb title='Inventory Item List' :links="$links"/>
+        @php
+    $links = [
+        'Home' => route('dashboard'),
+        'Master Data' => '',
+        'Inventory Setting' => '',
+        'Inventory Item List' => '',
+    ]
+        @endphp
+        <x-breadcrumb title='Inventory Item List' :links="$links"/>
 
-    <!-- Main content -->
-    <section class="content">
-        <div class="container-fluid">
-            <div class="row">
-                <div class="col-lg-4 col-md-4">
-                    <div class="card card-info">
-                        <div class="card-header">
-                            <h3 class="card-title">Chart Of Inventory</h3>
-                            <div class="card-tools">
-
-                            </div>
-                        </div>
-                        <div class="card-body" id="inventoryItems">
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-8 col-md-8">
-                    <form action="{{ route('chart-of-inventories.store') }}" method="POST" class=""
-                          enctype="multipart/form-data">
-                        @csrf
+        <!-- Main content -->
+        <section class="content">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-lg-4 col-md-4">
                         <div class="card card-info">
                             <div class="card-header">
-                                <h4 class="card-title">Chart of Inventory Entry</h4>
+                                <h3 class="card-title">Chart Of Inventory</h3>
+                                <div class="card-tools">
+
+                                </div>
                             </div>
-                            <div class="card-body">
-                                <div class="row callout callout-success">
-                                    <div class="col-xl-12 col-md-12 col-12">
-                                        <x-forms.text label="Item ID" inputName="item_id" placeholder=""
-                                                      :isRequired='false' :isReadonly='true' defaultValue=""/>
-                                    </div>
-                                    <div class="col-xl-12 col-md-12 col-12">
-                                        <x-forms.text label="Item Name" inputName="item_name"
-                                                      placeholder="Enter Item Name" :isRequired='false'
-                                                      :isReadonly='false' defaultValue=""/>
-                                    </div>
-                                    <div class="col-xl-12 col-md-12 col-12">
-                                        <x-forms.text label="Item Type" inputName="item_type" placeholder="Enter Name"
-                                                      :isRequired='false' :isReadonly='true' defaultValue=""/>
-                                    </div>
-                                    <div class="col-xl-12 col-md-12 col-12">
-                                        <x-forms.text label="Group Name" inputName="group_name" placeholder="Enter Name"
-                                                      :isRequired='false' :isReadonly='true' defaultValue=""/>
-                                    </div>
-                                    <div class="col-xl-12 col-md-12 col-12">
-                                        <x-forms.text label="Account Type" inputName="account_type" placeholder=""
-                                                      :isRequired='false' :isReadonly='true' defaultValue=""/>
-                                    </div>
-                                    <div class="col-xl-12 col-md-12 col-12">
-                                        <label for="">Non Discountable</label>
-                                        <select name="non_discountable" id="" class="form-control">
-                                            <option value="0">No</option>
-                                            <option value="1">Yes</option>
-                                        </select>
-                                    </div>
-                                </div>
-
-                                <div class="row  callout callout-secondary" id="addNewForm" hidden>
-                                    <div class="col-xl-12 col-md-12 col-12">
-                                        <x-forms.static-select label="Item Type" inputName="new_item_type"
-                                                               placeholder="Select Type" :isRequired='false'
-                                                               :isReadonly='false' defaultValue=""
-                                                               :options="['group','item']"/>
-                                    </div>
-                                    <div class="col-xl-12 col-md-12 col-12">
-                                        <x-forms.text label="Item Name" inputName="new_item_name"
-                                                      placeholder="Enter Item Name" :isRequired='false'
-                                                      :isReadonly='false' defaultValue=""/>
-                                    </div>
-                                </div>
-
-                                <div class="row callout callout-info" id="additionalInfo" hidden>
-                                    <div class="col-xl-12 col-md-12 col-12">
-                                        <x-forms.select label="Unit of Measurement" inputName="unit"
-                                                        placeholder="Select Unit" :isRequired='true'
-                                                        :isReadonly='false' defaultValue=""
-                                                        :options="$units" optionId="id" optionValue="name"/>
-                                    </div>
-                                    <div class="col-xl-12 col-md-12 col-12">
-                                        <x-forms.select label="Alter Unit" inputName="alter_unit"
-                                                        placeholder="Select Alter Unit" :isRequired='false'
-                                                        :isReadonly='false' defaultValue=""
-                                                        :options="$alter_units" optionId="id" optionValue="name"/>
-                                    </div>
-                                    <div class="col-xl-12 col-md-12 col-12">
-                                        <x-forms.text label="Alter Unit Quantity" inputName="a_unit_quantity"
-                                                      placeholder="Enter Alter Unit Quantity" :isRequired='false'
-                                                      :isReadonly='false' defaultValue=""/>
-                                    </div>
-                                    <div class="col-xl-12 col-md-12 col-12">
-                                        <x-forms.text label="Selling Price" inputName="price"
-                                                      placeholder="Enter Selling Price" :isRequired='false'
-                                                      :isReadonly='false' defaultValue=""/>
-                                    </div>
-                                    <div class="col-xl-12 col-md-12 col-12">
-                                        <x-forms.static-select label="Status" inputName="status" placeholder="Select One"
-                                            :isRequired='true' :isReadonly='false' defaultValue="active"
-                                            :options="['active','inactive']" />
-                                    </div>
-                                </div>
-
-                            </div>
-                            <div class="card-footer ">
-                                <div class="text-center">
-                                    <button type="button" class="btn btn-sm btn-primary" hidden id="addButton"
-                                            onclick="addNewItem()">Add
-                                    </button>
-                                    <button type="button" class="btn btn-sm btn-info" hidden id="saveButton"
-                                            onclick="submitItem()">Save
-                                    </button>
-                                    <button type="button" class="btn btn-sm btn-secondary" hidden id="updateButton"
-                                            onclick="updateItem()">
-                                        Update
-                                    </button>
-                                    <button type="button" class="btn btn-sm btn-danger" hidden id="deleteButton"
-                                            onclick="deleteInvItem()">Delete
-                                    </button>
-                                </div>
+                            <div class="card-body" id="inventoryItems">
                             </div>
                         </div>
-                    </form>
-                </div>
-            </div> <!-- end col -->
-        </div>
-        <!-- /.row -->
+                    </div>
+                    <div class="col-lg-8 col-md-8">
+                        <form action="{{ route('chart-of-inventories.store') }}" method="POST" class=""
+                              enctype="multipart/form-data">
+                            @csrf
+                            <div class="card card-info">
+                                <div class="card-header">
+                                    <h4 class="card-title">Chart of Inventory Entry</h4>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row callout callout-success">
+                                        <div class="col-xl-12 col-md-12 col-12">
+                                            <x-forms.text label="Item ID" inputName="item_id" placeholder=""
+                                                          :isRequired='false' :isReadonly='true' defaultValue=""/>
+                                        </div>
+                                        <div class="col-xl-12 col-md-12 col-12">
+                                            <x-forms.text label="Item Name" inputName="item_name"
+                                                          placeholder="Enter Item Name" :isRequired='false'
+                                                          :isReadonly='false' defaultValue=""/>
+                                        </div>
+                                        <div class="col-xl-12 col-md-12 col-12">
+                                            <x-forms.text label="Item Type" inputName="item_type" placeholder="Enter Name"
+                                                          :isRequired='false' :isReadonly='true' defaultValue=""/>
+                                        </div>
+                                        <div class="col-xl-12 col-md-12 col-12">
+                                            <x-forms.text label="Group Name" inputName="group_name" placeholder="Enter Name"
+                                                          :isRequired='false' :isReadonly='true' defaultValue=""/>
+                                        </div>
+                                        <div class="col-xl-12 col-md-12 col-12">
+                                            <x-forms.text label="Account Type" inputName="account_type" placeholder=""
+                                                          :isRequired='false' :isReadonly='true' defaultValue=""/>
+                                        </div>
+                                        <div class="col-xl-12 col-md-12 col-12">
+                                            <label for="">Non Discountable</label>
+                                            <select name="non_discountable" id="" class="form-control">
+                                                <option value="0">No</option>
+                                                <option value="1">Yes</option>
+                                            </select>
+                                        </div>
+                                    </div>
 
-        </div><!-- /.container-fluid -->
-    </section>
-    <!-- /.content -->
+                                    <div class="row  callout callout-secondary" id="addNewForm" hidden>
+                                        <div class="col-xl-12 col-md-12 col-12">
+                                            <x-forms.static-select label="Item Type" inputName="new_item_type"
+                                                                   placeholder="Select Type" :isRequired='false'
+                                                                   :isReadonly='false' defaultValue=""
+                                                                   :options="['group', 'item']"/>
+                                        </div>
+                                        <div class="col-xl-12 col-md-12 col-12">
+                                            <x-forms.text label="Item Name" inputName="new_item_name"
+                                                          placeholder="Enter Item Name" :isRequired='false'
+                                                          :isReadonly='false' defaultValue=""/>
+                                        </div>
+                                    </div>
+
+                                    <div class="row callout callout-info" id="additionalInfo" hidden>
+                                        <div class="col-xl-12 col-md-12 col-12">
+                                            <x-forms.select label="Unit of Measurement" inputName="unit"
+                                                            placeholder="Select Unit" :isRequired='true'
+                                                            :isReadonly='false' defaultValue=""
+                                                            :options="$units" optionId="id" optionValue="name"/>
+                                        </div>
+                                        <div class="col-xl-12 col-md-12 col-12">
+                                            <x-forms.select label="Alter Unit" inputName="alter_unit"
+                                                            placeholder="Select Alter Unit" :isRequired='false'
+                                                            :isReadonly='false' defaultValue=""
+                                                            :options="$alter_units" optionId="id" optionValue="name"/>
+                                        </div>
+                                        {{-- <div class="col-xl-12 col-md-12 col-12">
+                                            <x-forms.text label="Alter Unit Quantity" inputName="a_unit_quantity" placeholder="Enter Alter Unit Quantity"
+                                                :isRequired='false' :isReadonly='false' defaultValue="" />
+                                        </div> --}}
+                                        <div class="col-xl-12 col-md-12 col-12">
+                                            <x-forms.text label="Selling Price" inputName="price"
+                                                          placeholder="Enter Selling Price" :isRequired='false'
+                                                          :isReadonly='false' defaultValue=""/>
+                                        </div>
+                                        <div class="col-xl-12 col-md-12 col-12">
+                                            <x-forms.static-select label="Status" inputName="status" placeholder="Select One"
+                                                :isRequired='true' :isReadonly='false' defaultValue="active"
+                                                :options="['active', 'inactive']" />
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <div class="card-footer ">
+                                    <div class="text-center">
+                                        <button type="button" class="btn btn-sm btn-primary" hidden id="addButton"
+                                                onclick="addNewItem()">Add
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-info" hidden id="saveButton"
+                                                onclick="submitItem()">Save
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-secondary" hidden id="updateButton"
+                                                onclick="updateItem()">
+                                            Update
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-danger" hidden id="deleteButton"
+                                                onclick="deleteInvItem()">Delete
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div> <!-- end col -->
+            </div>
+            <!-- /.row -->
+
+            </div><!-- /.container-fluid -->
+        </section>
+        <!-- /.content -->
 @endsection
 @push('script')
     <script>
