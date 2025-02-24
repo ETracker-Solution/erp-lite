@@ -429,7 +429,16 @@ class PreOrderController extends Controller
                     ]);
 
 
-                    $recipes_items = ProductionRecipe::where('fg_id', $item->coi_id)->get();
+                    $is_custom = ChartOfInventory::find($item->coi_id);
+                    if ($is_custom->price == 0){
+                        if (strlen($is_custom->name) > 11) {
+                            $newString = substr($is_custom->name, 0, -13);
+                            $original_product = ChartOfInventory::where('name',$newString)->where('parent_id',$is_custom->parent_id)->first();
+                            $recipes_items = ProductionRecipe::where('fg_id', $original_product->id)->get();
+                        }
+                    }else{
+                        $recipes_items = ProductionRecipe::where('fg_id', $item->coi_id)->get();
+                    }
                     foreach ($recipes_items as $recipe_item) {
                         $currentRMStock = availableInventoryBalance($recipe_item->rm_id, $rm_store->id);
                         $rm_qty = $recipe_item->qty * $qty;

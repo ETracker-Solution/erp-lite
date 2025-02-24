@@ -175,6 +175,7 @@ class SaleController extends Controller
                         'name' => $row['item_name'] . '-' . date('ymdhis'),
                         'type' => 'item',
                         'parent_id' => $find->parent_id,
+                        'unit_id' => $find->unit_id,
                         'rootAccountType' => 'FG',
                         'status' => 'active',
                     ]);
@@ -216,7 +217,7 @@ class SaleController extends Controller
                         Toastr::error('Please Set RM Store', '', ["progressBar" => true]);
                         return back();
                     }
-                    
+
                     $recipes_items = Recipe::where('fg_id', $sale_item['coi_id'])->get();
                     $currentRMStock = 0;
                     foreach ($recipes_items as $recipe_item) {

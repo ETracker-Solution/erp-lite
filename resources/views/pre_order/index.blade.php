@@ -242,7 +242,7 @@
             <div class="form-row mb-3 item-row">
                 <div class="col">
                     <label for="">Raw Material</label>
-                    <select name="rm_ids[]" class="form-control rm-select">
+                    <select name="rm_ids[]" class="form-control rm-select select2">
                         <option value="">Choose Raw Material</option>
                         @foreach($rawMaterials as $rm)
             <option value="{{ $rm->id }}" data-unit="{{ $rm->unit->name }}">{{ $rm->name }}</option>

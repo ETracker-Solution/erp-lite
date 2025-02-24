@@ -67,6 +67,7 @@
                                         <th>Item</th>
                                         <th>Rate</th>
                                         <th>Qty/Weight</th>
+                                        <th>Unit</th>
                                         <th>Discount</th>
                                         <th class="text-right">Item Total</th>
                                     </tr>
