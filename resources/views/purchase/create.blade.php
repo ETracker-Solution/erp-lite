@@ -4,10 +4,10 @@
 @section('content')
     <!-- Content Header (Page header) -->
     @php
-        $links = [
-            'Home' => route('dashboard'),
-            'Purchase Entry' => ''
-        ]
+$links = [
+    'Home' => route('dashboard'),
+    'Purchase Entry' => ''
+]
     @endphp
     <x-breadcrumb title='Purchase' :links="$links" />
     <!-- Main content -->
@@ -473,7 +473,7 @@
                                         value_amount: lastItem?.value_amount ?? 0,
                                         alt_unit_rate: lastItem?.alt_unit_rate ?? 0,
                                         a_unit_quantity: lastItem?.a_unit_quantity ?? 0,
-                                        rate: item_info.purchase_items.length > 0 ? item_info.purchase_items[item_info.purchase_items.length - 1].alt_unit_rate : 0,
+                                        rate: item_info.alter_unit === null ? 0 : item_info.purchase_items.length > 0 ? item_info.purchase_items[item_info.purchase_items.length - 1].alt_unit_rate : 0,
                                         quantity: item_info.alter_unit === null ? 0 : (lastItem?.quantity ?? 1) / (lastItem?.a_unit_quantity ?? 1),                                    });
 
                                     console.log(vm.selected_items);
