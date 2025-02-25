@@ -9,31 +9,31 @@
             header: page-header;
             footer: page-footer;
         }
-    
+
         body {
             margin-top: 20px;
             background: #eee;
         }
-    
+
         /*Invoice*/
         .invoice .top-left {
             font-size: 65px;
             color: #3ba0ff;
         }
-    
+
         .invoice .top-right {
             text-align: right;
             padding-right: 20px;
         }
-    
+
         @media(max-width:575px) {
-    
+
             .invoice .top-left,
             .invoice .top-right,
             .invoice .payment-details {
                 text-align: center;
             }
-    
+
             .invoice .from,
             .invoice .to,
             .invoice .payment-details {
@@ -42,19 +42,19 @@
                 text-align: center;
                 margin-bottom: 25px;
             }
-    
+
             .invoice p.lead,
             .invoice .from p.lead,
             .invoice .to p.lead,
             .invoice .payment-details p.lead {
                 font-size: 22px;
             }
-    
+
             .invoice .btn {
                 margin-top: 10px;
             }
         }
-    
+
         @media print {
             .invoice {
                 width: 900px;
@@ -63,7 +63,7 @@
         }
     </style>
     </head>
-    
+
     <body>
         <div class="container bootstrap snippets bootdeys">
             <div class="row">
@@ -84,23 +84,27 @@
                             </div>
                         </div>
                         <div class="panel-body">
-                            
+
                             <div class="invoice-ribbon">
                                 @include('common.pdf_header')
                             </div>
-    
+
                             <hr>
                             <table
-                                style="border: 1px solid black; border-collapse: collapse; width: 100%; height: ; text-align: center; margin-top: 20px;">
+                                style="border: 1px solid black; border-collapse: collapse; width: 100%;  ; text-align: center; margin-top: 20px;">
                                 <thead>
                                     <tr style="background-color: #cdced2;">
-                                        <th style="border: 1px solid black; padding: 8px;width: %">SL no.</th>
-                                        <th style="border: 1px solid black; padding: 8px;width: 40%;">Description of Goods</th>
-                                        <th style="border: 1px solid black; padding: 8px;width: 20%">Quantity</th>
-                                        <th style="border: 1px solid black; padding: 8px;width: 10%">Rate</th>
-                                        <th style="border: 1px solid black; padding: 8px;">Per</th>
-                                        
-                                        <th style="border: 1px solid black; padding: 8px;">Amount</th>
+                                        <th style="border: 1px solid black; padding: 8px;width: 10%">SL no.</th>
+                                        <th style="border: 1px solid black; padding: 8px;width: 10%;">Group</th>
+                                        <th style="border: 1px solid black; padding: 8px;width: 10%;">Item</th>
+                                        <th style="border: 1px solid black; padding: 8px;width: 10%;">Unit</th>
+                                        <th style="border: 1px solid black; padding: 8px;width: 10%;">Unit Per Alt Unit</th>
+                                        <th style="border: 1px solid black; padding: 8px;width: 10%;">Alt Unit</th>
+                                        <th style="border: 1px solid black; padding: 8px;width: 10%;">Alt Qty</th>
+                                        <th style="border: 1px solid black; padding: 8px;width: 10%;">Unit Qty</th>
+                                        <th style="border: 1px solid black; padding: 8px;width: 10%;">Rate</th>
+                                        <th style="border: 1px solid black; padding: 8px;width: 10%;">Value</th>
+
                                         </tr>
                                         </thead>
                                         <tbody>
@@ -108,19 +112,17 @@
                                                 <tr>
                                                     <td style="border: 1px solid black; padding: 8px;">{{ $loop->iteration }}</td>
                                                     <td style="border: 1px solid black; padding: 8px; text-align: left;">
+                                                        {{ $item->coi->parent->name ?? '' }}
+                                                    </td>
+                                                    <td style="border: 1px solid black; padding: 8px; text-align: left;">
                                                         {{ $item->coi->name ?? '' }}
                                                     </td>
-                                                    <td style="border: 1px solid black; padding: 8px;">
-                                                        {{ $item->quantity ?? '' }} {{ $item->coi->unit->name ?? '' }}<br>
-                                                        @if (isset($item->coi->a_unit_quantity) && $item->coi->a_unit_quantity > 0 && $item->coi->alter_unit_id)
-                                                            <small style="color: rgb(70, 70, 70);">({{ $item->quantity / $item->coi->a_unit_quantity }}
-                                                                {{ $item->coi->alterUnit->name ?? '' }})</small>
-                                                        @endif
-                                                    </td>
-                                                    <td style="border: 1px solid black; padding: 8px;">{{ $item->rate ?? '' }}</td>
-                                                    <td style="border: 1px solid black; padding: 8px;">
-                                                        {{ $item->coi->unit->name ?? '' }}
-                                                    </td>
+                                                    <td style="border: 1px solid black; padding: 8px;">{{ $item->coi->unit->name ?? '' }}</td>
+                                                    <td style="border: 1px solid black; padding: 8px;">{{ $item->a_unit_quantity ?? '' }}</td>
+                                                    <td style="border: 1px solid black; padding: 8px;">{{ $item->coi->alterUnit ? $item->coi->alterUnit->name : '' }}</td>
+                                                    <td style="border: 1px solid black; padding: 8px;">{{ $item->unit_qty > 0 ? $item->unit_qty : '' }}</td>
+                                                    <td style="border: 1px solid black; padding: 8px;">{{ $item->converted_unit_qty ?? '' }}</td>
+                                                    <td style="border: 1px solid black; padding: 8px;">{{ $item->alt_unit_rate ?? '' }}</td>
                                                     <td style="border: 1px solid black; padding: 8px; text-align: right; font-weight: bold;">
                                                         {{ number_format($item->rate * $item->quantity, 2) ?? '' }}
                                                     </td>
@@ -128,12 +130,7 @@
                                             @endforeach
                                     <!-- Total Row -->
                                     <tr>
-                                        <td style="border: 1px solid black;"></td>
-                                        <td style="border: 1px solid black; padding: 8px; text-align: right; font-weight: bold;">
-                                            Total</td>
-                                        <td style="border: 1px solid black;"></td>
-                                        <td style="border: 1px solid black;"></td>
-                                        <td style="border: 1px solid black;"></td>
+                                        <td style="border: 1px solid black;" colspan="9">Total</td>
                                         <td style="border: 1px solid black; padding: 8px; text-align: right; font-weight: bold;">
                                             TK
                                             {{ number_format($model->subtotal, 2) }}
@@ -150,7 +147,7 @@
                                     <p style="font-style: italic;">E. & O.E</p>
                                 </div>
                             </div>
-                            
+
                             <!-- Additional Details -->
                             <div style="display: flex; justify-content: space-between; margin-top: 30px;">
                                 <div>
@@ -189,11 +186,11 @@ $date = new DateTime('now', new DateTimezone('Asia/Dhaka'));
         </div>
     </body>
     </html>
-    
-    
-    
-    
-    
+
+
+
+
+
     {{-- <table style="border: 2px solid #000;">
         <tr class="bb">
             <th class="tc bb">#</th>
@@ -211,5 +208,5 @@ $date = new DateTime('now', new DateTimezone('Asia/Dhaka'));
             <td class="tr bb">{{ $row->rate * $row->quantity ?? '' }} TK</td>
         </tr>
         @endforeach
-    
+
     </table> --}}

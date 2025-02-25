@@ -821,7 +821,7 @@ function getShortName($model){
         case \App\Models\JournalVoucher::class:
             return 'JV:';
         case \App\Models\Purchase::class:
-            return 'PR:';
+            return 'GPB:';
         default:
             return 'DD:';
     }

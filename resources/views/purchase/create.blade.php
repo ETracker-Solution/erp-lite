@@ -172,7 +172,7 @@
                                                         <td>
                                                             <input type="number" class="form-control input-sm"
                                                                 :name="'products[' + index + '][a_unit_quantity]'"
-                                                                v-model="row.a_unit_quantity">
+                                                                v-model="row.a_unit_quantity" @change="itemtotal(row);valid_quantity(row)">
                                                         </td>
                                                         <td>
                                                             <input type="text" class="form-control input-sm" :value="row . alter_unit" :name="'products[' + index + '][alter_unit]'"
@@ -367,7 +367,12 @@
 
                     subtotal: function () {
                         return this.selected_items.reduce((total, item) => {
-                            const quantity = parseFloat(item.quantity ?? 1) * parseFloat(item.a_unit_quantity ?? 1);
+                            let quantity = 0
+                            if (item.alter_unit_id){
+                                quantity = parseFloat(item.quantity);
+                            }else{
+                                quantity = parseFloat(item.a_unit_quantity)
+                            }
                             const rate = parseFloat(item.rate);
                             return total + quantity * rate;
                         }, 0);
@@ -468,7 +473,7 @@
                                         value_amount: lastItem?.value_amount ?? 0,
                                         alt_unit_rate: lastItem?.alt_unit_rate ?? 0,
                                         a_unit_quantity: lastItem?.a_unit_quantity ?? 0,
-                                        rate: item_info.purchase_items.length > 0 ? item_info.purchase_items[item_info.purchase_items.length - 1].rate : 0,
+                                        rate: item_info.purchase_items.length > 0 ? item_info.purchase_items[item_info.purchase_items.length - 1].alt_unit_rate : 0,
                                         quantity: item_info.alter_unit === null ? 0 : (lastItem?.quantity ?? 1) / (lastItem?.a_unit_quantity ?? 1),                                    });
 
                                     console.log(vm.selected_items);
@@ -530,8 +535,12 @@
                         this.selected_items.splice(this.selected_items.indexOf(row), 1);
                     },
                     itemtotal: function (index) {
-                        // console.log(index);
-                        const quantity = parseFloat(index.quantity ?? 1) * parseFloat(index.a_unit_quantity ?? 1);
+                        let quantity = 0
+                        if (index.alter_unit_id){
+                            quantity = parseFloat(index.quantity);
+                        }else{
+                            quantity = parseFloat(index.a_unit_quantity)
+                        }
                         const rate = parseFloat(index.rate);
                         return quantity * rate;
                     },
@@ -551,7 +560,7 @@
                         return `${unitQty} ${index.uom}`;
                     },
                     valid_quantity: function (index) {
-                        if (index.quantity <= 0) {
+                        if (index.a_unit_quantity < 0 && index.quantity <= 0) {
                             toastr.error('Quantity 0 or Negative not Allow', {
                                 closeButton: true,
                                 progressBar: true,

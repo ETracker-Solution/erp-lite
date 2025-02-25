@@ -61,7 +61,7 @@ Purchase List
                             Address : {{ $model->supplier->address }}<br>
                         </div>
                         </div>
-                        
+
                         <div class="row">
                             <div class="col-12 table-responsive">
                                 <table class="table table-striped">
@@ -69,10 +69,14 @@ Purchase List
                                         <tr>
                                             <th>#</th>
                                             <th>Group</th>
-                                            <th>Product</th>
-                                            <th>Qty</th>
-                                            <th>Price</th>
-                                            <th class="text-right">Item Total</th>
+                                            <th>Item</th>
+                                            <th>Unit</th>
+                                            <th>Unit Per Alt Unit</th>
+                                            <th>Alt Unit</th>
+                                            <th>Alt Qty</th>
+                                            <th>Unit Qty</th>
+                                            <th>Rate</th>
+                                            <th class="text-right">Value</th>
                                             </tr>
                                             </thead>
                                             <tbody>
@@ -81,15 +85,12 @@ Purchase List
                                                         <td>{{ $loop->iteration }}</td>
                                                         <td>{{ $item->coi->parent->name ?? '' }}</td>
                                                         <td>{{ $item->coi->name ?? '' }}</td>
-
-                                                        <td>
-                                                            {{ $item->quantity ?? '' }} {{ $item->coi->unit->name ?? '' }}
-                                                            @if (isset($item->coi->a_unit_quantity) && $item->coi->a_unit_quantity > 0 && $item->coi->alter_unit_id)
-                                                                ({{ $item->quantity / $item->coi->a_unit_quantity }} {{ $item->coi->alterUnit->name ?? '' }})
-                                                            @endif
-                                                        </td>
-
-                                                        <td>{{ $item->rate ?? '' }}</td>
+                                                        <td>{{ $item->coi->unit->name ?? '' }}</td>
+                                                        <td>{{ $item->a_unit_quantity ?? '' }}</td>
+                                                        <td>{{ $item->coi->alterUnit ? $item->coi->alterUnit->name : '' }}</td>
+                                                        <td>{{ $item->unit_qty > 0 ? $item->unit_qty : '' }}</td>
+                                                        <td>{{ $item->converted_unit_qty ?? '' }}</td>
+                                                        <td>{{ $item->alt_unit_rate ?? '' }}</td>
                                                         <td class="text-right">{{ $item->rate * $item->quantity ?? '' }}</td>
                                                     </tr>
                                                 @endforeach
@@ -99,11 +100,11 @@ Purchase List
                                             <!-- /.col -->
                                             </div>
                                             <!-- /.row -->
-                                            
+
                                             <div class="row">
                                                 <!-- accepted payments column -->
                                                 <div class="col-8">
-                                            
+
                                                 </div>
                                                 <!-- /.col -->
                                                 <div class="col-4">

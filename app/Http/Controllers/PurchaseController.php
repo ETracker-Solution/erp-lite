@@ -81,6 +81,7 @@ class PurchaseController extends Controller
     public function store(StorePurchaseRequest $request)
     {
         $validated = $request->validated();
+//        dd($request->all());
         DB::beginTransaction();
         try {
             if (count($validated['products']) < 1) {
@@ -92,49 +93,59 @@ class PurchaseController extends Controller
             $purchase->amount = $purchase->net_payable;
 
             foreach ($validated['products'] as $product) {
-                $qty = $product['quantity'];
+
+                $originalUnitQty = $product['a_unit_quantity'] ?? 0;
+                $AltUnitQty = $product['quantity'] ?? 0;
+                $inputRate = $product['rate'] ?? 0;
+
+//                $qty = $product['quantity'];
+                $qty = $AltUnitQty;
 
                 if (isset($product['alter_unit']) && $product['alter_unit']) {
-                    $total_rate = $product['rate'] * $product['quantity'];
-                    $product['quantity'] = ($product['a_unit_quantity'] > 0 ? $product['a_unit_quantity'] : 1) * $product['quantity'];
+                    $total_rate = $inputRate * $AltUnitQty;
+                    $product['quantity'] = $AltUnitQty * $originalUnitQty;
+                    $product['rate'] = $total_rate / $product['quantity'];
+                }else{
+                    $total_rate = $inputRate * $originalUnitQty;
+                    $product['quantity'] = $originalUnitQty;
                     $product['rate'] = $total_rate / $product['quantity'];
                 }
 
-                $existingItem = PurchaseItem::where('coi_id', $product['coi_id'])->latest()->first();
-
-                $rate = isset($existingItem) ? $existingItem->rate : 0;
-
-                if ($rate === null || $rate === 0) {
-                    $rate = $product['rate'];
-                }
+//                $existingItem = PurchaseItem::where('coi_id', $product['coi_id'])->latest()->first();
+//
+//                $rate = isset($existingItem) ? $existingItem->rate : 0;
+//
+//                if ($rate === null || $rate === 0) {
+//                    $rate = $product['rate'];
+//                }
 
                 $purchase->items()->create([
                     'coi_id' => $product['coi_id'],
                     'quantity' => $product['quantity'],
                     'value_amount' => $product['value_amount'],
                     'a_unit_quantity' => $product['a_unit_quantity'],
-                    'alter_unit_id' => $product['alter_unit_id'],
-                    'alt_unit_rate' => $product['value_amount'] / $product['quantity'],
+                    'alter_unit_id' => isset($product['alter_unit_id']) ? $product['alter_unit_id'] : null,
+                    'alt_unit_rate' => $inputRate,
                     'unit_qty' => $qty,
                     'converted_unit_qty' => $product['converted_unit_qty'],
                     'company_id' => auth()->user()->company_id,
                     'purchase_id' => $purchase->id,
-                    'rate' => $rate,
+                    'rate' => $product['rate'],
                 ]);
-            
+
                 InventoryTransaction::query()->create([
                     'store_id' => $purchase->store_id,
                     'doc_type' => 'GPB',
                     'doc_id' => $purchase->id,
-                    'quantity' => $product['quantity'] ?? $product['a_unit_quantity'],
+                    'quantity' => $product['quantity'],
                     'rate' => $product['rate'],
-                    'amount' => ($product['quantity'] ?? $product['a_unit_quantity']) * $product['rate'],
+                    'amount' => ($product['quantity']) * $product['rate'],
                     'date' => $purchase->date,
                     'type' => 1,
                     'coi_id' => $product['coi_id'],
                 ]);
             }
-            
+
 
 
 
@@ -154,6 +165,7 @@ class PurchaseController extends Controller
             DB::commit();
         } catch (\Exception $exception) {
             DB::rollBack();
+            dd($exception);
             Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
             return back();
         }
