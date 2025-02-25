@@ -50,4 +50,9 @@ class PreOrder extends Model
     {
         return $this->belongsTo(Outlet::class, 'delivery_point_id');
     }
+
+    public function approvalInfo()
+    {
+        return $this->hasOne(PreOrderApprovalInfo::class, 'pre_order_id');
+    }
 }

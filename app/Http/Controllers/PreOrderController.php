@@ -44,7 +44,7 @@ class PreOrderController extends Controller
         if (auth()->user()->employee && auth()->user()->employee->outlet_id) {
             $outlet_id = auth()->user()->employee->outlet_id;
             $preOrderItem = PreOrderItem::with('coi.parent', 'preOrder.outlet', 'preOrder.customer')
-            ->latest();
+                ->latest();
         } else {
             if (\request()->filled('outlet_id')) {
                 $outlet_id = \request()->outlet_id;
@@ -85,6 +85,7 @@ class PreOrderController extends Controller
         return $this->exportService->exportFile($type, $viewFileName, $exportableData, $filenameToDownload, 'L'); // L stands for Landscape, if Portrait needed, just remove this params
 
     }
+
     public function index()
     {
         if (\request()->ajax()) {
@@ -106,7 +107,7 @@ class PreOrderController extends Controller
         $outlets = Outlet::where('status', 'active')->get();
         $factoryStores = Store::where(['doc_type' => 'factory', 'type' => 'FG'])->get();
         $rmStores = Store::where(['type' => 'RM'])->get();
-        $rawMaterials = ChartOfInventory::with('unit')->where(['type' => 'item','rootAccountType'=>'RM'])->get();
+        $rawMaterials = ChartOfInventory::with('unit')->where(['type' => 'item', 'rootAccountType' => 'RM'])->get();
         $outletStores = Store::where(['doc_type' => 'outlet', 'type' => 'FG'])->get();
         if (auth()->user()->employee && auth()->user()->employee->outlet_id) {
             $outletStores = Store::where(['doc_type' => 'outlet', 'type' => 'FG', 'doc_id' => auth()->user()->employee->outlet_id])->get();
@@ -115,7 +116,7 @@ class PreOrderController extends Controller
         if (auth()->user()->employee && auth()->user()->employee->factory_id) {
             $rmStores = Store::where(['doc_type' => 'factory', 'type' => 'RM'])->get();
         }
-        return view('pre_order.index', compact('outlets', 'factoryStores', 'outletStores','rmStores','rawMaterials'));
+        return view('pre_order.index', compact('outlets', 'factoryStores', 'outletStores', 'rmStores', 'rawMaterials'));
     }
 
     protected function getFilteredData()
@@ -141,10 +142,10 @@ class PreOrderController extends Controller
 
         $orders = $orders->get()->map(function ($order) {
             $othersOutletSale = OthersOutletSale::where('invoice_number', $order->order_number)
-                                               ->first();
+                ->first();
             if ($othersOutletSale) {
-                $receivedAmount = (float) $othersOutletSale->delivery_point_receive_amount;
-                $order->due_amount = max($order->grand_total - ($order->advance_amount + $receivedAmount),0);
+                $receivedAmount = (float)$othersOutletSale->delivery_point_receive_amount;
+                $order->due_amount = max($order->grand_total - ($order->advance_amount + $receivedAmount), 0);
             } else {
                 $order->due_amount = 'N/A';
             }
@@ -241,7 +242,7 @@ class PreOrderController extends Controller
     public function update(Request $request, string $id)
     {
         $preOrder = PreOrder::findOrFail(decrypt($id));
-        $preOrder->update($request->only(['size', 'flavour', 'cake_message', 'remark','delivery_date','delivery_time']));
+        $preOrder->update($request->only(['size', 'flavour', 'cake_message', 'remark', 'delivery_date', 'delivery_time']));
         Toastr::success('Pre Order Updated Successfully!.', '', ["progressBar" => true]);
         return redirect()->back();
     }
@@ -287,6 +288,25 @@ class PreOrderController extends Controller
             $updatableData = [
                 'status' => $request->status,
             ];
+            if ($request->status == 'approved') {
+                if (!$request->factory_store) {
+                    Toastr::error('Select FG Store Please');
+                    return back();
+                }
+                if (!$request->rm_store) {
+                    Toastr::error('Select RM Store Please');
+                    return back();
+                }
+
+                $req->approvalInfo()->create([
+                    'fg_store_id' => $request->factory_store,
+                    'rm_store_id' => $request->rm_store,
+                    'additionalData' => null,
+                    'rm_ids' => $request->input('rm_ids') && count($request->input('rm_ids')) > 0 ? json_encode($request->input('rm_ids')) : null,
+                    'quantities' => $request->input('quantities') && count($request->input('quantities')) > 0 ? json_encode($request->input('quantities')) : null,
+                    'created_by' => auth()->user()->id
+                ]);
+            }
             if ($request->status == 'delivered') {
                 if (!$request->factory_store) {
                     Toastr::error('Select A Store');
@@ -377,16 +397,17 @@ class PreOrderController extends Controller
             }
 
             if ($request->status == 'ready_to_delivery') {
-                if (!$request->factory_store) {
-                    Toastr::error('Select FG Store Please');
+                $approvalData = $req->approvalInfo;
+                if (!$approvalData->fg_store_id) {
+                    Toastr::error('FG Store Not Set');
                     return back();
                 }
-                if (!$request->rm_store) {
-                    Toastr::error('Select RM Store Please');
+                if (!$approvalData->rm_store_id) {
+                    Toastr::error('RM Store Not Set');
                     return back();
                 }
-                $store = Store::find($request->factory_store);
-                $rm_store = Store::find($request->rm_store);
+                $store = Store::find($approvalData->fg_store_id);
+                $rm_store = Store::find($approvalData->rm_store_id);
                 $uid = generateUniqueUUID($store->doc_id, Production::class, 'uid', $store->doc_type == 'factory');
                 $productionData = [
                     'uid' => $uid,
@@ -430,13 +451,13 @@ class PreOrderController extends Controller
 
 
                     $is_custom = ChartOfInventory::find($item->coi_id);
-                    if ($is_custom->price == 0){
+                    if ($is_custom->price == 0) {
                         if (strlen($is_custom->name) > 11) {
                             $newString = substr($is_custom->name, 0, -13);
-                            $original_product = ChartOfInventory::where('name',$newString)->where('parent_id',$is_custom->parent_id)->first();
+                            $original_product = ChartOfInventory::where('name', $newString)->where('parent_id', $is_custom->parent_id)->first();
                             $recipes_items = ProductionRecipe::where('fg_id', $original_product->id)->get();
                         }
-                    }else{
+                    } else {
                         $recipes_items = ProductionRecipe::where('fg_id', $item->coi_id)->get();
                     }
                     foreach ($recipes_items as $recipe_item) {
@@ -459,10 +480,10 @@ class PreOrderController extends Controller
 
                 }
 
-                $rmIds = $request->input('rm_ids');
-                $quantities = $request->input('quantities');
+                $rmIds = json_decode($approvalData->rm_ids);
+                $quantities = json_decode($approvalData->quantities);
 
-                if($request->rm_ids && count($rmIds) > 0){
+                if ($rmIds && count($rmIds) > 0) {
                     foreach ($rmIds as $index => $rmId) {
                         $quantity = $quantities[$index];
                         $currentRMStock = availableInventoryBalance($rmId, $rm_store->id);

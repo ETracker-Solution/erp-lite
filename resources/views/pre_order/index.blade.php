@@ -166,16 +166,67 @@
                 </form>
             </div>
         </div>
-        <div class="modal fade" id="productionModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+        <!--OLD-->
+{{--        <div class="modal fade" id="productionModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"--}}
+{{--             aria-hidden="true">--}}
+{{--            <div class="modal-dialog" role="document">--}}
+{{--                <form method="POST" id="productionForm">--}}
+{{--                    @csrf--}}
+{{--                    @method('PUT')--}}
+{{--                    <input type="hidden" name="status" value="ready_to_delivery">--}}
+{{--                    <div class="modal-content">--}}
+{{--                        <div class="modal-header">--}}
+{{--                            <h5 class="modal-title" id="exampleModalLabel">Production Pre Order</h5>--}}
+{{--                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">--}}
+{{--                                <span aria-hidden="true">&times;</span>--}}
+{{--                            </button>--}}
+{{--                        </div>--}}
+{{--                        <div class="modal-body">--}}
+{{--                            <div class="form-group">--}}
+{{--                                <label for="">Select RM Store</label>--}}
+{{--                                <select name="rm_store" id="" class="form-control">--}}
+{{--                                    <option value="">Choose One</option>--}}
+{{--                                    @foreach($rmStores as $store)--}}
+{{--                                        <option value="{{ $store->id }}">{{ $store->name }}</option>--}}
+{{--                                    @endforeach--}}
+{{--                                </select>--}}
+{{--                            </div>--}}
+{{--                            <div class="form-group">--}}
+{{--                                <label for="">Select FG Store</label>--}}
+{{--                                <select name="factory_store" id="" class="form-control">--}}
+{{--                                    <option value="">Choose One</option>--}}
+{{--                                    @foreach($factoryStores as $store)--}}
+{{--                                        <option value="{{ $store->id }}">{{ $store->name }}</option>--}}
+{{--                                    @endforeach--}}
+{{--                                </select>--}}
+{{--                            </div>--}}
+{{--                            <!-- Dynamic Fields for Items and Quantities -->--}}
+{{--                            <div id="items-container">--}}
+
+{{--                            </div>--}}
+{{--                            <div class="form-group">--}}
+{{--                                <button type="button" id="add-item" class="btn btn-success">Add Additional RM</button>--}}
+{{--                            </div>--}}
+{{--                        </div>--}}
+{{--                        <div class="modal-footer">--}}
+{{--                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>--}}
+{{--                            <button type="button" class="btn btn-primary do-production">Confirm Production</button>--}}
+{{--                        </div>--}}
+{{--                    </div>--}}
+{{--                </form>--}}
+{{--            </div>--}}
+{{--        </div>--}}
+        <!--NEW-->
+        <div class="modal fade" id="ApprovalModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
              aria-hidden="true">
             <div class="modal-dialog" role="document">
-                <form method="POST" id="productionForm">
+                <form method="POST" id="approvalForm">
                     @csrf
                     @method('PUT')
-                    <input type="hidden" name="status" value="ready_to_delivery">
+                    <input type="hidden" name="status" value="approved">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title" id="exampleModalLabel">Production Pre Order</h5>
+                            <h5 class="modal-title" id="exampleModalLabelApprovalModal">Pre Order Approval</h5>
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
@@ -209,7 +260,7 @@
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                            <button type="button" class="btn btn-primary do-production">Confirm Production</button>
+                            <button type="button" class="btn btn-primary do-approve">Confirm Approval</button>
                         </div>
                     </div>
                 </form>
@@ -485,6 +536,11 @@
             preOrderId = button.data('id')
             submitUrl = "/pre-orders.status-update/" + preOrderId
         })
+        $('#ApprovalModal').on('show.bs.modal', function (event) {
+            let button = $(event.relatedTarget)
+            preOrderId = button.data('id')
+            submitUrl = "/pre-orders.status-update/" + preOrderId
+        })
         $('#receiveModal').on('show.bs.modal', function (event) {
             let button = $(event.relatedTarget)
             preOrderId = button.data('id')
@@ -506,6 +562,13 @@
             let form =$("#productionForm")
             form.attr('action',submitUrl)
             $('.do-production').attr('disabled', true)
+            form.submit()
+        })
+        $(document).on("click", ".do-approve", function (e) {
+            e.preventDefault()
+            let form =$("#approvalForm")
+            form.attr('action',submitUrl)
+            $('.do-approve').attr('disabled', true)
             form.submit()
         })
 
