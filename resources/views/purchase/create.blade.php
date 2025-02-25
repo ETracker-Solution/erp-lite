@@ -177,6 +177,7 @@
                                                         <td>
                                                             <input type="text" class="form-control input-sm" :value="row . alter_unit" :name="'products[' + index + '][alter_unit]'"
                                                                 v-if="row.alter_unit" readonly>
+                                                            <input type="hidden" class="form-control input-sm" :value="row . alter_unit_id" :name="'products[' + index + '][alter_unit_id]'" v-if="row.alter_unit_id" readonly>
                                                         </td>
                                                         <td>
                                                             <input type="number" v-model="row.quantity" :name="'products[' + index + '][quantity]'" class="form-control input-sm"
@@ -185,6 +186,10 @@
                                                         </td>
                                                         <td>
                                                             @{{ convertedUnit(row) }}
+                                                            <input type="hidden" class="form-control input-sm"
+                                                                :name="'products[' + index + '][converted_unit_qty]'"
+                                                                class="form-control input-sm" step="any"
+                                                                v-bind:value="convertedUnit(row)" readonly>
                                                         </td>
                                                         <td>
                                                             <input type="number" v-model="row.rate" :name="'products[' + index + '][rate]'" class="form-control input-sm" step="any"
@@ -192,6 +197,10 @@
                                                         </td>
                                                         <td>
                                                             <input type="text" class="form-control input-sm"
+                                                                v-bind:value="itemtotal(row)" readonly>
+                                                            <input type="hidden" class="form-control input-sm"
+                                                                :name="'products[' + index + '][value_amount]'"
+                                                                class="form-control input-sm" step="any"
                                                                 v-bind:value="itemtotal(row)" readonly>
                                                         </td>
                                                         <td>
@@ -358,7 +367,7 @@
 
                     subtotal: function () {
                         return this.selected_items.reduce((total, item) => {
-                            const quantity = item.alter_unit ? parseFloat(item.quantity ?? 0) : parseFloat(item.a_unit_quantity ?? 0);
+                            const quantity = parseFloat(item.quantity ?? 1) * parseFloat(item.a_unit_quantity ?? 1);
                             const rate = parseFloat(item.rate);
                             return total + quantity * rate;
                         }, 0);
@@ -444,7 +453,10 @@
                                     params: { rootAccountType: 'RM' }
                                 }).then(response => {
                                     let item_info = response.data;
-                                    console.log(item_info);
+
+                                    let lastItem = item_info.purchase_items.length > 0 ? item_info.purchase_items[item_info.purchase_items.length - 1] : '';
+                                    console.log(lastItem);
+                                    console.log(item_info.purchase_items);
 
                                     vm.selected_items.push({
                                         id: item_info.id,
@@ -452,8 +464,12 @@
                                         name: item_info.name,
                                         uom: item_info.unit?.name || '',
                                         alter_unit: item_info.alter_unit?.name || '',
+                                        alter_unit_id: item_info.alter_unit?.id || '',
+                                        value_amount: lastItem?.value_amount ?? 0,
+                                        alt_unit_rate: lastItem?.alt_unit_rate ?? 0,
+                                        a_unit_quantity: lastItem?.a_unit_quantity ?? 0,
                                         rate: item_info.purchase_items.length > 0 ? item_info.purchase_items[item_info.purchase_items.length - 1].rate : 0,
-                                        quantity: 0,
+                                        quantity: (lastItem?.quantity ?? 0) / (lastItem?.a_unit_quantity ?? 0),
                                     });
 
                                     console.log(vm.selected_items);
@@ -515,21 +531,21 @@
                         this.selected_items.splice(this.selected_items.indexOf(row), 1);
                     },
                     itemtotal: function (index) {
-                        console.log(index);
-                        const quantity = index.alter_unit ? parseFloat(index.quantity ?? 0) : parseFloat(index.a_unit_quantity ?? 0);
+                        // console.log(index);
+                        const quantity = parseFloat(index.quantity ?? 1) * parseFloat(index.a_unit_quantity ?? 1);
                         const rate = parseFloat(index.rate);
                         return quantity * rate;
                     },
                     convertedUnit: function (index) {
-                        let unitQty = parseFloat(index.quantity ?? 1) * parseFloat(index.a_unit_quantit ?? 0);
-
+                        let unitQty = parseFloat(index.quantity == null || index.quantity == 0 ? 1 : index.quantity) *
+                            parseFloat(index.a_unit_quantity == null || index.a_unit_quantity == 0 ? 1 : index.a_unit_quantity);
                         if ((index.uom === 'GM' || index.uom === 'ML' || index.uom === 'gm' || index.uom === 'ml') && unitQty >= 1000) {
                             unitQty = unitQty / 1000;
 
                             if (index.uom.toLowerCase() === 'gm') {
                                 return `${unitQty} kg`;
                             } else if (index.uom.toLowerCase() === 'ml') {
-                                return `${unitQty} l`;
+                                return `${unitQty} ltr`;
                             }
                         }
 
@@ -542,33 +558,33 @@
                                 progressBar: true,
                             });
                             index.quantity = 0;
-                                    }
-                                },
-                                valid_rate: function (index) {
-                                    if (index.rate <= 0) {
-                                        toastr.error('Rate 0 or Negative not Allow', {
-                                            closeButton: true,
-                                            progressBar: true,
-                                        });
-                                        index.rate = '';
-                                    }
-                                },
-                            },
+                        }
+                    },
+                    valid_rate: function (index) {
+                        if (index.rate <= 0) {
+                            toastr.error('Rate 0 or Negative not Allow', {
+                                closeButton: true,
+                                progressBar: true,
+                            });
+                            index.rate = '';
+                        }
+                    },
+                },
 
-                            updated() {
-                                $('.bSelect').selectpicker('refresh');
-                            },
-                            mounted() {
-                                this.fetch_product();
-                            }
+                updated() {
+                    $('.bSelect').selectpicker('refresh');
+                },
+                mounted() {
+                    this.fetch_product();
+                }
 
 
-                        });
+            });
 
-                        $('.bSelect').selectpicker({
-                            liveSearch: true,
-                            size: 5
-                        });
-                    });
-                </script>
+            $('.bSelect').selectpicker({
+                liveSearch: true,
+                size: 5
+            });
+        });
+    </script>
 @endpush

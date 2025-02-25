@@ -90,7 +90,9 @@ class PurchaseController extends Controller
 
             $purchase = Purchase::query()->create($validated);
             $purchase->amount = $purchase->net_payable;
+
             foreach ($validated['products'] as $product) {
+                $qty = $product['quantity'];
 
                 if (isset($product['alter_unit']) && $product['alter_unit']) {
                     $total_rate = $product['rate'] * $product['quantity'];
@@ -98,9 +100,28 @@ class PurchaseController extends Controller
                     $product['rate'] = $total_rate / $product['quantity'];
                 }
 
-                $purchase->items()->create($product);
+                $existingItem = PurchaseItem::where('coi_id', $product['coi_id'])->latest()->first();
 
-                // Inventory Transaction Effect
+                $rate = isset($existingItem) ? $existingItem->rate : 0;
+
+                if ($rate === null || $rate === 0) {
+                    $rate = $product['rate'];
+                }
+
+                $purchase->items()->create([
+                    'coi_id' => $product['coi_id'],
+                    'quantity' => $product['quantity'],
+                    'value_amount' => $product['value_amount'],
+                    'a_unit_quantity' => $product['a_unit_quantity'],
+                    'alter_unit_id' => $product['alter_unit_id'],
+                    'alt_unit_rate' => $product['value_amount'] / $product['quantity'],
+                    'unit_qty' => $qty,
+                    'converted_unit_qty' => $product['converted_unit_qty'],
+                    'company_id' => auth()->user()->company_id,
+                    'purchase_id' => $purchase->id,
+                    'rate' => $rate,
+                ]);
+            
                 InventoryTransaction::query()->create([
                     'store_id' => $purchase->store_id,
                     'doc_type' => 'GPB',
@@ -113,9 +134,9 @@ class PurchaseController extends Controller
                     'coi_id' => $product['coi_id'],
                 ]);
             }
+            
 
 
-            // Accounts Transaction Effect
 
             addAccountsTransaction('GPB', $purchase, 15, 22);
 
@@ -132,7 +153,6 @@ class PurchaseController extends Controller
             ]);
             DB::commit();
         } catch (\Exception $exception) {
-            dd($exception);
             DB::rollBack();
             Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
             return back();

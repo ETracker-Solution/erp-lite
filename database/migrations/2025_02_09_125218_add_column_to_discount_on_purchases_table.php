@@ -13,8 +13,6 @@ return new class extends Migration
     {
         Schema::table('purchases', function (Blueprint $table) {
             $table->decimal('discount', 15, 2)->nullable()->after('vat');
-            $table->foreignId('alter_unit_id')->nullable()->constrained('alter_units')->onDelete('set null');
-            $table->double('a_unit_quantity', 16, 2)->nullable();
         });
     }
 
@@ -26,8 +24,6 @@ return new class extends Migration
         Schema::table('purchases', function (Blueprint $table) {
             Schema::table('purchases', function (Blueprint $table) {
                 $table->dropColumn('discount');
-                $table->dropColumn('alter_unit_id');
-                $table->dropColumn('a_unit_quantity');
             });
         });
     }
