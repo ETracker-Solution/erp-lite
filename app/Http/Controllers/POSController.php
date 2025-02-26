@@ -208,36 +208,24 @@ class POSController extends Controller
                     'amount' => ($paymentMethod['method'] == 'cash' && $sale->change_amount > 0) ? ($paymentMethod['amount'] - $sale->change_amount) : $paymentMethod['amount'],
                 ]);
                 $sale->amount = $payment->amount;
-                if ($paymentMethod['method'] == 'nexus') {
-                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'Nexus'), getAccountsReceiveableGLId());
+                $paymentMethods = [
+                    'nexus' => 'Nexus',
+                    'city' => 'City',
+                    'pbl' => 'PBL',
+                    'due' => 'Due',
+                    'upay' => 'Upay',
+                    'rocket' => 'Rocket',
+                    'DBBL' => 'DBBL',
+                    'UCB' => 'UCB',
+                    'nagad' => 'Nagad',
+                    'bkash' => 'Bkash',
+                    'prime' => 'Prime',
+                ];
+                if (array_key_exists($paymentMethod['method'], $paymentMethods)) {
+                    $method = $paymentMethods[$paymentMethod['method']];
+                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, $method), getAccountsReceiveableGLId());
                 }
-                if ($paymentMethod['method'] == 'city') {
-                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'City'), getAccountsReceiveableGLId());
-                }
-                if ($paymentMethod['method'] == 'pbl') {
-                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'PBL'), getAccountsReceiveableGLId());
-                }
-                if ($paymentMethod['method'] == 'due') {
-                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'Due'), getAccountsReceiveableGLId());
-                }
-                if ($paymentMethod['method'] == 'upay') {
-                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'Upay'), getAccountsReceiveableGLId());
-                }
-                if ($paymentMethod['method'] == 'rocket') {
-                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'Rocket'), getAccountsReceiveableGLId());
-                }
-                if ($paymentMethod['method'] == 'DBBL') {
-                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'DBBL'), getAccountsReceiveableGLId());
-                }
-                if ($paymentMethod['method'] == 'UCB') {
-                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'UCB'), getAccountsReceiveableGLId());
-                }
-                if ($paymentMethod['method'] == 'nagad') {
-                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'Nagad'), getAccountsReceiveableGLId());
-                }
-                if ($paymentMethod['method'] == 'bkash') {
-                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'Bkash'), getAccountsReceiveableGLId());
-                }
+
                 if ($paymentMethod['method'] == 'cash') {
                     addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id), getAccountsReceiveableGLId());
                 }
