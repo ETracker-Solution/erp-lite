@@ -442,6 +442,7 @@
                                                                             <option value="pbl">PBL POS</option>
                                                                             <option value="due">Due Sale</option>
                                                                             <option value="city">City</option>
+                                                                            <option value="prime">Prime Bank</option>
                                                                             <option value="point">Redeem Point</option>
                                                                             <option value="exchange">Exchange</option>
                                                                         </select>

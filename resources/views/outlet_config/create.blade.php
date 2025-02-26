@@ -34,180 +34,49 @@
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-xl-12 col-md-12 col-12 mb-1">
+                                        @php
+                                            $ledgers = getAllLedgers();
+                                            $accountTypes = ['Cash', 'Bkash', 'Nagad', 'DBBL', 'UCB', 'Rocket', 'Upay', 'Nexus', 'PBL', 'Due', 'City', 'Prime'];
+                                        @endphp
                                         <label for="name">Outlets</label>
                                         <table class="table table-bordered">
                                             <thead>
                                             <tr>
                                                 <th>Outlet</th>
-                                                <th>Cash Account</th>
-                                                <th>Bkash Account</th>
-                                                <th>Nagad Account</th>
-                                                <th>DBBL Account</th>
-                                                <th>UCB Account</th>
-                                                <th>Rocket Account</th>
-                                                <th>Upay Account</th>
-                                                <th>NEXUS Account</th>
-                                                <th>PBL Account</th>
-                                                <th>DUE Account</th>
-                                                <th>City Account</th>
+                                                @foreach ($accountTypes as $type)
+                                                    <th>{{ $type }} Account</th>
+                                                @endforeach
                                             </tr>
                                             </thead>
-                                            @foreach ($outlets as $row)
+                                            <tbody>
+                                            @foreach ($outlets as $outlet)
                                                 @php
-                                                    $bkashConfig =
-                                                    \App\Models\OutletTransactionConfig::where(['outlet_id'=>$row->id,'type'=>'Bkash'])->first();
-                                                    $cashConfig =
-                                                    \App\Models\OutletTransactionConfig::where(['outlet_id'=>$row->id,'type'=>'Cash'])->first();
-                                                    $nagadConfig =
-                                                    \App\Models\OutletTransactionConfig::where(['outlet_id'=>$row->id,'type'=>'Nagad'])->first();
-                                                    $dbblConfig =
-                                                    \App\Models\OutletTransactionConfig::where(['outlet_id'=>$row->id,'type'=>'DBBL'])->first();
-                                                    $ucbConfig =
-                                                    \App\Models\OutletTransactionConfig::where(['outlet_id'=>$row->id,'type'=>'UCB'])->first();
-                                                    $rocketConfig =
-                                                    \App\Models\OutletTransactionConfig::where(['outlet_id'=>$row->id,'type'=>'Rocket'])->first();
-                                                    $upayConfig =
-                                                    \App\Models\OutletTransactionConfig::where(['outlet_id'=>$row->id,'type'=>'Upay'])->first();
-                                                    $nexusConfig =
-                                                    \App\Models\OutletTransactionConfig::where(['outlet_id'=>$row->id,'type'=>'Nexus'])->first();
-                                                    $pblConfig =
-                                                    \App\Models\OutletTransactionConfig::where(['outlet_id'=>$row->id,'type'=>'PBL'])->first();
-                                                    $dueConfig =
-                                                    \App\Models\OutletTransactionConfig::where(['outlet_id'=>$row->id,'type'=>'Due'])->first();
-                                                    $cityConfig =
-                                                    \App\Models\OutletTransactionConfig::where(['outlet_id'=>$row->id,'type'=>'City'])->first();
-                                                    $bkash = $bkashConfig ? $bkashConfig->coa_id : null;
-                                                    $cash = $cashConfig ? $cashConfig->coa_id : null;
-                                                    $nagad = $nagadConfig ? $nagadConfig->coa_id : null;
-                                                    $dbbl = $dbblConfig ? $dbblConfig->coa_id : null;
-                                                    $ucb = $ucbConfig ? $ucbConfig->coa_id : null;
-                                                    $rocket = $rocketConfig ? $rocketConfig->coa_id : null;
-                                                    $upay = $upayConfig ? $upayConfig->coa_id : null;
-                                                    $nexus = $nexusConfig ? $nexusConfig->coa_id : null;
-                                                    $pbl = $pblConfig ? $pblConfig->coa_id : null;
-                                                    $due = $dueConfig ? $dueConfig->coa_id : null;
-                                                    $city = $cityConfig ? $cityConfig->coa_id : null;
+                                                    $configs = [];
+                                                    foreach ($accountTypes as $type) {
+                                                        $configs[$type] = \App\Models\OutletTransactionConfig::where([
+                                                            'outlet_id' => $outlet->id,
+                                                            'type' => $type
+                                                        ])->first();
+                                                    }
                                                 @endphp
                                                 <tr>
-                                                    <td>{{ $row->name }}</td>
-                                                    <td>
-                                                        <select name="settings[{{ $row->id }}][Cash]" id=""
-                                                                class="form-control">
-                                                            @foreach(getAllLedgers() as $account)
-
-                                                                <option value="{{ $account->id }}" {{ $account->id == $cash ?
-                                                        'selected' : '' }}>{{ $account->display_name }}</option>
-                                                            @endforeach
-                                                        </select>
-                                                    </td>
-                                                    <td>
-                                                        <select name="settings[{{ $row->id }}][Bkash]" id=""
-                                                                class="form-control">
-                                                            @foreach(getAllLedgers() as $account)
-
-                                                                <option value="{{ $account->id }}" {{ $account->id == $bkash ?
-                                                        'selected' : '' }}>{{ $account->display_name }}</option>
-                                                            @endforeach
-                                                        </select>
-                                                    </td>
-                                                    <td>
-                                                        <select name="settings[{{ $row->id }}][Nagad]" id=""
-                                                                class="form-control">
-                                                            @foreach(getAllLedgers() as $account)
-
-                                                                <option value="{{ $account->id }}" {{ $account->id == $nagad ?
-                                                        'selected' : '' }}>{{ $account->display_name }}</option>
-                                                            @endforeach
-                                                        </select>
-                                                    </td>
-                                                    <td>
-                                                        <select name="settings[{{ $row->id }}][DBBL]" id=""
-                                                                class="form-control">
-                                                            @foreach(getAllLedgers() as $account)
-
-                                                                <option value="{{ $account->id }}" {{ $account->id == $dbbl ?
-                                                        'selected' : '' }}>{{ $account->display_name }}</option>
-                                                            @endforeach
-                                                        </select>
-                                                    </td>
-                                                    <td>
-                                                        <select name="settings[{{ $row->id }}][UCB]" id=""
-                                                                class="form-control">
-                                                            @foreach(getAllLedgers() as $account)
-
-                                                                <option value="{{ $account->id }}" {{ $account->id == $ucb ?
-                                                        'selected' : '' }}>{{ $account->display_name }}</option>
-                                                            @endforeach
-                                                        </select>
-                                                    </td>
-                                                    <td>
-                                                        <select name="settings[{{ $row->id }}][Rocket]" id=""
-                                                                class="form-control">
-                                                            @foreach(getAllLedgers() as $account)
-
-                                                                <option value="{{ $account->id }}" {{ $account->id == $rocket ?
-                                                        'selected' : '' }}>{{ $account->display_name }}</option>
-                                                            @endforeach
-                                                        </select>
-                                                    </td>
-                                                    <td>
-                                                        <select name="settings[{{ $row->id }}][Upay]" id=""
-                                                                class="form-control">
-                                                            @foreach(getAllLedgers() as $account)
-
-                                                                <option value="{{ $account->id }}" {{ $account->id == $upay ?
-                                                        'selected' : '' }}>{{ $account->display_name }}</option>
-                                                            @endforeach
-                                                        </select>
-                                                    </td>
-                                                    <td>
-                                                        <select name="settings[{{ $row->id }}][Nexus]" id=""
-                                                                class="form-control">
-                                                            @foreach(getAllLedgers() as $account)
-
-                                                                <option value="{{ $account->id }}" {{ $account->id == $nexus ?
-                                                        'selected' : '' }}>{{ $account->display_name }}</option>
-                                                            @endforeach
-                                                        </select>
-                                                    </td>
-                                                    <td>
-                                                        <select name="settings[{{ $row->id }}][PBL]" id=""
-                                                                class="form-control">
-                                                            @foreach(getAllLedgers() as $account)
-
-                                                                <option value="{{ $account->id }}" {{ $account->id == $pbl ?
-                                                        'selected' : '' }}>{{ $account->display_name }}</option>
-                                                            @endforeach
-                                                        </select>
-                                                    </td>
-                                                    <td>
-                                                        <select name="settings[{{ $row->id }}][Due]" id=""
-                                                                class="form-control">
-                                                            @foreach(getAllLedgers() as $account)
-
-                                                                <option value="{{ $account->id }}" {{ $account->id == $due ?
-                                                        'selected' : '' }}>{{ $account->display_name }}</option>
-                                                            @endforeach
-                                                        </select>
-                                                    </td>
-                                                    <td>
-                                                        <select name="settings[{{ $row->id }}][City]" id=""
-                                                                class="form-control">
-                                                            @foreach(getAllLedgers() as $account)
-
-                                                                <option value="{{ $account->id }}" {{ $account->id == $city ?
-                                                        'selected' : '' }}>{{ $account->display_name }}</option>
-                                                            @endforeach
-                                                        </select>
-                                                    </td>
-
+                                                    <td>{{ $outlet->name }}</td>
+                                                    @foreach ($accountTypes as $type)
+                                                        <td>
+                                                            <select name="settings[{{ $outlet->id }}][{{ $type }}]" class="form-control">
+                                                                @foreach ($ledgers as $account)
+                                                                    <option value="{{ $account->id }}" {{ isset($configs[$type]) && $account->id == $configs[$type]->coa_id ? 'selected' : '' }}>
+                                                                        {{ $account->display_name }}
+                                                                    </option>
+                                                                @endforeach
+                                                            </select>
+                                                        </td>
+                                                    @endforeach
                                                 </tr>
                                             @endforeach
+                                            </tbody>
                                         </table>
-
-
                                     </div>
-
                                 </div>
                             </div>
 
