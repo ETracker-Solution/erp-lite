@@ -169,6 +169,7 @@
             <td class="text-bold tc bl-none br-none">Total Price (Tk.)</td>
         </tr>
         @forelse($sale->items as $item)
+            @if($item->coi->parent_id != 540)
             <tr>
                 <td class="tc bl-none br-none">{{ $loop->iteration }}</td>
                 <td class="tc bl-none br-none">{{ $item->coi->name }}</td>
@@ -176,6 +177,7 @@
                 <td class="tc bl-none br-none">{{ $item->quantity }}</td>
                 <td class="tc bl-none br-none tr">{{ $item->unit_price * $item->quantity }}</td>
             </tr>
+            @endif
         @empty
             No Items
         @endforelse

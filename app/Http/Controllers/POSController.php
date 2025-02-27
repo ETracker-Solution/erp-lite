@@ -326,7 +326,7 @@ class POSController extends Controller
             'status' => 'active',
             'rootAccountType' => 'FG'
         ])
-            ->where('price', '>', 0)
+//            ->where('price', '>', 0)
             ->when($request->category, function ($query, $category) {
                 return $query->where('parent_id', $category);
             })
