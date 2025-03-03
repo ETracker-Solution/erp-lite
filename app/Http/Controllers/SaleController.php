@@ -242,6 +242,7 @@ class SaleController extends Controller
                         addInventoryTransaction(-1, 'POS', $rm);
                     }
                     addInventoryTransaction(1, 'POS', $sale_item);
+
                 }
 
                 if ($row['is_readonly'] == 'true' && ($request->sales_type != 'pre_order' && $outlet_id == $request->delivery_point_id)) {
@@ -304,7 +305,7 @@ class SaleController extends Controller
             $sale->amount = $salesAmount;
             addAccountsTransaction('POS', $sale, getAccountsReceiveableGLId(), getIncomeFromSalesGLId());
 
-            $sale->amount = 0;
+            $sale->amount = $avgProductionPrice;
             addAccountsTransaction('POS', $sale, getCOGSGLId(), getFGInventoryGLId());
 
             if ($customer_id != 1 && $salesAmount > $receive_amount) {

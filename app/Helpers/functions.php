@@ -857,3 +857,18 @@ function numberToWords($number) {
 function commaSeperated($amount) {
     return number_format($amount, 2, '.', ',');
 }
+
+/**
+ * Calculate total balance (including child balances) recursively in PHP.
+ */
+function calculateTotalBalance($account)
+{
+    $totalBalance = $account->balance ?? 0;
+
+    // Sum child balances
+    foreach ($account->childrens as $child) {
+        $totalBalance += calculateTotalBalance($child);
+    }
+
+    return $totalBalance;
+}

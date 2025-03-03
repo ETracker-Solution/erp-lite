@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Web;
 
 use App\Http\Controllers\Controller;
+use App\Models\AccountTransaction;
 use App\Models\ChartOfAccount;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -13,6 +14,33 @@ class FinancialStatementReportController extends Controller
 {
     public function index()
     {
+//        $startDate = '2022-07-01'; // Example date
+//        $endDate = '2025-04-19';
+//
+//        $assets = ChartOfAccount::where('root_account_type', 'as')
+//            ->whereNull('parent_id')->first()->childrens;
+//
+//        $liabilities = ChartOfAccount::where('root_account_type', 'li')
+//            ->whereNull('parent_id')->first()->childrens;
+//
+//        $lossProfit = AccountTransaction::join('chart_of_accounts as coa', 'coa.id', '=', 'account_transactions.chart_of_account_id')
+//            ->whereIn('coa.root_account_type', ['in', 'ex'])
+//            ->selectRaw('SUM(account_transactions.transaction_type * account_transactions.amount) * -1 as profit')
+//            ->value('profit');
+//
+//        $totalAsset  = AccountTransaction::join('chart_of_accounts as coa', 'coa.id', '=', 'account_transactions.chart_of_account_id')
+//            ->whereIn('coa.root_account_type', ['as'])
+//            ->selectRaw('SUM(account_transactions.transaction_type * account_transactions.amount) as total')
+//            ->value('total');
+//
+//        $totalLiability  = AccountTransaction::join('chart_of_accounts as coa', 'coa.id', '=', 'account_transactions.chart_of_account_id')
+//            ->whereIn('coa.root_account_type', ['li'])
+//            ->selectRaw('SUM(account_transactions.transaction_type * account_transactions.amount) as total')
+//            ->value('total') * (-1) + $lossProfit;
+//        dd($totalLiability);
+//
+//
+//        return view('financial_statement.balance_sheet', compact('assets', 'liabilities', 'startDate', 'endDate','lossProfit'));
         return view('financial_statement.index');
     }
 
@@ -128,4 +156,5 @@ ORDER BY
     finalData.path
         ";
     }
+
 }

@@ -107,6 +107,11 @@
                             <div class="row">
                                 <div class="col-12">
                                     <div class="text-center">
+                                        <a class="btn btn-sm btn-dark w-50 mb-2" target="_blank"
+                                                href="/report/saleReport.pdf">
+                                            Sale Report
+
+                                        </a>
                                         <button class="btn btn-sm btn-dark w-50 mb-2"
                                                 @click="showReport('All Sales Record')">
                                             Show All Sales Record
