@@ -108,7 +108,7 @@
                                 <div class="col-12">
                                     <div class="text-center">
                                         <a class="btn btn-sm btn-dark w-50 mb-2" target="_blank"
-                                                href="/report/saleReport.pdf">
+                                                href="/report/saleReport.xlsx">
                                             Sale Report
 
                                         </a>
