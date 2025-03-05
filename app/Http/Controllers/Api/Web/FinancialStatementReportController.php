@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Api\Web;
 
 use App\Http\Controllers\Controller;
-use App\Models\AccountTransaction;
 use App\Models\ChartOfAccount;
+//use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
+use Dompdf\Dompdf;
+use Dompdf\Options;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use niklasravnsborg\LaravelPdf\Facades\Pdf;
@@ -14,37 +16,14 @@ class FinancialStatementReportController extends Controller
 {
     public function index()
     {
-//        $startDate = '2022-07-01'; // Example date
-//        $endDate = '2025-04-19';
-//
-//        $assets = ChartOfAccount::where('root_account_type', 'as')
-//            ->whereNull('parent_id')->first()->childrens;
-//
-//        $liabilities = ChartOfAccount::where('root_account_type', 'li')
-//            ->whereNull('parent_id')->first()->childrens;
-//
-//        $lossProfit = AccountTransaction::join('chart_of_accounts as coa', 'coa.id', '=', 'account_transactions.chart_of_account_id')
-//            ->whereIn('coa.root_account_type', ['in', 'ex'])
-//            ->selectRaw('SUM(account_transactions.transaction_type * account_transactions.amount) * -1 as profit')
-//            ->value('profit');
-//
-//        $totalAsset  = AccountTransaction::join('chart_of_accounts as coa', 'coa.id', '=', 'account_transactions.chart_of_account_id')
-//            ->whereIn('coa.root_account_type', ['as'])
-//            ->selectRaw('SUM(account_transactions.transaction_type * account_transactions.amount) as total')
-//            ->value('total');
-//
-//        $totalLiability  = AccountTransaction::join('chart_of_accounts as coa', 'coa.id', '=', 'account_transactions.chart_of_account_id')
-//            ->whereIn('coa.root_account_type', ['li'])
-//            ->selectRaw('SUM(account_transactions.transaction_type * account_transactions.amount) as total')
-//            ->value('total') * (-1) + $lossProfit;
-//        dd($totalLiability);
-//
-//
-//        return view('financial_statement.balance_sheet', compact('assets', 'liabilities', 'startDate', 'endDate','lossProfit'));
+
+//        $asOnDate = Carbon::parse(\request()->as_on_date)->format('Y-m-d') ?? Carbon::now()->format('Y-m-d');
+//        $data = $this->getBalanceSheetData($asOnDate);
+//        return view('financial_statement.balance_sheet', $data);
         return view('financial_statement.index');
     }
 
-    public function create()
+    public function create(Request $request)
     {
         $report_type = \request()->report_type;
 
@@ -56,6 +35,14 @@ class FinancialStatementReportController extends Controller
 
         $page_title = false;
         $report_header = 'Balance Sheet';
+        if ($report_type == 'balance_sheet') {
+            $data = $this->getBalanceSheetData($asOnDate);
+
+//            return view('financial_statement.balance_sheet', $data);
+            $pdf = Pdf::loadView('financial_statement.balance_sheet', $data);
+            return $pdf->stream();
+        }
+
 
         $getData = DB::select($this->balanceSheetQuery($asOnDate));
         $columns = array_keys((array)$getData[0]);
@@ -155,6 +142,45 @@ select account_name as 'Account Head', COALESCE(cumulative_balance ,0) as Amount
 ORDER BY
     finalData.path
         ";
+    }
+
+    public function getBalanceSheetData($asOnDate)
+    {
+        // Fetch assets and liabilities hierarchy
+        $assets = ChartOfAccount::where('root_account_type', 'as')
+            ->whereNull('parent_id')->first()->childrens;
+
+        $liabilities = ChartOfAccount::where('root_account_type', 'li')
+            ->whereNull('parent_id')->first()->childrens;
+
+//        // Calculate profit/loss (income - expenses) up to the given date
+//        $lossProfit = AccountTransaction::join('chart_of_accounts as coa', 'coa.id', '=', 'account_transactions.chart_of_account_id')
+//            ->whereIn('coa.root_account_type', ['in', 'ex'])
+//            ->whereDate('account_transactions.date', '<=', $asOnDate)
+//            ->selectRaw('SUM(account_transactions.transaction_type * account_transactions.amount) * -1 as profit')
+//            ->value('profit');
+
+        // Calculate total assets up to the given date
+        $totalAsset = 0;
+        foreach ($assets as $asset) {
+            $totalAsset += $asset->getTotalBalanceAttribute($asOnDate);
+        }
+
+        // Calculate total liabilities up to the given date
+        $totalLiability = 0;
+        foreach ($liabilities as $liability) {
+            $totalLiability += $liability->getTotalBalanceAttribute($asOnDate);
+        }
+//        $totalLiability += $lossProfit;
+
+        return [
+            'assets' => $assets,
+            'liabilities' => $liabilities,
+            'totalAsset' => $totalAsset,
+            'totalLiability' => $totalLiability,
+//            'lossProfit' => $lossProfit,
+            'asOnDate' => $asOnDate, // Pass the date to the view
+        ];
     }
 
 }

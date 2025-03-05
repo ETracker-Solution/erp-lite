@@ -15,7 +15,7 @@ class ChartOfAccount extends Model
 
     protected $guarded = ['id'];
 
-    protected $appends = ['balance','total_balance'];
+    protected $appends = ['balance'];
 
     public function subChartOfAccounts()
     {
@@ -84,7 +84,7 @@ class ChartOfAccount extends Model
 
     public function outlets()
     {
-        return $this->belongsToMany(Outlet::class,'outlet_accounts', 'coa_id', 'outlet_id');
+        return $this->belongsToMany(Outlet::class, 'outlet_accounts', 'coa_id', 'outlet_id');
     }
 
     public function getBalanceAttribute()
@@ -92,42 +92,55 @@ class ChartOfAccount extends Model
         return $this->transactions()->sum(DB::raw("amount * transaction_type"));
     }
 
-    public function getTotalBalanceAttribute()
+    public function getTotalBalanceAttribute($asOnDate = null)
     {
         // Sum transactions of the current account with the CASE statement for adjusting transaction_type
-        $balance = $this->transactions()
+        $balanceQuery = $this->transactions()
             ->join('chart_of_accounts as coa', 'coa.id', '=', 'account_transactions.chart_of_account_id')
             ->select(DB::raw(
                 "SUM(CASE WHEN (account_transactions.transaction_type = -1 AND coa.root_account_type = 'li') THEN (account_transactions.transaction_type * -1) ELSE account_transactions.transaction_type END * account_transactions.amount) as balance"
-            ))
-            ->value('balance');
+            ));
+
+        // Apply date filter if provided
+        if ($asOnDate) {
+            $balanceQuery->whereDate('account_transactions.date', '<=', $asOnDate);
+        }
+
+        $balance = $balanceQuery->value('balance');
 
         // Get all nested child account IDs
         $childIds = $this->getAllChildIds();
 
+        // Special handling for "Retained Earnings"
         if ($this->name === 'Retained Earning') {
-            $balance += $this->calculateRetainedEarnings();
+            $balance += $this->calculateRetainedEarnings($asOnDate);
         }
 
         // If there are child accounts, sum their balances in ONE query with the CASE statement
         if (!empty($childIds)) {
-            $childBalance = DB::table('account_transactions as att')
+            $childBalanceQuery = DB::table('account_transactions as att')
                 ->join('chart_of_accounts as coa', 'coa.id', '=', 'att.chart_of_account_id')
                 ->whereIn('att.chart_of_account_id', $childIds)
                 ->select(DB::raw(
                     "SUM(CASE WHEN (att.transaction_type = -1 AND coa.root_account_type = 'li') THEN (att.transaction_type * -1) ELSE att.transaction_type END * att.amount) as balance"
-                ))
-                ->value('balance'); // Getting the result as a single value
+                ));
 
+            // Apply date filter if provided
+            if ($asOnDate) {
+                $childBalanceQuery->whereDate('att.date', '<=', $asOnDate);
+            }
+
+            $childBalance = $childBalanceQuery->value('balance'); // Getting the result as a single value
             $balance += $childBalance;
         }
-        if (in_array('53',$childIds)){
-            $balance += $this->calculateRetainedEarnings();
+
+        // Special handling for child account with ID 53
+        if (in_array('53', $childIds)) {
+            $balance += $this->calculateRetainedEarnings($asOnDate);
         }
 
         return $balance;
     }
-
 
     /**
      * Get all child account IDs in one query.
@@ -144,12 +157,21 @@ class ChartOfAccount extends Model
         return $childIds;
     }
 
-    public function calculateRetainedEarnings()
+    /**
+     * Calculate retained earnings up to a specific date.
+     */
+    public function calculateRetainedEarnings($asOnDate = null)
     {
-        return AccountTransaction::join('chart_of_accounts as coa', 'coa.id', '=', 'account_transactions.chart_of_account_id')
+        $retainedEarningsQuery = AccountTransaction::join('chart_of_accounts as coa', 'coa.id', '=', 'account_transactions.chart_of_account_id')
             ->whereIn('coa.root_account_type', ['in', 'ex'])
-            ->selectRaw('SUM(account_transactions.transaction_type * account_transactions.amount) * -1 as profit')
-            ->value('profit') ;
+            ->selectRaw('SUM(account_transactions.transaction_type * account_transactions.amount) * -1 as profit');
+
+        // Apply date filter if provided
+        if ($asOnDate) {
+            $retainedEarningsQuery->whereDate('account_transactions.date', '<=', $asOnDate);
+        }
+
+        return $retainedEarningsQuery->value('profit');
     }
 
 }
