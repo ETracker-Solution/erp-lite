@@ -149,15 +149,6 @@
                 methods: {
                     showReport(reportType) {
                         const vm = this;
-                        if (reportType === 'income_statement') {
-                            if (!vm.group_id) {
-                                toastr.warning('Under Construction', {
-                                    closeButton: true,
-                                    progressBar: true,
-                                });
-                                return false;
-                            }
-                        }
                         if (reportType === 'trial_balance') {
                             if (!vm.store_id) {
                                 toastr.warning('Under Construction', {
@@ -172,7 +163,9 @@
                         axios.get(this.config.inventoryReportUrl + '/create', {
                             params: {
                                 report_type: reportType,
-                                as_on_date: vm.as_on_date
+                                as_on_date: vm.as_on_date,
+                                from_date: vm.from_date,
+                                to_date: vm.to_date
                             },
                             responseType: 'blob',
                         }).then(function (response) {

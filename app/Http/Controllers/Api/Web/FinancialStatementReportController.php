@@ -42,6 +42,13 @@ class FinancialStatementReportController extends Controller
             $pdf = Pdf::loadView('financial_statement.balance_sheet', $data);
             return $pdf->stream();
         }
+        if ($report_type == 'income_statement') {
+            $data = $this->getIncomeStatementData($from_date, $to_date);
+
+//            return view('financial_statement.loss_profit', $data);
+            $pdf = Pdf::loadView('financial_statement.loss_profit', $data);
+            return $pdf->stream();
+        }
 
 
         $getData = DB::select($this->balanceSheetQuery($asOnDate));
@@ -180,6 +187,21 @@ ORDER BY
             'totalLiability' => $totalLiability,
 //            'lossProfit' => $lossProfit,
             'asOnDate' => $asOnDate, // Pass the date to the view
+        ];
+    }
+
+    public function getIncomeStatementData($start_date,$end_date){
+        $incomeAccounts = ChartOfAccount::WhereHas('transactions', function ($q) use ($start_date, $end_date) {
+            $q->whereBetween('date', [$start_date, $end_date]);
+        })->where(['root_account_type' => 'in'])->get();
+        $expenseAccounts = ChartOfAccount::WhereHas('transactions', function ($q) use ($start_date, $end_date) {
+            $q->whereBetween('date', [$start_date, $end_date]);
+        })->where(['root_account_type' => 'ex'])->get();
+        return [
+            'incomeAccounts' => $incomeAccounts,
+            'expenseAccounts' => $expenseAccounts,
+            'start_date' => $start_date,
+            'end_date' => $end_date,
         ];
     }
 
