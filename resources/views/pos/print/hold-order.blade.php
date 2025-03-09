@@ -116,7 +116,7 @@
                 {{-- </tr>--}}
             <tr>
                 <td class="bb-none tc">
-                    <p style="font-size: 10px;" class="tc">BIN: 006383067-0401</p>
+                    <p style="font-size: 10px;" class="tc">BIN: 006862922-0101</p>
                 </td>
             </tr>
             <tr>
