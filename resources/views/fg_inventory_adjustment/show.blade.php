@@ -83,7 +83,7 @@
                             <!-- /.col -->
                         </div>
                     </div>
-                    @if($fGInventoryAdjustment->status == 'adjusted')
+                    @if($fGInventoryAdjustment->status == 'adjusted' && !auth()->user()->employee->outlet_id)
                         <form action="{{ route('fg-inventory-adjustments.update',$fGInventoryAdjustment->id) }}"
                               method="post">
                             @csrf
