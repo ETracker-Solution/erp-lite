@@ -146,7 +146,7 @@ JOIN
     inventory_adjustment_items iat ON ia.id = iat.inventory_adjustment_id
  JOIN
     chart_of_inventories coi ON coi.id = iat.coi_id
-WHERE ia.transaction_type='decrease' AND ia.date >= '$startDate' AND ia.date <= '$endDate'
+WHERE ia.transaction_type='decrease' AND ia.date >= '$startDate' AND ia.date <= '$endDate' AND ia.status = 'adjusted'
 GROUP BY
     ia.store_id
 ORDER BY  s.doc_id
@@ -166,6 +166,7 @@ WHERE
     ia.transaction_type = 'decrease'
     AND ia.date >= '$startDate'
     AND ia.date <= '$endDate'
+    AND ia.status = 'adjusted'
 );";
     }
 }
