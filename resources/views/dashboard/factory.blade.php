@@ -209,7 +209,7 @@
                                         <td> {{$row->fromStore->name ?? ''}}</td>
                                         <td>{!! showStatus($row->status) !!}</td>
                                         <td>{{$row->created_at->format('d-m-Y')}}</td>
-{{--                                        <td><a href="{{ route('requisitions.show', encrypt($row->id)) }}" class="btn btn-primary btn-sm"><i class="fa fa-eye"></i></a></td>--}}
+                                        <td><a href="{{ route('requisitions.show', encrypt($row->id)) }}" class="btn btn-primary btn-sm"><i class="fa fa-eye"></i></a></td>
                                     </tr>
 {{--                                @endforeach--}}
                                 </tbody>
@@ -222,20 +222,6 @@
         </div>
     </section>
 @endsection
-<?php
-{{--    $stocks = $stock['productWise']['stock'];--}}
-{{--    // Format each number in the stock array--}}
-{{--    $formatted_stocks = array_map(function($num) {--}}
-{{--        return number_format($num, 0);--}}
-{{--    }, $stocks);--}}
-{{----}}
-{{--    $fg_stocks = $fgStock['productWise']['stock'];--}}
-{{--    // Format each number in the stock array--}}
-{{--    $fg_formatted_stocks = array_map(function($num) {--}}
-{{--        return number_format($num, 0);--}}
-{{--    }, $fg_stocks);--}}
-{{--?>--}}
-
 @push('script')
     <script src="{{asset('admin/app-assets/vendors/js/charts/apexcharts.min.js')}}"></script>
     <script src="{{asset('admin/app-assets/js/core/app.js')}}"></script>
