@@ -110,5 +110,10 @@
         });
     });
 </script>
+<script>
+    $(document).on('click', '#logout-button', function () {
+        sessionStorage.clear();
+    });
+</script>
 </body>
 </html>

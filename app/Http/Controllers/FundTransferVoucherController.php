@@ -22,27 +22,61 @@ use niklasravnsborg\LaravelPdf\Facades\Pdf;
 
 class FundTransferVoucherController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function index()
     {
-        if (\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->outlet_id) {
-            $oas = OutletAccount::with('coa')->where('outlet_id', \auth()->user()->employee->outlet_id)->get();
-
-        } else {
-            $oas = OutletAccount::with('coa')->get();
-        }
         $outlet_accounts = [];
-        foreach ($oas as $key => $row) {
-            $original_account_balance = AccountTransaction::where('chart_of_account_id', $row->coa_id)->sum(\DB::raw('amount * transaction_type'));
-            $other_outlet_sales_balance = accountBalanceForOtherOutletSales($row->coa_id);
-            $outlet_accounts[$key]['name'] = $row->coa->name;
-            $outlet_accounts[$key]['balance'] = $original_account_balance - $other_outlet_sales_balance;
-            $outlet_accounts[$key]['other_outlet_balance'] = $other_outlet_sales_balance;
+
+        if (\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->outlet_id) {
+            $outlet_id = auth()->user()->employee->outlet_id;
+
+            $oas = OutletAccount::with('coa')
+                ->where('outlet_id', $outlet_id)
+                ->get();
+
+            $coaIds = $oas->pluck('coa_id')->toArray();
+
+            $originalBalances = AccountTransaction::select('chart_of_account_id', DB::raw('SUM(amount * transaction_type) as balance'))
+                ->whereIn('chart_of_account_id', $coaIds)
+                ->groupBy('chart_of_account_id')
+                ->pluck('balance', 'chart_of_account_id');
+
+            // Bulk query: pending fund transfers per coa_id
+            $pendingAmounts = FundTransferVoucher::select('credit_account_id', DB::raw('SUM(amount) as pending'))
+                ->whereIn('credit_account_id', $coaIds)
+                ->where('status', 'pending')
+                ->groupBy('credit_account_id')
+                ->pluck('pending', 'credit_account_id');
+
+            $otherOutletSalesBalances = [];
+            foreach ($coaIds as $coaId) {
+                $otherOutletSalesBalances[$coaId] = accountBalanceForOtherOutletSales($coaId);
+            }
+
+            // Build result
+            $outlet_accounts = $oas->map(function ($row) use ($originalBalances, $pendingAmounts, $otherOutletSalesBalances) {
+                $coa_id = $row->coa_id;
+
+                $original_balance = $originalBalances[$coa_id] ?? 0;
+                $pending = $pendingAmounts[$coa_id] ?? 0;
+                $other_outlet = $otherOutletSalesBalances[$coa_id] ?? 0;
+
+                return [
+                    'name' => $row->coa->name ?? 'N/A',
+                    'balance' => $original_balance - $other_outlet,
+                    'other_outlet_balance' => $other_outlet,
+                    'pending' => $pending,
+                ];
+            })->toArray();
+
         }
+
+//        foreach ($oas as $key => $row) {
+//            $original_account_balance = AccountTransaction::where('chart_of_account_id', $row->coa_id)->sum(\DB::raw('amount * transaction_type'));
+//            $other_outlet_sales_balance = accountBalanceForOtherOutletSales($row->coa_id);
+//            $outlet_accounts[$key]['name'] = $row->coa->name;
+//            $outlet_accounts[$key]['balance'] = $original_account_balance - $other_outlet_sales_balance;
+//            $outlet_accounts[$key]['other_outlet_balance'] = $other_outlet_sales_balance;
+//        }
 
         $outlets = Outlet::all();
         $accounts = ChartOfAccount::where('type', 'ledger')

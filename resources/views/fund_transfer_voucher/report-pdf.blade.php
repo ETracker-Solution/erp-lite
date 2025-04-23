@@ -146,13 +146,13 @@
             <td><strong>{{ number_format($subtotal, 2) }}</strong></td>
         </tr>
     @endif
-
+    <hr>
     <tr>
         {{--        <td></td>--}}
         <td></td>
         <td></td>
-        <td>Total</td>
-        <td>{{ $totalAmount }}</td>
+        <td><strong>Total</strong></td>
+        <td><b>{{ number_format($totalAmount,2) }}</b></td>
     </tr>
     </tbody>
 </table>

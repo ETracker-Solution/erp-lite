@@ -61,8 +61,8 @@
                                 </div>
                                 <div class="col-12 border-bottom mb-3">
                                     <div class="form-group">
-                                        <label for="customer_id">Customer</label>
-                                        <select name="customer_id" id="customer_id" class="form-control"
+                                        <label for="customer_id">Customer2</label>
+                                        <select name="customer_id" id="customer_id" class="form-control bSelect"
                                                 v-model="customer_id">
                                             <option value="">Select a Customer</option>
                                             <option :value="row.id" v-for="row in customers"
