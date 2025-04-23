@@ -47,10 +47,10 @@
                     </div>
                     <div class="card-body statistics-body">
                         <div class="row">
-                            <div class="col-xl-2 col-sm-6 col-12 mb-2 mb-xl-0">
-                                <x-card-statistics title="Total Stock" value="{{ $fgStock['total'] }}" icon="layers"
-                                                   colorClass="bg-light-primary"/>
-                            </div>
+{{--                            <div class="col-xl-2 col-sm-6 col-12 mb-2 mb-xl-0">--}}
+{{--                                <x-card-statistics title="Total Stock" value="{{ $fgStock['total'] }}" icon="layers"--}}
+{{--                                                   colorClass="bg-light-primary"/>--}}
+{{--                            </div>--}}
                             <div class="col-xl-2 col-sm-6 col-12 mb-2 mb-xl-0">
                                 <x-card-statistics title="Requisition" value="{{ $todayTotalRequisitions }}"
                                                    icon="layers"
@@ -117,32 +117,32 @@
             </div>
 
             <!-- Revenue Report Card -->
-            <div class="col-lg-8 col-12">
-                <div class="card card-revenue-budget">
-                    <div class="card-header bg-info">
-                        <h3 class="card-title">Total Stock : {{ $stock['total'] }}</h3>
-                        <div class="card-tools">
-                            Raw Stock Summary
-                        </div>
-                    </div>
-                    <canvas id="stockChart"></canvas>
-                </div>
-            </div>
+{{--            <div class="col-lg-8 col-12">--}}
+{{--                <div class="card card-revenue-budget">--}}
+{{--                    <div class="card-header bg-info">--}}
+{{--                        <h3 class="card-title">Total Stock : {{ $stock['total'] }}</h3>--}}
+{{--                        <div class="card-tools">--}}
+{{--                            Raw Stock Summary--}}
+{{--                        </div>--}}
+{{--                    </div>--}}
+{{--                    <canvas id="stockChart"></canvas>--}}
+{{--                </div>--}}
+{{--            </div>--}}
             <!--/ Revenue Report Card -->
         </div>
         <div class="row match-height">
             <div class="col-xl-12 col-12">
-                <div class="card">
-                    <div class="card-header bg-info">
-                        <h3 class="card-title">Total Stock : {{ $fgStock['total'] }}</h3>
-                        <div class="card-tools">
-                            Finish Stock Summary
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <canvas id="finish-goods-chart"></canvas>
-                    </div>
-                </div>
+{{--                <div class="card">--}}
+{{--                    <div class="card-header bg-info">--}}
+{{--                        <h3 class="card-title">Total Stock : {{ $fgStock['total'] }}</h3>--}}
+{{--                        <div class="card-tools">--}}
+{{--                            Finish Stock Summary--}}
+{{--                        </div>--}}
+{{--                    </div>--}}
+{{--                    <div class="card-body">--}}
+{{--                        <canvas id="finish-goods-chart"></canvas>--}}
+{{--                    </div>--}}
+{{--                </div>--}}
             </div>
         </div>
         <div class="row match-height">
@@ -211,7 +211,7 @@
                                         <td>{{$row->created_at->format('d-m-Y')}}</td>
                                         <td><a href="{{ route('requisitions.show', encrypt($row->id)) }}" class="btn btn-primary btn-sm"><i class="fa fa-eye"></i></a></td>
                                     </tr>
-                                @endforeach
+{{--                                @endforeach--}}
                                 </tbody>
                             </table>
                         </div>
@@ -223,18 +223,18 @@
     </section>
 @endsection
 <?php
-    $stocks = $stock['productWise']['stock'];
-    // Format each number in the stock array
-    $formatted_stocks = array_map(function($num) {
-        return number_format($num, 0);
-    }, $stocks);
-
-    $fg_stocks = $fgStock['productWise']['stock'];
-    // Format each number in the stock array
-    $fg_formatted_stocks = array_map(function($num) {
-        return number_format($num, 0);
-    }, $fg_stocks);
-?>
+{{--    $stocks = $stock['productWise']['stock'];--}}
+{{--    // Format each number in the stock array--}}
+{{--    $formatted_stocks = array_map(function($num) {--}}
+{{--        return number_format($num, 0);--}}
+{{--    }, $stocks);--}}
+{{----}}
+{{--    $fg_stocks = $fgStock['productWise']['stock'];--}}
+{{--    // Format each number in the stock array--}}
+{{--    $fg_formatted_stocks = array_map(function($num) {--}}
+{{--        return number_format($num, 0);--}}
+{{--    }, $fg_stocks);--}}
+{{--?>--}}
 
 @push('script')
     <script src="{{asset('admin/app-assets/vendors/js/charts/apexcharts.min.js')}}"></script>
@@ -283,59 +283,59 @@
             }
         });
     </script>
-    <script>
-        function generateColors(numColors) {
-            var colors = ["green", "red", "blue", "orange", "brown", "purple", "yellow", "cyan", "magenta", "lime"];
-            var dynamicColors = [];
-            for (var i = 0; i < numColors; i++) {
-                dynamicColors.push(colors[i % colors.length]);
-            }
-            return dynamicColors;
-        }
+{{--    <script>--}}
+{{--        function generateColors(numColors) {--}}
+{{--            var colors = ["green", "red", "blue", "orange", "brown", "purple", "yellow", "cyan", "magenta", "lime"];--}}
+{{--            var dynamicColors = [];--}}
+{{--            for (var i = 0; i < numColors; i++) {--}}
+{{--                dynamicColors.push(colors[i % colors.length]);--}}
+{{--            }--}}
+{{--            return dynamicColors;--}}
+{{--        }--}}
 
-        var barChartDataOrder = {
-            labels: JSON.parse('<?= json_encode($stock['productWise']['products']) ?>'),
-            datasets: [
-                {
-                    label: "Stock Product",
-                    backgroundColor: generateColors(<?= count($stock['productWise']['products']) ?>),
-                    borderColor: "lightgreen",
-                    borderWidth: 1,
-                    data: JSON.parse('<?= json_encode($formatted_stocks) ?>').map(function(value) {
-                        return parseFloat(value.replace(/,/g, ''));
-                    }),
-                },
-            ]
-        };
+{{--        var barChartDataOrder = {--}}
+{{--            labels: JSON.parse('<?= json_encode($stock['productWise']['products']) ?>'),--}}
+{{--            datasets: [--}}
+{{--                {--}}
+{{--                    label: "Stock Product",--}}
+{{--                    backgroundColor: generateColors(<?= count($stock['productWise']['products']) ?>),--}}
+{{--                    borderColor: "lightgreen",--}}
+{{--                    borderWidth: 1,--}}
+{{--                    data: JSON.parse('<?= json_encode($formatted_stocks) ?>').map(function(value) {--}}
+{{--                        return parseFloat(value.replace(/,/g, ''));--}}
+{{--                    }),--}}
+{{--                },--}}
+{{--            ]--}}
+{{--        };--}}
 
-        var chartOptionsOrder = {
-            responsive: true,
-            legend: {
-                position: "top"
-            },
-            title: {
-                display: false,
-                text: "Best Sale Product"
-            },
-            scales: {
-                yAxes: [{
-                    ticks: {
-                        beginAtZero: true
-                    }
-                }]
-            }
-        }
+{{--        var chartOptionsOrder = {--}}
+{{--            responsive: true,--}}
+{{--            legend: {--}}
+{{--                position: "top"--}}
+{{--            },--}}
+{{--            title: {--}}
+{{--                display: false,--}}
+{{--                text: "Best Sale Product"--}}
+{{--            },--}}
+{{--            scales: {--}}
+{{--                yAxes: [{--}}
+{{--                    ticks: {--}}
+{{--                        beginAtZero: true--}}
+{{--                    }--}}
+{{--                }]--}}
+{{--            }--}}
+{{--        }--}}
 
-        window.onload = function () {
-            var ctxA = document.getElementById("stockChart").getContext("2d");
-            window.myBar = new Chart(ctxA, {
-                type: "bar",
-                data: barChartDataOrder,
-                options: chartOptionsOrder
-            });
-        };
+{{--        window.onload = function () {--}}
+{{--            var ctxA = document.getElementById("stockChart").getContext("2d");--}}
+{{--            window.myBar = new Chart(ctxA, {--}}
+{{--                type: "bar",--}}
+{{--                data: barChartDataOrder,--}}
+{{--                options: chartOptionsOrder--}}
+{{--            });--}}
+{{--        };--}}
 
-    </script>
+{{--    </script>--}}
     <script>
         const xValues = ["1-02-2024", "2-02-2024", "3-02-2024", "4-02-2024", "5-02-2024", "6-02-2024", "7-02-2024", "8-02-2024", "9-02-2024", "10-02-2024", "11-02-2024"];
         const yValues = [7, 8, 8, 9, 9, 9, 10, 11, 14, 14, 15];
@@ -596,35 +596,35 @@
         statisticsProfitChart = new ApexCharts($statisticsProfitChart, statisticsProfitChartOptions);
         statisticsProfitChart.render();
     </script>
-    <script>
-        function generateColors(numColors) {
-            var colors = ["green", "red", "blue", "orange", "brown", "purple", "yellow", "cyan", "magenta", "lime"];
-            var dynamicColors = [];
-            for (var i = 0; i < numColors; i++) {
-                dynamicColors.push(colors[i % colors.length]);
-            }
-            return dynamicColors;
-        }
-        new Chart("finish-goods-chart", {
-            type: "bar",
-            data: {
-                labels: JSON.parse('<?= json_encode($fgStock['productWise']['products']) ?>'),
-                datasets: [{
-                    backgroundColor: generateColors(<?= count($fgStock['productWise']['products']) ?>),
-                    data: JSON.parse('<?= json_encode($fg_formatted_stocks) ?>').map(function(value) {
-                        return parseFloat(value.replace(/,/g, ''));
-                    }),
-                }]
-            },
-            options: {
-                legend: {display: false},
-                title: {
-                    display: false,
-                    text: "World Wine Production 2018"
-                }
-            }
-        });
-    </script>
+{{--    <script>--}}
+{{--        function generateColors(numColors) {--}}
+{{--            var colors = ["green", "red", "blue", "orange", "brown", "purple", "yellow", "cyan", "magenta", "lime"];--}}
+{{--            var dynamicColors = [];--}}
+{{--            for (var i = 0; i < numColors; i++) {--}}
+{{--                dynamicColors.push(colors[i % colors.length]);--}}
+{{--            }--}}
+{{--            return dynamicColors;--}}
+{{--        }--}}
+{{--        new Chart("finish-goods-chart", {--}}
+{{--            type: "bar",--}}
+{{--            data: {--}}
+{{--                labels: JSON.parse('<?= json_encode($fgStock['productWise']['products']) ?>'),--}}
+{{--                datasets: [{--}}
+{{--                    backgroundColor: generateColors(<?= count($fgStock['productWise']['products']) ?>),--}}
+{{--                    data: JSON.parse('<?= json_encode($fg_formatted_stocks) ?>').map(function(value) {--}}
+{{--                        return parseFloat(value.replace(/,/g, ''));--}}
+{{--                    }),--}}
+{{--                }]--}}
+{{--            },--}}
+{{--            options: {--}}
+{{--                legend: {display: false},--}}
+{{--                title: {--}}
+{{--                    display: false,--}}
+{{--                    text: "World Wine Production 2018"--}}
+{{--                }--}}
+{{--            }--}}
+{{--        });--}}
+{{--    </script>--}}
 
 
     <script>

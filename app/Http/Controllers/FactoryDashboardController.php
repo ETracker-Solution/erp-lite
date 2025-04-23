@@ -25,36 +25,36 @@ class FactoryDashboardController extends Controller
         $monthlyTotalRequisitions = Requisition::where('to_factory_id', $factory_id)->whereMonth('created_at', Carbon::now()->month)->count();
 
         // Aggregate FG and RM product-wise stock and related requisition data in a single query
-        $productStockData = ChartOfInventory::whereIn('rootAccountType', ['RM', 'FG'])
-            ->where('type', 'item')
-            ->where('price','>',0)
-            ->with(['inventoryTransactions' => function ($query) use ($store_ids) {
-                $query->whereIn('store_id', $store_ids);
-            }])
-            ->select('id', 'name', 'rootAccountType')
-            ->get();
-
-        // Process product-wise stock data
-        $productWiseStock = ['products' => [], 'stock' => []];
-        $fgProductWiseStock = ['products' => [], 'stock' => []];
-        $totalStock = 0;
-        $fgTotalStock = 0;
-
-        foreach ($productStockData as $product) {
-            $stock = $product->inventoryTransactions->sum(function ($transaction) {
-                return $transaction->amount * $transaction->type;
-            });
-
-            if ($product->rootAccountType == 'RM') {
-                $productWiseStock['products'][] = $product->name;
-                $productWiseStock['stock'][] = $stock;
-                $totalStock += $stock;
-            } else {
-                $fgProductWiseStock['products'][] = $product->name;
-                $fgProductWiseStock['stock'][] = $stock;
-                $fgTotalStock += $stock;
-            }
-        }
+//        $productStockData = ChartOfInventory::whereIn('rootAccountType', ['RM', 'FG'])
+//            ->where('type', 'item')
+//            ->where('price','>',0)
+//            ->with(['inventoryTransactions' => function ($query) use ($store_ids) {
+//                $query->whereIn('store_id', $store_ids);
+//            }])
+//            ->select('id', 'name', 'rootAccountType')
+//            ->get();
+//
+//        // Process product-wise stock data
+//        $productWiseStock = ['products' => [], 'stock' => []];
+//        $fgProductWiseStock = ['products' => [], 'stock' => []];
+//        $totalStock = 0;
+//        $fgTotalStock = 0;
+//
+//        foreach ($productStockData as $product) {
+//            $stock = $product->inventoryTransactions->sum(function ($transaction) {
+//                return $transaction->amount * $transaction->type;
+//            });
+//
+//            if ($product->rootAccountType == 'RM') {
+//                $productWiseStock['products'][] = $product->name;
+//                $productWiseStock['stock'][] = $stock;
+//                $totalStock += $stock;
+//            } else {
+//                $fgProductWiseStock['products'][] = $product->name;
+//                $fgProductWiseStock['stock'][] = $stock;
+//                $fgTotalStock += $stock;
+//            }
+//        }
 
         // Combine requisition counts and wastage totals into one query for the current day
         $todayData = [
@@ -128,14 +128,14 @@ class FactoryDashboardController extends Controller
             'thisMonthTotalWastages' => $todayData['thisMonthTotalWastages'],
             'thisMonthWastages' => $parts,
             'monthlyTotalDeliveries' => 0,
-            'stock' => [
-                'total' => round($totalStock),
-                'productWise' => $productWiseStock
-            ],
-            'fgStock' => [
-                'total' => round($fgTotalStock),
-                'productWise' => $fgProductWiseStock
-            ],
+//            'stock' => [
+//                'total' => round($totalStock),
+//                'productWise' => $productWiseStock
+//            ],
+//            'fgStock' => [
+//                'total' => round($fgTotalStock),
+//                'productWise' => $fgProductWiseStock
+//            ],
             'todayRequisitions' => $todayRequisitions,
             'monthlyDeliveries' => $monthlyDeliveries,
         ];
