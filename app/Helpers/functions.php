@@ -671,107 +671,76 @@ LEFT JOIN
 function testFGreport($store_id, $date)
 {
     $data = [];
-    $grandTotals = ['transit' => 0, 'balance' => 0];
-    $currentParent = null;
-    $parentTotals = ['transit' => 0, 'balance' => 0];
-
-    \App\Models\ChartOfInventory::with([
-        'parent:id,name',
-        'inventoryTransactions' => function($q) use ($store_id, $date) {
-            $q->where('store_id', $store_id)
-                ->whereDate('date', '<=', $date)
-                ->selectRaw('chart_of_inventory_id, SUM(type * quantity) as balance')
-                ->groupBy('chart_of_inventory_id');
-        },
-        'requisitionDeliveryItems.requisitionDelivery' => function($q) use ($store_id) {
-            $q->where(['status' => 'completed', 'type' => 'FG', 'from_store_id' => $store_id])
-                ->selectRaw('requisition_delivery_id, SUM(quantity) as delivery_qty')
-                ->groupBy('requisition_delivery_id');
-        },
-        'inventoryTransferItems.inventoryTransfer' => function($q) use ($store_id) {
-            $q->where(['status' => 'pending', 'type' => 'FG', 'from_store_id' => $store_id])
-                ->selectRaw('inventory_transfer_id, SUM(quantity) as transfer_qty')
-                ->groupBy('inventory_transfer_id');
-        },
-        'preOrderItems.preOrder' => function($q) use ($store_id) {
-            $q->where(['status' => 'delivered', 'factory_delivery_store_id' => $store_id])
-                ->selectRaw('pre_order_id, SUM(quantity) as preorder_qty')
-                ->groupBy('pre_order_id');
-        }
-    ])
+    $parents = \App\Models\ChartOfInventory::with([
+        'parent',
+        'inventoryTransactions',
+        'requisitionDeliveryItems.requisitionDelivery',
+        'inventoryTransferItems.inventoryTransfer',
+        'preOrderItems.preOrder'])
         ->whereHas('parent')
         ->where(['rootAccountType' => 'FG', 'type' => 'item'])
-        ->select('id', 'name', 'parent_id', 'price')
         ->orderBy('parent_id')
-        ->chunk(200, function($items) use (&$data, &$grandTotals, &$currentParent, &$parentTotals) {
+        ->get()
+        ->groupBy('parent_id');
+    $grand_total_transit_stock = 0;
+    $grand_total_balance_qty = 0;
+    foreach ($parents as $parent_id => $parent) {
+        $parent_total_transit_stock = 0;
+        $parent_total_balance_qty = 0;
+        foreach ($parent as $key => $item) {
+            $transit_delivery_qty = $item->requisitionDeliveryItems()->whereHas('requisitionDelivery', function ($q) use ($store_id) {
+                return $q->where(['status' => 'completed', 'type' => 'FG', 'from_store_id' => $store_id]);
+            })->sum('quantity');
 
-            foreach ($items as $item) {
-                // Handle parent group changes
-                if ($currentParent && $currentParent->id != $item->parent_id) {
-                    $this->addParentTotalRow($data, $currentParent, $parentTotals);
-                    $grandTotals['transit'] += $parentTotals['transit'];
-                    $grandTotals['balance'] += $parentTotals['balance'];
-                    $parentTotals = ['transit' => 0, 'balance' => 0];
-                }
+            $transit_transfer_qty = $item->inventoryTransferItems()->whereHas('inventoryTransfer', function ($q) use ($store_id) {
+                return $q->where(['status' => 'pending', 'type' => 'FG', 'from_store_id' => $store_id]);
+            })->sum('quantity');
 
-                $currentParent = $item->parent;
+            $transit_pre_order_qty = $item->preOrderItems()->whereHas('preOrder', function ($q) use ($store_id) {
+                return $q->where(['status' => 'delivered', 'factory_delivery_store_id' => $store_id]);
+            })->sum('quantity');
 
-                // Calculate stock values
-                $transitDelivery = $item->requisitionDeliveryItems->sum('delivery_qty') ?? 0;
-                $transitTransfer = $item->inventoryTransferItems->sum('transfer_qty') ?? 0;
-                $transitPreOrder = $item->preOrderItems->sum('preorder_qty') ?? 0;
-                $totalTransit = $transitDelivery + $transitTransfer + $transitPreOrder;
-                $balance = $item->inventoryTransactions->first()->balance ?? 0;
+            $total_transit_stock = $transit_delivery_qty + $transit_transfer_qty + $transit_pre_order_qty;
+            $main_balance = $item->inventoryTransactions()->where('store_id', $store_id)->whereDate('date', '<=', $date)->sum(DB::raw('type * quantity'));
 
-                // Add to parent totals
-                $parentTotals['transit'] += $totalTransit;
-                $parentTotals['balance'] += $balance;
+            $parent_total_transit_stock += $total_transit_stock;
+            $parent_total_balance_qty += $main_balance;
 
-                // Add item row
-                $data[] = [
-                    'Group Name' => $currentParent->name,
-                    'Item ID' => $item->id,
-                    'Item Name' => $item->name,
-                    'Transit Stock' => $totalTransit,
-                    'Balance Qty' => number_format($balance, 2),
-                    'Rate' => number_format($item->price, 2),
-                    'Value' => number_format($item->price * $balance, 2),
-                ];
-            }
-        });
+            $data[] = [
+                'Group Name' => $item->parent->name,
+                'Item ID' => $item->id,
+                'Item Name' => $item->name,
+                'Transit Stock' => $total_transit_stock,
+                'Balance Qty' => number_format($main_balance, 2),
+                'Rate' => number_format($item->price, 2, '.', ','),
+                'Value' => number_format($item->price * $main_balance, 2, '.', ','),
+            ];
 
-    // Add final parent total if exists
-    if ($currentParent) {
-        addParentTotalRow($data, $currentParent, $parentTotals);
-        $grandTotals['transit'] += $parentTotals['transit'];
-        $grandTotals['balance'] += $parentTotals['balance'];
+        }
+
+        $grand_total_transit_stock += $parent_total_transit_stock;
+        $grand_total_balance_qty += $parent_total_balance_qty;
+        $data[] = [
+            'Group Name' => '', // This could be set to the parent's name or left blank
+            'Item ID' => '',
+            'Item Name' => $parent[0]->parent->name .' Total',
+            'Transit Stock' => $parent_total_transit_stock,
+            'Balance Qty' => number_format($parent_total_balance_qty, 2),
+            'Rate' => '', // Total rate is typically not used
+            'Value' => ''
+        ];
+//        return $data;
     }
-
-    // Add grand total row
     $data[] = [
-        'Group Name' => '',
+        'Group Name' => '', // This could be set to the parent's name or left blank
         'Item ID' => '',
         'Item Name' => 'Grand Total',
-        'Transit Stock' => $grandTotals['transit'],
-        'Balance Qty' => number_format($grandTotals['balance'], 2),
-        'Rate' => '',
+        'Transit Stock' => $grand_total_transit_stock,
+        'Balance Qty' => number_format($grand_total_balance_qty, 2),
+        'Rate' => '', // Total rate is typically not used
         'Value' => '0'
     ];
-
     return $data;
-}
-
-function addParentTotalRow(&$data, $parent, $totals)
-{
-    $data[] = [
-        'Group Name' => '',
-        'Item ID' => '',
-        'Item Name' => $parent->name . ' Total',
-        'Transit Stock' => $totals['transit'],
-        'Balance Qty' => number_format($totals['balance'], 2),
-        'Rate' => '',
-        'Value' => ''
-    ];
 }
 
 // function extracode()
