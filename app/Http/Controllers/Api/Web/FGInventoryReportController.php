@@ -21,7 +21,8 @@ class FGInventoryReportController extends Controller
 
     public function create()
     {
-        ini_set('memory_limit', '512M'); // or '-1' for unlimited
+        set_time_limit(300);
+        ini_set('memory_limit', '600M'); // or '-1' for unlimited
 
         $asOnDate = Carbon::parse(\request()->as_on_date)->format('Y-m-d') ?? Carbon::now()->format('Y-m-d');
 
