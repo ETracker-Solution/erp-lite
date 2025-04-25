@@ -103,14 +103,10 @@ class FGInventoryReportController extends Controller
                 $parent_total_balance_qty = 0;
 
                 foreach ($parent as $key => $item) {
-                    // Process requisition delivery items in chunks
-                    $transit_delivery_qty = $this->getRequisitionDeliverySum($item->id, $store_id);
-
-                    // Process inventory transfer items in chunks
-                    $transit_transfer_qty = $this->getInventoryTransferSum($item->id, $store_id);
-
-                    // Process pre-order items in chunks
-                    $transit_pre_order_qty = $this->getPreOrderSum($item->id, $store_id);
+                    // Using the relationship methods with chunk processing
+                    $transit_delivery_qty = $this->getRequisitionDeliverySum($item, $store_id);
+                    $transit_transfer_qty = $this->getInventoryTransferSum($item, $store_id);
+                    $transit_pre_order_qty = $this->getPreOrderSum($item, $store_id);
 
                     $total_transit_stock = $transit_delivery_qty + $transit_transfer_qty + $transit_pre_order_qty;
 
@@ -165,86 +161,89 @@ class FGInventoryReportController extends Controller
         return $data;
     }
 
-// Helper methods to get sums in chunks
-    private function getRequisitionDeliverySum($item_id, $store_id)
+// Helper methods to get sums in chunks - now using the relationship methods from the model
+    private function getRequisitionDeliverySum($item, $store_id)
     {
         $total = 0;
         $limit = 1000;
         $offset = 0;
 
         while (true) {
-            $requisitionDeliveryItems = \App\Models\RequisitionDeliveryItem::where('chart_of_inventory_id', $item_id)
+            // Use Laravel's chunk method on the relationship
+            $chunk = $item->requisitionDeliveryItems()
                 ->whereHas('requisitionDelivery', function ($q) use ($store_id) {
                     return $q->where(['status' => 'completed', 'type' => 'FG', 'from_store_id' => $store_id]);
                 })
-                ->offset($offset)
-                ->limit($limit)
+                ->skip($offset)
+                ->take($limit)
                 ->get();
 
-            if ($requisitionDeliveryItems->isEmpty()) {
+            if ($chunk->isEmpty()) {
                 break;
             }
 
-            $total += $requisitionDeliveryItems->sum('quantity');
+            $total += $chunk->sum('quantity');
             $offset += $limit;
 
-            unset($requisitionDeliveryItems);
+            unset($chunk);
         }
 
         return $total;
     }
 
-    private function getInventoryTransferSum($item_id, $store_id)
+    private function getInventoryTransferSum($item, $store_id)
     {
         $total = 0;
         $limit = 1000;
         $offset = 0;
 
         while (true) {
-            $inventoryTransferItems = \App\Models\InventoryTransferItem::where('chart_of_inventory_id', $item_id)
+            // Use Laravel's chunk method on the relationship
+            $chunk = $item->inventoryTransferItems()
                 ->whereHas('inventoryTransfer', function ($q) use ($store_id) {
                     return $q->where(['status' => 'pending', 'type' => 'FG', 'from_store_id' => $store_id]);
                 })
-                ->offset($offset)
-                ->limit($limit)
+                ->skip($offset)
+                ->take($limit)
                 ->get();
 
-            if ($inventoryTransferItems->isEmpty()) {
+            if ($chunk->isEmpty()) {
                 break;
             }
 
-            $total += $inventoryTransferItems->sum('quantity');
+            $total += $chunk->sum('quantity');
             $offset += $limit;
 
-            unset($inventoryTransferItems);
+            unset($chunk);
         }
 
         return $total;
     }
 
-    private function getPreOrderSum($item_id, $store_id)
+    private function getPreOrderSum($item, $store_id)
     {
         $total = 0;
         $limit = 1000;
         $offset = 0;
 
         while (true) {
-            $preOrderItems = \App\Models\PreOrderItem::where('chart_of_inventory_id', $item_id)
+            // Use Laravel's chunk method on the relationship
+            $chunk = $item->preOrderItems()
                 ->whereHas('preOrder', function ($q) use ($store_id) {
                     return $q->where(['status' => 'delivered', 'factory_delivery_store_id' => $store_id]);
                 })
-                ->offset($offset)
-                ->limit($limit)
+                ->skip($offset)
+                ->take($limit)
                 ->get();
 
-            if ($preOrderItems->isEmpty()) {
+            if ($chunk->isEmpty()) {
                 break;
             }
 
-            $total += $preOrderItems->sum('quantity');
+            $total += $chunk->sum('quantity');
             $offset += $limit;
 
-            unset($preOrderItems);
+            unset($chunk);
         }
 
         return $total;
