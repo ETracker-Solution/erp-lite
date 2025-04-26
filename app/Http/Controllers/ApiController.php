@@ -334,9 +334,9 @@ class ApiController extends Controller
                         'group' => $row->coi->parent->name ?? '',
                         'rm_average_rate' => $averageRates[$row->coi_id]['rm_rate'] ?? 0,
                         'fg_average_rate' => $averageRates[$row->coi_id]['rm_rate'] ?? 0,
-                        'balance_quantity' => $balance_quantity > 0 ? max(number_format($balance_quantity,2), 0) : $balance_quantity,
+                        'balance_quantity' => $balance_quantity > 0 ? max(($balance_quantity), 0) : $balance_quantity,
                         'requisition_quantity' => $totalRequisitionLeft,
-                        'quantity' => $quantity >0 ?$quantity : 0,
+                        'quantity' => $quantity >0 ?number_format($quantity,2) : 0,
                     ];
                 }
             }
