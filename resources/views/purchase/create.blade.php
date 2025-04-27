@@ -170,7 +170,7 @@
                                                         @{{ row.uom }}
                                                     </td>
                                                     <td>
-                                                        <input type="number" class="form-control input-sm"
+                                                        <input type="number" class="form-control input-sm" step="0.001"
                                                                :name="'products[' + index + '][a_unit_quantity]'"
                                                                v-model="row.a_unit_quantity" @change="itemtotal(row);valid_quantity(row)">
                                                     </td>
@@ -181,7 +181,7 @@
                                                     </td>
                                                     <td>
                                                         <input type="number" v-model="row.quantity" :name="'products[' + index + '][quantity]'" class="form-control input-sm"
-                                                               v-if="row.alter_unit"
+                                                               v-if="row.alter_unit"  step="0.001"
                                                                @change="itemtotal(row);valid_quantity(row)" required>
                                                     </td>
                                                     <td>

@@ -65,11 +65,11 @@
                                                 <select name="fg_item_id" id="fg_item_id"
                                                         class="form-control bSelect" v-model="fg_item_id">
                                                     <option value="">Select one</option>
-    
+
                                                     <option :value="row.id" v-for="row in fg_items"
                                                             v-html="row.name">
                                                     </option>
-    
+
                                                 </select>
                                             </div>
                                         </div>

@@ -258,7 +258,7 @@ class RMOpeningBalanceController extends Controller
                     DB::beginTransaction();
                     try {
                         $rmob = $this->base_model->create([
-                            'uid' => getNextId(RawMaterialOpeningBalance::class),
+                            'uid' => rand(1000,100000),
                             'date' => $date,
                             'quantity' => $qty,
                             'rate' => $rate,

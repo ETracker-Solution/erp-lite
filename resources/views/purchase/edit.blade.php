@@ -201,13 +201,13 @@
                                                             <td>
                                                                 <input type="number" v-model="row.quantity"
                                                                        :name="'products['+index+'][quantity]'"
-                                                                       class="form-control input-sm"
+                                                                       class="form-control input-sm" step="any"
                                                                        @change="itemtotal(row);valid_quantity(row)" required>
                                                             </td>
                                                             <td>
                                                                 <input type="number" v-model="row.rate"
                                                                        :name="'products['+index+'][rate]'"
-                                                                       class="form-control input-sm"
+                                                                       class="form-control input-sm" step="any"
                                                                        @change="itemtotal(row);valid_rate(row)" required>
                                                             </td>
                                                             <td>
