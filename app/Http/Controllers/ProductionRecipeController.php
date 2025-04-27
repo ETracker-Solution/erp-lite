@@ -128,6 +128,7 @@ class ProductionRecipeController extends Controller
 
             toastr()->success('ProductionRecipe updated successfully');
         } catch (\Exception $e) {
+return $e;
             toastr()->error('Failed to update the production recipe. Please try again.');
         }
         return redirect()->route('recipes.index');
