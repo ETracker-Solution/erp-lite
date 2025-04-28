@@ -115,7 +115,7 @@ class ProductionRecipeController extends Controller
     {
         try {
             $validated = $request->validate([
-                'recipes.*.qty' => 'required|numeric|gt:0',
+                'recipes.*.qty' => 'required|numeric',
                 'recipes.*.status' => 'required|string|in:active,inactive',
             ]);
 
