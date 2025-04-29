@@ -57,6 +57,16 @@ Stock Report
                                         <input type="date" name="end_date" id="" class="form-control">
                                     </div>
                                 </div>
+                                <div class="col-12">
+                                    <div class="form-group">
+                                        <input type="radio" id="all" name="stock_type" value="">
+                                        <label for="all">All</label><br>
+                                        <input type="radio" id="zero" name="stock_type" value="zero">
+                                        <label for="zero">Zero</label><br>
+                                        <input type="radio" id="non_zero" name="stock_type" value="non_zero">
+                                        <label for="non_zero">Non Zero</label><br>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>

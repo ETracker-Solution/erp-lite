@@ -77,16 +77,19 @@ class StockReportController extends Controller
         return $this->exportService->exportFile($type, $viewFileName, $data, $filenameToDownload, $pageOrientation); // L stands for Landscape, if Portrait needed, just remove this params
     }
 
-    public function getClosingBalanceExportableData(){
+    public function getClosingBalanceExportableData()
+    {
         $fromDate = null;
         $toDate = null;
         $storeId = request('store_id');
         $rootAccountType = request('rootAccountType');
+        $stockType = request('stock_type'); // 'zero' or 'non-zero'
+
         return ChartOfInventory::query()
             ->when($rootAccountType, fn($query) => $query->where('rootAccountType', $rootAccountType))
             ->select('id', 'name', 'type', 'rootAccountType', 'price', 'parent_id', 'unit_id', 'alter_unit_id','a_unit_quantity')
             ->with([
-                'subChartOfInventories' => function ($query) use ($fromDate, $toDate, $storeId) {
+                'subChartOfInventories' => function ($query) use ($fromDate, $toDate, $storeId, $stockType) {
                     $query->select('id', 'name', 'type', 'parent_id', 'unit_id', 'alter_unit_id','a_unit_quantity')
                         ->addSelect([
                             'current_stock' => InventoryTransaction::selectRaw('COALESCE(SUM(type * quantity), 0)')
@@ -115,12 +118,51 @@ class StockReportController extends Controller
                                 })
                                 ->groupBy('coi_id'),
                         ])
+                        ->when($stockType === 'zero', function ($query) {
+                            return $query->having('current_stock', '=', 0);
+                        })
+                        ->when($stockType === 'non_zero', function ($query) {
+                            return $query->having('current_stock', '>', 0);
+                        })
                         ->with(['unit:id,name', 'alterUnit:id,name']);
                 },
             ])
-            ->whereHas('subChartOfInventories', function ($q) {
-                return $q->where('type', 'item');
-            })->get();
+            ->whereHas('subChartOfInventories', function ($q) use ($stockType, $fromDate, $toDate, $storeId) {
+                $q->where('type', 'item');
+
+                // Apply stock type filter to the whereHas subquery
+                if ($stockType === 'zero') {
+                    $q->whereHas('inventoryTransactions', function ($subQ) use ($fromDate, $toDate, $storeId) {
+                        $subQ->selectRaw('coi_id, COALESCE(SUM(type * quantity), 0) as stock_sum')
+                            ->groupBy('coi_id')
+                            ->havingRaw('COALESCE(SUM(type * quantity), 0) = 0');
+
+                        $this->applyDateAndStoreFilters($subQ, $fromDate, $toDate, $storeId);
+                    });
+                } elseif ($stockType === 'non-zero') {
+                    $q->whereHas('inventoryTransactions', function ($subQ) use ($fromDate, $toDate, $storeId) {
+                        $subQ->selectRaw('coi_id, COALESCE(SUM(type * quantity), 0) as stock_sum')
+                            ->groupBy('coi_id')
+                            ->havingRaw('COALESCE(SUM(type * quantity), 0) > 0');
+
+                        $this->applyDateAndStoreFilters($subQ, $fromDate, $toDate, $storeId);
+                    });
+                }
+            })
+            ->get();
+    }
+
+    private function applyDateAndStoreFilters($query, $fromDate, $toDate, $storeId)
+    {
+        $query->when($fromDate, function ($q) use ($fromDate) {
+            return $q->where('date', '>=', $fromDate);
+        })
+            ->when($toDate, function ($q) use ($toDate) {
+                return $q->where('date', '<=', $toDate);
+            })
+            ->when($storeId, function ($q) use ($storeId) {
+                return $q->where('store_id', $storeId);
+            });
     }
 
     public function getInOutExportableData()
