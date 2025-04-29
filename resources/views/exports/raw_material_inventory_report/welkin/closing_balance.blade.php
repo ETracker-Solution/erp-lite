@@ -81,34 +81,74 @@
     </tr>
     </thead>
     <tbody>
-
     @foreach($products as $product)
-            @php
-                $parentSum = 0;
-            @endphp
-        <tr class="category">
-            <td colspan="5">{{ $product->name }}</td>
-        </tr>
-        @foreach($product->subChartOfInventories as $item)
-            @php
-                $value = $item->rate * $item->current_stock;
-                $parentSum += $value;
-            @endphp
-            <tr>
-                <td>{{$item->name}}</td>
-                <td>{{ $item->current_stock ?? '0'}} {{ $item->unit_id ? "(" . $item->unit->name . ')' : '' }}</td>
-                <td>{{ $item->alter_unit_id && $item->a_unit_quantity ? round(($item->current_stock / $item->a_unit_quantity), 2) . '(' . $item->alterUnit->name . ')' : '' }}
-                </td>
-                <td>{{ $item->current_stock ? $item->rate ?? 0 : 0}}</td>
+        @php
+            $parentSum = 0;
+            $hasVisibleItems = false;
+
+            // First pass to check if we have any items that match our stock_type filter
+            foreach($product->subChartOfInventories as $item) {
+                $current_stock = $item->current_stock ?? 0;
+
+                if(request('stock_type') == 'zero' && $current_stock == 0) {
+                    $hasVisibleItems = true;
+                    break;
+                } elseif(request('stock_type') == 'non_zero' && $current_stock != 0) {
+                    $hasVisibleItems = true;
+                    break;
+                } elseif(!request('stock_type') || request('stock_type') == '') {
+                    $hasVisibleItems = true;
+                    break;
+                }
+            }
+        @endphp
+
+        @if($hasVisibleItems)
+            <tr class="category">
+                <td colspan="5">{{ $product->name }}</td>
+            </tr>
+
+            @foreach($product->subChartOfInventories as $item)
+                @php
+                    $current_stock = $item->current_stock ?? 0;
+                    $showItem = true;
+
+                    // Apply stock type filter
+                    if(request('stock_type') == 'zero' && $current_stock != 0) {
+                        $showItem = false;
+                    } elseif(request('stock_type') == 'non_zero' && $current_stock == 0) {
+                        $showItem = false;
+                    }
+                @endphp
+
+                @if($showItem)
+                    @php
+                        $value = $item->rate * $current_stock;
+                        $parentSum += $value;
+                    @endphp
+
+                    <tr>
+                        <td>{{$item->name}}</td>
+                        <td>{{ $current_stock }} {{ $item->unit_id ? "(" . $item->unit->name . ')' : '' }}</td>
+                        <td>
+                            @if($item->alter_unit_id && $item->a_unit_quantity)
+                                {{ round(($current_stock / $item->a_unit_quantity), 2) . '(' . $item->alterUnit->name . ')' }}
+                            @endif
+                        </td>
+                        <td>{{ $current_stock ? ($item->rate ?? 0) : 0 }}</td>
                         <td>{{ $value }}</td>
                     </tr>
+                @endif
+            @endforeach
 
-        @endforeach
             <tr>
                 <td style="font-weight: 700; font-size:14px">Total of {{ $product->name }}</td>
                 <td colspan="4"
-                    style="text-align: right; font-weight: 700; border-top: 1px solid black; border-bottom: 1px solid black">{{ $parentSum }}</td>
+                    style="text-align: right; font-weight: 700; border-top: 1px solid black; border-bottom: 1px solid black">
+                    {{ $parentSum }}
+                </td>
             </tr>
+        @endif
     @endforeach
     </tbody>
 </table>
