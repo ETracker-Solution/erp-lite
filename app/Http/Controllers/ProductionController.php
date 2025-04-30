@@ -127,7 +127,7 @@ class ProductionController extends Controller
      */
     public function create()
     {
-        $requisitions = Requisition::select('id','uid')->get();
+        $requisitions = Requisition::where('type','FG')->select('id','uid')->get();
         $serial_count = Production::latest()->first() ? Production::latest()->first()->id : 0;
         $serial_no = $serial_count + 1;
         $data = [
@@ -135,6 +135,7 @@ class ProductionController extends Controller
             'batches' => Batch::where(['is_production' => false])->get(),
             'factories' => Factory::query()->get(),
             'stores' => Store::where(['type' => 'FG', 'doc_type' => 'factory'])->get(),
+            'rm_stores' => Store::where(['type' => 'RM', 'doc_type' => 'factory'])->get(),
             'serial_no' => $serial_no,
             'requisitions' => $requisitions,
 

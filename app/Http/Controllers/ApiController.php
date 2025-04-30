@@ -558,18 +558,37 @@ class ApiController extends Controller
 
         $fgQuantities = $requisitionItems->groupBy('coi_id')->map->sum('quantity');
 
-        $coiMap = $requisitionItems->keyBy('coi_id')->map(function ($item) {
-            return $item->coi;
+// Step 2: Parse modifications
+        $modifications = collect($request->modification)->map(function ($item) {
+            return is_array($item) ? $item : json_decode($item, true);
         });
 
-        $fgDetails = $fgQuantities->map(function ($qty, $fg_id) use ($coiMap) {
-            $coi = $coiMap[$fg_id];
+// Step 3: Apply modifications
+        foreach ($modifications as $mod) {
+            $fg_id = $mod['fg_id'];
+            $modQty = (float) $mod['quantity'];
+
+            // Replace or add
+            $fgQuantities[$fg_id] = $modQty;
+        }
+
+// Step 4: Get all relevant COI records (including from modifications)
+        $coiIds = $fgQuantities->keys()->toArray();
+
+        $cois = ChartOfInventory::with(['parent', 'unit'])
+            ->whereIn('id', $coiIds)
+            ->get()
+            ->keyBy('id');
+
+// Step 5: Build the FG details array
+        $fgDetails = $fgQuantities->map(function ($qty, $fg_id) use ($cois) {
+            $coi = $cois[$fg_id] ?? null;
 
             return [
                 'fg_id' => $fg_id,
                 'group' => optional($coi->parent)->name,
                 'name' => optional($coi)->name,
-                'uom' => optional($coi)->unit->name,
+                'uom' => optional($coi->unit)->name,
                 'rate' => optional($coi)->price,
                 'total_qty' => $qty,
             ];

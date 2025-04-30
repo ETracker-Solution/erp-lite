@@ -143,6 +143,21 @@
                                                                       placeholder="Enter Remark"></textarea>
                                                         </div>
                                                     </div>
+                                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                                        <div class="form-group">
+                                                            <label for="rm_store_id">RM Store</label>
+                                                            <select id="rm_store_id"
+                                                                    class="form-control bSelect"
+                                                                    v-model="rm_store_id" required>
+                                                                <option value="">Select One</option>
+                                                                @foreach($rm_stores as $row)
+                                                                    <option
+                                                                        value="{{ $row->id }}">{{ $row->id }}
+                                                                        -{{ $row->name }}</option>
+                                                                @endforeach
+                                                            </select>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
 
@@ -428,7 +443,9 @@
                     isDisabled: false,
                     requisition_id: [],
                     rmItems: [],
-                    submittable: true
+                    submittable: true,
+                    modification: [],
+                    rm_store_id:''
                 },
                 components: {
                     vuejsDatepicker
@@ -579,6 +596,7 @@
                         return quantity * rate;
                     },
                     valid_quantity: function (index) {
+                        const vm= this
                         if (index.quantity <= 0) {
                             toastr.error('Quantity 0 or Negative not Allow', {
                                 closeButton: true,
@@ -586,12 +604,16 @@
                             });
                             index.quantity = 0;
                         }
+                        vm.modification.push({
+                           fg_id: index.id, quantity: index.quantity
+                        })
+                        this.fetchRequisitionItems()
                     },
                     fetchRequisitionItems() {
                         const vm = this;
-                        if (!vm.store_id) {
+                        if (!vm.rm_store_id) {
                             vm.requisition_id = []
-                            toastr.error('Select Store', {
+                            toastr.error('Select RM Store', {
                                 closeButton: true,
                                 progressBar: true,
                             });
@@ -602,7 +624,8 @@
                         axios.get(this.config.get_all_info_url, {
                             params: {
                                 requisition_ids: vm.requisition_id,
-                                store_id: vm.store_id
+                                store_id: vm.rm_store_id,
+                                modification: vm.modification
                             }
                         }).then(function (response) {
                             const details = response.data
