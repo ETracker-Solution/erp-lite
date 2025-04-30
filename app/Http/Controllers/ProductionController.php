@@ -16,6 +16,7 @@ use App\Models\Production;
 use App\Models\ProductionItem;
 use App\Models\ProductionRecipe;
 use App\Models\Purchase;
+use App\Models\Requisition;
 use App\Models\Store;
 use App\Models\Supplier;
 use App\Models\SupplierGroup;
@@ -126,6 +127,7 @@ class ProductionController extends Controller
      */
     public function create()
     {
+        $requisitions = Requisition::select('id','uid')->get();
         $serial_count = Production::latest()->first() ? Production::latest()->first()->id : 0;
         $serial_no = $serial_count + 1;
         $data = [
@@ -134,6 +136,7 @@ class ProductionController extends Controller
             'factories' => Factory::query()->get(),
             'stores' => Store::where(['type' => 'FG', 'doc_type' => 'factory'])->get(),
             'serial_no' => $serial_no,
+            'requisitions' => $requisitions,
 
         ];
         return view('production.create', $data);
@@ -166,7 +169,7 @@ class ProductionController extends Controller
                 if ($product['quantity'] > 0){
                     $totalRate += $product['quantity'] * $product['rate'];
                     $production->items()->create($product);
-                    
+
                     $items['store_id'] = $production->store_id;
                     $items['doc_type'] = 'FGP';
                     $items['id'] = $production->id;

@@ -297,6 +297,7 @@ Route::middleware(['auth', 'prevent_duplicate_submission'])->group(function () {
     Route::get('fetch-requisition-by-id/{id}/{store_id?}', [App\Http\Controllers\ApiController::class, 'fetchRequisitionById']);
     Route::get('fetch-requisition-delivery-by-id/{id}', [App\Http\Controllers\ApiController::class, 'fetchRequisitionDeliveryById']);
     Route::get('fetch-inventory-transfer-by-id/{id}', [App\Http\Controllers\ApiController::class, 'fetchInventoryTransferById']);
+    Route::get('fetch-requisition-items-and-recipe',[App\Http\Controllers\ApiController::class, 'fetchRequisitionItemsAndRecipe']);
     /*=========== Raw Materials Requisition Ends ===========*/
 
     /*=========== Raw Materials Requisition Delivery Starts ===========*/

@@ -15,6 +15,7 @@ use App\Models\Outlet;
 use App\Models\OutletAccount;
 use App\Models\Product;
 use App\Models\Production;
+use App\Models\ProductionRecipe;
 use App\Models\Purchase;
 use App\Models\Requisition;
 use App\Models\RequisitionDelivery;
@@ -351,9 +352,9 @@ class ApiController extends Controller
                         'group' => $row->coi->parent->name ?? '',
                         'rm_average_rate' => $averageRates[$row->coi_id]['rm_rate'] ?? 0,
                         'fg_average_rate' => $averageRates[$row->coi_id]['rm_rate'] ?? 0,
-                        'balance_quantity' => $balance_quantity > 0 ? max(number_format($balance_quantity,2), 0) : $balance_quantity,
+                        'balance_quantity' => $balance_quantity > 0 ? max(number_format($balance_quantity, 2), 0) : $balance_quantity,
                         'requisition_quantity' => $totalRequisitionLeft,
-                        'quantity' => $quantity >0 ?number_format($quantity,2) : 0,
+                        'quantity' => $quantity > 0 ? number_format($quantity, 2) : 0,
                     ];
                 }
             }
@@ -505,10 +506,9 @@ class ApiController extends Controller
         $modelClass = $modelNamespace . $modelName;
         $is_factory = $request->is_factory ?? false;
         $is_headOffice = $request->is_headOffice ?? true;
-        if($store_id)
-        {
+        if ($store_id) {
             $store = Store::find($store_id)->select('doc_id');
-        }else{
+        } else {
             $store = null;
         }
 
@@ -543,5 +543,83 @@ class ApiController extends Controller
     {
         $stores = Store::where('type', $type)->get();
         return response()->json(['stores' => $stores]);
+    }
+
+    public function fetchRequisitionItemsAndRecipe(Request $request)
+    {
+        $request->validate([
+            'requisition_ids' => ['required'],
+            'store_id' => ['nullable']
+        ]);
+
+        $requisitionItems = RequisitionItem::whereIn('requisition_id', $request->requisition_ids)
+            ->select('coi_id', 'quantity')
+            ->get();
+
+        $fgQuantities = $requisitionItems->groupBy('coi_id')->map->sum('quantity');
+
+        $coiMap = $requisitionItems->keyBy('coi_id')->map(function ($item) {
+            return $item->coi;
+        });
+
+        $fgDetails = $fgQuantities->map(function ($qty, $fg_id) use ($coiMap) {
+            $coi = $coiMap[$fg_id];
+
+            return [
+                'fg_id' => $fg_id,
+                'group' => optional($coi->parent)->name,
+                'name' => optional($coi)->name,
+                'uom' => optional($coi)->unit->name,
+                'rate' => optional($coi)->price,
+                'total_qty' => $qty,
+            ];
+        })->values();
+
+        $recipes = ProductionRecipe::with('coi:id,name')
+            ->whereIn('fg_id', $fgQuantities->keys())
+            ->get();
+
+        $rmData = $recipes->map(function ($recipe) use ($fgQuantities) {
+            return [
+                'unit' => $recipe->coi->unit->name ?? '',
+                'rm_id' => $recipe->rm_id,
+                'rm_name' => optional($recipe->coi)->name,
+                'qty' => $recipe->qty * ($fgQuantities[$recipe->fg_id] ?? 0),
+            ];
+        });
+
+        $submittable = true;
+
+        $rmIds = $recipes->pluck('rm_id')->unique()->toArray();
+
+        $storeStocks = fetchStoreProductBalances($rmIds, [$request->store_id]);
+
+        $final = $rmData->groupBy('rm_id')->map(function ($items) use ($storeStocks, $request) {
+            $unit = $items->first()['unit'];
+            $rmId = $items->first()['rm_id'];
+            $qty = $items->sum('qty');
+            $current_stock = $storeStocks[$request->store_id][$rmId] ?? 0;
+
+            $in_stock = $qty <= $current_stock;
+
+            return [
+                'rm_id' => $rmId,
+                'rm_name' => $items->first()['rm_name'],
+                'unit' => $unit,
+                'total_qty' => $qty,
+                'current_stock' => $current_stock,
+                'in_stock' => $in_stock,
+            ];
+        })->values();
+
+        $submittable = $final->every(function ($item) {
+            return $item['in_stock'] === true;
+        });
+
+        return response()->json([
+            'rm' => $final,
+            'fg' => $fgDetails,
+            'submittable'=>$submittable
+        ]);
     }
 }
