@@ -336,7 +336,7 @@
                                                         </tr>
                                                         </thead>
                                                         <tbody>
-                                                        <tr v-for="(row, index) in rmItems">
+                                                        <tr v-for="(row, index) in rmItems" :style="{ backgroundColor: row.in_stock === false ? 'red' : '' }">
 
                                                             <td>
                                                                 @{{ ++index }}
