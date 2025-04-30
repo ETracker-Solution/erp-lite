@@ -162,39 +162,39 @@
 
                                 <div class="card-box">
                                     <div id="">
-                                        <div class="row">
-                                            <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
-                                                <div class="form-group">
-                                                    <label for="group_id" class="control-label">Group</label>
-                                                    <select class="form-control" name="group_id" v-model="group_id"
-                                                            @change="fetch_items">
-                                                        <option value="">Select One</option>
-                                                        @foreach ($groups as $row)
-                                                            <option value="{{ $row->id }}">{{ $row->name }}</option>
-                                                        @endforeach
-                                                    </select>
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
-                                                <div class="form-group">
-                                                    <label for="item_id">Item</label>
-                                                    <select name="item_id" id="item_id"
-                                                            class="form-control bSelect" v-model="item_id">
-                                                        <option value="">Select one</option>
+{{--                                        <div class="row">--}}
+{{--                                            <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">--}}
+{{--                                                <div class="form-group">--}}
+{{--                                                    <label for="group_id" class="control-label">Group</label>--}}
+{{--                                                    <select class="form-control" name="group_id" v-model="group_id"--}}
+{{--                                                            @change="fetch_items">--}}
+{{--                                                        <option value="">Select One</option>--}}
+{{--                                                        @foreach ($groups as $row)--}}
+{{--                                                            <option value="{{ $row->id }}">{{ $row->name }}</option>--}}
+{{--                                                        @endforeach--}}
+{{--                                                    </select>--}}
+{{--                                                </div>--}}
+{{--                                            </div>--}}
+{{--                                            <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">--}}
+{{--                                                <div class="form-group">--}}
+{{--                                                    <label for="item_id">Item</label>--}}
+{{--                                                    <select name="item_id" id="item_id"--}}
+{{--                                                            class="form-control bSelect" v-model="item_id">--}}
+{{--                                                        <option value="">Select one</option>--}}
 
-                                                        <option :value="row . id" v-for="row in items"
-                                                                v-html="row.name">
-                                                        </option>
+{{--                                                        <option :value="row . id" v-for="row in items"--}}
+{{--                                                                v-html="row.name">--}}
+{{--                                                        </option>--}}
 
-                                                    </select>
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12" style="margin-top: 30px;">
-                                                <button type="button" class="btn btn-info btn-block"
-                                                        @click="data_input" :disabled="isDisabled">Add
-                                                </button>
-                                            </div>
-                                        </div>
+{{--                                                    </select>--}}
+{{--                                                </div>--}}
+{{--                                            </div>--}}
+{{--                                            <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12" style="margin-top: 30px;">--}}
+{{--                                                <button type="button" class="btn btn-info btn-block"--}}
+{{--                                                        @click="data_input" :disabled="isDisabled">Add--}}
+{{--                                                </button>--}}
+{{--                                            </div>--}}
+{{--                                        </div>--}}
 
                                         <div class="row">
                                             <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12"

@@ -81,6 +81,9 @@
     </tr>
     </thead>
     <tbody>
+    @php
+    $finalAmount = 0;
+    @endphp
     @foreach($products as $product)
         @php
             $parentSum = 0;
@@ -149,7 +152,18 @@
                 </td>
             </tr>
         @endif
+
+        @php
+            $finalAmount += $parentSum;
+        @endphp
     @endforeach
+    <tr>
+        <td style="font-weight: 700; font-size:14px">All Total</td>
+        <td colspan="4"
+            style="text-align: right; font-weight: 700; border-top: 1px solid black; border-bottom: 1px solid black">
+            {{ round($finalAmount) }}
+        </td>
+    </tr>
     </tbody>
 </table>
 </body>

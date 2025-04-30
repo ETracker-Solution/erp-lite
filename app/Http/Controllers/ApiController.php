@@ -414,7 +414,7 @@ class ApiController extends Controller
                 'group' => $row->coi->parent->name ?? '',
                 'fg_average_rate' => averageFGRate($row->coi_id),
                 'transfer_quantity' => $row->quantity,
-                'quantity' => '',
+                'quantity' => $row->quantity,
             ];
         }
         $data = [

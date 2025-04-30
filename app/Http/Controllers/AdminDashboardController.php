@@ -6,6 +6,7 @@ use App\Models\AccountTransaction;
 use App\Models\ChartOfInventory;
 use App\Models\Customer;
 use App\Models\InventoryAdjustment;
+use App\Models\InventoryTransaction;
 use App\Models\Outlet;
 use App\Models\Purchase;
 use App\Models\Requisition;
@@ -155,6 +156,42 @@ class AdminDashboardController extends Controller
 
         $slowSellingProducts = $productSales->sortBy('total_sold')->take(5);
 
+        $storeId = request('store_id');
+
+// Fetch all RM and FG items with their type = 'item'
+        $inventoryItems = ChartOfInventory::where('type', 'item')
+            ->whereIn('rootAccountType', ['RM', 'FG'])
+            ->get(['id', 'rootAccountType']);
+
+// Group by rootAccountType (RM/FG)
+        $grouped = $inventoryItems->groupBy('rootAccountType');
+
+        $rmIds = $grouped['RM']?->pluck('id') ?? collect();
+        $fgIds = $grouped['FG']?->pluck('id') ?? collect();
+
+// Fetch current stock and rate in one query per item
+        $transactions = InventoryTransaction::selectRaw("
+        coi_id,
+        SUM(type * quantity) as current_stock,
+        COALESCE(ROUND(SUM(CASE WHEN type = 1 THEN amount ELSE 0 END) / NULLIF(SUM(CASE WHEN type = 1 THEN quantity ELSE 0 END), 0), 2), 0.00) as rate
+    ")
+            ->when($storeId, fn($q) => $q->where('store_id', $storeId))
+            ->whereIn('coi_id', $inventoryItems->pluck('id'))
+            ->groupBy('coi_id')
+            ->get()
+            ->keyBy('coi_id');
+
+// Calculate RM and FG amounts
+        $rmAmount = $rmIds->sum(function ($id) use ($transactions) {
+            $t = $transactions[$id] ?? null;
+            return $t ? $t->current_stock * $t->rate : 0;
+        });
+
+        $fgAmount = $fgIds->sum(function ($id) use ($transactions) {
+            $t = $transactions[$id] ?? null;
+            return $t ? $t->current_stock * $t->rate : 0;
+        });
+
         $data = [
             'totalSales' => $total_sales,
             'outlets' => $outlets,
@@ -180,7 +217,9 @@ class AdminDashboardController extends Controller
             'customersWithPoint' => $customersWithPoint,
             'bestSellingProducts' => $bestProducts,
             'slowSellingProducts' => $slowSellingProducts,
-            'todayInvoice' => $todayInvoice
+            'todayInvoice' => $todayInvoice,
+            'rmStock' => number_format($rmAmount),
+            'fgStock' => number_format($fgAmount),
         ];
         return view('dashboard.admin', $data);
     }

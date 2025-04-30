@@ -36,8 +36,6 @@
                     </div>
                 </div>
             </div>
-            <!--/ Medal Card -->
-
             <!-- Statistics Card -->
             <div class="col-xl-8 col-md-6 col-12">
                 <div class="card card-statistics">
@@ -49,24 +47,46 @@
                     </div>
                     <div class="card-body statistics-body">
                         <div class="row">
-                            <div class="col-xl-3 col-sm-6 col-12 mb-2 mb-xl-0">
+                            <div class="col-xl-4 col-sm-6 col-12 mb-2 mb-xl-0">
                                 <x-card-statistics title="Outlets" value="{{ $outlets }}" icon="layers"
                                                    colorClass="bg-light-primary"/>
                             </div>
-                            <div class="col-xl-3 col-sm-6 col-12 mb-2 mb-xl-0">
+                            <div class="col-xl-4 col-sm-6 col-12 mb-2 mb-xl-0">
                                 <x-card-statistics title="Today's Invoice" value="{{ $todayInvoice }}" icon="layers"
                                                    colorClass="bg-light-primary"/>
                             </div>
-                            <div class="col-xl-2 col-sm-6 col-12 mb-2 mb-xl-0">
+                            <div class="col-xl-4 col-sm-6 col-12 mb-2 mb-xl-0">
                                 <x-card-statistics title="Customers" value="{{ $customers }}" icon="fa fa-user"
                                                    colorClass="bg-light-info"/>
                             </div>
-                            <div class="col-xl-2 col-sm-6 col-12 mb-2 mb-sm-0">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-12 col-md-12 col-12">
+                <div class="card card-statistics">
+                    <div class="card-header bg-info">
+                        <h4 class="card-title">Statistics</h4>
+                        <div class="card-tools">
+                            {{-- Updated 1 minute ago --}}
+                        </div>
+                    </div>
+                    <div class="card-body statistics-body">
+                        <div class="row">
+                            <div class="col-xl-3 col-sm-6 col-12 mb-2 mb-sm-0">
                                 <x-card-statistics title="Products" value="{{ $products }}" icon="shopping-cart"
                                                    colorClass="bg-light-danger"/>
                             </div>
-                            <div class="col-xl-2 col-sm-6 col-12">
+                            <div class="col-xl-3 col-sm-6 col-12">
                                 <x-card-statistics title="Wastage" value="{{ $wastageAmount }}" icon="trash-2"
+                                                   colorClass="bg-light-success"/>
+                            </div>
+                            <div class="col-xl-3 col-sm-6 col-12 mb-2 mb-sm-0">
+                                <x-card-statistics title="RM STOCK" value="{{ $rmStock }}" icon="shopping-cart"
+                                                   colorClass="bg-light-danger"/>
+                            </div>
+                            <div class="col-xl-3 col-sm-6 col-12">
+                                <x-card-statistics title="FG STOCK" value="{{ $fgStock }}" icon="trash-2"
                                                    colorClass="bg-light-success"/>
                             </div>
                         </div>
