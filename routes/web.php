@@ -149,6 +149,7 @@ Route::middleware(['auth', 'prevent_duplicate_submission'])->group(function () {
     Route::resource('consumptions', \App\Http\Controllers\ConsumptionController::class);
     Route::get('consumption-pdf/{id}', [App\Http\Controllers\ConsumptionController::class, 'consumptionPdf'])->name('consumptions.pdf');
     //-----start Pos---------
+    Route::get('pos-recipe', [POSController::class, 'getPosRecipe'])->name('pos.recipe');
     Route::get('pos-pre-orders', [POSController::class, 'getAllPreOrders'])->name('pos.pre.orders');
     Route::post('pos-pre-order', [POSController::class, 'storePreOrder'])->name('pos.pre.order');
     Route::post('pos-hold-order-print', [POSController::class, 'printHoldOrder'])->name('pos.hold-order.print');

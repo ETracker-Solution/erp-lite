@@ -133,6 +133,11 @@
             </div>
         </div>
     </div>
+    <b-modal ref="recipe-modal" hide-footer title="Remaining Recipe">
+        <div v-html="recipeContent">
+        </div>
+        <b-button class="mt-3" variant="outline-danger" @click="closeRecipeModal">Close</b-button>
+    </b-modal>
 
     <b-modal ref="coupon-modal" hide-footer title="Apply Coupon">
         <div class="d-block text-center">

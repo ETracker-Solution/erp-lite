@@ -85,8 +85,8 @@ class POSController extends Controller
             }
             $outlet_id = \auth('web')->user()->employee->outlet_id;
             $outlet = Outlet::find($outlet_id);
-            $store = Store::where(['doc_type' => 'outlet', 'doc_id' => $outlet->id,'type'=> 'FG'])->first();
-            $rm_store = Store::where(['doc_type' => 'outlet', 'doc_id' => $outlet->id, 'type'=> 'RM'])->first();
+            $store = Store::where(['doc_type' => 'outlet', 'doc_id' => $outlet->id, 'type' => 'FG'])->first();
+            $rm_store = Store::where(['doc_type' => 'outlet', 'doc_id' => $outlet->id, 'type' => 'RM'])->first();
             $sale = new Sale();
 
             $sale->invoice_number = generateUniqueUUID($outlet_id, Sale::class, 'invoice_number');
@@ -161,8 +161,8 @@ class POSController extends Controller
                 $sale_item['store_id'] = $store->id;
 
 
-                if($row['recipeProduct'] == true){
-                    if(!$rm_store){
+                if ($row['recipeProduct'] == true) {
+                    if (!$rm_store) {
                         Toastr::error('Please Set RM Store', '', ["progressBar" => true]);
                         return back();
                     }
@@ -685,9 +685,61 @@ class POSController extends Controller
 //        $options = ['chroot' => base_path()];
 //        $dompdf = new Dompdf($options);
 //        $dompdf->loadHtml(view('pos.print.hold-order', compact('identifier','items'))->render());
-        return view('pos.print.hold-order', compact('identifier','items','discount'));
+        return view('pos.print.hold-order', compact('identifier', 'items', 'discount'));
 
         $dompdf->render();
         return $dompdf->stream('order', ["Attachment" => false]);
+    }
+
+    public function getPosRecipe(Request $request)
+    {
+        $fg_id = $request->fg_id;
+        $qty = $request->qty;
+        $recipes = Recipe::where('fg_id', $fg_id)->where('status', 'active')->get();
+
+        $rmIds = $recipes->pluck('rm_id')->unique()->toArray();
+
+        $outlet_id = \auth('web')->user()->employee->outlet_id;
+        $outlet = Outlet::find($outlet_id);
+
+        $rm_store = Store::where(['doc_type' => 'outlet', 'doc_id' => $outlet->id, 'type' => 'RM'])->first();
+
+        $rmData = $recipes->map(function ($recipe) use ($qty) {
+            return [
+                'unit' => $recipe->coi->unit->name ?? '',
+                'rm_id' => $recipe->rm_id,
+                'rm_name' => optional($recipe->coi)->name,
+                'qty' => $recipe->qty * ($qty ?? 0),
+            ];
+        });
+
+        $storeStocks = fetchStoreProductBalances($rmIds, [$rm_store->id]);
+
+        $rmItems = $rmData->groupBy('rm_id')->map(function ($items) use ($storeStocks, $rm_store) {
+            $unit = $items->first()['unit'];
+            $rmId = $items->first()['rm_id'];
+            $qtyy = $items->sum('qty');
+            $current_stock = $storeStocks[$rm_store->id][$rmId] ?? 0;
+
+            $in_stock = $qtyy <= $current_stock;
+
+            return [
+                'rm_id' => $rmId,
+                'rm_name' => $items->first()['rm_name'],
+                'unit' => $unit,
+                'total_qty' => $qtyy,
+                'current_stock' => $current_stock,
+                'in_stock' => $in_stock,
+            ];
+        })->values();
+
+        $submittable = $rmItems->every(function ($item) {
+            return $item['in_stock'] === true;
+        });
+
+        return response()->json([
+            'submittable' => $submittable,
+            'view' => view('pos.print.remaining', compact('rmItems'))->render(),
+        ]);
     }
 }
