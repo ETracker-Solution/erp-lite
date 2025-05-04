@@ -65,7 +65,7 @@
                                                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                         <div class="form-group">
                                                             <label for="requisition_id">Requisitions</label>
-                                                            <select name="requisition_id" id="requisition_id"
+                                                            <select name="requisition_id[]" id="requisition_id"
                                                                     @change="fetchRequisitionItems"
                                                                     class="form-control bSelect"
                                                                     v-model="requisition_id" multiple>
@@ -552,6 +552,7 @@
                                     //     return false;
                                     //
                                     // });
+                                    vm.isDisabled = false
                                 } else {
                                     toastr.info('Select Item', {
                                         closeButton: true,
@@ -613,8 +614,8 @@
                     },
                     valid_quantity: function (index) {
                         const vm= this
-                        if (index.quantity <= 0) {
-                            toastr.error('Quantity 0 or Negative not Allow', {
+                        if (index.quantity < 0) {
+                            toastr.error('Quantity Negative not Allow', {
                                 closeButton: true,
                                 progressBar: true,
                             });

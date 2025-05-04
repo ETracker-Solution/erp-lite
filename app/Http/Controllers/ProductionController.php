@@ -37,6 +37,7 @@ class ProductionController extends Controller
     {
         $this->exportService = $exportService;
     }
+
     public function exportFGProduction($type)
     {
         $data = ProductionItem::with('coi.parent', 'production.batch')->latest();
@@ -61,6 +62,7 @@ class ProductionController extends Controller
         return $this->exportService->exportFile($type, $viewFileName, $exportableData, $filenameToDownload, 'L'); // L stands for Landscape, if Portrait needed, just remove this params
 
     }
+
     public function stock($production_id)
     {
         DB::beginTransaction();
@@ -112,8 +114,8 @@ class ProductionController extends Controller
 
     protected function getFilteredData()
     {
-        $data =  Production::with('batch', 'factory', 'store');
-        if (request()->filled('date_range')){
+        $data = Production::with('batch', 'factory', 'store');
+        if (request()->filled('date_range')) {
             searchColumnByDateRange($data);
         }
 
@@ -127,7 +129,7 @@ class ProductionController extends Controller
      */
     public function create()
     {
-        $requisitions = Requisition::where('type','FG')->select('id','uid')->get();
+        $requisitions = Requisition::where('type', 'FG')->select('id', 'uid')->whereNull('production_id')->get();
         $serial_count = Production::latest()->first() ? Production::latest()->first()->id : 0;
         $serial_no = $serial_count + 1;
         $data = [
@@ -162,12 +164,12 @@ class ProductionController extends Controller
             $store = Store::find($validated['store_id']);
             $factory = Factory::find($validated['factory_id']);
             $rm_store = Store::where(['doc_type' => 'factory', 'doc_id' => $factory->id, 'type' => 'RM'])->first();
-            $validated['uid'] = generateUniqueUUID($store->doc_id, Production::class, 'uid',$store->doc_type == 'factory');
+            $validated['uid'] = generateUniqueUUID($store->doc_id, Production::class, 'uid', $store->doc_type == 'factory');
             $production = Production::query()->create($validated);
             Batch::where('id', $validated['batch_id'])->update(['is_production' => true]);
             $totalRate = 0;
             foreach ($validated['products'] as $product) {
-                if ($product['quantity'] > 0){
+                if ($product['quantity'] > 0) {
                     $totalRate += $product['quantity'] * $product['rate'];
                     $production->items()->create($product);
 
@@ -209,12 +211,16 @@ class ProductionController extends Controller
                 }
             }
             $production->update([
-                'subtotal'=>$totalRate
+                'subtotal' => $totalRate
             ]);
 
             $production->amount = $totalRate;
             // Accounts Transaction Effect
             addAccountsTransaction('FGP', $production, 16, 17);
+
+            Requisition::whereIn('id', $request->requisition_id)->update([
+                'production_id' => $production->id
+            ]);
 
             DB::commit();
         } catch (\Exception $exception) {
