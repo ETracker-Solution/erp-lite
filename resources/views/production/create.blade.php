@@ -177,39 +177,39 @@
 
                                 <div class="card-box">
                                     <div id="">
-{{--                                        <div class="row">--}}
-{{--                                            <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">--}}
-{{--                                                <div class="form-group">--}}
-{{--                                                    <label for="group_id" class="control-label">Group</label>--}}
-{{--                                                    <select class="form-control" name="group_id" v-model="group_id"--}}
-{{--                                                            @change="fetch_items">--}}
-{{--                                                        <option value="">Select One</option>--}}
-{{--                                                        @foreach ($groups as $row)--}}
-{{--                                                            <option value="{{ $row->id }}">{{ $row->name }}</option>--}}
-{{--                                                        @endforeach--}}
-{{--                                                    </select>--}}
-{{--                                                </div>--}}
-{{--                                            </div>--}}
-{{--                                            <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">--}}
-{{--                                                <div class="form-group">--}}
-{{--                                                    <label for="item_id">Item</label>--}}
-{{--                                                    <select name="item_id" id="item_id"--}}
-{{--                                                            class="form-control bSelect" v-model="item_id">--}}
-{{--                                                        <option value="">Select one</option>--}}
+                                        <div class="row">
+                                            <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
+                                                <div class="form-group">
+                                                    <label for="group_id" class="control-label">Group</label>
+                                                    <select class="form-control" name="group_id" v-model="group_id"
+                                                            @change="fetch_items">
+                                                        <option value="">Select One</option>
+                                                        @foreach ($groups as $row)
+                                                            <option value="{{ $row->id }}">{{ $row->name }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
+                                                <div class="form-group">
+                                                    <label for="item_id">Item</label>
+                                                    <select name="item_id" id="item_id"
+                                                            class="form-control bSelect" v-model="item_id">
+                                                        <option value="">Select one</option>
 
-{{--                                                        <option :value="row . id" v-for="row in items"--}}
-{{--                                                                v-html="row.name">--}}
-{{--                                                        </option>--}}
+                                                        <option :value="row . id" v-for="row in items"
+                                                                v-html="row.name">
+                                                        </option>
 
-{{--                                                    </select>--}}
-{{--                                                </div>--}}
-{{--                                            </div>--}}
-{{--                                            <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12" style="margin-top: 30px;">--}}
-{{--                                                <button type="button" class="btn btn-info btn-block"--}}
-{{--                                                        @click="data_input" :disabled="isDisabled">Add--}}
-{{--                                                </button>--}}
-{{--                                            </div>--}}
-{{--                                        </div>--}}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12" style="margin-top: 30px;">
+                                                <button type="button" class="btn btn-info btn-block"
+                                                        @click="data_input" :disabled="isDisabled">Add
+                                                </button>
+                                            </div>
+                                        </div>
 
                                         <div class="row">
                                             <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12"
@@ -268,9 +268,9 @@
                                                                        v-bind:value="itemtotal(row)" readonly>
                                                             </td>
                                                             <td>
-                                                                <button type="button" class="btn btn-sm btn-danger"
-                                                                        @click="delete_row(row)"><i
-                                                                        class="fa fa-trash"></i></button>
+{{--                                                                <button type="button" class="btn btn-sm btn-danger"--}}
+{{--                                                                        @click="delete_row(row)"><i--}}
+{{--                                                                        class="fa fa-trash"></i></button>--}}
                                                             </td>
                                                         </tr>
                                                         </tbody>
@@ -519,31 +519,47 @@
                                 return
                             } else {
                                 if (item_id) {
-                                    vm.pageLoading = true;
-                                    axios.get(this.config.get_item_info_url + '/' + item_id).then(function (response) {
-                                        let item_info = response.data;
-                                        console.log(item_info);
-                                        vm.selected_items.push({
-                                            id: item_info.id,
-                                            group: item_info.parent.name,
-                                            name: item_info.name,
-                                            uom: item_info?.unit?.name,
-                                            rate: item_info.price,
-                                            quantity: item_info?.quantity,
-                                        });
-                                        vm.isDisabled = false
-                                        vm.pageLoading = false;
-
-                                    }).catch(function (error) {
-                                        toastr.error('Something went to wrong', {
-                                            closeButton: true,
-                                            progressBar: true,
-                                        });
-                                        vm.isDisabled = false
-                                        return false;
-
-                                    });
+                                    vm.modification.push({
+                                        fg_id: item_id, quantity: 0
+                                    })
+                                    vm.fetchRequisitionItems()
+                                    // vm.pageLoading = true;
+                                    // axios.get(this.config.get_item_info_url + '/' + item_id).then(function (response) {
+                                    //     let item_info = response.data;
+                                    //     // console.log(item_info);
+                                    //     vm.selected_items.push({
+                                    //         id: item_info.id,
+                                    //         group: item_info.parent.name,
+                                    //         name: item_info.name,
+                                    //         uom: item_info?.unit?.name,
+                                    //         rate: item_info.price,
+                                    //         quantity: item_info?.quantity,
+                                    //     });
+                                    //     vm.isDisabled = false
+                                    //     vm.pageLoading = false;
+                                    //     vm.modification.push({
+                                    //         fg_id: item_info.id, quantity: item_info?.quantity ?? 0
+                                    //     })
+                                    //     vm.fetchRequisitionItems()
+                                    //
+                                    // }).catch(function (error) {
+                                    //     console.log(error)
+                                    //     toastr.error('Something went to wrong', {
+                                    //         closeButton: true,
+                                    //         progressBar: true,
+                                    //     });
+                                    //     vm.isDisabled = false
+                                    //     return false;
+                                    //
+                                    // });
                                 } else {
+                                    toastr.info('Select Item', {
+                                        closeButton: true,
+                                        progressBar: true,
+                                    });
+                                    vm.isDisabled = false
+                                    return
+
                                     vm.pageLoading = true;
                                     axios.get(this.config.get_items_info_by_group_id_url + '/' + vm.group_id).then(function (response) {
                                         //  vm.selected_items = [];
@@ -614,6 +630,14 @@
                         if (!vm.rm_store_id) {
                             vm.requisition_id = []
                             toastr.error('Select RM Store', {
+                                closeButton: true,
+                                progressBar: true,
+                            });
+                            return
+                        }
+
+                        if(vm.requisition_id.length < 1){
+                            toastr.info('Select Requisition', {
                                 closeButton: true,
                                 progressBar: true,
                             });
