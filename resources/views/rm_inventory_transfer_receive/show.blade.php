@@ -5,14 +5,29 @@ RM Inventory Transfer Receive Details
 @section('content')
 <!-- Content Wrapper. Contains page content -->
 <!-- Content Header (Page header) -->
-    @php    
+    @php
         $links = [
         'Home'=>route('dashboard'),
         'RM Inventory Transfer Receive Details'=>''
         ]
     @endphp
 <x-breadcrumb title='RM Inventory Transfer Receive Details' :links="$links"/>
+<script>
+    window.onload = function () {
+        // Create an iframe element
+        const iframe = document.createElement('iframe');
+        iframe.style.display = 'none'; // Hide the iframe
+        iframe.src = "{{ route('rm-transfer-receive.pdf', encrypt($rmTransferReceive->id),['print'=>true]) }}"; // URL of the PDF
 
+        // Append the iframe to the document body
+        document.body.appendChild(iframe);
+
+        // Wait for the iframe to load, then trigger print
+        iframe.onload = function () {
+            iframe.contentWindow.print();
+        };
+    };
+</script>
 <section class="content">
     <div class="container-fluid">
         <div class="row">
@@ -34,7 +49,7 @@ RM Inventory Transfer Receive Details
                                                 <p><b>RMITR No :</b> {{ $rmTransferReceive->uid }}</p>
                                                 <p><b>Date :</b> {{ $rmTransferReceive->date }} </p>
                                                 <p><b>Status :</b> {!! showStatus($rmTransferReceive->status) !!}</p>
-                                            </td> 
+                                            </td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -45,13 +60,13 @@ RM Inventory Transfer Receive Details
                             </div>
                             <!-- /.col -->
                             <div class="col-sm-4 invoice-col">
-                                 
+
                             </div>
                             <!-- /.col -->
                         </div>
-    
+
                         <!-- /.row -->
-    
+
                         <!-- Table row -->
                         <div class="row">
                             <div class="col-12 table-responsive">

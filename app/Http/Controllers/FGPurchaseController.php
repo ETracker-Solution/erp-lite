@@ -129,7 +129,7 @@ class FGPurchaseController extends Controller
             return back();
         }
         Toastr::success('Purchase Created Successfully!.', '', ["progressBar" => true]);
-        return redirect()->route('fg-purchases.index');
+        return redirect()->route('purchases.show', encrypt($purchase->id))->with('print', true);
 
     }
 

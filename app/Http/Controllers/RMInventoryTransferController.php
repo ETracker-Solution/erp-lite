@@ -84,7 +84,7 @@ class RMInventoryTransferController extends Controller
            return back();
        }
         Toastr::success('RM Inventory Transfer Successful!.', '', ["progressBar" => true]);
-        return redirect()->route('rm-inventory-transfers.index');
+        return redirect()->route('rm-inventory-transfers.show', $fGInventoryTransfer->id);
     }
 
     /**
@@ -137,6 +137,11 @@ class RMInventoryTransferController extends Controller
             'items' => InventoryTransferItem::where('inventory_transfer_id', $id)->get(),
             'RMInventoryTransfer' => InventoryTransfer::with('toStore', 'fromStore')->find($id),
         ];
+
+        if (\request()->has('print')) {
+            return view('rm_inventory_transfer.pdf',
+                $data);
+        }
 
         $pdf = PDF::loadView(
             'rm_inventory_transfer.pdf',

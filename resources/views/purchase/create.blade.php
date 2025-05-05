@@ -9,7 +9,7 @@
             'Purchase Entry' => ''
         ]
     @endphp
-    <x-breadcrumb title='Purchase' :links="$links" />
+    <x-breadcrumb title='Purchase' :links="$links"/>
     <!-- Main content -->
     <section class="content">
         <div class="container-fluid">
@@ -40,7 +40,8 @@
                                         <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                             <div class="form-group">
                                                 <label for="uid">Purchase No</label>
-                                                <input type="text" class="form-control input-sm" name="uid" v-model="uid"
+                                                <input type="text" class="form-control input-sm" name="uid"
+                                                       v-model="uid"
                                                        id="uid" readonly>
                                             </div>
                                         </div>
@@ -70,29 +71,28 @@
                                                        value="{{old('reference_no')}}" name="reference_no">
                                             </div>
                                         </div>
-                                        <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
-                                            <div class="form-group">
-                                                <label for="supplier_id">Group</label>
-                                                <select name="supplier_group_id" id="supplier_group_id"
-                                                        class="form-control bSelect" v-model="supplier_group_id"
-                                                        @change="fetch_supplier">
-                                                    <option value="">Select Group</option>
-                                                    @foreach($supplier_groups as $row)
-                                                        <option value="{{ $row->id }}">{{ $row->name }}</option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
-                                        </div>
+                                        {{--                                        <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">--}}
+                                        {{--                                            <div class="form-group">--}}
+                                        {{--                                                <label for="supplier_id">Group</label>--}}
+                                        {{--                                                <select name="supplier_group_id" id="supplier_group_id"--}}
+                                        {{--                                                        class="form-control bSelect" v-model="supplier_group_id"--}}
+                                        {{--                                                        @change="fetch_supplier">--}}
+                                        {{--                                                    <option value="">Select Group</option>--}}
+                                        {{--                                                    @foreach($supplier_groups as $row)--}}
+                                        {{--                                                        <option value="{{ $row->id }}">{{ $row->name }}</option>--}}
+                                        {{--                                                    @endforeach--}}
+                                        {{--                                                </select>--}}
+                                        {{--                                            </div>--}}
+                                        {{--                                        </div>--}}
                                         <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                             <div class="form-group">
                                                 <label for="supplier_id">Supplier</label>
                                                 <select name="supplier_id" id="supplier_id" class="form-control bSelect"
                                                         v-model="supplier_id" required>
                                                     <option value="">Select Supplier</option>
-                                                    <option :value="row . id" v-for="row in suppliers" v-html="row.name">
-                                                    </option>
-
-                                                </select>
+                                                    @foreach($suppliers as $row)
+                                                        <option value="{{$row->id}}">{{ $row->name }}</option>
+                                                    @endforeach
                                                 </select>
                                             </div>
                                         </div>
@@ -172,16 +172,24 @@
                                                     <td>
                                                         <input type="number" class="form-control input-sm" step="0.001"
                                                                :name="'products[' + index + '][a_unit_quantity]'"
-                                                               v-model="row.a_unit_quantity" @change="itemtotal(row);valid_quantity(row)">
+                                                               v-model="row.a_unit_quantity"
+                                                               @change="itemtotal(row);valid_quantity(row)">
                                                     </td>
                                                     <td>
-                                                        <input type="text" class="form-control input-sm" :value="row . alter_unit" :name="'products[' + index + '][alter_unit]'"
+                                                        <input type="text" class="form-control input-sm"
+                                                               :value="row . alter_unit"
+                                                               :name="'products[' + index + '][alter_unit]'"
                                                                v-if="row.alter_unit" readonly>
-                                                        <input type="hidden" class="form-control input-sm" :value="row . alter_unit_id" :name="'products[' + index + '][alter_unit_id]'" v-if="row.alter_unit_id" readonly>
+                                                        <input type="hidden" class="form-control input-sm"
+                                                               :value="row . alter_unit_id"
+                                                               :name="'products[' + index + '][alter_unit_id]'"
+                                                               v-if="row.alter_unit_id" readonly>
                                                     </td>
                                                     <td>
-                                                        <input type="number" v-model="row.quantity" :name="'products[' + index + '][quantity]'" class="form-control input-sm"
-                                                               v-if="row.alter_unit"  step="0.001"
+                                                        <input type="number" v-model="row.quantity"
+                                                               :name="'products[' + index + '][quantity]'"
+                                                               class="form-control input-sm"
+                                                               v-if="row.alter_unit" step="0.001"
                                                                @change="itemtotal(row);valid_quantity(row)" required>
                                                     </td>
                                                     <td>
@@ -192,7 +200,9 @@
                                                                v-bind:value="convertedUnit(row)" readonly>
                                                     </td>
                                                     <td>
-                                                        <input type="number" v-model="row.rate" :name="'products[' + index + '][rate]'" class="form-control input-sm" step="any"
+                                                        <input type="number" v-model="row.rate"
+                                                               :name="'products[' + index + '][rate]'"
+                                                               class="form-control input-sm" step="any"
                                                                @change="itemtotal(row);valid_rate(row)" required>
                                                     </td>
                                                     <td>
@@ -368,9 +378,9 @@
                     subtotal: function () {
                         return this.selected_items.reduce((total, item) => {
                             let quantity = 0
-                            if (item.alter_unit_id){
+                            if (item.alter_unit_id) {
                                 quantity = parseFloat(item.quantity);
-                            }else{
+                            } else {
                                 quantity = parseFloat(item.a_unit_quantity)
                             }
                             const rate = parseFloat(item.rate);
@@ -445,8 +455,7 @@
                                 progressBar: true,
                             });
                             return false;
-                        }
-                        else {
+                        } else {
                             vm.isDisabled = true
                             let group_id = vm.group_id;
                             let item_id = vm.item_id;
@@ -455,7 +464,7 @@
                                 vm.pageLoading = true;
 
                                 axios.get(vm.config.get_item_info_url + '/' + item_id, {
-                                    params: { rootAccountType: 'RM' }
+                                    params: {rootAccountType: 'RM'}
                                 }).then(response => {
                                     let item_info = response.data;
 
@@ -474,7 +483,8 @@
                                         alt_unit_rate: lastItem?.alt_unit_rate ?? 0,
                                         a_unit_quantity: lastItem?.a_unit_quantity ?? 0,
                                         rate: item_info.purchase_items.length > 0 ? item_info.purchase_items[item_info.purchase_items.length - 1].alt_unit_rate : 0,
-                                        quantity: item_info.alter_unit === null ? 0 : (lastItem?.quantity ?? 1) / (lastItem?.a_unit_quantity ?? 1),                                    });
+                                        quantity: item_info.alter_unit === null ? 0 : (lastItem?.quantity ?? 1) / (lastItem?.a_unit_quantity ?? 1),
+                                    });
 
                                     console.log(vm.selected_items);
 
@@ -536,9 +546,9 @@
                     },
                     itemtotal: function (index) {
                         let quantity = 0
-                        if (index.alter_unit_id){
+                        if (index.alter_unit_id) {
                             quantity = parseFloat(index.quantity);
-                        }else{
+                        } else {
                             quantity = parseFloat(index.a_unit_quantity)
                         }
                         const rate = parseFloat(index.rate);

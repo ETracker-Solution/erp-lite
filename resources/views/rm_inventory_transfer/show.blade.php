@@ -3,7 +3,7 @@
 RM Inventory Transfer Details
 @endsection
 @section('content')
-    @php    
+    @php
         $links = [
         'Home'=>route('dashboard'),
         'RM Inventory Transfer'=>''
@@ -11,15 +11,31 @@ RM Inventory Transfer Details
     @endphp
 <x-breadcrumb title='RM Inventory Transfer Details' :links="$links"/>
 <section class="content">
+    <script>
+        window.onload = function () {
+            // Create an iframe element
+            const iframe = document.createElement('iframe');
+            iframe.style.display = 'none'; // Hide the iframe
+            iframe.src = "{{ route('rm-inventory-transfers.pdf',$RMInventoryTransfer->id,['print'=>true]) }}"; // URL of the PDF
+
+            // Append the iframe to the document body
+            document.body.appendChild(iframe);
+
+            // Wait for the iframe to load, then trigger print
+            iframe.onload = function () {
+                iframe.contentWindow.print();
+            };
+        };
+    </script>
     <div class="container-fluid">
         <div class="row">
-            <div class="col-12">  
+            <div class="col-12">
                 <div class="card card-info">
                     <div class="card-header">
                         <h3 class="card-title">RM Inventory Transfer Details</h3>
                         <a href="{{route('rm-inventory-transfers.pdf',$RMInventoryTransfer->id)}}"
                             class="btn btn-sm btn-primary float-right" target="_blank"><i class="fa fa-download"></i> PDF</a>
-                    </div> 
+                    </div>
                     <!-- Main content -->
                     <div class="invoice p-3 mb-3">
                         <!-- title row -->
@@ -35,7 +51,7 @@ RM Inventory Transfer Details
                                                 <p><b>Transfer From :</b> {{ $RMInventoryTransfer->fromStore->name }} </p>
                                                 <p><b>Transfer To :</b> {{ $RMInventoryTransfer->toStore->name }} </p>
                                                 <p><b>Status :</b> {!! showStatus($RMInventoryTransfer->status) !!}</p>
-                                            </td> 
+                                            </td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -45,12 +61,12 @@ RM Inventory Transfer Details
                             </div>
                             <!-- /.col -->
                             <div class="col-sm-4 invoice-col">
-                                 
+
                             </div>
                             <!-- /.col -->
                         </div>
                         <!-- /.row -->
-    
+
                         <!-- Table row -->
                         <div class="row">
                             <div class="col-12 table-responsive">
@@ -82,11 +98,11 @@ RM Inventory Transfer Details
                             <!-- /.col -->
                         </div>
                         <!-- /.row -->
-    
+
                         <div class="row">
                             <!-- accepted payments column -->
                             <div class="col-8">
-    
+
                             </div>
                         </div>
                         <!-- /.row -->

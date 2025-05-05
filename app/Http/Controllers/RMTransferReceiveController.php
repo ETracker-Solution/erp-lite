@@ -66,7 +66,7 @@ class RMTransferReceiveController extends Controller
     public function store(StoreRMTransferReceiveRequest $request)
     {
         try {
-            
+
             DB::beginTransaction();
             $data = $request->validated();
             $store = Store::find($data['to_store_id']);
@@ -110,7 +110,7 @@ class RMTransferReceiveController extends Controller
             InventoryTransfer::where('id', $data['inventory_transfer_id'])->update(['status' => 'received']);
             DB::commit();
             Toastr::success('RM Transfer Receive Entry Successful!.', '', ["progressBar" => true]);
-            return redirect()->route('rm-transfer-receives.index');
+            return redirect()->route('rm-transfer-receives.show',encrypt($inventoryTransfer->id));
         } catch (\Exception $e) {
             DB::rollBack();
             Log::emergency("File:" . $e->getFile() . "Line:" . $e->getLine() . "Message:" . $e->getMessage());
@@ -158,6 +158,11 @@ class RMTransferReceiveController extends Controller
         $data = [
             'rmTransferReceive' => TransferReceive::with('toStore', 'fromStore')->find(decrypt($id)),
         ];
+
+        if (\request()->has('print')) {
+            return view('rm_inventory_transfer_receive.pdf',
+                $data);
+        }
 
         $pdf = PDF::loadView(
             'rm_inventory_transfer_receive.pdf',

@@ -66,8 +66,8 @@ class PurchaseController extends Controller
         $data = [
             'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'RM'])->get(),
             'supplier_groups' => SupplierGroup::where('status', 'active')->get(),
-            'suppliers' => Supplier::all(),
-            'stores' => Store::where(['type' => 'RM', 'doc_type' => 'ho', 'doc_id' => null])->get(),
+            'suppliers' => Supplier::where('status','active')->get(),
+            'stores' => Store::where(['type' => 'RM'])->whereIn('doc_type',['ho','factory'])->get(),
             'uid' => generateUniqueCode(Purchase::class, 'uid'),
 
         ];
@@ -170,7 +170,7 @@ class PurchaseController extends Controller
             return back();
         }
         Toastr::success('Purchase Created Successfully!.', '', ["progressBar" => true]);
-        return redirect()->route('purchases.index');
+        return redirect()->route('purchases.show', encrypt($purchase->id))->with('print', true);
 
     }
 
@@ -322,8 +322,11 @@ class PurchaseController extends Controller
     {
         $data = [
             'model' => Purchase::find($id),
-
         ];
+
+        if (\request()->has('print')) {
+            return view('purchase.pdf', $data);
+        }
 
         $pdf = PDF::loadView(
             'purchase.pdf',
@@ -359,6 +362,10 @@ class PurchaseController extends Controller
             'model' => Purchase::find(decrypt($id)),
 
         ];
+
+        if (\request()->has('print')) {
+            return view('purchase.pdf', $data);
+        }
 
         $pdf = PDF::loadView(
             'purchase.pdf',

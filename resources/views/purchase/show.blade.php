@@ -3,8 +3,24 @@
 Purchase List
 @endsection
 @section('content')
-<!-- Content Wrapper. Contains page content -->
-<!-- Content Header (Page header) -->
+    @if(session('print'))
+        <script>
+            window.onload = function () {
+                // Create an iframe element
+                const iframe = document.createElement('iframe');
+                iframe.style.display = 'none'; // Hide the iframe
+                iframe.src = "{{ route('purchase.pdf-download', encrypt($model->id),['print'=>true]) }}"; // URL of the PDF
+
+                // Append the iframe to the document body
+                document.body.appendChild(iframe);
+
+                // Wait for the iframe to load, then trigger print
+                iframe.onload = function () {
+                    iframe.contentWindow.print();
+                };
+            };
+        </script>
+    @endif
 <section class="content-header">
     <div class="container-fluid">
         <div class="row mb-2" style="background: #343A40; padding:8px; border-radius:6px; color:white">
