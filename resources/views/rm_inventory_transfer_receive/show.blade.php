@@ -49,6 +49,8 @@ RM Inventory Transfer Receive Details
                                                 <p><b>RMITR No :</b> {{ $rmTransferReceive->uid }}</p>
                                                 <p><b>Date :</b> {{ $rmTransferReceive->date }} </p>
                                                 <p><b>Status :</b> {!! showStatus($rmTransferReceive->status) !!}</p>
+                                                <p><b>From Store :</b> {{ $rmTransferReceive->fromStore->name ?? '' }}</p>
+                                                <p><b>To Store :</b> {{ $rmTransferReceive->toStore->name ?? '' }}</p>
                                             </td>
                                         </tr>
                                     </tbody>
@@ -74,9 +76,8 @@ RM Inventory Transfer Receive Details
                                     <thead>
                                         <tr>
                                             <th>#</th>
-                                            <th>Date</th>
-                                            <th>From Store</th>
-                                            <th>To Store</th>
+                                            <th>Name</th>
+                                            <th>Unit</th>
                                             <th>Quantity</th>
                                             <th>Rate</th>
                                         </tr>
@@ -85,9 +86,8 @@ RM Inventory Transfer Receive Details
                                         @foreach ($rmTransferReceive->items as $item)
                                         <tr>
                                             <td>{{ $loop->iteration }}</td>
-                                            <td>{{ $rmTransferReceive->date }}</td>
-                                            <td>{{ $rmTransferReceive->fromStore->name ?? '' }}</td>
-                                            <td>{{ $rmTransferReceive->toStore->name ?? '' }}</td>
+                                            <td>{{ $item->coi->name ?? '' }}</td>
+                                            <td>{{ $item->coi->unit->name ?? '' }}</td>
                                             <td>{{ $item->quantity ?? '' }}</td>
                                             <td>{{ $item->rate ?? '' }} TK</td>
                                         </tr>
