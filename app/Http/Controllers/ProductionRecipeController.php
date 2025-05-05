@@ -136,19 +136,18 @@ class ProductionRecipeController extends Controller
             ]);
 
             $exists = ProductionRecipe::where('uid', $uid)->first();
+            $fg = $exists->fg_id;
+
+            ProductionRecipe::where('uid', $uid)->delete();
 
             foreach ($validated['products'] as $product) {
-                ProductionRecipe::updateOrCreate(
-                    [
-                        'uid' => $uid,
-                        'fg_id' => $exists->fg_id,
-                        'rm_id' => $product['coi_id'],
-                    ],
-                    [
-                        'qty' => $product['quantity'],
-                        'created_by' => auth()->user()->id,
-                    ]
-                );
+                ProductionRecipe::query()->create([
+                    'uid' => $uid,
+                    'fg_id' => $fg,
+                    'qty' => $product['quantity'],
+                    'rm_id' => $product['coi_id'],
+                    'created_by' => auth()->user()->id,
+                ]);
             }
 
             toastr()->success('ProductionRecipe updated successfully');

@@ -703,6 +703,9 @@ class POSController extends Controller
         $outlet = Outlet::find($outlet_id);
 
         $rm_store = Store::where(['doc_type' => 'outlet', 'doc_id' => $outlet->id, 'type' => 'RM'])->first();
+        if (!$rm_store){
+            $message = "RM Store Not Found";
+        }
 
         $rmData = $recipes->map(function ($recipe) use ($qty) {
             return [
@@ -740,6 +743,7 @@ class POSController extends Controller
         return response()->json([
             'submittable' => $submittable,
             'view' => view('pos.print.remaining', compact('rmItems'))->render(),
+            'message'=>$message ?? false,
         ]);
     }
 }

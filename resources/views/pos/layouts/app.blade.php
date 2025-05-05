@@ -457,6 +457,13 @@
                         }
                     })
                         .then(function (response) {
+                            if (response.data.message){
+                                toastr.error(response.data.message, {
+                                    closeButton: true,
+                                    progressBar: true,
+                                });
+                                return
+                            }
                             if (!response.data.submittable) {
                                 vm.recipeContent = response.data.view
                                 vm.openRecipeModal()
