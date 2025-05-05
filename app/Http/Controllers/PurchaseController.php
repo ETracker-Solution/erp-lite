@@ -67,7 +67,7 @@ class PurchaseController extends Controller
             'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'RM'])->get(),
             'supplier_groups' => SupplierGroup::where('status', 'active')->get(),
             'suppliers' => Supplier::where('status','active')->get(),
-            'stores' => Store::where(['type' => 'RM'])->whereIn('doc_type',['ho','factory'])->get(),
+            'stores' => Store::where(['type' => 'RM'])->get(),
             'uid' => generateUniqueCode(Purchase::class, 'uid'),
 
         ];
