@@ -80,7 +80,7 @@
                         </div>
                         <div style="display: flex; justify-content: space-between;">
                             <div style="text-align: center;">
-                                <p>{{ $model->supplier->name }}</p>
+                                <p>Supplier Name: {{ $model->supplier->name }}</p>
                             </div>
                         </div>
                         <div class="panel-body">
@@ -88,7 +88,7 @@
                             <div class="invoice-ribbon">
                                 @include('common.pdf_header')
                             </div>
-
+                            <h4>Store: {{ $model->store->name }}</h4>
                             <hr>
                             <table
                                 style="border: 1px solid black; border-collapse: collapse; width: 100%;  ; text-align: center; margin-top: 20px;">
