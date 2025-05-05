@@ -82,11 +82,11 @@
                                                    colorClass="bg-light-success"/>
                             </div>
                             <div class="col-xl-3 col-sm-6 col-12 mb-2 mb-sm-0">
-                                <x-card-statistics title="RM STOCK" value="{{ $rmStock }}" icon="shopping-cart"
+                                <x-card-statistics title="RM STOCK" value="{{ $rmStock.' TK' }}" icon="shopping-cart"
                                                    colorClass="bg-light-danger"/>
                             </div>
                             <div class="col-xl-3 col-sm-6 col-12">
-                                <x-card-statistics title="FG STOCK" value="{{ $fgStock }}" icon="trash-2"
+                                <x-card-statistics title="FG STOCK" value="{{ $fgStock. ' TK' }}" icon="trash-2"
                                                    colorClass="bg-light-success"/>
                             </div>
                         </div>
