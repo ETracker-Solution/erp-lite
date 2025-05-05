@@ -102,28 +102,53 @@ class ProductionRecipeController extends Controller
 
     public function edit($uid)
     {
+        $recipes = ProductionRecipe::where('uid', decrypt($uid))->get();
+
+        $selectedItems = [];
+
+        foreach ($recipes as $key => $recipe) {
+            $selectedItems[] = (object)[
+                'id' => $recipe->rm_id,
+                'group' => $recipe->coi->parent->name,
+                'name' => $recipe->coi->name,
+                'uom' => $recipe->coi->unit->name,
+                'rate' => '',
+                'quantity' => $recipe->qty,
+            ];
+        }
         $data = [
             'rm_groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'RM'])->get(),
             'fg_groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'FG'])->get(),
-            'recipes' => ProductionRecipe::where('uid', decrypt($uid))->get(),
+            'recipes' => $recipes,
+            'uid' => ProductionRecipe::where('uid', decrypt($uid))->first()->uid,
+            'selectedItems' => collect($selectedItems),
 
         ];
-        return view('production_recipe.edit', $data);
+
+        return view('production_recipe.edit2', $data);
     }
 
     public function update(Request $request, $uid)
     {
         try {
             $validated = $request->validate([
-                'recipes.*.qty' => 'required|numeric',
-                'recipes.*.status' => 'required|string|in:active,inactive',
+                'products' => 'required',
             ]);
 
-            foreach ($request->input('recipes') as $key => $updatedItem) {
-                $item = ProductionRecipe::find($key);
-                $item->qty = $updatedItem['qty'];
-                $item->status = $updatedItem['status'];
-                $item->save();
+            $exists = ProductionRecipe::where('uid', $uid)->first();
+
+            foreach ($validated['products'] as $product) {
+                ProductionRecipe::updateOrCreate(
+                    [
+                        'uid' => $uid,
+                        'fg_id' => $exists->fg_id,
+                        'rm_id' => $product['coi_id'],
+                    ],
+                    [
+                        'qty' => $product['quantity'],
+                        'created_by' => auth()->user()->id,
+                    ]
+                );
             }
 
             toastr()->success('ProductionRecipe updated successfully');

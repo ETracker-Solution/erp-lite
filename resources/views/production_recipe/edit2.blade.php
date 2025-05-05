@@ -18,8 +18,9 @@
                        <img src="{{ asset('loading.gif') }}" alt="loading">
                   </span>
                 <div class="col-lg-12 col-md-12">
-                    <form action="{{ route('production-recipes.store') }}" method="POST" class="">
+                    <form action="{{ route('production-recipes.update', $recipes[0]->uid) }}" method="POST" class="">
                         @csrf
+                        @method('PUT')
                         <input type="hidden" name="submission_token"
                                value="{{ session()->get('submission_token') ?? Str::random(40) }}">
                         <div class="card">
@@ -48,28 +49,10 @@
                                         </div>
                                         <div class="col-lg-4 col-md-3 col-sm-3 col-xs-12">
                                             <div class="form-group">
-                                                <label for="fg_group_id">FG Group</label>
+                                                <label for="fg_group_id">ITEM</label>
                                                 <select name="fg_group_id" id="fg_group_id"
-                                                        class="form-control bSelect" v-model="fg_group_id" @change="fetch_product('fg')" required>
-                                                    <option value="">Select FG</option>
-                                                    @foreach($fg_groups as $row)
-                                                        <option
-                                                            value="{{ $row->id }}">{{ $row->name }}</option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
-                                            <div class="form-group">
-                                                <label for="fg_item_id">FG Item</label>
-                                                <select name="fg_item_id" id="fg_item_id"
-                                                        class="form-control bSelect" v-model="fg_item_id">
-                                                    <option value="">Select one</option>
-
-                                                    <option :value="row.id" v-for="row in fg_items"
-                                                            v-html="row.name">
-                                                    </option>
-
+                                                        class="form-control bSelect">
+                                                    <option value="">{{ $recipes[0]->item->name }}</option>
                                                 </select>
                                             </div>
                                         </div>
@@ -257,7 +240,7 @@
                     fg_items: [],
                     rm_items: [],
                     suppliers: [],
-                    selected_items: [],
+                    selected_items: @json($selectedItems),
                     pageLoading: false,
                     uid: "{{$uid}}",
                     store_id: '',
@@ -342,6 +325,7 @@
                     data_input() {
 
                         let vm = this;
+                        console.log(vm.selected_items)
                         if (!vm.rm_group_id) {
                             toastr.error('Please Select Group', {
                                 closeButton: true,
