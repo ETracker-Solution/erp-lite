@@ -135,19 +135,18 @@ class RecipeController extends Controller
             ]);
 
             $exists = Recipe::where('uid', $uid)->first();
+            $fg = $exists->fg_id;
+
+            Recipe::where('uid', $uid)->delete();
 
             foreach ($validated['products'] as $product) {
-                Recipe::updateOrCreate(
-                    [
-                        'uid' => $uid,
-                        'fg_id' => $exists->fg_id,
-                        'rm_id' => $product['coi_id'],
-                    ],
-                    [
-                        'qty' => $product['quantity'],
-                        'created_by' => auth()->user()->id,
-                    ]
-                );
+                Recipe::query()->create([
+                    'uid' => $uid,
+                    'fg_id' => $fg,
+                    'qty' => $product['quantity'],
+                    'rm_id' => $product['coi_id'],
+                    'created_by' => auth()->user()->id,
+                ]);
             }
 
             toastr()->success('Recipe updated successfully');
