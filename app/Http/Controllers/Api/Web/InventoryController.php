@@ -19,7 +19,7 @@ class InventoryController extends Controller
     public function inventoryItems()
     {
         $allChartOfInventories = $this->base_model->whereNull('parent_id')->get();
-        return view('chart_of_inventory.items', compact('allChartOfInventories',));
+        return view('chart_of_inventory.items', compact('allChartOfInventories'));
     }
 
     public function inventoryDetails($id)
@@ -40,6 +40,8 @@ class InventoryController extends Controller
             'total_price'=> $inventory->total,
             'vat_type' =>  strtolower($inventory->vat_type),
             'vat_amount' => $inventory->vat_amount,
+            'sd_amount' => $inventory->sd_amount,
+            'sd' => $inventory->sd,
 
         ];
         return response()->json($data);
@@ -59,26 +61,31 @@ class InventoryController extends Controller
                 $inventory->price = \request()->price;
                 $inventory->vat_type = \request()->vat_type;
                 $inventory->vat_amount = \request()->vat_amount;
+                $inventory->sd_amount = \request()->sd_amount;
 
-                $calculateVat = calculateVat(\request()->price, \request()->vat_type, \request()->vat_amount);
+                $calculateVat = calculateVat(\request()->price, \request()->vat_type, \request()->vat_amount, \request()->sd_amount);
 
                 $inventory->base_price = $calculateVat['base_price'];
                 $inventory->vat = $calculateVat['vat'];
+                $inventory->sd = $calculateVat['sd'];
                 $inventory->total_price = $calculateVat['total'];
             }else if($inventory->type == 'group'){
                 $items = ChartOfInventory::where('parent_id', $inventory->id)->get();
                 foreach ($items as $item){
-                    $calculateVat = calculateVat($item->price, \request()->vat_type, \request()->vat_amount);
+                    $calculateVat = calculateVat($item->price, \request()->vat_type, \request()->vat_amount, \request()->sd_amount);
                     $item->vat_type = \request()->vat_type;
                     $item->vat_amount = \request()->vat_amount;
+                    $item->sd_amount = \request()->sd_amount;
                     $item->base_price = $calculateVat['base_price'];
                     $item->vat = $calculateVat['vat'];
+                    $item->sd = $calculateVat['sd'];
                     $item->total_price = $calculateVat['total'];
                     $item->updated_by = auth()->user()->id;
                     $item->save();
                 }
                 $inventory->vat_type = \request()->vat_type;
                 $inventory->vat_amount = \request()->vat_amount;
+                $inventory->sd_amount = \request()->sd_amount;
             }
 
             $inventory->updated_by = auth()->user()->id;
@@ -101,7 +108,9 @@ class InventoryController extends Controller
         try {
             $inventory = $this->base_model->find($id);
 
-            $calculateVat = calculateVat(\request()->price, \request()->vat_type, \request()->vat_amount);
+            if (\request()->filled('price')) {
+                $calculateVat = calculateVat(\request()->price, \request()->vat_type, \request()->vat_amount, \request()->sd_amount);
+            }
 
             $inventory->subChartOfInventories()->create([
                 'name' => \request()->item_name,
@@ -112,11 +121,13 @@ class InventoryController extends Controller
                 'price' => \request()->price ?? 0,
                 'created_by' => auth()->user()->id,
                 'non_discountable'=>\request()->non_discountable ? 1 : 0,
-                'base_price' => $calculateVat['base_price'],
-                'vat' => $calculateVat['vat'],
-                'total_price'=> $calculateVat['total'],
+                'base_price' => $calculateVat['base_price'] ?? 0,
+                'vat' => $calculateVat['vat'] ?? 0,
+                'total_price'=> $calculateVat['total'] ?? 0,
                 'vat_type' => \request()->vat_type ?? 'zero',
                 'vat_amount' => \request()->vat_amount ?? 0,
+                'sd_amount' => \request()->sd_amount ?? 0,
+                'sd' => $calculateVat['sd'] ?? 0,
             ]);
         } catch (\Exception $exception) {
             return response()->json([

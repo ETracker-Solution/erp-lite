@@ -171,6 +171,7 @@
             return $q->unit_price * $q->quantity;
         });
         $vat = $sale->vat ?? 0;
+        $sd = $sale->sd ?? 0;
         $sub_total = $total;
         $discount = $sale->discount ?? 0;
         $delivery_charge = $sale->delivery_charge;
@@ -221,6 +222,13 @@
         <td class="tc bl-none br-none bt-none"></td>
         <td class="tc bl-none br-none bt-none">VAT:</td>
         <td class="tc bl-none br-none bt-none tr">{{ $vat }}</td>
+    </tr>
+    <tr>
+        <td class="tc bl-none br-none bt-none"></td>
+        <td class="tc bl-none br-none bt-none"></td>
+        <td class="tc bl-none br-none bt-none"></td>
+        <td class="tc bl-none br-none bt-none">SD:</td>
+        <td class="tc bl-none br-none bt-none tr">{{ $sd }}</td>
     </tr>
     <tr>
         <td class="tc bl-none br-none bt-none"></td>

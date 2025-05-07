@@ -117,6 +117,11 @@ class POSController extends Controller
             $sale->total_discount_type = $request->total_discount_type;
             $sale->total_discount_value = $request->total_discount_value;
             $sale->total_discount_amount = $request->total_discount_amount;
+
+            $sale->taxable_amount = $request->taxable_amount;
+            $sale->sd = $request->sd ?? null;
+            $sale->vat = $request->vat ?? null;
+
             $sale->save();
 
             $products = $request->get('products');
@@ -149,6 +154,17 @@ class POSController extends Controller
                     $discount = 0;
                 }
                 $row['discount'] = $discount;
+
+                $result = calculateVatDetails($row['product_id'], $row['quantity']);
+
+                $row['vat_amount'] = $result['vat_amount'];
+                $row['unit_vat'] = $result['unit_vat'];
+                $row['vat'] = $result['vat'];
+
+                $row['sd_amount'] = $result['sd_amount'];
+                $row['unit_sd'] = $result['unit_sd'];
+                $row['sd'] = $result['sd'];
+
 
                 $sale_item = $sale->items()->create($row);
                 $sale_item['date'] = date('Y-m-d');

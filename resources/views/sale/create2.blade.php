@@ -386,6 +386,7 @@
                                                             <th>Delivery Charge</th>
                                                             <th>Additional Charge</th>
                                                             <th>Taxable Amount</th>
+                                                            <th>SD</th>
                                                             <th>Vat Charge</th>
                                                             <th>Grand Total</th>
                                                         </tr>
@@ -401,6 +402,7 @@
                                                             <td>@{{ delivery_charge }}</td>
                                                             <td>@{{ additional_charge }}</td>
                                                             <td>@{{ taxableAmount }}</td>
+                                                            <td>@{{ sdTotal }}</td>
                                                             <td>@{{ vatTotal }}</td>
                                                             <td>@{{ total_payable_bill }}</td>
                                                         </tr>
@@ -529,6 +531,7 @@
                                 <input type="hidden" name="exchangeAmount" v-model="exchangeAmount">
                                 <input type="hidden" name="taxable_amount" v-model="taxableAmount">
                                 <input type="hidden" name="vat" v-model="vatTotal">
+                                <input type="hidden" name="sd" v-model="sdTotal">
                             </div>
                             <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 text-right"
                                  v-if="items.length > 0 && ((sales_type == 'sales' && !customerNumber && total_payable_bill <= total_paying) || (sales_type == 'pre_order' && customerNumber) || customerNumber)">
@@ -727,7 +730,7 @@
                     additional_charge: 0,
                 },
                 components: {
-                    vuejsDatepicker  
+                    vuejsDatepicker
                 },
                 mounted: function () {
                     this.setStoreId()
@@ -776,7 +779,7 @@
                         return this.total_paying > this.total_due ? this.total_paying - this.total_due : 0
                     },
                     total_payable_bill: function () {
-                        var vm = this;                    
+                        var vm = this;
                         return (this.total_bill - vm.couponCodeDiscountAmount - this.allDiscountAmount) + Number(this.delivery_charge) + Number(this.additional_charge) + Number(this.excludingitemstotalvat);
                     },
                     total_due: function () {
@@ -806,6 +809,13 @@
                         return Math.round(this.items.reduce((total, item) => {
                             let result = this.discountAmounttk(item);
                             return total + result.vat;
+                        }, 0));
+                    },
+                    sdTotal: function () {
+                        var vm = this;
+                        return Math.round(this.items.reduce((total, item) => {
+                            let result = this.discountAmounttk(item);
+                            return total + result.sd;
                         }, 0));
                     },
                     taxableAmount: function () {
@@ -902,7 +912,7 @@
                                             vat_type : product_details.vat_type,
                                             vat_amount : product_details.vat_amount,
                                             vat_discount_type : product_details.discount_type,
-
+                                            sd: product_details.sd,
                                         });
                                         vm.isDisabled = false
 
@@ -1209,13 +1219,19 @@
                         let after_discount = total_cost - discount_amount;
                         let taxable_amount = 0;
                         let vat = 0;
+                        let sd = 0;
 
+                        const vatCal = (1 + (item.vat_amount / 100));
+                        const sdCal = (1 + (item.sd / 100));
                         if (item.vat_type == "including") {
-                            taxable_amount = after_discount / (1 + (item.vat_amount / 100)) || 0;
-                            vat = after_discount - taxable_amount;    
+                            const taxable_amount_with_sd = after_discount / vatCal || 0;
+                            taxable_amount = taxable_amount_with_sd / sdCal || 0;
+                            vat = after_discount - taxable_amount_with_sd;
+                            sd = after_discount - taxable_amount - vat;
                         } else if (item.vat_type == "excluding") {
                             taxable_amount = after_discount || 0;
                             vat = taxable_amount * (item.vat_amount / 100) || 0;
+                            sd = taxable_amount * (item.sd / 100) || 0;
                         }
 
                         return {
@@ -1224,7 +1240,8 @@
                             taxable_amount,
                             after_discount,
                             discount_amount,
-                            total_cost
+                            total_cost,
+                            sd
                         };
                     },
                 },

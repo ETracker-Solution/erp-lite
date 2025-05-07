@@ -107,6 +107,7 @@
                         <li><span>Subtotal</span><span style="float: right">TK.@{{ total_bill }}</span></li>
                         <li><span>Products Discount</span><span style="float: right">TK.@{{ productWiseDiscount }}</span></li>
                         <li><span>Taxable Amount</span><span style="float: right">TK.@{{ taxableAmount  }}</span></li>
+                        <li><span>SD</span><span style="float: right">TK.@{{ sdTotal }}</span></li>
                         <li><span>Vat</span><span style="float: right">TK.@{{ vatTotal }}</span></li>
 
                         <li><span>Coupon Discount</span><span style="float: right"><strong><span

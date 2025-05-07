@@ -108,7 +108,6 @@
                                         <td class="text-right">{{ ($item->unit_price * $item->quantity) - $item->discount }}</td>
                                     </tr>
                                 @endforeach
-
                                 <tr>
                                     <td colspan="5"></td>
                                     <td class="text-left">Sub Total:</td>
@@ -123,6 +122,11 @@
                                     <td colspan="5"></td>
                                     <td class="text-left">Vat Charge :</td>
                                     <td class="text-right">{{ $sale->vat }} </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="5"></td>
+                                    <td class="text-left">SD :</td>
+                                    <td class="text-right">{{ $sale->sd }} </td>
                                 </tr>
                                 <tr>
                                     <td colspan="5"></td>

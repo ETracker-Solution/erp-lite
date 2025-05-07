@@ -132,6 +132,10 @@
                                             <td class="text-right">{{ round($sale->taxable_amount, 0) }}</td>
                                         </tr>
                                         <tr>
+                                            <th style="width:50%">SD :</th>
+                                            <td class="text-right">{{ $sale->sd }}</td>
+                                        </tr>
+                                        <tr>
                                             <th style="width:50%">Vat Charge :</th>
                                             <td class="text-right">{{ $sale->vat }}</td>
                                         </tr>

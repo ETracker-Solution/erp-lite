@@ -43,18 +43,21 @@ class VatConfigController extends Controller
                         $inventory->update([
                             'vat_type' => $settings['global_vat_type'],
                             'vat_amount' => $settings['global_vat_amount'],
+                            'sd_amount' => $settings['global_sd_amount'],
                         ]);
                     } elseif ($inventory->type === 'item') {
 
                         $inventory->vat_type = $settings['global_vat_type'];
                         $inventory->vat_amount = $settings['global_vat_amount'];
+                        $inventory->sd_amount = $settings['global_sd_amount'];
 
                         if ($inventory->price !== null) {
-                            $calculateVat = calculateVat($inventory->price, $settings['global_vat_type'], $settings['global_vat_amount']);
+                            $calculateVat = calculateVat($inventory->price, $settings['global_vat_type'], $settings['global_vat_amount'], $settings['global_sd_amount']);
                         }
 
                         $inventory->base_price = $calculateVat['base_price'];
                         $inventory->vat = $calculateVat['vat'];
+                        $inventory->sd = $calculateVat['sd'];
                         $inventory->total_price = $calculateVat['total'];
 
                         $inventory->save();

@@ -105,9 +105,9 @@
                                 <div class="row callout callout-info" id="vatlInfo">
                                     <div class="col-xl-12 col-md-12 col-12">
                                         <x-forms.static-select
-                                            label="Vat Type"
+                                            label="VAT + SD Type"
                                             inputName="vat_type"
-                                            placeholder="Select VAT Type"
+                                            placeholder="Select VAT + SD Type"
                                             :isRequired="true"
                                             :isReadonly="false"
                                             :options="['including', 'excluding', 'zero']"
@@ -118,6 +118,11 @@
                                     <div class="col-xl-12 col-md-12 col-12">
                                         <x-forms.text label="Vat Amount(%)" inputName="vat_amount"
                                                       placeholder="Enter Vat Amount" :isRequired='true'
+                                                      :isReadonly='false' defaultValue=""/>
+                                    </div>
+                                    <div class="col-xl-12 col-md-12 col-12">
+                                        <x-forms.text label="SD Amount(%)" inputName="sd_amount"
+                                                      placeholder="Enter SD Amount" :isRequired='true'
                                                       :isReadonly='false' defaultValue=""/>
                                     </div>
                                 </div>
@@ -181,6 +186,7 @@
         let nonDiscountableCheckbox = $("select[name=non_discountable]")
         let vatTypeInput = $("select[name=vat_type]");
         let vatAmountInput = $("input[name=vat_amount]");
+        let sdAmountInput = $("input[name=sd_amount]");
 
         function makeHidden(element) {
             element.prop('hidden', true)
@@ -222,6 +228,7 @@
 
                     setValue(vatTypeInput, result.vat_type);
                     setValue(vatAmountInput, result.vat_amount);
+                    setValue(sdAmountInput, result.sd_amount);
 
                     makeVisible(updateButton)
                     makeVisible(addButton)
@@ -273,6 +280,7 @@
                             non_discountable: getValue(nonDiscountableCheckbox),
                             vat_type: getValue(vatTypeInput),
                             vat_amount: getValue(vatAmountInput),
+                            sd_amount: getValue(sdAmountInput),
                         },
                         headers: {
                             'X-CSRF-TOKEN': csrfToken
@@ -327,6 +335,7 @@
                     non_discountable: getValue(nonDiscountableCheckbox),
                     vat_type: getValue(vatTypeInput),
                     vat_amount: getValue(vatAmountInput),
+                    sd_amount: getValue(sdAmountInput),
                 },
                 headers: {
                     'X-CSRF-TOKEN': csrfToken

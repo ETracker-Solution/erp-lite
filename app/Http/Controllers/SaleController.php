@@ -160,6 +160,7 @@ class SaleController extends Controller
             $sale->total_discount_amount = $request->total_discount_amount;
             //            New Columns
             $sale->taxable_amount = $request->taxable_amount;
+            $sale->sd = $request->sd ?? null;
             $sale->save();
 
             $products = $request->get('products');
@@ -209,6 +210,10 @@ class SaleController extends Controller
                 $row['vat_amount'] = $result['vat_amount'];
                 $row['unit_vat'] = $result['unit_vat'];
                 $row['vat'] = $result['vat'];
+
+                $row['sd_amount'] = $result['sd_amount'];
+                $row['unit_sd'] = $result['unit_sd'];
+                $row['sd'] = $result['sd'];
 
                 $sale_item = $sale->items()->create($row);
                 $sale_item['date'] = date('Y-m-d');
@@ -455,6 +460,7 @@ class SaleController extends Controller
             'delivery_point_id' => $delivery_point_id,
             'sale_id' => $sale->id,
             'taxable_amount' => $sale->taxable_amount,
+            'sd' => $sale->sd,
         ];
         $preOrder = PreOrder::create($data);
 
@@ -496,6 +502,7 @@ class SaleController extends Controller
         $sale->delivery_charge = $oldSale->delivery_charge;
         $sale->additional_charge = $oldSale->additional_charge;
         $sale->taxable_amount = $oldSale->taxable_amount;
+        $sale->sd = $oldSale->sd;
         $sale->save();
 
         $products = $oldSale->items;

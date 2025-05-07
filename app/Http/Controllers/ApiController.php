@@ -205,6 +205,7 @@ class ApiController extends Controller
             'vat_amount' => $coi->vat_amount,
             'vat_type' => strtolower($coi->vat_type),
             'discount_type' => $discount_type ?? 'with_vat',
+            'sd' => $coi->sd_amount ?? 0,
         ];
         return $data;
     }

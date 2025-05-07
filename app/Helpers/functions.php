@@ -755,25 +755,39 @@ function showUserInfo($user)
     return $user->name . ' (' . $user->email . ') ';
 }
 
-function calculateVat(float $price, string $vatType = null, float $vatAmount = null): array
+function calculateVat(float $price, string $vatType = null, float $vatAmount = null, float $sdAmount = null): array
 {
+    $vatAmount = $vatAmount ?? 0;
+    $sdAmount = $sdAmount ?? 0;
+
     if (strtolower($vatType) === 'including') {
-        $basePrice = $price / (1 + $vatAmount / 100);
-        $vat = $price - $basePrice;
+        $withVat = 1 + ($vatAmount / 100);
+        $withSd = 1 + ($sdAmount / 100);
+
+        // Reverse-calculate base price
+        $basePriceWithSd = $price / $withVat;
+        $basePrice = $basePriceWithSd / $withSd;
+
+        $vat = $price - $basePriceWithSd;
+        $sd = $basePriceWithSd - $basePrice;
     } elseif (strtolower($vatType) === 'excluding') {
         $basePrice = $price;
-        $vat = ($price * $vatAmount) / 100;
+        $sd = ($basePrice * $sdAmount) / 100;
+        $vat = (($basePrice + $sd) * $vatAmount) / 100;
     } else {
         $basePrice = $price;
         $vat = 0;
+        $sd = 0;
     }
 
     return [
-        'base_price' => $basePrice,
-        'vat' => $vat,
-        'total' => $basePrice + $vat,
+        'base_price' => round($basePrice, 2),
+        'sd' => round($sd, 2),
+        'vat' => round($vat, 2),
+        'total' => round($basePrice + $sd + $vat, 2),
     ];
 }
+
 
 function calculateVatDetails($coi_id, $quantity)
 {
@@ -788,6 +802,9 @@ function calculateVatDetails($coi_id, $quantity)
             'vat_amount' => $product->vat_amount ?? 0,
             'unit_vat' => $product->vat ?? 0,
             'vat' => $quantity * $product->vat ?? 0,
+            'sd_amount' => $product->sd_amount ?? 0,
+            'unit_sd' => $product->sd ?? 0,
+            'sd' => $quantity * $product->sd ?? 0,
         ];
     } else {
         return null;

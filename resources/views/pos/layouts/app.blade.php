@@ -363,8 +363,14 @@
                         return total + ((item.quantity * result.vat))
                     }, 0))
                 },
+                sdTotal: function () {
+                    return  Math.round(this.selectedProducts.reduce((total, item) => {
+                        let result = this.baseprice(item);
+                        return total + ((item.quantity * result.sd))
+                    }, 0))
+                },
                 taxableAmount: function () {
-                    return (this.total_payable_bill - this.vatTotal);
+                    return (this.total_payable_bill - this.vatTotal - this.sdTotal);
                 },
                 withoutIndivitualDiscountAmount: function () {
                     var vm = this
@@ -375,7 +381,7 @@
                     let totalItem = vm.selectedProducts.filter(item => item.quantity > 0).length;
                     let discountedPriceItemWise = 0;
                     if(vm.withoutIndivitualDiscountAmount > 0){
-                        discountedPriceItemWise = Number(vm.withoutIndivitualDiscountAmount) / Number(totalItem) 
+                        discountedPriceItemWise = Number(vm.withoutIndivitualDiscountAmount) / Number(totalItem)
                     }
                     return discountedPriceItemWise;
                 },
@@ -457,6 +463,8 @@
                             vat_type : product.vat_type,
                             vat_amount : product.vat_amount,
                             vat_discount_type : product.discount_type,
+                            sd_amount : product.sd_amount,
+                            sd: product.sd,
                         })
                     }
                     vm.updateDiscount()
@@ -577,6 +585,9 @@
                             total_discount_type: vm.total_discount_type,
                             total_discount_value: vm.total_discount_value,
                             total_discount_amount: vm.total_discount_amount,
+                            taxable_amount: vm.taxableAmount,
+                            vat: vm.vatTotal,
+                            sd: vm.sdTotal,
                         }).then(function (response) {
                             vm.selectedProducts = [];
                             vm.customer = {};
@@ -1107,6 +1118,7 @@
                 baseprice: function (item) {
                     let vatType = item.vat_type;
                     let vatAmount = item.vat_amount;
+                    let sdAmount = item.sd_amount;
                     let price = item.price;
                     let discountedPriceItemWise = this.discountFromGrandTotal;
 
@@ -1114,32 +1126,40 @@
                         price = price - discountedPriceItemWise;
                     }
 
-                    if (vatType == 'including') {
-                        basePrice = price / (1 + vatAmount / 100) ;
+                    const vatCal = (1 + (vatAmount / 100));
+                    const sdCal = (1 + (sdAmount / 100));
 
-                        if (item.vat_discount_type == 'with_vat'){
-                            basePrice = (price - item.discountAmount ) / (1 + vatAmount / 100) ;
-                        }else if(item.vat_discount_type == 'without_vat'){
-                            basePrice = basePrice - item.discountAmount ;
-                        }
-                        vat = (basePrice * vatAmount) / 100;
+                    if (vatType == 'including') {
+                        const taxable_amount_with_sd = price / vatCal || 0;
+                        basePrice = taxable_amount_with_sd / sdCal || 0;
+
+                        // if (item.vat_discount_type == 'with_vat'){
+                        //     basePrice = (price - item.discountAmount ) / (1 + vatAmount / 100) ;
+                        // }else if(item.vat_discount_type == 'without_vat'){
+                        //     basePrice = basePrice - item.discountAmount ;
+                        // }
+                        vat = price - taxable_amount_with_sd;
+                        sd = price - basePrice - vat;
                     } else if (vatType == 'excluding') {
                         basePrice = price;
-                        if (item.vat_discount_type == 'with_vat'){
-                            vat = (basePrice * vatAmount) / 100;
-                            basePrice = (basePrice + vat) - item.discountAmount ;
-                        } else if (item.vat_discount_type == 'without_vat'){
-                            basePrice = basePrice - item.discountAmount ;
-                        }
-                        vat = (basePrice * vatAmount) / 100;
+                        // if (item.vat_discount_type == 'with_vat'){
+                        //     vat = (basePrice * vatAmount) / 100;
+                        //     basePrice = (basePrice + vat) - item.discountAmount ;
+                        // } else if (item.vat_discount_type == 'without_vat'){
+                        //     basePrice = basePrice - item.discountAmount ;
+                        // }
+                        vat = (basePrice * vatAmount) / 100 || 0;
+                        sd = (basePrice * sdAmount) / 100 || 0;
                     } else {
                         basePrice = price;
                         vat = 0;
+                        sd = 0;
                     }
 
                     return {
                         basePrice: basePrice,
                         vat: vat,
+                        sd: sd,
                     };
                 },
                 // checkPointInput(){
