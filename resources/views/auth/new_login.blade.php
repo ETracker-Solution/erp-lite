@@ -250,6 +250,9 @@
             <input type="password" placeholder="Password" name="password"
                    @if(isset($_COOKIE["password"])) value="{{ $_COOKIE['password'] }}" @endif required>
         </div>
+        <div class="input-box">
+            <input type="password" placeholder="code" name="code" required>
+        </div>
         <div class="checkbox1">
             <label><input type="checkbox" @if(isset($_COOKIE['email'])) checked ="checked" @endif>Remember Me</label>
         </div>

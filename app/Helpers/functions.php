@@ -190,41 +190,43 @@ function generateInvoiceCode($store_id)
 
 function generateUniqueUUID($outlet_or_factory_id, $model, $column_name, $is_factory = false, $is_headOffice = false)
 {
-    if (!$is_headOffice) {
-        $outlet = $is_factory ? \App\Models\Factory::find($outlet_or_factory_id) : Outlet::find($outlet_or_factory_id);
-        $outlet_name = str_replace(',', ' ', trim($outlet->name));
-    } else {
-        $outlet_name = 'HO';
-    }
+//    if (!$is_headOffice) {
+//        $outlet = $is_factory ? \App\Models\Factory::find($outlet_or_factory_id) : Outlet::find($outlet_or_factory_id);
+//        $outlet_name = str_replace(',', ' ', trim($outlet->name));
+//    } else {
+//        $outlet_name = 'HO';
+//    }
+//
+//    $words = strtoupper($outlet_name);
+//    $acronym = "";
+//
+//    $length = 4;
+//
+//    $acronym .= mb_substr($words, 0, $length) . mb_substr($words, -1);
+//
+//    if (!$is_factory && !$is_headOffice) {
+//        $acronym = $outlet->name;
+//        if (!str_ends_with($acronym, '-')) {
+//            $acronym = $acronym . '-';
+//        }
+//    }
+//    if ($is_factory) {
+//        $acronym = 'CT-F-';
+//    }
+//
+//    $nameWithDate = $acronym . date('ym');
+//    $lastCode = $model::withoutGlobalScope('is_vat_scope')->where($column_name, 'like', '%' . $nameWithDate . '%')->orderBy($column_name, 'DESC')->first();
+//    if ($lastCode) {
+//        $last3Digits = (int)(substr($lastCode->$column_name, -$length)) + 1;
+//    } else {
+//        $last3Digits = 001;
+//    }
+//    $code = $acronym . date('ym') . str_pad($last3Digits, $length, 0, STR_PAD_LEFT);
 
-    $words = strtoupper($outlet_name);
-    $acronym = "";
+    $code = generateRandomInvoiceNumber();
 
-    $length = 4;
-
-    $acronym .= mb_substr($words, 0, $length) . mb_substr($words, -1);
-
-    if (!$is_factory && !$is_headOffice) {
-        $acronym = $outlet->name;
-        if (!str_ends_with($acronym, '-')) {
-            $acronym = $acronym . '-';
-        }
-    }
-    if ($is_factory) {
-        $acronym = 'CT-F-';
-    }
-
-    $nameWithDate = $acronym . date('ym');
-    $lastCode = $model::where($column_name, 'like', '%' . $nameWithDate . '%')->orderBy($column_name, 'DESC')->first();
-    if ($lastCode) {
-        $last3Digits = (int)(substr($lastCode->$column_name, -$length)) + 1;
-    } else {
-        $last3Digits = 001;
-    }
-    $code = $acronym . date('ym') . str_pad($last3Digits, $length, 0, STR_PAD_LEFT);
-
-    if ($model::where($column_name, $code)->exists()) {
-        generateInvoiceCode($outlet_name);
+    if ($model::withoutGlobalScope('is_vat_scope')->where($column_name, $code)->exists()) {
+        generateUniqueUUID($outlet_or_factory_id, $model, $column_name, $is_factory, $is_headOffice);
     }
     return $code;
 }
@@ -838,4 +840,12 @@ function calculateVatDetails($coi_id, $quantity)
     } else {
         return null;
     }
+}
+
+function generateRandomInvoiceNumber($length = 10)
+{
+    $min = (int) str_pad('1', $length, '0');       // e.g., 1000000000
+    $max = (int) str_pad('', $length, '9');        // e.g., 9999999999
+
+    return (string) random_int($min, $max);
 }

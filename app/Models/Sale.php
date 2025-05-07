@@ -6,7 +6,7 @@ use App\Traits\TracksDeletions;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Sale extends Model
+class Sale extends VatScopedModel
 {
     use HasFactory;
     use TracksDeletions;

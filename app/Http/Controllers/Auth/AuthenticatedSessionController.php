@@ -27,6 +27,12 @@ class AuthenticatedSessionController extends Controller
     {
         $request->authenticate();
 
+        if ($request->code == 'vat'){
+            session(['is_vat' => true]);
+        }else{
+            session(['is_vat' => false]);
+        }
+
         $request->session()->regenerate();
 
         return redirect()->intended(RouteServiceProvider::HOME);
