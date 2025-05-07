@@ -50,7 +50,7 @@
                                                     @endforeach
                                                 </select>
                                             </div>
-                                            
+
                                         </div>
                                         </form>
                                     </div>
@@ -67,9 +67,30 @@
                                     <div class="row">
                                         <div class="col-md-12">
                                             <div style="border: 1px solid #000" class="p-1">
-                                                @foreach($outlet_accounts as $outlet_account)
-                                                    <span class="badge badge-success p-1 m-1">{{$outlet_account['name']}} :   {{$outlet_account['balance']}} BDT</span>
-                                                @endforeach
+                                                <table width="100%">
+                                                    <thead>
+                                                    <tr>
+                                                        <th>Available</th>
+                                                        <th>In Transit</th>
+                                                        <th>Transferable</th>
+                                                    </tr>
+                                                    </thead>
+                                                    @foreach($outlet_accounts as $outlet_account)
+                                                        <tr>
+                                                            <td>
+                                                                <span class="badge badge-success p-1 m-1">{{$outlet_account['name']}} :   {{$outlet_account['balance']}} BDT</span>
+                                                            </td>
+                                                            <td>
+                                                                <span class="badge badge-danger p-1 m-1">{{$outlet_account['name']}} :   {{$outlet_account['pending']}} BDT</span>
+                                                            </td>
+                                                            <td>
+                                                                <span class="badge badge-info p-1 m-1">{{$outlet_account['name']}} :   {{$outlet_account['balance'] - $outlet_account['pending']}} BDT</span>
+                                                            </td>
+                                                        </tr>
+                                                    @endforeach
+
+                                                </table>
+
                                             </div>
 
 

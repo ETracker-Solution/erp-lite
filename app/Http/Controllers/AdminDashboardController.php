@@ -170,7 +170,7 @@ class AdminDashboardController extends Controller
                 'outletWiseDiscount' => $outletWiseDiscount
             ],
             'stock' => [
-                'total' => round($totalStock),
+                'total' => number_format(round($totalStock),2),
                 'productWise' => $productWiseStock
             ],
             'order' => [

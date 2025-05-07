@@ -34,6 +34,8 @@
 
                         <form action="{{ route('sales-deliveries.store') }}" method="POST" class="">
                             @csrf
+                            <input type="hidden" name="submission_token"
+                                   value="{{ session()->get('submission_token') ?? Str::random(40) }}">
                             <div class="card-body">
                                 <div class="card-box">
                                     <div id="">
@@ -80,8 +82,7 @@
                                             <div class="col-3">
                                                 <div class="form-group">
                                                     <label for="">Delivery Invoice Number</label>
-                                                    <select name="sale_id" id="" class="form-control" v-model="sale_id"
-                                                            @change="getAllData">
+                                                    <select name="sale_id" id="" class="form-control select2" v-model="sale_id">
                                                         <option value="">None</option>
                                                         @foreach($sales as $sale)
                                                             <option
@@ -508,6 +509,17 @@
 
                 mounted: function () {
                     this.setStoreId()
+
+                    const self = this;
+
+                    // Initialize Select2
+                    $('.select2').select2();
+
+                    // Listen for change event on Select2
+                    $('.select2').on('change', function () {
+                        self.sale_id = $(this).val(); // Update the Vue model
+                        self.getAllData(); // Call your method
+                    });
                 },
                 computed: {
                     subtotal: function () {
@@ -576,7 +588,6 @@
                             vm.sale_id = ''
                         }
                         const sale_id = vm.sale_id;
-
                         if (sale_id) {
                              vm.items = [];
                             axios.get(this.config.get_data_by_invoice + '/' + sale_id).then(function (response) {
@@ -610,7 +621,6 @@
                         const vm = this;
                         {
                             if (slug) {
-                                console.log(slug);
                                 axios.get(this.config.get_product_info_url + '/' + slug, {
                                     params: {
                                         store_id: vm.store_id,
@@ -630,7 +640,6 @@
                                         product_discount: product_details.product_discount,
                                         subtotal: 0,
                                     });
-                                    console.log(vm.items);
                                     // vm.item_id = '';
                                     // vm.category_id = '';
 

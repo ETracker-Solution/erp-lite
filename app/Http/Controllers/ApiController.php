@@ -7,6 +7,8 @@ use App\Models\ChartOfAccount;
 use App\Models\ChartOfInventory;
 use App\Models\Consumption;
 use App\Models\ConsumptionItem;
+use App\Models\CustomerTransaction;
+use App\Models\FundTransferVoucher;
 use App\Models\InventoryTransaction;
 use App\Models\InventoryTransfer;
 use App\Models\OthersOutletSale;
@@ -321,6 +323,8 @@ class ApiController extends Controller
 
     public function fetchRequisitionById($id, $store_id = null)
     {
+        ini_set('memory_limit', '256M');
+
         $requisition = Requisition::with(['items.coi.unit', 'items.coi.parent', 'deliveries.items', 'items.coi.requisitionDeliveryItems.requisitionDelivery', 'items.coi.preOrderItems.preOrder'])
             ->where('id', $id)
             ->firstOrFail();
@@ -361,9 +365,9 @@ class ApiController extends Controller
                         'group' => $row->coi->parent->name ?? '',
                         'rm_average_rate' => $averageRates[$row->coi_id]['rm_rate'] ?? 0,
                         'fg_average_rate' => $averageRates[$row->coi_id]['rm_rate'] ?? 0,
-                        'balance_quantity' => max($balance_quantity, 0),
+                        'balance_quantity' => $balance_quantity > 0 ? max(($balance_quantity), 0) : $balance_quantity,
                         'requisition_quantity' => $totalRequisitionLeft,
-                        'quantity' => $quantity,
+                        'quantity' => $quantity >0 ?number_format($quantity,2) : 0,
                     ];
                 }
             }
@@ -536,9 +540,12 @@ class ApiController extends Controller
     {
         $other_outlet_sales_balance = accountBalanceForOtherOutletSales($coa_id);
         $main_balance = AccountTransaction::where('chart_of_account_id', $coa_id)->sum(\DB::raw('amount * transaction_type'));
-
+        $pending_amount = FundTransferVoucher::where([
+            'credit_account_id'=>$coa_id,
+            'status'=>'pending'
+        ])->sum('amount');
         $data = [
-            'from_ac_balance' => $main_balance - $other_outlet_sales_balance
+            'from_ac_balance' => $main_balance - $other_outlet_sales_balance - $pending_amount
         ];
         return response()->json($data);
     }

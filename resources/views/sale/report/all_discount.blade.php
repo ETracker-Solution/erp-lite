@@ -100,6 +100,7 @@
                 $itemWiseDiscount = $row->items->sum('discount');
                 $saleDiscount = $row->discount;
                 $totalDiscount = $itemWiseDiscount + $saleDiscount;
+                $totalDiscount = $saleDiscount;
             @endphp
             <tr class="items">
                 <td>{{$row->date}}</td>

@@ -77,7 +77,7 @@ JOIN
     inventory_adjustment_items iat ON ia.id = iat.inventory_adjustment_id
  JOIN
     chart_of_inventories coi ON coi.id = iat.coi_id
-             WHERE ia.store_id='$store_id'AND ia.transaction_type='decrease' AND ia.date >= '$startDate' AND ia.date <= '$endDate'
+             WHERE ia.store_id='$store_id'AND ia.transaction_type='decrease' AND ia.date >= '$startDate' AND ia.date <= '$endDate'  AND ia.status = 'adjusted'
 GROUP BY
     ia.store_id, ia.created_at, iat.coi_id
 UNION ALL
@@ -95,7 +95,7 @@ JOIN
     inventory_adjustment_items iat ON ia.id = iat.inventory_adjustment_id
  JOIN
     chart_of_inventories coi ON coi.id = iat.coi_id
-             WHERE ia.store_id='$store_id'AND ia.transaction_type='decrease' AND ia.date >= '$startDate' AND ia.date <= '$endDate'
+             WHERE ia.store_id='$store_id'AND ia.transaction_type='decrease' AND ia.date >= '$startDate' AND ia.date <= '$endDate' AND ia.status = 'adjusted'
 ";
     }
 
@@ -112,7 +112,7 @@ JOIN
     inventory_adjustment_items iat ON ia.id = iat.inventory_adjustment_id
  JOIN
     chart_of_inventories coi ON coi.id = iat.coi_id
-WHERE ia.transaction_type='decrease' AND ia.date >= '$startDate' AND ia.date <= '$endDate'
+WHERE ia.transaction_type='decrease' AND ia.date >= '$startDate' AND ia.date <= '$endDate'  AND ia.status = 'adjusted'
 GROUP BY
     iat.coi_id
 UNION ALL
@@ -128,7 +128,7 @@ JOIN
 WHERE
     ia.transaction_type = 'decrease'
     AND ia.date >= '$startDate'
-    AND ia.date <= '$endDate';";
+    AND ia.date <= '$endDate' AND ia.status = 'adjusted';";
     }
 
     public function allStoreReportStatement($startDate, $endDate)
@@ -146,7 +146,7 @@ JOIN
     inventory_adjustment_items iat ON ia.id = iat.inventory_adjustment_id
  JOIN
     chart_of_inventories coi ON coi.id = iat.coi_id
-WHERE ia.transaction_type='decrease' AND ia.date >= '$startDate' AND ia.date <= '$endDate'
+WHERE ia.transaction_type='decrease' AND ia.date >= '$startDate' AND ia.date <= '$endDate' AND ia.status = 'adjusted'
 GROUP BY
     ia.store_id
 ORDER BY  s.doc_id
@@ -166,6 +166,7 @@ WHERE
     ia.transaction_type = 'decrease'
     AND ia.date >= '$startDate'
     AND ia.date <= '$endDate'
+    AND ia.status = 'adjusted'
 );";
     }
 }

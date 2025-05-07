@@ -138,7 +138,11 @@ class FGRequisitionDeliveryController extends Controller
                     Toastr::warning('No Available Stock for '.$prev->coi->name, '', ["progressBar" => true]);
                     return back();
                 }
-                $price = $prev->rate / $prev->quantity;
+                if ($prev->quantity != 0) {
+                    $price = $prev->rate / $prev->quantity;
+                } else {
+                    $price = 0; // or set to a default value if needed
+                }
                 $prev->update([
                     'quantity' => $item,
                     'rate' => $price * $item

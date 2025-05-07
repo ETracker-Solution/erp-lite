@@ -28,7 +28,7 @@
 @if(\Illuminate\Support\Facades\Route::currentRouteName() == 'today.requisitions.export')
     <table style="width: 100% ; border: unset !important;">
         <tbody>
-        @include('common.report_header')
+{{--        @include('common.report_header')--}}
         </tbody>
     </table>
     <table style="margin-top: 70px; width:100%; text-align: center !important;border: unset !important;">

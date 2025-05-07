@@ -3,6 +3,7 @@
 
 use App\Models\AccountTransaction;
 use App\Models\ChartOfAccount;
+use App\Models\DeliveryCashTransfer;
 use App\Models\OthersOutletSale;
 use App\Models\OutletAccount;
 use App\Models\Sale;
@@ -134,12 +135,16 @@ function accountBalanceForOtherOutletSales($chart_of_account_id){
     $other_outlet_sales_balance = 0;
     $account_outlet = OutletAccount::where('coa_id', $chart_of_account_id)->first();
     if ($account_outlet) {
+        $alreadyTransferred = DeliveryCashTransfer::where('from_outlet', $account_outlet->outlet_id)->pluck('other_outlet_sale_id')->toArray();
+
         $otherOutletSales = OthersOutletSale::where('outlet_id', '!=', $account_outlet->outlet_id)
             ->where('delivery_point_id', '=', $account_outlet->outlet_id)
             ->where('payment_status', 'paid')
+            ->whereNotIn('id', $alreadyTransferred)
             ->pluck('invoice_number')->toArray();
 
         $originalSales = Sale::whereIn('invoice_number', $otherOutletSales)->pluck('id')->toArray();
+
         $other_outlet_sales_balance = AccountTransaction::where('chart_of_account_id', $chart_of_account_id)->where('doc_type', 'POS')->whereIn('doc_id', $originalSales)->sum(\DB::raw('amount * transaction_type'));
     }
     return $other_outlet_sales_balance;

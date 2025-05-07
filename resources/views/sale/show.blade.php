@@ -158,6 +158,28 @@
                                     </table>
                                 </div>
                             </div>
+                            <hr>
+                            <div class="col-8">
+
+                            </div>
+                            <div class="col-4">
+                                <div class="table-responsive">
+                                    @php
+                                        $paidAmount = max($sale->receive_ammount,$sale->grand_total);
+                                        $dueAmount = $sale->grand_total - $paidAmount;
+                                    @endphp
+                                    <table class="table">
+                                        <tr>
+                                            <th style="width:50%">Paid:</th>
+                                            <td class="text-right">{{ $paidAmount }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th style="width:50%">Due:</th>
+                                            <td class="text-right">{{ $dueAmount }}</td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
                             <!-- /.col -->
                         </div>
                         <!-- /.row -->

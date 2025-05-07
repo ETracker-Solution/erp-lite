@@ -34,6 +34,7 @@ class RequisitionController extends Controller
 
     public function exportRequisition($type)
     {
+        ini_set('memory_limit', '256M');
         $exportableData = $this->getRequisitionData();
         $viewFileName = 'todays_requisition';
         $filenameToDownload = date('ymdHis') . '_todays_requisition';

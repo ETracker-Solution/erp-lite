@@ -76,6 +76,11 @@ class FGDeliveryReceiveController extends Controller
 //        try {
 //            DB::beginTransaction();
         $data = $request->validated();
+        $req_delivery = RequisitionDelivery::find($data['requisition_delivery_id']);
+        if($req_delivery->status == 'received'){
+            Toastr::error('Already Received');
+            return back();
+        }
         $requisition_delivery = DeliveryReceive::query()->create($data);
         $products = $request->get('products');
         foreach ($products as $product) {

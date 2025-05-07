@@ -8,7 +8,7 @@
     <link rel="stylesheet" type="text/css"
           href="{{asset('admin/app-assets/css/plugins/charts/chart-apex.css')}}">
     <style>
-        #piechart  svg{
+        #piechart svg {
             width: 450px !important;
         }
     </style>
@@ -149,7 +149,7 @@
                                 </tr>
                                 </thead>
                                 <tbody>
-                                    {{-- @dd($todayRequisitions); --}}
+                                {{-- @dd($todayRequisitions); --}}
                                 @foreach($todayRequisitions as $row)
                                     <tr>
                                         <td>{{$loop->iteration}}</td>
@@ -158,7 +158,8 @@
                                         <td> {{$row->fromStore->name ?? ''}}</td>
                                         <td>{!! showStatus($row->status) !!}</td>
                                         <td>{{$row->created_at->format('d-m-Y')}}</td>
-                                        <td><a href="{{ route('requisitions.show', encrypt($row->id)) }}" class="btn btn-primary btn-sm"><i class="fa fa-eye"></i></a></td>
+                                        <td><a href="{{ route('requisitions.show', encrypt($row->id)) }}"
+                                               class="btn btn-primary btn-sm"><i class="fa fa-eye"></i></a></td>
                                     </tr>
                                 @endforeach
                                 </tbody>
@@ -251,11 +252,11 @@
     </section>
 @endsection
 <?php
-    $stocks = $stock['productWise']['stock'];
-    // Format each number in the stock array
-    $formatted_stocks = array_map(function($num) {
-        return number_format($num, 0);
-    }, $stocks);
+$stocks = $stock['productWise']['stock'];
+// Format each number in the stock array
+$formatted_stocks = array_map(function ($num) {
+    return number_format($num, 2);
+}, $stocks);
 ?>
 @section('css')
     <!-- DataTables -->
@@ -287,10 +288,11 @@
             labels: JSON.parse('<?= json_encode($stock['productWise']['products']) ?>'),
             datasets: [
                 {
+                    label: "",
                     backgroundColor: generateColors(<?= count($stock['productWise']['products']) ?>),
-                    borderColor: "lightgreen",
+                    borderColor: "white",
                     borderWidth: 1,
-                    data: JSON.parse('<?= json_encode($formatted_stocks) ?>').map(function(value) {
+                    data: JSON.parse('<?= json_encode($formatted_stocks) ?>').map(function (value) {
                         return parseFloat(value.replace(/,/g, ''));
                     }),
                 },
@@ -300,18 +302,30 @@
         var chartOptionsOrder = {
             responsive: true,
             legend: {
-                position: "top"
-            },
-            title: {
-                display: false,
-                text: "Best Sale Product"
+                display: "false"
             },
             scales: {
                 yAxes: [{
                     ticks: {
-                        beginAtZero: true
+                        beginAtZero: true,
+                        callback: function (value) {
+                            return value.toLocaleString(undefined, {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2
+                            });
+                        }
                     }
                 }]
+            },
+            tooltips: {
+                callbacks: {
+                    label: function (tooltipItem) {
+                        return tooltipItem.yLabel.toLocaleString(undefined, {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2
+                        });
+                    }
+                }
             }
         }
 
@@ -441,11 +455,11 @@
         function drawChart() {
             var rawData = <?= json_encode($order['outletWise']) ?>;
             var dataArray = [['Outlet', 'Orders']];
-          for (var key in rawData) {
-              if (rawData.hasOwnProperty(key)) {
-                  dataArray.push([key, rawData[key]]);
-              }
-          }
+            for (var key in rawData) {
+                if (rawData.hasOwnProperty(key)) {
+                    dataArray.push([key, rawData[key]]);
+                }
+            }
             var data = google.visualization.arrayToDataTable(dataArray);
 
             // Optional; add a title and set the width and height of the chart
@@ -457,11 +471,10 @@
         }
     </script>
 
-{{--    <script>--}}
-{{--        setInterval(function() {--}}
-{{--            location.reload(); // This will reload the entire page--}}
-{{--        }, 60000); // 60000 milliseconds = 60 seconds--}}
-{{--    </script>--}}
-
+    {{--    <script>--}}
+    {{--        setInterval(function() {--}}
+    {{--            location.reload(); // This will reload the entire page--}}
+    {{--        }, 60000); // 60000 milliseconds = 60 seconds--}}
+    {{--    </script>--}}
 
 @endpush

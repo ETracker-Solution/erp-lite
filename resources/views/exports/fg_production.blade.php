@@ -44,7 +44,7 @@
             @foreach ($chunk as $item)
                 <tr>
                     <td>{{ $item->production->date }}</td>
-                    <td>{{ $item->production->batch->batch_no }}</td>
+                    <td>{{ $item->production?->batch?->batch_no }}</td>
                     <td>{{ $item->coi->parent->name }}</td>
                     <td>{{ $item->coi->name }}</td>
                     <td>{{ $item->quantity }}</td>

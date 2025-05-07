@@ -37,7 +37,7 @@ class ProductionController extends Controller
         $data = ProductionItem::with('coi.parent', 'production.batch')->latest();
 
         if (\request()->filled('date_range')) {
-            [$from_date, $to_date] = explode(' to ', request()->date_range);
+            [$from_date, $to_date] = getDatesArrayFromDateRange(request()->date_range);
 
             $from_date = Carbon::parse($from_date)->format('Y-m-d');
             $to_date = Carbon::parse($to_date)->format('Y-m-d');
