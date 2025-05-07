@@ -46,6 +46,10 @@ class FGInventoryReportController extends Controller
             $run_query = false;
 //            $statement = get_all_items_by_store(\request()->store_id, $asOnDate,'FG');
             $getPost = $this->testFGreport(\request()->store_id, $asOnDate);
+        } elseif ($report_type == 'store_item_details') {
+            $report_header .= ' ( '. 'ITEM Name: ' . ChartOfInventory::find(\request()->item_id)->name . ' )';
+            $page_title = 'Store Name: ' . Store::find(\request()->store_id)->name;
+            $statement = get_store_item_details(\request()->store_id,\request()->item_id , $asOnDate,);
         }
         if ($run_query){
             $getPost = DB::select($statement);

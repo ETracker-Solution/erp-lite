@@ -121,6 +121,9 @@
                                                 @click="showReport('store_group_item')">Show Single Store + Group + Item
                                             Quantity Summary
                                         </button>
+                                        <button class="btn btn-sm btn-dark w-50 mb-2"
+                                                @click="showReport('store_item_details')">Show Store + Item Details
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -286,6 +289,22 @@
                         if (reportType === 'store_group_item') {
                             if (!vm.store_id) {
                                 toastr.error('Please Select Store', {
+                                    closeButton: true,
+                                    progressBar: true,
+                                });
+                                return false;
+                            }
+                        }
+                        if (reportType === 'store_item_details') {
+                            if (!vm.store_id) {
+                                toastr.error('Please Select Store', {
+                                    closeButton: true,
+                                    progressBar: true,
+                                });
+                                return false;
+                            }
+                            if (!vm.item_id) {
+                                toastr.error('Please Select ITEM', {
                                     closeButton: true,
                                     progressBar: true,
                                 });

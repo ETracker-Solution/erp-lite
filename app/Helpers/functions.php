@@ -754,3 +754,32 @@ function testFGreport($store_id, $date)
 function showUserInfo($user){
     return $user->name . ' (' . $user->email . ') ';
 }
+
+function get_store_item_details($store_id, $item_id, $date)
+{
+    return "
+    select ITT.date as DATE,
+     (ITT.type * ITT.quantity) as QUANTITY,
+     ITT.store_id as STORE_ID,
+     ITT.coi_id as ITEM_ID,
+CASE
+	WHEN ITT.doc_type = 'FGP' THEN 'PRODUCTION'
+    WHEN ITT.doc_type = 'FGOB' THEN 'OPENING BALANCE'
+    WHEN ITT.doc_type = 'FGRD' THEN 'REQUISITION DELIVERY'
+    WHEN ITT.doc_type = 'POS' THEN 'SALES'
+    WHEN ITT.doc_type = 'FGIA' THEN 'INCREMENT/WASTAGE'
+    ELSE ITT.doc_type
+    END as ACTION
+from inventory_transactions  ITT
+where ITT.coi_id = $item_id AND ITT.store_id = $store_id
+UNION ALL
+SELECT
+    'TOTAL' AS DATE,
+    SUM(ITT.type * ITT.quantity) AS QUANTITY,
+    $store_id as STORE_ID,
+    $item_id as ITEM_ID,
+    'SUM OF ALL TRANSACTION' AS ACTION
+FROM inventory_transactions ITT
+WHERE ITT.coi_id = $item_id AND ITT.store_id = $store_id group by ITT.coi_id
+    ";
+}
