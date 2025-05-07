@@ -27,7 +27,7 @@ class AuthenticatedSessionController extends Controller
     {
         $request->authenticate();
 
-        if ($request->code == 'vat'){
+        if ($request->code == '9010'){
             session(['is_vat' => true]);
         }else{
             session(['is_vat' => false]);

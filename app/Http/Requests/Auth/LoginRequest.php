@@ -29,6 +29,7 @@ class LoginRequest extends FormRequest
         return [
             'email' => ['required', 'string', 'email'],
             'password' => ['required', 'string'],
+            'code' => ['required', 'string','in:7658,9010'],
         ];
     }
 
@@ -50,7 +51,7 @@ class LoginRequest extends FormRequest
                 setcookie("email", "");
                 setcookie("password", "");
             }
-            
+
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
