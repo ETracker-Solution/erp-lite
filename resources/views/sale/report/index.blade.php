@@ -111,63 +111,65 @@
                                                 @click="showReport('All Sales Record')">
                                             Show All Sales Record
                                         </button>
-                                        <button class="btn btn-sm btn-dark w-50 mb-2"
-                                                @click="showReport('Item Wise Sales Summary')">Show Item Wise Sales
-                                            Summary
-                                        </button>
-                                        @if(auth()->user()->is_super)
+                                        @if(!session('is_vat'))
                                             <button class="btn btn-sm btn-dark w-50 mb-2"
-                                                    @click="showReport('Outlet Wise Sales Summary')">
-                                                Show Outlet Wise Sales Summary
+                                                    @click="showReport('Item Wise Sales Summary')">Show Item Wise Sales
+                                                Summary
                                             </button>
-                                        @endif
-                                        <button class="btn btn-sm btn-dark w-50 mb-2"
-                                                @click="showReport('All Customer Sales Details')">
-                                            Show All Customer Sales Details
-                                        </button>
-                                        {{--                                        <button class="btn btn-sm btn-dark w-50 mb-2" @click="showReport('trial_balance')">--}}
-                                        {{--                                          Show Customer Wise Sales Details--}}
-                                        {{--                                        </button>--}}
-                                        <button class="btn btn-sm btn-dark w-50 mb-2"
-                                                @click="showReport('Single Item Sales Details')">
-                                            Show Single Item Sales Details
-                                        </button>
-                                        <button class="btn btn-sm btn-dark w-50 mb-2"
-                                                @click="showReport('Single Customer Details')">
-                                            Show Single Customer Details
-                                        </button>
-                                        @if(auth()->user()->employee->user_of != 'outlet')
-                                        <hr>
-                                        {{-- Due and Discount Report --}}
-                                        <button class="btn btn-sm btn-dark w-50 mb-2"
-                                                @click="showReport('Outlet Wise Due')">
-                                            Show Outlet Wise Due
-                                        </button>
-                                        <button class="btn btn-sm btn-dark w-50 mb-2"
-                                                @click="showReport('Single Customer Due')">
-                                            Show Single Customer Due
-                                        </button>
-                                        <button class="btn btn-sm btn-dark w-50 mb-2"
-                                                @click="showReport('Outlet Wise Discount')">
-                                            Show Outlet Wise Discount
-                                        </button>
-                                        <button class="btn btn-sm btn-dark w-50 mb-2"
-                                                @click="showReport('Single Customer Discount')">
-                                            Show Single Customer Discount
-                                        </button>
-                                        <button class="btn btn-sm btn-dark w-50 mb-2"
-                                                @click="showReport('Product Wise Discount')">
-                                            Show Product Wise Discount
-                                        </button>
-                                        <button class="btn btn-sm btn-dark w-50 mb-2"
-                                                @click="showReport('All Outlet Discount')">
-                                            Show All Outlet Discount
-                                        </button>
-                                        <button class="btn btn-sm btn-dark w-50 mb-2"
-                                                @click="showReport('All Outlet Sale Amount Report')">
-                                            Show All Outlet Sale Amount Report
-                                        </button>
-                                        {{-- End Due and Discount Report --}}
+                                            @if(auth()->user()->is_super)
+                                                <button class="btn btn-sm btn-dark w-50 mb-2"
+                                                        @click="showReport('Outlet Wise Sales Summary')">
+                                                    Show Outlet Wise Sales Summary
+                                                </button>
+                                            @endif
+                                            <button class="btn btn-sm btn-dark w-50 mb-2"
+                                                    @click="showReport('All Customer Sales Details')">
+                                                Show All Customer Sales Details
+                                            </button>
+                                            {{--                                        <button class="btn btn-sm btn-dark w-50 mb-2" @click="showReport('trial_balance')">--}}
+                                            {{--                                          Show Customer Wise Sales Details--}}
+                                            {{--                                        </button>--}}
+                                            <button class="btn btn-sm btn-dark w-50 mb-2"
+                                                    @click="showReport('Single Item Sales Details')">
+                                                Show Single Item Sales Details
+                                            </button>
+                                            <button class="btn btn-sm btn-dark w-50 mb-2"
+                                                    @click="showReport('Single Customer Details')">
+                                                Show Single Customer Details
+                                            </button>
+                                            @if(auth()->user()->employee->user_of != 'outlet')
+                                                <hr>
+                                                {{-- Due and Discount Report --}}
+                                                <button class="btn btn-sm btn-dark w-50 mb-2"
+                                                        @click="showReport('Outlet Wise Due')">
+                                                    Show Outlet Wise Due
+                                                </button>
+                                                <button class="btn btn-sm btn-dark w-50 mb-2"
+                                                        @click="showReport('Single Customer Due')">
+                                                    Show Single Customer Due
+                                                </button>
+                                                <button class="btn btn-sm btn-dark w-50 mb-2"
+                                                        @click="showReport('Outlet Wise Discount')">
+                                                    Show Outlet Wise Discount
+                                                </button>
+                                                <button class="btn btn-sm btn-dark w-50 mb-2"
+                                                        @click="showReport('Single Customer Discount')">
+                                                    Show Single Customer Discount
+                                                </button>
+                                                <button class="btn btn-sm btn-dark w-50 mb-2"
+                                                        @click="showReport('Product Wise Discount')">
+                                                    Show Product Wise Discount
+                                                </button>
+                                                <button class="btn btn-sm btn-dark w-50 mb-2"
+                                                        @click="showReport('All Outlet Discount')">
+                                                    Show All Outlet Discount
+                                                </button>
+                                                <button class="btn btn-sm btn-dark w-50 mb-2"
+                                                        @click="showReport('All Outlet Sale Amount Report')">
+                                                    Show All Outlet Sale Amount Report
+                                                </button>
+                                            @endif
+                                            {{-- End Due and Discount Report --}}
                                         @endif
                                     </div>
                                 </div>

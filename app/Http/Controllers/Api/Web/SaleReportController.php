@@ -56,7 +56,11 @@ class SaleReportController extends Controller
         $query = $this->getAllSaleQuery($from_date, $to_date);
         $dateRange = 'From ' . $from_date . ' To ' . $to_date;
         if ($report_type == 'All Sales Record') {
-            $query = $this->getAllSaleQuery($from_date, $to_date);
+            if (session('is_vat')){
+                $query = $this->getAllSaleQueryVAT($from_date, $to_date);
+            }else{
+                $query = $this->getAllSaleQuery($from_date, $to_date);
+            }
         } elseif ($report_type == 'Item Wise Sales Summary') {
             $query = $this->getItemWiseSalesSummary($from_date, $to_date);
         } elseif ($report_type == 'Outlet Wise Sales Summary') {
@@ -279,7 +283,7 @@ class SaleReportController extends Controller
         $outlet_id = auth()->user()->employee && auth()->user()->employee->outlet_id ? auth()->user()->employee->outlet_id : null;
         if (auth()->user()->is_super || (auth()->user()->employee && auth()->user()->employee->user_of == 'ho')) {
             return "
-(           
+(
 select COI.name as 'Item', SUM(SI.quantity) as 'Quantity', SUM(SI.quantity * SI.unit_price) as 'Sales Amount'
 from sales SS
 join sale_items SI
@@ -293,8 +297,8 @@ order by COI.parent_id, COI.id
 )
 union all
 (
- SELECT 'Total' AS 'Item', 
-    SUM(SI.quantity) AS 'Quantity', 
+ SELECT 'Total' AS 'Item',
+    SUM(SI.quantity) AS 'Quantity',
     SUM(SI.quantity * SI.unit_price) AS 'Sales Amount'
     FROM sales SS
     join sale_items SI
@@ -306,7 +310,7 @@ on SI.sale_id = SS.id
 
         } else {
             return "
-            (           
+            (
 select COI.name as 'Item', SUM(SI.quantity) as 'Quantity', SUM(SI.quantity * SI.unit_price) as 'Sales Amount'
 from sales SS
 join sale_items SI
@@ -321,8 +325,8 @@ order by COI.parent_id, COI.id
 )
 union all
 (
- SELECT 'Total' AS 'Item', 
-    SUM(SI.quantity) AS 'Quantity', 
+ SELECT 'Total' AS 'Item',
+    SUM(SI.quantity) AS 'Quantity',
     SUM(SI.quantity * SI.unit_price) AS 'Sales Amount'
     FROM sales SS
     JOIN sale_items SI ON SI.sale_id = SS.id
@@ -533,5 +537,107 @@ WHERE at2.doc_type ='POS' AND at2.`type` ='debit' AND coa.id in (oa.coa_id)
 AND s.date >= '$from_date'
 AND s.date <= '$to_date'
         ";
+    }
+
+    public function getAllSaleQueryVAT($from_date, $to_date)
+    {
+        $outlet_id = auth()->user()->employee && auth()->user()->employee->outlet_id ? auth()->user()->employee->outlet_id : null;
+        if (auth()->user()->is_super || (auth()->user()->employee && auth()->user()->employee->user_of == 'ho')) {
+            return "
+                SELECT
+                    SS.invoice_number AS 'Invoice Number',
+                    US.name AS 'Seller',
+                    IFNULL(SS.waiter_name, '') AS 'Waiter',
+                    SS.date AS 'Date',
+                    SS.subtotal AS 'Amount',
+                    SS.discount AS 'Discount',
+                    (SS.subtotal - SS.discount) AS 'After Discount',
+                    SS.sd AS 'SD',
+                    SS.vat AS 'VAT'
+                FROM
+                    sales SS
+                LEFT JOIN
+                    users US ON SS.created_by = US.id
+                JOIN
+                    account_transactions ATT ON ATT.doc_id = SS.id
+                WHERE
+                    ATT.doc_type = 'POS'
+                    AND ATT.chart_of_account_id = 43
+                    AND SS.date >= '$from_date'
+                    AND SS.date <= '$to_date'
+                    AND SS.is_vat = true
+                UNION ALL
+
+                SELECT
+                    '' AS 'Seller',
+                    '' AS 'Waiter',
+                    'Total' AS 'Invoice Number',
+                    '' AS 'Date',
+                    SUM(SS.subtotal) AS 'Amount',
+                    SUM(SS.discount) AS 'Discount',
+                    SUM(SS.subtotal - SS.discount) AS 'After Discount',
+                    SUM(SS.sd) AS 'SD',
+                    SUM(SS.vat) AS 'VAT'
+                FROM
+                    sales SS
+                JOIN
+                    account_transactions ATT ON ATT.doc_id = SS.id
+                WHERE
+                    ATT.doc_type = 'POS'
+                    AND ATT.chart_of_account_id = 43
+                    AND SS.date >= '$from_date'
+                    AND SS.date <= '$to_date'
+                    AND SS.is_vat = true
+            ";
+        } else {
+            return "
+                SELECT
+                    SS.invoice_number AS 'Invoice Number',
+                    US.name AS 'Seller',
+                    IFNULL(SS.waiter_name, '') AS 'Waiter',
+                    SS.date AS 'Date',
+                    SS.subtotal AS 'Amount',
+                    SS.discount AS 'Discount',
+                    (SS.subtotal - SS.discount) AS 'After Discount',
+                    SS.sd AS 'SD',
+                    SS.vat AS 'VAT'
+                FROM
+                    sales SS
+                LEFT JOIN
+                    users US ON SS.created_by = US.id
+                JOIN
+                    account_transactions ATT ON ATT.doc_id = SS.id
+                WHERE
+                    ATT.doc_type = 'POS'
+                    AND ATT.chart_of_account_id = 43
+                    AND SS.date >= '$from_date'
+                    AND SS.date <= '$to_date'
+                    AND SS.outlet_id = '$outlet_id'
+                    AND SS.is_vat = true
+                UNION ALL
+
+                SELECT
+                    '' AS 'Seller',
+                    '' AS 'Waiter',
+                    'Total' AS 'Invoice Number',
+                    '' AS 'Date',
+                    SUM(SS.subtotal) AS 'Amount',
+                    SUM(SS.discount) AS 'Discount',
+                    SUM(SS.subtotal - SS.discount) AS 'After Discount',
+                    SUM(SS.sd) AS 'SD',
+                    SUM(SS.vat) AS 'VAT'
+                FROM
+                    sales SS
+                JOIN
+                    account_transactions ATT ON ATT.doc_id = SS.id
+                WHERE
+                    ATT.doc_type = 'POS'
+                    AND ATT.chart_of_account_id = 43
+                    AND SS.date >= '$from_date'
+                    AND SS.date <= '$to_date'
+                    AND SS.outlet_id = '$outlet_id'
+                    AND SS.is_vat = true
+            ";
+        }
     }
 }
