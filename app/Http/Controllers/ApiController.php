@@ -198,6 +198,7 @@ class ApiController extends Controller
 
     public function fetch_products_by_cat_id($id)
     {
+        ini_set('memory_limit', '512M');
         $all_requisitions = \App\Models\Requisition::todayFGAvailableRequisitions(auth('web')->user()->employee->factory_id);
 
         $outlet_ids = collect($all_requisitions)->pluck('outlet_id')->toArray();
