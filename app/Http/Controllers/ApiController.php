@@ -42,7 +42,7 @@ class ApiController extends Controller
 
     public function fetchItemById($id)
     {
-
+        ini_set('memory_limit', '512M');
         $coi = ChartOfInventory::with('unit', 'parent')->findOrFail($id);
         $products = ChartOfInventory::with('unit', 'parent')->where('id', $id)->get();
         $needToProduction = 0;
