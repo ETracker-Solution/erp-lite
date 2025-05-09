@@ -34,7 +34,7 @@ class RequisitionController extends Controller
 
     public function exportRequisition($type)
     {
-        ini_set('memory_limit', '512');
+        ini_set('memory_limit', '512M');
         $exportableData = $this->getRequisitionData();
         $viewFileName = 'todays_requisition';
         $filenameToDownload = date('ymdHis') . '_todays_requisition';
@@ -44,6 +44,7 @@ class RequisitionController extends Controller
 
     public function exportFGRequisition($type)
     {
+        ini_set('memory_limit', '512M');
         $data = RequisitionItem::with('coi.parent', 'requisition.outlet')
         ->whereHas('requisition', function ($query) {
             $query->where('type', 'FG');
