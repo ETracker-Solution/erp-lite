@@ -78,8 +78,8 @@ class SaleController extends Controller
             // $serial_no = InvoiceNumber::generateInvoiceNumber(\auth()->user()->employee->outlet_id);
         }
         $data = [
-            'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'FG'])->get(),
-            'stores' => Store::where(['type' => 'FG', 'doc_type' => 'outlet'])->get(),
+            'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'FG','status'=>'active'])->get(),
+            'stores' => Store::where(['type' => 'FG', 'doc_type' => 'outlet','status'=>'active'])->get(),
             'serial_no' => $serial_no,
             'customers' => Customer::where('status', 'active')->get(),
             'user_store' => $user_store,

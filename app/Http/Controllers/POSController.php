@@ -83,7 +83,7 @@ class POSController extends Controller
             }
             $outlet_id = \auth('web')->user()->employee->outlet_id;
             $outlet = Outlet::find($outlet_id);
-            $store = Store::where(['doc_type' => 'outlet', 'doc_id' => $outlet->id])->first();
+            $store = Store::where(['doc_type' => 'outlet', 'doc_id' => $outlet->id, 'status' => 'active'])->first();
             $sale = new Sale();
 
             $sale->invoice_number = generateUniqueUUID($outlet_id, Sale::class, 'invoice_number');
