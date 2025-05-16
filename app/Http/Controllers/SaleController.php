@@ -67,7 +67,7 @@ class SaleController extends Controller
         $outlet_id = null;
         if (!auth()->user()->is_super) {
             if (\auth()->user()->employee->outlet_id) {
-                $user_store = Store::where(['doc_type' => 'outlet', 'doc_id' => \auth()->user()->employee->outlet_id])->first();
+                $user_store = Store::where(['doc_type' => 'outlet', 'doc_id' => \auth()->user()->employee->outlet_id,'status'=>'active'])->first();
                 $outlet_id = $user_store->doc_id;
                 $serial_no = generateUniqueUUID($outlet_id, Sale::class, 'invoice_number');
             } else {

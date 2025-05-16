@@ -293,7 +293,7 @@ class POSController extends Controller
     public function getAllProducts(Request $request)
     {
         $outlet = auth('web')->user()->employee->outlet;
-        $store = Store::where(['doc_type' => 'outlet', 'doc_id' => $outlet->id])->first();
+        $store = Store::where(['doc_type' => 'outlet', 'doc_id' => $outlet->id, 'status' => 'active'])->first();
         $storeId = $store->id;
 
         // Fetch products with the necessary filters
