@@ -107,7 +107,7 @@ class SalesDeliveryController extends Controller
             $main_outlet = $originalSale->outlet;
 
             $delivery_outlet = Outlet::find($originalSale->delivery_point_id);
-            $delivery_store_id = $delivery_outlet->stores()->first()->id;
+            $delivery_store_id = $delivery_outlet->stores()->where('status','active')->first()->id;
 
             $mail_outlet_store_id = $main_outlet->stores()->first()->id;
 
