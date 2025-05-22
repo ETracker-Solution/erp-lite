@@ -23,35 +23,39 @@
                                     <div class="card-body">
                                         <form method="POST" id="submitForm">
                                             @csrf
-                                        <div class="row">
-                                            <div class="col-md-3 form-group">
-                                                <label for="fp-range" class="font-weight-bold">DATE RANGE</label>
-                                                <input type="text" id="fp-range" class="form-control flatpickr-range"
-                                                       placeholder="YYYY-MM-DD to YYYY-MM-DD" name="date_range"/>
-                                            </div>
-                                            <div class="form-group col-md-3">
-                                                <label for="outlet_id" class="font-weight-bold">Select Outlet</label>
-                                                <select class="form-control select2" name="outlet_id" id="outlet_id"
-                                                        required>
-                                                    <option value="" selected>All</option>
-                                                    @foreach ($outlets as $row)
-                                                        <option value="{{ $row->id }}">{{ $row->name }}</option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
+                                            <div class="row">
+                                                <div class="col-md-3 form-group">
+                                                    <label for="fp-range" class="font-weight-bold">DATE RANGE</label>
+                                                    <input type="text" id="fp-range"
+                                                           class="form-control flatpickr-range"
+                                                           placeholder="YYYY-MM-DD to YYYY-MM-DD" name="date_range"/>
+                                                </div>
+                                                <div class="form-group col-md-3">
+                                                    <label for="outlet_id" class="font-weight-bold">Select
+                                                        Outlet</label>
+                                                    <select class="form-control select2" name="outlet_id" id="outlet_id"
+                                                            required>
+                                                        <option value="" selected>All</option>
+                                                        @foreach ($outlets as $row)
+                                                            <option value="{{ $row->id }}">{{ $row->name }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
 
-                                            <div class="form-group col-md-3">
-                                                <label for="account_id" class="font-weight-bold">From Account</label>
-                                                <select class="form-control select2" name="account_id" id="account_id"
-                                                        required>
-                                                    <option value="" selected>All</option>
-                                                    @foreach ($accounts as $row)
-                                                        <option value="{{ $row->id }}">{{ $row->name }}</option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
+                                                <div class="form-group col-md-3">
+                                                    <label for="account_id" class="font-weight-bold">From
+                                                        Account</label>
+                                                    <select class="form-control select2" name="account_id"
+                                                            id="account_id"
+                                                            required>
+                                                        <option value="" selected>All</option>
+                                                        @foreach ($accounts as $row)
+                                                            <option value="{{ $row->id }}">{{ $row->name }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
 
-                                        </div>
+                                            </div>
                                         </form>
                                     </div>
                                 </div>
@@ -84,7 +88,7 @@
                                                                 <span class="badge badge-danger p-1 m-1">{{$outlet_account['name']}} :   {{$outlet_account['pending']}} BDT</span>
                                                             </td>
                                                             <td>
-                                                                <span class="badge badge-info p-1 m-1">{{$outlet_account['name']}} :   {{$outlet_account['balance'] - $outlet_account['pending']}} BDT</span>
+                                                                <span class="badge badge-info p-1 m-1">{{$outlet_account['name']}} :   {{round(($outlet_account['balance'] - $outlet_account['pending']),2)}} BDT</span>
                                                             </td>
                                                         </tr>
                                                     @endforeach
@@ -107,8 +111,9 @@
                             <h3 class="card-title">All Fund Transfer Voucher List</h3>
                             <div class="card-tools" style="display: ruby">
                                 @if(auth()->user()->employee->user_of != 'outlet')
-                                    <button class="btn btn-sm btn-danger" id="receiveReportButton"><i class="fas fa-file-pdf"
-                                                                             aria-hidden="true"></i> &nbsp;Receive Report
+                                    <button class="btn btn-sm btn-danger" id="receiveReportButton"><i
+                                                class="fas fa-file-pdf"
+                                                aria-hidden="true"></i> &nbsp;Receive Report
                                     </button>
                                 @endif
                                 <a href="{{route('fund-transfer-vouchers.create')}}">
@@ -263,7 +268,7 @@
             recallDatatable();
         });
         $('#receiveReportButton').on('click', function () {
-           $('#submitForm').attr('action', "{{ route('fund-transfer-vouchers.receive.report') }}").submit()
+            $('#submitForm').attr('action', "{{ route('fund-transfer-vouchers.receive.report') }}").submit()
         });
 
         function recallDatatable() {
