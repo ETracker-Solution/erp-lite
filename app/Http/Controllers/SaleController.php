@@ -131,7 +131,6 @@ class SaleController extends Controller
             $outlet_id = $outlet->id;
             $request->merge(['delivery_point_id' => $request->delivery_point_id ?? $outlet_id]);
 
-            dd($request->delivery_point_id);
             $sale = new Sale();
             $sale->invoice_number = generateUniqueUUID($outlet_id, Sale::class, 'invoice_number');
             // $sale->invoice_number = $request->invoice_number ?? InvoiceNumber::generateInvoiceNumber($outlet_id, $selectedDate);
