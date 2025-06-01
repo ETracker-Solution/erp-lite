@@ -130,6 +130,8 @@ class SaleController extends Controller
             $outlet = Outlet::find($store->doc_id);
             $outlet_id = $outlet->id;
             $request->merge(['delivery_point_id' => $request->delivery_point_id ?? $outlet_id]);
+
+            dd($request->delivery_point_id);
             $sale = new Sale();
             $sale->invoice_number = generateUniqueUUID($outlet_id, Sale::class, 'invoice_number');
             // $sale->invoice_number = $request->invoice_number ?? InvoiceNumber::generateInvoiceNumber($outlet_id, $selectedDate);
@@ -286,7 +288,7 @@ class SaleController extends Controller
             if ($request->sales_type == 'pre_order') {
                 $this->preOrderfromSales($sale, $deliveryDate, $delivery_charge, $delivery_time, $request->description, $request->size, $request->flavour, $request->cake_message, $request->attachments, $request->delivery_point_id);
             }
-            if (($receive_amount < $sale->grand_total) || $outlet_id !== $request->delivery_point_id || $request->sales_type == 'pre_order') {
+            if (($receive_amount < $sale->grand_total) || $outlet_id != $request->delivery_point_id || $request->sales_type == 'pre_order') {
                 $this->othersOutletDelivery($sale, $request->delivery_point_id);
             }
             DB::commit();
