@@ -175,7 +175,7 @@ class ApiController extends Controller
             'price' => isset($item) ? $item->unit_price : $coi->price,
             'discountable' => !$coi->parent->non_discountable,
             'coi_id' => $id,
-            'balance_qty' => $current_stock,
+            'balance_qty' => round($current_stock,2),
             'is_readonly' => $coi->price > 0 ? true : false,
             'product_discount' => isset($item) ? $item->discount : 0,
         ];
