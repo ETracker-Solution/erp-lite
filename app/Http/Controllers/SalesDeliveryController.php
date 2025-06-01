@@ -100,6 +100,12 @@ class SalesDeliveryController extends Controller
             $selectedDate = Carbon::parse($request->date)->format('Y-m-d');
 
             $originalSale = OthersOutletSale::find($request->sale_id);
+
+            if ($originalSale->status === 'delivered') {
+                Toastr::error('This sale has already been processed!', '', ["progressBar" => true]);
+                return back();
+            }
+
             $originalSaleItems = $originalSale->items;
 
             $store = Store::find($request->store_id);
@@ -114,6 +120,10 @@ class SalesDeliveryController extends Controller
 
             $receiveData = [];
             $tq = 0;
+
+            $originalSale->update([
+                'status' => 'processing' // Temporary status
+            ]);
             // transfer Stock
 
             $outlet = Outlet::find($store->doc_id);
