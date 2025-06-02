@@ -220,6 +220,8 @@ class POSController extends Controller
                     'nagad' => 'Nagad',
                     'bkash' => 'Bkash',
                     'prime' => 'Prime',
+                    'foodie' => 'Foodie',
+                    'foodpanda' => 'FoodPanda',
                 ];
                 if (array_key_exists($paymentMethod['method'], $paymentMethods)) {
                     $method = $paymentMethods[$paymentMethod['method']];

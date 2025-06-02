@@ -226,6 +226,8 @@
                             <option value="due">Due Sale</option>
                             <option value="city">City</option>
                             <option value="prime">Prime Bank</option>
+                            <option value="foodie">Foodie</option>
+                            <option value="foodpanda">Food Panda</option>
                             <option value="point">Redeem Point</option>
                         </select>
                     </b-col>
