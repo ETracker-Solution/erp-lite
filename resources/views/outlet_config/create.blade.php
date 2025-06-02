@@ -36,7 +36,7 @@
                                     <div class="col-xl-12 col-md-12 col-12 mb-1">
                                         @php
                                             $ledgers = getAllLedgers();
-                                            $accountTypes = ['Cash', 'Bkash', 'Nagad', 'DBBL', 'UCB', 'Rocket', 'Upay', 'Nexus', 'PBL', 'Due', 'City', 'Prime'];
+                                            $accountTypes = ['Cash', 'Bkash', 'Nagad', 'DBBL', 'UCB', 'Rocket', 'Upay', 'Nexus', 'PBL', 'Due', 'City', 'Prime', 'Foodie', 'FoodPanda'];
                                         @endphp
                                         <label for="name">Outlets</label>
                                         <table class="table table-bordered">
