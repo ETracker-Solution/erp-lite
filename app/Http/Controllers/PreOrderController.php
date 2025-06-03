@@ -132,18 +132,25 @@ class PreOrderController extends Controller
             $orders = $orders->whereDate($column, '>=', $from_date)->whereDate($column, '<=', $to_date);
         }
 
-        $orders = $orders->get()->map(function ($order) {
-            $othersOutletSale = OthersOutletSale::where('invoice_number', $order->order_number)
-                                               ->first();
-            if ($othersOutletSale) {
-                $receivedAmount = (float) $othersOutletSale->delivery_point_receive_amount;
-                $order->due_amount = max($order->grand_total - ($order->advance_amount + $receivedAmount),0);
-            } else {
-                $order->due_amount = 'N/A';
+        $orders->addSelect([
+            'due_amount' => function ($orders) {
+                $orders->selectRaw('
+                CASE
+                    WHEN EXISTS (
+                        SELECT 1 FROM others_outlet_sales
+                        WHERE invoice_number = pre_orders.order_number
+                    ) THEN
+                        GREATEST(pre_orders.grand_total - (pre_orders.advance_amount + COALESCE(
+                            (SELECT delivery_point_receive_amount
+                             FROM others_outlet_sales
+                             WHERE invoice_number = pre_orders.order_number
+                             LIMIT 1), 0
+                        )), 0)
+                    ELSE NULL
+                END
+            ');
             }
-
-            return $order;
-        });
+        ]);
 
         return $orders;
     }
