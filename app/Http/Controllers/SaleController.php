@@ -66,16 +66,17 @@ class SaleController extends Controller
         $serial_no = null;
         $user_store = null;
         $outlet_id = null;
-        if (!auth()->user()->is_super || !(auth()->user()->employee && auth()->user()->employee->user_of == 'ho')) {
+        if (!auth()->user()->is_super) {
             if (\auth()->user()->employee->outlet_id) {
                 $user_store = Store::where(['doc_type' => 'outlet', 'doc_id' => \auth()->user()->employee->outlet_id,'status'=>'active'])->first();
                 $outlet_id = $user_store->doc_id;
                 $serial_no = generateUniqueUUID($outlet_id, Sale::class, 'invoice_number');
-            } else {
-
-                Toastr::success('You are not allowed to create sales!.', '', ["progressBar" => true]);
-                return redirect()->route('sales.index');
             }
+//            else {
+//
+//                Toastr::success('You are not allowed to create sales!.', '', ["progressBar" => true]);
+//                return redirect()->route('sales.index');
+//            }
             // $serial_no = InvoiceNumber::generateInvoiceNumber(\auth()->user()->employee->outlet_id);
         }
         $data = [
