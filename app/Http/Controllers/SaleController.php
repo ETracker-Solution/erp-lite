@@ -35,7 +35,8 @@ class SaleController extends Controller
     public function index()
     {
         if (\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->outlet_id) {
-            $data = Sale::where(['outlet_id' => \auth()->user()->employee->outlet_id])->latest();
+            $data = Sale::where(['outlet_id' => \auth()->user()->employee->outlet_id])->whereDate('date', date('Y-m-d'))->latest();
+
         } else {
             $data = Sale::latest();
         }
@@ -65,7 +66,7 @@ class SaleController extends Controller
         $serial_no = null;
         $user_store = null;
         $outlet_id = null;
-        if (!auth()->user()->is_super) {
+        if (!auth()->user()->is_super || !(auth()->user()->employee && auth()->user()->employee->user_of == 'ho')) {
             if (\auth()->user()->employee->outlet_id) {
                 $user_store = Store::where(['doc_type' => 'outlet', 'doc_id' => \auth()->user()->employee->outlet_id,'status'=>'active'])->first();
                 $outlet_id = $user_store->doc_id;
