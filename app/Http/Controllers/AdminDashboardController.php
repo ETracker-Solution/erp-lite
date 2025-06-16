@@ -47,12 +47,21 @@ class AdminDashboardController extends Controller
         $currentDate = Carbon::now();
 
         // Calculate monthly discounts
-       $totalDiscounts = Sale::select(
+        $totalDiscounts = Sale::select(
             DB::raw('SUM(discount) as current_month'),
             DB::raw('SUM(CASE WHEN MONTH(created_at) = MONTH(CURRENT_DATE - INTERVAL 1 MONTH) THEN discount ELSE 0 END) as last_month'),
             DB::raw('SUM(CASE WHEN DATE(created_at) = CURRENT_DATE THEN discount ELSE 0 END) as today')
-        )->whereDate('date', date('Y-m-d'))->groupBy('date')->get();
-        $totalDiscounts = $totalDiscounts[0];
+        )
+            ->whereDate('date', date('Y-m-d'))
+            ->groupBy('date')
+            ->first(); // Use `first()` instead of `get()[0]`
+
+// Fallback if no data found
+        $totalDiscounts = $totalDiscounts ?? (object)[
+            'current_month' => 0,
+            'last_month'    => 0,
+            'today'         => 0,
+        ];
 
         $totalDiscountThisMonth = $totalDiscounts->current_month;
         $totalDiscountLastMonth = $totalDiscounts->last_month;
