@@ -1232,8 +1232,9 @@
                             sd = after_discount - taxable_amount - vat;
                         } else if (item.vat_type == "excluding") {
                             taxable_amount = after_discount || 0;
-                            vat = taxable_amount * (item.vat_amount / 100) || 0;
+
                             sd = taxable_amount * (item.sd / 100) || 0;
+                            vat = (taxable_amount + sd) * (item.vat_amount / 100)  || 0;
                         }
 
                         return {
