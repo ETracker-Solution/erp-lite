@@ -830,7 +830,7 @@
                         return Math.round(this.items.reduce((total, item) => {
                             let result = this.discountAmounttk(item);
                             if (result.vat_type == 'excluding') {
-                                return total + result.vat;
+                                return total + result.vat + result.sd;
                             }else{
                                 return 0;
                             }
