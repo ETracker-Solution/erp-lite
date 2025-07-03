@@ -45,7 +45,7 @@
                                 </a>
                             </div>
                         </div>
-                        <form action="{{ route('sales.store') }}" method="POST" class="" enctype="multipart/form-data">
+                        <form id="salesForm" action="{{ route('sales.store') }}" method="POST" class="" enctype="multipart/form-data">
                             @csrf
                             <input type="hidden" name="submission_token"
                                    value="{{ session()->get('submission_token') ?? Str::random(40) }}">
@@ -537,7 +537,9 @@
                             </div>
                             <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 text-right"
                                  v-if="items.length > 0 && ((sales_type == 'sales' && !customerNumber && total_payable_bill <= total_paying) || (sales_type == 'pre_order' && customerNumber) || customerNumber)">
-                                <button class="float-right btn btn-primary" type="submit"><i
+                                <button class="float-right btn btn-primary" type="button"
+                                        :disabled="isSubmitting"
+                                        @click="submitForm"><i
                                         class="fa fa-fw fa-lg fa-save"></i>Save
                                 </button>
                             </div>
@@ -730,12 +732,14 @@
                     user_outlet_id: "",
                     isDisabled: false,
                     additional_charge: 0,
+                    isSubmitting: false,
                 },
                 components: {
                     vuejsDatepicker
                 },
                 mounted: function () {
                     this.setStoreId()
+                    this.preventEnterSubmit();
                 },
                 computed: {
                     subtotal: function () {
@@ -1246,6 +1250,35 @@
                             total_cost,
                             sd
                         };
+                    },
+                    preventEnterSubmit() {
+                        const vm = this;
+                        document.querySelector('form').addEventListener('keypress', function (e) {
+                            if (e.key === 'Enter') {
+                                e.preventDefault();
+                                return false;
+                            }
+                        });
+                    },
+                    // Handle form submission on button click
+                    submitForm() {
+                        const vm = this
+                        if (vm.isSubmitting) return; // Prevent multiple submissions
+
+                        vm.isSubmitting = true; // Disable button
+
+                        // Optional: Add validation before submission
+                        if (vm.items.length === 0) {
+                            toastr.error('Please add items before submitting', {
+                                closeButton: true,
+                                progressBar: true,
+                            });
+                            vm.isSubmitting = false;
+                            return;
+                        }
+
+                        // Submit the form
+                        document.getElementById('salesForm').submit();
                     },
                 },
                 updated() {
