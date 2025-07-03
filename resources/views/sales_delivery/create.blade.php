@@ -32,7 +32,7 @@
                         </div>
 
 
-                        <form action="{{ route('sales-deliveries.store') }}" method="POST" class="">
+                        <form id="deliveryForm" action="{{ route('sales-deliveries.store') }}" method="POST" class="">
                             @csrf
                             <input type="hidden" name="submission_token"
                                    value="{{ session()->get('submission_token') ?? Str::random(40) }}">
@@ -405,7 +405,10 @@
 
                             </div>
                             <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 text-right" v-if="items.length > 0">
-                                <button class="float-right btn btn-primary" type="submit"><i
+                                <button class="float-right btn btn-primary"
+                                        type="button"
+                                        :disabled="isSubmitting"
+                                        @click="submitForm"><i
                                         class="fa fa-fw fa-lg fa-check-circle"></i>Submit
                                 </button>
                             </div>
@@ -502,6 +505,7 @@
                     delivery_charge: 0,
                     additional_charge: 0,
                     orderAmount: 0,
+                    isSubmitting: false,
                 },
                 components: {
                     vuejsDatepicker
@@ -520,6 +524,7 @@
                         self.sale_id = $(this).val(); // Update the Vue model
                         self.getAllData(); // Call your method
                     });
+                    this.preventEnterSubmit();
                 },
                 computed: {
                     subtotal: function () {
@@ -716,6 +721,32 @@
                     setStoreId() {
                         const vm = this
                         vm.store_id = "{{ $user_store ?  $user_store->id : ''}}"
+                    },
+                    preventEnterSubmit() {
+                        const vm = this;
+                        document.querySelector('form').addEventListener('keypress', function (e) {
+                            if (e.key === 'Enter') {
+                                e.preventDefault();
+                                return false;
+                            }
+                        });
+                    },
+                    // Handle form submission on button click
+                    submitForm() {
+                        const vm = this;
+                        if (vm.isSubmitting) return;
+                        vm.isSubmitting = true;
+
+                        if (vm.items.length === 0) {
+                            toastr.error('Please add items before submitting', {
+                                closeButton: true,
+                                progressBar: true,
+                            });
+                            vm.isSubmitting = false;
+                            return;
+                        }
+
+                        document.getElementById('deliveryForm').submit(); // Use ID to be 100% sure
                     }
                 },
                 updated() {
