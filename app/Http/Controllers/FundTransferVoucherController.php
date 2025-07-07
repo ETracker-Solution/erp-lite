@@ -351,7 +351,7 @@ class FundTransferVoucherController extends Controller
             $fundTransferVoucher->where('credit_account_id',\request()->account_id);
         }
         if (\request()->filled('date_range')) {
-            searchColumnByDateRange($fundTransferVoucher);
+            searchColumnByDateRange($fundTransferVoucher,'date');
         }
         return $fundTransferVoucher->latest();
     }

@@ -35,7 +35,8 @@ class SaleController extends Controller
     public function index()
     {
         if (\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->outlet_id) {
-            $data = Sale::where(['outlet_id' => \auth()->user()->employee->outlet_id])->latest();
+            $data = Sale::where(['outlet_id' => \auth()->user()->employee->outlet_id])->whereDate('date', date('Y-m-d'))->latest();
+
         } else {
             $data = Sale::latest();
         }
@@ -67,19 +68,20 @@ class SaleController extends Controller
         $outlet_id = null;
         if (!auth()->user()->is_super) {
             if (\auth()->user()->employee->outlet_id) {
-                $user_store = Store::where(['doc_type' => 'outlet', 'doc_id' => \auth()->user()->employee->outlet_id])->first();
+                $user_store = Store::where(['doc_type' => 'outlet', 'doc_id' => \auth()->user()->employee->outlet_id,'status'=>'active'])->first();
                 $outlet_id = $user_store->doc_id;
                 $serial_no = generateUniqueUUID($outlet_id, Sale::class, 'invoice_number');
-            } else {
-
-                Toastr::success('You are not allowed to create sales!.', '', ["progressBar" => true]);
-                return redirect()->route('sales.index');
             }
+//            else {
+//
+//                Toastr::success('You are not allowed to create sales!.', '', ["progressBar" => true]);
+//                return redirect()->route('sales.index');
+//            }
             // $serial_no = InvoiceNumber::generateInvoiceNumber(\auth()->user()->employee->outlet_id);
         }
         $data = [
-            'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'FG'])->get(),
-            'stores' => Store::where(['type' => 'FG', 'doc_type' => 'outlet'])->get(),
+            'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'FG','status'=>'active'])->get(),
+            'stores' => Store::where(['type' => 'FG', 'doc_type' => 'outlet','status'=>'active'])->get(),
             'serial_no' => $serial_no,
             'customers' => Customer::where('status', 'active')->get(),
             'user_store' => $user_store,
@@ -130,6 +132,7 @@ class SaleController extends Controller
             $outlet = Outlet::find($store->doc_id);
             $outlet_id = $outlet->id;
             $request->merge(['delivery_point_id' => $request->delivery_point_id ?? $outlet_id]);
+
             $sale = new Sale();
             $sale->invoice_number = generateUniqueUUID($outlet_id, Sale::class, 'invoice_number');
             // $sale->invoice_number = $request->invoice_number ?? InvoiceNumber::generateInvoiceNumber($outlet_id, $selectedDate);
@@ -302,7 +305,7 @@ class SaleController extends Controller
             if ($request->sales_type == 'pre_order') {
                 $this->preOrderfromSales($sale, $deliveryDate, $delivery_charge, $delivery_time, $request->description, $request->size, $request->flavour, $request->cake_message, $request->attachments, $request->delivery_point_id);
             }
-            if (($receive_amount < $sale->grand_total) || $outlet_id !== $request->delivery_point_id || $request->sales_type == 'pre_order') {
+            if (($receive_amount < $sale->grand_total) || $outlet_id != $request->delivery_point_id || $request->sales_type == 'pre_order') {
                 $this->othersOutletDelivery($sale, $request->delivery_point_id);
             }
             DB::commit();

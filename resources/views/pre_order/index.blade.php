@@ -303,7 +303,7 @@
                     {
                         data: "due_amount",
                         title: "Due Amount",
-                        searchable: true
+                        searchable: false
                     },
                     {
                         data: "action",
@@ -393,15 +393,15 @@
 
         $(document).on("click", "#excel-btn", function (e) {
             e.preventDefault();
-            
+
             let form = $("#excelForm");
-           
+
             let filterBy = $('select[name="filter_by"]');
             let status = $('select[name="status"]');
             let outletId = $('select[name="outlet_id"]');
             let fromDate = $('input[name="from_date"]');
             let toDate = $('input[name="to_date"]');
-            
+
             form.append(filterBy,status,outletId,fromDate,fromDate,toDate)
             form.submit();
         });

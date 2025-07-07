@@ -69,7 +69,7 @@ class SalesDeliveryController extends Controller
         // return $this->print();
         $user_store = null;
         if (!auth()->user()->is_super) {
-            $user_store = Store::where(['doc_type' => 'outlet', 'doc_id' => \auth()->user()->employee->outlet_id])->first();
+            $user_store = Store::where(['doc_type' => 'outlet', 'doc_id' => \auth()->user()->employee->outlet_id,'status'=>'active'])->first();
             $outlet_id = $user_store->doc_id;
         }
         if (\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->outlet_id) {
@@ -80,7 +80,7 @@ class SalesDeliveryController extends Controller
         $data = [
             'customers' => Customer::where('status', 'active')->get(),
             'sales' => $sales,
-            'stores' => Store::where(['type' => 'FG', 'doc_type' => 'outlet'])->get(),
+            'stores' => Store::where(['type' => 'FG', 'doc_type' => 'outlet','status'=>'active'])->get(),
             'delivery_points' => Outlet::all(),
             'user_store' => $user_store,
 
@@ -100,6 +100,12 @@ class SalesDeliveryController extends Controller
             $selectedDate = Carbon::parse($request->date)->format('Y-m-d');
 
             $originalSale = OthersOutletSale::find($request->sale_id);
+
+            if ($originalSale->status === 'delivered') {
+                Toastr::error('This sale has already been processed!', '', ["progressBar" => true]);
+                return back();
+            }
+
             $originalSaleItems = $originalSale->items;
 
             $store = Store::find($request->store_id);
@@ -107,13 +113,17 @@ class SalesDeliveryController extends Controller
             $main_outlet = $originalSale->outlet;
 
             $delivery_outlet = Outlet::find($originalSale->delivery_point_id);
-            $delivery_store_id = $delivery_outlet->stores()->first()->id;
+            $delivery_store_id = $delivery_outlet->stores()->where('status','active')->first()->id;
 
             $mail_outlet_store_id = $main_outlet->stores()->first()->id;
 
 
             $receiveData = [];
             $tq = 0;
+
+            $originalSale->update([
+                'status' => 'processing' // Temporary status
+            ]);
             // transfer Stock
 
             $outlet = Outlet::find($store->doc_id);
