@@ -79,8 +79,11 @@
                     <b>Delivery Point :</b> {{ $model->deliveryPoint ? $model->deliveryPoint->name : '' }}, <br>
                     <b>Size and Shape:</b> {{ $model->size }}, <br>
                     <b>Flavour :</b> {{ $model->flavour }}, <br>
-                    <b>Cake Message :</b> {{ $model->cake_message }}, <br>
+                    <b>Writing Note :</b> {{ $model->cake_message }}, <br>
                     <b>Description :</b> {{ $model->remark }}. <br>
+                    <b>Delivery Area :</b> {{ $model->delivery_area }}. <br>
+                    <b>Delivery Type :</b> {{ $model->delivery_type }}. <br>
+                    <b>Order Processed By :</b> {{ $model->sale->waiter_name }}. <br>
 
                     <table border="1" cellspacing="0" width="100%" style="text-align: center; margin-top:20px;">
                         <thead style="background:#cdced2;">

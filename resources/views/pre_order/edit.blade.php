@@ -89,7 +89,7 @@
                                     </div>
                                     <div class="col-md-4">
                                         <div class="form-group">
-                                            <label for="">Cake Message </label>
+                                            <label for="">Writing Note </label>
                                             <input type="text" class="form-control" name="cake_message"
                                                    value="{{ $model->cake_message }}">
                                         </div>

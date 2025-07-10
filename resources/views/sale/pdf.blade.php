@@ -69,9 +69,10 @@
                                             <p><b>Outlet :</b> {{ $sale->outlet->name }}</p>
                                             <p><b>Address :</b> {{ $sale->outlet->address }}</p>
 											<p><b>Customer :</b> {{ $sale->customer->name }}</p>
-                                            <p><b>Email :</b> {{ $sale->customer->email }} </p>
                                             <p><b>Phone :</b> {{ $sale->customer->mobile }} </p>
-                                            <p><b>Address :</b> {{ $sale->customer->address }}</p>
+                                            <p><b>Order Processed By :</b> {{ $sale->waiter_name }}</p>
+                                            <p><b>Delivery Area :</b> {{ $sale->delivery_area }}</p>
+                                            <p><b>Delivery Type :</b> {{ $sale->delivery_type }}</p>
 {{--                                            @if(isset($sale->delivery_time))--}}
 {{--                                                <p><b>Delivery Time :</b> {{ \Carbon\Carbon::parse($sale->delivery_time)->format('h:i A') }}</p>--}}
 {{--                                            @else--}}

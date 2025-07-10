@@ -52,6 +52,17 @@
                                     <div id="">
                                         <div class="row">
                                             <div class="col-3">
+                                                <label class="small">Order Processed By</label>
+                                                <select id="" class="form-control form-control-sm" name="waiter_id">
+                                                    <option value="">Select User</option>
+                                                    @foreach($employees as $employee)
+                                                        <option value="{{ $employee->id }}">{{ $employee->employee_id.'  -- '. $employee->name }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-3">
                                                 <div class="form-group">
                                                     <label for="date" class="small">Date</label>
                                                     <vuejs-datepicker v-model="date" name="date"
@@ -76,16 +87,40 @@
                                             </div>
                                             <div class="col-2">
                                                 <div class="form-group">
-                                                    <label for="" class="small">Delivery Point</label>
-                                                    <select name="delivery_point_id" id=""
-                                                            class="form-control form-control-sm"
-                                                            v-model="delivery_point_id">
-                                                        <option value="">None</option>
-                                                        @foreach($delivery_points as $delivery_point)
-                                                            <option
-                                                                value="{{$delivery_point->id}}">{{ $delivery_point->name }}</option>
-                                                        @endforeach
+                                                    <label for="" class="small">Delivery Area</label>
+                                                    <select id="delivery-area" name="delivery_area" class="form-control form-control-sm">
+                                                        <option value="">-- Select a delivery area --</option>
+                                                        <option value="Paltan">Paltan</option>
+                                                        <option value="Motijheel">Motijheel</option>
+                                                        <option value="Jatrabari">Jatrabari</option>
+                                                        <option value="Kotwali">Kotwali</option>
+                                                        <option value="Sutrapur">Sutrapur</option>
+                                                        <option value="Wari">Wari</option>
+                                                        <option value="Ramna">Ramna</option>
+                                                        <option value="Dhanmondi">Dhanmondi</option>
+                                                        <option value="Khilgaon">Khilgaon</option>
+                                                        <option value="Turag">Turag</option>
+                                                        <option value="Uttara">Uttara</option>
+                                                        <option value="Khilkhet">Khilkhet</option>
+                                                        <option value="Badda">Badda</option>
+                                                        <option value="Rampura">Rampura</option>
+                                                        <option value="Tejgaon">Tejgaon</option>
+                                                        <option value="Sher-e-Bangla Nagar">Sher-e-Bangla Nagar</option>
+                                                        <option value="Mohammadpur">Mohammadpur</option>
+                                                        <option value="Mirpur">Mirpur</option>
+                                                        <option value="Pallabi">Pallabi</option>
+                                                        <option value="Gulshan">Gulshan</option>
+                                                        <option value="Banani">Banani</option>
                                                     </select>
+{{--                                                    <select name="delivery_point_id" id=""--}}
+{{--                                                            class="form-control form-control-sm"--}}
+{{--                                                            v-model="delivery_point_id">--}}
+{{--                                                        <option value="">None</option>--}}
+{{--                                                        @foreach($delivery_points as $delivery_point)--}}
+{{--                                                            <option--}}
+{{--                                                                value="{{$delivery_point->id}}">{{ $delivery_point->name }}</option>--}}
+{{--                                                        @endforeach--}}
+{{--                                                    </select>--}}
                                                 </div>
                                             </div>
                                             <div class="col-2">
@@ -135,6 +170,16 @@
                                                            class="form-control form-control-sm" placeholder="Enter Additional Charge">
                                                 </div>
                                             </div>
+                                            <div class="col-3" v-if="sales_type=='pre_order'">
+                                                <div class="form-group">
+                                                    <label for="" class="small">Delivery Type</label>
+                                                    <select name="delivery_type" id="" class="form-control">
+                                                        <option value="">Select Delivery Type</option>
+                                                        <option value="Delivery">Delivery</option>
+                                                        <option value="Pickup">Pickup</option>
+                                                    </select>
+                                                </div>
+                                            </div>
                                         </div>
                                         <div class="row">
                                             <div class="col-2" v-if="sales_type=='pre_order'">
@@ -167,7 +212,7 @@
                                             </div>
                                             <div class="col-3" v-if="sales_type=='pre_order'">
                                                 <div class="form-group">
-                                                    <label for="" class="small">Cake Message</label>
+                                                    <label for="" class="small">Writing Note</label>
                                                     <input type="text" name="cake_message" id=""
                                                            class="form-control form-control-sm">
                                                 </div>

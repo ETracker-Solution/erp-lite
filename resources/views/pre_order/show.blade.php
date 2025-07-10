@@ -42,7 +42,7 @@
                                 <b>Delivery Time :</b> {{ $model->delivery_time ? \Carbon\Carbon::parse($model->delivery_time)->format('h:i A') : 'N/A'}}, <br>
                                 <b>Size and Shape:</b> {{ $model->size }}, <br>
                                 <b>Flavour :</b> {{ $model->flavour }}, <br>
-                                <b>Cake Message :</b> {{ $model->cake_message }}, <br>
+                                <b>Writing Note :</b> {{ $model->cake_message }}, <br>
                                 <b>Description :</b> {{ $model->remark }}.
                             </div>
                             <!-- /.col -->
@@ -52,6 +52,11 @@
                                 <b>Customer Number:</b> {{ $model->customer->type == 'default' ? 'N/A' : $model->customer->mobile }}, <br>
                                 <b>From Outlet :</b> {{ $model->outlet ? $model->outlet->name : '' }}, <br>
                                 <b>Delivery Point :</b> {{ $model->deliveryPoint ? $model->deliveryPoint->name : '' }}, <br>
+                            </div>
+                            <div class="col-sm-4 invoice-col pl-4" style="padding: 10px">
+                                <b>Delivery Area :</b> {{ $model->delivery_area }}, <br>
+                                <b>Delivery Type :</b> {{ $model->delivery_type }}, <br>
+                                <b>Order Processed By :</b> {{ $model->sale->waiter_name }} <br>
                             </div>
                             <!-- /.col -->
                             <!-- /.col -->

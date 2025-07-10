@@ -237,7 +237,7 @@
                 <button class="mt-2 btn btn-info"  @click="addMorePaymentMethod">Add Another Payment Method</button>
                 <b-row class="mt-2">
                     <select name="" id="" class="form-control" v-model="waiter_id">
-                        <option value="">Select Waiter</option>
+                        <option value="">Select Order Processed By</option>
                        @foreach($employees as $employee)
                             <option value="{{ $employee->id }}">{{ $employee->employee_id.'  -- '. $employee->name }}</option>
                        @endforeach

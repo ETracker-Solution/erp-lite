@@ -55,7 +55,8 @@
                                     <tr>
                                         <td style="text-align: left; padding:8px; line-height: 0.6">
                                             <p><b>Address :</b> {{ $sale->outlet->address }}</p>
-                                            <p><b>Status :</b> {{ $sale->status }}</p>
+                                            <p><b>Delivery Area :</b> {{ $sale->delivery_area }}</p>
+                                            <p><b>Delivery Type :</b> {{ $sale->delivery_type }}</p>
                                         </td>
                                     </tr>
                                     </tbody>
@@ -67,10 +68,7 @@
                                     <tbody>
                                     <tr>
                                         <td style="text-align: left; padding:8px; line-height: 0.6">
-                                            <p><b>Customer :</b> {{ $sale->customer->name }}</p>
-                                            <p><b>email :</b> {{ $sale->customer->email }} </p>
-                                            <p><b>Phone :</b> {{ $sale->customer->mobile }} </p>
-                                            <p><b>Address :</b> {{ $sale->customer->address }}</p>
+                                            <p><b>Order Processed By :</b> {{ $sale->waiter_name }}</p>
                                         </td>
                                     </tr>
                                     </tbody>

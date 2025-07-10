@@ -9,6 +9,7 @@ use App\Http\Requests\UpdateSaleRequest;
 use App\Models\AccountTransaction;
 use App\Models\ChartOfInventory;
 use App\Models\Customer;
+use App\Models\Employee;
 use App\Models\InventoryTransaction;
 use App\Models\OthersOutletSale;
 use App\Models\Outlet;
@@ -79,6 +80,7 @@ class SaleController extends Controller
             }
             // $serial_no = InvoiceNumber::generateInvoiceNumber(\auth()->user()->employee->outlet_id);
         }
+        $employees = Employee::where(['outlet_id' => \auth()->user()->employee->outlet_id])->get();
         $data = [
             'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'FG'])->get(),
             'stores' => Store::where(['type' => 'FG', 'doc_type' => 'outlet'])->get(),
@@ -88,7 +90,7 @@ class SaleController extends Controller
             'invoice_number' => $serial_no,
             'delivery_points' => Outlet::all(),
             'user_outlet_id' => $outlet_id,
-
+            'employees'=>$employees
         ];
 //        return $data;
         return view('sale.create2', $data);
@@ -136,7 +138,7 @@ class SaleController extends Controller
             $rm_store = Store::where(['doc_type' => 'outlet', 'doc_id' => $outlet_id, 'type'=> 'RM'])->first();
             $request->merge(['delivery_point_id' => $request->delivery_point_id ?? $outlet_id]);
 
-            // dd($request->all(), $store, $rm_store, $outlet, $outlet_id, $customer_id);
+
 
             $sale = new Sale();
             $sale->invoice_number = generateUniqueUUID($outlet_id, Sale::class, 'invoice_number');
@@ -153,6 +155,14 @@ class SaleController extends Controller
             $sale->additional_charge = $additional_charge;
             $sale->created_by = Auth::id();
             $sale->outlet_id = $outlet_id;
+
+            if ($request->waiter_id) {
+                $waiter = Employee::find($request->waiter_id);
+                if ($waiter) {
+                    $sale->waiter_id = $waiter->id;
+                    $sale->waiter_name = $waiter->name;
+                }
+            }
 //            New Columns
             $sale->membership_discount_percentage = $request->membership_discount_percentage;
             $sale->membership_discount_amount = $request->membership_discount_amount;
@@ -165,6 +175,9 @@ class SaleController extends Controller
             $sale->total_discount_type = $request->total_discount_type;
             $sale->total_discount_value = $request->total_discount_value;
             $sale->total_discount_amount = $request->total_discount_amount;
+
+            $sale->delivery_area = $request->delivery_area ?? '';
+            $sale->delivery_type = $request->delivery_type ?? '';
             $sale->save();
 
             $products = $request->get('products');
@@ -504,7 +517,9 @@ class SaleController extends Controller
             'created_by' => auth()->user()->id,
             'order_number' => $sale->invoice_number,
             'delivery_point_id' => $delivery_point_id,
-            'sale_id' => $sale->id
+            'sale_id' => $sale->id,
+            'delivery_area'=>$sale->delivery_area,
+            'delivery_type'=>$sale->delivery_type
         ];
         $preOrder = PreOrder::create($data);
 
