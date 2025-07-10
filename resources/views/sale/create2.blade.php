@@ -193,9 +193,9 @@
                                             <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                                                 <div class="form-group">
                                                     <label for="store_id" class="small">Customer Name</label>
-                                                    <input type="text" v-model="customer.name"
+                                                    <input type="text" v-model="customer_name" name="customer_name"
                                                            class="form-control form-control-sm"
-                                                           disabled>
+                                                           :disabled="customer_name_disabled">
                                                 </div>
                                             </div>
                                         </div>
@@ -728,6 +728,8 @@
                     isDisabled: false,
                     additional_charge: 0,
                     recipeProduct: false,
+                    customer_name_disabled: true,
+                    customer_name: ""
                 },
                 components: {
                     vuejsDatepicker
@@ -933,8 +935,13 @@
                             vm.customer = (response.data);
                             if (vm.customer.name) {
                                 vm.customer.name = vm.customer.name + '  (' + vm.customer.reedemible_point + '  point)'
+                                vm.customer_name = vm.customer.name + '  (' + vm.customer.reedemible_point + '  point)'
                                 vm.membership_discount_percentage = vm.customer.purchase_discount
                                 vm.minimum_purchase_amount = vm.customer.minimum_purchase
+                                vm.customer_name_disabled = true
+                            }else{
+                                vm.customer_name = ""
+                                vm.customer_name_disabled = false
                             }
                         }).catch(function (error) {
                             toastr.error(error, {

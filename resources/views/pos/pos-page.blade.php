@@ -54,10 +54,11 @@
                         <div class="col-6">
                             <input type="text" class="form-control phone-input" placeholder="Enter Phone Number"
                                    v-model="customerNumber"
-                                   @keydown.enter="getCustomerInfo">
+                                   @keyup="getCustomerInfo">
                         </div>
                         <div class="col-6" style="line-height: 10px">
-                            <p>Customer Name: @{{ customer ? customer.name : 'Not Found' }}</p>
+                            <p>Customer Name: <input type="text" v-model="customer_name" :disabled="customer_name_disabled"></p>
+{{--                            <p>Customer Name: @{{ customer ? customer.name : 'Not Found' }}</p>--}}
                             <p>Customer Point: @{{ customer ? customer.reedemible_point : 'Not Found' }} <span style="color: cornflowerblue">(@{{ customer ? customer.member_type_name : 'Not Found' }})</span></p>
                             <a v-if="customer && customer.reedemible_point > 100" @click="getPointRedeemField">[Redeem]</a>
                         </div>

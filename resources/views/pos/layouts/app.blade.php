@@ -307,7 +307,9 @@
                 isDisabled: false,
                 orderInvoiceNumber: '',
                 recipeModal: false,
-                recipeContent: ''
+                recipeContent: '',
+                customer_name_disabled: true,
+                customer_name: ""
             },
             mounted() {
                 this.getAllProducts();
@@ -564,6 +566,13 @@
                         }
                     }).then(function (response) {
                         vm.customer = (response.data);
+                        if (vm.customer.name){
+                            vm.customer_name_disabled = true
+                            vm.customer_name =  vm.customer.name
+                        }else{
+                            vm.customer_name_disabled = false
+                            vm.customer_name = ""
+                        }
                     }).catch(function (error) {
                         toastr.error(error, {
                             closeButton: true,
@@ -578,9 +587,20 @@
                             closeButton: true,
                             progressBar: true,
                         });
+                        return
                     } else {
                         var vm = this;
                         vm.isDisabled = true
+
+                        if (vm.customerNumber && !vm.customer_name){
+                            toastr.error('Customer Name Missing', {
+                                closeButton: true,
+                                progressBar: true,
+                            });
+                            vm.isDisabled = false
+                            return
+                        }
+
                         axios.post(this.config.store_sell_url, {
                             products: this.selectedProducts,
                             discount_type: this.total_discount_type,
@@ -603,6 +623,7 @@
                             total_discount_type: vm.total_discount_type,
                             total_discount_value: vm.total_discount_value,
                             total_discount_amount: vm.total_discount_amount,
+                            customer_name: vm.customer_name,
                         }).then(function (response) {
                             vm.selectedProducts = [];
                             vm.customer = {};
@@ -639,6 +660,7 @@
                             vm.isDisabled = false
                             return false;
                         });
+                        vm.customer_name_disabled = true
                     }
 
                 },

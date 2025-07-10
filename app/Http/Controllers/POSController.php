@@ -77,7 +77,7 @@ class POSController extends Controller
                 $customer = Customer::where('mobile', $request->customer_number)->first();
                 if (!$customer) {
                     $customer = Customer::create([
-                        'name' => 'New Customer',
+                        'name' => $request->customer_name,
                         'mobile' => $request->customer_number
                     ]);
                 }
