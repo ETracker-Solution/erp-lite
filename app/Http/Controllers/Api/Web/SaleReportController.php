@@ -13,6 +13,7 @@ use Carbon\Carbon;
 use http\Client\Curl\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use niklasravnsborg\LaravelPdf\Facades\Pdf;
 
 class SaleReportController extends Controller
@@ -143,19 +144,47 @@ class SaleReportController extends Controller
             $pdf = Pdf::loadView('sale.report.product_discount', $data);
             $pdf->stream();
         } elseif ($report_type == 'All Outlet Discount') {
-            $page_title = 'All Discounts';
-            $data = [
-                'dateRange' => $dateRange,
-                'data' => Sale::with('customer', 'outlet', 'items')->where(function ($q) {
-                    return $q->where('discount', '>', 0)->orWhereHas('items', function ($q) {
-                        return $q->where('discount', '>', 0);
+            try {
+                ini_set('memory_limit', '512M'); // Optional: Increase for PDF rendering
+                ini_set('max_execution_time', 300); // Optional: Increase execution time
+
+                $page_title = 'All Discounts';
+
+                // Collecting all records with chunk to avoid memory overload
+                $allSales = [];
+
+                Sale::with('customer', 'outlet', 'items')
+                    ->where(function ($q) {
+                        return $q->where('discount', '>', 0)
+                            ->orWhereHas('items', function ($q) {
+                                return $q->where('discount', '>', 0);
+                            });
+                    })
+                    ->whereBetween('date', [$from_date, $to_date])
+                    ->chunk(500, function ($salesChunk) use (&$allSales) {
+                        foreach ($salesChunk as $sale) {
+                            $allSales[] = $sale;
+                        }
                     });
-                })->where('date', '>=', $from_date)->where('date', '<=', $to_date)->get(),
-                'page_title' => $page_title,
-                'report_header' => $report_header
-            ];
-            $pdf = Pdf::loadView('sale.report.all_discount', $data);
-            $pdf->stream();
+
+                $data = [
+                    'dateRange' => $dateRange,
+                    'data' => $allSales,
+                    'page_title' => $page_title,
+                    'report_header' => $report_header
+                ];
+
+                $pdf = Pdf::loadView('sale.report.all_discount', $data);
+                return $pdf->stream('All-Discounts.pdf');
+
+            } catch (\Throwable $e) {
+                Log::error('All Outlet Discount PDF Generation Error', [
+                    'message' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString(),
+                ]);
+
+                return response()->view('errors.500', ['message' => 'Something went wrong generating the PDF report. Please try again.'], 500);
+            }
         }
 
         $getData = DB::select($query);
@@ -279,7 +308,7 @@ class SaleReportController extends Controller
         $outlet_id = auth()->user()->employee && auth()->user()->employee->outlet_id ? auth()->user()->employee->outlet_id : null;
         if (auth()->user()->is_super || (auth()->user()->employee && auth()->user()->employee->user_of == 'ho')) {
             return "
-(           
+(
 select COI.name as 'Item', SUM(SI.quantity) as 'Quantity', SUM(SI.quantity * SI.unit_price) as 'Sales Amount'
 from sales SS
 join sale_items SI
@@ -293,8 +322,8 @@ order by COI.parent_id, COI.id
 )
 union all
 (
- SELECT 'Total' AS 'Item', 
-    SUM(SI.quantity) AS 'Quantity', 
+ SELECT 'Total' AS 'Item',
+    SUM(SI.quantity) AS 'Quantity',
     SUM(SI.quantity * SI.unit_price) AS 'Sales Amount'
     FROM sales SS
     join sale_items SI
@@ -306,7 +335,7 @@ on SI.sale_id = SS.id
 
         } else {
             return "
-            (           
+            (
 select COI.name as 'Item', SUM(SI.quantity) as 'Quantity', SUM(SI.quantity * SI.unit_price) as 'Sales Amount'
 from sales SS
 join sale_items SI
@@ -321,8 +350,8 @@ order by COI.parent_id, COI.id
 )
 union all
 (
- SELECT 'Total' AS 'Item', 
-    SUM(SI.quantity) AS 'Quantity', 
+ SELECT 'Total' AS 'Item',
+    SUM(SI.quantity) AS 'Quantity',
     SUM(SI.quantity * SI.unit_price) AS 'Sales Amount'
     FROM sales SS
     JOIN sale_items SI ON SI.sale_id = SS.id
