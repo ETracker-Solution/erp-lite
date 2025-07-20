@@ -370,6 +370,13 @@ class FundTransferVoucherController extends Controller
             });
         }
 
+        if (\request()->filled('account_id')) {
+            $data->where('credit_account_id',\request()->account_id);
+        }
+        if (\request()->filled('date_range')) {
+            searchColumnByDateRange($data,'date');
+        }
+
         $totalAmount = $data->sum('amount');
 
         $passVariable = [
