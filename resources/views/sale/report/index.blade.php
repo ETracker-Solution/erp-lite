@@ -115,7 +115,7 @@
                                                 @click="showReport('Item Wise Sales Summary')">Show Item Wise Sales
                                             Summary
                                         </button>
-                                        @if(auth()->user()->is_super)
+                                        @if(auth()->user()->employee->user_of != 'outlet')
                                             <button class="btn btn-sm btn-dark w-50 mb-2"
                                                     @click="showReport('Outlet Wise Sales Summary')">
                                                 Show Outlet Wise Sales Summary
