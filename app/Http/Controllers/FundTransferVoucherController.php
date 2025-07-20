@@ -359,6 +359,9 @@ class FundTransferVoucherController extends Controller
     public function receiveReport(Request $request)
     {
         $data = FundTransferVoucher::query()->with('creditAccount.outlets', 'debitAccount', 'createdBy.employee.outlet')
+            ->whereHas('creditAccount', function($query) {
+                $query->whereHas('outlets');
+            })Z
             ->where('status', 'received');
         if (\request()->filled('date_range') && $request->date_range != null) {
             $data = searchColumnByDateRange($data);
