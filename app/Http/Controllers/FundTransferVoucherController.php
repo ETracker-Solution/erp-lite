@@ -364,7 +364,7 @@ class FundTransferVoucherController extends Controller
             })
             ->where('status', 'received');
         if (\request()->filled('date_range') && $request->date_range != null) {
-            $data = searchColumnByDateRange($data);
+            $data = searchColumnByDateRange($data,'date');
         }
         if (\request()->filled('outlet_id')) {
             $data->whereHas('creditAccount', function ($q) {
