@@ -365,32 +365,51 @@ union all
 
     public function getOutletWiseSalesReport($from_date, $to_date)
     {
-        $query = "
-select OT.name as 'Outlet', COI.name as 'Item Name', sum(SI.quantity) as 'Quantity', sum(SI.quantity * SI.unit_price) as 'Sale Value'
-from sales SS
-join outlets OT
-on OT.id = SS.outlet_id
-join sale_items SI
-on SI.sale_id = SS.id
-join chart_of_inventories as COI
-on SI.product_id = COI.id
-join account_transactions ATT
-on ATT.doc_id = SS.id
-where ATT.doc_type='POS'
-AND ATT.chart_of_account_id = 43
-AND SS.date >= '$from_date'
-AND SS.date <= '$to_date'
-";
-        // Add the outlet filter if outlet_id is provided
+        $baseQuery = "
+        SELECT
+            OT.name AS 'Outlet',
+            COI.name AS 'Item Name',
+            SUM(SI.quantity) AS 'Quantity',
+            SUM(SI.quantity * SI.unit_price) AS 'Sale Value'
+        FROM sales SS
+        JOIN outlets OT ON OT.id = SS.outlet_id
+        JOIN sale_items SI ON SI.sale_id = SS.id
+        JOIN chart_of_inventories COI ON SI.product_id = COI.id
+        JOIN account_transactions ATT ON ATT.doc_id = SS.id
+        WHERE ATT.doc_type = 'POS'
+        AND ATT.chart_of_account_id = 43
+        AND SS.date >= '$from_date'
+        AND SS.date <= '$to_date'
+    ";
+
+        // Add outlet filter if store_id is provided
         if (\request()->filled('store_id')) {
             $outlet_id = Outlet::find(\request()->store_id)->id;
-            $query .= " AND SS.outlet_id = $outlet_id ";
+            $baseQuery .= " AND SS.outlet_id = $outlet_id ";
         }
 
-        // Grouping as per your existing logic
-        $query .= " group by SS.outlet_id, SI.product_id";
-        return $query;
+        // Clone the WHERE clause for use in the Total row
+        $totalQuery = str_replace('SELECT
+            OT.name AS \'Outlet\',
+            COI.name AS \'Item Name\',
+            SUM(SI.quantity) AS \'Quantity\',
+            SUM(SI.quantity * SI.unit_price) AS \'Sale Value\'',
+            "SELECT
+            'Total' AS 'Outlet',
+            '' AS 'Item Name',
+            SUM(SI.quantity) AS 'Quantity',
+            SUM(SI.quantity * SI.unit_price) AS 'Sale Value'",
+            $baseQuery
+        );
+
+        // Final full query with group by and union
+        $baseQuery .= " GROUP BY SS.outlet_id, SI.product_id";
+
+        return "$baseQuery
+            UNION ALL
+            $totalQuery";
     }
+
 
     public function getAllCustomerSalesDetails($from_date, $to_date)
     {
