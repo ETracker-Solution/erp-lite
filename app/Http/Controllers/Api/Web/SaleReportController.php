@@ -407,7 +407,21 @@ join chart_of_inventories as COI
 on COI.id = SI.product_id
 WHERE SS.date >= '$from_date'
 AND SS.date <= '$to_date'
-        ";
+ UNION ALL
+
+    SELECT
+        'Total' AS 'Invoice Number',
+        '' AS 'Date',
+        '' AS 'Customer Name',
+        '' AS 'Item Name',
+        SUM(SI.quantity) AS 'Quantity',
+        '' AS 'Rate',
+        SUM(SI.quantity * SI.unit_price) AS 'Value'
+    FROM sales SS
+    JOIN sale_items AS SI ON SI.sale_id = SS.id
+    WHERE SS.date >= '$from_date'
+      AND SS.date <= '$to_date'
+    ";
         } else {
             return "
 select SS.invoice_number as 'Invoice Number', SS.date as 'Date', CU.name as 'Customer Name', COI.name as 'Item Name', SI.quantity as 'Quantity', SI.unit_price  as 'Rate', (SI.quantity * SI.unit_price)  as 'Value'
@@ -421,7 +435,22 @@ on COI.id = SI.product_id
 WHERE SS.date >= '$from_date'
 AND SS.date <= '$to_date'
 AND SS.outlet_id = '$outlet_id'
-        ";
+UNION ALL
+
+SELECT
+    'Total' AS 'Invoice Number',
+    '' AS 'Date',
+    '' AS 'Customer Name',
+    '' AS 'Item Name',
+    SUM(SI.quantity) AS 'Quantity',
+    '' AS 'Rate',
+    SUM(SI.quantity * SI.unit_price) AS 'Value'
+FROM sales SS
+JOIN sale_items AS SI ON SI.sale_id = SS.id
+WHERE SS.date >= '$from_date'
+  AND SS.date <= '$to_date'
+  AND SS.outlet_id = '$outlet_id'
+";
         }
 
     }
