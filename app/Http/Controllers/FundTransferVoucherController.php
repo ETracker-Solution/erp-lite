@@ -85,6 +85,8 @@ class FundTransferVoucherController extends Controller
         })
         ->select('id', 'name')
         ->get();
+
+        $toAccounts = ChartOfAccount::where(['default_type' => 'office_account', 'is_bank_cash' => 'yes', 'type' => 'ledger', 'status' => 'active'])->get();
         if (\request()->ajax()) {
             $fundTransferVouchers = $this->getFilteredData();
             return DataTables::of($fundTransferVouchers)
@@ -101,7 +103,7 @@ class FundTransferVoucherController extends Controller
                 ->rawColumns(['action', 'created_at', 'status'])
                 ->make(true);
         }
-        return view('fund_transfer_voucher.index', compact('outlets', 'outlet_accounts','accounts'));
+        return view('fund_transfer_voucher.index', compact('outlets', 'outlet_accounts','accounts','toAccounts'));
     }
 
     /**
@@ -350,6 +352,9 @@ class FundTransferVoucherController extends Controller
         if (\request()->filled('account_id')) {
             $fundTransferVoucher->where('credit_account_id',\request()->account_id);
         }
+        if (\request()->filled('to_account_id')) {
+            $fundTransferVoucher->where('debit_account_id',\request()->to_account_id);
+        }
         if (\request()->filled('date_range')) {
             searchColumnByDateRange($fundTransferVoucher,'date');
         }
@@ -376,6 +381,10 @@ class FundTransferVoucherController extends Controller
 
         if (\request()->filled('account_id')) {
             $data->where('credit_account_id',\request()->account_id);
+        }
+
+        if (\request()->filled('to_account_id')) {
+            $data->where('debit_account_id',\request()->to_account_id);
         }
         if (\request()->filled('date_range')) {
             searchColumnByDateRange($data,'date');

@@ -54,6 +54,18 @@
                                                         @endforeach
                                                     </select>
                                                 </div>
+                                                <div class="form-group col-md-3">
+                                                    <label for="to_account_id" class="font-weight-bold">To
+                                                        Account</label>
+                                                    <select class="form-control select2" name="to_account_id"
+                                                            id="to_account_id"
+                                                            required>
+                                                        <option value="" selected>All</option>
+                                                        @foreach ($toAccounts as $row)
+                                                            <option value="{{ $row->id }}">{{ $row->name }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
 
                                             </div>
                                         </form>
@@ -197,6 +209,7 @@
                     data: function (d) {
                         d.outlet_id = $('select[name="outlet_id"]').val();
                         d.account_id = $('select[name="account_id"]').val();
+                        d.to_account_id = $('select[name="to_account_id"]').val();
                         d.date_range = $('input[name="date_range"]').val();
                         // d.title = $('input[name="title"]').val();
                     }
@@ -265,6 +278,10 @@
         });
         $('#account_id').on('change', function () {
             sessionStorage.setItem('account_id', $('select[name="account_id"]').val());
+            recallDatatable();
+        });
+        $('#to_account_id').on('change', function () {
+            sessionStorage.setItem('to_account_id', $('select[name="to_account_id"]').val());
             recallDatatable();
         });
         $('#receiveReportButton').on('click', function () {
