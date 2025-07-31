@@ -200,20 +200,20 @@
                                                             <td>
                                                                 @{{ row.balance_qty }}
                                                                 <input type="hidden"
-                                                                       :name="'products['+index+'][balance_qty]'"
+                                                                       :name="'products['+index+'][balance_qty]'" step="any"
                                                                        class="form-control input-sm"
                                                                        v-bind:value="row.balance_qty" readonly>
                                                             </td>
                                                             <td class="text-right">
                                                                 @{{ row.price }}
                                                                 <input type="hidden"
-                                                                       :name="'products['+index+'][rate]'"
+                                                                       :name="'products['+index+'][rate]'" step="any"
                                                                        class="form-control input-sm"
                                                                        v-bind:value="row.price" readonly>
                                                             </td>
                                                             <td class="text-right">
                                                                 <input type="number" v-model="row.quantity"
-                                                                       step="0.01"
+                                                                       step="any"
                                                                        :name="'products['+index+'][quantity]'"
                                                                        class="form-control input-sm"
                                                                        @change="valid(row);item_total(row)" required>

@@ -209,7 +209,7 @@
                                                                        v-bind:value="row.price" readonly>
                                                             </td>
                                                             <td class="text-right">
-                                                                <input type="number" v-model="row.quantity"
+                                                                <input type="number" v-model="row.quantity" step="any"
                                                                        :name="'products['+index+'][quantity]'"
                                                                        class="form-control input-sm"
                                                                        @change="valid(row);item_total(row)" required>

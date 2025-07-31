@@ -49,7 +49,7 @@
                                                                        id="serial_no" v-model="serial_no">
                                                                 {{-- <span class="input-group-append">
                     <button type="button" class="btn btn-info btn-flat" @click="data_edit">Search</button> --}}
-                                                                </span>
+{{--                                                                </span>--}}
                                                             </div>
                                                         </div>
                                                     </div>
@@ -211,18 +211,18 @@
                                                                 @{{ row.uom }}
                                                             </td>
                                                             <td style="width: 180px">
-                                                                <input type="number" v-model="row.balance"
+                                                                <input type="number" v-model="row.balance" step="any" step="any"
                                                                        :name="'products['+index+'][balance]'"
                                                                        class="form-control input-sm" readonly required>
                                                             </td>
                                                             <td style="width: 180px">
                                                                 <input type="number" v-model="row.quantity"
-                                                                       :name="'products['+index+'][quantity]'"
+                                                                       :name="'products['+index+'][quantity]'" step="any"
                                                                        class="form-control input-sm"
                                                                        @change="itemtotal(row);valid(row)" required>
                                                             </td>
                                                             <td style="width: 180px">
-                                                                <input type="number" v-model="row.rate"
+                                                                <input type="number" v-model="row.rate"  step="any"
                                                                        :name="'products['+index+'][rate]'"
                                                                        class="form-control input-sm"
                                                                        @change="itemtotal(row)" readonly required>
