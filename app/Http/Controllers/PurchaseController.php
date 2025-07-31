@@ -289,6 +289,7 @@ class PurchaseController extends Controller
 
     public function purchaseCancel($id)
     {
+//        dd($id);
         DB::beginTransaction();
         try {
             $purchase = Purchase::findOrFail(decrypt($id));

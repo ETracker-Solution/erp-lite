@@ -145,10 +145,16 @@ Purchase List
                         <div class="row">
                             <div class="col-12">
                                 @if ($model->status != 'cancelled')
-                                    <a href="{{ route('purchase.cancel', encrypt($model->id)) }}" class="btn btn-sm btn-danger float-right"
-                                        id="purchaseCancel"><i
-                                            class="fa fa-trash"></i>
-                                        CANCEL</a>
+                                    <form id="cancelForm" action="{{ route('purchase.cancel', encrypt($model->id)) }}" method="POST">
+                                        @csrf
+                                        <button type="button" class="btn btn-sm btn-danger float-right" id="purchaseCancel">
+                                            <i class="fa fa-trash"></i> CANCEL
+                                        </button>
+                                    </form>
+{{--                                    <a href="{{ route('purchase.cancel', encrypt($model->id)) }}" class="btn btn-sm btn-danger float-right"--}}
+{{--                                        id="purchaseCancel"><i--}}
+{{--                                            class="fa fa-trash"></i>--}}
+{{--                                        CANCEL</a>--}}
                                 @endif
                             </div>
                         </div>

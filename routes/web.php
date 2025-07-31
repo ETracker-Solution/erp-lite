@@ -214,7 +214,7 @@ Route::middleware(['auth', 'prevent_duplicate_submission'])->group(function () {
 
     Route::get('purchase-pdf/{id}', [App\Http\Controllers\PurchaseController::class, 'pdf'])->name('purchase.pdf');
     Route::get('purchase-pdf-download/{id}', [App\Http\Controllers\PurchaseController::class, 'pdfDownload'])->name('purchase.pdf-download');
-    Route::get('purchase-cancel/{id}', [App\Http\Controllers\PurchaseController::class, 'purchaseCancel'])->name('purchase.cancel');
+    Route::post('purchase-cancel/{id}', [App\Http\Controllers\PurchaseController::class, 'purchaseCancel'])->name('purchase.cancel');
 
     Route::resource('users', \App\Http\Controllers\UserController::class);
 
