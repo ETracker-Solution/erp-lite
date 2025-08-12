@@ -367,6 +367,9 @@ class FundTransferVoucherController extends Controller
             ->whereHas('creditAccount', function($query) {
                 $query->whereHas('outlets');
             })
+            ->whereHas('debitAccount', function($query) {
+                $query->where('default_type','office_account');
+            })
             ->where('status', 'received');
         if (\request()->filled('date_range') && $request->date_range != null) {
             $data = searchColumnByDateRange($data,'date');
