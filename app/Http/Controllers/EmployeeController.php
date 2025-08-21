@@ -69,6 +69,7 @@ class EmployeeController extends Controller
             DB::commit();
         } catch (\Exception $error) {
             DB::rollBack();
+            return $error;
             Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
             return back();
         }

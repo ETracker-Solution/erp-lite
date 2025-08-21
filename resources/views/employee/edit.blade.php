@@ -23,7 +23,7 @@
                 <div class="col-12">
                     <div class="card card-info">
                         <div class="card-header">
-    
+
                             <h3 class="card-title">Employee</h3>
                             <div class="card-tools">
                                 <a href="{{ route('employees.index') }}"><button class="btn btn-sm btn-primary"><i
@@ -79,14 +79,14 @@
                                 <div class="row">
                                     <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                         <x-forms.text label="Father Name" inputName="father_name" placeholder="Father Name"
-                                            :isRequired='true' :isReadonly='false' defaultValue="{{ $employee->father_name }}" />
+                                            :isRequired='false' :isReadonly='false' defaultValue="{{ $employee->father_name }}" />
                                     </div>
                                     <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                         <x-forms.text label="Nominee Name" inputName="nominee_name" placeholder="Nominee Name"
-                                            :isRequired='true' :isReadonly='false' defaultValue="{{ $employee->nominee_name }}" />
+                                            :isRequired='false' :isReadonly='false' defaultValue="{{ $employee->nominee_name }}" />
                                     </div>
                                     <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
-                                    <x-forms.static-select label="Blood Group" inputName="blood_group" placeholder="Select One" :isRequired='true'  :isReadonly='false' :defaultValue="$employee ? $employee->blood_group : ''" :options="['A+','A-','AB+','AB-','B+','B-','O+','O-']"/>
+                                    <x-forms.static-select label="Blood Group" inputName="blood_group" placeholder="Select One" :isRequired='false'  :isReadonly='false' :defaultValue="$employee ? $employee->blood_group : ''" :options="['A+','A-','AB+','AB-','B+','B-','O+','O-']"/>
                                     </div>
                                     <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                         <div class="form-group">
@@ -105,23 +105,23 @@
                                     </div>
                                     <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                         <x-forms.text label="Mother Name" inputName="mother_name" placeholder="Mother Name"
-                                            :isRequired='true' :isReadonly='false' defaultValue="{{ $employee->mother_name }}" />
+                                            :isRequired='false' :isReadonly='false' defaultValue="{{ $employee->mother_name }}" />
                                     </div>
                                     <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                         <x-forms.text label="Nominee Relation" inputName="nominee_relation" placeholder="Nominee Relation"
-                                            :isRequired='true' :isReadonly='false' defaultValue="{{ $employee->nominee_relation }}" />
+                                            :isRequired='false' :isReadonly='false' defaultValue="{{ $employee->nominee_relation }}" />
                                     </div>
                                     <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                         <x-forms.text label="NID" inputName="nid" placeholder="Enter Your NID"
-                                            :isRequired='true' :isReadonly='false' defaultValue="{{ $employee->nid }}" />
+                                            :isRequired='false' :isReadonly='false' defaultValue="{{ $employee->nid }}" />
                                     </div>
                                     <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                         <x-forms.text label="Bank Account" inputName="bank_account" placeholder="Enter Your Bank Account"
-                                            :isRequired='true' :isReadonly='false' defaultValue="{{ $employee->bank_account }}" />
+                                            :isRequired='false' :isReadonly='false' defaultValue="{{ $employee->bank_account }}" />
                                     </div>
 
                                 </div>
-                                
+
                             </div>
                         </div>
 
@@ -133,7 +133,7 @@
                                 <div class="row">
                                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                                         <x-forms.text label="Present Address" inputName="present_address" placeholder="Present Address"
-                                            :isRequired='true' :isReadonly='false' defaultValue="{{ $employee->present_address }}" />
+                                            :isRequired='false' :isReadonly='false' defaultValue="{{ $employee->present_address }}" />
                                     </div>
                                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                                         <x-forms.email label="Email" inputName="email" placeholder="Enter Email"
@@ -145,18 +145,18 @@
                                     </div>
                                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                                         <x-forms.text label="Permanent Address" inputName="permanent_address" placeholder="Permanent Address"
-                                            :isRequired='true' :isReadonly='false' defaultValue="{{ $employee->permanent_address }}" />
+                                            :isRequired='false' :isReadonly='false' defaultValue="{{ $employee->permanent_address }}" />
                                     </div>
                                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                                         <x-forms.email label="Personal Email" inputName="personal_email" placeholder="Enter Personal Email"
-                                            :isRequired='true' :isReadonly='false' defaultValue="{{ $employee->personal_email }}" />
+                                            :isRequired='false' :isReadonly='false' defaultValue="{{ $employee->personal_email }}" />
                                     </div>
                                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                                         <x-forms.text label="Alternative Contact" inputName="alternative_phone" placeholder="Enter Alternative Contact"
-                                            :isRequired='true' :isReadonly='false' defaultValue="{{ $employee->alternative_phone }}" />
+                                            :isRequired='false' :isReadonly='false' defaultValue="{{ $employee->alternative_phone }}" />
                                     </div>
                                 </div>
-                                
+
                             </div>
                         </div>
 
@@ -167,9 +167,9 @@
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                                        <x-forms.select label="Department" inputName="department_id" placeholder="Select One" :isRequired='true'  :isReadonly='false' :defaultValue="$employee ? $employee->department_id : ''" :options="$departments" optionId="id" optionValue="name"/>
+                                        <x-forms.select label="Department" inputName="department_id" placeholder="Select One" :isRequired='false'  :isReadonly='false' :defaultValue="$employee ? $employee->department_id : ''" :options="$departments" optionId="id" optionValue="name"/>
                                     </div>
-                                    
+
                                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                                         <div class="form-group">
                                             <label for="joining_date">Joining Date</label>
@@ -186,11 +186,11 @@
                                         </div>
                                     </div>
                                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                                        <x-forms.select label="Designation" inputName="designation_id" placeholder="Select One" :isRequired='true'  :isReadonly='false' :defaultValue="$employee ? $employee->designation_id : ''" :options="$designations" optionId="id" optionValue="name"/>
+                                        <x-forms.select label="Designation" inputName="designation_id" placeholder="Select One" :isRequired='false'  :isReadonly='false' :defaultValue="$employee ? $employee->designation_id : ''" :options="$designations" optionId="id" optionValue="name"/>
                                     </div>
                                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                                        <x-forms.text label="Salery" inputName="salary" placeholder="Enter Salery"
-                                            :isRequired='true' :isReadonly='false' defaultValue="{{ $employee->salary }}" />
+                                        <x-forms.text label="Salary" inputName="salary" placeholder="Enter Salary"
+                                            :isRequired='false' :isReadonly='false' defaultValue="{{ $employee->salary }}" />
                                     </div>
                                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                                         <div class="form-group">

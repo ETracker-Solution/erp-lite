@@ -82,16 +82,16 @@ $links = [
                             <div class="row">
                                 <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                     <x-forms.text label="Father Name" inputName="father_name" placeholder="Father Name"
-                                        :isRequired='true' :isReadonly='false' defaultValue="" />
+                                        :isReadonly='false' defaultValue="" />
                                 </div>
                                 <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                     <x-forms.text label="Nominee Name" inputName="nominee_name"
-                                        placeholder="Nominee Name" :isRequired='true' :isReadonly='false'
+                                        placeholder="Nominee Name"  :isReadonly='false'
                                         defaultValue="" />
                                 </div>
                                 <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                     <x-forms.static-select label="Blood Group" inputName="blood_group"
-                                        placeholder="Select One" :isRequired='true' :isReadonly='false' defaultValue=""
+                                        placeholder="Select One"  :isReadonly='false' defaultValue=""
                                         :options="['A+','A-','AB+','AB-','B+','B-','O+','O-']" />
                                 </div>
                                 <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
@@ -111,20 +111,20 @@ $links = [
                                 </div>
                                 <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                     <x-forms.text label="Mother Name" inputName="mother_name" placeholder="Mother Name"
-                                        :isRequired='true' :isReadonly='false' defaultValue="" />
+                                         :isReadonly='false' defaultValue="" />
                                 </div>
                                 <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                     <x-forms.text label="Nominee Relation" inputName="nominee_relation"
-                                        placeholder="Nominee Relation" :isRequired='true' :isReadonly='false'
+                                        placeholder="Nominee Relation" :isReadonly='false'
                                         defaultValue="" />
                                 </div>
                                 <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                     <x-forms.text label="NID" inputName="nid" placeholder="Enter Your NID"
-                                        :isRequired='true' :isReadonly='false' defaultValue="" />
+                                        :isReadonly='false' defaultValue="" />
                                 </div>
                                 <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                     <x-forms.text label="Bank Account" inputName="bank_account"
-                                        placeholder="Enter Your Bank Account" :isRequired='true' :isReadonly='false'
+                                        placeholder="Enter Your Bank Account"  :isReadonly='false'
                                         defaultValue="" />
                                 </div>
 
@@ -141,7 +141,7 @@ $links = [
                             <div class="row">
                                 <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                                     <x-forms.text label="Present Address" inputName="present_address"
-                                        placeholder="Present Address" :isRequired='true' :isReadonly='false'
+                                        placeholder="Present Address" :isReadonly='false'
                                         defaultValue="" />
                                 </div>
                                 <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
@@ -154,17 +154,17 @@ $links = [
                                 </div>
                                 <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                                     <x-forms.text label="Permanent Address" inputName="permanent_address"
-                                        placeholder="Permanent Address" :isRequired='true' :isReadonly='false'
+                                        placeholder="Permanent Address"  :isReadonly='false'
                                         defaultValue="" />
                                 </div>
                                 <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                                     <x-forms.email label="Personal Email" inputName="personal_email"
-                                        placeholder="Enter Personal Email" :isRequired='true' :isReadonly='false'
+                                        placeholder="Enter Personal Email"  :isReadonly='false'
                                         defaultValue="" />
                                 </div>
                                 <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                                     <x-forms.text label="Alternative Contact" inputName="alternative_phone"
-                                        placeholder="Enter Alternative Contact" :isRequired='true' :isReadonly='false'
+                                        placeholder="Enter Alternative Contact"  :isReadonly='false'
                                         defaultValue="" />
                                 </div>
                             </div>
@@ -180,7 +180,7 @@ $links = [
                             <div class="row">
                                 <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                                     <x-forms.select label="Department" inputName="department_id"
-                                        placeholder="Select One" :isRequired='true' :isReadonly='false' defaultValue=""
+                                        placeholder="Select One"  :isReadonly='false' defaultValue=""
                                         :options="$departments" optionId="id" optionValue="name" />
                                 </div>
                                 <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
@@ -200,12 +200,12 @@ $links = [
                                 </div>
                                 <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                                     <x-forms.select label="Designation" inputName="designation_id"
-                                        placeholder="Select One" :isRequired='true' :isReadonly='false' defaultValue=""
+                                        placeholder="Select One"  :isReadonly='false' defaultValue=""
                                         :options="$designations" optionId="id" optionValue="name" />
                                 </div>
                                 <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                                     <x-forms.text label="Salary" inputName="salary" placeholder="Enter Salary"
-                                        :isRequired='true' :isReadonly='false' defaultValue="" />
+                                         :isReadonly='false' defaultValue="" />
                                 </div>
                                 <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                                     <div class="form-group">
