@@ -359,7 +359,9 @@ class SaleController extends Controller
 
             InventoryTransaction::where('doc_type','POS')->whereIn('doc_id',$sale->items()->pluck('id')->toArray())->delete();
 
-            $sale->delete();
+            $sale->update([
+                'status'=>'cancelled'
+            ]);
 
         }catch (\Exception $e) {
             return $e;
