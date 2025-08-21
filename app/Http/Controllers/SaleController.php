@@ -349,7 +349,9 @@ class SaleController extends Controller
             }
             $preOrder = $sale->preOrder;
             if ($preOrder) {
-                $preOrder->delete();
+                $preOrder->update([
+                    'status'=>'cancelled'
+                ]);
             }
 
             $delivery_of_pre_order = OthersOutletSale::where('invoice_number', $sale->invoice_number)->first();
