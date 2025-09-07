@@ -26,6 +26,8 @@ class FundTransferVoucherController extends Controller
     {
         $outlet_accounts = [];
 
+        $onlyData = [];
+
         if (\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->outlet_id) {
             $outlet_id = auth()->user()->employee->outlet_id;
 
@@ -34,6 +36,7 @@ class FundTransferVoucherController extends Controller
                 ->get();
 
             $coaIds = $oas->pluck('coa_id')->toArray();
+            $onlyData = $coaIds;
 
             $originalBalances = AccountTransaction::select('chart_of_account_id', DB::raw('SUM(amount * transaction_type) as balance'))
                 ->whereIn('chart_of_account_id', $coaIds)
@@ -80,15 +83,15 @@ class FundTransferVoucherController extends Controller
 
         $outlets = Outlet::all();
         $accounts = ChartOfAccount::where('type', 'ledger')
-        ->whereIn('id', function ($query) {
-            $query->select('coa_id')->from('outlet_accounts');
-        })
-        ->select('id', 'name')
-        ->get();
+            ->whereIn('id', function ($query) {
+                $query->select('coa_id')->from('outlet_accounts');
+            })
+            ->select('id', 'name')
+            ->get();
 
         $toAccounts = ChartOfAccount::where(['default_type' => 'office_account', 'is_bank_cash' => 'yes', 'type' => 'ledger', 'status' => 'active'])->get();
         if (\request()->ajax()) {
-            $fundTransferVouchers = $this->getFilteredData();
+            $fundTransferVouchers = $this->getFilteredData($onlyData);
             return DataTables::of($fundTransferVouchers)
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
@@ -103,7 +106,7 @@ class FundTransferVoucherController extends Controller
                 ->rawColumns(['action', 'created_at', 'status'])
                 ->make(true);
         }
-        return view('fund_transfer_voucher.index', compact('outlets', 'outlet_accounts','accounts','toAccounts'));
+        return view('fund_transfer_voucher.index', compact('outlets', 'outlet_accounts', 'accounts', 'toAccounts'));
     }
 
     /**
@@ -331,11 +334,12 @@ class FundTransferVoucherController extends Controller
         return $pdf->stream($name . '.pdf');
     }
 
-    public function getFilteredData()
+    public function getFilteredData($coas = null)
     {
         if (\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->outlet_id) {
-            $fundTransferVoucher = FundTransferVoucher::where('created_by', \auth()->user()->id)->with('creditAccount', 'debitAccount')->latest();
-
+            if ($coas) {
+                $fundTransferVoucher = FundTransferVoucher::whereIn('credit_account_id',$coas)->orWhereIn('debit_account_id', $coas)->with('creditAccount', 'debitAccount')->latest();
+            }
         } else {
             $fundTransferVoucher = FundTransferVoucher::with('creditAccount', 'debitAccount')->latest();
         }
@@ -350,13 +354,13 @@ class FundTransferVoucherController extends Controller
             });
         }
         if (\request()->filled('account_id')) {
-            $fundTransferVoucher->where('credit_account_id',\request()->account_id);
+            $fundTransferVoucher->where('credit_account_id', \request()->account_id);
         }
         if (\request()->filled('to_account_id')) {
-            $fundTransferVoucher->where('debit_account_id',\request()->to_account_id);
+            $fundTransferVoucher->where('debit_account_id', \request()->to_account_id);
         }
         if (\request()->filled('date_range')) {
-            searchColumnByDateRange($fundTransferVoucher,'date');
+            searchColumnByDateRange($fundTransferVoucher, 'date');
         }
         return $fundTransferVoucher->latest();
     }
@@ -364,15 +368,15 @@ class FundTransferVoucherController extends Controller
     public function receiveReport(Request $request)
     {
         $data = FundTransferVoucher::query()->with('creditAccount.outlets', 'debitAccount', 'createdBy.employee.outlet')
-            ->whereHas('creditAccount', function($query) {
+            ->whereHas('creditAccount', function ($query) {
                 $query->whereHas('outlets');
             })
-            ->whereHas('debitAccount', function($query) {
-                $query->where('default_type','office_account');
+            ->whereHas('debitAccount', function ($query) {
+                $query->where('default_type', 'office_account');
             })
             ->where('status', 'received');
         if (\request()->filled('date_range') && $request->date_range != null) {
-            $data = searchColumnByDateRange($data,'date');
+            $data = searchColumnByDateRange($data, 'date');
         }
         if (\request()->filled('outlet_id')) {
             $data->whereHas('creditAccount', function ($q) {
@@ -383,21 +387,21 @@ class FundTransferVoucherController extends Controller
         }
 
         if (\request()->filled('account_id')) {
-            $data->where('credit_account_id',\request()->account_id);
+            $data->where('credit_account_id', \request()->account_id);
         }
 
         if (\request()->filled('to_account_id')) {
-            $data->where('debit_account_id',\request()->to_account_id);
+            $data->where('debit_account_id', \request()->to_account_id);
         }
         if (\request()->filled('date_range')) {
-            searchColumnByDateRange($data,'date');
+            searchColumnByDateRange($data, 'date');
         }
 
         $totalAmount = $data->sum('amount');
 
         $passVariable = [
             'transactions' => $data->get()->sortBy(function ($transaction) {
-                if (isset($transaction->creditAccount->outlets[0])){
+                if (isset($transaction->creditAccount->outlets[0])) {
                     return $transaction->creditAccount->outlets[0]->id;
                 }
             }),
