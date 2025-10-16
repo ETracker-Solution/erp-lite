@@ -77,44 +77,45 @@ class ConsumptionController extends Controller
     public function store(StoreConsumptionRequest $request)
     {
         $validated = $request->validated();
-//        DB::beginTransaction();
-//        try {
-        if (count($validated['products']) < 1) {
-            Toastr::info('At Least One Product Required.', '', ["progressBar" => true]);
+        DB::beginTransaction();
+        try {
+            if (count($validated['products']) < 1) {
+                Toastr::info('At Least One Product Required.', '', ["progressBar" => true]);
+                return back();
+            }
+            $factory_id = Store::find($validated['store_id'])->doc_id;
+            $validated['serial_no'] = generateUniqueUUID($factory_id, Consumption::class, 'serial_no', true);
+            $consumption = Consumption::query()->create($validated);
+            Batch::where('id', $validated['batch_id'])->update(['is_consumption' => true]);
+            InventoryTransaction::where(['doc_id' => $consumption->id, 'doc_type' => 'RMC'])->delete();
+            $consumption->amount = $consumption->subtotal;
+            foreach ($validated['products'] as $product) {
+                $consumption->items()->create($product);
+                // Inventory Transaction Effect
+                InventoryTransaction::query()->create([
+                    'store_id' => $consumption->store_id,
+                    'doc_type' => 'RMC',
+                    'doc_id' => $consumption->id,
+                    'quantity' => $product['quantity'],
+                    'rate' => $product['rate'],
+                    'amount' => $product['quantity'] * $product['rate'],
+                    'date' => $consumption->date,
+                    'type' => -1,
+                    'coi_id' => $product['coi_id'],
+                ]);
+            }
+            // Accounts Transaction Effect
+            AccountTransaction::where(['doc_id' => $consumption->id, 'doc_type' => 'RMC'])->delete();
+            addAccountsTransaction('RMC', $consumption, 17, 15);
+
+
+            DB::commit();
+        } catch (\Exception $exception) {
+            DB::rollBack();
+            return $exception;
+            Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
             return back();
         }
-        $validated['serial_no'] = generateUniqueUUID($validated['store_id'], Consumption::class, 'serial_no', true);
-        $consumption = Consumption::query()->create($validated);
-        Batch::where('id', $validated['batch_id'])->update(['is_consumption' => true]);
-        InventoryTransaction::where(['doc_id' => $consumption->id, 'doc_type' => 'RMC'])->delete();
-        $consumption->amount = $consumption->subtotal;
-        foreach ($validated['products'] as $product) {
-            $consumption->items()->create($product);
-            // Inventory Transaction Effect
-            InventoryTransaction::query()->create([
-                'store_id' => $consumption->store_id,
-                'doc_type' => 'RMC',
-                'doc_id' => $consumption->id,
-                'quantity' => $product['quantity'],
-                'rate' => $product['rate'],
-                'amount' => $product['quantity'] * $product['rate'],
-                'date' => $consumption->date,
-                'type' => -1,
-                'coi_id' => $product['coi_id'],
-            ]);
-        }
-        // Accounts Transaction Effect
-        AccountTransaction::where(['doc_id' => $consumption->id, 'doc_type' => 'RMC'])->delete();
-        addAccountsTransaction('RMC', $consumption, 17, 15);
-
-
-//            DB::commit();
-//        } catch (\Exception $exception) {
-//            DB::rollBack();
-//            return $exception;
-//            Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
-//            return back();
-//        }
         Toastr::success('Consumption Created Successfully!.', '', ["progressBar" => true]);
         return redirect()->route('consumptions.index');
     }

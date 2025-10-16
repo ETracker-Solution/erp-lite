@@ -388,6 +388,8 @@ class SaleController extends Controller
                     'updated_at',
                     'deleted_at',
                     'readable_sell_date_time',
+                    'delivery_type',
+                    'delivery_area',
                 ])->toArray();
                 $saleCancelData['cancelled_at'] = now();
                 $saleCancelData['cancelled_by'] = auth()->id();

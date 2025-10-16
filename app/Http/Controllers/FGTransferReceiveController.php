@@ -31,14 +31,14 @@ class FGTransferReceiveController extends Controller
             $data = TransferReceive::with('toStore', 'fromStore')->where(['type' => 'FG'])->latest();
 
             if (!auth()->user()->is_super) {
-                if (auth()->user()->employee){
-                    if (auth()->user()->employee->factory_id){
+                if (auth()->user()->employee) {
+                    if (auth()->user()->employee->factory_id) {
                         $stores = auth()->user()->employee->factory->stores()->pluck('id')->toArray();
                     }
-                    if (auth()->user()->employee->outlet_id){
+                    if (auth()->user()->employee->outlet_id) {
                         $stores = auth()->user()->employee->outlet->stores()->pluck('id')->toArray();
                     }
-                    $data = TransferReceive::with('toStore', 'fromStore','inventoryTransfer')
+                    $data = TransferReceive::with('toStore', 'fromStore', 'inventoryTransfer')
                         ->where(['type' => 'FG'])->whereIn('from_store_id', $stores)->orWhereIn('to_store_id', $stores)->latest();
                 }
             }
@@ -88,49 +88,57 @@ class FGTransferReceiveController extends Controller
      */
     public function store(StoreFGTransferReceiveRequest $request)
     {
-        //        try {
-        //            DB::beginTransaction();
-        $data = $request->validated();
-        $store = Store::find($data['to_store_id']);
-        $data['uid'] = generateUniqueUUID($store->outlet->id, TransferReceive::class, 'uid');
-        $fGInventoryTransfer = TransferReceive::query()->create($data);
-        $products = $request->get('products');
-        foreach ($products as $product) {
-            $fGInventoryTransfer->items()->create($product);
-            // Inventory Transaction Effect
-            InventoryTransaction::query()->create([
-                'store_id' => $fGInventoryTransfer->from_store_id,
-                'doc_type' => 'FGIT',
-                'doc_id' => $fGInventoryTransfer->id,
-                'quantity' => $product['quantity'],
-                'rate' => $product['rate'],
-                'amount' => $product['quantity'] * $product['rate'],
-                'date' => $fGInventoryTransfer->date,
-                'type' => -1,
-                'coi_id' => $product['coi_id'],
-            ]);
-            InventoryTransaction::query()->create([
-                'store_id' => $fGInventoryTransfer->to_store_id,
-                'doc_type' => 'FGIT',
-                'doc_id' => $fGInventoryTransfer->id,
-                'quantity' => $product['quantity'],
-                'rate' => $product['rate'],
-                'amount' => $product['quantity'] * $product['rate'],
-                'date' => $fGInventoryTransfer->date,
-                'type' => 1,
-                'coi_id' => $product['coi_id'],
-            ]);
+        try {
+            DB::beginTransaction();
+            $data = $request->validated();
+            $store = Store::find($data['to_store_id']);
+            $isFactory = false;
+            $isHeadOffice = false;
+            if ($store->doc_type == 'factory') {
+                $isFactory = true;
+            }
+            if ($store->doc_type == 'ho') {
+                $isHeadOffice = true;
+            }
+            $data['uid'] = generateUniqueUUID($store->doc_id, TransferReceive::class, 'uid', $isFactory, $isHeadOffice);
+            $fGInventoryTransfer = TransferReceive::query()->create($data);
+            $products = $request->get('products');
+            foreach ($products as $product) {
+                $fGInventoryTransfer->items()->create($product);
+                // Inventory Transaction Effect
+                InventoryTransaction::query()->create([
+                    'store_id' => $fGInventoryTransfer->from_store_id,
+                    'doc_type' => 'FGIT',
+                    'doc_id' => $fGInventoryTransfer->id,
+                    'quantity' => $product['quantity'],
+                    'rate' => $product['rate'],
+                    'amount' => $product['quantity'] * $product['rate'],
+                    'date' => $fGInventoryTransfer->date,
+                    'type' => -1,
+                    'coi_id' => $product['coi_id'],
+                ]);
+                InventoryTransaction::query()->create([
+                    'store_id' => $fGInventoryTransfer->to_store_id,
+                    'doc_type' => 'FGIT',
+                    'doc_id' => $fGInventoryTransfer->id,
+                    'quantity' => $product['quantity'],
+                    'rate' => $product['rate'],
+                    'amount' => $product['quantity'] * $product['rate'],
+                    'date' => $fGInventoryTransfer->date,
+                    'type' => 1,
+                    'coi_id' => $product['coi_id'],
+                ]);
+            }
+            InventoryTransfer::where('id', $data['inventory_transfer_id'])->update(['status' => 'received']);
+            DB::commit();
+            Toastr::success('FG Transfer Receive Entry Successful!.', '', ["progressBar" => true]);
+            return redirect()->route('fg-transfer-receives.index');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::emergency("File:" . $e->getFile() . "Line:" . $e->getLine() . "Message:" . $e->getMessage());
+            Toastr::info('Something went wrong!.', '', ["progressbar" => true]);
+            return back();
         }
-        InventoryTransfer::where('id', $data['inventory_transfer_id'])->update(['status' => 'received']);
-        //   DB::commit();
-        Toastr::success('FG Transfer Receive Entry Successful!.', '', ["progressBar" => true]);
-        return redirect()->route('fg-transfer-receives.index');
-        //        } catch (\Exception $e) {
-        //            DB::rollBack();
-        //            Log::emergency("File:" . $e->getFile() . "Line:" . $e->getLine() . "Message:" . $e->getMessage());
-        //            Toastr::info('Something went wrong!.', '', ["progressbar" => true]);
-        //            return back();
-        //        }
 
     }
 
@@ -139,7 +147,7 @@ class FGTransferReceiveController extends Controller
      */
     public function show($id)
     {
-        $fgTransferReceive = TransferReceive::with('toStore', 'fromStore','createdBy')->find(decrypt($id));
+        $fgTransferReceive = TransferReceive::with('toStore', 'fromStore', 'createdBy')->find(decrypt($id));
         return view('fg_inventory_transfer_receive.show', compact('fgTransferReceive'));
     }
 
@@ -180,7 +188,7 @@ class FGTransferReceiveController extends Controller
     public function pdf($id)
     {
         $data = [
-            'fgTransferReceive' => TransferReceive::with('toStore', 'fromStore','createdBy')->find(decrypt($id)),
+            'fgTransferReceive' => TransferReceive::with('toStore', 'fromStore', 'createdBy')->find(decrypt($id)),
         ];
 
         $pdf = PDF::loadView(
