@@ -554,6 +554,12 @@
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                                     <button type="button" class="btn btn-primary" :disabled="couponCode.length < 1"
+                                            v-on:click="sendOtpToCustomer">Send OTP
+                                    </button>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                    <button type="button" class="btn btn-primary" :disabled="couponCode.length < 1"
                                             v-on:click="getCouponDiscountValue">Apply
                                     </button>
                                 </div>
@@ -1166,6 +1172,25 @@
                         // Submit the form
                         document.getElementById('salesForm').submit();
                     },
+                    sendOtpToCustomer() {
+                        const vm = this;
+                        if (!vm.customerNumber) {
+                            toastr.error('Please Enter Valid Customer Number', {
+                                closeButton: true,
+                                progressBar: true,
+                            });
+                            vm.isSubmitting = false;
+                            return;
+                        }
+                        if (vm.couponCode.length < 1) {
+                            toastr.error('Please Enter Coupon Code', {
+                                closeButton: true,
+                                progressBar: true,
+                            });
+                            vm.isSubmitting = false;
+                            return;
+                        }
+                    }
                 },
                 updated() {
                     $('.bSelect').selectpicker('refresh');

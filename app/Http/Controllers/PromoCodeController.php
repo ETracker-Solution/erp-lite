@@ -203,8 +203,12 @@ class PromoCodeController extends Controller
                 $customers = Customer::where('type', '!=', 'default')->whereHas('membership');
             }
         } else {
-            $customers = Customer::where('type', '!=', 'default')->query();
+            $customers = Customer::where('type', '!=', 'default');
         }
-        return $customers->select('name', 'id')->get();
+        if ($request->term){
+            $searchString = $request->term;
+            $customers = $customers->where('name','like','%'.$searchString.'%')->orWhere('mobile','like','%'.$searchString.'%');
+        }
+        return $customers->select(DB::raw('CONCAT(mobile, " (", name, ")") as name'), 'id')->take(30)->get();
     }
 }

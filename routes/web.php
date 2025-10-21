@@ -3,6 +3,7 @@
 use App\Http\Controllers\AttributeController;
 use App\Http\Controllers\ChartOfAccountController;
 use App\Http\Controllers\ChartOfInventoryController;
+use App\Http\Controllers\CouponCodeOtpController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\DesignationController;
 use App\Http\Controllers\FactoryController;
@@ -388,7 +389,6 @@ Route::group(['prefix' => 'reports', 'middleware' => 'auth'], function () {
     Route::get('daterangesummary-report', [App\Http\Controllers\ReportController::class, 'daterangeSummery'])->name('daterangesummery.report');
     Route::get('daterangesummary-data', [App\Http\Controllers\ReportController::class, 'fetchDaterangeSummary'])->name('fetchdaterangesummary.report');
 
-
 });
 Route::group(['middleware' => 'auth'], function () {
     Route::get('today-requisitions/{type}', [App\Http\Controllers\RequisitionController::class, 'exportRequisition'])->name('today.requisitions.export');
@@ -396,6 +396,14 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('fg-productions-export/{type}', [App\Http\Controllers\ProductionController::class, 'exportFGProduction'])->name('fg.production.export');
     Route::get('today-requisitions', [App\Http\Controllers\RequisitionController::class, 'todayRequisition'])->name('today.requisitions');
 
+    Route::post('coupon-code-send-otp', CouponCodeOtpController::class)->name('coupon-code-send-otp');
+    Route::post('verify-otp', \App\Http\Controllers\VerifyOtpController::class)->name('verify-otp');
+});
+
+Route::get('test-otp', function (\App\Services\NovocomSmsService $sms) {
+//    $result = $sms->getSentMessages(0,100,'2025-10-01','2025-10-21');
+    $result = $sms->sendSms('01682101354', 'Test OTP');
+    return response()->json($result);
 });
 
 

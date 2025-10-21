@@ -159,7 +159,7 @@ return [
         /*
          * Package Service Providers...
          */
-
+        \App\Providers\SmsServiceProvider::class,
         /*
          * Application Service Providers...
          */
@@ -185,6 +185,7 @@ return [
 
     'aliases' => Facade::defaultAliases()->merge([
         // 'Example' => App\Facades\Example::class,
+        'NovocomSms' => App\Facades\NovocomSms::class,
     ])->toArray(),
 
 ];
