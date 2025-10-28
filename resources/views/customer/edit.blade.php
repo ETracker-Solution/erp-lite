@@ -48,10 +48,10 @@ $links = [
                                     <x-forms.text label="Mobile" inputName="mobile" placeholder="Enter Mobile" :isRequired='true' :isReadonly='false' :defaultValue="$customer->mobile" />
                                 </div>
                                 <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                                    <x-forms.text label="Address" inputName="address" placeholder="Enter Address" :isRequired='true' :isReadonly='false' :defaultValue="$customer->address" />
+                                    <x-forms.text label="Address" inputName="address" placeholder="Enter Address" :isRequired='false' :isReadonly='false' :defaultValue="$customer->address" />
                                 </div>
                                 <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                                    <x-forms.email label="Email" inputName="email" placeholder="Enter Email" :isRequired='true' :isReadonly='false' :defaultValue="$customer->email" />
+                                    <x-forms.email label="Email" inputName="email" placeholder="Enter Email" :isRequired='false' :isReadonly='false' :defaultValue="$customer->email" />
                                 </div>
                             </div>
                             <button class="btn btn-info waves-effect waves-float waves-light float-right" type="submit">Update
