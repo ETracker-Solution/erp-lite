@@ -26,8 +26,8 @@ class UpdateCustomerRequest extends FormRequest
         return [
             'name' => 'required',
             'mobile' => 'required',
-            'address' => 'required',
-            'email' => 'required',
+            'address' => 'nullable',
+            'email' => 'nullable',
             'website' => 'nullable',
             'updated_by' => 'required',
         ];
@@ -38,6 +38,6 @@ class UpdateCustomerRequest extends FormRequest
         $this->merge([
             'updated_by' => auth()->user()->id,
         ]);
-        
+
     }
 }
