@@ -26,8 +26,8 @@ class StoreCustomerRequest extends FormRequest
         return [
             'name' => 'required',
             'mobile' => 'required',
-            'address' => 'required',
-            'email' => 'required',
+            'address' => 'nullable',
+            'email' => 'nullable',
             'website' => 'nullable',
             'created_by' => 'required',
         ];
@@ -38,6 +38,6 @@ class StoreCustomerRequest extends FormRequest
         $this->merge([
             'created_by' => auth()->user()->id,
         ]);
-        
+
     }
 }

@@ -52,11 +52,11 @@ Customer Entry
                             </div>
                             <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                               <x-forms.text label="Address" inputName="address" placeholder="Enter Address"
-                                  :isRequired='true' :isReadonly='false' defaultValue="" />
+                                  :isRequired='false' :isReadonly='false' defaultValue="" />
                             </div>
                             <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                               <x-forms.email label="Email" inputName="email" placeholder="Enter Email"
-                                  :isRequired='true' :isReadonly='false' defaultValue="" />
+                                  :isRequired='false' :isReadonly='false' defaultValue="" />
                             </div>
                         </div>
                         <button class="btn btn-info waves-effect waves-float waves-light float-right"
