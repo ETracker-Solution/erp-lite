@@ -299,7 +299,8 @@
                 selectedSpecialDiscount: false,
                 customer_search_string: '',
                 isDisabled: false,
-                orderInvoiceNumber:''
+                orderInvoiceNumber: '',
+                otp: ''
             },
             mounted() {
                 this.getAllProducts();
@@ -362,7 +363,7 @@
             methods: {
                 getAllOrders() {
                     var vm = this;
-                    axios.get(this.config.get_all_orders_url+'?inv='+vm.orderInvoiceNumber)
+                    axios.get(this.config.get_all_orders_url + '?inv=' + vm.orderInvoiceNumber)
                         .then(function (response) {
                             vm.orders = (response.data);
                         }).catch(function (error) {
@@ -402,7 +403,7 @@
                 selectProductToSell(product) {
                     var vm = this;
                     var product_id = product.id;
-                    if (! product.stock > 0) {
+                    if (!product.stock > 0) {
                         toastr.warning('No Stock Available')
                         return false;
                     }
@@ -714,7 +715,16 @@
                 },
                 getCouponDiscountValue() {
                     var vm = this;
-                    axios.get(this.config.get_coupon_code_value_url + '?code=' + vm.couponCode + '&user=' + vm.customerNumber)
+
+                    if(vm.selectedProducts.length < 1){
+                        toastr.error('At Least One Product Must Be Selected', {
+                            closeButton: true,
+                            progressBar: true,
+                        });
+                        return
+                    }
+
+                    axios.get(this.config.get_coupon_code_value_url + '?code=' + vm.couponCode + '&user=' + vm.customerNumber + '&otp=' + vm.otp)
                         .then(function (response) {
                             const responseData = response.data
                             if (responseData.success === false) {
@@ -722,6 +732,7 @@
                                     closeButton: true,
                                     progressBar: true,
                                 });
+                                return
                             } else {
                                 if (responseData.data.minimum_purchase && responseData.data.minimum_purchase > vm.total_payable_bill) {
                                     toastr.error('Minimum Purchase Amount is ' + responseData.data.minimum_purchase, {
@@ -741,6 +752,27 @@
                                     vm.couponCodeDiscountShowValue = vm.couponCodeDiscountValue + ' %'
                                 }
                                 vm.couponModalShow === true ? vm.couponModalShow = false : true
+
+                                if (vm.couponCodeDiscountAmount > vm.subtotal) {
+
+                                    vm.couponCodeDiscountAmount = 0
+                                    vm.couponCodeDiscountValue = 0
+                                    vm.couponCodeDiscountType = ''
+                                    vm.couponCodeDiscountShowValue = ''
+
+                                    toastr.error('Coupon Code Discount Amount is greater than Subtotal', {
+                                        closeButton: true,
+                                        progressBar: true,
+                                    });
+                                    return
+                                }
+
+                                toastr.success(responseData.message, {
+                                    closeButton: true,
+                                    progressBar: true,
+                                    timeOut: 3000
+                                });
+                                vm.closeCouponModal()
                             }
 
                         }).catch(function (error) {
@@ -1069,6 +1101,47 @@
                     vm.customerNumber = order.customer_number
                     vm.changeToNav('home')
                     vm.getCustomerInfo()
+                },
+                sendOtpToCustomer() {
+                    const vm = this;
+                    if (!vm.customerNumber) {
+                        toastr.error('Please Enter Valid Customer Number', {
+                            closeButton: true,
+                            progressBar: true,
+                        });
+                        vm.isSubmitting = false;
+                        return;
+                    }
+                    if (vm.couponCode.length < 1) {
+                        toastr.error('Please Enter Coupon Code', {
+                            closeButton: true,
+                            progressBar: true,
+                        });
+                        vm.isSubmitting = false;
+                        return;
+                    }
+                    axios.post('/coupon-code-send-otp', {
+                        customer_number: vm.customerNumber,
+                        code: vm.couponCode
+                    })
+                        .then(function (response) {
+                            const responseData = response
+                            if (responseData.success === false) {
+                                toastr.error(responseData.message, {
+                                    closeButton: true,
+                                    progressBar: true,
+                                });
+                            }
+
+
+                        }).catch(function (error) {
+                        toastr.error(error, {
+                            closeButton: true,
+                            progressBar: true,
+                        });
+                        vm.returnNumber = "";
+                        return false;
+                    });
                 }
                 // checkPointInput(){
                 //     if (this.)

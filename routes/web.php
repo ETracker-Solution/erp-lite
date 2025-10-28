@@ -123,6 +123,7 @@ Route::middleware(['auth','prevent_duplicate_submission'])->group(function () {
 
     //Promo Code
     Route::get('get-customer-by-type', [\App\Http\Controllers\PromoCodeController::class, 'getCustomers'])->name('promo-codes.customers');
+    Route::post('promo-codes/send-sms/{id}', [\App\Http\Controllers\PromoCodeController::class, 'sendSms'])->name('promo-codes.send-sms');
     Route::resource('promo-codes', \App\Http\Controllers\PromoCodeController::class);
 
     //-----Start Supplier Payment Voucher---------
@@ -401,8 +402,7 @@ Route::group(['middleware' => 'auth'], function () {
 });
 
 Route::get('test-otp', function (\App\Services\NovocomSmsService $sms) {
-//    $result = $sms->getSentMessages(0,100,'2025-10-01','2025-10-21');
-    $result = $sms->sendSms('01682101354', 'Test OTP');
+    $result = $sms->sendPromoCode('8801885996709', 'HASANSIR', '100%', '2025-10-28', '2025-10-28');
     return response()->json($result);
 });
 

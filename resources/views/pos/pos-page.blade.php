@@ -135,11 +135,22 @@
 
     <b-modal ref="coupon-modal" hide-footer title="Apply Coupon">
         <div class="d-block text-center">
-            <input type="text" placeholder="Enter Coupon Code" v-model="couponCode" class="form-control">
-        </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <input type="text" placeholder="Enter Coupon Code" v-model="couponCode"
+                           class="form-control">
+                </div>
+                <div class="col-md-6">
+                    <input type="text" placeholder="Enter OTP" v-model="otp"
+                           class="form-control">
+                </div>
+            </div>        </div>
         <b-button class="mt-3" variant="outline-danger" @click="closeCouponModal">Close</b-button>
-        <b-button class="mt-3" variant="outline-info" :disabled="couponCode.length < 1"
+        <b-button class="mt-3" variant="outline-info" :disabled="couponCode.length < 1 || otp.length < 4"
                   v-on:click="getCouponDiscountValue">Apply
+        </b-button>
+        <b-button class="mt-3 float-right" variant="outline-success" :disabled="couponCode.length < 1 || customerNumber.length < 10"
+                  v-on:click="sendOtpToCustomer">Send OTP
         </b-button>
     </b-modal>
 

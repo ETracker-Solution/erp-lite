@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Customer;
 use App\Models\CustomerPromoCode;
 use App\Models\PromoCode;
+use App\Models\VerifyOtp;
+use App\Services\NovocomSmsService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -13,13 +15,13 @@ class CouponCodeOtpController extends Controller
     /**
      * Handle the incoming request.
      */
-    public function __invoke(Request $request)
+    public function __invoke(Request $request, NovocomSmsService $service)
     {
         $now = Carbon::now()->format('Y-m-d');
-        if (!$request->customer_number){
+        if (!$request->customer_number) {
             return response()->json(['success' => false, 'message' => 'Customer Number Required']);
         }
-        if (!$request->code){
+        if (!$request->code) {
             return response()->json(['success' => false, 'message' => 'Code Required']);
         }
 
@@ -37,5 +39,22 @@ class CouponCodeOtpController extends Controller
         if ($alreadyUsed && $alreadyUsed->used > 0) {
             return response()->json(['success' => false, 'message' => 'Code Already Used ']);
         }
+
+        $otp = rand(1000, 9999);
+
+        VerifyOtp::where('mobile_number', $user->mobile)->delete();
+
+        VerifyOtp::create([
+            'mobile_number' => $user->mobile,
+            'otp' => $otp,
+        ]);
+
+        try {
+            $service->sendOtp($user->mobile, $otp);
+            return response()->json(['success' => true, 'message' => 'OTP Sent Successfully']);
+        } catch (\Exception $exception) {
+            return response()->json(['success' => false, 'message' => 'Failed to send OTP']);
+        }
+
     }
 }

@@ -35,7 +35,7 @@ return [
         'base_url' => env('NOVOCOM_BASE_URL', 'https://sms.novocom-bd.com/api/v2'),
         'api_key' => env('NOVOCOM_API_KEY'),
         'client_id' => env('NOVOCOM_CLIENT_ID'),
-        'sender_id' => env('NOVOCOM_SENDER_ID'),
+        'sender_id' => env('NOVOCOM_SENDER_ID','CAKE TOWN'),
         'timeout' => env('NOVOCOM_TIMEOUT', 30),
     ],
 

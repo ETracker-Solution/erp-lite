@@ -5,11 +5,14 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StorePromoCodeRequest;
 use App\Http\Requests\UpdatePromoCodeRequest;
+use App\Jobs\SendPromoCodeJob;
 use App\Models\Customer;
 use App\Models\MemberType;
 use App\Models\PromoCode;
+use App\Services\NovocomSmsService;
 use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -64,7 +67,7 @@ class PromoCodeController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(StorePromoCodeRequest $request)
+    public function store(StorePromoCodeRequest $request, NovocomSmsService $service)
     {
         $validated =  $request->validated();
         DB::beginTransaction();
@@ -88,11 +91,13 @@ class PromoCodeController extends Controller
                 }
             }
             $promoCode = PromoCode::create($validated);
+
             foreach ($validated['customers'] as $customer) {
                 $promoCode->customerPromoCodes()->create([
                     'customer_id' => $customer
                 ]);
             }
+
 
             DB::commit();
         } catch (\Exception $exception) {
@@ -210,5 +215,35 @@ class PromoCodeController extends Controller
             $customers = $customers->where('name','like','%'.$searchString.'%')->orWhere('mobile','like','%'.$searchString.'%');
         }
         return $customers->select(DB::raw('CONCAT(mobile, " (", name, ")") as name'), 'id')->take(30)->get();
+    }
+
+    public function sendSms($id)
+    {
+
+
+        DB::beginTransaction();
+        try {
+            $promoCode = PromoCode::find(decrypt($id));
+
+            $promoCode->customers()
+                ->select('mobile')
+                ->chunk(500, function ($customers) use ($promoCode) {
+                    $numbers = $customers->pluck('mobile')->filter()->toArray();
+                    if (!empty($numbers)) {
+                        SendPromoCodeJob::dispatch($promoCode, $numbers);
+                    }
+                });
+
+            $promoCode->increment('sms_count');
+
+            DB::commit();
+        } catch (\Exception $exception) {
+            DB::rollBack();
+            return $exception;
+            Toastr::error('Something Went Wrong');
+            return back();
+        }
+        Toastr::success('SMS is Sending.!!');
+        return back();
     }
 }

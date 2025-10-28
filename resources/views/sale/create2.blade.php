@@ -548,11 +548,18 @@
                                     </button>
                                 </div>
                                 <div class="modal-body">
-                                    <input type="text" placeholder="Enter Coupon Code" v-model="couponCode"
-                                           class="form-control">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <input type="text" placeholder="Enter Coupon Code" v-model="couponCode"
+                                                   class="form-control">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <input type="text" placeholder="Enter OTP" v-model="otp"
+                                                   class="form-control">
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                <div class="modal-footer" v-if="!verified">
                                     <button type="button" class="btn btn-primary" :disabled="couponCode.length < 1"
                                             v-on:click="sendOtpToCustomer">Send OTP
                                     </button>
@@ -730,6 +737,8 @@
                     isDisabled: false,
                     additional_charge: 0,
                     isSubmitting: false,
+                    verified: false,
+                    otp: ''
                 },
                 components: {
                     vuejsDatepicker
@@ -987,7 +996,14 @@
                     },
                     getCouponDiscountValue() {
                         var vm = this;
-                        axios.get(this.config.get_coupon_code_value_url + '?code=' + vm.couponCode + '&user=' + vm.customerNumber)
+                        if(vm.items.length < 1){
+                            toastr.error('At Least One Product Must Be Selected', {
+                                closeButton: true,
+                                progressBar: true,
+                            });
+                            return
+                        }
+                        axios.get(this.config.get_coupon_code_value_url + '?code=' + vm.couponCode + '&user=' + vm.customerNumber+ '&otp=' + vm.otp)
                             .then(function (response) {
                                 const responseData = response.data
                                 if (responseData.success === false) {
@@ -995,13 +1011,16 @@
                                         closeButton: true,
                                         progressBar: true,
                                     });
+                                    return
                                 } else {
                                     if (responseData.data.minimum_purchase && responseData.data.minimum_purchase > vm.total_payable_bill) {
                                         toastr.error('Minimum Purchase Amount is ' + responseData.data.minimum_purchase, {
                                             closeButton: true,
                                             progressBar: true,
                                         });
+                                        return
                                     }
+
                                     vm.couponCodeDiscountType = responseData.data.discount_type
                                     vm.couponCodeDiscountValue = responseData.data.discount_value
                                     vm.minimumPurchaseAmount = responseData.data.minimum_purchase
@@ -1014,8 +1033,31 @@
                                         vm.couponCodeDiscountShowValue = vm.couponCodeDiscountValue + ' %'
                                         vm.couponCodeDiscountAmount = Math.round(vm.couponCodeDiscountAmount)
                                     }
+
+                                    if (vm.couponCodeDiscountAmount > vm.subtotal ){
+
+                                        vm.couponCodeDiscountAmount = 0
+                                        vm.couponCodeDiscountValue = 0
+                                        vm.couponCodeDiscountType = ''
+                                        vm.couponCodeDiscountShowValue = ''
+
+                                        toastr.error('Coupon Code Discount Amount is greater than Subtotal', {
+                                            closeButton: true,
+                                            progressBar: true,
+                                        });
+                                        return
+                                    }
+
                                     vm.couponModalShow === true ? vm.couponModalShow = false : true
+                                    $('#couponModal').modal('hide');
+
+                                    toastr.success(responseData.message, {
+                                        closeButton: true,
+                                        progressBar: true,
+                                        timeOut: 3000
+                                    });
                                 }
+
 
                             }).catch(function (error) {
                             toastr.error(error, {
@@ -1190,6 +1232,24 @@
                             vm.isSubmitting = false;
                             return;
                         }
+                        axios.post('/coupon-code-send-otp',{
+                            customer_number: vm.customerNumber,
+                            code: vm.couponCode
+                        })
+                            .then(function (response) {
+                                const responseData = response.data
+                                toastr.info(responseData.message, {
+                                    closeButton: true,
+                                    progressBar: true,
+                                });
+
+
+                            }).catch(function (error) {
+                            toastr.error(error, {
+                                closeButton: true,
+                                progressBar: true,
+                            });
+                        });
                     }
                 },
                 updated() {

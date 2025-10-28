@@ -14,6 +14,7 @@ use App\Models\PreOrder;
 use App\Models\PromoCode;
 use App\Models\SalesReturn;
 use App\Models\Store;
+use App\Models\VerifyOtp;
 use Carbon\Carbon;
 use App\Models\Sale;
 use App\Models\Product;
@@ -228,6 +229,21 @@ class POSController extends Controller
                 PreOrder::find($request->pre_order_id)->update([
                     'sale_id' => $sale->id
                 ]);
+            }
+
+            if ($request->couponCode) {
+                $promoCode = \App\Models\PromoCode::where('code', $request->couponCode)->first();
+
+                if ($promoCode) {
+                    $customerPromo = \App\Models\CustomerPromoCode::firstOrNew([
+                        'customer_id' => $sale->customer_id,
+                        'promo_code_id' => $promoCode->id,
+                    ]);
+
+                    // Mark as used
+                    $customerPromo->used = 1;
+                    $customerPromo->save();
+                }
             }
 
             DB::commit();
@@ -450,6 +466,20 @@ class POSController extends Controller
         if ($alreadyUsed && $alreadyUsed->used > 0) {
             return response()->json(['success' => false, 'message' => 'Code Already Used ']);
         }
+
+        if (!$request->otp) {
+            return response()->json(['success' => false, 'message' => 'OTP Required']);
+        }
+        $otp = VerifyOtp::where('mobile_number', $user->mobile)->where('otp_status', 'pending')->first();
+        if (!$otp) {
+            return response()->json(['success' => false, 'message' => 'OTP Not Matched. Please Resend OTP']);
+        }
+        if ($otp->otp != $request->otp) {
+            return response()->json(['success' => false, 'message' => 'Invalid OTP']);
+        }
+        $otp->update([
+            'otp_status' => 'verified'
+        ]);
 
         return response()->json(['success' => true, 'message' => 'Code Found ', 'data' => $code]);
     }

@@ -225,7 +225,7 @@ class SaleController extends Controller
                     'sale_id' => $sale->id,
                     'customer_id' => $customer_id ?? null,
                     'payment_method' => $paymentMethod['method'],
-                    'amount' => ($paymentMethod['method'] == 'cash' && $sale->change_amount > 0) ? ($paymentMethod['amount'] - $sale->change_amount) : $paymentMethod['amount'],
+                    'amount' => ($paymentMethod['method'] == 'cash' && $sale->change_amount > 0) ? ($paymentMethod['amount'] - $sale->change_amount) : $paymentMethod['amount'] ?? 0,
                 ]);
                 $sale->amount = $payment->amount;
                 $prevSale = $sale;
@@ -292,6 +292,22 @@ class SaleController extends Controller
             if (($receive_amount < $sale->grand_total) || $outlet_id != $request->delivery_point_id || $request->sales_type == 'pre_order') {
                 $this->othersOutletDelivery($sale, $request->delivery_point_id);
             }
+
+            if ($request->couponCode) {
+                $promoCode = \App\Models\PromoCode::where('code', $request->couponCode)->first();
+
+                if ($promoCode) {
+                    $customerPromo = \App\Models\CustomerPromoCode::firstOrNew([
+                        'customer_id' => $sale->customer_id,
+                        'promo_code_id' => $promoCode->id,
+                    ]);
+
+                    // Mark as used
+                    $customerPromo->used = 1;
+                    $customerPromo->save();
+                }
+            }
+
             DB::commit();
 
             Toastr::success('Sale Order Successful!.', '', ["progressBar" => true]);

@@ -15,4 +15,9 @@ class PromoCode extends Model
     {
         return $this->hasMany(CustomerPromoCode::class, 'promo_code_id');
     }
+
+    public function customers()
+    {
+        return $this->belongsToMany(Customer::class, 'customer_promo_codes', 'promo_code_id', 'customer_id');
+    }
 }

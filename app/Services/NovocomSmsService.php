@@ -23,6 +23,19 @@ class NovocomSmsService
         $this->timeout = config('services.novocom.timeout', 30);
     }
 
+    public function sendOtp($mobileNumber, $otp): array
+    {
+        $message = "Your Cake Town OTP is {$otp}";
+        return $this->sendSms($mobileNumber, $message);
+    }
+
+    public function sendPromoCode($mobileNumber, $code, $discountRate, $startDate, $endDate): array
+    {
+//        $message = "FLASH DEAL! Use code ABCD to get !)TK OFF from today until {$endDate}";
+        $message = "FLASH DEAL! Use code {$code} to get {$discountRate} OFF from {$startDate} until {$endDate}";
+        return $this->sendSms($mobileNumber, $message);
+    }
+
     /**
      * Send SMS to single or multiple numbers
      *
@@ -34,39 +47,58 @@ class NovocomSmsService
     public function sendSms($mobileNumbers, string $message, array $options = []): array
     {
         try {
-            $data = [
+            // Format mobile numbers - ensure they start with 880
+            $formattedNumbers = $this->formatMobileNumbers($mobileNumbers);
+
+            $params = [
                 'ApiKey' => $this->apiKey,
                 'ClientId' => $this->clientId,
-                'SenderId' => $options['sender_id'] ?? $this->senderId,
+                'SenderId' => "CAKE TOWN",
                 'Message' => $message,
-                'MobileNumbers' => is_array($mobileNumbers) ? implode(',', $mobileNumbers) : $mobileNumbers,
-                'Is_Unicode' => $options['is_unicode'] ?? true,
-                'Is_Flash' => $options['is_flash'] ?? false,
-                'IsRegisteredForDelivery' => $options['is_registered_for_delivery'] ?? true,
-                'ValidityPeriod' => $options['validity_period'] ?? null,
-                'DataCoding' => $options['data_coding'] ?? '0',
+                'MobileNumbers' => is_array($formattedNumbers) ? implode(',', $formattedNumbers) : $formattedNumbers,
             ];
 
+            // Add optional parameters
+            if (isset($options['is_unicode'])) {
+                $params['Is_Unicode'] = $options['is_unicode'] ? 'true' : 'false';
+            }
+
+            if (isset($options['is_flash'])) {
+                $params['Is_Flash'] = $options['is_flash'] ? 'true' : 'false';
+            }
+
+            if (isset($options['data_coding'])) {
+                $params['DataCoding'] = $options['data_coding'];
+            }
+
             if (isset($options['schedule_time'])) {
-                $data['SchedTime'] = $options['schedule_time'];
+                $params['ScheduleTime'] = $options['schedule_time'];
             }
 
             if (isset($options['group_id'])) {
-                $data['GroupId'] = $options['group_id'];
+                $params['GroupId'] = $options['group_id'];
             }
 
-            // Remove null values
-            $data = array_filter($data, function ($value) {
-                return $value !== null;
-            });
+            if (isset($options['validity_period'])) {
+                $params['ValidityPeriod'] = $options['validity_period'];
+            }
 
+            Log::info('Novocom SMS Request', [
+                'url' => "{$this->baseUrl}/SendSMS",
+                'params' => array_merge($params, ['ApiKey' => '***', 'ClientId' => '***'])
+            ]);
+
+            // Use GET request as per API documentation
             $response = Http::timeout($this->timeout)
-                ->withHeaders(['Content-Type' => 'application/json'])
-                ->post("{$this->baseUrl}/SendSMS", $data);
+                ->withHeaders(['Accept' => 'application/json'])
+                ->get("{$this->baseUrl}/SendSMS", $params);
 
             return $this->handleResponse($response);
         } catch (Exception $e) {
-            Log::error('Novocom SMS Error: ' . $e->getMessage());
+            Log::error('Novocom SMS Exception', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
             return [
                 'success' => false,
                 'error' => $e->getMessage(),
@@ -74,6 +106,7 @@ class NovocomSmsService
             ];
         }
     }
+
 
     /**
      * Send bulk SMS with different messages for each number
@@ -409,5 +442,36 @@ class NovocomSmsService
         ];
 
         return $errors[$errorCode] ?? 'Unknown error';
+    }
+
+    public function formatMobileNumbers($mobileNumbers)
+    {
+        if (is_array($mobileNumbers)) {
+            return array_map([$this, 'formatSingleNumber'], $mobileNumbers);
+        }
+        return $this->formatSingleNumber($mobileNumbers);
+    }
+
+    /**
+     * Format a single mobile number
+     *
+     * @param string $number
+     * @return string
+     */
+    protected function formatSingleNumber(string $number): string
+    {
+        // Remove any spaces, dashes, or special characters
+        $number = preg_replace('/[^0-9]/', '', $number);
+
+        // If number starts with 0, replace with 880
+        if (substr($number, 0, 1) === '0') {
+            $number = '880' . substr($number, 1);
+        }
+        // If number doesn't start with 880, add it
+        elseif (substr($number, 0, 3) !== '880') {
+            $number = '880' . $number;
+        }
+
+        return $number;
     }
 }
