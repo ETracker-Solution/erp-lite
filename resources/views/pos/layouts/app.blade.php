@@ -360,6 +360,17 @@
                 },
 
             },
+            watch: {
+                selectedProducts: {
+                    handler: function(newProducts, oldProducts) {
+                        this.validateDiscounts();
+                    },
+                    deep: true
+                },
+                total_bill: function(newTotal) {
+                    this.validateDiscounts();
+                }
+            },
             methods: {
                 getAllOrders() {
                     var vm = this;
@@ -1142,7 +1153,73 @@
                         vm.returnNumber = "";
                         return false;
                     });
-                }
+                },
+                validateDiscounts() {
+                    var vm = this;
+
+                    // Validate coupon discount
+                    if (vm.couponCodeDiscountAmount > 0) {
+                        if (vm.couponCodeDiscountAmount > vm.total_bill) {
+                            // Adjust coupon discount to not exceed total bill
+                            vm.couponCodeDiscountAmount = vm.total_bill;
+                            toastr.warning('Coupon discount adjusted to match current subtotal', {
+                                closeButton: true,
+                                progressBar: true,
+                            });
+                        }
+
+                        // Recalculate percentage-based coupon discounts
+                        if (vm.couponCodeDiscountType === 'percentage') {
+                            let newDiscount = (vm.total_bill * vm.couponCodeDiscountValue) / 100;
+                            vm.couponCodeDiscountAmount = Math.min(newDiscount, vm.total_bill);
+                        }
+                    }
+
+                    // Validate overall discount
+                    // if (vm.total_discount_amount > 0) {
+                    //     if (vm.total_discount_amount > vm.total_bill) {
+                    //         vm.total_discount_amount = vm.total_bill;
+                    //         toastr.warning('Overall discount adjusted to match current subtotal', {
+                    //             closeButton: true,
+                    //             progressBar: true,
+                    //         });
+                    //     }
+                    //
+                    //     // Recalculate percentage-based overall discounts
+                    //     if (vm.total_discount_type === 'percentage') {
+                    //         let newDiscount = (vm.total_bill * vm.total_discount_value) / 100;
+                    //         vm.total_discount_amount = Math.min(newDiscount, vm.total_bill);
+                    //     }
+                    // }
+                    //
+                    // // Validate special discount
+                    // if (vm.special_discount_amount > 0) {
+                    //     if (vm.special_discount_amount > vm.total_bill) {
+                    //         vm.special_discount_amount = vm.total_bill;
+                    //         toastr.warning('Special discount adjusted to match current subtotal', {
+                    //             closeButton: true,
+                    //             progressBar: true,
+                    //         });
+                    //     } else {
+                    //         // Recalculate special discount based on current total
+                    //         vm.special_discount_amount = (vm.total_bill * vm.special_discount_value) / 100;
+                    //         vm.special_discount_amount = Math.round(vm.special_discount_amount);
+                    //     }
+                    // }
+                    //
+                    // // Validate product-wise discounts
+                    // this.items.forEach(item => {
+                    //     const itemTotal = item.quantity * item.price;
+                    //     if (item.discountAmount > itemTotal) {
+                    //         item.discountAmount = itemTotal;
+                    //         item.product_discount = itemTotal;
+                    //         toastr.warning(`Discount for ${item.product_name} adjusted to match item total`, {
+                    //             closeButton: true,
+                    //             progressBar: true,
+                    //         });
+                    //     }
+                    // });
+                },
                 // checkPointInput(){
                 //     if (this.)
                 // }
