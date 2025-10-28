@@ -25,7 +25,7 @@ class StoreCustomerRequest extends FormRequest
     {
         return [
             'name' => 'required',
-            'mobile' => 'required',
+            'mobile' => ['required','unique:customers,mobile'],
             'address' => 'nullable',
             'email' => 'nullable',
             'website' => 'nullable',
