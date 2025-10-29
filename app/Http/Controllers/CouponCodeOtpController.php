@@ -50,7 +50,7 @@ class CouponCodeOtpController extends Controller
         ]);
 
         try {
-//            $service->sendOtp($user->mobile, $otp);
+            $service->sendOtp($user->mobile, $otp);
             return response()->json(['success' => true, 'message' => 'OTP Sent Successfully']);
         } catch (\Exception $exception) {
             return response()->json(['success' => false, 'message' => 'Failed to send OTP']);

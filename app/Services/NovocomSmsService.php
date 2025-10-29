@@ -83,10 +83,10 @@ class NovocomSmsService
                 $params['ValidityPeriod'] = $options['validity_period'];
             }
 
-            Log::info('Novocom SMS Request', [
-                'url' => "{$this->baseUrl}/SendSMS",
-                'params' => array_merge($params, ['ApiKey' => '***', 'ClientId' => '***'])
-            ]);
+//            Log::info('Novocom SMS Request', [
+//                'url' => "{$this->baseUrl}/SendSMS",
+//                'params' => array_merge($params, ['ApiKey' => '***', 'ClientId' => '***'])
+//            ]);
 
             // Use GET request as per API documentation
             $response = Http::timeout($this->timeout)
