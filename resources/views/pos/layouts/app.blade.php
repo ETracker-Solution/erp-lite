@@ -738,6 +738,7 @@
                     axios.get(this.config.get_coupon_code_value_url + '?code=' + vm.couponCode + '&user=' + vm.customerNumber + '&otp=' + vm.otp)
                         .then(function (response) {
                             const responseData = response.data
+                            console.log('abc',responseData)
                             if (responseData.success === false) {
                                 toastr.error(responseData.message, {
                                     closeButton: true,
@@ -750,6 +751,7 @@
                                         closeButton: true,
                                         progressBar: true,
                                     });
+                                    return
                                 }
                                 vm.couponCodeDiscountType = responseData.data.discount_type
                                 vm.couponCodeDiscountValue = responseData.data.discount_value
