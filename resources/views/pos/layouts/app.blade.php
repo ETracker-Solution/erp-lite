@@ -1136,22 +1136,16 @@
                         code: vm.couponCode
                     })
                         .then(function (response) {
-                            const responseData = response
-                            if (responseData.success === false) {
-                                toastr.error(responseData.message, {
-                                    closeButton: true,
-                                    progressBar: true,
-                                });
-                            }
-
-
+                            const responseData = response.data
+                            toastr.info(responseData.message, {
+                                closeButton: true,
+                                progressBar: true,
+                            });
                         }).catch(function (error) {
                         toastr.error(error, {
                             closeButton: true,
                             progressBar: true,
                         });
-                        vm.returnNumber = "";
-                        return false;
                     });
                 },
                 validateDiscounts() {

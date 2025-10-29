@@ -173,7 +173,8 @@
         $vat = $sale->vat ?? 0;
         $sub_total = $total + $vat;
         $discount = $sale->discount ?? 0;
-        $net_amount = $sub_total- $discount;
+        $couponDiscount = $sale->couponCodeDiscountAmount;
+        $net_amount = $sub_total- $discount - $couponDiscount;
         $payment_point = $sale->payments()->where('payment_method','point')->first();
         $point_redeem = $payment_point ? $payment_point->amount : 0;
         $earned_point = 0;
@@ -213,6 +214,12 @@
         <td class="tc bl-none br-none"></td>
         <td class="tc bl-none br-none"  colspan="2">Discount:</td>
         <td class="tc bl-none br-none tr">{{ $discount }}</td>
+    </tr>
+    <tr>
+        <td class="tc bl-none br-none"></td>
+        <td class="tc bl-none br-none"></td>
+        <td class="tc bl-none br-none"  colspan="2">Coupon Discount: ({{ $sale->couponCode }})</td>
+        <td class="tc bl-none br-none tr">{{ $couponDiscount }}</td>
     </tr>
     <tr>
         <td class="tc bl-none br-none bt-none"></td>

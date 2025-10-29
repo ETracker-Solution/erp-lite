@@ -1253,8 +1253,6 @@
                                     closeButton: true,
                                     progressBar: true,
                                 });
-
-
                             }).catch(function (error) {
                             toastr.error(error, {
                                 closeButton: true,

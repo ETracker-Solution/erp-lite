@@ -129,6 +129,13 @@
                                     <td class="text-left">Discount:</td>
                                     <td class="text-right">{{ $sale->discount }}</td>
                                 </tr>
+                                @if($sale->couponCode)
+                                    <tr>
+                                        <td colspan="5"></td>
+                                        <td class="text-left">Coupon Discount: ({{ $sale->couponCode }})</td>
+                                        <td class="text-right">{{ $sale->couponCodeDiscountAmount }}</td>
+                                    </tr>
+                                @endif
                                 <tr>
                                     <td colspan="5"></td>
                                     <td class="text-left">Grand Total:</td>
