@@ -450,9 +450,14 @@
                 },
                 delete_selected_product: function (row) {
                     this.selectedProducts.splice(this.selectedProducts.indexOf(row), 1);
-                    this.updateDiscount()
-                    if (this.selectedSpecialDiscount) {
-                        this.addSpecialDiscount(false)
+
+                    if (this.selectedProducts.length > 0) {
+                        if (this.total_discount_amount > 0 || this.selectedSpecialDiscount) {
+                            this.updateDiscount();
+                        }
+                        if (this.selectedSpecialDiscount) {
+                            this.addSpecialDiscount(false);
+                        }
                     }
                     let vm = this
                     if (this.selectedProducts.length < 1) {
@@ -475,12 +480,17 @@
                 },
                 updateDiscount() {
                     var vm = this
-                    if (!vm.total_discount_type) {
+                    if (vm.total_discount_value > 0 && !vm.total_discount_type) {
                         toastr.error('Select Discount Type First', {
                             closeButton: true,
                             progressBar: true,
                         });
                         return false;
+                    }
+
+                    // If no discount value, just return without error
+                    if (vm.total_discount_value === 0) {
+                        return;
                     }
                     vm.verifyOtp(vm.customerNumber, vm.otp).then((verified) => {
                         if (!verified) {

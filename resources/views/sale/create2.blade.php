@@ -921,9 +921,13 @@
                     },
                     delete_row: function (row) {
                         this.items.splice(this.items.indexOf(row), 1);
-                        this.updateDiscount()
-                        if (this.selectedSpecialDiscount) {
-                            this.addSpecialDiscount(false)
+                        if (this.items.length > 0) {
+                            if (this.total_discount_amount > 0 || this.selectedSpecialDiscount) {
+                                this.updateDiscount();
+                            }
+                            if (this.selectedSpecialDiscount) {
+                                this.addSpecialDiscount(false);
+                            }
                         }
                         let vm = this
                         if (this.items.length < 1) {
@@ -1094,12 +1098,16 @@
                     },
                     updateDiscount() {
                         var vm = this
-                        if (!vm.total_discount_type) {
+                        if (vm.total_discount_value > 0 && !vm.total_discount_type) {
                             toastr.error('Select Discount Type First', {
                                 closeButton: true,
                                 progressBar: true,
                             });
                             return false;
+                        }
+
+                        if (vm.total_discount_value === 0) {
+                            return;
                         }
                         // First verify OTP, then apply discount only if verification is successful
                         vm.verifyOtp(vm.customerNumber, vm.otp).then((verified) => {
