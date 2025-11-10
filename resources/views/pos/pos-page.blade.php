@@ -188,7 +188,7 @@
         <b-button class="mt-3" variant="outline-info" v-on:click="updateDiscount">
             Apply
         </b-button>
-        <b-button class="mt-3 float-right" variant="outline-success" :disabled="total_discount_value == 0"
+        <b-button class="mt-3 float-right" variant="outline-success" :disabled="total_discount_value == 0 && total_discount_type.length < 1"
                   v-on:click="sendRegularDiscountOtpToCustomer">Send OTP
         </b-button>
     </b-modal>
