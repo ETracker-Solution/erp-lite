@@ -104,7 +104,11 @@ class SaleReportController extends Controller
             $data = [
                 'dateRange' => $dateRange,
                 'data' => Sale::with('customer', 'outlet', 'items')->where(function ($q) {
-                    return $q->where('discount', '>', 0)->orWhereHas('items', function ($q) {
+                    return $q->where('discount', '>', 0)
+                    ->orWhere('membership_discount_amount', '>', 0)
+                    ->orWhere('special_discount_amount', '>', 0)
+                    ->orWhere('couponCodeDiscountAmount', '>', 0)
+                    ->orWhereHas('items', function ($q) {
                         return $q->where('discount', '>', 0);
                     });
                 })->where('outlet_id', $outlet->id)->where('date', '>=', $from_date)->where('date', '<=', $to_date)->get(),
@@ -119,7 +123,11 @@ class SaleReportController extends Controller
             $data = [
                 'dateRange' => $dateRange,
                 'data' => Sale::with('customer', 'outlet', 'items')->where(function ($q) {
-                    return $q->where('discount', '>', 0)->orWhereHas('items', function ($q) {
+                    return $q->where('discount', '>', 0)
+                    ->orWhere('membership_discount_amount', '>', 0)
+                    ->orWhere('special_discount_amount', '>', 0)
+                    ->orWhere('couponCodeDiscountAmount', '>', 0)
+                    ->orWhereHas('items', function ($q) {
                         return $q->where('discount', '>', 0);
                     });
                 })->where('customer_id', $customer->id)->where('date', '>=', $from_date)->where('date', '<=', $to_date)->get(),
@@ -156,6 +164,9 @@ class SaleReportController extends Controller
                 Sale::with('customer', 'outlet', 'items')
                     ->where(function ($q) {
                         return $q->where('discount', '>', 0)
+                        ->orWhere('membership_discount_amount', '>', 0)
+                        ->orWhere('special_discount_amount', '>', 0)
+                        ->orWhere('couponCodeDiscountAmount', '>', 0)
                             ->orWhereHas('items', function ($q) {
                                 return $q->where('discount', '>', 0);
                             });
