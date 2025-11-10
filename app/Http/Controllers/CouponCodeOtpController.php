@@ -18,9 +18,15 @@ class CouponCodeOtpController extends Controller
     public function __invoke(Request $request, NovocomSmsService $service)
     {
         $now = Carbon::now()->format('Y-m-d');
+
         if (!$request->customer_number) {
             return response()->json(['success' => false, 'message' => 'Customer Number Required']);
         }
+
+        if ($request->type == 'regular_discount'){
+            return $this->regularOtp($request->customer_number, $service);
+        }
+
         if (!$request->code) {
             return response()->json(['success' => false, 'message' => 'Code Required']);
         }
@@ -42,7 +48,7 @@ class CouponCodeOtpController extends Controller
 
         $otp = rand(1000, 9999);
 
-        VerifyOtp::where('mobile_number', $user->mobile)->delete();
+        VerifyOtp::where('mobile_number', $user->mobile)->where('otp_type', 'verification')->delete();
 
         VerifyOtp::create([
             'mobile_number' => $user->mobile,
@@ -56,5 +62,25 @@ class CouponCodeOtpController extends Controller
             return response()->json(['success' => false, 'message' => 'Failed to send OTP']);
         }
 
+    }
+
+    protected function regularOtp($customerNumber, NovocomSmsService $service)
+    {
+        $otp = rand(1000, 9999);
+
+        VerifyOtp::where('mobile_number', $customerNumber)->where('otp_type', 'regular_discount')->delete();
+
+        VerifyOtp::create([
+            'mobile_number' => $customerNumber,
+            'otp' => $otp,
+            'otp_type'=> 'regular_discount'
+        ]);
+
+        try {
+            $service->sendOtp($customerNumber, $otp);
+            return response()->json(['success' => true, 'message' => 'OTP Sent Successfully']);
+        } catch (\Exception $exception) {
+            return response()->json(['success' => false, 'message' => 'Failed to send OTP']);
+        }
     }
 }
