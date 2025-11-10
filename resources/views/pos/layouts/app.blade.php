@@ -443,7 +443,7 @@
                             discountable: product.discountable
                         })
                     }
-                    vm.updateDiscount()
+                    // vm.updateDiscount()
                     if (vm.selectedSpecialDiscount) {
                         vm.addSpecialDiscount(false)
                     }
@@ -475,14 +475,31 @@
                 },
                 updateDiscount() {
                     var vm = this
-                    if (this.total_discount_type === 'fixed') {
-                        vm.total_discount_amount = vm.total_discount_value
+                    if (!vm.total_discount_type) {
+                        toastr.error('Select Discount Type First', {
+                            closeButton: true,
+                            progressBar: true,
+                        });
+                        return false;
                     }
-                    if (this.total_discount_type === 'percentage') {
-                        vm.total_discount_amount = (vm.total_bill * vm.total_discount_value) / 100
-                    }
-                    vm.total_discount_amount = Math.round(vm.total_discount_amount)
-                    vm.closeDiscountModal()
+                    vm.verifyOtp(vm.customerNumber, vm.otp).then((verified) => {
+                        if (!verified) {
+                            toastr.error('OTP verification failed. Discount cannot be applied.', {
+                                closeButton: true,
+                                progressBar: true,
+                            });
+                            return false;
+                        }
+
+                        if (this.total_discount_type === 'fixed') {
+                            vm.total_discount_amount = vm.total_discount_value
+                        }
+                        if (this.total_discount_type === 'percentage') {
+                            vm.total_discount_amount = (vm.total_bill * vm.total_discount_value) / 100
+                        }
+                        vm.total_discount_amount = Math.round(vm.total_discount_amount)
+                        vm.closeDiscountModal()
+                    });
                 },
                 clickedOnCategory(category) {
                     this.selected_category = category
@@ -1147,6 +1164,90 @@
                         toastr.error(error, {
                             closeButton: true,
                             progressBar: true,
+                        });
+                    });
+                },
+                sendRegularDiscountOtpToCustomer() {
+                    const vm = this;
+                    if (!vm.customerNumber) {
+                        toastr.error('Please Enter Valid Customer Number', {
+                            closeButton: true,
+                            progressBar: true,
+                        });
+                        vm.isSubmitting = false;
+                        return;
+                    }
+                    if (vm.total_discount_value == 0) {
+                        toastr.error('No Discount value found', {
+                            closeButton: true,
+                            progressBar: true,
+                        });
+                        vm.isSubmitting = false;
+                        return;
+                    }
+                    axios.post('/coupon-code-send-otp',{
+                        customer_number: vm.customerNumber,
+                        type: 'regular_discount'
+                    })
+                        .then(function (response) {
+                            const responseData = response.data
+                            toastr.info(responseData.message, {
+                                closeButton: true,
+                                progressBar: true,
+                            });
+                        }).catch(function (error) {
+                        toastr.error(error, {
+                            closeButton: true,
+                            progressBar: true,
+                        });
+                    });
+                },
+                verifyOtp(customerNumber, otp) {
+                    const vm = this;
+                    return new Promise((resolve, reject) => {
+                        if (!customerNumber) {
+                            toastr.error('Please Enter Valid Customer Number', {
+                                closeButton: true,
+                                progressBar: true,
+                            });
+                            reject('No customer number');
+                            return;
+                        }
+                        if (!otp) {
+                            toastr.error('No OTP found', {
+                                closeButton: true,
+                                progressBar: true,
+                            });
+                            reject('No OTP');
+                            return;
+                        }
+
+                        axios.post('/verify-otp', {
+                            mobile_number: customerNumber,
+                            otp: otp,
+                            type: 'regular_discount'
+                        })
+                            .then(function (response) {
+                                const responseData = response.data
+                                if (responseData.success) {
+                                    toastr.success(responseData.message, {
+                                        closeButton: true,
+                                        progressBar: true,
+                                    });
+                                    resolve(true);
+                                } else {
+                                    toastr.error(responseData.message, {
+                                        closeButton: true,
+                                        progressBar: true,
+                                    });
+                                    resolve(false);
+                                }
+                            }).catch(function (error) {
+                            toastr.error('OTP verification failed', {
+                                closeButton: true,
+                                progressBar: true,
+                            });
+                            resolve(false);
                         });
                     });
                 },

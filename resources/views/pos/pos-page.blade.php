@@ -144,7 +144,8 @@
                     <input type="text" placeholder="Enter OTP" v-model="otp"
                            class="form-control">
                 </div>
-            </div>        </div>
+            </div>
+        </div>
         <b-button class="mt-3" variant="outline-danger" @click="closeCouponModal">Close</b-button>
         <b-button class="mt-3" variant="outline-info" :disabled="couponCode.length < 1 || otp.length < 4"
                   v-on:click="getCouponDiscountValue">Apply
@@ -171,12 +172,24 @@
 
                 </div>
             </div>
-            <input type="number" min="0" step="0.01" placeholder="Enter Discount Amount" v-model="total_discount_value"
-                   class="form-control">
+            <div class="row">
+                <div class="col-md-6">
+                    <input type="number" min="0" step="0.01" placeholder="Enter Discount Amount" v-model="total_discount_value"
+                           class="form-control">
+                </div>
+                <div class="col-md-6">
+                    <input type="text" placeholder="Enter OTP" v-model="otp"
+                           class="form-control">
+                </div>
+            </div>
+
         </div>
         <b-button class="mt-3" variant="outline-danger" @click="closeDiscountModal">Close</b-button>
         <b-button class="mt-3" variant="outline-info" v-on:click="updateDiscount">
             Apply
+        </b-button>
+        <b-button class="mt-3 float-right" variant="outline-success" :disabled="couponCode.length < 1 || customerNumber.length < 10"
+                  v-on:click="sendRegularDiscountOtpToCustomer">Send OTP
         </b-button>
     </b-modal>
 
