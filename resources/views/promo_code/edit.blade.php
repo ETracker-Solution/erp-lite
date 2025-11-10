@@ -218,7 +218,7 @@
 
                                 <div class="row mt-4">
                                     <div class="col-12">
-                                        @if($row->start_date > date('Y-m-d'))
+                                        @if($row->sms_count < 1)
                                             <button class="btn btn-info waves-effect waves-float waves-light float-right px-4" type="submit">
                                                 <i class="fa fa-check mr-1"></i> Update
                                             </button>
