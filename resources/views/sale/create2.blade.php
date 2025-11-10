@@ -613,7 +613,7 @@
                                     </div>
                                 </div>
                                 <div class="modal-footer">
-                                    <button type="button" class="btn btn-primary" :disabled="total_discount_value == 0"
+                                    <button type="button" class="btn btn-primary" :disabled="total_discount_value == 0 || total_discount_type.length < 1"
                                             v-on:click="sendRegularDiscountOtpToCustomer">Send OTP
                                     </button>
                                 </div>

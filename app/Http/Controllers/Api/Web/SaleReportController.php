@@ -217,8 +217,8 @@ class SaleReportController extends Controller
                     IFNULL(SS.waiter_name, '') AS 'Waiter',
                     SS.date AS 'Date',
                     SS.subtotal AS 'Amount',
-                    SS.discount AS 'Discount',
-                    (SS.subtotal - SS.discount) AS 'After Discount',
+                    (SS.discount + SS.membership_discount_amount + SS.special_discount_amount + SS.couponCodeDiscountAmount) AS 'Discount',
+                    (SS.subtotal - (SS.discount + SS.membership_discount_amount + SS.special_discount_amount + SS.couponCodeDiscountAmount)) AS 'After Discount',
                     0 AS 'COGS'
                 FROM
                     sales SS
@@ -240,8 +240,8 @@ class SaleReportController extends Controller
                     'Total' AS 'Invoice Number',
                     '' AS 'Date',
                     SUM(SS.subtotal) AS 'Amount',
-                    SUM(SS.discount) AS 'Discount',
-                    SUM(SS.subtotal - SS.discount) AS 'After Discount',
+                    (SS.discount + SS.membership_discount_amount + SS.special_discount_amount + SS.couponCodeDiscountAmount) AS 'Discount',
+                    SUM(SS.subtotal - ((SS.discount + SS.membership_discount_amount + SS.special_discount_amount + SS.couponCodeDiscountAmount))) AS 'After Discount',
                     0 AS 'COGS'
                 FROM
                     sales SS
@@ -261,8 +261,8 @@ class SaleReportController extends Controller
                     IFNULL(SS.waiter_name, '') AS 'Waiter',
                     SS.date AS 'Date',
                     SS.subtotal AS 'Amount',
-                    SS.discount AS 'Discount',
-                    (SS.subtotal - SS.discount) AS 'After Discount',
+                    (SS.discount + SS.membership_discount_amount + SS.special_discount_amount + SS.couponCodeDiscountAmount) AS 'Discount',
+                    (SS.subtotal - (SS.discount + SS.membership_discount_amount + SS.special_discount_amount + SS.couponCodeDiscountAmount)) AS 'After Discount',
                     0 AS 'COGS'
                 FROM
                     sales SS
@@ -285,8 +285,8 @@ class SaleReportController extends Controller
                     'Total' AS 'Invoice Number',
                     '' AS 'Date',
                     SUM(SS.subtotal) AS 'Amount',
-                    SUM(SS.discount) AS 'Discount',
-                    SUM(SS.subtotal - SS.discount) AS 'After Discount',
+                    SUM((SS.discount + SS.membership_discount_amount + SS.special_discount_amount + SS.couponCodeDiscountAmount)) AS 'Discount',
+                    SUM(SS.subtotal - (SS.discount + SS.membership_discount_amount + SS.special_discount_amount + SS.couponCodeDiscountAmount)) AS 'After Discount',
                     0 AS 'COGS'
                 FROM
                     sales SS

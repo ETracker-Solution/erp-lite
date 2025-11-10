@@ -52,6 +52,9 @@ class SaleController extends Controller
                 ->editColumn('status', function ($row) {
                     return showStatus($row->status);
                 })
+                ->editColumn('discount', function ($row) {
+                    return $row->discount + $row->membership_discount_amount + $row->special_discount_amount + $row->couponCodeDiscountAmount;
+                })
                 ->rawColumns(['action', 'created_at', 'status'])
                 ->make(true);
         }
