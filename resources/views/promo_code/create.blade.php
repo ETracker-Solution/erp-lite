@@ -161,6 +161,48 @@
                                     </div>
                                 </div>
 
+                                <hr class="my-4">
+
+                                <!-- SMS Configuration Section -->
+                                <h5 class="mb-3 font-weight-bold">SMS Notification</h5>
+                                <div class="row">
+                                    <div class="col-xl-4 col-md-6 col-12 mb-3">
+                                        <div class="form-group">
+                                            <label for="sms_template_id">SMS Template</label>
+                                            <select name="sms_template_id" id="sms_template_id" class="form-control">
+                                                <option value="">Select a Template</option>
+                                                @foreach($smsTemplates as $template)
+                                                    <option value="{{ $template->id }}"
+                                                            data-has-vars="{{ $template->hasDynamicVariables() ? '1' : '0' }}"
+                                                            data-preview="{{ $template->message_template }}"
+                                                            data-labels="{{ json_encode($template->getVariableLabels()) }}">
+                                                        {{ $template->template_name }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                            @if($errors->has('sms_template_id'))
+                                                <small class="text-danger">{{$errors->first('sms_template_id')}}</small>
+                                            @endif
+                                            <small class="form-text text-muted">
+                                                <a href="#" id="refreshTemplates" class="text-info">
+                                                    <i class="fa fa-sync-alt"></i> Refresh templates
+                                                </a>
+                                            </small>
+                                        </div>
+                                    </div>
+                                    <div class="col-xl-8 col-md-12 col-12 mb-3">
+                                        <div class="form-group">
+                                            <label>Template Preview</label>
+                                            <div id="templatePreview" class="border rounded p-3 bg-light" style="min-height: 120px; white-space: pre-wrap; line-height: 1.6;">
+                                                <em class="text-muted">Select a template to preview the message</em>
+                                            </div>
+                                            <small class="form-text text-muted" id="varHelp" style="display: none;">
+                                                <strong>Variables:</strong> <span id="varList"></span>
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+
                                 <div class="row mt-4">
                                     <div class="col-12">
                                         <button class="btn btn-info waves-effect waves-float waves-light float-right px-4"
@@ -198,6 +240,25 @@
         }
         hr {
             border-top: 1px solid rgba(0,0,0,0.1);
+        }
+        #templatePreview {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 14px;
+        }
+        #templatePreview .var-highlight {
+            background-color: #fff3cd;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: 600;
+            color: #856404;
+            border: 1px dashed #ffc107;
+        }
+        #varList {
+            font-family: monospace;
+            background: #f8f9fa;
+            padding: 4px 8px;
+            border-radius: 4px;
+            display: inline-block;
         }
     </style>
 @endsection
@@ -332,5 +393,127 @@
                 },
             });
         }
+
+        function getSampleValues() {
+            const code = $('#code').val() || 'PROMO123';
+            const discountType = $('#discount_type').val();
+            const discountValue = $('#discount_value').val() || '20';
+            const startDate = $('#start_date').val();
+            const endDate = $('#end_date').val();
+
+            // Format discount
+            let discount = discountType === 'percentage'
+                ? discountValue + '%'
+                : '৳' + discountValue;
+
+            // Format dates
+            const formatDate = (dateStr) => {
+                if (!dateStr) return new Date().toLocaleDateString('en-GB', {day: '2-digit', month: 'short', year: 'numeric'});
+                const date = new Date(dateStr);
+                return date.toLocaleDateString('en-GB', {day: '2-digit', month: 'short', year: 'numeric'});
+            };
+
+            return [
+                code,                    // Variable 1: Promo Code
+                discount,                // Variable 2: Discount Amount
+                // 'All Products',          // Variable 3: Product/Category
+                formatDate(startDate),   // Variable 4: Start Date
+                formatDate(endDate)      // Variable 5: End Date
+            ];
+        }
+
+        // Function to replace {#var#} with highlighted values
+        function replaceVariablesWithHighlight(template, values) {
+            let result = template;
+            let index = 0;
+
+            while (result.includes('{#var#}') && index < values.length) {
+                result = result.replace('{#var#}',
+                    '<span class="var-highlight">' + values[index] + '</span>'
+                );
+                index++;
+            }
+
+            // Replace any remaining {#var#} with placeholder
+            result = result.replace(/{#var#}/g,
+                '<span class="var-highlight text-muted">N/A</span>'
+            );
+
+            return result;
+        }
+
+        // Update preview when template changes
+        $('#sms_template_id').on('change', function() {
+            const selectedOption = $(this).find('option:selected');
+            const template = selectedOption.data('preview');
+            const varCount = selectedOption.data('var-count');
+            const labels = selectedOption.data('labels');
+
+            if (template) {
+                const sampleValues = getSampleValues();
+                const previewHtml = replaceVariablesWithHighlight(template, sampleValues);
+
+                $('#templatePreview').html(previewHtml);
+
+                if (varCount > 0) {
+                    let varListHtml = '';
+                    if (labels && Array.isArray(labels)) {
+                        varListHtml = labels.map((label, idx) =>
+                            `{#var${idx + 1}#} = ${label}`
+                        ).join(', ');
+                    } else {
+                        varListHtml = `${varCount} variable(s) will be replaced`;
+                    }
+
+                    $('#varList').html(varListHtml);
+                    $('#varHelp').show();
+                } else {
+                    $('#varHelp').hide();
+                }
+            } else {
+                $('#templatePreview').html('<em class="text-muted">Select a template to preview the message</em>');
+                $('#varHelp').hide();
+            }
+        });
+
+        // Update preview when form values change
+        $('#code, #discount_type, #discount_value, #start_date, #end_date').on('change input', function() {
+            // Trigger template preview update if template is selected
+            if ($('#sms_template_id').val()) {
+                $('#sms_template_id').trigger('change');
+            }
+        });
+
+        // Refresh templates via AJAX
+        $('#refreshTemplates').on('click', function(e) {
+            e.preventDefault();
+            const $link = $(this);
+            const originalText = $link.html();
+
+            $link.html('<i class="fa fa-spinner fa-spin"></i> Syncing...');
+            $link.addClass('disabled');
+
+            $.ajax({
+                url: '{{ route("promo-codes.fetchTemplates") }}',
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(response) {
+                    // Show success message
+                    alert('Templates synced successfully! Reloading...');
+                    location.reload();
+                },
+                error: function(xhr) {
+                    let errorMsg = 'Failed to sync templates. Please try again.';
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        errorMsg = xhr.responseJSON.message;
+                    }
+                    alert(errorMsg);
+                    $link.html(originalText);
+                    $link.removeClass('disabled');
+                }
+            });
+        });
     </script>
 @endpush

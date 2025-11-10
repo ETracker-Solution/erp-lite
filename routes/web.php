@@ -123,6 +123,7 @@ Route::middleware(['auth','prevent_duplicate_submission'])->group(function () {
 
     //Promo Code
     Route::get('get-customer-by-type', [\App\Http\Controllers\PromoCodeController::class, 'getCustomers'])->name('promo-codes.customers');
+    Route::post('promo-codes/fetchTemplates', [\App\Http\Controllers\PromoCodeController::class, 'fetchTemplates'])->name('promo-codes.fetchTemplates');
     Route::post('promo-codes/send-sms/{id}', [\App\Http\Controllers\PromoCodeController::class, 'sendSms'])->name('promo-codes.send-sms');
     Route::resource('promo-codes', \App\Http\Controllers\PromoCodeController::class);
 
@@ -402,6 +403,7 @@ Route::group(['middleware' => 'auth'], function () {
 });
 
 Route::get('test-otp', function (\App\Services\NovocomSmsService $sms) {
+    return $sms->fetchTemplates();
     $result = $sms->sendPromoCode('8801885996709', 'HASANSIR', '100%', '2025-10-28', '2025-10-28');
     return response()->json($result);
 });

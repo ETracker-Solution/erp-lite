@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\SmsTemplate;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Exception;
@@ -56,12 +57,72 @@ class NovocomSmsService
                 'SenderId' => "CAKE TOWN",
                 'Message' => $message,
                 'MobileNumbers' => is_array($formattedNumbers) ? implode(',', $formattedNumbers) : $formattedNumbers,
+                'is_unicode' => true
             ];
 
             // Add optional parameters
             if (isset($options['is_unicode'])) {
                 $params['Is_Unicode'] = $options['is_unicode'] ? 'true' : 'false';
             }
+
+            if (isset($options['is_flash'])) {
+                $params['Is_Flash'] = $options['is_flash'] ? 'true' : 'false';
+            }
+
+            if (isset($options['data_coding'])) {
+                $params['DataCoding'] = $options['data_coding'];
+            }
+
+            if (isset($options['schedule_time'])) {
+                $params['ScheduleTime'] = $options['schedule_time'];
+            }
+
+            if (isset($options['group_id'])) {
+                $params['GroupId'] = $options['group_id'];
+            }
+
+            if (isset($options['validity_period'])) {
+                $params['ValidityPeriod'] = $options['validity_period'];
+            }
+
+//            Log::info('Novocom SMS Request', [
+//                'url' => "{$this->baseUrl}/SendSMS",
+//                'params' => array_merge($params, ['ApiKey' => '***', 'ClientId' => '***'])
+//            ]);
+
+            // Use GET request as per API documentation
+            $response = Http::timeout($this->timeout)
+                ->withHeaders(['Accept' => 'application/json'])
+                ->get("{$this->baseUrl}/SendSMS", $params);
+
+            return $this->handleResponse($response);
+        } catch (Exception $e) {
+            Log::error('Novocom SMS Exception', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            return [
+                'success' => false,
+                'error' => $e->getMessage(),
+                'error_code' => 'EXCEPTION'
+            ];
+        }
+    }
+
+    public function sendSms2($mobileNumbers, string $message, array $options = []): array
+    {
+        try {
+            // Format mobile numbers - ensure they start with 880
+            $formattedNumbers = $this->formatMobileNumbers($mobileNumbers);
+
+            $params = [
+                'ApiKey' => $this->apiKey,
+                'ClientId' => $this->clientId,
+                'SenderId' => "CAKE TOWN",
+                'Message' => $message,
+                'MobileNumbers' => is_array($formattedNumbers) ? implode(',', $formattedNumbers) : $formattedNumbers,
+                'is_unicode' => 'true'
+            ];
 
             if (isset($options['is_flash'])) {
                 $params['Is_Flash'] = $options['is_flash'] ? 'true' : 'false';
@@ -473,5 +534,64 @@ class NovocomSmsService
         }
 
         return $number;
+    }
+
+    public function fetchTemplates()
+    {
+        try {
+            $response = Http::timeout(30)->get("{$this->baseUrl}/Template", [
+                'ApiKey' => $this->apiKey,
+                'ClientId' => $this->clientId
+            ]);
+
+            if ($response->successful() && $response->json('ErrorCode') === 0) {
+                $templates =  $response->json('Data');
+                foreach ($templates as $template) {
+
+                    SmsTemplate::updateOrCreate(
+                        ['template_id' => $template['TemplateId']],
+                        [
+                            'template_name' => $template['TemplateName'],
+                            'message_template' => $template['MessageTemplate'],
+                            'is_approved' => $template['IsApproved'],
+                            'is_active' => $template['IsActive'],
+                            'dlt_template_id' => $template['DltTemplateId'],
+                            'last_synced_at' => now()
+                        ]
+                    );
+                }
+                return $templates;
+            }
+
+            Log::error('Novocom API Error', [
+                'response' => $response->body()
+            ]);
+
+            return [];
+        } catch (\Exception $e) {
+            Log::error('Novocom API Exception', [
+                'message' => $e->getMessage()
+            ]);
+            return [];
+        }
+    }
+
+    public static function countVariables($template)
+    {
+        return substr_count($template, '{#var#}');
+    }
+
+    public static function replaceVariables($template, $values)
+    {
+        $result = $template;
+        $index = 0;
+
+        // Replace each {#var#} occurrence sequentially
+        while (strpos($result, '{#var#}') !== false && isset($values[$index])) {
+            $result = preg_replace('/\{#var#\}/', $values[$index], $result, 1);
+            $index++;
+        }
+
+        return $result;
     }
 }

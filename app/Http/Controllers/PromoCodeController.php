@@ -9,11 +9,13 @@ use App\Jobs\SendPromoCodeJob;
 use App\Models\Customer;
 use App\Models\MemberType;
 use App\Models\PromoCode;
+use App\Models\SmsTemplate;
 use App\Services\NovocomSmsService;
 use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Yajra\DataTables\Facades\DataTables;
 
 class PromoCodeController extends Controller
@@ -58,7 +60,8 @@ class PromoCodeController extends Controller
     public function create()
     {
         $memberTypes = MemberType::all();
-        return view('promo_code.create', compact('memberTypes'));
+        $smsTemplates = SmsTemplate::getActiveTemplates();
+        return view('promo_code.create', compact('memberTypes','smsTemplates'));
     }
 
     /**
@@ -245,5 +248,24 @@ class PromoCodeController extends Controller
         }
         Toastr::success('SMS is Sending.!!');
         return back();
+    }
+
+    public function fetchTemplates()
+    {
+        $templates = (new NovocomSmsService())->fetchTemplates();
+
+        if (empty($templates)) {
+            Log::warning('No SMS templates fetched from Novocom');
+            return;
+        }
+
+        return response()->json([
+            'success' => true,
+            'templates' => count($templates)
+        ]);
+
+        Log::info('SMS templates synced successfully', [
+            'count' => count($templates)
+        ]);
     }
 }

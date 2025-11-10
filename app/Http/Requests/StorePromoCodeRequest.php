@@ -29,6 +29,7 @@ class StorePromoCodeRequest extends FormRequest
             'discount_type'=>['required'],
             'discount_value'=>['required'],
             'minimum_purchase'=>['required'],
+            'sms_template_id'=>['required'],
             'start_date'=>['required','date_format:Y-m-d','after_or_equal:' . Carbon::now()->format('Y-m-d')],
             'end_date'=>['required','date_format:Y-m-d','after_or_equal:' . $this->start_date],
             'discount_for'=>['required'],
