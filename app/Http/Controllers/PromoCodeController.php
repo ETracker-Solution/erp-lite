@@ -120,7 +120,9 @@ class PromoCodeController extends Controller
      */
     public function show($id)
     {
-        //
+        $row = PromoCode::find(decrypt($id));
+        $smsTemplates = SmsTemplate::getActiveTemplates();
+        return view('promo_code.show', compact('row','smsTemplates'));
     }
 
     /**
@@ -133,7 +135,8 @@ class PromoCodeController extends Controller
     {
         $memberTypes = MemberType::all();
         $row = PromoCode::find(decrypt($id));
-        return view('promo_code.edit', compact('row', 'memberTypes'));
+        $smsTemplates = SmsTemplate::getActiveTemplates();
+        return view('promo_code.edit', compact('row', 'memberTypes','smsTemplates'));
     }
 
     /**

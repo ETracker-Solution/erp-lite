@@ -2,6 +2,9 @@
     display: flex;
     align-items: center;
 ">
+    <a href="{{ route('promo-codes.show',encrypt($row->id))}}" title="Edit">
+        <i class="fas fa-eye ml-1"></i>
+    </a>
     @if($row->sms_count < 1)
     <a href="{{ route('promo-codes.edit',encrypt($row->id))}}" title="Edit">
         <i class="fas fa-edit ml-1"></i>

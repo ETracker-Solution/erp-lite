@@ -20,4 +20,9 @@ class PromoCode extends Model
     {
         return $this->belongsToMany(Customer::class, 'customer_promo_codes', 'promo_code_id', 'customer_id');
     }
+
+    public function smsTemplate()
+    {
+        return $this->belongsTo(SmsTemplate::class, 'sms_template_id');
+    }
 }
