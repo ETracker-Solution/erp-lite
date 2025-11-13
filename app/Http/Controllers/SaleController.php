@@ -247,6 +247,12 @@ class SaleController extends Controller
                 if ($paymentMethod['method'] == 'due') {
                     addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'Due'), getAccountsReceiveableGLId());
                 }
+                if ($paymentMethod['method'] == 'FoodPanda') {
+                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'FoodPanda'), getAccountsReceiveableGLId());
+                }
+                if ($paymentMethod['method'] == 'CityBank') {
+                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'CityBank'), getAccountsReceiveableGLId());
+                }
                 if ($paymentMethod['method'] == 'upay') {
                     addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'Upay'), getAccountsReceiveableGLId());
                 }

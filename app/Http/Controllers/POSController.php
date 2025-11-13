@@ -183,6 +183,12 @@ class POSController extends Controller
                 if ($paymentMethod['method'] == 'pbl') {
                     addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'PBL'), getAccountsReceiveableGLId());
                 }
+                if ($paymentMethod['method'] == 'FoodPanda') {
+                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'FoodPanda'), getAccountsReceiveableGLId());
+                }
+                if ($paymentMethod['method'] == 'CityBank') {
+                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'CityBank'), getAccountsReceiveableGLId());
+                }
                 if ($paymentMethod['method'] == 'due') {
                     addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'Due'), getAccountsReceiveableGLId());
                 }
