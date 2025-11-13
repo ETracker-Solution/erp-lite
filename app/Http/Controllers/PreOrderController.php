@@ -117,18 +117,19 @@ class PreOrderController extends Controller
             ->leftJoin('others_outlet_sales', 'others_outlet_sales.invoice_number', '=', 'pre_orders.order_number')
             ->select('pre_orders.*')
             ->selectRaw('
-                CASE
-                    WHEN others_outlet_sales.id IS NOT NULL THEN
-                        GREATEST(
-                            pre_orders.grand_total - (
-                                pre_orders.advance_amount +
-                                COALESCE(others_outlet_sales.delivery_point_receive_amount, 0)
-                            ),
-                            0
-                        )
-                    ELSE NULL
-                END as due_amount
-            ')
+        CASE
+            WHEN others_outlet_sales.id IS NOT NULL THEN
+                GREATEST(
+                    pre_orders.grand_total - (
+                        pre_orders.advance_amount +
+                        COALESCE(others_outlet_sales.delivery_point_receive_amount, 0)
+                    ),
+                    0
+                )
+            ELSE NULL
+        END as due_amount
+    ')
+            ->distinct('pre_orders.id')   // 👈 prevents duplicate rows
             ->latest();
 
         if (auth()->user()->employee && auth()->user()->employee->outlet_id) {
