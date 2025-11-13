@@ -218,6 +218,8 @@
 @push('script')
     <!-- page script -->
     <script>
+
+        let table;
         $(document).ready(function () {
 
             if (sessionStorage.getItem('filter_by')) {
@@ -236,7 +238,7 @@
                 $('select[name="outlet_id"]').val(sessionStorage.getItem('outlet_id'));
             }
 
-            $('#dataTable').dataTable({
+            table = $('#dataTable').dataTable({
                 stateSave: true,
                 responsive: true,
                 serverSide: true,
@@ -314,45 +316,21 @@
                 ],
             });
 
-            $('#filter_by').on('change', function () {
-            sessionStorage.setItem('filter_by', $('input[name="filter_by"]').val());
-                recallDatatable();
-            })
-            $('#from_date').on('change', function () {
-            sessionStorage.setItem('from_date', $('input[name="from_date"]').val());
-                recallDatatable();
-            })
-            $('#to_date').on('change', function () {
-            sessionStorage.setItem('to_date', $('input[name="to_date"]').val());
-                recallDatatable();
-            })
-
-            $('#status').on('change', function () {
+            $('select[name="filter_by"], select[name="status"], select[name="outlet_id"], input[name="from_date"], input[name="to_date"]').on('change', function () {
+                sessionStorage.setItem('filter_by', $('select[name="filter_by"]').val());
                 sessionStorage.setItem('status', $('select[name="status"]').val());
-                recallDatatable();
-            })
-
-            $('#outlet_id').on('change', function () {
                 sessionStorage.setItem('outlet_id', $('select[name="outlet_id"]').val());
+                sessionStorage.setItem('from_date', $('input[name="from_date"]').val());
+                sessionStorage.setItem('to_date', $('input[name="to_date"]').val());
                 recallDatatable();
-            })
-
-            $('select[name="filter_by"],select[name="status"], select[name="outlet_id"], input[name="from_date"], input[name="to_date"]').on('change', function () {
-            sessionStorage.setItem('status', $('select[name="status"]').val());
-            sessionStorage.setItem('outlet_id', $('select[name="outlet_id"]').val());
-            sessionStorage.setItem('filter_by', $('select[name="filter_by"]').val());
-            sessionStorage.setItem('from_date', $('input[name="from_date"]').val());
-            sessionStorage.setItem('to_date', $('input[name="to_date"]').val());
-            recallDatatable();
             });
-        });
 
         $('#search-btn').on('click', function () {
             recallDatatable();
         });
 
         function recallDatatable() {
-            $('#dataTable').DataTable().draw(true);
+            table.draw(true);
         }
 
         let preOrderId
