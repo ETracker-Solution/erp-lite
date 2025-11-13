@@ -146,9 +146,7 @@ class SalesDeliveryController extends Controller
                     $sale_item['coi_id'] = $row['product_id'];
                     $sale_item['rate'] = averageFGRate($row['product_id']);
                     $sale_item['amount'] = $sale_item['rate'] * $row['quantity'];
-                    $sale_item['quantity'] = $row['quantity'];
                     $sale_item['store_id'] = $delivery_store_id;
-                    $sale_item = (object)$sale_item;
                     addInventoryTransaction(-1, 'POS', $sale_item);
 
                 }

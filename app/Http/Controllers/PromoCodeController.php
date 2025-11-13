@@ -223,33 +223,71 @@ class PromoCodeController extends Controller
         return $customers->select(DB::raw('CONCAT(mobile, " (", name, ")") as name'), 'id')->take(30)->get();
     }
 
-    public function sendSms($id)
+    public function sendSms($id, NovocomSmsService $gateway)
     {
-
-
-        DB::beginTransaction();
         try {
             $promoCode = PromoCode::find(decrypt($id));
 
+            if (!$promoCode) {
+                Toastr::error('Promo code not found');
+                return back();
+            }
+
+            // Early validation
+            if (!$promoCode->sms_template_id) {
+                Toastr::error('No SMS template configured for promo code');
+                return back();
+            }
+
+            $template = SmsTemplate::find($promoCode->sms_template_id);
+            if (!$template) {
+                Toastr::error('SMS template not found');
+                return back();
+            }
+
+            // Prepare variables once
+            $variables = $this->prepareVariables($promoCode);
+
+            // Process in chunks
+            $successCount = 0;
+            $errorCount = 0;
+
             $promoCode->customers()
                 ->select('mobile')
-                ->chunk(500, function ($customers) use ($promoCode) {
+                ->chunk(500, function ($customers) use ($promoCode, $gateway, $template, $variables, &$successCount, &$errorCount) {
                     $numbers = $customers->pluck('mobile')->filter()->toArray();
-                    if (!empty($numbers)) {
-                        SendPromoCodeJob::dispatch($promoCode, $numbers);
+
+                    if (empty($numbers)) return;
+
+                    $text = $gateway->replaceVariables($template->message_template, $variables);
+                    $result = $gateway->sendSms2($numbers, $text);
+
+                    if ($result['success']) {
+                        $successCount += count($numbers);
+                    } else {
+                        $errorCount += count($numbers);
+                        Log::error('Failed to send SMS chunk', [
+                            'error' => $result['error'],
+                            'numbers_count' => count($numbers)
+                        ]);
                     }
                 });
 
             $promoCode->increment('sms_count');
 
-            DB::commit();
+            // Provide feedback
+            $message = "SMS sending completed. Success: {$successCount}, Failed: {$errorCount}";
+            Toastr::success($message);
+
         } catch (\Exception $exception) {
-            DB::rollBack();
-            return $exception;
-            Toastr::error('Something Went Wrong');
-            return back();
+            Log::error('Send SMS failed', [
+                'id' => $id,
+                'error' => $exception->getMessage()
+            ]);
+
+            Toastr::error('Failed to send SMS: ' . $exception->getMessage());
         }
-        Toastr::success('SMS is Sending.!!');
+
         return back();
     }
 
@@ -270,5 +308,38 @@ class PromoCodeController extends Controller
         Log::info('SMS templates synced successfully', [
             'count' => count($templates)
         ]);
+    }
+
+    protected function prepareVariables($promoCode)
+    {
+        $variables = [];
+
+        // Variable 1: Promo Code (always first)
+        $variables[] = $promoCode->code;
+
+        // Variable 2: Discount value with type
+        if ($promoCode->discount_type === 'percentage') {
+            $variables[] = $promoCode->discount_value . '%';
+        } else {
+            $variables[] = '৳' . number_format($promoCode->discount_value, 2);
+        }
+
+        // Variable 3: Product/Category name (if available)
+        // You can customize this based on your business logic
+//        $variables[] = $this->promoCode->product_name ?? 'All Products';
+
+        // Variable 4: Start Date
+        $variables[] = date('d-M-Y', strtotime($promoCode->start_date));
+
+        // Variable 5: End Date
+        $variables[] = date('d-M-Y', strtotime($promoCode->end_date));
+
+        // Additional variables if needed
+//        if ($this->customerName) {
+//            // Some templates might need customer name
+//            $variables[] = $this->customerName;
+//        }
+
+        return $variables;
     }
 }
