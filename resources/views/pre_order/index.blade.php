@@ -238,7 +238,7 @@
                 $('select[name="outlet_id"]').val(sessionStorage.getItem('outlet_id'));
             }
 
-            table = $('#dataTable').dataTable({
+            table = $('#dataTable').DataTable({
                 stateSave: true,
                 responsive: true,
                 serverSide: true,
@@ -324,6 +324,7 @@
                 sessionStorage.setItem('to_date', $('input[name="to_date"]').val());
                 recallDatatable();
             });
+        });
 
         $('#search-btn').on('click', function () {
             recallDatatable();

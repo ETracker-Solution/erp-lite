@@ -113,44 +113,43 @@ class PreOrderController extends Controller
 
     protected function getFilteredData()
     {
+        $orders = PreOrder::with(['customer', 'outlet', 'deliveryPoint'])
+            ->leftJoin('others_outlet_sales', 'others_outlet_sales.invoice_number', '=', 'pre_orders.order_number')
+            ->select('pre_orders.*')
+            ->selectRaw('
+                CASE
+                    WHEN others_outlet_sales.id IS NOT NULL THEN
+                        GREATEST(
+                            pre_orders.grand_total - (
+                                pre_orders.advance_amount +
+                                COALESCE(others_outlet_sales.delivery_point_receive_amount, 0)
+                            ),
+                            0
+                        )
+                    ELSE NULL
+                END as due_amount
+            ')
+            ->latest();
+
         if (auth()->user()->employee && auth()->user()->employee->outlet_id) {
-            $outlet_id = auth()->user()->employee->outlet_id;
-            $orders = PreOrder::with('customer', 'outlet', 'deliveryPoint')->where('delivery_point_id', $outlet_id)->latest();
-        } else {
-            $orders = PreOrder::with('customer', 'outlet', 'deliveryPoint')->latest();
-        }
-        if (\request()->filled('outlet_id')) {
-            $orders->where('delivery_point_id', \request()->outlet_id);
-        }
-        if (\request()->filled('status')) {
-            $orders->where('status', \request()->status);
-        }
-        if (\request()->filled('filter_by') && \request()->filled('from_date') && \request()->filled('to_date')) {
-            $column = \request()->filter_by;
-            $from_date = Carbon::parse(request()->from_date)->format('Y-m-d');
-            $to_date = Carbon::parse(request()->to_date)->format('Y-m-d');
-            $orders = $orders->whereDate($column, '>=', $from_date)->whereDate($column, '<=', $to_date);
+            $orders->where('pre_orders.delivery_point_id', auth()->user()->employee->outlet_id);
         }
 
-        $orders->addSelect([
-            'due_amount' => function ($orders) {
-                $orders->selectRaw('
-                CASE
-                    WHEN EXISTS (
-                        SELECT 1 FROM others_outlet_sales
-                        WHERE invoice_number = pre_orders.order_number
-                    ) THEN
-                        GREATEST(pre_orders.grand_total - (pre_orders.advance_amount + COALESCE(
-                            (SELECT delivery_point_receive_amount
-                             FROM others_outlet_sales
-                             WHERE invoice_number = pre_orders.order_number
-                             LIMIT 1), 0
-                        )), 0)
-                    ELSE NULL
-                END
-            ');
-            }
-        ]);
+        if (request()->filled('outlet_id')) {
+            $orders->where('pre_orders.delivery_point_id', request()->outlet_id);
+        }
+
+        if (request()->filled('status')) {
+            $orders->where('pre_orders.status', request()->status);
+        }
+
+        if (request()->filled('filter_by') && request()->filled('from_date') && request()->filled('to_date')) {
+            $column = request()->filter_by;
+            $from_date = Carbon::parse(request()->from_date)->format('Y-m-d');
+            $to_date = Carbon::parse(request()->to_date)->format('Y-m-d');
+            $orders->whereDate($column, '>=', $from_date)
+                ->whereDate($column, '<=', $to_date);
+        }
 
         return $orders;
     }
