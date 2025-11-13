@@ -22,7 +22,7 @@ class VerifyOtpController extends Controller
         if ($request->type == 'regular_discount'){
             $otp = VerifyOtp::where('mobile_number', $request->mobile_number)->where('otp_type', 'regular_discount')->where('otp_status', 'pending')->first();
         }else{
-            $otp = VerifyOtp::where('mobile_number', $request->mobile_number)->where('otp_status', 'pending')->first();
+            $otp = VerifyOtp::where('mobile_number', $request->mobile_number)->where('otp_type', 'verification')->where('otp_status', 'pending')->first();
         }
 
         if (!$otp) {
