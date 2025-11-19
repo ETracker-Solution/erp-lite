@@ -187,47 +187,62 @@ function generateInvoiceCode($store_id)
     return $code;
 }
 
+use Illuminate\Support\Str;
+
 function generateUniqueUUID($outlet_or_factory_id, $model, $column_name, $is_factory = false, $is_headOffice = false)
 {
-    if (!$is_headOffice) {
-        $outlet = $is_factory ? \App\Models\Factory::find($outlet_or_factory_id) : Outlet::find($outlet_or_factory_id);
-        $outlet_name = str_replace(',', ' ', trim($outlet->name));
+    // Determine base name
+    if ($is_headOffice) {
+        $baseName = 'HO';
+    } elseif ($is_factory) {
+        $baseName = 'CT-F';
     } else {
-        $outlet_name = 'HO';
+        $outlet = Outlet::find($outlet_or_factory_id);
+        $baseName = $outlet ? $outlet->name : 'OUTLET';
     }
 
-    $words = strtoupper($outlet_name);
-    $acronym = "";
+    // Remove special characters and trim
+    $baseName = preg_replace('/[^A-Za-z0-9 ]/', '', $baseName);
+    $baseName = str_replace(' ', '-', trim($baseName)); // replace spaces with dash for readability
 
-    $length = 4;
+    // Prefix for factory or head office
+    if ($is_factory) {
+        $baseName = 'CT-F';
+    }
 
-    $acronym .= mb_substr($words, 0, $length) . mb_substr($words, -1);
+    // Date component
+    $datePart = date('ym');
 
-    if (!$is_factory && !$is_headOffice) {
-        $acronym = $outlet->name;
-        if (!str_ends_with($acronym, '-')) {
-            $acronym = $acronym . '-';
+    // Prepare full base code
+    $fullBase = $baseName . '-' . $datePart;
+
+    // Find last existing code
+    $lastRecord = $model::where($column_name, 'like', $fullBase . '%')
+        ->orderBy($column_name, 'DESC')
+        ->first();
+
+    $sequenceLength = 4;
+    $nextSequence = 1;
+
+    if ($lastRecord) {
+        $lastCode = $lastRecord->$column_name;
+        // Extract numeric part at the end
+        preg_match('/(\d+)$/', $lastCode, $matches);
+        if (isset($matches[1])) {
+            $nextSequence = (int)$matches[1] + 1;
         }
     }
-    if ($is_factory) {
-        $acronym = 'CT-F-';
 
+    $uuid = $fullBase . '-' . str_pad($nextSequence, $sequenceLength, '0', STR_PAD_LEFT);
+
+    // Double-check for uniqueness
+    if ($model::where($column_name, $uuid)->exists()) {
+        return generateUniqueUUID($outlet_or_factory_id, $model, $column_name, $is_factory, $is_headOffice);
     }
 
-    $nameWithDate = $acronym . date('ym');
-    $lastCode = $model::where($column_name, 'like', '%' . $nameWithDate . '%')->orderBy($column_name, 'DESC')->first();
-    if ($lastCode) {
-        $last3Digits = (int)(substr($lastCode->$column_name, -$length)) + 1;
-    } else {
-        $last3Digits = 001;
-    }
-    $code = $acronym . date('ym') . str_pad($last3Digits, $length, 0, STR_PAD_LEFT);
-
-    if ($model::where($column_name, $code)->exists()) {
-        generateInvoiceCode($outlet_name);
-    }
-    return $code;
+    return $uuid;
 }
+
 
 function getRequisitionQty($requisition_id, $product_id)
 {
