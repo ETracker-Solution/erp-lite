@@ -254,7 +254,7 @@ class RMOpeningBalanceController extends Controller
                 }
 
                 // Proceed to insert data if valid
-                if ($qty > 0 && $rate > 0 && $date) {
+                if ($qty > 0 && $date) {
                     DB::beginTransaction();
                     try {
                         $rmob = $this->base_model->create([
