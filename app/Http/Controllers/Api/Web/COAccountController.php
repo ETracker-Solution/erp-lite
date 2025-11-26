@@ -82,6 +82,11 @@ class COAccountController extends Controller
 
     public function delete($id)
     {
+        return response()->json([
+            'message' => 'Deleting Account is not allowed from now',
+            'success' => false
+        ]);
+
         try {
             $account = $this->base_model->find($id);
             $account->delete();
