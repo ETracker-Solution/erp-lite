@@ -42,8 +42,8 @@ class CouponCodeOtpController extends Controller
         }
 
         $alreadyUsed = CustomerPromoCode::where(['customer_id' => $user->id, 'promo_code_id' => $code->id])->first();
-        if ($alreadyUsed && $alreadyUsed->used > 0) {
-            return response()->json(['success' => false, 'message' => 'Code Already Used ']);
+        if ($alreadyUsed && $alreadyUsed->already_used >= $alreadyUsed->max_use) {
+            return response()->json(['success' => false, 'You have already used this promo code the maximum allowed times.']);
         }
 
         $otp = rand(1000, 9999);

@@ -16,6 +16,7 @@ return new class extends Migration
         });
         Schema::table('customer_promo_codes', function (Blueprint $table) {
             $table->integer('max_use')->default(1);
+            $table->integer('already_used')->default(0);
         });
     }
 
@@ -28,7 +29,7 @@ return new class extends Migration
             $table->dropColumn(['max_use_per_user']);
         });
         Schema::table('customer_promo_codes', function (Blueprint $table) {
-            $table->dropColumn(['max_use']);
+            $table->dropColumn(['max_use','already_used']);
         });
     }
 };

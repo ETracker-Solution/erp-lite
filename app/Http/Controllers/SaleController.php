@@ -310,7 +310,7 @@ class SaleController extends Controller
                         'customer_id' => $sale->customer_id,
                         'promo_code_id' => $promoCode->id,
                     ]);
-
+                    $customerPromo->already_used = ($customerPromo->already_used ?? 0) + 1;
                     // Mark as used
                     $customerPromo->used = 1;
                     $customerPromo->save();

@@ -245,7 +245,7 @@ class POSController extends Controller
                         'customer_id' => $sale->customer_id,
                         'promo_code_id' => $promoCode->id,
                     ]);
-
+                    $customerPromo->already_used = ($customerPromo->already_used ?? 0) + 1;
                     // Mark as used
                     $customerPromo->used = 1;
                     $customerPromo->save();
@@ -469,8 +469,8 @@ class POSController extends Controller
             return response()->json(['success' => false, 'message' => 'Invalid Code']);
         }
         $alreadyUsed = CustomerPromoCode::where(['customer_id' => $user->id, 'promo_code_id' => $code->id])->first();
-        if ($alreadyUsed && $alreadyUsed->used > 0) {
-            return response()->json(['success' => false, 'message' => 'Code Already Used ']);
+        if ($alreadyUsed && $alreadyUsed->already_used >= $alreadyUsed->max_use) {
+            return response()->json(['success' => false, 'message' => 'You have already used this promo code the maximum allowed times. ']);
         }
 
         if (!$request->otp) {
