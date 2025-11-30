@@ -35,6 +35,7 @@ class StorePromoCodeRequest extends FormRequest
             'discount_for'=>['required'],
             'member_type'=>['required_if:discount_for,member'],
             'customers'=>['nullable'],
+            'max_use_per_user' => 'required|integer|min:1',
         ];
     }
 }

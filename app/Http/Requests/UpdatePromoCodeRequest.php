@@ -35,6 +35,7 @@ class UpdatePromoCodeRequest extends FormRequest
             'member_type'=>['required_if:discount_for,member'],
             'customers'=>['nullable'],
             'sms_template_id'=>['required'],
+            'max_use_per_user' => 'required|integer|min:1',
         ];
     }
 }

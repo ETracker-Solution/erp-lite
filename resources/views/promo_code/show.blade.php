@@ -119,7 +119,7 @@
                                 <i class="fa fa-calendar-alt text-info"></i> Validity Period
                             </h5>
                             <div class="row mb-4">
-                                <div class="col-md-4 col-sm-6 mb-3">
+                                <div class="col-md-3 col-sm-6 mb-3">
                                     <div class="card bg-light border-0">
                                         <div class="card-body">
                                             <small class="text-muted d-block">Start Date</small>
@@ -130,7 +130,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-md-4 col-sm-6 mb-3">
+                                <div class="col-md-3 col-sm-6 mb-3">
                                     <div class="card bg-light border-0">
                                         <div class="card-body">
                                             <small class="text-muted d-block">End Date</small>
@@ -141,13 +141,24 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-md-4 col-sm-6 mb-3">
+                                <div class="col-md-3 col-sm-6 mb-3">
                                     <div class="card bg-light border-0">
                                         <div class="card-body">
                                             <small class="text-muted d-block">Duration</small>
                                             <h6 class="font-weight-bold mb-0">
                                                 <i class="fa fa-hourglass-half text-warning"></i>
                                                 {{ \Carbon\Carbon::parse($row->start_date)->diffInDays(\Carbon\Carbon::parse($row->end_date)) + 1 }} Days
+                                            </h6>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 col-sm-6 mb-3">
+                                    <div class="card bg-light border-0">
+                                        <div class="card-body">
+                                            <small class="text-muted d-block">Max Use Per User</small>
+                                            <h6 class="font-weight-bold mb-0">
+                                                <i class="fa fa-clock text-warning"></i>
+                                                {{ $row->max_use_per_user }} Time
                                             </h6>
                                         </div>
                                     </div>
