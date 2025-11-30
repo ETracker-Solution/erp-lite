@@ -97,7 +97,8 @@ class PromoCodeController extends Controller
 
             foreach ($validated['customers'] as $customer) {
                 $promoCode->customerPromoCodes()->create([
-                    'customer_id' => $customer
+                    'customer_id' => $customer,
+                    'max_use' => $validated['max_use_per_user']
                 ]);
             }
 
@@ -174,7 +175,8 @@ class PromoCodeController extends Controller
             $promoCode->customerPromoCodes()->delete();
             foreach ($validated['customers'] as $customer) {
                 $promoCode->customerPromoCodes()->create([
-                    'customer_id' => $customer
+                    'customer_id' => $customer,
+                    'max_use' => $validated['max_use_per_user']
                 ]);
             }
 

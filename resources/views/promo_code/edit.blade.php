@@ -118,6 +118,21 @@
                                             @endif
                                         </div>
                                     </div>
+                                    <div class="col-xl-3 col-md-6 col-12 mb-3">
+                                        <div class="form-group">
+                                            <label for="max_use_per_user">Max Use Per User <span class="text-danger">*</span></label>
+                                            <input type="number" class="form-control"
+                                                   name="max_use_per_user"
+                                                   id="max_use_per_user"
+                                                   min="1"
+                                                   value="{{ old('max_use_per_user', $row->max_use_per_user) }}"
+                                                   required>
+                                            @if($errors->has('max_use_per_user'))
+                                                <small class="text-danger">{{ $errors->first('max_use_per_user') }}</small>
+                                            @endif
+                                            <small class="form-text text-muted">Set how many times a single customer can use this promo code</small>
+                                        </div>
+                                    </div>
                                 </div>
 
                                 <hr class="my-4">
