@@ -815,6 +815,7 @@
                                     closeButton: true,
                                     progressBar: true,
                                 });
+                                return
                             } else {
                                 if (responseData.data.minimum_purchase && responseData.data.minimum_purchase > vm.total_payable_bill) {
                                     toastr.error('Minimum Purchase Amount is ' + responseData.data.minimum_purchase, {

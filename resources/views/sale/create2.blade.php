@@ -1063,12 +1063,14 @@
                                         closeButton: true,
                                         progressBar: true,
                                     });
+                                    return
                                 } else {
                                     if (responseData.data.minimum_purchase && responseData.data.minimum_purchase > vm.total_payable_bill) {
                                         toastr.error('Minimum Purchase Amount is ' + responseData.data.minimum_purchase, {
                                             closeButton: true,
                                             progressBar: true,
                                         });
+                                        return
                                     }
                                     vm.couponCodeDiscountType = responseData.data.discount_type
                                     vm.couponCodeDiscountValue = responseData.data.discount_value
