@@ -338,6 +338,21 @@ class SaleController extends Controller
             if (($receive_amount < $sale->grand_total) || $outlet_id !== $request->delivery_point_id || $request->sales_type == 'pre_order') {
                 $this->othersOutletDelivery($sale, $request->delivery_point_id);
             }
+
+            if ($request->couponCode) {
+                $promoCode = \App\Models\PromoCode::where('code', $request->couponCode)->first();
+
+                if ($promoCode) {
+                    $customerPromo = \App\Models\CustomerPromoCode::firstOrNew([
+                        'customer_id' => $sale->customer_id,
+                        'promo_code_id' => $promoCode->id,
+                    ]);
+                    // Mark as used
+                    $customerPromo->used = 1;
+                    $customerPromo->save();
+                }
+                $promoCode->increment('used_discount_amount', $request->couponCodeDiscountAmount);
+            }
             DB::commit();
 
             Toastr::success('Sale Order Successful!.', '', ["progressBar" => true]);

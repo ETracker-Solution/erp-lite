@@ -1041,7 +1041,21 @@
                     },
                     getCouponDiscountValue() {
                         var vm = this;
-                        axios.get(this.config.get_coupon_code_value_url + '?code=' + vm.couponCode + '&user=' + vm.customerNumber)
+                        if(vm.items.length < 1){
+                            toastr.error('At Least One Product Must Be Selected', {
+                                closeButton: true,
+                                progressBar: true,
+                            });
+                            return
+                        }
+                        if(vm.couponCode.length < 1){
+                            toastr.error('Coupon Code Required', {
+                                closeButton: true,
+                                progressBar: true,
+                            });
+                            return
+                        }
+                        axios.get(this.config.get_coupon_code_value_url + '?code=' + vm.couponCode + '&user=' + vm.customerNumber + '&orderAmount=' + vm.total_bill)
                             .then(function (response) {
                                 const responseData = response.data
                                 if (responseData.success === false) {
@@ -1068,9 +1082,15 @@
                                         vm.couponCodeDiscountShowValue = vm.couponCodeDiscountValue + ' %'
                                         vm.couponCodeDiscountAmount = Math.round(vm.couponCodeDiscountAmount)
                                     }
-                                    vm.couponModalShow === true ? vm.couponModalShow = false : true
                                 }
+                                vm.couponModalShow === true ? vm.couponModalShow = false : true
+                                $('#couponModal').modal('hide');
 
+                                toastr.success(responseData.message, {
+                                    closeButton: true,
+                                    progressBar: true,
+                                    timeOut: 3000
+                                });
                             }).catch(function (error) {
                             toastr.error(error, {
                                 closeButton: true,

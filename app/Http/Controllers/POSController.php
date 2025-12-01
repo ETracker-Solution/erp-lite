@@ -464,6 +464,9 @@ class POSController extends Controller
     {
         $now = Carbon::now()->format('Y-m-d');
         $user = Customer::where('mobile', $request->user)->first();
+
+        $orderAmount = (float)$request->orderAmount;
+
         if (!$user) {
             return response()->json(['success' => false, 'message' => 'Customer Number Required']);
         }
@@ -471,10 +474,45 @@ class POSController extends Controller
         if (!$code) {
             return response()->json(['success' => false, 'message' => 'Invalid Code']);
         }
-        $alreadyUsed = CustomerPromoCode::where(['customer_id' => $user->id, 'promo_code_id' => $code->id])->first();
-        if ($alreadyUsed && $alreadyUsed->used > 0) {
-            return response()->json(['success' => false, 'message' => 'Code Already Used ']);
+
+        // Total used so far
+        $used = (float)$code->used_discount_amount;
+        $total = (float)$code->total_discount_amount;
+
+        if ($used >= $total) {
+            return response()->json(['success' => false, 'message' => 'Total Discount Limit Reached']);
         }
+
+        $remainingAmount = $total - $used;
+
+        $discountValue = 0;
+
+        if ($code->discount_type === 'fixed') {
+            // fixed discount per order
+            $discountValue = (float)$code->discount_value;
+
+        } elseif ($code->discount_type === 'percentage') {
+            // percentage discount converted to fixed amount
+            $percent = (float)$code->discount_value;
+            $discountValue = ($orderAmount * $percent) / 100;
+        }
+
+        if ($discountValue > $remainingAmount) {
+            $discountValue = $remainingAmount;
+        }
+
+        // Ensure discount never exceeds order amount
+        if ($discountValue > $orderAmount) {
+            $discountValue = $orderAmount;
+        }
+
+        $code->discount_type = 'fixed';
+        $code->discount_value = round($discountValue, 2);
+
+//        $alreadyUsed = CustomerPromoCode::where(['customer_id' => $user->id, 'promo_code_id' => $code->id])->first();
+//        if ($alreadyUsed && $alreadyUsed->used > 0) {
+//            return response()->json(['success' => false, 'message' => 'Code Already Used ']);
+//        }
 
         return response()->json(['success' => true, 'message' => 'Code Found ', 'data' => $code]);
     }

@@ -103,6 +103,19 @@
                                             @endif
                                         </div>
                                     </div>
+                                    <div class="col-xl-3 col-md-8 col-12 mb-1">
+                                        <div class="form-group">
+                                            <label for="end_date">Total Discount Amount</label>
+                                            <input type="number" class="form-control" id="total_discount_amount"
+                                                   name="total_discount_amount"
+                                                   placeholder="Enter Total Discount Amount"
+                                                   value="{{old('total_discount_amount',$row->total_discount_amount)}}">
+                                            @if($errors->has('total_discount_amount'))
+                                                <small
+                                                    class="text-danger">{{$errors->first('total_discount_amount')}}</small>
+                                            @endif
+                                        </div>
+                                    </div>
                                 </div>
                                 <div class="row">
                                     <div class="col-xl-3 col-md-8 col-12 mb-1">
@@ -159,7 +172,7 @@
                     </div>
                 </div>
             </div>
-        </d>
+        </div>
         <!-- Basic Inputs end -->
     </section>
 
