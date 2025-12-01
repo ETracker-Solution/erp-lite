@@ -147,7 +147,7 @@
                                         <span class="info-box-icon"><i class="fa fa-money-bill"></i></span>
                                         <div class="info-box-content">
                                             <span class="info-box-text">Total Discount Given</span>
-                                            <span class="info-box-number">{{ number_format($usageStats['total_discount_given'], 2) }}</span>
+                                            <span class="info-box-number">{{ number_format($promoCode->used_discount_amount, 2) }}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -155,8 +155,8 @@
                                     <div class="info-box bg-primary">
                                         <span class="info-box-icon"><i class="fa fa-dollar-sign"></i></span>
                                         <div class="info-box-content">
-                                            <span class="info-box-text">Total Sales Amount</span>
-                                            <span class="info-box-number">{{ number_format($usageStats['total_sales_amount'], 2) }}</span>
+                                            <span class="info-box-text">Balance After Discount</span>
+                                            <span class="info-box-number">{{ number_format(($promoCode->total_discount_amount - $promoCode->used_discount_amount), 2) }}</span>
                                         </div>
                                     </div>
                                 </div>
