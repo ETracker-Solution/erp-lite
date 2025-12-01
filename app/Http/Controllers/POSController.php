@@ -255,6 +255,20 @@ class POSController extends Controller
                 ]);
             }
 
+            if ($request->couponCode) {
+                $promoCode = \App\Models\PromoCode::where('code', $request->couponCode)->first();
+
+                if ($promoCode) {
+                    $customerPromo = \App\Models\CustomerPromoCode::firstOrNew([
+                        'customer_id' => $sale->customer_id,
+                        'promo_code_id' => $promoCode->id,
+                    ]);
+                    // Mark as used
+                    $customerPromo->used = 1;
+                    $customerPromo->save();
+                }
+                $promoCode->increment('used_discount_amount', $request->couponCodeDiscountAmount);
+            }
             DB::commit();
 
         } catch (\Exception $error) {

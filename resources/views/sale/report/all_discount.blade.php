@@ -98,8 +98,9 @@
         @foreach($data as $row)
             @php
                 $itemWiseDiscount = $row->items->sum('discount');
-                $saleDiscount = $row->discount;
+                $saleDiscount = $row->discount + $row->membership_discount_amount + $row->special_discount_amount + $row->couponCodeDiscountAmount;
                 $totalDiscount = $itemWiseDiscount + $saleDiscount;
+                $totalDiscount = $saleDiscount;
             @endphp
             <tr class="items">
                 <td>{{$row->date}}</td>
