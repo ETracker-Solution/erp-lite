@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StorePromoCodeRequest;
 use App\Http\Requests\UpdatePromoCodeRequest;
 use App\Models\Customer;
+use App\Models\Sale;
 use App\Models\MemberType;
 use App\Models\PromoCode;
 use Brian2694\Toastr\Facades\Toastr;
@@ -112,7 +113,23 @@ class PromoCodeController extends Controller
      */
     public function show($id)
     {
-        //
+        $promoCode = PromoCode::findOrFail(decrypt($id));
+
+        // Get all sales that used this promo code
+        $usageDetails = Sale::with('customer')
+            ->where('couponCode', $promoCode->code)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        // Calculate statistics
+        $usageStats = [
+            'total_uses' => $usageDetails->count(),
+            'unique_customers' => $usageDetails->unique('customer_id')->count(),
+            'total_discount_given' => $usageDetails->sum('discount'),
+            'total_sales_amount' => $usageDetails->sum('grand_total')
+        ];
+
+        return view('promo_code.show', compact('promoCode', 'usageDetails', 'usageStats'));
     }
 
     /**
