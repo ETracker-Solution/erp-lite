@@ -153,40 +153,76 @@ class SaleReportController extends Controller
             $pdf->stream();
         } elseif ($report_type == 'All Outlet Discount') {
             try {
-                ini_set('memory_limit', '512M'); // Optional: Increase for PDF rendering
-                ini_set('max_execution_time', 300); // Optional: Increase execution time
+                ini_set('memory_limit', '1024M');
+                ini_set('max_execution_time', 300);
 
                 $page_title = 'All Discounts';
 
-                // Collecting all records with chunk to avoid memory overload
-                $allSales = [];
+                // RAW QUERY FOR MAXIMUM SPEED
+                $allSales = DB::select("
+            SELECT
+                s.date,
+                s.invoice_number,
+                c.name AS customer_name,
+                c.mobile AS customer_mobile,
+                (
+                    s.discount +
+                    s.membership_discount_amount +
+                    s.special_discount_amount +
+                    s.couponCodeDiscountAmount
+                ) AS sale_discount,
+                IFNULL(items.item_discount, 0) AS item_discount
+            FROM sales s
+            LEFT JOIN customers c ON c.id = s.customer_id
 
-                Sale::with('customer', 'outlet', 'items')
-                    ->where(function ($q) {
-                        return $q->where('discount', '>', 0)
-                        ->orWhere('membership_discount_amount', '>', 0)
-                        ->orWhere('special_discount_amount', '>', 0)
-                        ->orWhere('couponCodeDiscountAmount', '>', 0)
-                            ->orWhereHas('items', function ($q) {
-                                return $q->where('discount', '>', 0);
-                            });
-                    })
-                    ->whereBetween('date', [$from_date, $to_date])
-                    ->chunk(500, function ($salesChunk) use (&$allSales) {
-                        foreach ($salesChunk as $sale) {
-                            $allSales[] = $sale;
-                        }
-                    });
+            LEFT JOIN (
+                SELECT sale_id, SUM(discount) AS item_discount
+                FROM sale_items
+                GROUP BY sale_id
+            ) AS items ON items.sale_id = s.id
+
+            WHERE (
+                s.discount > 0 OR
+                s.membership_discount_amount > 0 OR
+                s.special_discount_amount > 0 OR
+                s.couponCodeDiscountAmount > 0 OR
+                items.item_discount > 0
+            )
+            AND s.date BETWEEN ? AND ?
+            ORDER BY s.date ASC
+        ", [$from_date, $to_date]);
+
 
                 $data = [
-                    'dateRange' => $dateRange,
-                    'data' => $allSales,
-                    'page_title' => $page_title,
+                    'dateRange'     => $dateRange,
+                    'data'          => $allSales,
+                    'page_title'    => $page_title,
                     'report_header' => $report_header
                 ];
 
-                $pdf = Pdf::loadView('sale.report.all_discount', $data);
-                return $pdf->stream('All-Discounts.pdf');
+                // RENDER BLADE TO HTML STRING
+                $html = view('sale.report.all_discount_new', $data)->render();
+
+                // CREATE MPDF INSTANCE
+                $mpdf = new \Mpdf\Mpdf([
+                    'tempDir' => storage_path('app/mpdf'),
+                    'autoScriptToLang' => true,
+                    'autoLangToFont' => true,
+                    'mode' => 'utf-8',
+                    'format' => 'A4',
+                ]);
+
+                // ---- CHUNK SIZE TO AVOID pcre.backtrack_limit ----
+                $chunkSize = 40000; // 40 KB per chunk (safe for large reports)
+
+                // SPLIT HTML INTO SAFE CHUNKS
+                $chunks = str_split($html, $chunkSize);
+
+                foreach ($chunks as $chunk) {
+                    $mpdf->WriteHTML($chunk, \Mpdf\HTMLParserMode::HTML_BODY);
+                }
+
+                return $mpdf->Output('All-Discounts.pdf', 'I');
 
             } catch (\Throwable $e) {
                 Log::error('All Outlet Discount PDF Generation Error', [
@@ -194,7 +230,7 @@ class SaleReportController extends Controller
                     'trace' => $e->getTraceAsString(),
                 ]);
 
-                return response()->view('errors.500', ['message' => 'Something went wrong generating the PDF report. Please try again.'], 500);
+                return response()->json(['message' => 'Something went wrong generating the PDF report. Please try again.'], 500);
             }
         }
 
