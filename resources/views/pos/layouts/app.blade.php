@@ -822,6 +822,7 @@
                                         closeButton: true,
                                         progressBar: true,
                                     });
+                                    return;
                                 }
                                 vm.couponCodeDiscountType = responseData.data.discount_type
                                 vm.couponCodeDiscountValue = responseData.data.discount_value
