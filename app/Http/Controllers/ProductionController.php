@@ -129,7 +129,7 @@ class ProductionController extends Controller
      */
     public function create()
     {
-        $requisitions = Requisition::where('type', 'FG')->select('id', 'uid')->whereNull('production_id')->get();
+        $requisitions = Requisition::where('type', 'FG')->select('id', 'uid')->whereNull('production_id')->where('status','approved')->get();
         $serial_count = Production::latest()->first() ? Production::latest()->first()->id : 0;
         $serial_no = $serial_count + 1;
         $data = [
