@@ -220,7 +220,7 @@ class PromoCodeController extends Controller
                 $customers = Customer::where('type', '!=', 'default')->whereHas('membership');
             }
         } else {
-            $customers = Customer::where('type', '!=', 'default')->query();
+            $customers = Customer::where('type', '!=', 'default');
         }
         return $customers->select('name', 'id')->get();
     }
