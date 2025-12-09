@@ -166,6 +166,8 @@ Route::middleware(['auth','prevent_duplicate_submission'])->group(function () {
     Route::get('fetch-product-info/{id}', [App\Http\Controllers\POSController::class, 'fetch_product_info']);
     Route::get('fetch-all-product', [App\Http\Controllers\POSController::class, 'fetch_all_product']);
 
+    Route::get('search-sales',[ App\Http\Controllers\SalesDeliveryController::class, 'searchSales']);
+
     Route::get('fetch-item-by-search-keyword/{keyword}', [App\Http\Controllers\POSController::class, 'getItemBySearchKeyword']);
     //--------------
 

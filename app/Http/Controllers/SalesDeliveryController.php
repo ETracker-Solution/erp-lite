@@ -66,26 +66,62 @@ class SalesDeliveryController extends Controller
      */
     public function create()
     {
-        // return $this->print();
         $user_store = null;
-        if (!auth()->user()->is_super) {
-            $user_store = Store::where(['doc_type' => 'outlet', 'doc_id' => \auth()->user()->employee->outlet_id,'status'=>'active'])->first();
-            $outlet_id = $user_store->doc_id;
-        }
-        if (\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->outlet_id) {
-            $sales = OthersOutletSale::with('deliveryPoint', 'outlet')->where(['delivery_point_id' => \auth()->user()->employee->outlet_id])->where('status', '!=', 'delivered')->latest()->get();
-        } elseif (\auth()->user()->is_super) {
-            $sales = OthersOutletSale::with('deliveryPoint', 'outlet')->where('status', '!=', 'delivered')->latest()->get();
-        }
-        $data = [
-            'customers' => Customer::where('status', 'active')->get(),
-            'sales' => $sales,
-            'stores' => Store::where(['type' => 'FG', 'doc_type' => 'outlet','status'=>'active'])->get(),
-            'delivery_points' => Outlet::all(),
-            'user_store' => $user_store,
 
+        if (!auth()->user()->is_super) {
+            $user_store = Store::where([
+                'doc_type' => 'outlet',
+                'doc_id' => auth()->user()->employee->outlet_id,
+                'status' => 'active'
+            ])->first();
+        }
+
+        $data = [
+            'customers' => [], // Will load via AJAX
+            'sales' => [], // Will load via AJAX
+            'stores' => Store::select('id', 'name')
+                ->where([
+                    'type' => 'FG',
+                    'doc_type' => 'outlet',
+                    'status' => 'active'
+                ])
+                ->get(),
+            'delivery_points' => Outlet::select('id', 'name')->get(),
+            'user_store' => $user_store,
+            'invoice_number' => $user_store ? $this->generateInvoiceNumber($user_store->id) : 'Please Select Store First',
         ];
+
         return view('sales_delivery.create', $data);
+    }
+
+    public function searchSales(Request $request)
+    {
+        $query = OthersOutletSale::query()
+            ->select('id', 'invoice_number', 'grand_total', 'receive_amount', 'delivery_point_id', 'outlet_id')
+            ->where('status', '!=', 'delivered');
+
+        if ($request->has('search') && $request->search) {
+            $query->where('invoice_number', 'like', '%' . $request->search . '%');
+        }
+
+        if ($request->has('store_id') && $request->store_id) {
+           $outlet_id = Store::find($request->store_id)->doc_id;
+           $query->where('delivery_point_id', $outlet_id);
+        }
+
+        if (auth()->user()->employee && auth()->user()->employee->outlet_id && !auth()->user()->is_super) {
+            $query->where('delivery_point_id', auth()->user()->employee->outlet_id);
+        }
+
+        $sales = $query->latest()->get();
+
+        return response()->json($sales);
+    }
+
+    private function generateInvoiceNumber($storeId)
+    {
+        // Your invoice generation logic here
+        return 'INV-' . date('Ymd') . '-' . str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT);
     }
 
     /**

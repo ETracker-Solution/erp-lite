@@ -83,11 +83,7 @@
                                                 <div class="form-group">
                                                     <label for="">Delivery Invoice Number</label>
                                                     <select name="sale_id" id="" class="form-control select2" v-model="sale_id">
-                                                        <option value="">None</option>
-                                                        @foreach($sales as $sale)
-                                                            <option
-                                                                value="{{$sale->id}}">{{ $sale->invoice_number }}</option>
-                                                        @endforeach
+                                                        <option :value="row.id" v-for="row in salesData">@{{ row.invoice_number }}</option>
                                                     </select>
                                                 </div>
                                             </div>
@@ -506,6 +502,7 @@
                     additional_charge: 0,
                     orderAmount: 0,
                     isSubmitting: false,
+                    salesData: []
                 },
                 components: {
                     vuejsDatepicker
@@ -594,7 +591,7 @@
                         }
                         const sale_id = vm.sale_id;
                         if (sale_id) {
-                             vm.items = [];
+                            vm.items = [];
                             axios.get(this.config.get_data_by_invoice + '/' + sale_id).then(function (response) {
                                 const resData = response.data;
                                 vm.products = resData.items;
@@ -704,12 +701,12 @@
                                 progressBar: true,
                             });
                         }
-                        axios.get('/invoice-by-store/' + vm.store_id, {
+                        axios.get('/search-sales/', {
                             params: {
-                                date: vm.date
+                                store_id: vm.store_id
                             }
                         }).then((response) => {
-                            vm.invoice_number = response.data
+                            vm.salesData = response.data
                         })
                     },
                     deletePaymentMethod: function (row) {
@@ -721,6 +718,9 @@
                     setStoreId() {
                         const vm = this
                         vm.store_id = "{{ $user_store ?  $user_store->id : ''}}"
+                        if (vm.store_id){
+                            vm.getStoreData(); // Call your method
+                        }
                     },
                     preventEnterSubmit() {
                         const vm = this;
