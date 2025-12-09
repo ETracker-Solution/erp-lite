@@ -260,9 +260,47 @@ class ApiController extends Controller
     {
         ini_set('memory_limit', '512M');
 
-        $factoryId = auth('web')->user()->employee->factory_id;
+        // Get products efficiently
+        $products = ChartOfInventory::where(['status' => 'active', 'parent_id' => $id])
+            ->with(['parent:id,name', 'unit:id,name'])
+            ->get();
 
-        // Get outlet IDs efficiently without loading all requisitions
+        // Check if user is from factory
+        if (auth()->user()->employee->user_of != 'factory') {
+            // If not factory user, return products without quantity calculation
+            foreach ($products as $product) {
+                $product['quantity'] = 0;
+                $product['group'] = $product->parent ? $product->parent->name : '';
+                $product['uom'] = $product->unit ? $product->unit->name : '';
+                $product['coi_id'] = $product->id;
+                $product['stock'] = '';
+                $product['price'] = $product->price;
+                $product['rate'] = $product->price;
+                $product['selling_price'] = '';
+            }
+
+            return ['products' => $products];
+        }
+
+        // Check if factory exists
+        if (!auth()->user()->employee->factory) {
+            foreach ($products as $product) {
+                $product['quantity'] = 0;
+                $product['group'] = $product->parent ? $product->parent->name : '';
+                $product['uom'] = $product->unit ? $product->unit->name : '';
+                $product['coi_id'] = $product->id;
+                $product['stock'] = '';
+                $product['price'] = $product->price;
+                $product['rate'] = $product->price;
+                $product['selling_price'] = '';
+            }
+
+            return ['products' => $products];
+        }
+
+        $factoryId = auth()->user()->employee->factory_id;
+
+        // Get outlet IDs efficiently
         $outletIds = \App\Models\Requisition::where('to_factory_id', $factoryId)
             ->where('type', 'FG')
             ->where('status', 'approved')
@@ -271,20 +309,15 @@ class ApiController extends Controller
             ->pluck('outlet_id')
             ->toArray();
 
-        // Get products efficiently
-        $products = ChartOfInventory::where(['status' => 'active', 'parent_id' => $id])
-            ->with(['parent:id,name', 'unit:id,name'])
-            ->get();
-
-        $productIds = $products->pluck('id')->toArray();
-
         // Get factory stores once
         $storeIds = auth()->user()->employee->factory->stores()
             ->where('type', 'FG')
             ->pluck('id')
             ->toArray();
 
-        // Batch calculate transactionable stock for all products
+        $productIds = $products->pluck('id')->toArray();
+
+        // Batch calculate stock for all products (following transactionAbleStock logic)
         $stockData = $this->batchCalculateStock($productIds, $storeIds);
 
         // Batch calculate requisition left quantities
