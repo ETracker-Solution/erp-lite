@@ -334,7 +334,7 @@
     <script src="{{ asset('vue-js/vue/dist/vue.js') }}"></script>
     <script src="{{ asset('vue-js/axios/dist/axios.min.js') }}"></script>
     <script src="{{ asset('vue-js/bootstrap-select/dist/js/bootstrap-select.min.js') }}"></script>
-    <script src="{{ asset('vue-js/vuejs-datepicker.min.js') }}"></script>
+    <script src="{{ asset('vue-js/vuejs-datepicker.js') }}"></script>
 
     <script>
         $(document).ready(function () {
