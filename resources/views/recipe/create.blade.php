@@ -158,7 +158,7 @@
                                                                :name="'products['+index+'][quantity]'"
                                                                class="form-control input-sm"
                                                                @change="valid_quantity(row)"
-                                                               step="0.00001" min="0"
+                                                               step="any"
                                                                required>
                                                     </td>
                                                     <td>

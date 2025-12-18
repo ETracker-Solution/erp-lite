@@ -36,12 +36,12 @@ class AdminDashboardController extends Controller
             'today_invoice' => Sale::whereDate('created_at', $today)->count(),
         ];
 //        return $aggregates;
-        $total_sales = Sale::whereDate('created_at', date('Y-m-d'))->sum('grand_total');
+        $total_sales = Sale::whereDate('date', date('Y-m-d'))->sum('grand_total');
         $outlets = Outlet::whereStatus('active')->count();
         $customers = Customer::where('type', 'regular')->count();
         $wastage_amount = InventoryAdjustment::whereDate('created_at', date('Y-m-d'))->where(['transaction_type' => 'decrease'])->sum('subtotal');
         $products = ChartOfInventory::where('type', 'item')->where('rootAccountType', 'FG')->count();
-        $todayInvoice = Sale::whereDate('created_at', Carbon::now()->format('Y-m-d'))->count();
+        $todayInvoice = Sale::whereDate('date', Carbon::now()->format('Y-m-d'))->count();
 
         $todayRequisitions = Requisition::whereType('FG')->whereDate('created_at', Carbon::today())->get();
 
