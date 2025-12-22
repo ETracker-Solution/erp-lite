@@ -463,8 +463,11 @@ class PreOrderController extends Controller
                     foreach ($recipes_items as $recipe_item) {
                         $currentRMStock = availableInventoryBalance($recipe_item->rm_id, $rm_store->id);
                         $rm_qty = $recipe_item->qty * $qty;
+
+                        $rm_name = $recipe_item->coi->name;
+
                         if ($currentRMStock < $rm_qty) {
-                            Toastr::error('Raw Material Not Available' . ' !', '', ["progressBar" => true]);
+                            Toastr::error('Raw Material ' . $rm_name . ' not available Available' . ' !', '', ["progressBar" => true]);
                             return back();
                         }
                         $rm = new stdClass();
@@ -487,8 +490,10 @@ class PreOrderController extends Controller
                     foreach ($rmIds as $index => $rmId) {
                         $quantity = $quantities[$index];
                         $currentRMStock = availableInventoryBalance($rmId, $rm_store->id);
+
+                        $aRmName = ChartOfInventory::find($rmId)->name;
                         if ($currentRMStock < $quantity) {
-                            Toastr::error('Additional Raw Material Not Available' . ' !', '', ["progressBar" => true]);
+                            Toastr::error('Additional Raw Material' . $aRmName . ' Not Available' . ' !', '', ["progressBar" => true]);
                             return back();
                         }
 
