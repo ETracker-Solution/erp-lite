@@ -78,7 +78,7 @@ JOIN
  JOIN
     chart_of_inventories coi ON coi.id = iat.coi_id
              WHERE ia.store_id='$store_id'AND ia.transaction_type='decrease' AND ia.date >= '$startDate' AND ia.date <= '$endDate'
-             AND id.status != 'cancelled'
+             AND ia.status != 'cancelled'
 GROUP BY
     ia.store_id, ia.created_at, iat.coi_id
 UNION ALL
@@ -97,7 +97,7 @@ JOIN
  JOIN
     chart_of_inventories coi ON coi.id = iat.coi_id
              WHERE ia.store_id='$store_id'AND ia.transaction_type='decrease' AND ia.date >= '$startDate' AND ia.date <= '$endDate'
-            AND id.status != 'cancelled'
+            AND ia.status != 'cancelled'
 ";
     }
 
@@ -115,7 +115,7 @@ JOIN
  JOIN
     chart_of_inventories coi ON coi.id = iat.coi_id
 WHERE ia.transaction_type='decrease' AND ia.date >= '$startDate' AND ia.date <= '$endDate'
-AND id.status != 'cancelled'
+AND ia.status != 'cancelled'
 GROUP BY
     iat.coi_id
 UNION ALL
@@ -132,7 +132,7 @@ WHERE
     ia.transaction_type = 'decrease'
     AND ia.date >= '$startDate'
     AND ia.date <= '$endDate';
-AND id.status != 'cancelled'
+AND ia.status != 'cancelled'
 ";
     }
 
@@ -152,7 +152,7 @@ JOIN
  JOIN
     chart_of_inventories coi ON coi.id = iat.coi_id
 WHERE ia.transaction_type='decrease' AND ia.date >= '$startDate' AND ia.date <= '$endDate'
-AND id.status != 'cancelled'
+AND ia.status != 'cancelled'
 GROUP BY
     ia.store_id
 ORDER BY  s.doc_id
@@ -172,7 +172,7 @@ WHERE
     ia.transaction_type = 'decrease'
     AND ia.date >= '$startDate'
     AND ia.date <= '$endDate'
-    AND id.status != 'cancelled'
+    AND ia.status != 'cancelled'
 );";
     }
 }
