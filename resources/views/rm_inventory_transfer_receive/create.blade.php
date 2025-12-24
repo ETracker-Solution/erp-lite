@@ -160,6 +160,7 @@
                                                             </td>
                                                             <td style="vertical-align: middle" class="text-right">
                                                                 <input type="number" v-model="row.transfer_quantity"
+                                                                       step="any"
                                                                        :name="'products['+index+'][transfer_quantity]'"
                                                                        class="form-control input-sm"
                                                                        required readonly>
@@ -167,6 +168,7 @@
 
                                                             <td style="vertical-align: middle" class="text-right">
                                                                 <input type="number" v-model="row.quantity"
+                                                                       step="any"
                                                                        :name="'products['+index+'][quantity]'"
                                                                        class="form-control input-sm"
                                                                        @change="valid(row)" required>
