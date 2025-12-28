@@ -344,6 +344,7 @@
                                                                        :name="'products['+index+'][rate]'"
                                                                        class="form-control input-sm form-control-sm"
                                                                        @change="itemtotal(row)"
+                                                                       step="any"
                                                                        v-bind:readonly="row.is_readonly">
                                                             </td>
                                                             <td>
@@ -351,6 +352,7 @@
                                                                        step="0.1"
                                                                        :name="'products['+index+'][quantity]'"
                                                                        class="form-control input-sm form-control-sm"
+                                                                       step="any"
                                                                        @change="valid(row)" required>
                                                             </td>
                                                             <td>
@@ -369,6 +371,7 @@
                                                                     <div class="col-8">
                                                                         <input type="number"
                                                                                v-model="row.product_discount"
+                                                                               step="any"
                                                                                :name="'products['+index+'][product_discount]'"
                                                                                class="form-control input-sm form-control-sm"
 {{--                                                                               v-model="row.discountValue"--}}
@@ -636,6 +639,7 @@
                                         </div>
                                     </div>
                                     <input type="number" min="0" step="0.01" placeholder="Enter Discount Amount"
+                                           step="any"
                                            v-model="total_discount_value"
                                            class="form-control">
                                 </div>
