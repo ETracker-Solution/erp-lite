@@ -160,6 +160,7 @@
                                                 <div class="form-group">
                                                     <label for="" class="small">Delivery Charge</label>
                                                     <input type="number" name="delivery_charge" id="" v-model="delivery_charge"
+                                                           step="any"
                                                            class="form-control form-control-sm" placeholder="Enter Delivery Charge">
                                                 </div>
                                             </div>
@@ -167,6 +168,7 @@
                                                 <div class="form-group">
                                                     <label for="" class="small">Additional Charge</label>
                                                     <input type="number" name="additional_charge" id="" v-model="additional_charge"
+                                                           step="any"
                                                            class="form-control form-control-sm" placeholder="Enter Additional Charge">
                                                 </div>
                                             </div>
