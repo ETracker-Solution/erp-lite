@@ -333,6 +333,11 @@
                                                                             <option value="upay">Upay</option>
                                                                             <option value="nexus">Nexus</option>
                                                                             <option value="pbl">PBL POS</option>
+                                                                            <option value="city">City</option>
+                                                                            <option value="prime">Prime Bank</option>
+                                                                            <option value="foodie">Foodie</option>
+                                                                            <option value="foodpanda">FoodPanda</option>
+                                                                            <option value="point">Redeem Point</option>
                                                                             <option value="due">Due Sale</option>
                                                                             <option value="point">Redeem Point</option>
                                                                             <option value="exchange">Exchange</option>
