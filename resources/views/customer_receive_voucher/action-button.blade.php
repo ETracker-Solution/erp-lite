@@ -1,13 +1,8 @@
 <div class="project-actions text-right">
-    <form action="{{route('supplier-vouchers.destroy', encrypt($row->id))}}" method="post">
+    <form action="{{route('customer-receive-vouchers.destroy', encrypt($row->id))}}" method="post">
         <input type="hidden" name="_method" value="DELETE">
         @csrf
-        {{-- <a href="{{ route('supplier-vouchers.edit', encrypt($row->id)) }}" class="btn btn-info btn-xs">
-            <i class="fas fa-pencil-alt">
-            </i>
-            Edit
-        </a> --}}
-        <a href="{{ route('supplier-vouchers.show', encrypt($row->id)) }}" class="btn btn-xs btn-primary">
+        <a href="{{ route('customer-receive-vouchers.show', encrypt($row->id)) }}" class="btn btn-xs btn-primary">
             <i class="fas fa-folder">
             </i> Show
         </a>

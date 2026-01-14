@@ -1,16 +1,17 @@
 @extends('layouts.app')
 @section('title')
-Supplier Payment Voucher List
+    Customer Receive Voucher List
 @endsection
 
 @section('content')
     @php
-    $links = [
-    'Home'=>route('dashboard'),
-    'Supplier Payment Voucher List'=>''
-    ]
+        $links = [
+        'Home'=>route('dashboard'),
+        'Accounts Module'=>'',
+        'Customer Receive Voucher List'=>''
+        ]
     @endphp
-    <x-breadcrumb title='Supplier Payment Voucher' :links="$links"/>
+    <x-breadcrumb title='Customer Receive Voucher' :links="$links"/>
     <!-- Main content -->
     <section class="content">
         <div class="container-fluid">
@@ -18,9 +19,9 @@ Supplier Payment Voucher List
                 <div class="col-12">
                     <div class="card card-info">
                         <div class="card-header">
-                            <h3 class="card-title">All Supplier Payment Voucher List</h3>
+                            <h3 class="card-title">All Customer Receive Voucher List</h3>
                             <div class="card-tools">
-                                <a href="{{route('supplier-vouchers.create')}}">
+                                <a href="{{route('customer-receive-vouchers.create')}}">
                                     <button class="btn btn-sm btn-primary"><i class="fa fa-plus-circle"
                                                                               aria-hidden="true"></i> &nbsp;Add New
                                     </button>
@@ -61,73 +62,64 @@ Supplier Payment Voucher List
     <script src="{{ asset('assets/plugins/datatables-responsive/js/responsive.bootstrap4.min.js')}}"></script>
 @endsection
 @push('script')
-<script>
-    $(document).ready(function() {
-        $('#dataTable').dataTable({
-            stateSave: true,
-            responsive: true,
-            serverSide: true,
-            processing: true,
-            ajax: {
-                url: "{{ route('supplier-vouchers.index') }}",
-            },
-            columns: [{
+    <script>
+        $(document).ready(function() {
+            $('#dataTable').dataTable({
+                stateSave: true,
+                responsive: true,
+                serverSide: true,
+                processing: true,
+                ajax: {
+                    url: "{{ route('customer-receive-vouchers.index') }}",
+                },
+                columns: [{
                     data: "DT_RowIndex",
                     title: "SL",
                     name: "DT_RowIndex",
                     searchable: false,
                     orderable: false
                 },
-                {
-                    data: "supplier.name",
-                    title: "Supplier",
-                    searchable: false
-                },
-                {
-                    data: "date",
-                    title: "Date",
-                    searchable: true
-                },
-                {
-                    data: "uid",
-                    title: "SPV No",
-                    searchable: true
-                },
-                {
-                    data: "credit_account.name",
-                    title: "Credit",
-                    searchable: false
-                },
-                {
-                    data: "debit_account.name",
-                    title: "Debit",
-                    searchable: false,
-                    "defaultContent":"Not Set"
-                },
-                {
-                    data: "amount",
-                    title: "amount",
-                    searchable: false
-                },
-                {
-                    data: "payee_name",
-                    title: "Receiver",
-                    searchable: false
-                },
-                {
-                    data: "created_at",
-                    title: "Created At",
-                    searchable: true
-                },
-                {
-                    data: "action",
-                    title: "Action",
-                    orderable: false,
-                    searchable: false
-                },
-            ],
-        });
-    })
-</script>
+                    {
+                        data: "date",
+                        title: "Date",
+                        searchable: true
+                    },
+                    {
+                        data: "uid",
+                        title: "CRV No",
+                        searchable: true
+                    },
+                    {
+                        data: "customer.name",
+                        title: "Customer",
+                        searchable: true
+                    },
+                    {
+                        data: "invoice_no",
+                        title: "Invoice No",
+                        searchable: true,
+                        orderable: false
+                    },
+                    {
+                        data: "debit_account.name",
+                        title: "Received To",
+                        searchable: false,
+                        defaultContent: "N/A"
+                    },
+                    {
+                        data: "amount",
+                        title: "Amount",
+                        searchable: false
+                    },
+                    {
+                        data: "action",
+                        title: "Action",
+                        orderable: false,
+                        searchable: false
+                    },
+                ],
+            });
+        })
+    </script>
 
 @endpush

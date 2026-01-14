@@ -11,7 +11,7 @@ class StoreCustomerReceiveVoucherRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +22,21 @@ class StoreCustomerReceiveVoucherRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'date' => 'required',
+            'products' => 'array',
+            'products.*.amount' => 'required',
+            'products.*.customer_id' => 'required',
+            'products.*.sale_id' => 'required', // Invoice ID
+            'products.*.debit_account_id' => ['required'], // Receipt Account (Bank/Cash)
+            // Credit Account would be Accounts Receivable or Customer? 
+            // In Accounting: Debit Cash/Bank, Credit Receivables (Customer)
+            // So we need debit_account_id (received to)
+            'narration' => 'nullable',
         ];
+    }
+    
+    public function prepareForValidation()
+    {
+        //
     }
 }

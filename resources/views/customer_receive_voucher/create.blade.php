@@ -1,212 +1,183 @@
 @extends('layouts.app')
-@section('title', 'Customer Receive Voucher Entry')
+@section('title', 'Customer Due Receive Voucher Entry')
 @section('content')
     @php
         $links = [
             'Home' => route('dashboard'),
-            'Customer Receive Voucher' => route('supplier-vouchers.index'),
-            'Customer Receive Voucher Entry' => '',
+            'Accounts Module'=>'',
+            'Customer Receive Voucher'=>''
         ];
     @endphp
     <x-breadcrumb title='Customer Receive Voucher' :links="$links"/>
     <!-- Basic Inputs start -->
     <section class="content">
-        <div class="container-fluid" id="vue_app">
-            <span v-if="pageLoading" class="pageLoader">
-                <img src="{{ asset('loading.gif') }}" alt="loading">
-            </span>
-            <div class="row">
+        <div class="container-fluid">
+            <div class="row" id="vue_app">
+                <span v-if="pageLoading" class="pageLoader">
+                    <img src="{{ asset('loading.gif') }}" alt="loading">
+                </span>
                 <div class="col-md-12">
-                    <form action="{{ route('supplier-vouchers.store') }}" method="POST" class=""
+                    <form action="{{ route('customer-receive-vouchers.store') }}" method="POST" class=""
                           enctype="multipart/form-data">
                         @csrf
-                        <div class="card card-info">
-                            <div class="card-header">
-                                <h4 class="card-title">Customer Information</h4>
+                        <div class="card">
+                            <div class="card-header bg-info">
+                                <h4 class="card-title">Customer Due Receive Voucher (CRV) Entry</h4>
+                                <div class="card-tools">
+                                    <a href="{{route('customer-receive-vouchers.index')}}" class="btn btn-sm btn-primary">
+                                        <i class="fas fa-bars" aria-hidden="true"></i> &nbsp;See List
+                                    </a>
+                                </div>
                             </div>
-                            <hr style="margin: 0;">
                             <div class="card-body">
-                                <div class="col-md-12">
-                                    <div class="card">
-                                        <div class="card-body">
-                                            <div class="row">
-                                                <div class="col-xl-4 col-md-4 col-12">
-                                                    <div class="form-group">
-                                                        <label for="uid">CRV No</label>
-                                                        <input type="number" class="form-control"
-                                                               v-model="uid" id="uid"
-                                                               name="uid" placeholder="Enter CRV No"
-                                                               value="{{ old('uid') }}" readonly>
-                                                        @if ($errors->has('uid'))
-                                                            <small
-                                                                class="text-danger">{{ $errors->first('uid') }}</small>
-                                                        @endif
-                                                    </div>
-                                                </div>
-
-                                                <div class="col-xl-4 col-md-4 col-12">
-                                                    <div class="form-group">
-                                                        <label for="supplier_id">Group</label>
-                                                        <select name="supplier_group_id"
-                                                                id="supplier_group_id"
-                                                                class="form-control bSelect"
-                                                                v-model="supplier_group_id"
-                                                                @change="fetch_supplier">
-                                                            <option value="">Select Group</option>
-                                                            @foreach($supplier_groups as $row)
-                                                                <option
-                                                                    value="{{ $row->id }}">{{ $row->name }}</option>
-                                                            @endforeach
-                                                        </select>
-                                                    </div>
-                                                </div>
-                                                <div class="col-xl-4 col-md-4 col-12">
-                                                    <div class="form-group">
-                                                        <label for="supplier_id">Supplier</label>
-                                                        <select name="supplier_id" id="supplier_id"
-                                                                class="form-control bSelect"
-                                                                v-model="supplier_id"
-                                                                @change="fetch_due">
-                                                            <option value="">Select Supplier</option>
-                                                            <option :value="row.id"
-                                                                    v-for="row in suppliers"
-                                                                    v-html="row.name">
-                                                            </option>
-
-                                                        </select>
-                                                    </div>
-                                                </div>
-
+                                <div class="card-box">
+                                    <div class="row">
+                                        <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+                                            <div class="form-group">
+                                                <label for="date">Date</label>
+                                                <vuejs-datepicker v-model="date" name="date"
+                                                                  placeholder="Select date"
+                                                                  format="yyyy-MM-dd"></vuejs-datepicker>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+                                            <div class="form-group">
+                                                <label for="narration">Remark</label>
+                                                <textarea class="form-control" name="narration" rows="1"
+                                                          placeholder="Enter Narration"></textarea>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="card card-info">
-                            <div class="card-header">
-                                <h4 class="card-title">Payment Information</h4>
+
+                        <div class="card">
+                            <div class="card-header bg-info">
+                                <h3 class="card-title">CRV Line Item</h3>
                             </div>
-                            <hr style="margin: 0;">
                             <div class="card-body">
-                                <div class="col-md-12">
-                                    <div class="card">
-                                        <div class="card-body">
+                                <div class="row">
+                                    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+                                        <div class="form-group">
+                                            <label for="debit_account_id">Receive Mode (To Account)</label>
+                                            <select class="form-control bSelect" name="debit_account_id"
+                                                    v-model="debit_account_id" ref="debit_account_select">
+                                                <option value="">Select Account</option>
+                                                @foreach ($paymentAccounts as $row)
+                                                    <option value="{{ $row->id }}">{{ $row->name }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+                                        <div class="form-group">
+                                            <label for="customer_id">Customer (Total Due: @{{ total_customer_due }})</label>
+                                            <select class="form-control bSelect" v-model="customer_id" @change="fetch_invoices" ref="customer_select">
+                                                <option value="">Select Customer</option>
+                                                @foreach($customers as $row)
+                                                    <option value="{{ $row->id }}">{{ $row->name }} ({{$row->mobile}})</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                     <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+                                        <div class="form-group">
+                                            <label for="sale_id">Select Invoice (Due: @{{ due }})</label>
+                                            <select class="form-control bSelect" v-model="sale_id" @change="set_due" id="invoice_select">
+                                                <option value="">Select Invoice</option>
+                                                <option v-for="inv in invoices" :value="inv.id">
+                                                    @{{ inv.invoice_number }} (Due: @{{ inv.due_amount }})
+                                                </option>
+                                            </select>
+                                        </div>
+                                    </div>
 
-                                            <div class="row">
-                                                <div class="col-md-6">
-                                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                                        <div class="form-group">
-                                                            <label for="date">Date</label>
-                                                            <vuejs-datepicker v-model="date" name="date"
-                                                                              placeholder="Select date"
-                                                                              format="yyyy-MM-dd"></vuejs-datepicker>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-xl-12 col-md-12 col-12">
-                                                        <div class="form-group">
-                                                            <label for="debit_account_id">Receive
-                                                                Account</label>
-                                                            <select class="form-control select2"
-                                                                    name="debit_account_id"
-                                                                    id="debit_account_id">
-                                                                <option value="">---Select Account---</option>
-                                                                @foreach ($paymentAccounts as $row)
-                                                                    <option
-                                                                        value="{{ $row->id }}" {{ old('debit_account_id') == $row->id ? 'selected' : '' }}>{{ $row->name }}
-                                                                    </option>
-                                                                @endforeach
-                                                            </select>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <div class="col-xl-12 col-md-12 col-12">
-                                                        <div class="form-group">
-                                                            <label for="due">Due Amount</label>
-                                                            <input type="number" class="form-control"
-                                                                   id="due"
-                                                                   v-model="due"
-                                                                   name="due" placeholder="Enter due" readonly>
+                                    <div class="col-lg-2 col-md-2 col-sm-2 col-xs-12">
+                                        <div class="form-group">
+                                            <label for="amount">Receive Amount</label>
+                                            <input type="number" class="form-control" v-model="amount" placeholder="Enter Amount" @change="valid_amount">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-lg-1 col-md-1 col-sm-1 col-xs-12" style="margin-top: 30px;">
+                                        <button type="button" class="btn btn-info btn-block" @click="data_input">Add</button>
+                                    </div>
+                                </div>
 
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-xl-12 col-md-12 col-12">
-                                                        <div class="form-group">
-                                                            <label for="amount">Payment Amount</label>
-                                                            <input type="number" class="form-control"
-                                                                   id="amount"
-                                                                   v-model="amount"
-                                                                   name="amount" placeholder="Enter Amount"
-                                                                   value="{{ old('amount') }}" @change="valid_amount">
-                                                            @if ($errors->has('amount'))
-                                                                <small
-                                                                    class="text-danger">{{ $errors->first('amount') }}</small>
-                                                            @endif
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-xl-12 col-md-12 col-12">
-                                                        <div class="form-group">
-                                                            <label for="payee_name">Receiver Name</label>
-                                                            <input type="text" class="form-control"
-                                                                   id="payee_name"
-                                                                   name="payee_name"
-                                                                   placeholder="Enter Reciever Name"
-                                                                   value="{{ old('payee_name') }}">
-                                                            @if ($errors->has('payee_name'))
-                                                                <small
-                                                                    class="text-danger">{{ $errors->first('payee_name') }}</small>
-                                                            @endif
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-xl-12 col-md-12 col-12">
-                                                        <div class="form-group">
-                                                            <label for="reference_no">Reference No</label>
-                                                            <input type="text" class="form-control"
-                                                                   id="reference_no"
-                                                                   name="reference_no"
-                                                                   placeholder="Enter Reference No"
-                                                                   value="{{ old('reference_no') }}">
-                                                            @if ($errors->has('reference_no'))
-                                                                <small
-                                                                    class="text-danger">{{ $errors->first('reference_no') }}</small>
-                                                            @endif
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-xl-12 col-md-12 col-12">
-                                                        <div class="form-group">
-                                                            <label for="narration">Description</label>
-                                                            <textarea class="form-control" name="narration"
-                                                                      id="narration" cols="" rows="3"
-                                                                      placeholder="Enter Description">{{ old('narration') }}</textarea>
-                                                            @if ($errors->has('narration'))
-                                                                <small
-                                                                    class="text-danger">{{ $errors->first('narration') }}</small>
-                                                            @endif
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
+                                <div class="row">
+                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                        <hr>
+                                        <div class="table-responsive">
+                                            <table class="table table-bordered">
+                                                <thead class="bg-secondary">
+                                                <tr>
+                                                    <th style="width: 5%">#</th>
+                                                    <th style="width: 20%">Receive Mode</th>
+                                                    <th style="width: 20%">Customer</th>
+                                                    <th style="width: 20%">Invoice</th>
+                                                    <th style="width: 15%">Amount</th>
+                                                    <th style="width: 5%"></th>
+                                                </tr>
+                                                </thead>
+                                                <tbody>
+                                                <tr v-for="(row, index) in selected_items">
+                                                    <td>@{{ ++index }}</td>
+                                                    <td>
+                                                        @{{ row.debit_account_name }}
+                                                        <input type="hidden" :name="'products['+index+'][debit_account_id]'" :value="row.debit_account_id">
+                                                    </td>
+                                                    <td>
+                                                        @{{ row.customer_name }}
+                                                        <input type="hidden" :name="'products['+index+'][customer_id]'" :value="row.customer_id">
+                                                    </td>
+                                                    <td>
+                                                        @{{ row.invoice_number }}
+                                                        <input type="hidden" :name="'products['+index+'][sale_id]'" :value="row.sale_id">
+                                                    </td>
+                                                    <td>
+                                                        @{{ row.amount }}
+                                                        <input type="hidden" :name="'products['+index+'][amount]'" :value="row.amount">
+                                                    </td>
+                                                    <td>
+                                                        <button type="button" class="btn btn-sm btn-danger" @click="delete_row(row)"><i class="fa fa-trash"></i></button>
+                                                    </td>
+                                                </tr>
+                                                </tbody>
+                                                <tfoot>
+                                                <tr>
+                                                    <td colspan="6" style="background-color: #DDDCDC"></td>
+                                                </tr>
+                                                <tr>
+                                                    <td colspan="3"></td>
+                                                    <td>Subtotal</td>
+                                                    <td>
+                                                        <input type="text" class="form-control input-sm" name="subtotal" :value="subtotal" readonly>
+                                                    </td>
+                                                    <td></td>
+                                                </tr>
+                                                </tfoot>
+                                            </table>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="card-footer">
-                                <button type="submit" class="float-right btn btn-info"><i class="fa fa-fw fa-lg fa-check-circle"></i>Submit
+                            <div class="card-footer" v-if="selected_items.length > 0">
+                                <button class="float-right btn btn-primary" type="submit">
+                                    <i class="fa fa-fw fa-lg fa-check-circle"></i>Submit
                                 </button>
                             </div>
                         </div>
+
                     </form>
                 </div>
             </div>
         </div>
     </section>
-    <!-- Basic Inputs end -->
 
 @endsection
-@section('css')
 
-@endsection
 @push('style')
     <style>
         .pageLoader {
@@ -217,30 +188,15 @@
             color: red;
             z-index: 999;
         }
-
         input[placeholder="Select date"] {
-            display: block;
-            width: 100%;
-            height: calc(2.25rem + 2px);
-            padding: .375rem .75rem;
-            font-size: 1rem;
-            font-weight: 400;
-            line-height: 1.5;
-            color: #495057;
-            background-color: #fff;
-            background-clip: padding-box;
-            border: 1px solid #ced4da;
+            display: block; width: 100%; height: calc(2.25rem + 2px); padding: .375rem .75rem;
+            font-size: 1rem; color: #495057; background-color: #fff; border: 1px solid #ced4da;
             border-radius: .25rem;
-            box-shadow: inset 0 0 0 transparent;
-            transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
         }
     </style>
-
     <link rel="stylesheet" href="{{ asset('vue-js/bootstrap-select/dist/css/bootstrap-select.min.css') }}">
 @endpush
-@section('js')
 
-@endsection
 @push('script')
     <script src="{{ asset('vue-js/vue/dist/vue.js') }}"></script>
     <script src="{{ asset('vue-js/axios/dist/axios.min.js') }}"></script>
@@ -248,120 +204,146 @@
     <script src="https://cms.diu.ac/vue/vuejs-datepicker.min.js"></script>
     <script>
         $(document).ready(function () {
-
             var vue = new Vue({
                 el: '#vue_app',
                 data: {
                     config: {
-
-                        get_suppliers_info_by_group_id_url: "{{ url('fetch-suppliers-by-group-id') }}",
-                        get_due_by_supplier_id_url: "{{ url('fetch-due-by-supplier-id') }}",
+                        get_invoices_url: "{{ url('fetch-due-invoices-by-customer-id') }}",
                     },
                     date: new Date(),
-                    uid: {{$uid}},
-                    supplier_group_id: '',
-                    supplier_id: '',
+                    customer_id: '',
+                    debit_account_id: '',
+                    sale_id: '',
                     amount: '',
-                    due: '',
-                    suppliers: [],
+                    due: 0,
+                    invoices: [],
+                    selected_items: [],
                     pageLoading: false
                 },
-                components: {
-                    vuejsDatepicker
-                },
+                components: { vuejsDatepicker },
                 computed: {
-
                     subtotal: function () {
                         return this.selected_items.reduce((total, item) => {
-                            return total + item.quantity * item.rate
+                            return total + parseFloat(item.amount)
                         }, 0)
-                    },
-
+                    }
                 },
                 methods: {
-
-                    fetch_supplier() {
-
+                    fetch_invoices() {
                         var vm = this;
-
-                        var slug = vm.supplier_group_id;
-
+                        var slug = vm.customer_id;
+                        vm.invoices = [];
+                        vm.sale_id = '';
+                        vm.due = 0;
+                        vm.total_customer_due = 0;
+                        
                         if (slug) {
                             vm.pageLoading = true;
-                            axios.get(this.config.get_suppliers_info_by_group_id_url + '/' + slug).then(function (response) {
-
-                                // vm.selected_items = response.data.products;
-                                vm.suppliers = response.data.suppliers;
+                            axios.get(this.config.get_invoices_url + '/' + slug).then(function (response) {
+                                vm.invoices = response.data.invoices;
+                                // Calculate Total Customer Due
+                                vm.total_customer_due = vm.invoices.reduce((acc, inv) => acc + (parseFloat(inv.due_amount) || 0), 0);
+                                
                                 vm.pageLoading = false;
+                                // Need to refresh selectpicker
+                                setTimeout(function() {
+                                    $('#invoice_select').selectpicker('refresh');
+                                }, 100);
                             }).catch(function (error) {
-
-                                toastr.error('Something went to wrong', {
-                                    closeButton: true,
-                                    progressBar: true,
-                                });
-
-                                return false;
-
-                            });
-                        }
-
-                    },
-
-                    fetch_due() {
-
-                        var vm = this;
-
-                        var slug = vm.supplier_id;
-
-                        if (slug) {
-                            vm.pageLoading = true;
-                            axios.get(this.config.get_due_by_supplier_id_url + '/' + slug).then(function (response) {
-
-                                // vm.selected_items = response.data.products;
-                                vm.due = response.data;
+                                toastr.error('Something went wrong fetching invoices');
                                 vm.pageLoading = false;
-                            }).catch(function (error) {
-
-                                toastr.error('Something went to wrong', {
-                                    closeButton: true,
-                                    progressBar: true,
-                                });
-
-                                return false;
-
                             });
+                        } else {
+                            setTimeout(function() {
+                                $('#invoice_select').selectpicker('refresh');
+                            }, 100);
                         }
-
                     },
-                    valid_amount: function () {
+                    set_due() {
                         var vm = this;
+                        if(vm.sale_id) {
+                            var inv = vm.invoices.find(item => item.id == vm.sale_id);
+                            if(inv) {
+                                vm.due = inv.due_amount;
+                            } else {
+                                vm.due = 0;
+                            }
+                        } else {
+                            vm.due = 0;
+                        }
+                    },
+                    valid_amount() {
+                         var vm = this;
+                        if (vm.amount < 0) {
+                             toastr.error('Negative amount not allowed');
+                             vm.amount = '';
+                             return;
+                        }
+                        if (vm.due > 0 && vm.amount > vm.due) {
+                             toastr.warning('Amount greater than Due');
+                        }
+                    },
+                    data_input() {
+                        let vm = this;
+                        if (!vm.debit_account_id || !vm.customer_id || !vm.sale_id || !vm.amount) {
+                            toastr.error('Please fill all required fields');
+                            return;
+                        }
                         if (vm.amount <= 0) {
-                            toastr.error('Quantity 0 or Negative not Allow', {
-                                closeButton: true,
-                                progressBar: true,
-                            });
-                            vm.amount = '';
+                            toastr.error('Invalid Amount');
+                            return;
                         }
-                        if (vm.amount > vm.due) {
-                            toastr.warning('Given Amount greater than Due Amount', {
-                                closeButton: true,
-                                progressBar: true,
-                            });
-                            vm.amount = vm.due;
+                        
+                         // Check Duplication
+                        let exists = vm.selected_items.some(function (item) {
+                            return item.sale_id == vm.sale_id;
+                        });
+                        
+                        if (exists) {
+                            toastr.error('This Invoice is already added to the list.');
+                             return;
                         }
-                    },
-                },
 
+                        // Get Names for Display
+                        let debit_name = vm.$refs.debit_account_select.options[vm.$refs.debit_account_select.selectedIndex].text;
+                        
+                        let customer_name = vm.$refs.customer_select.options[vm.$refs.customer_select.selectedIndex].text;
+                        
+                        let inv = vm.invoices.find(item => item.id == vm.sale_id);
+                        let invoice_number = inv ? inv.invoice_number : vm.sale_id;
+
+                        vm.selected_items.push({
+                            debit_account_id: vm.debit_account_id,
+                            debit_account_name: debit_name,
+                            customer_id: vm.customer_id,
+                            customer_name: customer_name,
+                            sale_id: vm.sale_id,
+                            invoice_number: invoice_number,
+                            amount: vm.amount
+                        });
+
+                        // Reset fields
+                        // Keep customer and mode? 
+                        // Maybe reset invoice and amount only?
+                        // User might want to add another invoice for same customer.
+                        // So I won't reset customer, but will reset sale_id and amount.
+                        vm.sale_id = '';
+                        vm.amount = '';
+                        vm.due = 0;
+                        
+                         setTimeout(function() {
+                            $('#invoice_select').selectpicker('refresh');
+                        }, 50);
+                    },
+                    delete_row(row) {
+                        this.selected_items.splice(this.selected_items.indexOf(row), 1);
+                    }
+                },
                 updated() {
                     $('.bSelect').selectpicker('refresh');
                 }
-
             });
-
-            $('.bSelect').selectpicker({
-                liveSearch: true,
-                size: 5
-            });
+            $('.bSelect').selectpicker({ liveSearch: true, size: 5 });
         });
     </script>
 @endpush
