@@ -23,24 +23,18 @@ class StoreSupplierPaymentVoucherRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'uid' => 'required',
             'date' => 'required',
-            'amount' => 'required',
-            'supplier_id' => 'required',
-            'credit_account_id' => ['required'],
-            'debit_account_id' => ['required'],
-            'payee_name' => 'required',
+            'products' => 'array',
+            'products.*.amount' => 'required',
+            'products.*.supplier_id' => 'required',
+            'products.*.credit_account_id' => ['required'],
+            'products.*.payee_name' => 'required',
+            'products.*.reference_no' => 'nullable',
             'narration' => 'nullable',
-            'reference_no' => 'nullable',
         ];
     }
     public function prepareForValidation()
     {
-
-        $this->merge([
-            'date' => Carbon::parse($this->date)->format('Y-m-d'),
-            'debit_account_id' => 22,
-        ]);
-
+        //
     }
 }

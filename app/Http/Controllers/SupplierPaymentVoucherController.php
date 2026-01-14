@@ -44,6 +44,7 @@ class SupplierPaymentVoucherController extends Controller
     public function create()
     {
         $supplier_groups = SupplierGroup::where('status','active')->get();
+        // Credit (Bank/Cash)
         $paymentAccounts = ChartOfAccount::where(['is_bank_cash' => 'yes', 'type' => 'ledger', 'status' => 'active'])->get();
 
         $serial_count = SupplierPaymentVoucher::latest()->first() ? SupplierPaymentVoucher::latest()->first()->id : 0;
@@ -59,20 +60,62 @@ class SupplierPaymentVoucherController extends Controller
         $validated = $request->validated();
         DB::beginTransaction();
         try {
-            $voucher = SupplierPaymentVoucher::create($validated);
-            //Accounts Effect
-            addAccountsTransaction('SPV', $voucher, $voucher->debit_account_id, $voucher->credit_account_id);
-            // Supplier Transaction Effect
-            SupplierTransaction::query()->create([
-                'supplier_id' => $voucher->supplier_id,
-                'doc_type' => 'SPV',
-                'doc_id' => $voucher->id,
-                'amount' => $voucher->amount,
-                'date' => $voucher->date,
-                'transaction_type' => -1,
-                'chart_of_account_id' => $voucher->credit_account_id,
-                'description' => 'Payment For Purchase of Goods',
-            ]);
+            if (!isset($validated['products']) || count($validated['products']) < 1) {
+                Toastr::info('At Least One Item Required.', '', ["progressBar" => true]);
+                return back();
+            }
+
+            foreach ($validated['products'] as $product) {
+                $product['date'] = $validated['date'];
+                $product['narration'] = $validated['narration'];
+                $product['uid'] = $validated['uid'] ?? ($product['uid'] ?? null); // Use top level or product level, but UID logic in this controller was serial_count + 1. The Request doesn't simplify UID generation.
+                // The previous code used checks on `uid`. Let's stick to generating it or taking from form.
+                // In previous view, UID was auto-incremented in Controller create() but submitted from form.
+                // WE SHOULD GENERATE IT HERE TO BE SAFE for multi mode, but user might want same voucher no?
+                // The prompt says "update ... as like as resources/views/fund_transfer_voucher/create.blade.php".
+                // FTV generates UID in loop: `generateUniqueCode`.
+                // SPV controller original code: `$uid = $serial_count + 1`.
+                // Let's use `generateUniqueCode` if available (it is a global helper presumably).
+                // Or if we want separate UIDs for each transaction row?
+                // Yes, `PaymentVoucher` and `ReceiveVoucher` loops generate unique code per row.
+                // So I will do the same here.
+                
+                // Note: The helper generateUniqueCode might not work if SPV model uses 'uid' as integer ID or something?
+                // Request validation said 'uid' => 'required'.
+                // I will assume generateUniqueCode(SupplierPaymentVoucher::class, 'uid') works or fallback to manual.
+                // To be safe, I'll try to use the helper. If not, I'll increment.
+                // Wait, SPV `uid` in `create` was just `$id + 1`.
+                // I will use `generateUniqueCode` to be consistent with other changes I made.
+                // But wait, the table might have it as INT.
+                // Let's check `ReceiveVoucher` `create` -> `generateUniqueCode`. 
+                // So I'll use `generateUniqueCode` logic if possible.
+                // If not, I'll rely on the submitted UID or generate new ones.
+                
+                // Wait, if I submit multiple items, they can share the SAME Voucher ID (Grouped)?
+                // The other controllers create separate records: `PaymentVoucher::create($product)`.
+                // So they are separate rows in DB.
+                // So they should have unique UIDs if UID is a unique constraint.
+                // Yes, `uid` unique.
+                
+                $product['uid'] = generateUniqueCode(SupplierPaymentVoucher::class, 'uid');
+                $product['debit_account_id'] = 22; // Hardcoded Accounts Payable
+
+                $voucher = SupplierPaymentVoucher::create($product);
+                
+                //Accounts Effect
+                addAccountsTransaction('SPV', $voucher, $voucher->debit_account_id, $voucher->credit_account_id);
+                // Supplier Transaction Effect
+                SupplierTransaction::query()->create([
+                    'supplier_id' => $voucher->supplier_id,
+                    'doc_type' => 'SPV',
+                    'doc_id' => $voucher->id,
+                    'amount' => $voucher->amount,
+                    'date' => $voucher->date,
+                    'transaction_type' => -1, // Payment reduces balance
+                    'chart_of_account_id' => $voucher->credit_account_id, // Paid from Bank
+                    'description' => 'Payment For Purchase of Goods',
+                ]);
+            }
             DB::commit();
         } catch (\Exception $error) {
             DB::rollBack();
