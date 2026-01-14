@@ -41,4 +41,9 @@ class Customer extends Model
     {
         return $this->membershipPointHistories()->whereYear('created_at', date('Y'))->sum('point');
     }
+
+    public function customerTransactions()
+    {
+        return $this->hasMany(CustomerTransaction::class, 'customer_id');
+    }
 }

@@ -377,6 +377,14 @@ Route::middleware(['auth', 'prevent_duplicate_submission'])->group(function () {
     Route::get('fetch-due-by-customer-id/{id}', [App\Http\Controllers\ApiController::class, 'fetchCustomerDueById'])->name('customer.due');
     Route::get('fetch-due-invoices-by-customer-id/{id}', [\App\Http\Controllers\CustomerReceiveVoucherController::class, 'fetchDueInvoice']);
     //-----End Customer Receive Voucher---------
+
+    // Customer Due
+    Route::get('customer-dues', [App\Http\Controllers\CustomerDueController::class, 'index'])->name('customer-dues.index');
+    Route::get('customer-dues/{id}', [App\Http\Controllers\CustomerDueController::class, 'show'])->name('customer-dues.show');
+
+    // Supplier Due
+    Route::get('supplier-dues', [App\Http\Controllers\SupplierDueController::class, 'index'])->name('supplier-dues.index');
+    Route::get('supplier-dues/{id}', [App\Http\Controllers\SupplierDueController::class, 'show'])->name('supplier-dues.show');
     Route::get('fetch-account-info/{id}', [App\Http\Controllers\ApiController::class, 'fetchAccountDetailsById']);
     Route::get('fetch-from-account-balance/{id}', [App\Http\Controllers\ApiController::class, 'fetchFromAccountBalanceById']);
 });

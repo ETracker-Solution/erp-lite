@@ -46,9 +46,9 @@
 
                 @canany(['accounts-receive-voucher', 'accounts-payment-voucher', 'accounts-journal-voucher', 'accounts-ft-voucher', 'accounts-delivery-cash-transfer', 'accounts-delivery-cash-receive', 'supplier-voucher', 'accounts-ledger-report', 'accounts-financial-report', 'accounts-supplier-voucher'])
                     <li
-                        class="nav-item {{ (Request::segment(1) == 'reports' || Request::segment(1) == 'financial-statements' || Request::segment(1) == 'receive-vouchers' || Request::segment(1) == 'customer-receive-vouchers' || Request::segment(1) == 'payment-vouchers' || Request::segment(1) == 'journal-vouchers' || Request::segment(1) == 'fund-transfer-vouchers' || Request::segment(1) == 'delivery-cash-transfers' || Request::segment(1) == 'delivery-cash-receives' || Request::segment(1) == 'supplier-vouchers') ? 'menu-open' : ''}}">
+                        class="nav-item {{ (Request::segment(1) == 'reports' || Request::segment(1) == 'financial-statements' || Request::segment(1) == 'receive-vouchers' || Request::segment(1) == 'customer-receive-vouchers' || Request::segment(1) == 'supplier-dues' || Request::segment(1) == 'customer-dues' || Request::segment(1) == 'payment-vouchers' || Request::segment(1) == 'journal-vouchers' || Request::segment(1) == 'fund-transfer-vouchers' || Request::segment(1) == 'delivery-cash-transfers' || Request::segment(1) == 'delivery-cash-receives' || Request::segment(1) == 'supplier-vouchers') ? 'menu-open' : ''}}">
                         <a href="#"
-                            class="nav-link {{ (Request::segment(1) == 'reports' || Request::segment(1) == 'financial-statements' || Request::segment(1) == 'receive-vouchers' || Request::segment(1) == 'customer-receive-vouchers' || Request::segment(1) == 'payment-vouchers' || Request::segment(1) == 'journal-vouchers' || Request::segment(1) == 'fund-transfer-vouchers' || Request::segment(1) == 'delivery-cash-transfers' || Request::segment(1) == 'delivery-cash-receives' || Request::segment(1) == 'supplier-vouchers') ? ' active' : ''}}">
+                            class="nav-link {{ (Request::segment(1) == 'reports' || Request::segment(1) == 'financial-statements' || Request::segment(1) == 'receive-vouchers' || Request::segment(1) == 'customer-receive-vouchers' || Request::segment(1) == 'supplier-dues' || Request::segment(1) == 'customer-dues' || Request::segment(1) == 'payment-vouchers' || Request::segment(1) == 'journal-vouchers' || Request::segment(1) == 'fund-transfer-vouchers' || Request::segment(1) == 'delivery-cash-transfers' || Request::segment(1) == 'delivery-cash-receives' || Request::segment(1) == 'supplier-vouchers') ? ' active' : ''}}">
                             <i class="nav-icon fas fa-wrench"></i>
                             <p>
                                 Accounts Module
@@ -58,9 +58,9 @@
                         <ul class="nav nav-treeview second-child">
                             @canany(['accounts-receive-voucher', 'accounts-payment-voucher', 'accounts-journal-voucher', 'accounts-ft-voucher', 'accounts-delivery-cash-transfer', 'accounts-delivery-cash-receive', 'accounts-supplier-voucher'])
                                 <li
-                                    class="nav-item {{ (Request::segment(1) == 'receive-vouchers' || Request::segment(1) == 'customer-receive-vouchers' || Request::segment(1) == 'payment-vouchers' || Request::segment(1) == 'journal-vouchers' || Request::segment(1) == 'fund-transfer-vouchers' || Request::segment(1) == 'delivery-cash-transfers' || Request::segment(1) == 'delivery-cash-receives' || Request::segment(1) == 'supplier-vouchers') ? 'menu-open' : ''}}">
+                                    class="nav-item {{ (Request::segment(1) == 'receive-vouchers' || Request::segment(1) == 'customer-receive-vouchers' || Request::segment(1) == 'supplier-dues' || Request::segment(1) == 'customer-dues' || Request::segment(1) == 'payment-vouchers' || Request::segment(1) == 'journal-vouchers' || Request::segment(1) == 'fund-transfer-vouchers' || Request::segment(1) == 'delivery-cash-transfers' || Request::segment(1) == 'delivery-cash-receives' || Request::segment(1) == 'supplier-vouchers') ? 'menu-open' : ''}}">
                                     <a href="#"
-                                        class="nav-link {{ (Request::segment(1) == 'receive-vouchers' || Request::segment(1) == 'customer-receive-vouchers' || Request::segment(1) == 'payment-vouchers' || Request::segment(1) == 'journal-vouchers' || Request::segment(1) == 'fund-transfer-vouchers' || Request::segment(1) == 'delivery-cash-transfers' || Request::segment(1) == 'delivery-cash-receives' || Request::segment(1) == 'supplier-vouchers') ? ' active' : ''}}">
+                                        class="nav-link {{ (Request::segment(1) == 'receive-vouchers' || Request::segment(1) == 'customer-receive-vouchers' || Request::segment(1) == 'supplier-dues' || Request::segment(1) == 'customer-dues' || Request::segment(1) == 'payment-vouchers' || Request::segment(1) == 'journal-vouchers' || Request::segment(1) == 'fund-transfer-vouchers' || Request::segment(1) == 'delivery-cash-transfers' || Request::segment(1) == 'delivery-cash-receives' || Request::segment(1) == 'supplier-vouchers') ? ' active' : ''}}">
                                         <i class="nav-icon fa fa-folder-open"></i>
                                         <p>
                                             General Accounts
@@ -142,10 +142,25 @@
                                             </li>
                                         @endcan
                                             <li class="nav-item">
+                                            <li class="nav-item">
                                                 <a href="{{route('customer-receive-vouchers.index')}}"
                                                     class="nav-link {{ (Request::segment(1) == 'customer-receive-vouchers') ? ' active' : ''}}">
                                                     <i class="far fa-circle nav-icon"></i>
                                                     <p>Customer Due Coll.</p>
+                                                </a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a href="{{route('supplier-dues.index')}}"
+                                                    class="nav-link {{ (Request::segment(1) == 'supplier-dues') ? ' active' : ''}}">
+                                                    <i class="far fa-circle nav-icon"></i>
+                                                    <p>Supplier Due</p>
+                                                </a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a href="{{route('customer-dues.index')}}"
+                                                    class="nav-link {{ (Request::segment(1) == 'customer-dues') ? ' active' : ''}}">
+                                                    <i class="far fa-circle nav-icon"></i>
+                                                    <p>Customer Due</p>
                                                 </a>
                                             </li>
                                     </ul>

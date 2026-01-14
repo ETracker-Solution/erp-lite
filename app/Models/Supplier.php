@@ -13,4 +13,9 @@ class Supplier extends Model
     public function group(){
         return $this->belongsTo(SupplierGroup::class,'supplier_group_id');
     }
+
+    public function supplierTransactions()
+    {
+        return $this->hasMany(SupplierTransaction::class, 'supplier_id');
+    }
 }
