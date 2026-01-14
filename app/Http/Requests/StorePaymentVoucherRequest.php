@@ -25,14 +25,15 @@ class StorePaymentVoucherRequest extends FormRequest
     public function rules()
     {
         return [
-            'uid' => ['required', 'unique:payment_vouchers,uid'],
             'date' => 'required',
-            'amount' => 'required',
-            'credit_account_id' => ['required','different:debit_account_id'],
-            'debit_account_id' => ['required', 'different:credit_account_id'],
-            'payee_name' => 'required',
+            'products' => 'array',
+            'products.*.amount' => 'required',
+            'products.*.credit_account_id' => ['required','different:products.*.debit_account_id'],
+            'products.*.debit_account_id' => ['required', 'different:products.*.credit_account_id'],
+            'products.*.payee_name' => 'required',
+            // 'products.*.narration' => 'nullable',
+            'products.*.reference_no' => 'nullable',
             'narration' => 'nullable',
-            'reference_no' => 'nullable',
         ];
     }
     public function prepareForValidation()

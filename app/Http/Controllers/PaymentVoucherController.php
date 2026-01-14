@@ -46,11 +46,10 @@ class PaymentVoucherController extends Controller
      */
     public function create()
     {
-        $creditAccounts = ChartOfAccount::where(['is_bank_cash' => 'yes', 'type' => 'ledger', 'status' => 'active'])->get();
-        $debitAccounts = ChartOfAccount::where(['is_bank_cash' => 'no', 'type' => 'ledger', 'status' => 'active'])->get();
+        $chartOfAccounts = ChartOfAccount::where(['is_bank_cash' => 'yes', 'type' => 'ledger', 'status' => 'active'])->get();
+        $toChartOfAccounts = ChartOfAccount::where(['is_bank_cash' => 'no', 'type' => 'ledger', 'status' => 'active'])->get();
         $PVno = generateUniqueCode(PaymentVoucher::class,'uid');
-        return view('payment_voucher.create', compact('debitAccounts', 'creditAccounts', 'PVno'));
-
+        return view('payment_voucher.create', compact('toChartOfAccounts', 'chartOfAccounts', 'PVno'));
     }
 
     /**
@@ -64,9 +63,20 @@ class PaymentVoucherController extends Controller
         $validated = $request->validated();
         DB::beginTransaction();
         try {
-            $voucher = PaymentVoucher::create($validated);
-            // Accounts Effect
-            addAccountsTransaction('PV', $voucher, $voucher->debit_account_id, $voucher->credit_account_id);
+            if (!isset($validated['products']) || count($validated['products']) < 1) {
+                Toastr::info('At Least One Item Required.', '', ["progressBar" => true]);
+                return back();
+            }
+
+            foreach ($validated['products'] as $product) {
+                $product['date'] = $validated['date'];
+                $product['narration'] = $validated['narration'];
+                $product['uid'] = generateUniqueCode(PaymentVoucher::class, 'uid');
+
+                $voucher = PaymentVoucher::create($product);
+                // Accounts Effect
+                addAccountsTransaction('PV', $voucher, $voucher->debit_account_id, $voucher->credit_account_id);
+            }
             DB::commit();
         } catch (\Exception $error) {
             DB::rollBack();
