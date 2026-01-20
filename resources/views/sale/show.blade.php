@@ -115,7 +115,23 @@
                         <div class="row">
                             <!-- accepted payments column -->
                             <div class="col-8">
-
+                                <p class="lead">Payment Methods:</p>
+                                <table class="table table-sm table-bordered" style="width: 50%">
+                                    <thead>
+                                        <tr>
+                                            <th>Method</th>
+                                            <th class="text-right">Amount</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($sale->payments as $payment)
+                                            <tr>
+                                                <td>{{ ucfirst($payment->payment_method) }}</td>
+                                                <td class="text-right">{{ number_format($payment->amount, 2) }}</td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
                             </div>
                             <!-- /.col -->
                             <div class="col-4">
@@ -157,7 +173,7 @@
                             <div class="col-4">
                                 <div class="table-responsive">
                                     @php
-                                        $paidAmount = max($sale->receive_ammount,$sale->grand_total);
+                                        $paidAmount = $sale->payments->sum('amount');
                                         $dueAmount = $sale->grand_total - $paidAmount;
                                     @endphp
                                     <table class="table">

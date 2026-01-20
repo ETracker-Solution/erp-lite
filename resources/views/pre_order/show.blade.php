@@ -101,7 +101,29 @@
                         <div class="row">
                             <!-- accepted payments column -->
                             <div class="col-8">
-
+                                <p class="lead">Payment Methods:</p>
+                                <table class="table table-sm table-bordered" style="width: 50%">
+                                    <thead>
+                                        <tr>
+                                            <th>Method</th>
+                                            <th class="text-right">Amount</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @if($model->sale)
+                                            @foreach($model->sale->payments as $payment)
+                                                <tr>
+                                                    <td>{{ ucfirst($payment->payment_method) }}</td>
+                                                    <td class="text-right">{{ number_format($payment->amount, 2) }}</td>
+                                                </tr>
+                                            @endforeach
+                                        @else
+                                            <tr>
+                                                <td colspan="2">No payment info found (No linked sale)</td>
+                                            </tr>
+                                        @endif
+                                    </tbody>
+                                </table>
                             </div>
                             <!-- /.col -->
                             <div class="col-4">
@@ -126,7 +148,14 @@
                                         <tr>
                                             <th style="width:50%">Grand Total</th>
                                             <td class="text-right">{{ $model->grand_total }}</td>
-
+                                        </tr>
+                                        <tr>
+                                            <th style="width:50%">Paid</th>
+                                            <td class="text-right">{{ $model->sale ? $model->sale->payments->sum('amount') : 0 }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th style="width:50%">Due</th>
+                                            <td class="text-right">{{ $model->grand_total - ($model->sale ? $model->sale->payments->sum('amount') : 0) }}</td>
                                         </tr>
                                     </table>
                                 </div>

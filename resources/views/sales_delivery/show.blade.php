@@ -90,7 +90,39 @@
                         <div class="row">
                             <!-- accepted payments column -->
                             <div class="col-8">
-
+                                <p class="lead">Payment Methods:</p>
+                                <table class="table table-sm table-bordered" style="width: 50%">
+                                    <thead>
+                                        <tr>
+                                            <th>Method (Phase)</th>
+                                            <th class="text-right">Amount</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @php
+                                            $initial_payments = json_decode($otherOutletSale->payment_methods, true) ?? [];
+                                            $sale = \App\Models\Sale::where('invoice_number', $otherOutletSale->invoice_number)->first();
+                                            $delivery_payments = $sale ? $sale->payments : collect();
+                                        @endphp
+                                        @foreach($initial_payments as $payment)
+                                            <tr>
+                                                <td>{{ ucfirst($payment['method'] ?? 'N/A') }} (Order)</td>
+                                                <td class="text-right">{{ number_format($payment['amount'] ?? 0, 2) }}</td>
+                                            </tr>
+                                        @endforeach
+                                        @foreach($delivery_payments as $payment)
+                                            <tr>
+                                                <td>{{ ucfirst($payment->payment_method) }} (Delivery)</td>
+                                                <td class="text-right">{{ number_format($payment->amount, 2) }}</td>
+                                            </tr>
+                                        @endforeach
+                                        @if(empty($initial_payments) && $delivery_payments->isEmpty())
+                                            <tr>
+                                                <td colspan="2">No payment info found</td>
+                                            </tr>
+                                        @endif
+                                    </tbody>
+                                </table>
                             </div>
                             <!-- /.col -->
                             <div class="col-4">
@@ -109,7 +141,7 @@
                                             <td class="text-right">{{ $otherOutletSale->grand_total }}</td>
                                         </tr>
                                         @php
-                                            $paid = $otherOutletSale->receive_amount +  $otherOutletSale->delivery_point_receive_amount;
+                                            $paid = ($delivery_payments->sum('amount') > 0) ? $delivery_payments->sum('amount') + $otherOutletSale->receive_amount : $otherOutletSale->receive_amount + $otherOutletSale->delivery_point_receive_amount;
                                         @endphp
                                         <tr>
                                             <th style="width:50%">Paid</th>
@@ -117,7 +149,7 @@
                                         </tr>
                                         <tr>
                                             <th style="width:50%">Due</th>
-                                            <td class="text-right">{{ $otherOutletSale->grand_total -   $paid}}</td>
+                                            <td class="text-right">{{ max($otherOutletSale->grand_total - $paid, 0) }}</td>
                                         </tr>
                                     </table>
                                 </div>

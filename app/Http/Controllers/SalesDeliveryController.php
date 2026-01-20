@@ -251,7 +251,8 @@ class SalesDeliveryController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $otherOutletSale = OthersOutletSale::with('createdBy')->findOrFail(decrypt($id));
+        return view('sales_delivery.show', compact('otherOutletSale'));
     }
 
     /**
