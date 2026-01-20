@@ -309,7 +309,8 @@
                 recipeModal: false,
                 recipeContent: '',
                 customer_name_disabled: true,
-                customer_name: ""
+                customer_name: "",
+                comment: ""
             },
             mounted() {
                 this.getAllProducts();
@@ -624,10 +625,12 @@
                             total_discount_value: vm.total_discount_value,
                             total_discount_amount: vm.total_discount_amount,
                             customer_name: vm.customer_name,
+                            remark: vm.comment,
                         }).then(function (response) {
                             vm.selectedProducts = [];
                             vm.customer = {};
                             vm.discount_type = '';
+                            vm.comment = '';
                             vm.customerNumber = '';
                             vm.total_discount_type = '';
                             vm.total_discount_value = 0;

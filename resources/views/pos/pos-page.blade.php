@@ -243,6 +243,9 @@
                        @endforeach
                     </select>
                 </b-row>
+                <b-row class="mt-2">
+                    <textarea name="remark" rows="2" v-model="comment" class="form-control" placeholder="Enter Comment (If Any)"></textarea>
+                </b-row>
             </b-container>
         </div>
         <div class="text-center">

@@ -120,6 +120,7 @@ class POSController extends Controller
             $sale->total_discount_type = $request->total_discount_type;
             $sale->total_discount_value = $request->total_discount_value;
             $sale->total_discount_amount = $request->total_discount_amount;
+            $sale->remark = $request->remark;
             $sale->save();
 
             $products = $request->get('products');
