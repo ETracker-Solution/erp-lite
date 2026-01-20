@@ -95,4 +95,9 @@ class Sale extends Model
     {
         return $this->hasMany(AccountTransaction::class,'doc_id')->where('doc_type','POS');
     }
+
+    public function deliveryPoint()
+    {
+        return $this->belongsTo(Outlet::class,'delivery_point_id');
+    }
 }

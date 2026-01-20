@@ -88,7 +88,7 @@ class SaleController extends Controller
             'customers' => Customer::where('status', 'active')->get(),
             'user_store' => $user_store,
             'invoice_number' => $serial_no,
-            'delivery_points' => Outlet::all(),
+            'delivery_points' => Outlet::where('status','active')->get(),
             'user_outlet_id' => $outlet_id,
             'employees'=>$employees
         ];
@@ -178,6 +178,7 @@ class SaleController extends Controller
 
             $sale->delivery_area = $request->delivery_area ?? '';
             $sale->delivery_type = $request->delivery_type ?? '';
+            $sale->delivery_point_id = $request->delivery_point_id ?? '';
             $sale->save();
 
             $products = $request->get('products');

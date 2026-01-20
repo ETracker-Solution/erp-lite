@@ -55,7 +55,7 @@
                                     <tr>
                                         <td style="text-align: left; padding:8px; line-height: 0.6">
                                             <p><b>Address :</b> {{ $sale->outlet->address }}</p>
-                                            <p><b>Delivery Area :</b> {{ $sale->delivery_area }}</p>
+                                            <p><b>Delivery Point :</b> {{ $sale->deliveryPoint->name ?? 'N/A' }}</p>
                                             <p><b>Delivery Type :</b> {{ $sale->delivery_type }}</p>
                                         </td>
                                     </tr>
