@@ -187,9 +187,12 @@ class SaleReportController extends Controller
                     US.name AS 'Seller',
                     IFNULL(SS.waiter_name, '') AS 'Waiter',
                     SS.date AS 'Date',
-                    SS.subtotal AS 'Amount',
-                    SS.discount AS 'Discount',
-                    (SS.subtotal - SS.discount) AS 'After Discount',
+                    SS.subtotal AS 'Subtotal',
+                    (SS.discount + IFNULL(SS.couponCodeDiscountAmount, 0)) AS 'Total Discount',
+                    (SS.subtotal - (SS.discount + IFNULL(SS.couponCodeDiscountAmount, 0))) AS 'After Discount',
+                    SS.delivery_charge AS 'Delivery Charge',
+                    SS.additional_charge AS 'Additional Charge',
+                    SS.grand_total AS 'Final Amount',
                     0 AS 'COGS'
                 FROM
                     sales SS
@@ -210,9 +213,12 @@ class SaleReportController extends Controller
                     '' AS 'Waiter',
                     'Total' AS 'Invoice Number',
                     '' AS 'Date',
-                    SUM(SS.subtotal) AS 'Amount',
-                    SUM(SS.discount) AS 'Discount',
-                    SUM(SS.subtotal - SS.discount) AS 'After Discount',
+                    SUM(SS.subtotal) AS 'Subtotal',
+                    SUM(SS.discount + IFNULL(SS.couponCodeDiscountAmount, 0)) AS 'Total Discount',
+                    SUM(SS.subtotal - (SS.discount + IFNULL(SS.couponCodeDiscountAmount, 0))) AS 'After Discount',
+                    SUM(SS.delivery_charge) AS 'Delivery Charge',
+                    SUM(SS.additional_charge) AS 'Additional Charge',
+                    SUM(SS.grand_total) AS 'Final Amount',
                     0 AS 'COGS'
                 FROM
                     sales SS
@@ -231,9 +237,12 @@ class SaleReportController extends Controller
                     US.name AS 'Seller',
                     IFNULL(SS.waiter_name, '') AS 'Waiter',
                     SS.date AS 'Date',
-                    SS.subtotal AS 'Amount',
-                    SS.discount AS 'Discount',
-                    (SS.subtotal - SS.discount) AS 'After Discount',
+                    SS.subtotal AS 'Subtotal',
+                    (SS.discount + IFNULL(SS.couponCodeDiscountAmount, 0)) AS 'Total Discount',
+                    (SS.subtotal - (SS.discount + IFNULL(SS.couponCodeDiscountAmount, 0))) AS 'After Discount',
+                    SS.delivery_charge AS 'Delivery Charge',
+                    SS.additional_charge AS 'Additional Charge',
+                    SS.grand_total AS 'Final Amount',
                     0 AS 'COGS'
                 FROM
                     sales SS
@@ -255,9 +264,12 @@ class SaleReportController extends Controller
                     '' AS 'Waiter',
                     'Total' AS 'Invoice Number',
                     '' AS 'Date',
-                    SUM(SS.subtotal) AS 'Amount',
-                    SUM(SS.discount) AS 'Discount',
-                    SUM(SS.subtotal - SS.discount) AS 'After Discount',
+                    SUM(SS.subtotal) AS 'Subtotal',
+                    SUM(SS.discount + IFNULL(SS.couponCodeDiscountAmount, 0)) AS 'Total Discount',
+                    SUM(SS.subtotal - (SS.discount + IFNULL(SS.couponCodeDiscountAmount, 0))) AS 'After Discount',
+                    SUM(SS.delivery_charge) AS 'Delivery Charge',
+                    SUM(SS.additional_charge) AS 'Additional Charge',
+                    SUM(SS.grand_total) AS 'Final Amount',
                     0 AS 'COGS'
                 FROM
                     sales SS
