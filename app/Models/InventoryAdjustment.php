@@ -25,4 +25,9 @@ class InventoryAdjustment extends Model
     {
         return $this->belongsTo(User::class, 'created_by');
     }
+
+    public function editHistories()
+    {
+        return $this->hasMany(AdjustmentEditHistory::class, 'inventory_adjustment_id');
+    }
 }

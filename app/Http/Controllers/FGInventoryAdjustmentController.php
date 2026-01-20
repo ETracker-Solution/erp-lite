@@ -8,7 +8,9 @@ use App\Models\ChartOfInventory;
 use App\Models\InventoryAdjustment;
 use App\Models\InventoryAdjustmentItem;
 use App\Models\InventoryTransaction;
+use App\Models\AccountTransaction;
 use App\Models\Store;
+use App\Models\AdjustmentEditHistory;
 use Brian2694\Toastr\Facades\Toastr;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -87,7 +89,6 @@ class FGInventoryAdjustmentController extends Controller
                 $adjustment->items()->create($product);
 
                 // Inventory Transaction Effect
-
                 $type = $data['transaction_type'] === 'increase' ? 1 : -1;
                 InventoryTransaction::query()->create([
                     'store_id' => $adjustment->store_id,
@@ -100,14 +101,12 @@ class FGInventoryAdjustmentController extends Controller
                     'type' => $type,
                     'coi_id' => $product['coi_id'],
                 ]);
-                // Accounts Transaction Effect
-                if ($data['transaction_type'] === 'increase') {
-                    addAccountsTransaction('FGIA', $adjustment, 16, 52);
-                } else {
-                    addAccountsTransaction('FGIA', $adjustment, 52, 16);
-                }
-
-
+            }
+            // Accounts Transaction Effect
+            if ($data['transaction_type'] === 'increase') {
+                addAccountsTransaction('FGIA', $adjustment, 16, 52);
+            } else {
+                addAccountsTransaction('FGIA', $adjustment, 52, 16);
             }
             DB::commit();
         } catch (\Exception $error) {
@@ -124,7 +123,6 @@ class FGInventoryAdjustmentController extends Controller
      */
     public function show($id)
     {
-
         $fGInventoryAdjustment = InventoryAdjustment::findOrFail(decrypt($id));
         $items = InventoryAdjustmentItem::where('inventory_adjustment_id', decrypt($id))->get();
         return view('fg_inventory_adjustment.show', compact('fGInventoryAdjustment', 'items'));
@@ -133,34 +131,89 @@ class FGInventoryAdjustmentController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(InventoryAdjustment $fGInventoryAdjustment)
+    public function edit($id)
     {
-        //
+        $fGInventoryAdjustment = InventoryAdjustment::with('items.coi')->findOrFail(decrypt($id));
+        
+        if (\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->outlet_id) {
+            $stores = Store::query()->whereType('FG')->where(['doc_type' => 'outlet', 'status' => 'active', 'doc_id' => \auth()->user()->employee->outlet_id])->get();
+        } elseif (\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->factory_id) {
+            $stores = Store::query()->whereType('FG')->where(['doc_type' => 'factory', 'status' => 'active', 'doc_id' => \auth()->user()->employee->factory_id])->get();
+        } else {
+            $stores = Store::query()->whereType('FG')->where('status', 'active')->get();
+        }
+
+        $data = [
+            'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'FG'])->get(),
+            'stores' => $stores,
+            'fGInventoryAdjustment' => $fGInventoryAdjustment,
+        ];
+        return view('fg_inventory_adjustment.edit', $data);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update($fGInventoryAdjustment)
+    public function update(UpdateFGInventoryAdjustmentRequest $request, $id)
     {
+        $adjustment = InventoryAdjustment::findOrFail($id);
+        $data = $request->validated();
+        
+        DB::beginTransaction();
         try {
-            $fGInventoryAdjustment = InventoryAdjustment::find($fGInventoryAdjustment);
-            if (!$fGInventoryAdjustment) {
-                Toastr::info('No Data FOund', '', ["progressBar" => true]);
-                return back();
+            // Store History
+            $old_data = $adjustment->load('items.coi')->toArray();
+            
+            // Reverse previous effects
+            InventoryTransaction::where(['doc_type' => 'FGIA', 'doc_id' => $adjustment->id])->delete();
+            AccountTransaction::where(['doc_type' => 'FGIA', 'doc_id' => $adjustment->id])->delete();
+            
+            // Update Adjustment
+            $adjustment->update($data);
+            $adjustment->items()->delete();
+            
+            foreach ($data['products'] as $product) {
+                $adjustment->items()->create($product);
 
+                // Inventory Transaction Effect
+                $type = $data['transaction_type'] === 'increase' ? 1 : -1;
+                InventoryTransaction::query()->create([
+                    'store_id' => $adjustment->store_id,
+                    'doc_type' => 'FGIA',
+                    'doc_id' => $adjustment->id,
+                    'quantity' => $product['quantity'],
+                    'rate' => $product['rate'],
+                    'amount' => $product['quantity'] * $product['rate'],
+                    'date' => $adjustment->date,
+                    'type' => $type,
+                    'coi_id' => $product['coi_id'],
+                ]);
             }
-            InventoryTransaction::where([
-                'doc_type' => 'FGIA',
-                'doc_id' => $fGInventoryAdjustment->id
-            ])->delete();
-            $fGInventoryAdjustment->status = 'cancelled';
-            $fGInventoryAdjustment->save();
-        } catch (\Exception $exception) {
-            Toastr::info($exception->getMessage(), '', ["progressBar" => true]);
+            
+            // Accounts Transaction Effect
+            if ($data['transaction_type'] === 'increase') {
+                addAccountsTransaction('FGIA', $adjustment, 16, 52);
+            } else {
+                addAccountsTransaction('FGIA', $adjustment, 52, 16);
+            }
+            
+            // Log history
+            AdjustmentEditHistory::create([
+                'inventory_adjustment_id' => $adjustment->id,
+                'old_data' => json_encode($old_data),
+                'new_data' => json_encode($adjustment->load('items.coi')->toArray()),
+                'remarks' => $request->edit_remark,
+                'edited_by' => auth()->id(),
+            ]);
+
+            DB::commit();
+        } catch (\Exception $error) {
+            DB::rollBack();
+            Toastr::info('Something went wrong! ' . $error->getMessage(), '', ["progressBar" => true]);
             return back();
         }
-        Toastr::success('FG Inventory Adjustment Cancelled!.', '', ["progressBar" => true]);
+        
+        Toastr::success('FG Inventory Adjustment Updated Successfully!', '', ["progressBar" => true]);
         return redirect()->route('fg-inventory-adjustments.index');
     }
 
@@ -171,6 +224,8 @@ class FGInventoryAdjustmentController extends Controller
     {
         DB::beginTransaction();
         try {
+            AccountTransaction::where(['doc_type' => 'FGIA', 'doc_id' => $id])->delete();
+            InventoryTransaction::where(['doc_type' => 'FGIA', 'doc_id' => $id])->delete();
             InventoryAdjustment::findOrFail($id)->delete();
             DB::commit();
         } catch (\Exception $error) {
@@ -178,7 +233,7 @@ class FGInventoryAdjustmentController extends Controller
             Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
             return back();
         }
-        Toastr::success('FG Inventory Transfer Deleted Successfully!.', '', ["progressBar" => true]);
+        Toastr::success('FG Inventory Adjustment Deleted Successfully!.', '', ["progressBar" => true]);
         return redirect()->route('fg-inventory-adjustments.index');
     }
 
@@ -192,22 +247,19 @@ class FGInventoryAdjustmentController extends Controller
                 $store_id = auth()->user()->employee->outlet->stores()->pluck('id')->toArray();
             }
             $data = InventoryAdjustment::with('store')
-                ->where(['type' => 'FG'])->whereIn('store_id', $store_id)->latest();
+                ->where(['type' => 'FG'])->whereIn('store_id', $store_id ?? [])->latest();
         } else {
             $data = InventoryAdjustment::with('store')->where(['type' => 'FG'])->latest();
         }
 
-        if (\request()->filled(key: 'transaction_type')) {
-            // dd(\request()->transaction_type);
+        if (\request()->filled('transaction_type')) {
             $data = $data->where('transaction_type', \request()->transaction_type);
         }
         if (\request()->filled('from_date') && \request()->filled('to_date')) {
             $from_date = Carbon::parse(request()->from_date)->format('Y-m-d');
             $to_date = Carbon::parse(request()->to_date)->format('Y-m-d');
-            // dd($from_date, $to_date);
             $data = $data->whereDate('date', '>=', $from_date)->whereDate('date', '<=', $to_date);
-            // dd($data);
         }
-        return $data->latest();
+        return $data;
     }
 }

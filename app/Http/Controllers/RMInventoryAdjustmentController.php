@@ -2,16 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreFGInventoryAdjustmentRequest;
 use App\Http\Requests\StoreRMInventoryAdjustmentRequest;
-use App\Http\Requests\UpdateFGInventoryAdjustmentRequest;
-use App\Models\AccountTransaction;
+use App\Http\Requests\UpdateRMInventoryAdjustmentRequest;
 use App\Models\ChartOfInventory;
 use App\Models\InventoryAdjustment;
 use App\Models\InventoryAdjustmentItem;
 use App\Models\InventoryTransaction;
+use App\Models\AccountTransaction;
 use App\Models\Store;
+use App\Models\AdjustmentEditHistory;
 use Brian2694\Toastr\Facades\Toastr;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -81,7 +82,6 @@ class RMInventoryAdjustmentController extends Controller
                 $adjustment->items()->create($product);
 
                 // Inventory Transaction Effect
-
                 $type = $data['transaction_type'] === 'increase' ? 1 : -1;
                 InventoryTransaction::query()->create([
                     'store_id' => $adjustment->store_id,
@@ -94,14 +94,12 @@ class RMInventoryAdjustmentController extends Controller
                     'type' => $type,
                     'coi_id' => $product['coi_id'],
                 ]);
-                // Accounts Transaction Effect
-                if ($data['transaction_type'] === 'increase') {
-                    addAccountsTransaction('RMIA', $adjustment, 16, 52);
-                } else {
-                    addAccountsTransaction('RMIA', $adjustment, 52, 16);
-                }
-
-
+            }
+            // Accounts Transaction Effect
+            if ($data['transaction_type'] === 'increase') {
+                addAccountsTransaction('RMIA', $adjustment, 16, 52);
+            } else {
+                addAccountsTransaction('RMIA', $adjustment, 52, 16);
             }
             DB::commit();
         } catch (\Exception $error) {
@@ -118,7 +116,6 @@ class RMInventoryAdjustmentController extends Controller
      */
     public function show($id)
     {
-
         $RMInventoryAdjustment = InventoryAdjustment::findOrFail(decrypt($id));
         $items = InventoryAdjustmentItem::where('inventory_adjustment_id', decrypt($id))->get();
         return view('rm_inventory_adjustment.show', compact('RMInventoryAdjustment', 'items'));
@@ -127,17 +124,82 @@ class RMInventoryAdjustmentController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(InventoryAdjustment $fGInventoryAdjustment)
+    public function edit($id)
     {
-        //
+        $RMInventoryAdjustment = InventoryAdjustment::with('items.coi')->findOrFail(decrypt($id));
+        
+        $data = [
+            'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'RM'])->get(),
+            'stores' =>\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->factory_id ? Store::query()->whereType('RM')->where(['doc_type'=>'factory', 'doc_id'=>\auth()->user()->employee->factory_id])->get() : Store::query()->whereType('RM')->get(),
+            'RMInventoryAdjustment' => $RMInventoryAdjustment,
+        ];
+        return view('rm_inventory_adjustment.edit', $data);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateFGInventoryAdjustmentRequest $request, InventoryAdjustment $fGInventoryAdjustment)
+    public function update(UpdateRMInventoryAdjustmentRequest $request, $id)
     {
-        //
+        $adjustment = InventoryAdjustment::findOrFail($id);
+        $data = $request->validated();
+        
+        DB::beginTransaction();
+        try {
+            // Store History
+            $old_data = $adjustment->load('items.coi')->toArray();
+            
+            // Reverse previous effects
+            InventoryTransaction::where(['doc_type' => 'RMIA', 'doc_id' => $adjustment->id])->delete();
+            AccountTransaction::where(['doc_type' => 'RMIA', 'doc_id' => $adjustment->id])->delete();
+            
+            // Update Adjustment
+            $adjustment->update($data);
+            $adjustment->items()->delete();
+            
+            foreach ($data['products'] as $product) {
+                $adjustment->items()->create($product);
+
+                // Inventory Transaction Effect
+                $type = $data['transaction_type'] === 'increase' ? 1 : -1;
+                InventoryTransaction::query()->create([
+                    'store_id' => $adjustment->store_id,
+                    'doc_type' => 'RMIA',
+                    'doc_id' => $adjustment->id,
+                    'quantity' => $product['quantity'],
+                    'rate' => $product['rate'],
+                    'amount' => $product['quantity'] * $product['rate'],
+                    'date' => $adjustment->date,
+                    'type' => $type,
+                    'coi_id' => $product['coi_id'],
+                ]);
+            }
+            
+            // Accounts Transaction Effect
+            if ($data['transaction_type'] === 'increase') {
+                addAccountsTransaction('RMIA', $adjustment, 16, 52);
+            } else {
+                addAccountsTransaction('RMIA', $adjustment, 52, 16);
+            }
+            
+            // Log history
+            AdjustmentEditHistory::create([
+                'inventory_adjustment_id' => $adjustment->id,
+                'old_data' => json_encode($old_data),
+                'new_data' => json_encode($adjustment->load('items.coi')->toArray()),
+                'remarks' => $request->edit_remark,
+                'edited_by' => auth()->id(),
+            ]);
+
+            DB::commit();
+        } catch (\Exception $error) {
+            DB::rollBack();
+            Toastr::info('Something went wrong! ' . $error->getMessage(), '', ["progressBar" => true]);
+            return back();
+        }
+        
+        Toastr::success('RM Inventory Adjustment Updated Successfully!', '', ["progressBar" => true]);
+        return redirect()->route('rm-inventory-adjustments.index');
     }
 
     /**

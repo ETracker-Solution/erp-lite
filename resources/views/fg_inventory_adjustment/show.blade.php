@@ -82,6 +82,68 @@
                             </div>
                             <!-- /.col -->
                         </div>
+
+                        @if($fGInventoryAdjustment->editHistories->count() > 0)
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <h5>Edit Histories</h5>
+                                <div class="timeline">
+                                    @foreach($fGInventoryAdjustment->editHistories->sortByDesc('created_at') as $history)
+                                    <div>
+                                        <i class="fas fa-edit bg-blue"></i>
+                                        <div class="timeline-item">
+                                            <span class="time"><i class="fas fa-clock"></i> {{ $history->created_at->format('d M Y h:i A') }}</span>
+                                            <h3 class="timeline-header">Edited by <a href="#">{{ $history->user->name ?? 'Unknown' }}</a></h3>
+                                            <div class="timeline-body">
+                                                <strong>Reason:</strong> {{ $history->remarks }}
+                                                <div class="mt-2">
+                                                    @php
+                                                        $old = json_decode($history->old_data, true);
+                                                        $new = json_decode($history->new_data, true);
+                                                        $old_items = collect($old['items'] ?? []);
+                                                        $new_items = collect($new['items'] ?? []);
+                                                        $all_coi_ids = $old_items->pluck('coi_id')->merge($new_items->pluck('coi_id'))->unique();
+                                                    @endphp
+                                                    <table class="table table-sm table-bordered mt-2">
+                                                        <thead>
+                                                            <tr class="bg-light">
+                                                                <th>Item Name</th>
+                                                                <th class="text-center">Prev Qty</th>
+                                                                <th class="text-center">Current Qty</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            @foreach($all_coi_ids as $coi_id)
+                                                                @php
+                                                                    $old_item = $old_items->where('coi_id', $coi_id)->first();
+                                                                    $new_item = $new_items->where('coi_id', $coi_id)->first();
+                                                                    $item_name = $new_item['coi']['name'] ?? $old_item['coi']['name'] ?? null;
+                                                                    
+                                                                    if (!$item_name) {
+                                                                        $coi = \App\Models\ChartOfInventory::find($coi_id);
+                                                                        $item_name = $coi ? $coi->name : 'Unknown Item';
+                                                                    }
+                                                                @endphp
+                                                                <tr>
+                                                                    <td>{{ $item_name }}</td>
+                                                                    <td class="text-center">{{ $old_item['quantity'] ?? 0 }}</td>
+                                                                    <td class="text-center">{{ $new_item['quantity'] ?? 0 }}</td>
+                                                                </tr>
+                                                            @endforeach
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    @endforeach
+                                    <div>
+                                        <i class="fas fa-history bg-gray"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        @endif
                     </div>
                     @if($fGInventoryAdjustment->status == 'adjusted')
                         <form action="{{ route('fg-inventory-adjustments.update',$fGInventoryAdjustment->id) }}"
