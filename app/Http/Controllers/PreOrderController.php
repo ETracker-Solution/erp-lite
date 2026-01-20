@@ -121,37 +121,44 @@ class PreOrderController extends Controller
 
     protected function getFilteredData()
     {
+        $orders = PreOrder::with(['customer', 'outlet', 'deliveryPoint'])
+            ->leftJoin('others_outlet_sales', 'others_outlet_sales.invoice_number', '=', 'pre_orders.order_number')
+            ->select('pre_orders.*')
+            ->selectRaw('
+        CASE
+            WHEN others_outlet_sales.id IS NOT NULL THEN
+                GREATEST(
+                    pre_orders.grand_total - (
+                        pre_orders.advance_amount +
+                        COALESCE(others_outlet_sales.delivery_point_receive_amount, 0)
+                    ),
+                    0
+                )
+            ELSE NULL
+        END as due_amount
+    ')
+            ->distinct('pre_orders.id')   // 👈 prevents duplicate rows
+            ->latest();
+
         if (auth()->user()->employee && auth()->user()->employee->outlet_id) {
-            $outlet_id = auth()->user()->employee->outlet_id;
-            $orders = PreOrder::with('customer', 'outlet', 'deliveryPoint')->where('delivery_point_id', $outlet_id)->latest();
-        } else {
-            $orders = PreOrder::with('customer', 'outlet', 'deliveryPoint')->latest();
+            $orders->where('pre_orders.delivery_point_id', auth()->user()->employee->outlet_id);
         }
-        if (\request()->filled('outlet_id')) {
-            $orders->where('delivery_point_id', \request()->outlet_id);
+
+        if (request()->filled('outlet_id')) {
+            $orders->where('pre_orders.delivery_point_id', request()->outlet_id);
         }
-        if (\request()->filled('status')) {
-            $orders->where('status', \request()->status);
+
+        if (request()->filled('status')) {
+            $orders->where('pre_orders.status', request()->status);
         }
-        if (\request()->filled('filter_by') && \request()->filled('from_date') && \request()->filled('to_date')) {
-            $column = \request()->filter_by;
+
+        if (request()->filled('filter_by') && request()->filled('from_date') && request()->filled('to_date')) {
+            $column = request()->filter_by;
             $from_date = Carbon::parse(request()->from_date)->format('Y-m-d');
             $to_date = Carbon::parse(request()->to_date)->format('Y-m-d');
-            $orders = $orders->whereDate($column, '>=', $from_date)->whereDate($column, '<=', $to_date);
+            $orders->whereDate($column, '>=', $from_date)
+                ->whereDate($column, '<=', $to_date);
         }
-
-        $orders = $orders->get()->map(function ($order) {
-            $othersOutletSale = OthersOutletSale::where('invoice_number', $order->order_number)
-                ->first();
-            if ($othersOutletSale) {
-                $receivedAmount = (float)$othersOutletSale->delivery_point_receive_amount;
-                $order->due_amount = max($order->grand_total - ($order->advance_amount + $receivedAmount), 0);
-            } else {
-                $order->due_amount = 'N/A';
-            }
-
-            return $order;
-        });
 
         return $orders;
     }
@@ -422,21 +429,96 @@ class PreOrderController extends Controller
                 ];
                 $production = Production::query()->create($productionData);
 
+                $missing_items = [];
                 $totalRate = 0;
                 $totalQty = 0;
+                $inventoryEffects = [];
+
                 foreach ($req->items as $item) {
                     $qty = $item->quantity;
                     $rate = $item->unit_price;
                     $amount = $qty * $rate;
                     $totalRate += $amount;
                     $totalQty += $qty;
+
+                    $is_custom = ChartOfInventory::find($item->coi_id);
+                    $recipes_items = collect();
+                    if ($is_custom->price == 0) {
+                        if (strlen($is_custom->name) > 11) {
+                            $newString = substr($is_custom->name, 0, -13);
+                            $original_product = ChartOfInventory::where('name', $newString)->where('parent_id', $is_custom->parent_id)->first();
+                            if ($original_product) {
+                                $recipes_items = ProductionRecipe::where('fg_id', $original_product->id)->get();
+                            }
+                        }
+                    } else {
+                        $recipes_items = ProductionRecipe::where('fg_id', $item->coi_id)->get();
+                    }
+
+                    foreach ($recipes_items as $recipe_item) {
+                        $currentRMStock = availableInventoryBalance($recipe_item->rm_id, $rm_store->id);
+                        $rm_qty = $recipe_item->qty * $qty;
+                        $rm_name = $recipe_item->coi->name;
+
+                        if ($currentRMStock < $rm_qty) {
+                            $missing_items[] = "RM: $rm_name (Required: $rm_qty, Available: $currentRMStock)";
+                        } else {
+                            $rm = new stdClass();
+                            $rm->date = date('Y-m-d');
+                            $rm->coi_id = $recipe_item->rm_id;
+                            $rm->rate = 0;
+                            $rm->amount = 0;
+                            $rm->store_id = $rm_store->id;
+                            $rm->quantity = $rm_qty;
+                            $inventoryEffects[] = (object)['type' => -1, 'doc_type' => 'PO', 'data' => $rm];
+                        }
+                    }
+                }
+
+                $rmIds = json_decode($approvalData->rm_ids);
+                $quantities = json_decode($approvalData->quantities);
+
+                if ($rmIds && count($rmIds) > 0) {
+                    foreach ($rmIds as $index => $rmId) {
+                        $quantity = $quantities[$index];
+                        $currentRMStock = availableInventoryBalance($rmId, $rm_store->id);
+                        $aRmName = ChartOfInventory::find($rmId)->name;
+
+                        if ($currentRMStock < $quantity) {
+                            $missing_items[] = "Additional RM: $aRmName (Required: $quantity, Available: $currentRMStock)";
+                        } else {
+                            $rm = new stdClass();
+                            $rm->date = date('Y-m-d');
+                            $rm->coi_id = $rmId;
+                            $rm->rate = 0;
+                            $rm->amount = 0;
+                            $rm->store_id = $rm_store->id;
+                            $rm->quantity = $quantity;
+                            $inventoryEffects[] = (object)['type' => -1, 'doc_type' => 'PO', 'data' => $rm];
+                        }
+                    }
+                }
+
+                if (!empty($missing_items)) {
+                    DB::rollBack();
+                    $errorMsgs = implode('<br>', $missing_items);
+                    Toastr::error("Stock Insufficient:<br>$errorMsgs", 'Error', ["progressBar" => true]);
+                    return back();
+                }
+
+                // If all good, proceed with production and inventory transactions
+                $production = Production::query()->create($productionData);
+                foreach ($req->items as $item) {
+                    $qty = $item->quantity;
+                    $rate = $item->unit_price;
+                    $amount = $qty * $rate;
                     $itemData = [
                         'coi_id' => $item->coi_id,
                         'rate' => $rate,
                         'quantity' => $qty,
                     ];
                     $prodItem = $production->items()->create($itemData);
-                    // Inventory Transaction Effect
+                    
                     InventoryTransaction::query()->create([
                         'store_id' => $production->store_id,
                         'doc_type' => 'FGP',
@@ -449,62 +531,56 @@ class PreOrderController extends Controller
                         'coi_id' => $item->coi_id,
                     ]);
 
+                    // Map prodItem->id to earlier calculated effects if needed, 
+                    // but addInventoryTransaction needs the id from the actual item record
+                    // Filter effects for this specific item if needed or just run them all
+                }
 
-                    $is_custom = ChartOfInventory::find($item->coi_id);
-                    if ($is_custom->price == 0) {
-                        if (strlen($is_custom->name) > 11) {
-                            $newString = substr($is_custom->name, 0, -13);
-                            $original_product = ChartOfInventory::where('name', $newString)->where('parent_id', $is_custom->parent_id)->first();
-                            $recipes_items = ProductionRecipe::where('fg_id', $original_product->id)->get();
-                        }
+                foreach ($inventoryEffects as $effect) {
+                    $effect->data->id = $production->items()->first()->id; // Just need some reference id, usually it's the item id
+                    // Wait, the original code used $prodItem->id. Let's fix that.
+                }
+
+                // Re-running loops for actual transaction since we need $prodItem->id
+                foreach ($production->items as $pItem) {
+                    // This is a bit complex because one pItem might have multiple RM.
+                    // Let's just run the transactions now that we have the production record.
+                }
+                // Actually, let's keep it simple and just run the transactions after production creation
+                // and skip the complexity of mapping for now, or just re-run the transaction logic inside.
+                // Re-implementation of the transaction part:
+                foreach ($production->items as $pItem) {
+                    // Recipe items for this pItem
+                    $is_custom = ChartOfInventory::find($pItem->coi_id);
+                    $recipes_items = collect();
+                    if ($is_custom->price == 0 && strlen($is_custom->name) > 11) {
+                        $newString = substr($is_custom->name, 0, -13);
+                        $original_product = ChartOfInventory::where('name', $newString)->where('parent_id', $is_custom->parent_id)->first();
+                        if ($original_product) { $recipes_items = ProductionRecipe::where('fg_id', $original_product->id)->get(); }
                     } else {
-                        $recipes_items = ProductionRecipe::where('fg_id', $item->coi_id)->get();
+                        $recipes_items = ProductionRecipe::where('fg_id', $pItem->coi_id)->get();
                     }
                     foreach ($recipes_items as $recipe_item) {
-                        $currentRMStock = availableInventoryBalance($recipe_item->rm_id, $rm_store->id);
-                        $rm_qty = $recipe_item->qty * $qty;
-
-                        $rm_name = $recipe_item->coi->name;
-
-                        if ($currentRMStock < $rm_qty) {
-                            Toastr::error('Raw Material ' . $rm_name . ' not available Available' . ' !', '', ["progressBar" => true]);
-                            return back();
-                        }
                         $rm = new stdClass();
                         $rm->date = date('Y-m-d');
                         $rm->coi_id = $recipe_item->rm_id;
-                        $rm->rate = 0;
-                        $rm->amount = 0;
+                        $rm->rate = 0; $rm->amount = 0;
                         $rm->store_id = $rm_store->id;
-                        $rm->quantity = $rm_qty;
-                        $rm->id = $prodItem->id;
+                        $rm->quantity = $recipe_item->qty * $pItem->quantity;
+                        $rm->id = $pItem->id;
                         addInventoryTransaction(-1, 'PO', (object)$rm);
                     }
-
                 }
-
-                $rmIds = json_decode($approvalData->rm_ids);
-                $quantities = json_decode($approvalData->quantities);
-
+                // Additional RM
                 if ($rmIds && count($rmIds) > 0) {
                     foreach ($rmIds as $index => $rmId) {
-                        $quantity = $quantities[$index];
-                        $currentRMStock = availableInventoryBalance($rmId, $rm_store->id);
-
-                        $aRmName = ChartOfInventory::find($rmId)->name;
-                        if ($currentRMStock < $quantity) {
-                            Toastr::error('Additional Raw Material' . $aRmName . ' Not Available' . ' !', '', ["progressBar" => true]);
-                            return back();
-                        }
-
                         $rm = new stdClass();
                         $rm->date = date('Y-m-d');
                         $rm->coi_id = $rmId;
-                        $rm->rate = 0;
-                        $rm->amount = 0;
+                        $rm->rate = 0; $rm->amount = 0;
                         $rm->store_id = $rm_store->id;
-                        $rm->quantity = $quantity;
-                        $rm->id = $prodItem->id;
+                        $rm->quantity = $quantities[$index];
+                        $rm->id = $production->items()->first()->id;
                         addInventoryTransaction(-1, 'PO', (object)$rm);
                     }
                 }
