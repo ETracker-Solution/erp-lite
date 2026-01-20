@@ -173,7 +173,7 @@
                                                         <input type="number" class="form-control input-sm" step="0.001"
                                                                :name="'products[' + index + '][a_unit_quantity]'"
                                                                v-model="row.a_unit_quantity"
-                                                               @change="itemtotal(row);valid_quantity(row)">
+                                                               @input="update_value(row);valid_quantity(row)">
                                                     </td>
                                                     <td>
                                                         <input type="text" class="form-control input-sm"
@@ -190,7 +190,7 @@
                                                                :name="'products[' + index + '][quantity]'"
                                                                class="form-control input-sm"
                                                                v-if="row.alter_unit" step="0.001"
-                                                               @change="itemtotal(row);valid_quantity(row)" required>
+                                                               @input="update_value(row);valid_quantity(row)" required>
                                                     </td>
                                                     <td>
                                                         @{{ convertedUnit(row) }}
@@ -203,15 +203,16 @@
                                                         <input type="number" v-model="row.rate"
                                                                :name="'products[' + index + '][rate]'"
                                                                class="form-control input-sm" step="any"
-                                                               @change="itemtotal(row);valid_rate(row)" required>
+                                                               @input="update_value(row);valid_rate(row)" required>
                                                     </td>
                                                     <td>
-                                                        <input type="text" class="form-control input-sm"
-                                                               v-bind:value="itemtotal(row)" readonly>
+                                                        <input type="number" class="form-control input-sm"
+                                                               v-model="row.value" step="any"
+                                                               @input="update_rate(row)">
                                                         <input type="hidden" class="form-control input-sm"
                                                                :name="'products[' + index + '][value_amount]'"
                                                                class="form-control input-sm" step="any"
-                                                               v-bind:value="itemtotal(row)" readonly>
+                                                               v-bind:value="row.value" readonly>
                                                     </td>
                                                     <td>
                                                         <button type="button" class="btn btn-sm btn-danger"
@@ -377,14 +378,7 @@
 
                     subtotal: function () {
                         return this.selected_items.reduce((total, item) => {
-                            let quantity = 0
-                            if (item.alter_unit_id) {
-                                quantity = parseFloat(item.quantity);
-                            } else {
-                                quantity = parseFloat(item.a_unit_quantity)
-                            }
-                            const rate = parseFloat(item.rate);
-                            return total + quantity * rate;
+                            return total + (parseFloat(item.value) || 0);
                         }, 0);
                     },
                     net_payable: function () {
@@ -472,6 +466,13 @@
                                     console.log(lastItem);
                                     console.log(item_info.purchase_items);
 
+                                    let rate = item_info.purchase_items.length > 0 ? item_info.purchase_items[item_info.purchase_items.length - 1].alt_unit_rate : 0;
+                                    let quantity = item_info.alter_unit === null ? 0 : (lastItem?.quantity ?? 1) / (lastItem?.a_unit_quantity ?? 1);
+                                    let a_unit_quantity = lastItem?.a_unit_quantity ?? 0;
+                                    
+                                    let quantity_for_val = item_info.alter_unit === null ? a_unit_quantity : quantity;
+                                    let val = (parseFloat(quantity_for_val) * parseFloat(rate)).toFixed(2);
+
                                     vm.selected_items.push({
                                         id: item_info.id,
                                         group: item_info.parent?.name || '',
@@ -481,9 +482,10 @@
                                         alter_unit_id: item_info.alter_unit?.id || '',
                                         value_amount: lastItem?.value_amount ?? 0,
                                         alt_unit_rate: lastItem?.alt_unit_rate ?? 0,
-                                        a_unit_quantity: lastItem?.a_unit_quantity ?? 0,
-                                        rate: item_info.purchase_items.length > 0 ? item_info.purchase_items[item_info.purchase_items.length - 1].alt_unit_rate : 0,
-                                        quantity: item_info.alter_unit === null ? 0 : (lastItem?.quantity ?? 1) / (lastItem?.a_unit_quantity ?? 1),
+                                        a_unit_quantity: a_unit_quantity,
+                                        rate: rate,
+                                        quantity: quantity,
+                                        value: val
                                     });
 
                                     console.log(vm.selected_items);
@@ -543,6 +545,18 @@
                     },
                     delete_row: function (row) {
                         this.selected_items.splice(this.selected_items.indexOf(row), 1);
+                    },
+                    update_value(row) {
+                        let quantity = parseFloat(row.alter_unit_id ? row.quantity : row.a_unit_quantity) || 0;
+                        let rate = parseFloat(row.rate) || 0;
+                        row.value = (quantity * rate).toFixed(2);
+                    },
+                    update_rate(row) {
+                        let quantity = parseFloat(row.alter_unit_id ? row.quantity : row.a_unit_quantity) || 0;
+                        let value = parseFloat(row.value) || 0;
+                        if (quantity > 0) {
+                            row.rate = (value / quantity).toFixed(4);
+                        }
                     },
                     itemtotal: function (index) {
                         let quantity = 0
