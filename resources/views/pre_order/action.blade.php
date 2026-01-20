@@ -39,17 +39,13 @@
         </i> Show
     </a>
     @if($row->status == 'approved' && auth()->user()->employee->user_of != 'outlet')
-{{--        <button class="btn btn-dark btn-xs" data-toggle="modal" data-target="#productionModal"--}}
-{{--                data-id="{{ $row->id }}"--}}
-{{--                type="button"><i--}}
-{{--                class="fas fa-arrow-alt-circle-up">--}}
-{{--            </i> Production--}}
-{{--        </button>--}}
             <form action="{{ route('pre-orders.status-update', $row->id) }}" method="POST">
                 @csrf
                 @method('PUT')
                 <input type="hidden" name="status" value="ready_to_delivery">
-                <button class="btn btn-dark btn-xs"><i class="fas fa-arrow-alt-circle-up">
+                <button class="btn {{ $row->stock_status ? 'btn-dark' : 'btn-warning' }} btn-xs" 
+                        {!! $row->stock_status ? '' : 'title="Low Stock: '.implode(', ', $row->missing_rm_list).'"' !!}>
+                    <i class="fas {{ $row->stock_status ? 'fa-arrow-alt-circle-up' : 'fa-exclamation-triangle' }}">
                     </i> Production
                 </button>
             </form>

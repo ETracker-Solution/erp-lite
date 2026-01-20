@@ -93,6 +93,67 @@ class PreOrderController extends Controller
             return DataTables::of($pre_orders)
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
+                    $stock_status = true;
+                    $missing_rm_list = [];
+                    if ($row->status == 'approved' && $row->approvalInfo) {
+                        $rm_store_id = $row->approvalInfo->rm_store_id;
+                        if ($rm_store_id) {
+                            $required_rm = [];
+                            foreach ($row->items as $item) {
+                                $recipes = \App\Models\ProductionRecipe::where('fg_id', $item->coi_id)->get();
+                                if ($recipes->isEmpty()) {
+                                    $is_custom = \App\Models\ChartOfInventory::find($item->coi_id);
+                                    if ($is_custom && $is_custom->price == 0 && strlen($is_custom->name) > 11) {
+                                        $newString = substr($is_custom->name, 0, -13);
+                                        $original_product = \App\Models\ChartOfInventory::where('name', $newString)->where('parent_id', $is_custom->parent_id)->first();
+                                        if ($original_product) {
+                                            $recipes = \App\Models\ProductionRecipe::where('fg_id', $original_product->id)->get();
+                                        }
+                                    }
+                                }
+                                foreach ($recipes as $recipe) {
+                                    $rm_id = $recipe->rm_id;
+                                    $qty = $recipe->qty * $item->quantity;
+                                    if (isset($required_rm[$rm_id])) {
+                                        $required_rm[$rm_id]['qty'] += $qty;
+                                    } else {
+                                        $required_rm[$rm_id] = [
+                                            'qty' => $qty,
+                                            'name' => $recipe->coi->name ?? 'Unknown RM'
+                                        ];
+                                    }
+                                }
+                            }
+                            // Additional RM
+                            $addRmIds = json_decode($row->approvalInfo->rm_ids);
+                            $addQuantities = json_decode($row->approvalInfo->quantities);
+                            if ($addRmIds && count($addRmIds) > 0) {
+                                foreach ($addRmIds as $idx => $rmId) {
+                                    if (!isset($addQuantities[$idx])) continue;
+                                    $qty = $addQuantities[$idx];
+                                    if (isset($required_rm[$rmId])) {
+                                        $required_rm[$rmId]['qty'] += $qty;
+                                    } else {
+                                        $rmName = \App\Models\ChartOfInventory::find($rmId)->name ?? 'Unknown RM';
+                                        $required_rm[$rmId] = [
+                                            'qty' => $qty,
+                                            'name' => $rmName
+                                        ];
+                                    }
+                                }
+                            }
+                            // Check stock
+                            foreach ($required_rm as $rmId => $data) {
+                                $currentStock = availableInventoryBalance($rmId, $rm_store_id);
+                                if ($currentStock < $data['qty']) {
+                                    $stock_status = false;
+                                    $missing_rm_list[] = $data['name'] . " (Req: " . $data['qty'] . ", Avail: " . $currentStock . ")";
+                                }
+                            }
+                        }
+                    }
+                    $row->stock_status = $stock_status;
+                    $row->missing_rm_list = $missing_rm_list;
                     return view('pre_order.action', compact('row'));
                 })
                 ->addColumn('created_at', function ($row) {
@@ -427,12 +488,11 @@ class PreOrderController extends Controller
                     'total_quantity' => 0,
                     'created_by' => auth()->user()->id,
                 ];
-                $production = Production::query()->create($productionData);
 
                 $missing_items = [];
                 $totalRate = 0;
                 $totalQty = 0;
-                $inventoryEffects = [];
+                $required_rm = [];
 
                 foreach ($req->items as $item) {
                     $qty = $item->quantity;
@@ -456,21 +516,15 @@ class PreOrderController extends Controller
                     }
 
                     foreach ($recipes_items as $recipe_item) {
-                        $currentRMStock = availableInventoryBalance($recipe_item->rm_id, $rm_store->id);
+                        $rm_id = $recipe_item->rm_id;
                         $rm_qty = $recipe_item->qty * $qty;
-                        $rm_name = $recipe_item->coi->name;
-
-                        if ($currentRMStock < $rm_qty) {
-                            $missing_items[] = "RM: $rm_name (Required: $rm_qty, Available: $currentRMStock)";
+                        if (isset($required_rm[$rm_id])) {
+                            $required_rm[$rm_id]['qty'] += $rm_qty;
                         } else {
-                            $rm = new stdClass();
-                            $rm->date = date('Y-m-d');
-                            $rm->coi_id = $recipe_item->rm_id;
-                            $rm->rate = 0;
-                            $rm->amount = 0;
-                            $rm->store_id = $rm_store->id;
-                            $rm->quantity = $rm_qty;
-                            $inventoryEffects[] = (object)['type' => -1, 'doc_type' => 'PO', 'data' => $rm];
+                            $required_rm[$rm_id] = [
+                                'qty' => $rm_qty,
+                                'name' => $recipe_item->coi->name ?? 'Unknown RM'
+                            ];
                         }
                     }
                 }
@@ -480,33 +534,36 @@ class PreOrderController extends Controller
 
                 if ($rmIds && count($rmIds) > 0) {
                     foreach ($rmIds as $index => $rmId) {
+                        if (!isset($quantities[$index])) continue;
                         $quantity = $quantities[$index];
-                        $currentRMStock = availableInventoryBalance($rmId, $rm_store->id);
-                        $aRmName = ChartOfInventory::find($rmId)->name;
-
-                        if ($currentRMStock < $quantity) {
-                            $missing_items[] = "Additional RM: $aRmName (Required: $quantity, Available: $currentRMStock)";
+                        if (isset($required_rm[$rmId])) {
+                            $required_rm[$rmId]['qty'] += $quantity;
                         } else {
-                            $rm = new stdClass();
-                            $rm->date = date('Y-m-d');
-                            $rm->coi_id = $rmId;
-                            $rm->rate = 0;
-                            $rm->amount = 0;
-                            $rm->store_id = $rm_store->id;
-                            $rm->quantity = $quantity;
-                            $inventoryEffects[] = (object)['type' => -1, 'doc_type' => 'PO', 'data' => $rm];
+                            $rmName = ChartOfInventory::find($rmId)->name ?? 'Unknown RM';
+                            $required_rm[$rmId] = [
+                                'qty' => $quantity,
+                                'name' => $rmName
+                            ];
                         }
+                    }
+                }
+
+                // Verify stock availability
+                foreach ($required_rm as $rmId => $data) {
+                    $currentStock = availableInventoryBalance($rmId, $rm_store->id);
+                    if ($currentStock < $data['qty']) {
+                        $missing_items[] = "RM: " . $data['name'] . " (Required: " . $data['qty'] . ", Available: " . $currentStock . ")";
                     }
                 }
 
                 if (!empty($missing_items)) {
                     DB::rollBack();
                     $errorMsgs = implode('<br>', $missing_items);
-                    Toastr::error("Stock Insufficient:<br>$errorMsgs", 'Error', ["progressBar" => true]);
+                    Toastr::error("Stock Insufficient:<br>$errorMsgs", 'Error', ["progressBar" => true, "timeOut" => 10000]);
                     return back();
                 }
 
-                // If all good, proceed with production and inventory transactions
+                // If all good, proceed with production
                 $production = Production::query()->create($productionData);
                 foreach ($req->items as $item) {
                     $qty = $item->quantity;
@@ -519,6 +576,7 @@ class PreOrderController extends Controller
                     ];
                     $prodItem = $production->items()->create($itemData);
                     
+                    // FG Production Inventory Transaction
                     InventoryTransaction::query()->create([
                         'store_id' => $production->store_id,
                         'doc_type' => 'FGP',
@@ -531,59 +589,48 @@ class PreOrderController extends Controller
                         'coi_id' => $item->coi_id,
                     ]);
 
-                    // Map prodItem->id to earlier calculated effects if needed, 
-                    // but addInventoryTransaction needs the id from the actual item record
-                    // Filter effects for this specific item if needed or just run them all
-                }
-
-                foreach ($inventoryEffects as $effect) {
-                    $effect->data->id = $production->items()->first()->id; // Just need some reference id, usually it's the item id
-                    // Wait, the original code used $prodItem->id. Let's fix that.
-                }
-
-                // Re-running loops for actual transaction since we need $prodItem->id
-                foreach ($production->items as $pItem) {
-                    // This is a bit complex because one pItem might have multiple RM.
-                    // Let's just run the transactions now that we have the production record.
-                }
-                // Actually, let's keep it simple and just run the transactions after production creation
-                // and skip the complexity of mapping for now, or just re-run the transaction logic inside.
-                // Re-implementation of the transaction part:
-                foreach ($production->items as $pItem) {
-                    // Recipe items for this pItem
-                    $is_custom = ChartOfInventory::find($pItem->coi_id);
+                    // RM Consumptions for this item
+                    $is_custom = ChartOfInventory::find($item->coi_id);
                     $recipes_items = collect();
                     if ($is_custom->price == 0 && strlen($is_custom->name) > 11) {
                         $newString = substr($is_custom->name, 0, -13);
                         $original_product = ChartOfInventory::where('name', $newString)->where('parent_id', $is_custom->parent_id)->first();
-                        if ($original_product) { $recipes_items = ProductionRecipe::where('fg_id', $original_product->id)->get(); }
+                        if ($original_product) {
+                            $recipes_items = ProductionRecipe::where('fg_id', $original_product->id)->get();
+                        }
                     } else {
-                        $recipes_items = ProductionRecipe::where('fg_id', $pItem->coi_id)->get();
+                        $recipes_items = ProductionRecipe::where('fg_id', $item->coi_id)->get();
                     }
+
                     foreach ($recipes_items as $recipe_item) {
                         $rm = new stdClass();
                         $rm->date = date('Y-m-d');
                         $rm->coi_id = $recipe_item->rm_id;
-                        $rm->rate = 0; $rm->amount = 0;
+                        $rm->rate = 0;
+                        $rm->amount = 0;
                         $rm->store_id = $rm_store->id;
-                        $rm->quantity = $recipe_item->qty * $pItem->quantity;
-                        $rm->id = $pItem->id;
+                        $rm->quantity = $recipe_item->qty * $qty;
+                        $rm->id = $prodItem->id;
                         addInventoryTransaction(-1, 'PO', (object)$rm);
                     }
                 }
-                // Additional RM
+
+                // Add Additional RM consumption
                 if ($rmIds && count($rmIds) > 0) {
                     foreach ($rmIds as $index => $rmId) {
+                        if (!isset($quantities[$index])) continue;
                         $rm = new stdClass();
                         $rm->date = date('Y-m-d');
                         $rm->coi_id = $rmId;
-                        $rm->rate = 0; $rm->amount = 0;
+                        $rm->rate = 0;
+                        $rm->amount = 0;
                         $rm->store_id = $rm_store->id;
                         $rm->quantity = $quantities[$index];
                         $rm->id = $production->items()->first()->id;
                         addInventoryTransaction(-1, 'PO', (object)$rm);
                     }
                 }
+
                 $production->update([
                     'subtotal' => $totalRate,
                     'total_quantity' => $totalQty,
