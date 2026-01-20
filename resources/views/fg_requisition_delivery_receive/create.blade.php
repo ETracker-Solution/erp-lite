@@ -172,7 +172,7 @@
                                                                 <input type="number" v-model="row.quantity"
                                                                        :name="'products['+index+'][quantity]'"
                                                                        class="form-control input-sm"
-                                                                       @change="valid(row)">
+                                                                       @change="valid(row)" required readonly>
                                                             </td>
                                                             {{-- <td style="vertical-align: middle">
                                                                 <button type="button" class="btn btn-danger"
