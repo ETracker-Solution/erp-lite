@@ -53,7 +53,7 @@
                                         <div class="row">
                                             <div class="col-3">
                                                 <label class="small">Order Processed By</label>
-                                                <select id="" class="form-control form-control-sm" name="waiter_id">
+                                                <select id="" class="form-control form-control-sm" name="waiter_id" v-model="waiter_id">
                                                     <option value="">Select User</option>
                                                     @foreach($employees as $employee)
                                                         <option value="{{ $employee->id }}">{{ $employee->employee_id.'  -- '. $employee->name }}</option>
@@ -85,7 +85,7 @@
                                                     </select>
                                                 </div>
                                             </div>
-                                            <div class="col-2">
+                                            <div class="col-2" v-if="!preOrderData">
                                                 <div class="form-group">
                                                     <label for="" class="small">Delivery Point</label>
                                                     <select name="delivery_point_id" id=""
@@ -122,7 +122,7 @@
                                             </div> --}}
                                         </div>
                                         <div class="row">
-                                            <div class="col-3">
+                                            <div class="col-3" v-if="!preOrderData">
                                                 <div class="form-group">
                                                     <label for="" class="small">Sale Type</label>
                                                     <select name="sales_type" id="" class="form-control form-control-sm"
@@ -132,6 +132,8 @@
                                                     </select>
                                                 </div>
                                             </div>
+                                            <input type="hidden" name="sales_type" v-if="preOrderData" :value="sales_type">
+                                            <input type="hidden" name="delivery_point_id" :value="delivery_point_id">
                                             <div class="col-3">
                                                 <div class="form-group">
                                                     <label for="" class="small">Delivery Charge</label>
@@ -449,12 +451,14 @@
                                                                     <td>
                                                                         <button type="button"
                                                                                 class="btn btn-sm btn-danger"
+                                                                                v-if="payment.method != 'advance'"
                                                                                 @click="deletePaymentMethod(payment)"><i
                                                                                 class="fa fa-trash"></i></button>
                                                                     </td>
                                                                     <td>
                                                                         <select v-model="payment.method"
                                                                                 :name="'payment_methods['+index+'][method]'"
+                                                                                :disabled="payment.method == 'advance'"
                                                                                 class="form-control form-control-sm" @change="checkAvail(index)">
                                                                             <option value="cash">Cash</option>
                                                                             <option value="bkash">Bkash</option>
@@ -471,15 +475,17 @@
                                                                             <option value="foodie">Foodie</option>
                                                                             <option value="foodpanda">FoodPanda</option>
                                                                             <option value="point">Redeem Point</option>
-                                                                            <option value="exchange">Exchange</option>
+                                            <option value="exchange">Exchange</option>
+                                                                            <option value="advance">Advance</option>
                                                                         </select>
+                                                                        <input type="hidden" v-if="payment.method == 'advance'" :name="'payment_methods['+index+'][method]'" :value="payment.method">
                                                                     </td>
                                                                     <td>
                                                                         <input type="number" v-model="payment.amount"
                                                                                :step="payment.method == 'point' ? 100 : 1"
                                                                                :name="'payment_methods['+index+'][amount]'"
                                                                                @key.press="checkPointInput"
-                                                                               class="form-control form-control-sm" v-bind:readonly="payment.method == 'exchange' && exchangeAmount > 0">
+                                                                               class="form-control form-control-sm" :readonly="payment.method == 'advance' || (payment.method == 'exchange' && exchangeAmount > 0)">
                                                                     </td>
                                                                 </tr>
                                                                 <tr>
@@ -556,6 +562,7 @@
                                 <input type="hidden" name="grandtotal" v-model="total_payable_bill">
                                 <input type="hidden" name="returnNumber" v-model="returnNumber">
                                 <input type="hidden" name="exchangeAmount" v-model="exchangeAmount">
+                                <input type="hidden" name="pre_order_id" v-if="preOrderData" :value="preOrderData.id">
                             </div>
                             <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 text-right"
                                  v-if="items.length > 0 && ((sales_type == 'sales' && !customerNumber && total_payable_bill <= total_paying) || (sales_type == 'pre_order' && customerNumber) || customerNumber)">
@@ -754,14 +761,18 @@
                     isDisabled: false,
                     additional_charge: 0,
                     recipeProduct: false,
+                    waiter_id: "",
                     customer_name_disabled: true,
-                    customer_name: ""
+                    customer_name: "",
+                    preOrderData: @json($preOrder ?? null)
                 },
                 components: {
                     vuejsDatepicker
                 },
                 mounted: function () {
-                    this.setStoreId()
+                    this.setStoreId();
+                    this.getStoreData();
+                    this.populatePreOrder();
                 },
                 computed: {
                     subtotal: function () {
@@ -803,19 +814,19 @@
                     },
                     total_payable_bill: function () {
                         var vm = this
-                        return (this.total_bill - vm.couponCodeDiscountAmount - this.allDiscountAmount) + Number(this.delivery_charge) + Number(this.additional_charge)
+                        return (Number(this.total_bill || 0) - Number(vm.couponCodeDiscountAmount || 0) - Number(this.allDiscountAmount || 0)) + Number(this.delivery_charge || 0) + Number(this.additional_charge || 0)
                     },
                     total_due: function () {
                         return this.total_payable_bill
                     },
                     productWiseDiscount: function () {
                         return this.items.reduce((total, item) => {
-                            return total + Number(item.discountAmount)
+                            return total + (Number(item.discountAmount) || 0)
                         }, 0)
                     },
                     allDiscountAmount: function () {
                         var vm = this
-                        return Number(vm.total_discount_amount) + Number(vm.special_discount_amount) + Number(this.productWiseDiscount) + Number(this.membership_discount_amount)
+                        return (Number(vm.total_discount_amount) || 0) + (Number(vm.special_discount_amount) || 0) + (Number(this.productWiseDiscount) || 0) + (Number(this.membership_discount_amount) || 0)
                     },
                     membership_discount_amount: function () {
                         var vm = this
@@ -993,7 +1004,24 @@
                         }).then((response) => {
                             vm.invoice_number = response.data.invoice
                             vm.user_outlet_id = response.data.outlet
+                            vm.updateItemsStock();
                         })
+                    },
+                    updateItemsStock() {
+                        const vm = this;
+                        if (!vm.store_id || vm.items.length === 0) return;
+                        
+                        vm.items.forEach((item, index) => {
+                            axios.get(this.config.get_product_info_url + '/' + item.item_id, {
+                                params: {
+                                    store_id: vm.store_id
+                                }
+                            }).then(function (response) {
+                                if (response.data) {
+                                    vm.items[index].stock = response.data.balance_qty;
+                                }
+                            });
+                        });
                     },
                     deletePaymentMethod: function (row) {
                         this.paymentMethods.splice(this.paymentMethods.indexOf(row), 1);
@@ -1200,6 +1228,75 @@
                             return false;
                         });
                     },
+                    populatePreOrder() {
+                        let vm = this;
+                        if (vm.preOrderData) {
+                            vm.sales_type = 'pre_order'; // Or sales? 'pre_order' in logic means create pre-order. We want 'sales' but with pre-filled data.
+                            // Actually if sales_type is 'pre_order', the UI changes (shows delivery date, etc).
+                            // But we are converting TO sale. The standard sale UI is fine.
+                            vm.sales_type = 'sales';
+
+                            if (vm.preOrderData.customer) {
+                               vm.customerNumber = vm.preOrderData.customer.mobile;
+                               vm.getCustomerInfo();
+                            }
+                            
+                            if (vm.preOrderData.items) {
+                                vm.preOrderData.items.forEach(function (item) {
+                                     vm.items.push({
+                                         item_id: item.coi_id,
+                                         group: item.coi.parent ? item.coi.parent.name : '',
+                                         product_name: item.coi.name,
+                                         unit: item.coi.unit ? item.coi.unit.name : '',
+                                         stock: 9999, // Assumption for converted order
+                                         price: Number(item.unit_price) || 0,
+                                         sale_price: Number(item.unit_price) || 0,
+                                         quantity: Number(item.quantity) || 0,
+                                         product_discount: Number(item.discount) || 0,
+                                         subtotal: (Number(item.quantity) * Number(item.unit_price)) - (Number(item.discount) || 0),
+                                         is_readonly: 'true',
+                                         discountable: true,
+                                         discountType: 'f',
+                                         discountValue: Number(item.discount) || 0, 
+                                         discountAmount: Number(item.discount) || 0,
+                                         recipeProduct: 'false', 
+                                     });
+                                });
+                            }
+                            
+                            if (vm.preOrderData.advance_amount > 0) {
+                                vm.paymentMethods = [{
+                                    method: 'advance',
+                                    amount: vm.preOrderData.advance_amount
+                                }];
+                            } else {
+                                vm.paymentMethods = [{amount: 0, method: 'cash'}];
+                            }
+                            
+                            // Map other fields
+                            vm.delivery_charge = vm.preOrderData.delivery_charge;
+                            // vm.total_discount_value = vm.preOrderData.discount; 
+                            // Note: PreOrder has total discount, but items might have discount too.
+                            // If PreOrder discount field was used for overall discount, map it.
+                            vm.total_discount_value = vm.preOrderData.discount || 0; 
+                             if (vm.total_discount_value > 0) {
+                                 vm.total_discount_type = 'fixed';
+                                 vm.total_discount_amount = Number(vm.total_discount_value);
+                             }
+                             
+                             if (vm.preOrderData.delivery_point_id) {
+                                 vm.delivery_point_id = vm.preOrderData.delivery_point_id;
+                             }
+                             
+                             vm.additional_charge = Number(vm.preOrderData.additional_charge) || 0;
+                             vm.delivery_charge = Number(vm.preOrderData.delivery_charge) || 0;
+                             vm.delivery_type = vm.preOrderData.delivery_type;
+                             vm.delivery_area = vm.preOrderData.delivery_area;
+                             
+                             // Pre-select waiter as current user if they are the one converting
+                             vm.waiter_id = "{{ auth()->user()->employee ? auth()->user()->employee->id : '' }}";
+                        }
+                    }
                 },
                 updated() {
                     $('.bSelect').selectpicker('refresh');

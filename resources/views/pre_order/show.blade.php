@@ -56,7 +56,7 @@
                             <div class="col-sm-4 invoice-col pl-4" style="padding: 10px">
                                 <b>Delivery Area :</b> {{ $model->delivery_area }}, <br>
                                 <b>Delivery Type :</b> {{ $model->delivery_type }}, <br>
-                                <b>Order Processed By :</b> {{ $model->sale->waiter_name }} <br>
+                                <b>Order Processed By :</b> {{ $model->sale ? $model->sale->waiter_name : 'N/A' }} <br>
                             </div>
                             <!-- /.col -->
                             <!-- /.col -->
@@ -118,9 +118,16 @@
                                                 </tr>
                                             @endforeach
                                         @else
-                                            <tr>
-                                                <td colspan="2">No payment info found (No linked sale)</td>
-                                            </tr>
+                                            @if($model->advance_amount > 0)
+                                                <tr>
+                                                    <td>Advance (Pre-Order)</td>
+                                                    <td class="text-right">{{ number_format($model->advance_amount, 2) }}</td>
+                                                </tr>
+                                            @else
+                                                <tr>
+                                                    <td colspan="2">No payment info found</td>
+                                                </tr>
+                                            @endif
                                         @endif
                                     </tbody>
                                 </table>
@@ -135,11 +142,11 @@
                                         </tr>
                                         <tr>
                                             <th style="width:50%">Delivery Charge:</th>
-                                            <td class="text-right">{{ $model->sale->delivery_charge ?? 0 }}</td>
+                                            <td class="text-right">{{ $model->sale->delivery_charge ?? $model->delivery_charge ?? 0 }}</td>
                                         </tr>
                                         <tr>
                                             <th style="width:50%">Additional Charge:</th>
-                                            <td class="text-right">{{ $model->sale->additional_charge ?? 0 }}</td>
+                                            <td class="text-right">{{ $model->sale->additional_charge ?? $model->additional_charge ?? 0 }}</td>
                                         </tr>
                                         <tr>
                                             <th style="width:50%">Discount:</th>
@@ -151,11 +158,11 @@
                                         </tr>
                                         <tr>
                                             <th style="width:50%">Paid</th>
-                                            <td class="text-right">{{ $model->sale ? $model->sale->payments->sum('amount') : 0 }}</td>
+                                            <td class="text-right">{{ $model->sale ? $model->sale->payments->sum('amount') : $model->advance_amount }}</td>
                                         </tr>
                                         <tr>
                                             <th style="width:50%">Due</th>
-                                            <td class="text-right">{{ $model->grand_total - ($model->sale ? $model->sale->payments->sum('amount') : 0) }}</td>
+                                            <td class="text-right">{{ number_format($model->grand_total - ($model->sale ? $model->sale->payments->sum('amount') : $model->advance_amount), 2) }}</td>
                                         </tr>
                                     </table>
                                 </div>

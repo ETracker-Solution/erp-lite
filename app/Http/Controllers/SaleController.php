@@ -140,6 +140,10 @@ class SaleController extends Controller
 
 
 
+            if ($request->sales_type == 'pre_order') {
+                return redirect()->route('pre-orders.create');
+            }
+
             $sale = new Sale();
             $sale->invoice_number = generateUniqueUUID($outlet_id, Sale::class, 'invoice_number');
             // $sale->invoice_number = $request->invoice_number ?? InvoiceNumber::generateInvoiceNumber($outlet_id, $selectedDate);
@@ -179,6 +183,7 @@ class SaleController extends Controller
             $sale->delivery_area = $request->delivery_area ?? '';
             $sale->delivery_type = $request->delivery_type ?? '';
             $sale->delivery_point_id = $request->delivery_point_id ?? '';
+            $sale->pre_order_id = $request->pre_order_id ?? null;
             $sale->save();
 
             $products = $request->get('products');
@@ -275,6 +280,7 @@ class SaleController extends Controller
             $sale->receive_amount = $receive_amount;
             $sale->change_amount = $receive_amount - $sale->grand_total;
             $sale->save();
+
             foreach ($request->payment_methods as $paymentMethod) {
                 $payment = Payment::create([
                     'sale_id' => $sale->id,
@@ -304,6 +310,7 @@ class SaleController extends Controller
                     'prime' => 'Prime',
                     'foodie' => 'Foodie',
                     'foodpanda' => 'FoodPanda',
+//                    'advance' => 'Advance',
                 ];
                 if (array_key_exists($paymentMethod['method'], $paymentMethods)) {
                     $method = $paymentMethods[$paymentMethod['method']];
@@ -315,6 +322,21 @@ class SaleController extends Controller
                 if ($paymentMethod['method'] == 'point') {
                     redeemPoint($sale->id, $customer_id, $paymentMethod['amount']);
                     addAccountsTransaction('POS', $sale, getRewardGLID(), getAccountsReceiveableGLId());
+                }
+                if ($paymentMethod['method'] == 'advance') {
+                    addAccountsTransaction('POS', $sale, getAdvanceCollectionGLId(), getAccountsReceiveableGLId());
+                     if ($sale->customer_id != 1) {
+                        \App\Models\CustomerTransaction::create([
+                            'customer_id' => $sale->customer_id,
+                            'doc_type' => 'POS',
+                            'doc_id' => $sale->id,
+                            'amount' => $paymentMethod['amount'],
+                            'date' => $sale->date,
+                            'transaction_type' => 1, // Debit (Charge)
+                            'chart_of_account_id' => getAdvanceCollectionGLId(), // Offsetting the advance
+                            'description' => 'Advance Adjusted',
+                        ]);
+                    }
                 }
                 unset($sale->amount);
             }
@@ -334,7 +356,16 @@ class SaleController extends Controller
             }
 
             if ($request->sales_type == 'pre_order') {
-                $this->preOrderfromSales($sale, $deliveryDate, $delivery_charge, $delivery_time, $request->description, $request->size, $request->flavour, $request->cake_message, $request->attachments, $request->delivery_point_id);
+               // $this->preOrderfromSales($sale, $deliveryDate, $delivery_charge, $delivery_time, $request->description, $request->size, $request->flavour, $request->cake_message, $request->attachments, $request->delivery_point_id);
+            }
+            if ($request->pre_order_id) {
+                $preOrder = PreOrder::find($request->pre_order_id);
+                if ($preOrder) {
+                    $preOrder->update([
+                        'status' => 'completed',
+                        'sale_id' => $sale->id
+                    ]);
+                }
             }
             if (($receive_amount < $sale->grand_total) || $outlet_id !== $request->delivery_point_id || $request->sales_type == 'pre_order') {
                 $this->othersOutletDelivery($sale, $request->delivery_point_id);
@@ -433,9 +464,9 @@ class SaleController extends Controller
                 $membershipPointHistory->delete();
             }
 
-            $preOrder = $sale->preOrder;
+            $preOrder = PreOrder::find($sale->pre_order_id);
             if ($preOrder) {
-                $preOrder->delete();
+                $preOrder->update(['status' => 'approved']);
             }
 
             $delivery_of_pre_order = OthersOutletSale::where('invoice_number', $sale->invoice_number)->first();

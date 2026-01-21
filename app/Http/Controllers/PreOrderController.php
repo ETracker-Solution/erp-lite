@@ -12,6 +12,7 @@ use App\Models\OthersOutletSale;
 use App\Models\Outlet;
 use App\Models\PreOrder;
 use App\Models\PreOrderItem;
+use App\Models\Employee;
 use App\Models\Production;
 use App\Models\ProductionRecipe;
 use App\Models\Store;
@@ -198,7 +199,7 @@ class PreOrderController extends Controller
             ELSE NULL
         END as due_amount
     ')
-            ->distinct('pre_orders.id')   // 👈 prevents duplicate rows
+//            ->distinct('pre_orders.id')   // 👈 prevents duplicate rows
             ->latest();
 
         if (auth()->user()->employee && auth()->user()->employee->outlet_id) {
@@ -234,7 +235,7 @@ class PreOrderController extends Controller
             'supplier_groups' => SupplierGroup::all(),
             'suppliers' => Supplier::all(),
             'customers' => Customer::all(),
-            'stores' => Store::where(['type' => 'RM', 'doc_type' => 'ho', 'doc_id' => null])->get(),
+            'stores' => Store::where(['type' => 'FG', 'doc_type' => 'outlet'])->get(),
             'outlets' => Outlet::where(['status' => 'active'])->get(),
             // 'outlets' => Outlet::where(['status' => 'active'])->get(),
             'uid' => PreOrderNumber::serial_number(),
@@ -252,27 +253,189 @@ class PreOrderController extends Controller
         $validated = $request->validated();
         DB::beginTransaction();
         try {
-            if (count($validated['products']) < 1) {
+            if (!$request->products || count($request->products) < 1) {
                 Toastr::info('At Least One Product Required.', '', ["progressBar" => true]);
                 return back();
             }
+
+            // Customer Handling
+            $customer_id = $request->customer_id;
+            if ($request->customer_number) {
+                $customer = Customer::where('mobile', $request->customer_number)->first();
+                if (!$customer) {
+                    if (!$request->customer_name){
+                        Toastr::error("Customer Name is missing");
+                        return back();
+                    }
+                    $customer = Customer::create([
+                        'name' => $request->customer_name,
+                        'mobile' => $request->customer_number
+                    ]);
+                }
+                $customer_id = $customer->id;
+            }
+
+            if(!$customer_id){
+                  Toastr::error("Customer is required");
+                  return back();
+            }
+
+            // File Upload
             $filename = '';
             if ($request->hasfile('image')) {
                 $file = $request->file('image');
                 $filename = date('Ymdmhs') . '.' . $file->getClientOriginalExtension();
                 $file->move(public_path('/upload'), $filename);
             }
-            $validated['image'] = $filename ?? null;
 
-            $pre_order = PreOrder::query()->create($validated);
-            $pre_order->amount = $pre_order->net_payable;
-            foreach ($validated['products'] as $product) {
-                $pre_order->items()->create($product);
+            if ($request->store_id) {
+                $store = Store::find($request->store_id);
+            }else {
+                $store = Store::where(['doc_type' => 'outlet', 'doc_id' => \auth()->user()->employee->outlet_id, 'type' => 'FG'])->first();
             }
+
+            $outlet = Outlet::find($store->doc_id);
+            $outlet_id = $outlet->id;
+
+            // Calculate Advance Amount from Payment Methods
+            $advance_amount = 0;
+            if($request->payment_methods){
+                foreach ($request->payment_methods as $payment) {
+                     $advance_amount += $payment['amount'];
+                }
+            }
+
+            $pre_order = PreOrder::create([
+                'order_number' => $request->invoice_number ?? PreOrderNumber::serial_number(),
+                'customer_id' => $customer_id,
+                'outlet_id' => $outlet_id,
+                'order_date' => Carbon::now()->format('Y-m-d'),
+                'delivery_date' => $request->delivery_date ? Carbon::parse($request->delivery_date)->format('Y-m-d') : null,
+                'subtotal' => $request->subtotal,
+                'discount' => $request->discount ?? 0,
+                'vat' => $request->vat ?? 0,
+                'grand_total' => $request->grandtotal, // mapped from Vue 'grandtotal' hidden input
+                'advance_amount' => $advance_amount,
+                'remark' => $request->description ?? $request->remark,
+                'image' => $filename,
+                'status' => 'pending',
+                'created_by' => auth()->id(),
+                'size' => $request->size,
+                'flavour' => $request->flavour,
+                'cake_message' => $request->cake_message,
+                'delivery_time' => $request->delivery_time,
+                'delivery_charge' => $request->delivery_charge ?? 0,
+                'additional_charge' => $request->additional_charge ?? 0,
+                'delivery_type' => $request->delivery_type,
+                'delivery_area' => $request->delivery_area,
+                'customer_number' => $request->customer_number, // Ensure this column needs to be mapped if it exists
+                // Add new fields if needed
+            ]);
+
+            // Save Items
+            foreach ($request->products as $row) {
+                if(isset($row['item_id'])){
+                     $coi_id = $row['item_id'];
+                     $unit_price = $row['rate'];
+                     $quantity = $row['quantity'];
+                     $discount = $row['product_discount'] ?? 0;
+
+                     $pre_order->items()->create([
+                         'coi_id' => $coi_id,
+                         'unit_price' => $unit_price,
+                         'quantity' => $quantity,
+                         'discount' => $discount
+                     ]);
+                }
+            }
+
+             // Save Attachments
+            if($request->hasFile('attachments')){
+                foreach ($request->file('attachments') as $image) {
+                    $fname = date('Ymdmhs').uniqid() . '.' . $image->getClientOriginalExtension();
+                    $image->move(public_path('/upload'), $fname);
+                    $pre_order->attachments()->create([
+                        'image' => $fname
+                    ]);
+                }
+            }
+
+
+            // Handle Payments / Advance Collection
+            $advanceCollectionLiabilityId = getAdvanceCollectionGLId();
+            $paymentMethodsMap = [
+                'nexus' => 'Nexus',
+                'city' => 'City',
+                'pbl' => 'PBL',
+                'due' => 'Due',
+                'upay' => 'Upay',
+                'rocket' => 'Rocket',
+                'DBBL' => 'DBBL',
+                'UCB' => 'UCB',
+                'nagad' => 'Nagad',
+                'bkash' => 'Bkash',
+                'prime' => 'Prime',
+                'foodie' => 'Foodie',
+                'foodpanda' => 'FoodPanda',
+                'cash' => 'Cash'
+            ];
+
+            if($request->payment_methods){
+                foreach ($request->payment_methods as $payment) {
+                    $amount = $payment['amount'];
+                    $method = $payment['method'];
+
+                    if ($amount > 0) {
+                        // 1. Record in pre_order_transactions
+                        // Determine CoA for Payment Method (Asset)
+                        $methodName = $paymentMethodsMap[$method] ?? 'Cash';
+
+                        $debitAccountId = outletTransactionAccount($outlet_id, $methodName);
+                        if($method == 'cash' && !$debitAccountId) {
+                             $debitAccountId = outletTransactionAccount($outlet_id); // Default cash
+                        }
+
+                        // Fallback if no account config found, use Cash GLID?
+                        if(!$debitAccountId) $debitAccountId = getCashGLID();
+
+                        DB::table('pre_order_transactions')->insert([
+                            'pre_order_id' => $pre_order->id,
+                            'chart_of_account_id' => $advanceCollectionLiabilityId, // Credit Account
+                            'amount' => $amount,
+                            'payment_method' => $method,
+                            'transaction_type' => 'credit',
+                            'date' => date('Y-m-d'),
+                            'created_by' => auth()->id(),
+                            'created_at' => now(),
+                            'updated_at' => now()
+                        ]);
+
+                        // 2. Accounting Entry: Debit Cash (Asset), Credit Advance (Liability)
+                        // Use helper
+                        $transactionDoc = new stdClass();
+                        $transactionDoc->id = $pre_order->id;
+                        $transactionDoc->date = date('Y-m-d');
+                        $transactionDoc->amount = $amount;
+                        $transactionDoc->transaction_id = $pre_order->order_number;
+                        $transactionDoc->narration = "Advance for PreOrder " . $pre_order->order_number;
+
+                        addAccountsTransaction('PRE_ORDER', $transactionDoc, $debitAccountId, $advanceCollectionLiabilityId);
+
+                        // 3. Update Customer Transaction (Advance Received)
+                        // Credit Customer
+                         // We need a doc object for this helper too
+                        $transactionDoc->customer_id = $customer_id;
+                        addPreOrderCustomerTransaction($transactionDoc, -1);
+                    }
+                }
+            }
+
             DB::commit();
         } catch (\Exception $exception) {
             DB::rollBack();
-            Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
+            return $exception;
+            // Log::error($exception);
+            Toastr::info('Something went wrong! ' . $exception->getMessage(), '', ["progressBar" => true]);
             return back();
         }
         Toastr::success('Pre Order Created Successfully!.', '', ["progressBar" => true]);
@@ -575,7 +738,7 @@ class PreOrderController extends Controller
                         'quantity' => $qty,
                     ];
                     $prodItem = $production->items()->create($itemData);
-                    
+
                     // FG Production Inventory Transaction
                     InventoryTransaction::query()->create([
                         'store_id' => $production->store_id,
@@ -646,5 +809,42 @@ class PreOrderController extends Controller
         }
         Toastr::success('Pre Order Status Updated Successfully!.', '', ["progressBar" => true]);
         return redirect()->route('pre-orders.index');
+
+    }
+
+    public function convert($id)
+    {
+        $preOrder = PreOrder::with(['items.coi.parent', 'items.coi.unit', 'customer'])->findOrFail($id);
+
+        $serial_no = null;
+        $user_store = null;
+        $outlet_id = null;
+        if (!auth()->user()->is_super) {
+            if (auth()->user()->employee && auth()->user()->employee->outlet_id) {
+                $user_store = Store::where(['doc_type' => 'outlet', 'doc_id' => auth()->user()->employee->outlet_id])->first();
+                $outlet_id = $user_store->doc_id;
+                $serial_no = generateUniqueUUID($outlet_id, \App\Models\Sale::class, 'invoice_number');
+            } else {
+                 Toastr::success('You are not allowed to create sales!.', '', ["progressBar" => true]);
+                 return redirect()->route('sales.index');
+            }
+        }
+
+        $employees = Employee::where(['outlet_id' => auth()->user()->employee->outlet_id])->get();
+
+        $data = [
+            'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'FG'])->get(),
+            'stores' => Store::where(['type' => 'FG', 'doc_type' => 'outlet'])->get(),
+            'serial_no' => $serial_no,
+            'customers' => Customer::where('status', 'active')->get(),
+            'user_store' => $user_store,
+            'invoice_number' => $serial_no,
+            'delivery_points' => Outlet::where('status','active')->get(),
+            'user_outlet_id' => $outlet_id,
+            'employees'=>$employees,
+            'preOrder' => $preOrder
+        ];
+
+        return view('sale.create2', $data);
     }
 }

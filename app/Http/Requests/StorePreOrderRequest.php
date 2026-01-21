@@ -24,21 +24,7 @@ class StorePreOrderRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'customer_id' => ['required'],
-            'outlet_id' => ['required'],
-            'products' => 'array',
-            'order_date' => 'required',
-            'delivery_date' => 'required',
-            'subtotal' => 'required',
-            'discount' => 'required',
-            'vat' => 'nullable',
-            'grand_total' => 'required',
-            'advance_amount' => 'nullable',
-            'remark' => 'required',
-            'image' => 'nullable',
-            'order_from' => 'required',
-            'order_number' => 'required',
-            'created_by' => 'required',
+            //
         ];
     }
 

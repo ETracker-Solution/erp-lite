@@ -143,6 +143,7 @@ Route::middleware(['auth', 'prevent_duplicate_submission'])->group(function () {
     Route::resource('pre-orders', \App\Http\Controllers\PreOrderController::class);
     Route::get('pre-order-pdf/{id}', [App\Http\Controllers\PreOrderController::class, 'Pdf'])->name('pre-order.pdf');
     Route::get('pre-order-excel/{type}', [App\Http\Controllers\PreOrderController::class, 'exportPreOrder'])->name('pre-order.excel.export');
+    Route::get('pre-orders/{id}/convert', [App\Http\Controllers\PreOrderController::class, 'convert'])->name('pre-orders.convert');
 
     //-----End Pre Order---------
 

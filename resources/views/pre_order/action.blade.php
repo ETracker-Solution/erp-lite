@@ -64,4 +64,9 @@
             </i> Receive
         </button>
     @endif
+    @if($row->status == 'received')
+        <a href="{{ route('pre-orders.convert', $row->id) }}" class="btn btn-warning btn-xs">
+            <i class="fas fa-exchange-alt"></i> Convert to Sale
+        </a>
+    @endif
 </div>
