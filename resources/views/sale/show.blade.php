@@ -56,7 +56,6 @@
                                         <td style="text-align: left; padding:8px; line-height: 0.6">
                                             <p><b>Address :</b> {{ $sale->outlet->address }}</p>
                                             <p><b>Delivery Point :</b> {{ $sale->deliveryPoint->name ?? 'N/A' }}</p>
-                                            <p><b>Delivery Type :</b> {{ $sale->delivery_type }}</p>
                                         </td>
                                     </tr>
                                     </tbody>
@@ -126,7 +125,13 @@
                                     <tbody>
                                         @foreach($sale->payments as $payment)
                                             <tr>
-                                                <td>{{ ucfirst($payment->payment_method) }}</td>
+                                                <td>
+                                                    @if($payment->payment_method == 'advance' && $sale->preOrder)
+                                                        Advance ({{ $sale->preOrder->transactions->pluck('payment_method')->map(function($m){ return ucfirst($m); })->implode(', ') }})
+                                                    @else
+                                                        {{ ucfirst($payment->payment_method) }}
+                                                    @endif
+                                                </td>
                                                 <td class="text-right">{{ number_format($payment->amount, 2) }}</td>
                                             </tr>
                                         @endforeach
