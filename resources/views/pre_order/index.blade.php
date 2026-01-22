@@ -19,32 +19,32 @@
                         <div class="card-header bg-info">
                             <h3 class="card-title">Pre Order List</h3>
                             <div class="card-tools">
-                                {{--                                @can('sales-pre-order-entry')--}}
-                                {{--                                    <a href="{{route('pre-orders.create')}}">--}}
-                                {{--                                        <button class="btn btn-sm btn-primary"><i class="fa fa-plus-circle"--}}
-                                {{--                                                                                  aria-hidden="true"></i> &nbsp;Add New--}}
-                                {{--                                        </button>--}}
-                                {{--                                    </a>--}}
-                                {{--                                @endcan--}}
+                                @can('sales-pre-order-entry')
+                                    <a href="{{route('pre-orders.create')}}">
+                                        <button class="btn btn-sm btn-primary"><i class="fa fa-plus-circle"
+                                                                                  aria-hidden="true"></i> &nbsp;Add New
+                                        </button>
+                                    </a>
+                                @endcan
                             </div>
                         </div>
                         <!-- /.card-header -->
                         <div class="card-body table-responsive">
-                            <div class="row">
-                                <div class="col-3">
-                                    <div class="form-group">
+                            <div class="row align-items-end">
+                                <div class="col-md-2">
+                                    <div class="form-group mb-2">
                                         <label for="">Filter By</label>
-                                        <select name="filter_by" id="filter_by" class="form-control">
+                                        <select name="filter_by" id="filter_by" class="form-control form-control-sm">
                                             <option value="">All</option>
                                             <option value="delivery_date">Delivery</option>
                                             <option value="order_date">Ordered</option>
                                         </select>
                                     </div>
                                 </div>
-                                <div class="col-3">
-                                    <div class="form-group">
+                                <div class="col-md-2">
+                                    <div class="form-group mb-2">
                                         <label for="">Status</label>
-                                        <select name="status" id="" class="form-control">
+                                        <select name="status" id="status" class="form-control form-control-sm">
                                             <option value="">All</option>
                                             <option value="pending">Pending</option>
                                             <option value="approved">Approved</option>
@@ -54,10 +54,10 @@
                                     </div>
                                 </div>
                                 @if(!isset(auth()->user()?->employee?->outlet_id))
-                                    <div class="col-3">
-                                        <div class="form-group">
+                                    <div class="col-md-2">
+                                        <div class="form-group mb-2">
                                             <label for="">Outlet</label>
-                                            <select name="outlet_id" id="outlet_id" class="form-control">
+                                            <select name="outlet_id" id="outlet_id" class="form-control form-control-sm">
                                                 <option value="">All</option>
                                                 @foreach($outlets as $outlet)
                                                     <option value="{{ $outlet->id }}">{{ $outlet->name }}</option>
@@ -66,26 +66,30 @@
                                         </div>
                                     </div>
                                 @endif
-                            </div>
-                            <div class="row">
-                                <div class="col-3">
-                                    <div class="form-group">
+                                <div class="col-md-2">
+                                    <div class="form-group mb-2">
                                         <label for="">From Date</label>
-                                        <input type="date" name="from_date" id="from_date" class="form-control">
+                                        <input type="date" name="from_date" id="from_date" class="form-control form-control-sm">
                                     </div>
                                 </div>
-                                <div class="col-3">
-                                    <div class="form-group">
+                                <div class="col-md-2">
+                                    <div class="form-group mb-2">
                                         <label for="">To Date</label>
-                                        <input type="date" name="to_date" id="to_date" class="form-control">
+                                        <input type="date" name="to_date" id="to_date" class="form-control form-control-sm">
                                     </div>
+                                </div>
+                                <div class="col-md-1">
+                                    <div class="form-group mb-2">
+                                        <button class="btn btn-primary btn-sm btn-block" type="button" id="search-btn" title="Search"><i class="fas fa-search"></i></button>
+                                    </div>
+                                </div>
+                                <div class="col-md-1">
+                                    <form method="GET" action="{{route('pre-order.excel.export','xlsx')}}" id="excelForm" class="mb-2">
+                                        @csrf
+                                        <button class="btn btn-success btn-sm btn-block" type="button" id="excel-btn" title="Export Excel"><i class="fas fa-file-excel"></i></button>
+                                    </form>
                                 </div>
                             </div>
-                            <button class="btn btn-primary mb-2" type="button" id="search-btn">Search</button>
-                            <form method="GET" action="{{route('pre-order.excel.export','xlsx')}}" id="excelForm">
-                                @csrf
-                                <button class="btn btn-success mb-2" type="button" id="excel-btn">EXCEL</button>
-                            </form>
                             <table id="dataTable" class="table table-bordered">
                                 {{-- show from datatable--}}
                             </table>
@@ -491,7 +495,6 @@
                 sessionStorage.setItem('outlet_id', $('select[name="outlet_id"]').val());
                 sessionStorage.setItem('from_date', $('input[name="from_date"]').val());
                 sessionStorage.setItem('to_date', $('input[name="to_date"]').val());
-                recallDatatable();
             });
         });
 

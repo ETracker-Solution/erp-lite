@@ -127,22 +127,7 @@
                                                            class="form-control form-control-sm" placeholder="Enter Additional Charge">
                                                 </div>
                                             </div>
-                                            <div class="col-3">
-                                                <div class="form-group">
-                                                    <label for="" class="small">Delivery Type</label>
-                                                    <select name="delivery_type" id="" class="form-control form-control-sm">
-                                                        <option value="">Select Delivery Type</option>
-                                                        <option value="Delivery">Delivery</option>
-                                                        <option value="Pickup">Pickup</option>
-                                                    </select>
-                                                </div>
-                                            </div>
-                                            <div class="col-3">
-                                                <div class="form-group">
-                                                    <label for="" class="small">Delivery Area</label>
-                                                    <input type="text" name="delivery_area" id="" v-model="delivery_area" class="form-control form-control-sm" placeholder="Enter Delivery Area">
-                                                </div>
-                                            </div>
+
                                         </div>
                                         <div class="row">
                                             <div class="col-2">
@@ -379,7 +364,7 @@
                                                             <td>
                                                                 <input type="text" name="subtotal"
                                                                        class="form-control input-sm form-control-sm"
-                                                                       v-bind:value="total_bill" readonly>
+                                                                       v-bind:value="subtotal" readonly>
 
                                                             </td>
                                                         </tr>
@@ -694,7 +679,6 @@
                     selectedSpecialDiscount: false,
                     isDisabled: false,
                     additional_charge: 0,
-                    delivery_area: '',
                     recipeProduct: false,
                     customer_name_disabled: true,
                     customer_name: ""
@@ -708,11 +692,11 @@
                 computed: {
                     subtotal: function () {
                         return this.items.reduce((total, item) => {
-                            return total + ((item.quantity * item.price) - item.product_discount)
+                            return total + Number(this.itemtotal(item))
                         }, 0)
                     },
                     grandtotal: function () {
-                        return this.subtotal - this.discount + Number(this.delivery_charge) + Number(this.additional_charge)
+                        return this.total_payable_bill
                     },
                     change_amount: function () {
                         return this.grandtotal - this.receive_amount
@@ -1051,8 +1035,8 @@
                     updateProductDiscount(sp) {
                         var vm = this
                         if (vm.total_discount_amount > 0) {
-                            if (confirm("Total Discount Applied, Sure to add Total Discount Single Product Discount?")) {
-                                this.items.some(function (product) {
+                            if (confirm("Total Discount Applied, Sure to add Single Product Discount?")) {
+                                this.items.forEach(function (product) {
                                     product.discountValue = product.product_discount
                                     var total_cost = (product.quantity * product.price);
                                     if (product.discountType == 'p') {
@@ -1064,12 +1048,15 @@
                                     product.discountAmount = Math.round(product.discountAmount)
                                 });
                             } else {
-                                sp.discountType = ''
-                                sp.discountValue = 0
+                                if(sp) {
+                                    sp.discountType = ''
+                                    sp.discountValue = 0
+                                    sp.product_discount = 0
+                                }
                                 return false;
                             }
                         } else {
-                            this.items.some(function (product) {
+                            this.items.forEach(function (product) {
                                 product.discountValue = product.product_discount
                                 var total_cost = (product.quantity * product.price);
                                 if (product.discountType == 'p') {

@@ -150,16 +150,6 @@
                                                            class="form-control form-control-sm" placeholder="Enter Additional Charge">
                                                 </div>
                                             </div>
-                                            <div class="col-3" v-if="sales_type=='pre_order'">
-                                                <div class="form-group">
-                                                    <label for="" class="small">Delivery Type</label>
-                                                    <select name="delivery_type" id="" class="form-control">
-                                                        <option value="">Select Delivery Type</option>
-                                                        <option value="Delivery">Delivery</option>
-                                                        <option value="Pickup">Pickup</option>
-                                                    </select>
-                                                </div>
-                                            </div>
                                         </div>
                                         <div class="row">
                                             <div class="col-2" v-if="sales_type=='pre_order'">
@@ -737,7 +727,7 @@
                         amount: 0,
                         method: 'cash'
                     }],
-                    delivery_point_id: '',
+                    delivery_point_id: '{{ auth()->user()->employee->outlet_id ?? "" }}',
                     delivery_date: new Date(),
                     delivery_time: '',
                     delivery_charge: 0,
@@ -1290,8 +1280,6 @@
                              
                              vm.additional_charge = Number(vm.preOrderData.additional_charge) || 0;
                              vm.delivery_charge = Number(vm.preOrderData.delivery_charge) || 0;
-                             vm.delivery_type = vm.preOrderData.delivery_type;
-                             vm.delivery_area = vm.preOrderData.delivery_area;
                              
                              // Pre-select waiter as current user if they are the one converting
                              vm.waiter_id = "{{ auth()->user()->employee ? auth()->user()->employee->id : '' }}";

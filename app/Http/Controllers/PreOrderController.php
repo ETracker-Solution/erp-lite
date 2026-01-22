@@ -297,6 +297,8 @@ class PreOrderController extends Controller
             $outlet = Outlet::find($store->doc_id);
             $outlet_id = $outlet->id;
 
+            $request->merge(['delivery_point_id' => $request->delivery_point_id ?? $outlet_id]);
+
             // Calculate Advance Amount from Payment Methods
             $advance_amount = 0;
             if($request->payment_methods){
