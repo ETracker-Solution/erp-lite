@@ -45,7 +45,8 @@
                                 </a>
                             </div>
                         </div>
-                        <form action="{{ route('pre-orders.store') }}" method="POST" class="" enctype="multipart/form-data">
+                        <form action="{{ route('pre-orders.store') }}" method="POST" class=""
+                              enctype="multipart/form-data">
                             @csrf
                             <div class="card-body">
                                 <div class="card-box">
@@ -61,11 +62,7 @@
                                             </div>
                                             <div class="col-3">
                                                 <div class="form-group">
-                                                    <label for="" class="small">Current Store</label>
-                                                    <select name="store_id" id="" class="form-control form-control-sm"  @change="getStoreData()"
-                                                            v-model="store_id">
-                                                        <option value="">None</option>
-                                                        @foreach($stores as $store)
+                                                    @foreach($stores as $store)
                                                         @php
                                                             $user_store = \App\Models\Store::where(['doc_type' => 'outlet', 'doc_id' => auth()->user()->employee->outlet_id])->first();
                                                             $store_id = $store->id;
@@ -73,6 +70,20 @@
                                                                 $store_id = $user_store->doc_id;
                                                             }
                                                         @endphp
+                                                    @endforeach
+                                                    <label for="" class="small">Current Store</label>
+                                                    <select name="store_id" id="" class="form-control form-control-sm"
+                                                            @if($user_store) disabled @endif @change="getStoreData()"
+                                                            v-model="store_id">
+                                                        <option value="">None</option>
+                                                        @foreach($stores as $store)
+                                                            @php
+                                                                $user_store = \App\Models\Store::where(['doc_type' => 'outlet', 'doc_id' => auth()->user()->employee->outlet_id])->first();
+                                                                $store_id = $store->id;
+                                                                if($user_store){
+                                                                    $store_id = $user_store->doc_id;
+                                                                }
+                                                            @endphp
                                                             <option
                                                                 value="{{$store->id}}" {{ $store_id == $store->id ? 'selected' : '' }}>{{ $store->name }}</option>
                                                         @endforeach
@@ -80,7 +91,7 @@
                                                 </div>
                                             </div>
                                             {{-- Delivery Point logic --}}
-                                           <div class="col-3">
+                                            <div class="col-3">
                                                 <div class="form-group">
                                                     <label for="" class="small">Delivery Point</label>
                                                     <select name="delivery_point_id" id=""
@@ -107,24 +118,29 @@
                                             <div class="col-3">
                                                 <div class="form-group">
                                                     <label for="" class="small">Delivery Time</label>
-                                                    <input type="time" v-model="delivery_time" name="delivery_time" id=""
+                                                    <input type="time" v-model="delivery_time" name="delivery_time"
+                                                           id=""
                                                            class="form-control form-control-sm">
                                                 </div>
                                             </div>
                                             <div class="col-3">
                                                 <div class="form-group">
                                                     <label for="" class="small">Delivery Charge</label>
-                                                    <input type="number" name="delivery_charge" id="" v-model="delivery_charge"
+                                                    <input type="number" name="delivery_charge" id=""
+                                                           v-model="delivery_charge"
                                                            step="any"
-                                                           class="form-control form-control-sm" placeholder="Enter Delivery Charge">
+                                                           class="form-control form-control-sm"
+                                                           placeholder="Enter Delivery Charge">
                                                 </div>
                                             </div>
                                             <div class="col-3">
                                                 <div class="form-group">
                                                     <label for="" class="small">Additional Charge</label>
-                                                    <input type="number" name="additional_charge" id="" v-model="additional_charge"
+                                                    <input type="number" name="additional_charge" id=""
+                                                           v-model="additional_charge"
                                                            step="any"
-                                                           class="form-control form-control-sm" placeholder="Enter Additional Charge">
+                                                           class="form-control form-control-sm"
+                                                           placeholder="Enter Additional Charge">
                                                 </div>
                                             </div>
 
@@ -171,7 +187,8 @@
                                                 <div class="form-group">
                                                     <label for="customer_id" class="small">Order Number</label>
                                                     <input type="text" class="form-control form-control-sm"
-                                                           placeholder="Enter Order Number" v-model="invoice_number" name="invoice_number" readonly>
+                                                           placeholder="Enter Order Number" v-model="invoice_number"
+                                                           name="invoice_number" readonly>
                                                 </div>
                                             </div>
                                             <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
@@ -232,7 +249,8 @@
                                             <br>
                                             <br>
                                             <br>
-                                            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12" v-if="items.length > 0">
+                                            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12"
+                                                 v-if="items.length > 0">
                                                 <hr>
                                                 <div class="table-responsive">
                                                     <table class="table table-bordered small table-sm">
@@ -268,7 +286,7 @@
                                                                        :name="'products['+index+'][is_readonly]'"
                                                                        class="form-control input-sm form-control-sm"
                                                                        v-bind:value="row.is_readonly">
-                                                                       <input type="hidden"
+                                                                <input type="hidden"
                                                                        :name="'products['+index+'][recipeProduct]'"
                                                                        class="form-control input-sm form-control-sm"
                                                                        v-bind:value="row.recipeProduct">
@@ -306,11 +324,11 @@
                                                                 <div class="row">
                                                                     <div class="col-4">
                                                                         <select
-                                                                                class="form-control form-control-sm"
-                                                                                v-model="row.discountType"
-                                                                                :name="'products['+index+'][discountType]'"
-                                                                                @change="updateProductDiscount(row)"
-                                                                                :disabled="!row.discountable">
+                                                                            class="form-control form-control-sm"
+                                                                            v-model="row.discountType"
+                                                                            :name="'products['+index+'][discountType]'"
+                                                                            @change="updateProductDiscount(row)"
+                                                                            :disabled="!row.discountable">
                                                                             <option value="f">tk</option>
                                                                             <option value="p">%</option>
                                                                         </select>
@@ -378,7 +396,8 @@
                                                             <th>Overall Discount</th>
                                                             <th>Special Discount</th>
                                                             <th>Membership Discount <span>( @{{ membership_discount_percentage }} % )</span><br>
-                                                                <span v-if="membership_discount_percentage > 0">Minimum Purchase <span>( @{{ minimum_purchase_amount }} TK )</span></span></th>
+                                                                <span v-if="membership_discount_percentage > 0">Minimum Purchase <span>( @{{ minimum_purchase_amount }} TK )</span></span>
+                                                            </th>
                                                             <th>Total Discount</th>
                                                             <th>Delivery Charge</th>
                                                             <th>Additional Charge</th>
@@ -423,7 +442,8 @@
                                                                     <td>
                                                                         <select v-model="payment.method"
                                                                                 :name="'payment_methods['+index+'][method]'"
-                                                                                class="form-control form-control-sm" @change="checkAvail(index)">
+                                                                                class="form-control form-control-sm"
+                                                                                @change="checkAvail(index)">
                                                                             <option value="cash">Cash</option>
                                                                             <option value="bkash">Bkash</option>
                                                                             <option value="nagad">Nagad</option>
@@ -462,7 +482,8 @@
                                                                 <tr>
                                                                     <th>Payable Amount</th>
                                                                     <td>
-                                                                        <input type="text" class="form-control input-sm form-control-sm"
+                                                                        <input type="text"
+                                                                               class="form-control input-sm form-control-sm"
                                                                                v-model="pay_left" disabled>
                                                                     </td>
                                                                 </tr>
@@ -511,14 +532,14 @@
                                 <input type="hidden" name="grandtotal" v-model="total_payable_bill">
                             </div>
                             <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 text-right"
-                                 v-if="items.length > 0">
+                                 v-if="items.length > 0 && customerNumber">
                                 <button class="float-right btn btn-primary" type="submit"><i
                                         class="fa fa-fw fa-lg fa-save"></i>Save
                                 </button>
                             </div>
                         </form>
                     </div>
-                   {{-- Modals kept identical but removed exchange modal --}}
+                    {{-- Modals kept identical but removed exchange modal --}}
                     <div class="modal fade" id="couponModal" tabindex="-1" role="dialog"
                          aria-labelledby="exampleModalLabel" aria-hidden="true">
                         <div class="modal-dialog" role="document">
@@ -575,7 +596,8 @@
                                 </div>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                    <button type="button" class="btn btn-primary" data-dismiss="modal" v-on:click="updateDiscount">Apply
+                                    <button type="button" class="btn btn-primary" data-dismiss="modal"
+                                            v-on:click="updateDiscount">Apply
                                     </button>
                                 </div>
                             </div>
@@ -717,7 +739,7 @@
                     },
                     cash_change: function () {
                         // For pre-order, change is not really relevant for advance payment unless overpaid, but usually advance < total.
-                         return 0;
+                        return 0;
                     },
                     total_payable_bill: function () {
                         var vm = this
@@ -856,8 +878,8 @@
 
                     },
                     valid: function (index) {
-                       // Pre Order stock check logic relaxed
-                       if (index.quantity <= 0) {
+                        // Pre Order stock check logic relaxed
+                        if (index.quantity <= 0) {
                             index.quantity = '';
                         }
                     },
@@ -876,7 +898,7 @@
                                 vm.membership_discount_percentage = vm.customer.purchase_discount
                                 vm.minimum_purchase_amount = vm.customer.minimum_purchase
                                 vm.customer_name_disabled = true
-                            }else{
+                            } else {
                                 vm.customer_name = ""
                                 vm.customer_name_disabled = false
                             }
@@ -917,14 +939,14 @@
                     },
                     getCouponDiscountValue() {
                         var vm = this;
-                        if(vm.items.length < 1){
+                        if (vm.items.length < 1) {
                             toastr.error('At Least One Product Must Be Selected', {
                                 closeButton: true,
                                 progressBar: true,
                             });
                             return
                         }
-                        if(vm.couponCode.length < 1){
+                        if (vm.couponCode.length < 1) {
                             toastr.error('Coupon Code Required', {
                                 closeButton: true,
                                 progressBar: true,
@@ -990,7 +1012,7 @@
                                 }
                                 vm.total_discount_value = 0;
                             }
-                        }else{
+                        } else {
                             if (this.total_discount_type === 'fixed') {
                                 vm.total_discount_amount = vm.total_discount_value
                             }
@@ -1048,7 +1070,7 @@
                                     product.discountAmount = Math.round(product.discountAmount)
                                 });
                             } else {
-                                if(sp) {
+                                if (sp) {
                                     sp.discountType = ''
                                     sp.discountValue = 0
                                     sp.product_discount = 0

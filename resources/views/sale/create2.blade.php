@@ -127,8 +127,8 @@
                                                     <label for="" class="small">Sale Type</label>
                                                     <select name="sales_type" id="" class="form-control form-control-sm"
                                                             v-model="sales_type">
-                                                        <option value="sales">SALES</option>
-                                                        <option value="pre_order">PRE ORDER</option>
+                                                        <option value="sales" selected>SALES</option>
+{{--                                                        <option value="pre_order">PRE ORDER</option>--}}
                                                     </select>
                                                 </div>
                                             </div>
@@ -1000,7 +1000,7 @@
                     updateItemsStock() {
                         const vm = this;
                         if (!vm.store_id || vm.items.length === 0) return;
-                        
+
                         vm.items.forEach((item, index) => {
                             axios.get(this.config.get_product_info_url + '/' + item.item_id, {
                                 params: {
@@ -1230,7 +1230,7 @@
                                vm.customerNumber = vm.preOrderData.customer.mobile;
                                vm.getCustomerInfo();
                             }
-                            
+
                             if (vm.preOrderData.items) {
                                 vm.preOrderData.items.forEach(function (item) {
                                      vm.items.push({
@@ -1247,13 +1247,13 @@
                                          is_readonly: 'true',
                                          discountable: true,
                                          discountType: 'f',
-                                         discountValue: Number(item.discount) || 0, 
+                                         discountValue: Number(item.discount) || 0,
                                          discountAmount: Number(item.discount) || 0,
-                                         recipeProduct: 'false', 
+                                         recipeProduct: 'false',
                                      });
                                 });
                             }
-                            
+
                             if (vm.preOrderData.advance_amount > 0) {
                                 vm.paymentMethods = [{
                                     method: 'advance',
@@ -1262,25 +1262,25 @@
                             } else {
                                 vm.paymentMethods = [{amount: 0, method: 'cash'}];
                             }
-                            
+
                             // Map other fields
                             vm.delivery_charge = vm.preOrderData.delivery_charge;
-                            // vm.total_discount_value = vm.preOrderData.discount; 
+                            // vm.total_discount_value = vm.preOrderData.discount;
                             // Note: PreOrder has total discount, but items might have discount too.
                             // If PreOrder discount field was used for overall discount, map it.
-                            vm.total_discount_value = vm.preOrderData.discount || 0; 
+                            vm.total_discount_value = vm.preOrderData.discount || 0;
                              if (vm.total_discount_value > 0) {
                                  vm.total_discount_type = 'fixed';
                                  vm.total_discount_amount = Number(vm.total_discount_value);
                              }
-                             
+
                              if (vm.preOrderData.delivery_point_id) {
                                  vm.delivery_point_id = vm.preOrderData.delivery_point_id;
                              }
-                             
+
                              vm.additional_charge = Number(vm.preOrderData.additional_charge) || 0;
                              vm.delivery_charge = Number(vm.preOrderData.delivery_charge) || 0;
-                             
+
                              // Pre-select waiter as current user if they are the one converting
                              vm.waiter_id = "{{ auth()->user()->employee ? auth()->user()->employee->id : '' }}";
                         }
