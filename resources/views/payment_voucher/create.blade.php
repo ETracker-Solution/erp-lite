@@ -354,6 +354,24 @@
                                 }).then(function (response) {
                                     let item_info = response.data;
                                     console.log(item_info);
+                                    // Duplicate check: all fields must be same
+                                    let isDuplicate = vm.selected_items.some(function (field) {
+                                        return field.from_account_id == item_info.from_account_id &&
+                                               field.to_account_id == item_info.to_account_id &&
+                                               field.payee_name == vm.payee_name &&
+                                               field.reference_no == vm.reference_no &&
+                                               field.amount == vm.amount;
+                                    });
+
+                                    if (isDuplicate) {
+                                        toastr.warning('It is already added!', {
+                                            closeButton: true,
+                                            progressBar: true,
+                                        });
+                                        vm.pageLoading = false;
+                                        return false;
+                                    }
+
                                     vm.selected_items.push({
                                         id: item_info.id,
                                         from_account_id: item_info.from_account_id,
@@ -365,11 +383,7 @@
                                         reference_no: vm.reference_no,
                                     });
                                     console.log(vm.selected_items);
-                                    vm.from_account_id = '';
-                                    vm.to_account_id = '';
-                                    vm.reference_no = '';
-                                    vm.payee_name = '';
-                                    vm.amount = '';
+                                    // Removed field resets to allow editing and re-adding
                                     vm.pageLoading = false;
 
                                 }).catch(function (error) {

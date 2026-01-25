@@ -303,16 +303,26 @@
                             return;
                         }
 
+                        // Duplicate check: all fields must be same
+                        let isDuplicate = vm.selected_items.some(function (item) {
+                            return item.credit_account_id == vm.credit_account_id &&
+                                   item.supplier_id == vm.supplier_id &&
+                                   item.payee_name == vm.payee_name &&
+                                   item.reference_no == vm.reference_no &&
+                                   item.amount == vm.amount;
+                        });
+
+                        if (isDuplicate) {
+                            toastr.warning('It is already added!', {
+                                closeButton: true,
+                                progressBar: true,
+                            });
+                            return false;
+                        }
+
                         // Get Names for Display
-                        let credit_name = "";
-                        // We need to find the name from the select options.
-                        // Since we are inside Vue, we can't easily query the DOM unless we use refs or querySelector.
-                        // Easier: use querySelector on the Select element by name or ref.
                         let processed_credit = vm.$refs.credit_account_select.options[vm.$refs.credit_account_select.selectedIndex].text;
-                        
-                        // For Supplier
-                        // Provide a way to get name. 
-                        // vm.suppliers has the list.
+
                         let supplier_obj = vm.suppliers.find(s => s.id == vm.supplier_id);
                         let supplier_name = supplier_obj ? supplier_obj.name : '';
 
@@ -326,16 +336,11 @@
                             reference_no: vm.reference_no
                         });
 
-                        // Reset fields
-                        vm.supplier_id = '';
-                        vm.supplier_group_id = ''; // Optional reset
-                        vm.suppliers = []; // Clear suppliers list? Or keep group? Maybe keep group.
-                        vm.due = 0;
-                        vm.amount = '';
-                        vm.payee_name = '';
-                        vm.reference_no = '';
-                        
-                        // Keep credit account? Usually yes.
+                        // Removed field resets to allow editing and re-adding
+                        // UI Refresh
+                        vm.$nextTick(() => {
+                            $('.bSelect').selectpicker('refresh');
+                        });
                     },
                     delete_row(row) {
                         this.selected_items.splice(this.selected_items.indexOf(row), 1);

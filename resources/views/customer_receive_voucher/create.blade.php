@@ -294,21 +294,27 @@
                             return;
                         }
                         
-                         // Check Duplication
-                        let exists = vm.selected_items.some(function (item) {
-                            return item.sale_id == vm.sale_id;
+                        // Duplicate check: all fields must be same
+                        let isDuplicate = vm.selected_items.some(function (item) {
+                            return item.debit_account_id == vm.debit_account_id &&
+                                   item.customer_id == vm.customer_id &&
+                                   item.sale_id == vm.sale_id &&
+                                   item.amount == vm.amount;
                         });
-                        
-                        if (exists) {
-                            toastr.error('This Invoice is already added to the list.');
-                             return;
+
+                        if (isDuplicate) {
+                            toastr.warning('It is already added!', {
+                                closeButton: true,
+                                progressBar: true,
+                            });
+                            return false;
                         }
 
                         // Get Names for Display
                         let debit_name = vm.$refs.debit_account_select.options[vm.$refs.debit_account_select.selectedIndex].text;
-                        
+
                         let customer_name = vm.$refs.customer_select.options[vm.$refs.customer_select.selectedIndex].text;
-                        
+
                         let inv = vm.invoices.find(item => item.id == vm.sale_id);
                         let invoice_number = inv ? inv.invoice_number : vm.sale_id;
 
@@ -322,16 +328,9 @@
                             amount: vm.amount
                         });
 
-                        // Reset fields
-                        // Keep customer and mode? 
-                        // Maybe reset invoice and amount only?
-                        // User might want to add another invoice for same customer.
-                        // So I won't reset customer, but will reset sale_id and amount.
-                        vm.sale_id = '';
-                        vm.amount = '';
-                        vm.due = 0;
-                        
-                         setTimeout(function() {
+                        // Removed field resets to allow editing and re-adding
+                        // Just refreshing selectpicker to ensure UI is in sync
+                        setTimeout(function() {
                             $('#invoice_select').selectpicker('refresh');
                         }, 50);
                     },
