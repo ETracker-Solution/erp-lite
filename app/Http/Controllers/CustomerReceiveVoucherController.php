@@ -48,14 +48,7 @@ class CustomerReceiveVoucherController extends Controller
             })->get();
 
         if (\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->outlet_id) {
-
-            //    $cons = OutletTransactionConfig::with('coa')->where('outlet_id', \auth()->user()->employee->outlet_id)->get();
-            //     foreach ($cons as $con) {
-            //         $chartOfAccounts[] = $con->coa;
-            //     }
-            $chartOfAccounts = OutletAccount::with(['coa'])->whereHas('coa', function ($coa) {
-                return $coa->whereNull('default_type');
-            })->where('outlet_id', \auth()->user()->employee->outlet_id)->pluck('coi_id')->toArray();
+            $chartOfAccounts = OutletAccount::where('outlet_id', \auth()->user()->employee->outlet_id)->pluck('coi_id')->toArray();
             $paymentAccounts = ChartOfAccount::whereIn('id', $chartOfAccounts)->get();
         }else{
             // Debit (Bank/Cash) - Receiving Money INTO
