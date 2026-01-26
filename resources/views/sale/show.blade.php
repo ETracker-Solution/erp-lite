@@ -137,6 +137,9 @@
                                         @endforeach
                                     </tbody>
                                 </table>
+
+                                <p class="lead">Comments:</p>
+                                <p>{{ $sale->remark }}</p>
                             </div>
                             <!-- /.col -->
                             <div class="col-4">

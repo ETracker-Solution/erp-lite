@@ -1334,7 +1334,16 @@
                             // vm.total_discount_value = vm.preOrderData.discount;
                             // Note: PreOrder has total discount, but items might have discount too.
                             // If PreOrder discount field was used for overall discount, map it.
-                            vm.total_discount_value = vm.preOrderData.discount || 0;
+                            vm.total_discount_type = vm.preOrderData.total_discount_type;
+                            vm.total_discount_amount = vm.preOrderData.total_discount_amount || 0;
+                            vm.total_discount_value = vm.preOrderData.total_discount_value || 0;
+
+                            vm.couponCodeDiscountValue = vm.preOrderData.couponCodeDiscountValue;
+                            vm.couponCodeDiscountAmount = vm.preOrderData.couponCodeDiscountAmount;
+                            vm.special_discount_amount = vm.preOrderData.special_discount_amount;
+                            vm.special_discount_value = vm.preOrderData.special_discount_value;
+
+
                             if (vm.total_discount_value > 0) {
                                 vm.total_discount_type = 'fixed';
                                 vm.total_discount_amount = Number(vm.total_discount_value);

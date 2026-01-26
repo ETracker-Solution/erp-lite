@@ -339,21 +339,50 @@ class PreOrderController extends Controller
                 'delivery_point_id' => $request->delivery_point_id, // Ensure this column needs to be mapped if it exists
                 'waiter_id' => $waiter ? $waiter->id : null,
                 'waiter_name' => $waiter ? $waiter->name : null,
+                'membership_discount_percentage' => $request->membership_discount_percentage,
+                'membership_discount_amount' => $request->membership_discount_amount,
+                'special_discount_value' => $request->special_discount_value,
+                'special_discount_amount' => $request->special_discount_amount,
+                'couponCode' => $request->couponCode,
+                'couponCodeDiscountType' => $request->couponCodeDiscountType,
+                'couponCodeDiscountValue' => $request->couponCodeDiscountValue,
+                'couponCodeDiscountAmount' => $request->couponCodeDiscountAmount,
+                'total_discount_type' => $request->total_discount_type,
+                'total_discount_value' => $request->total_discount_value,
+                'total_discount_amount' => $request->total_discount_amount,
             ]);
 
             // Save Items
             foreach ($request->products as $row) {
                 if (isset($row['item_id'])) {
+
                     $coi_id = $row['item_id'];
                     $unit_price = $row['rate'];
                     $quantity = $row['quantity'];
                     $discount = $row['product_discount'] ?? 0;
 
+                    $discount_type = isset($row['discountType']) ? $row['discountType'] : null;
+                    $discount_value = isset($row['product_discount']) ? $row['product_discount'] : 0;
+
+                    $row['discount_type'] = $discount_type;
+                    $row['discount_value'] = $discount_value;
+                    $amount = $row['rate'] * $row['quantity'];
+                    if ($discount_type == 'p') {
+                        $discount = ($amount * $discount_value) / 100;
+                    } elseif ($discount_type == 'f') {
+                        $discount = $discount_value;
+                    } else {
+                        $discount = 0;
+                    }
+                    $row['discount'] = $discount;
+
                     $pre_order->items()->create([
                         'coi_id' => $coi_id,
                         'unit_price' => $unit_price,
                         'quantity' => $quantity,
-                        'discount' => $discount
+                        'discount' => $discount,
+                        'discount_type'=>$discount_type,
+                        'discount_value' => $discount_value
                     ]);
                 }
             }
