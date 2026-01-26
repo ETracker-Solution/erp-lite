@@ -113,6 +113,13 @@
                                                     <p>Supplier Voucher</p>
                                                 </a>
                                             </li>
+                                            <li class="nav-item">
+                                                <a href="{{route('supplier-dues.index')}}"
+                                                   class="nav-link {{ (Request::segment(1) == 'supplier-dues') ? ' active' : ''}}">
+                                                    <i class="far fa-circle nav-icon"></i>
+                                                    <p>Supplier Due</p>
+                                                </a>
+                                            </li>
                                         @endcan
                                         @can('accounts-delivery-cash-transfer')
                                             <li class="nav-item">
@@ -138,13 +145,6 @@
                                                    class="nav-link {{ (Request::segment(1) == 'supplier-vouchers') ? ' active' : ''}}">
                                                     <i class="far fa-circle nav-icon"></i>
                                                     <p>Supplier Voucher</p>
-                                                </a>
-                                            </li>
-                                            <li class="nav-item">
-                                                <a href="{{route('supplier-dues.index')}}"
-                                                   class="nav-link {{ (Request::segment(1) == 'supplier-dues') ? ' active' : ''}}">
-                                                    <i class="far fa-circle nav-icon"></i>
-                                                    <p>Supplier Due</p>
                                                 </a>
                                             </li>
                                         @endcan
