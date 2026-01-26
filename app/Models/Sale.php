@@ -100,4 +100,9 @@ class Sale extends Model
     {
         return $this->belongsTo(Outlet::class,'delivery_point_id');
     }
+
+    public function customerReceiveVouchers()
+    {
+        return $this->hasMany(CustomerReceiveVoucher::class,'sale_id');
+    }
 }

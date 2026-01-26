@@ -128,6 +128,8 @@
                                                 <td>
                                                     @if($payment->payment_method == 'advance' && $sale->preOrder)
                                                         Advance ({{ $sale->preOrder->transactions->pluck('payment_method')->map(function($m){ return ucfirst($m); })->implode(', ') }})
+                                                    @elseif($payment->payment_method == 'Due Collection')
+                                                        Due Collection ({{ \App\Models\ChartOfAccount::whereIn('id',$sale->customerReceiveVouchers()->pluck('debit_account_id')->toArray())->pluck('name')->implode(', ') }})
                                                     @else
                                                         {{ ucfirst($payment->payment_method) }}
                                                     @endif
