@@ -6,6 +6,7 @@ use App\Models\ChartOfAccount;
 use App\Models\CustomerReceiveVoucher;
 use App\Http\Requests\StoreCustomerReceiveVoucherRequest;
 use App\Http\Requests\UpdateCustomerReceiveVoucherRequest;
+use App\Models\OutletAccount;
 use App\Models\SupplierGroup;
 
 class CustomerReceiveVoucherController extends Controller
@@ -45,9 +46,21 @@ class CustomerReceiveVoucherController extends Controller
                 // Assuming 'sales' relationship exists in Customer model
                 $q->whereRaw('grand_total > receive_amount');
             })->get();
-            
-        // Debit (Bank/Cash) - Receiving Money INTO
-        $paymentAccounts = ChartOfAccount::where(['is_bank_cash' => 'yes', 'type' => 'ledger', 'status' => 'active'])->get();
+
+        if (\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->outlet_id) {
+
+            //    $cons = OutletTransactionConfig::with('coa')->where('outlet_id', \auth()->user()->employee->outlet_id)->get();
+            //     foreach ($cons as $con) {
+            //         $chartOfAccounts[] = $con->coa;
+            //     }
+            $chartOfAccounts = OutletAccount::with(['coa'])->whereHas('coa', function ($coa) {
+                return $coa->whereNull('default_type');
+            })->where('outlet_id', \auth()->user()->employee->outlet_id)->pluck('coi_id')->toArray();
+            $paymentAccounts = ChartOfAccount::whereIn('id', $chartOfAccounts)->get();
+        }else{
+            // Debit (Bank/Cash) - Receiving Money INTO
+            $paymentAccounts = ChartOfAccount::where(['is_bank_cash' => 'yes', 'type' => 'ledger', 'status' => 'active'])->get();
+        }
 
         $serial_count = CustomerReceiveVoucher::latest()->first() ? CustomerReceiveVoucher::latest()->first()->id : 0;
         $uid = $serial_count + 1;
@@ -68,10 +81,10 @@ class CustomerReceiveVoucherController extends Controller
             }
 
             foreach ($validated['products'] as $product) {
-                
+
                 // Get Sale Information
                 $sale = \App\Models\Sale::findOrFail($product['sale_id']);
-                
+
                 // Fields to create Voucher
                 // CRV fields: uid, date, amount, customer_id, debit_account_id, sale_id, narration, created_by, etc.
                 $voucherData = [
@@ -85,12 +98,12 @@ class CustomerReceiveVoucherController extends Controller
                     'narration' => $validated['narration'] ?? 'Due Collection',
                     'created_by' => auth()->id(),
                 ];
-                
+
                 $voucher = CustomerReceiveVoucher::create($voucherData);
-                
+
                 // 1. Accounting Effect: Debit Bank/Cash, Credit Accounts Receivable
                 addAccountsTransaction('CRV', $voucher, $voucherData['debit_account_id'], $voucherData['credit_account_id']);
-                
+
                 // 2. Update Sale Record (receive_amount, change_amount if applicable, usually 0 for due)
                 // We should track this payment. Sale table has `receive_amount`.
                 // We need to increment it.
@@ -109,10 +122,10 @@ class CustomerReceiveVoucherController extends Controller
                     'sale_id' => $sale->id,
                     'customer_id' => $sale->customer_id,
                     'payment_method' => 'Due Collection', // or 'cash'/'bank' but we can map from account?
-                    // Payment table asks for 'payment_method' enum strings? 
+                    // Payment table asks for 'payment_method' enum strings?
                     // In SaleController: 'cash', 'card', etc.
                     // Here we can put 'cash' or 'bank' depending on debit_account type?
-                    // Or just 'due_collection' if supported. 
+                    // Or just 'due_collection' if supported.
                     // Let's assume 'due_collection' or similar string is fine as it's likely a string column.
                     'amount' => $voucher->amount,
                 ]);
@@ -137,7 +150,7 @@ class CustomerReceiveVoucherController extends Controller
             ->whereRaw('grand_total > receive_amount')
             ->select('id', 'invoice_number', 'date', 'grand_total', 'receive_amount')
             ->get();
-            
+
         $invoices = $sales->map(function($sale) {
             return [
                 'id' => $sale->id,
@@ -148,7 +161,7 @@ class CustomerReceiveVoucherController extends Controller
                 'due_amount' => $sale->grand_total - $sale->receive_amount
             ];
         });
-        
+
         return response()->json([
             'invoices' => $invoices
         ]);
