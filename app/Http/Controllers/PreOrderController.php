@@ -596,7 +596,8 @@ class PreOrderController extends Controller
                     })->sum('quantity');
 
                     $current_stock = max(($current_stock - $deliveredQty - $preOrderDeliveredQty), 0);
-                    if ($current_stock < $product->quantity) {
+                    $epsilon = 0.00001; // Small tolerance
+                    if (($current_stock - $product->quantity) < -$epsilon) {
                         DB::rollBack();
                         Toastr::error($product->coi->name . ' is not available');
                         return back();
