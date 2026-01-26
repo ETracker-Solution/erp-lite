@@ -118,7 +118,7 @@
                                                                     $old_item = $old_items->where('coi_id', $coi_id)->first();
                                                                     $new_item = $new_items->where('coi_id', $coi_id)->first();
                                                                     $item_name = $new_item['coi']['name'] ?? $old_item['coi']['name'] ?? null;
-                                                                    
+
                                                                     if (!$item_name) {
                                                                         $coi = \App\Models\ChartOfInventory::find($coi_id);
                                                                         $item_name = $coi ? $coi->name : 'Unknown Item';
@@ -145,7 +145,7 @@
                         </div>
                         @endif
                     </div>
-                    @if($fGInventoryAdjustment->status == 'adjusted')
+                    @if($fGInventoryAdjustment->status == 'adjusted' &&  auth()->user()->is_super)
                         <form action="{{ route('fg-inventory-adjustments.update',$fGInventoryAdjustment->id) }}"
                               method="post">
                             @csrf
