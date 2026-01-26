@@ -53,10 +53,12 @@
                                         <div class="row">
                                             <div class="col-3">
                                                 <label class="small">Order Processed By</label>
-                                                <select id="" class="form-control form-control-sm" name="waiter_id" v-model="waiter_id">
+                                                <select id="" class="form-control form-control-sm" name="waiter_id"
+                                                        v-model="waiter_id">
                                                     <option value="">Select User</option>
                                                     @foreach($employees as $employee)
-                                                        <option value="{{ $employee->id }}">{{ $employee->employee_id.'  -- '. $employee->name }}</option>
+                                                        <option
+                                                            value="{{ $employee->id }}">{{ $employee->employee_id.'  -- '. $employee->name }}</option>
                                                     @endforeach
                                                 </select>
                                             </div>
@@ -110,7 +112,8 @@
                                             <div class="col-2">
                                                 <div class="form-group">
                                                     <label for="" class="small">Delivery Time</label>
-                                                    <input type="time" v-model="delivery_time" name="delivery_time" id=""
+                                                    <input type="time" v-model="delivery_time" name="delivery_time"
+                                                           id=""
                                                            class="form-control form-control-sm">
                                                 </div>
                                             </div>
@@ -132,22 +135,68 @@
                                                     </select>
                                                 </div>
                                             </div>
-                                            <input type="hidden" name="sales_type" v-if="preOrderData" :value="sales_type">
+                                            <input type="hidden" name="sales_type" v-if="preOrderData"
+                                                   :value="sales_type">
                                             <input type="hidden" name="delivery_point_id" :value="delivery_point_id">
                                             <div class="col-3">
                                                 <div class="form-group">
                                                     <label for="" class="small">Delivery Charge</label>
-                                                    <input type="number" name="delivery_charge" id="" v-model="delivery_charge"
+                                                    <input type="number" name="delivery_charge" id=""
+                                                           v-model="delivery_charge"
                                                            step="any"
-                                                           class="form-control form-control-sm" placeholder="Enter Delivery Charge">
+                                                           class="form-control form-control-sm"
+                                                           placeholder="Enter Delivery Charge">
                                                 </div>
                                             </div>
-                                            <div class="col-3">
+                                            <div class="col-2">
                                                 <div class="form-group">
                                                     <label for="" class="small">Additional Charge</label>
-                                                    <input type="number" name="additional_charge" id="" v-model="additional_charge"
+                                                    <input type="number" name="additional_charge" id=""
+                                                           v-model="additional_charge"
                                                            step="any"
-                                                           class="form-control form-control-sm" placeholder="Enter Additional Charge">
+                                                           class="form-control form-control-sm"
+                                                           placeholder="Enter Additional Charge">
+                                                </div>
+                                            </div>
+                                            <div class="col-2">
+                                                <div class="form-group">
+                                                    <label for="" class="small">Delivery Area</label>
+                                                    <select id="delivery-area" name="delivery_area" v-model="delivery_area"
+                                                            class="form-control form-control-sm">
+                                                        <option value="">-- Select a delivery area --</option>
+                                                        <option value="Paltan">Paltan</option>
+                                                        <option value="Motijheel">Motijheel</option>
+                                                        <option value="Jatrabari">Jatrabari</option>
+                                                        <option value="Kotwali">Kotwali</option>
+                                                        <option value="Sutrapur">Sutrapur</option>
+                                                        <option value="Wari">Wari</option>
+                                                        <option value="Ramna">Ramna</option>
+                                                        <option value="Dhanmondi">Dhanmondi</option>
+                                                        <option value="Khilgaon">Khilgaon</option>
+                                                        <option value="Turag">Turag</option>
+                                                        <option value="Uttara">Uttara</option>
+                                                        <option value="Khilkhet">Khilkhet</option>
+                                                        <option value="Badda">Badda</option>
+                                                        <option value="Rampura">Rampura</option>
+                                                        <option value="Tejgaon">Tejgaon</option>
+                                                        <option value="Sher-e-Bangla Nagar">Sher-e-Bangla Nagar</option>
+                                                        <option value="Mohammadpur">Mohammadpur</option>
+                                                        <option value="Mirpur">Mirpur</option>
+                                                        <option value="Pallabi">Pallabi</option>
+                                                        <option value="Gulshan">Gulshan</option>
+                                                        <option value="Banani">Banani</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="col-2" v-if="preOrderData">
+                                                <div class="form-group">
+                                                    <label for="" class="small">Delivery Type</label>
+                                                    <select name="delivery_type" id=""
+                                                            class="form-control form-control-sm"  v-model="delivery_type">
+                                                        <option value="">Select Delivery Type</option>
+                                                        <option value="Delivery">Delivery</option>
+                                                        <option value="Pickup">Pickup</option>
+                                                    </select>
                                                 </div>
                                             </div>
                                         </div>
@@ -254,7 +303,8 @@
                                             <br>
                                             <br>
                                             <br>
-                                            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12" v-if="items.length > 0">
+                                            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12"
+                                                 v-if="items.length > 0">
                                                 <hr>
                                                 <div class="table-responsive">
                                                     <table class="table table-bordered small table-sm">
@@ -290,7 +340,7 @@
                                                                        :name="'products['+index+'][is_readonly]'"
                                                                        class="form-control input-sm form-control-sm"
                                                                        v-bind:value="row.is_readonly">
-                                                                       <input type="hidden"
+                                                                <input type="hidden"
                                                                        :name="'products['+index+'][recipeProduct]'"
                                                                        class="form-control input-sm form-control-sm"
                                                                        v-bind:value="row.recipeProduct">
@@ -328,11 +378,11 @@
                                                                 <div class="row">
                                                                     <div class="col-4">
                                                                         <select
-                                                                                class="form-control form-control-sm"
-                                                                                v-model="row.discountType"
-                                                                                :name="'products['+index+'][discountType]'"
-                                                                                @change="updateProductDiscount(row)"
-                                                                                :disabled="!row.discountable">
+                                                                            class="form-control form-control-sm"
+                                                                            v-model="row.discountType"
+                                                                            :name="'products['+index+'][discountType]'"
+                                                                            @change="updateProductDiscount(row)"
+                                                                            :disabled="!row.discountable">
                                                                             <option value="f">tk</option>
                                                                             <option value="p">%</option>
                                                                         </select>
@@ -343,7 +393,7 @@
                                                                                step="any"
                                                                                :name="'products['+index+'][product_discount]'"
                                                                                class="form-control input-sm form-control-sm"
-{{--                                                                               v-model="row.discountValue"--}}
+                                                                               {{--                                                                               v-model="row.discountValue"--}}
                                                                                @keyup="updateProductDiscount(row)"
                                                                                :disabled="!row.discountable"
                                                                                required>
@@ -380,7 +430,10 @@
                                                                     Discount
                                                                     (2%)
                                                                 </button>
-                                                                <button class="btn btn-sm btn-warning" type="button"  data-toggle="modal" data-target="#exchangeModal">EXCHANGE</button>
+                                                                <button class="btn btn-sm btn-warning" type="button"
+                                                                        data-toggle="modal"
+                                                                        data-target="#exchangeModal">EXCHANGE
+                                                                </button>
                                                             </td>
                                                             <td>
                                                                 SubTotal
@@ -402,7 +455,8 @@
                                                             <th>Overall Discount</th>
                                                             <th>Special Discount</th>
                                                             <th>Membership Discount <span>( @{{ membership_discount_percentage }} % )</span><br>
-                                                                <span v-if="membership_discount_percentage > 0">Minimum Purchase <span>( @{{ minimum_purchase_amount }} TK )</span></span></th>
+                                                                <span v-if="membership_discount_percentage > 0">Minimum Purchase <span>( @{{ minimum_purchase_amount }} TK )</span></span>
+                                                            </th>
                                                             <th>Total Discount</th>
                                                             <th>Delivery Charge</th>
                                                             <th>Additional Charge</th>
@@ -449,7 +503,8 @@
                                                                         <select v-model="payment.method"
                                                                                 :name="'payment_methods['+index+'][method]'"
                                                                                 :disabled="payment.method == 'advance'"
-                                                                                class="form-control form-control-sm" @change="checkAvail(index)">
+                                                                                class="form-control form-control-sm"
+                                                                                @change="checkAvail(index)">
                                                                             <option value="cash">Cash</option>
                                                                             <option value="bkash">Bkash</option>
                                                                             <option value="nagad">Nagad</option>
@@ -465,17 +520,21 @@
                                                                             <option value="foodie">Foodie</option>
                                                                             <option value="foodpanda">FoodPanda</option>
                                                                             <option value="point">Redeem Point</option>
-                                            <option value="exchange">Exchange</option>
+                                                                            <option value="exchange">Exchange</option>
                                                                             <option value="advance">Advance</option>
                                                                         </select>
-                                                                        <input type="hidden" v-if="payment.method == 'advance'" :name="'payment_methods['+index+'][method]'" :value="payment.method">
+                                                                        <input type="hidden"
+                                                                               v-if="payment.method == 'advance'"
+                                                                               :name="'payment_methods['+index+'][method]'"
+                                                                               :value="payment.method">
                                                                     </td>
                                                                     <td>
                                                                         <input type="number" v-model="payment.amount"
                                                                                :step="payment.method == 'point' ? 100 : 1"
                                                                                :name="'payment_methods['+index+'][amount]'"
                                                                                @key.press="checkPointInput"
-                                                                               class="form-control form-control-sm" :readonly="payment.method == 'advance' || (payment.method == 'exchange' && exchangeAmount > 0)">
+                                                                               class="form-control form-control-sm"
+                                                                               :readonly="payment.method == 'advance' || (payment.method == 'exchange' && exchangeAmount > 0)">
                                                                     </td>
                                                                 </tr>
                                                                 <tr>
@@ -495,7 +554,8 @@
                                                                 <tr>
                                                                     <th>Payable Amount</th>
                                                                     <td>
-                                                                        <input type="text" class="form-control input-sm form-control-sm"
+                                                                        <input type="text"
+                                                                               class="form-control input-sm form-control-sm"
                                                                                v-model="pay_left" disabled>
                                                                     </td>
                                                                 </tr>
@@ -619,7 +679,8 @@
                                 </div>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                    <button type="button" class="btn btn-primary" data-dismiss="modal" v-on:click="updateDiscount">Apply
+                                    <button type="button" class="btn btn-primary" data-dismiss="modal"
+                                            v-on:click="updateDiscount">Apply
                                     </button>
                                 </div>
                             </div>
@@ -642,7 +703,8 @@
                                 </div>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                    <button type="button" class="btn btn-primary" data-dismiss="modal" :disabled="returnNumber.length < 1"
+                                    <button type="button" class="btn btn-primary" data-dismiss="modal"
+                                            :disabled="returnNumber.length < 1"
                                             v-on:click="getReturnNumberValue">Apply
                                     </button>
                                 </div>
@@ -754,7 +816,9 @@
                     waiter_id: "",
                     customer_name_disabled: true,
                     customer_name: "",
-                    preOrderData: @json($preOrder ?? null)
+                    preOrderData: @json($preOrder ?? null),
+                    delivery_area:"",
+                    delivery_type:"",
                 },
                 components: {
                     vuejsDatepicker
@@ -939,11 +1003,11 @@
 
                     },
                     valid: function (index) {
-                        const vm=this
-                        if (index.quantity > index.stock && index.is_readonly && (!vm.delivery_point_id || vm.user_outlet_id == vm.delivery_point_id) && vm.sales_type == 'sales' && ! (index.recipeProduct)) {
+                        const vm = this
+                        if (index.quantity > index.stock && index.is_readonly && (!vm.delivery_point_id || vm.user_outlet_id == vm.delivery_point_id) && vm.sales_type == 'sales' && !(index.recipeProduct)) {
                             index.quantity = index.stock;
                         }
-                        if((index.recipeProduct)){
+                        if ((index.recipeProduct)) {
                             index.quantity = index.quantity;
                             index.stock = index.quantity;
                         }
@@ -966,7 +1030,7 @@
                                 vm.membership_discount_percentage = vm.customer.purchase_discount
                                 vm.minimum_purchase_amount = vm.customer.minimum_purchase
                                 vm.customer_name_disabled = true
-                            }else{
+                            } else {
                                 vm.customer_name = ""
                                 vm.customer_name_disabled = false
                             }
@@ -1040,14 +1104,14 @@
                     },
                     getCouponDiscountValue() {
                         var vm = this;
-                        if(vm.items.length < 1){
+                        if (vm.items.length < 1) {
                             toastr.error('At Least One Product Must Be Selected', {
                                 closeButton: true,
                                 progressBar: true,
                             });
                             return
                         }
-                        if(vm.couponCode.length < 1){
+                        if (vm.couponCode.length < 1) {
                             toastr.error('Coupon Code Required', {
                                 closeButton: true,
                                 progressBar: true,
@@ -1113,7 +1177,7 @@
                                 }
                                 vm.total_discount_value = 0;
                             }
-                        }else{
+                        } else {
                             if (this.total_discount_type === 'fixed') {
                                 vm.total_discount_amount = vm.total_discount_value
                             }
@@ -1227,30 +1291,30 @@
                             vm.sales_type = 'sales';
 
                             if (vm.preOrderData.customer) {
-                               vm.customerNumber = vm.preOrderData.customer.mobile;
-                               vm.getCustomerInfo();
+                                vm.customerNumber = vm.preOrderData.customer.mobile;
+                                vm.getCustomerInfo();
                             }
 
                             if (vm.preOrderData.items) {
                                 vm.preOrderData.items.forEach(function (item) {
-                                     vm.items.push({
-                                         item_id: item.coi_id,
-                                         group: item.coi.parent ? item.coi.parent.name : '',
-                                         product_name: item.coi.name,
-                                         unit: item.coi.unit ? item.coi.unit.name : '',
-                                         stock: 9999, // Assumption for converted order
-                                         price: Number(item.unit_price) || 0,
-                                         sale_price: Number(item.unit_price) || 0,
-                                         quantity: Number(item.quantity) || 0,
-                                         product_discount: Number(item.discount) || 0,
-                                         subtotal: (Number(item.quantity) * Number(item.unit_price)) - (Number(item.discount) || 0),
-                                         is_readonly: 'true',
-                                         discountable: true,
-                                         discountType: 'f',
-                                         discountValue: Number(item.discount) || 0,
-                                         discountAmount: Number(item.discount) || 0,
-                                         recipeProduct: 'false',
-                                     });
+                                    vm.items.push({
+                                        item_id: item.coi_id,
+                                        group: item.coi.parent ? item.coi.parent.name : '',
+                                        product_name: item.coi.name,
+                                        unit: item.coi.unit ? item.coi.unit.name : '',
+                                        stock: 9999, // Assumption for converted order
+                                        price: Number(item.unit_price) || 0,
+                                        sale_price: Number(item.unit_price) || 0,
+                                        quantity: Number(item.quantity) || 0,
+                                        product_discount: Number(item.discount) || 0,
+                                        subtotal: (Number(item.quantity) * Number(item.unit_price)) - (Number(item.discount) || 0),
+                                        is_readonly: 'true',
+                                        discountable: true,
+                                        discountType: 'f',
+                                        discountValue: Number(item.discount) || 0,
+                                        discountAmount: Number(item.discount) || 0,
+                                        recipeProduct: 'false',
+                                    });
                                 });
                             }
 
@@ -1265,24 +1329,26 @@
 
                             // Map other fields
                             vm.delivery_charge = vm.preOrderData.delivery_charge;
+                            vm.delivery_area = vm.preOrderData.delivery_area;
+                            vm.delivery_type = vm.preOrderData.delivery_type;
                             // vm.total_discount_value = vm.preOrderData.discount;
                             // Note: PreOrder has total discount, but items might have discount too.
                             // If PreOrder discount field was used for overall discount, map it.
                             vm.total_discount_value = vm.preOrderData.discount || 0;
-                             if (vm.total_discount_value > 0) {
-                                 vm.total_discount_type = 'fixed';
-                                 vm.total_discount_amount = Number(vm.total_discount_value);
-                             }
+                            if (vm.total_discount_value > 0) {
+                                vm.total_discount_type = 'fixed';
+                                vm.total_discount_amount = Number(vm.total_discount_value);
+                            }
 
-                             if (vm.preOrderData.delivery_point_id) {
-                                 vm.delivery_point_id = vm.preOrderData.delivery_point_id;
-                             }
+                            if (vm.preOrderData.delivery_point_id) {
+                                vm.delivery_point_id = vm.preOrderData.delivery_point_id;
+                            }
 
-                             vm.additional_charge = Number(vm.preOrderData.additional_charge) || 0;
-                             vm.delivery_charge = Number(vm.preOrderData.delivery_charge) || 0;
+                            vm.additional_charge = Number(vm.preOrderData.additional_charge) || 0;
+                            vm.delivery_charge = Number(vm.preOrderData.delivery_charge) || 0;
 
-                             // Pre-select waiter as current user if they are the one converting
-                             vm.waiter_id = "{{ auth()->user()->employee ? auth()->user()->employee->id : '' }}";
+                            // Pre-select waiter as current user if they are the one converting
+                            vm.waiter_id = vm.preOrderData.waiter_id || "{{ auth()->user()->employee ? auth()->user()->employee->id : '' }}";
                         }
                     }
                 },

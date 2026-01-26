@@ -239,6 +239,7 @@ class PreOrderController extends Controller
             'outlets' => Outlet::where(['status' => 'active'])->get(),
             // 'outlets' => Outlet::where(['status' => 'active'])->get(),
             'uid' => PreOrderNumber::serial_number(),
+            'employees' => Employee::where(['outlet_id' => \auth()->user()->employee->outlet_id])->get()
 
         ];
 
@@ -263,7 +264,7 @@ class PreOrderController extends Controller
             if ($request->customer_number) {
                 $customer = Customer::where('mobile', $request->customer_number)->first();
                 if (!$customer) {
-                    if (!$request->customer_name){
+                    if (!$request->customer_name) {
                         Toastr::error("Customer Name is missing");
                         return back();
                     }
@@ -275,9 +276,9 @@ class PreOrderController extends Controller
                 $customer_id = $customer->id;
             }
 
-            if(!$customer_id){
-                  Toastr::error("Customer is required");
-                  return back();
+            if (!$customer_id) {
+                Toastr::error("Customer is required");
+                return back();
             }
 
             // File Upload
@@ -290,7 +291,7 @@ class PreOrderController extends Controller
 
             if ($request->store_id) {
                 $store = Store::find($request->store_id);
-            }else {
+            } else {
                 $store = Store::where(['doc_type' => 'outlet', 'doc_id' => \auth()->user()->employee->outlet_id, 'type' => 'FG'])->first();
             }
 
@@ -301,10 +302,14 @@ class PreOrderController extends Controller
 
             // Calculate Advance Amount from Payment Methods
             $advance_amount = 0;
-            if($request->payment_methods){
+            if ($request->payment_methods) {
                 foreach ($request->payment_methods as $payment) {
-                     $advance_amount += $payment['amount'];
+                    $advance_amount += $payment['amount'];
                 }
+            }
+
+            if ($request->waiter_id) {
+                $waiter = Employee::find($request->waiter_id);
             }
 
             $pre_order = PreOrder::create([
@@ -331,30 +336,32 @@ class PreOrderController extends Controller
                 'delivery_type' => $request->delivery_type,
                 'delivery_area' => $request->delivery_area,
                 'customer_number' => $request->customer_number, // Ensure this column needs to be mapped if it exists
-                // Add new fields if needed
+                'delivery_point_id' => $request->delivery_point_id, // Ensure this column needs to be mapped if it exists
+                'waiter_id' => $waiter ? $waiter->id : null,
+                'waiter_name' => $waiter ? $waiter->name : null,
             ]);
 
             // Save Items
             foreach ($request->products as $row) {
-                if(isset($row['item_id'])){
-                     $coi_id = $row['item_id'];
-                     $unit_price = $row['rate'];
-                     $quantity = $row['quantity'];
-                     $discount = $row['product_discount'] ?? 0;
+                if (isset($row['item_id'])) {
+                    $coi_id = $row['item_id'];
+                    $unit_price = $row['rate'];
+                    $quantity = $row['quantity'];
+                    $discount = $row['product_discount'] ?? 0;
 
-                     $pre_order->items()->create([
-                         'coi_id' => $coi_id,
-                         'unit_price' => $unit_price,
-                         'quantity' => $quantity,
-                         'discount' => $discount
-                     ]);
+                    $pre_order->items()->create([
+                        'coi_id' => $coi_id,
+                        'unit_price' => $unit_price,
+                        'quantity' => $quantity,
+                        'discount' => $discount
+                    ]);
                 }
             }
 
-             // Save Attachments
-            if($request->hasFile('attachments')){
+            // Save Attachments
+            if ($request->hasFile('attachments')) {
                 foreach ($request->file('attachments') as $image) {
-                    $fname = date('Ymdmhs').uniqid() . '.' . $image->getClientOriginalExtension();
+                    $fname = date('Ymdmhs') . uniqid() . '.' . $image->getClientOriginalExtension();
                     $image->move(public_path('/upload'), $fname);
                     $pre_order->attachments()->create([
                         'image' => $fname
@@ -382,7 +389,7 @@ class PreOrderController extends Controller
                 'cash' => 'Cash'
             ];
 
-            if($request->payment_methods){
+            if ($request->payment_methods) {
                 foreach ($request->payment_methods as $payment) {
                     $amount = $payment['amount'];
                     $method = $payment['method'];
@@ -393,12 +400,12 @@ class PreOrderController extends Controller
                         $methodName = $paymentMethodsMap[$method] ?? 'Cash';
 
                         $debitAccountId = outletTransactionAccount($outlet_id, $methodName);
-                        if($method == 'cash' && !$debitAccountId) {
-                             $debitAccountId = outletTransactionAccount($outlet_id); // Default cash
+                        if ($method == 'cash' && !$debitAccountId) {
+                            $debitAccountId = outletTransactionAccount($outlet_id); // Default cash
                         }
 
                         // Fallback if no account config found, use Cash GLID?
-                        if(!$debitAccountId) $debitAccountId = getCashGLID();
+                        if (!$debitAccountId) $debitAccountId = getCashGLID();
 
                         DB::table('pre_order_transactions')->insert([
                             'pre_order_id' => $pre_order->id,
@@ -425,7 +432,7 @@ class PreOrderController extends Controller
 
                         // 3. Update Customer Transaction (Advance Received)
                         // Credit Customer
-                         // We need a doc object for this helper too
+                        // We need a doc object for this helper too
                         $transactionDoc->customer_id = $customer_id;
                         addPreOrderCustomerTransaction($transactionDoc, -1);
                     }
@@ -827,8 +834,8 @@ class PreOrderController extends Controller
                 $outlet_id = $user_store->doc_id;
                 $serial_no = generateUniqueUUID($outlet_id, \App\Models\Sale::class, 'invoice_number');
             } else {
-                 Toastr::success('You are not allowed to create sales!.', '', ["progressBar" => true]);
-                 return redirect()->route('sales.index');
+                Toastr::success('You are not allowed to create sales!.', '', ["progressBar" => true]);
+                return redirect()->route('sales.index');
             }
         }
 
@@ -841,9 +848,9 @@ class PreOrderController extends Controller
             'customers' => Customer::where('status', 'active')->get(),
             'user_store' => $user_store,
             'invoice_number' => $serial_no,
-            'delivery_points' => Outlet::where('status','active')->get(),
+            'delivery_points' => Outlet::where('status', 'active')->get(),
             'user_outlet_id' => $outlet_id,
-            'employees'=>$employees,
+            'employees' => $employees,
             'preOrder' => $preOrder
         ];
 

@@ -53,6 +53,17 @@
                                     <div id="">
                                         <div class="row">
                                             <div class="col-3">
+                                                <label class="small">Order Processed By</label>
+                                                <select id="" class="form-control form-control-sm" name="waiter_id" v-model="waiter_id">
+                                                    <option value="">Select User</option>
+                                                    @foreach($employees as $employee)
+                                                        <option value="{{ $employee->id }}">{{ $employee->employee_id.'  -- '. $employee->name }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-2">
                                                 <div class="form-group">
                                                     <label for="date" class="small">Date</label>
                                                     <vuejs-datepicker v-model="date" name="date"
@@ -107,7 +118,7 @@
                                             </div>
 
 
-                                            <div class="col-3">
+                                            <div class="col-2">
                                                 <div class="form-group">
                                                     <label for="date" class="small">Delivery Date</label>
                                                     <vuejs-datepicker v-model="delivery_date" name="delivery_date"
@@ -115,7 +126,7 @@
                                                                       format="yyyy-MM-dd"></vuejs-datepicker>
                                                 </div>
                                             </div>
-                                            <div class="col-3">
+                                            <div class="col-2">
                                                 <div class="form-group">
                                                     <label for="" class="small">Delivery Time</label>
                                                     <input type="time" v-model="delivery_time" name="delivery_time"
@@ -123,7 +134,7 @@
                                                            class="form-control form-control-sm">
                                                 </div>
                                             </div>
-                                            <div class="col-3">
+                                            <div class="col-2">
                                                 <div class="form-group">
                                                     <label for="" class="small">Delivery Charge</label>
                                                     <input type="number" name="delivery_charge" id=""
@@ -143,7 +154,45 @@
                                                            placeholder="Enter Additional Charge">
                                                 </div>
                                             </div>
-
+                                            <div class="col-3">
+                                                <div class="form-group">
+                                                    <label for="" class="small">Delivery Area</label>
+                                                    <select id="delivery-area" name="delivery_area" class="form-control form-control-sm">
+                                                        <option value="">-- Select a delivery area --</option>
+                                                        <option value="Paltan">Paltan</option>
+                                                        <option value="Motijheel">Motijheel</option>
+                                                        <option value="Jatrabari">Jatrabari</option>
+                                                        <option value="Kotwali">Kotwali</option>
+                                                        <option value="Sutrapur">Sutrapur</option>
+                                                        <option value="Wari">Wari</option>
+                                                        <option value="Ramna">Ramna</option>
+                                                        <option value="Dhanmondi">Dhanmondi</option>
+                                                        <option value="Khilgaon">Khilgaon</option>
+                                                        <option value="Turag">Turag</option>
+                                                        <option value="Uttara">Uttara</option>
+                                                        <option value="Khilkhet">Khilkhet</option>
+                                                        <option value="Badda">Badda</option>
+                                                        <option value="Rampura">Rampura</option>
+                                                        <option value="Tejgaon">Tejgaon</option>
+                                                        <option value="Sher-e-Bangla Nagar">Sher-e-Bangla Nagar</option>
+                                                        <option value="Mohammadpur">Mohammadpur</option>
+                                                        <option value="Mirpur">Mirpur</option>
+                                                        <option value="Pallabi">Pallabi</option>
+                                                        <option value="Gulshan">Gulshan</option>
+                                                        <option value="Banani">Banani</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="col-3">
+                                                <div class="form-group">
+                                                    <label for="" class="small">Delivery Type</label>
+                                                    <select name="delivery_type" id="" class="form-control form-control-sm">
+                                                        <option value="">Select Delivery Type</option>
+                                                        <option value="Delivery">Delivery</option>
+                                                        <option value="Pickup">Pickup</option>
+                                                    </select>
+                                                </div>
+                                            </div>
                                         </div>
                                         <div class="row">
                                             <div class="col-2">

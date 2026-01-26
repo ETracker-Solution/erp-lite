@@ -54,7 +54,9 @@
                                 <b>Delivery Point :</b> {{ $model->deliveryPoint ? $model->deliveryPoint->name : '' }}, <br>
                             </div>
                             <div class="col-sm-4 invoice-col pl-4" style="padding: 10px">
-                                <b>Order Processed By :</b> {{ $model->sale ? $model->sale->waiter_name : 'N/A' }} <br>
+                                <b>Order Processed By :</b> {{ $model->waiter_name }} <br>
+                                <b>Delivery Area :</b> {{ $model->delivery_area }} <br>
+                                <b>Delivery Type :</b> {{ $model->delivery_type }} <br>
                             </div>
                             <!-- /.col -->
                             <!-- /.col -->
