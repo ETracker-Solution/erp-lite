@@ -300,7 +300,7 @@
                     <select name="rm_ids[]" class="form-control rm-select select2">
                         <option value="">Choose Raw Material</option>
                         @foreach($rawMaterials as $rm)
-            <option value="{{ $rm->id }}" data-unit="{{ $rm->unit->name }}">{{ $rm->name }}</option>
+            <option value="{{ $rm->id }}" data-unit="{{ $rm->unit ? $rm->unit->name : ''}}">{{ $rm->name }}</option>
                         @endforeach
             </select>
         </div>
