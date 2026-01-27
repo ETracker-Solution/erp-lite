@@ -12,8 +12,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('pre_orders', function (Blueprint $table) {
-            $table->double('delivery_charge', 15, 2)->default(0);
-            $table->double('additional_charge', 15, 2)->default(0);
+            if (!Schema::hasColumn('pre_orders', 'delivery_charge')) {
+                $table->double('delivery_charge', 15, 2)->default(0);
+            }
+
+            if (!Schema::hasColumn('pre_orders', 'additional_charge')) {
+                $table->double('additional_charge', 15, 2)->default(0);
+            }
         });
     }
 
@@ -23,8 +28,13 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('pre_orders', function (Blueprint $table) {
-            $table->dropColumn('delivery_charge');
-            $table->dropColumn('additional_charge');
+            if (Schema::hasColumn('pre_orders', 'delivery_charge')) {
+                $table->dropColumn('delivery_charge');
+            }
+
+            if (Schema::hasColumn('pre_orders', 'additional_charge')) {
+                $table->dropColumn('additional_charge');
+            }
         });
     }
 };
