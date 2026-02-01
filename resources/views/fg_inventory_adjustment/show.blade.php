@@ -150,6 +150,7 @@
                               method="post">
                             @csrf
                             @method('PUT')
+                            <input type="hidden" value="cancelled" name="status">
                             <button id="cancelAdjustment" class="btn btn-sm btn-danger">Cancel</button>
                         </form>
                     @endif

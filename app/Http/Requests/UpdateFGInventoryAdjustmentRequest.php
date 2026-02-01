@@ -23,15 +23,15 @@ class UpdateFGInventoryAdjustmentRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'store_id' => 'required',
+            'store_id' => 'required_if:status,adjusted',
             'products' => 'array',
-            'date' => 'required',
+            'date' => 'required_if:status,adjusted',
             'reference_no' => 'nullable',
             'remark' => 'nullable', // Original remark
-            'edit_remark' => 'required', // Reason for edit
-            'updated_by' => 'required',
-            'transaction_type' => 'required',
-            'subtotal' => 'required',
+            'edit_remark' => 'required_if:status,adjusted', // Reason for edit
+            'updated_by' => 'required_if:status,adjusted',
+            'transaction_type' => 'required_if:status,adjusted',
+            'subtotal' => 'required_if:status,adjusted',
             'status' => 'required',
         ];
     }
@@ -39,7 +39,7 @@ class UpdateFGInventoryAdjustmentRequest extends FormRequest
     public function prepareForValidation()
     {
         $this->merge([
-            'status' => 'adjusted',
+//            'status' => 'adjusted',
             'updated_by' => auth()->user()->id,
             'date' => Carbon::parse($this->date)->format('Y-m-d'),
         ]);

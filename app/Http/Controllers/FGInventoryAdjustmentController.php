@@ -134,7 +134,7 @@ class FGInventoryAdjustmentController extends Controller
     public function edit($id)
     {
         $fGInventoryAdjustment = InventoryAdjustment::with('items.coi')->findOrFail(decrypt($id));
-        
+
         if (\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->outlet_id) {
             $stores = Store::query()->whereType('FG')->where(['doc_type' => 'outlet', 'status' => 'active', 'doc_id' => \auth()->user()->employee->outlet_id])->get();
         } elseif (\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->factory_id) {
@@ -158,20 +158,32 @@ class FGInventoryAdjustmentController extends Controller
     {
         $adjustment = InventoryAdjustment::findOrFail($id);
         $data = $request->validated();
-        
+
+        if ($data['status'] == 'cancelled'){
+            InventoryTransaction::where([
+                'doc_type' => 'FGIA',
+                'doc_id' => $adjustment->id
+            ])->delete();
+            $adjustment->status = 'cancelled';
+            $adjustment->save();
+
+            Toastr::success('FG Inventory Adjustment Updated Successfully!', '', ["progressBar" => true]);
+            return redirect()->route('fg-inventory-adjustments.index');
+        }
+
         DB::beginTransaction();
         try {
             // Store History
             $old_data = $adjustment->load('items.coi')->toArray();
-            
+
             // Reverse previous effects
             InventoryTransaction::where(['doc_type' => 'FGIA', 'doc_id' => $adjustment->id])->delete();
             AccountTransaction::where(['doc_type' => 'FGIA', 'doc_id' => $adjustment->id])->delete();
-            
+
             // Update Adjustment
             $adjustment->update($data);
             $adjustment->items()->delete();
-            
+
             foreach ($data['products'] as $product) {
                 $adjustment->items()->create($product);
 
@@ -189,14 +201,14 @@ class FGInventoryAdjustmentController extends Controller
                     'coi_id' => $product['coi_id'],
                 ]);
             }
-            
+
             // Accounts Transaction Effect
             if ($data['transaction_type'] === 'increase') {
                 addAccountsTransaction('FGIA', $adjustment, 16, 52);
             } else {
                 addAccountsTransaction('FGIA', $adjustment, 52, 16);
             }
-            
+
             // Log history
             AdjustmentEditHistory::create([
                 'inventory_adjustment_id' => $adjustment->id,
@@ -212,7 +224,7 @@ class FGInventoryAdjustmentController extends Controller
             Toastr::info('Something went wrong! ' . $error->getMessage(), '', ["progressBar" => true]);
             return back();
         }
-        
+
         Toastr::success('FG Inventory Adjustment Updated Successfully!', '', ["progressBar" => true]);
         return redirect()->route('fg-inventory-adjustments.index');
     }

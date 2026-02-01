@@ -22,6 +22,7 @@
                     <form action="{{ route('fg-inventory-adjustments.update', $fGInventoryAdjustment->id) }}" method="POST" class="">
                         @csrf
                         @method('PUT')
+                        <input type="hidden" value="adjusted" name="status">
                         <div class="card card-info">
                             <div class="card-header">
                                 <h3 class="card-title">FG Inventory Adjustment(FGIA) Edit </h3>
@@ -101,7 +102,7 @@
                                                               placeholder="Enter Remark">{{$fGInventoryAdjustment->remark}}</textarea>
                                                 </div>
                                             </div>
-                                            
+
                                             <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                 <div class="form-group">
                                                     <label for="edit_remark" class="text-danger">Reason for Edit *</label>
@@ -385,7 +386,7 @@
                             toastr.error('Missing required fields');
                             return;
                         }
-                        
+
                         let exists = vm.items.some(function (field) {
                             return field.coi_id == vm.item_id
                         });
