@@ -792,9 +792,14 @@ class POSController extends Controller
             $unit = $items->first()['unit'];
             $rmId = $items->first()['rm_id'];
             $qtyy = $items->sum('qty');
+
+            $formattedQty = round($qtyy, 10);
+
             $current_stock = $storeStocks[$rm_store->id][$rmId] ?? 0;
 
-            $in_stock = $qtyy <= $current_stock;
+            // Use a small epsilon for floating point comparison
+            $epsilon = 0.000000001; // 1E-9
+            $in_stock = $formattedQty <= ($current_stock + $epsilon);
 
             return [
                 'rm_id' => $rmId,
