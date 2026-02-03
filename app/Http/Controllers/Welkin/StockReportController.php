@@ -90,7 +90,7 @@ class StockReportController extends Controller
                 'subChartOfInventories' => function ($query) use ($fromDate, $toDate, $storeId) {
                     $query->select('id', 'name', 'type', 'parent_id', 'unit_id', 'alter_unit_id','a_unit_quantity')
                         ->addSelect([
-                            'current_stock' => InventoryTransaction::selectRaw('COALESCE(SUM(type * quantity), 0)')
+                            'current_stock' => InventoryTransaction::selectRaw('COALESCE(ROUND(SUM(quantity * type), 6), 0)')
                                 ->whereColumn('coi_id', 'chart_of_inventories.id')
                                 ->when($fromDate, function ($query) use ($fromDate) {
                                     return $query->where('date', '>=', $fromDate);
@@ -138,7 +138,7 @@ class StockReportController extends Controller
                     $query->select('id', 'name', 'type', 'parent_id', 'unit_id', 'alter_unit_id', 'a_unit_quantity')
                         ->addSelect([
                             // Opening Balance (Before fromDate)
-                            'opening_stock' => InventoryTransaction::selectRaw('COALESCE(SUM(type * quantity), 0)')
+                            'opening_stock' => InventoryTransaction::selectRaw('COALESCE(ROUND(SUM(quantity * type), 6), 0)')
                                 ->whereColumn('coi_id', 'chart_of_inventories.id')
                                 ->where('date', '<', $fromDate)
                                 ->when($storeId, fn($query) => $query->where('store_id', $storeId))
