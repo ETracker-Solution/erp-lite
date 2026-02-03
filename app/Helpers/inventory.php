@@ -78,7 +78,7 @@ function fetchStoreProductBalances(array $productIds, array $storeIds)
     // Fetch balances for all products and stores in one query
     $inventoryTransactions = InventoryTransaction::whereIn('coi_id', $productIds)
         ->whereIn('store_id', $storeIds)
-        ->select('coi_id', 'store_id', DB::raw('SUM(quantity * type) AS total_sum'))
+        ->select('coi_id', 'store_id', DB::raw('ROUND(SUM(quantity * type), 6) AS total_sum'))
         ->groupBy('coi_id', 'store_id')
         ->get();
 
