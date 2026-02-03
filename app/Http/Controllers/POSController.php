@@ -749,7 +749,22 @@ class POSController extends Controller
     public function getPosRecipe(Request $request)
     {
         $fg_id = $request->fg_id;
-        $qty = $request->qty;
+        $qty_input = $request->qty;
+
+        if (is_string($qty_input) && stripos($qty_input, 'E') !== false) {
+            $qty = (float) $qty_input;
+        } else {
+            $qty = $qty_input;
+        }
+
+        if (!is_numeric($qty) || $qty <= 0 || $qty > 1000000) { // Adjust max limit as needed
+            return response()->json([
+                'submittable' => false,
+                'view' => '',
+                'message' => 'Invalid quantity provided.'
+            ], 400);
+        }
+
         $recipes = Recipe::where('fg_id', $fg_id)->where('status', 'active')->get();
 
         $rmIds = $recipes->pluck('rm_id')->unique()->toArray();
@@ -767,7 +782,7 @@ class POSController extends Controller
                 'unit' => $recipe->coi->unit->name ?? '',
                 'rm_id' => $recipe->rm_id,
                 'rm_name' => optional($recipe->coi)->name,
-                'qty' => $recipe->qty * ($qty ?? 0),
+                'qty' => $recipe->qty * $qty,
             ];
         });
 
