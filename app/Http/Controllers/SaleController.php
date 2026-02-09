@@ -367,7 +367,8 @@ class SaleController extends Controller
                     ]);
                 }
             }
-            if (((float) $receive_amount < (float) $sale->grand_total) || $outlet_id !== $request->delivery_point_id || $request->sales_type == 'pre_order') {
+            dd((float)$receive_amount, (float)$sale->grand_total, $outlet_id, $request->delivery_point_id, $request->sales_type);
+            if (($receive_amount < $sale->grand_total) || $outlet_id !== $request->delivery_point_id || $request->sales_type == 'pre_order') {
                 $this->othersOutletDelivery($sale, $request->delivery_point_id);
             }
 
