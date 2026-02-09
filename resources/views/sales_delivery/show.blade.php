@@ -142,7 +142,6 @@
                                         </tr>
                                         @php
                                             $paid = $otherOutletSale->receive_amount +  $otherOutletSale->delivery_point_receive_amount;
-//                                            $paid = ($delivery_payments->sum('amount') > 0) ? $delivery_payments->sum('amount') + $otherOutletSale->receive_amount : $otherOutletSale->receive_amount + $otherOutletSale->delivery_point_receive_amount;
                                         @endphp
                                         <tr>
                                             <th style="width:50%">Paid</th>
