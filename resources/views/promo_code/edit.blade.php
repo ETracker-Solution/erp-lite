@@ -149,18 +149,22 @@
                                             @endif
                                         </div>
                                     </div>
-                                    <div class="col-xl-3 col-md-8 col-12 mb-1" id="customerDiv" hidden>
+                                    <div class="col-xl-6 col-md-8 col-12 mb-1" id="customerDiv" @if(!(count($row->customerPromoCodes) || in_array($row->discount_for, ['all_customers','non_member','member']))) hidden @endif>
                                         <div class="form-group">
                                             <label for="customers">Customers</label>
-                                            <select name="customers[]" id="customers" class="form-control select2"
+                                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                                <div></div>
+                                                <button type="button" id="clearCustomersBtn" class="btn btn-sm btn-outline-secondary" style="{{ count($row->customerPromoCodes) ? 'display:inline-block;' : 'display:none;' }}">Clear All</button>
+                                            </div>
+                                             <select name="customers[]" id="customers" class="form-control select2"
                                                     multiple>
-                                                @foreach($row->customerPromoCodes as $customerCode)
-                                                <option value="{{ $customerCode->id }}" selected>{{ $customerCode->customer->name ?? '' }} </option>
-                                                @endforeach
-                                            </select>
-                                            @if($errors->has('customers'))
-                                                <small class="text-danger">{{$errors->first('customers')}}</small>
-                                            @endif
+                                                 @foreach($row->customerPromoCodes as $customerCode)
+                                                 <option value="{{ $customerCode->id }}" selected>{{ $customerCode->customer->name ?? '' }} </option>
+                                                 @endforeach
+                                             </select>
+                                             @if($errors->has('customers'))
+                                                 <small class="text-danger">{{$errors->first('customers')}}</small>
+                                             @endif
                                         </div>
                                     </div>
                                 </div>
@@ -185,56 +189,132 @@
 @endsection
 @push('script')
     <script>
-        $(document).ready(function () {
-            $('#member_type').select2({
+        // Global toggleClearButton so it is available to any function (including those
+        // called during document ready like setPreValue/getDataByDiscount).
+        function toggleClearButton() {
+            const $customers = $('#customers');
+            const $customerDiv = $('#customerDiv');
+            const $clearBtn = $('#clearCustomersBtn');
+
+            if ($customers.length === 0) return;
+
+            let vals = $customers.val();
+            let has = vals && vals.length > 0;
+
+            if (!has) {
+                has = $customers.find('option:selected').length > 0;
+            }
+
+            if (!has) {
+                try {
+                    const data = $customers.select2('data');
+                    has = Array.isArray(data) && data.length > 0;
+                } catch (e) {
+                    // select2 may not be ready yet
+                }
+            }
+
+            if (has) {
+                $customerDiv.removeAttr('hidden');
+                $clearBtn.show();
+            } else {
+                $clearBtn.hide();
+            }
+        }
+
+         // cache jQuery selectors to avoid repeated DOM queries
+         let $memberType, $customers, $discountFor, $memberDiv, $customerDiv, $clearBtn;
+
+         $(document).ready(function () {
+            $memberType = $('#member_type');
+            $customers = $('#customers');
+            $discountFor = $('#discount_for');
+            $memberDiv = $('#memberDiv');
+            $customerDiv = $('#customerDiv');
+            $clearBtn = $('#clearCustomersBtn');
+
+            $memberType.select2({
                 placeholder: 'Please Select Member Type'
             });
-            $('#customers').select2({
+            $customers.select2({
                 placeholder: 'Please Select Customers',
                 allowClear: true
             });
 
+            // ensure toggle runs when select2 selection events happen (covers AJAX-loaded and user actions)
+            $customers.on('select2:select select2:unselect select2:clear', function () {
+                toggleClearButton();
+            });
+
+            // call toggle after initializing select2 to pick up pre-selected options
+            setTimeout(toggleClearButton, 0);
+
             setPreValue("{{ $row->discount_for }}")
 
-            $('#discount_for').on('change', function () {
+            $discountFor.on('change', function () {
                 const value = $(this).val()
                 switch (value) {
                     case 'all_customers':
-                        $('#customerDiv').removeAttr('hidden')
-                        $('#memberDiv').prop('hidden', true)
-                        getDataByDiscount('#customers', 'Select Customers')
+                        $customerDiv.removeAttr('hidden')
+                        $memberDiv.prop('hidden', true)
+                        getDataByDiscount($customers, 'Select Customers')
+                        break;
                     case 'non_member':
-                        $('#customerDiv').removeAttr('hidden')
-                        $('#memberDiv').prop('hidden', true)
-                        getDataByDiscount('#customers', 'Select Customers')
+                        $customerDiv.removeAttr('hidden')
+                        $memberDiv.prop('hidden', true)
+                        getDataByDiscount($customers, 'Select Customers')
                         break;
                     case 'member':
-                        $('#customerDiv').removeAttr('hidden')
-                        $('#memberDiv').removeAttr('hidden')
-                        getDataByDiscount('#customers', 'Select Customers')
+                        $customerDiv.removeAttr('hidden')
+                        $memberDiv.removeAttr('hidden')
+                        getDataByDiscount($customers, 'Select Customers')
                         break;
                     default:
-                        $('#memberDiv').prop('hidden', true)
-                        $('#customerDiv').prop('hidden', true)
+                        $memberDiv.prop('hidden', true)
+                        $customerDiv.prop('hidden', true)
                 }
+                toggleClearButton();
             })
-            $('#member_type').on('change', function (){
-                getDataByDiscount('#customers', 'Select Customers')
+
+            $memberType.on('change', function (){
+                getDataByDiscount($customers, 'Select Customers')
             })
+
+            // show clear button when there are selected customers
+            toggleClearButton();
+
+            // when selection changes, show/hide clear button
+            $customers.on('change', function (){
+                toggleClearButton();
+            });
+
+            // clear all selected customers on button click
+            $clearBtn.on('click', function (){
+                // deselect all options
+                $customers.val([]).trigger('change');
+                // For safety with AJAX-backed select2, also clear any selected DOM options
+                $customers.find('option:selected').prop('selected', false);
+                // If you prefer to remove all options entirely (for AJAX), uncomment the next line:
+                // $customers.empty();
+                toggleClearButton();
+            });
 
             const field = document.querySelector('[name="code"]');
-
-            field.addEventListener('keypress', function ( event ) {
-                const key = event.keyCode;
-                if (key === 32) {
-                    event.preventDefault();
-                }
-            });
+            if(field){
+                field.addEventListener('keypress', function ( event ) {
+                    const key = event.keyCode || event.which;
+                    if (key === 32) {
+                        event.preventDefault();
+                    }
+                });
+            }
         })
 
         function getDataByDiscount(element, placeholder_text, no_result_message = "No Result Found") {
-            const url = "{{route('promo-codes.customers')}}" + '?discount_for=' + $('#discount_for').val() + '&member_type[]='+($('#member_type').val())
-            $(element).select2({
+            const url = "{{route('promo-codes.customers')}}" + '?discount_for=' + $discountFor.val() + '&member_type[]='+($memberType.val())
+            // element may be a jQuery object or selector string
+            const $el = (element && element.jquery) ? element : $(element);
+            $el.select2({
                 placeholder: {
                     id: ' ', // the value of the option
                     text: placeholder_text
@@ -262,28 +342,33 @@
                     }
                 },
             });
+
+            // ensure toggle runs after re-initializing select2 with AJAX results
+            setTimeout(toggleClearButton, 0);
         }
 
         function setPreValue(value){
             switch (value) {
                 case 'all_customers':
-                    $('#customerDiv').removeAttr('hidden')
-                    $('#memberDiv').prop('hidden', true)
-                    getDataByDiscount('#customers', 'Select Customers')
+                    $customerDiv.removeAttr('hidden')
+                    $memberDiv.prop('hidden', true)
+                    getDataByDiscount($customers, 'Select Customers')
+                    break;
                 case 'non_member':
-                    $('#customerDiv').removeAttr('hidden')
-                    $('#memberDiv').prop('hidden', true)
-                    getDataByDiscount('#customers', 'Select Customers')
+                    $customerDiv.removeAttr('hidden')
+                    $memberDiv.prop('hidden', true)
+                    getDataByDiscount($customers, 'Select Customers')
                     break;
                 case 'member':
-                    $('#customerDiv').removeAttr('hidden')
-                    $('#memberDiv').removeAttr('hidden')
-                    getDataByDiscount('#customers', 'Select Customers')
+                    $customerDiv.removeAttr('hidden')
+                    $memberDiv.removeAttr('hidden')
+                    getDataByDiscount($customers, 'Select Customers')
                     break;
                 default:
-                    $('#memberDiv').prop('hidden', true)
-                    $('#customerDiv').prop('hidden', true)
+                    $memberDiv.prop('hidden', true)
+                    $customerDiv.prop('hidden', true)
             }
+            toggleClearButton();
         }
     </script>
 @endpush
