@@ -190,7 +190,8 @@
                 placeholder: 'Please Select Member Type'
             });
             $('#customers').select2({
-                placeholder: 'Please Select Customers'
+                placeholder: 'Please Select Customers',
+                allowClear: true
             });
 
             setPreValue("{{ $row->discount_for }}")
