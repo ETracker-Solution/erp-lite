@@ -154,8 +154,11 @@
                                             <label for="customers">Customers</label>
                                             <div class="d-flex justify-content-between align-items-center mb-1">
                                                 <div></div>
-                                                <button type="button" id="clearCustomersBtn" class="btn btn-sm btn-outline-secondary" style="{{ count($row->customerPromoCodes) ? 'display:inline-block;' : 'display:none;' }}">Clear All</button>
-                                            </div>
+                                                <button type="button" id="clearCustomersBtn" class="btn btn-sm btn-outline-secondary" style="{{ count($row->customerPromoCodes) ? 'display:inline-block;' : 'display:none;' }}">
+                                                    <span id="clearSpinner" class="spinner-border spinner-border-sm mr-1" role="status" aria-hidden="true" style="display:none;"></span>
+                                                    Clear All
+                                                </button>
+                                             </div>
                                              <select name="customers[]" id="customers" class="form-control select2"
                                                     multiple>
                                                  @foreach($row->customerPromoCodes as $customerCode)
@@ -288,15 +291,30 @@
                 toggleClearButton();
             });
 
-            // clear all selected customers on button click
+            // clear all selected customers on button click with loader
             $clearBtn.on('click', function (){
-                // deselect all options
+                // show loader and disable the button to indicate progress
+                $clearBtn.prop('disabled', true);
+                $('#clearSpinner').show();
+
+                // deselect all options and trigger select2 change
                 $customers.val([]).trigger('change');
                 // For safety with AJAX-backed select2, also clear any selected DOM options
                 $customers.find('option:selected').prop('selected', false);
-                // If you prefer to remove all options entirely (for AJAX), uncomment the next line:
-                // $customers.empty();
-                toggleClearButton();
+
+                // hide loader once the change event is observed (one-time listener)
+                $customers.one('change', function (){
+                    $('#clearSpinner').hide();
+                    $clearBtn.prop('disabled', false);
+                    toggleClearButton();
+                });
+
+                // fallback: ensure loader hidden even if no change event fires
+                setTimeout(function (){
+                    $('#clearSpinner').hide();
+                    $clearBtn.prop('disabled', false);
+                    toggleClearButton();
+                }, 1000);
             });
 
             const field = document.querySelector('[name="code"]');
