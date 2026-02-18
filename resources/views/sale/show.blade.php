@@ -211,25 +211,73 @@
                     <div class="col-12">
                         <div class="card">
                             <div class="card-body text-center">
-                                <form action="{{ route('sales.destroy',$sale->id) }}" method="POST">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button class="btn btn-sm btn-danger" id="salesDelete">Delete</button>
-                                </form>
+                                <button type="button"
+                                        class="btn btn-sm btn-danger"
+                                        data-toggle="modal"
+                                        data-target="#deleteModal">
+                                    Delete
+                                </button>
+
+                                {{--                                <form action="{{ route('sales.destroy',$sale->id) }}" method="POST">--}}
+{{--                                    @csrf--}}
+{{--                                    @method('DELETE')--}}
+{{--                                    <button class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">Delete</button>--}}
+{{--                                </form>--}}
                             </div>
                         </div>
                     </div>
                 </div>
             @endif
-        </div><!-- /.container-fluid -->
+        </div>
     </section>
-    <!-- /.content -->
-    <!-- /.content-wrapper -->
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form action="{{ route('sales.destroy',$sale->id) }}" method="POST">
+                    @csrf
+                    @method('DELETE')
+
+                    <div class="modal-header">
+                        <h5 class="modal-title">Confirm Sale Cancel/Delete</h5>
+                        <button type="button" class="close" data-dismiss="modal">
+                            <span>&times;</span>
+                        </button>
+                    </div>
+
+                    <div class="modal-body">
+                        <p>Are you sure you want to cancel/Delete this sale?</p>
+
+                        <div class="form-group">
+                            <label>Cancellation Remark <span class="text-danger">*</span></label>
+                            <textarea name="cancel_remark"
+                                      class="form-control"
+                                      rows="3"
+                                      required></textarea>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                            Close
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            Yes, Cancel Sale
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+
 @endsection
 @push('js_scripts')
-    <script>
-        $(document).ready(() => {
-            confirmAlert('#salesDelete')
-        })
-    </script>
+{{--    <script>--}}
+{{--        $(document).ready(() => {--}}
+{{--            confirmAlert('#salesDelete')--}}
+{{--        })--}}
+{{--    </script>--}}
 @endpush

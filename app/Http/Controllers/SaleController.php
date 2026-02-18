@@ -426,10 +426,13 @@ class SaleController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Sale $sale)
+    public function destroy(Request $request, Sale $sale)
     {
+        $request->validate([
+            'cancel_remark' => 'required|string|max:500'
+        ]);
         try {
-            DB::transaction(function () use ($sale) {
+            DB::transaction(function () use ($sale, $request) {
                 $saleCancelData = collect($sale->toArray())->except([
                     'created_at',
                     'updated_at',
@@ -442,6 +445,7 @@ class SaleController extends Controller
                 ])->toArray();
                 $saleCancelData['cancelled_at'] = now();
                 $saleCancelData['cancelled_by'] = auth()->id();
+                $saleCancelData['remark'] = $request->cancel_remark ?? null;
 
                 DB::table('sale_cancels')->insert($saleCancelData);
 
