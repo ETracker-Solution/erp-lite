@@ -155,6 +155,12 @@
                 <!-- /.invoice -->
             </div><!-- /.row -->
         </div><!-- /.container-fluid -->
+        @if($sale->remark)
+            <div class="card-footer bg-danger">
+                Remark:  {{$sale->remark ?? ''}}
+            </div>
+        @endif
+
     </section>
     <!-- /.content -->
     <!-- /.content-wrapper -->

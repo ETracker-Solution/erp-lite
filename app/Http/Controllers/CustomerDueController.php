@@ -40,7 +40,8 @@ class CustomerDueController extends Controller
 
     public function show($id)
     {
-        $customer = Customer::findOrFail($id);
+        $customer = Customer::with('sales:id,customer_id,invoice_number')
+            ->findOrFail($id);
         $transactions = CustomerTransaction::where('customer_id', $id)->with('chartOfAccount')->get();
 
         // Calculate running balance if needed, or just list.

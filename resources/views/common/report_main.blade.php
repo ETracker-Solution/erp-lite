@@ -73,7 +73,7 @@
     <tr>
         <td class="w-full headers">
             <span style="font-size: 14px;font-weight: bold">{{ $report_header }}</span>
-            <p>{{ $dateRange }}</p>
+            <p>{{ $dateRange }} </p>
         </td>
     </tr>
 </table>

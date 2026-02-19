@@ -36,16 +36,16 @@
                                         @php
                                             // transaction_type: 1 = Sale (Debit), -1 = Recieve (Credit)
                                             // Debit increases balance (receivable), Credit decreases it.
-                                            
+
                                             $debit = $transaction->transaction_type == 1 ? $transaction->amount : 0;
                                             $credit = $transaction->transaction_type == -1 ? $transaction->amount : 0;
                                             $balance += ($debit - $credit);
                                         @endphp
                                         <tr>
                                             <td>{{ $transaction->date }}</td>
-                                            <td>{{ $transaction->description ?? 'N/A' }} 
+                                            <td>{{ $transaction->description ?? 'N/A' }}
                                                 @if($transaction->doc_type && $transaction->doc_id)
-                                                 ({{ $transaction->doc_type }} #{{ $transaction->doc_id }})
+                                                    ({{ optional($customer->sales->first())->invoice_number ?? 'N/A' }})
                                                 @endif
                                             </td>
                                             <td class="text-right">{{ $debit > 0 ? number_format($debit, 2) : '-' }}</td>
