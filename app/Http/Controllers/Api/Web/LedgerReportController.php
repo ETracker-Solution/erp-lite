@@ -45,6 +45,10 @@ class LedgerReportController extends Controller
 
         $page_title = ' Account Head  ::     ' . ChartOfAccount::find(\request()->account_id)->name;
         $getData = $this->ledgerReportQuery(\request()->account_id, $from_date, $to_date);
+
+        if (!isset($getData[0])) {
+            return response()->json(['success' => false]);
+        }
         $columns = array_keys((array)$getData[0]);
 
         $data = [
