@@ -101,6 +101,8 @@ Route::middleware(['auth', 'prevent_duplicate_submission'])->group(function () {
     Route::resource('outlets', \App\Http\Controllers\OutletController::class);
     Route::resource('employees', \App\Http\Controllers\EmployeeController::class);
     Route::resource('permissions', \App\Http\Controllers\PermissionController::class);
+    Route::resource('production-reports', \App\Http\Controllers\ProductionReportController::class);
+    Route::get('production/reports', [\App\Http\Controllers\ProductionReportController::class,'getReports'])->name('production.reports');
 
     Route::get('payment-voucher-pdf/{id}', [App\Http\Controllers\PaymentVoucherController::class, 'Pdf'])->name('payment-voucher.pdf');
     Route::resource('payment-vouchers', PaymentVoucherController::class);

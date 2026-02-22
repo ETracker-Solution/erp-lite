@@ -19,4 +19,7 @@ class Recipe extends Model
     {
         return $this->belongsTo(ChartOfInventory::class, 'fg_id',);
     }
+
+
+
 }

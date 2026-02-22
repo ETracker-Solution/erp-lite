@@ -13,4 +13,14 @@ class InventoryTransaction extends Model
     protected $guarded = ['id'];
 
     use TracksDeletions;
+
+    public function chartOfInventory()
+    {
+        return $this->belongsTo(ChartOfInventory::class, 'coi_id', 'id');
+    }
+
+     public function productions()
+    {
+        return $this->belongsTo(Production::class, 'doc_id', 'id');
+    }
 }
