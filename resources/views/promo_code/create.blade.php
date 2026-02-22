@@ -237,9 +237,16 @@
                 },
                 allowClear: true,
                 ajax: {
-                    url: url,
+                    url: "{{ route('promo-codes.customers') }}",
                     dataType: 'json',
-                    delay: 10,
+                    delay: 250,
+                    data: function (params) {
+                        return {
+                            search: params.term, // <-- important for typing
+                            discount_for: $('#discount_for').val(),
+                            member_type: $('#member_type').val() // <-- send as array
+                        };
+                    },
                     processResults: function (data) {
                         return {
                             results: $.map(data, function (item) {

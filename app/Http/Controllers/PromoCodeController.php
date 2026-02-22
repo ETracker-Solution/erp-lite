@@ -208,20 +208,34 @@ class PromoCodeController extends Controller
 
     public function getCustomers(Request $request)
     {
+        $search = $request->search;
+
         if ($request->discount_for == 'non_member') {
-            $customers = Customer::where('type', '!=', 'default')->whereDoesntHave('membership');
-        } else if ($request->discount_for == 'member') {
+
+            $customers = Customer::where('type', '!=', 'default')
+                ->whereDoesntHave('membership');
+
+        } elseif ($request->discount_for == 'member') {
+
             $member_type = $request->member_type;
-            if ($member_type) {
-                $customers = Customer::where('type', '!=', 'default')->whereHas('membership', function ($q) use ($member_type) {
-                    return $q->whereIn('member_type_id', $member_type);
+
+            $customers = Customer::where('type', '!=', 'default')
+                ->whereHas('membership', function ($q) use ($member_type) {
+                    if ($member_type) {
+                        $q->whereIn('member_type_id', $member_type);
+                    }
                 });
-            } else {
-                $customers = Customer::where('type', '!=', 'default')->whereHas('membership');
-            }
+
         } else {
+
             $customers = Customer::where('type', '!=', 'default');
         }
-        return $customers->select('name', 'id')->get();
+
+        if ($search) {
+            $customers->where('name', 'like', "%{$search}%");
+        }
+
+        return $customers->select('id', 'name')->limit(20)->get();
     }
+
 }
