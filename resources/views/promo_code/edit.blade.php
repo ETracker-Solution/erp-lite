@@ -171,9 +171,9 @@
                                         </div>
                                     </div>
                                 </div>
-                                @if($row->start_date > date('Y-m-d'))
+{{--                                @if($row->start_date > date('Y-m-d'))--}}
                                 <button class="btn btn-primary waves-effect waves-float waves-light float-right" type="submit">Update</button>
-                                @endif
+{{--                                @endif--}}
                             </form>
                         </div>
                     </div>
