@@ -61,7 +61,7 @@ class ProductionReportController extends Controller
 
             $data = $baseQuery
                 ->whereHas('productions', function ($query) {
-                    $query->where('remark', 'Production From Pre Order');
+                    $query->where('remark', 'Auto Production From Pre Order');
                 })
                 ->get();
 
@@ -80,7 +80,7 @@ class ProductionReportController extends Controller
             $data = $baseQuery
                 ->whereHas('productions', function ($query) {
                     $query->where(function ($q) {
-                        $q->where('remark', '!=', 'Production From Pre Order')
+                        $q->where('remark', '!=', 'Auto Production From Pre Order')
                             ->orWhereNull('remark');
                     });
                 })
