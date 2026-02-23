@@ -381,9 +381,9 @@
                         <ul class="nav nav-treeview second-child">
                             @canany(['production-batch-entry', 'production-rm-consumption', 'production-fg-production'])
                                 <li
-                                    class="nav-item {{ (Request::segment(1) == 'consumptions' || Request::segment(1) == 'batches' || Request::segment(1) == 'productions') ? 'menu-open' : ''}}">
+                                    class="nav-item {{ (Request::segment(1) == 'consumptions' || Request::segment(1) == 'batches' || Request::segment(1) == 'productions' ||  Request::segment(1) == 'production-reports') ? 'menu-open' : ''}}">
                                     <a href="#"
-                                       class="nav-link {{ (Request::segment(1) == 'consumptions' || Request::segment(1) == 'batches' || Request::segment(1) == 'productions') ? ' active' : ''}}">
+                                       class="nav-link {{ (Request::segment(1) == 'consumptions' || Request::segment(1) == 'batches' || Request::segment(1) == 'production-reports' || Request::segment(1) == 'productions')  ? ' active' : ''}}">
                                         <i class="nav-icon fa fa-folder-open"></i>
                                         <p>
                                             Production Entry
@@ -418,6 +418,15 @@
                                                 </a>
                                             </li>
                                         @endcan
+
+                                            <li class="nav-item">
+                                                <a href="{{route('production-reports.index')}}"
+                                                   class="nav-link {{ (Request::segment(1) == 'production-reports') ? ' active' : ''}}">
+                                                    <i class="far fa-circle nav-icon"></i>
+                                                    <p> Production Report</p>
+                                                </a>
+                                            </li>
+
                                     </ul>
                                 </li>
                             @endcanany

@@ -7,6 +7,7 @@ use App\Models\CustomerReceiveVoucher;
 use App\Http\Requests\StoreCustomerReceiveVoucherRequest;
 use App\Http\Requests\UpdateCustomerReceiveVoucherRequest;
 use App\Models\OutletAccount;
+use App\Models\Sale;
 use App\Models\SupplierGroup;
 
 class CustomerReceiveVoucherController extends Controller
@@ -88,11 +89,17 @@ class CustomerReceiveVoucherController extends Controller
                     'debit_account_id' => $product['debit_account_id'],
                     'credit_account_id' => getAccountsReceiveableGLId(), // Receivables
                     'amount' => $product['amount'],
+                    'settle_discount' => $product['settle_discount'] ?? 0,
                     'narration' => $validated['narration'] ?? 'Due Collection',
                     'created_by' => auth()->id(),
                 ];
 
                 $voucher = CustomerReceiveVoucher::create($voucherData);
+
+                $findSale = Sale::where('customer_id',$product['customer_id'])->find($product['sale_id']);
+                $findSale->update([
+                    'discount' => $findSale->discount + $product['settle_discount']
+                ]);
 
                 // 1. Accounting Effect: Debit Bank/Cash, Credit Accounts Receivable
                 addAccountsTransaction('CRV', $voucher, $voucherData['debit_account_id'], $voucherData['credit_account_id']);

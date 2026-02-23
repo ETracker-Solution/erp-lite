@@ -58,7 +58,7 @@
                             </div>
                             <div class="card-body">
                                 <div class="row">
-                                    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+                                    <div class="col-lg-2 col-md-3 col-sm-3 col-xs-12">
                                         <div class="form-group">
                                             <label for="debit_account_id">Receive Mode (To Account)</label>
                                             <select class="form-control bSelect" name="debit_account_id"
@@ -81,8 +81,8 @@
                                             </select>
                                         </div>
                                     </div>
-                                    
-                                     <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+
+                                     <div class="col-lg-2 col-md-3 col-sm-3 col-xs-12">
                                         <div class="form-group">
                                             <label for="sale_id">Select Invoice (Due: @{{ due }})</label>
                                             <select class="form-control bSelect" v-model="sale_id" @change="set_due" id="invoice_select">
@@ -100,7 +100,13 @@
                                             <input type="number" class="form-control" v-model="amount" placeholder="Enter Amount" @change="valid_amount">
                                         </div>
                                     </div>
-                                    
+                                    <div class="col-lg-2 col-md-2 col-sm-2 col-xs-12">
+                                        <div class="form-group">
+                                            <label for="settle_discount">Settle Discount</label>
+                                            <input type="number" class="form-control" v-model="settle_discount" placeholder="Enter Amount" @change="valid_amount">
+                                        </div>
+                                    </div>
+
                                     <div class="col-lg-1 col-md-1 col-sm-1 col-xs-12" style="margin-top: 30px;">
                                         <button type="button" class="btn btn-info btn-block" @click="data_input">Add</button>
                                     </div>
@@ -118,6 +124,7 @@
                                                     <th style="width: 20%">Customer</th>
                                                     <th style="width: 20%">Invoice</th>
                                                     <th style="width: 15%">Amount</th>
+                                                    <th style="width: 15%">Settle Discount</th>
                                                     <th style="width: 5%"></th>
                                                 </tr>
                                                 </thead>
@@ -141,13 +148,17 @@
                                                         <input type="hidden" :name="'products['+index+'][amount]'" :value="row.amount">
                                                     </td>
                                                     <td>
+                                                        @{{ row.settle_discount }}
+                                                        <input type="hidden" :name="'products['+index+'][settle_discount]'" :value="row.settle_discount">
+                                                    </td>
+                                                    <td>
                                                         <button type="button" class="btn btn-sm btn-danger" @click="delete_row(row)"><i class="fa fa-trash"></i></button>
                                                     </td>
                                                 </tr>
                                                 </tbody>
                                                 <tfoot>
                                                 <tr>
-                                                    <td colspan="6" style="background-color: #DDDCDC"></td>
+                                                    <td colspan="7" style="background-color: #DDDCDC"></td>
                                                 </tr>
                                                 <tr>
                                                     <td colspan="3"></td>
@@ -155,6 +166,7 @@
                                                     <td>
                                                         <input type="text" class="form-control input-sm" name="subtotal" :value="subtotal" readonly>
                                                     </td>
+                                                    <td></td>
                                                     <td></td>
                                                 </tr>
                                                 </tfoot>
@@ -215,6 +227,7 @@
                     debit_account_id: '',
                     sale_id: '',
                     amount: '',
+                    settle_discount: '',
                     due: 0,
                     invoices: [],
                     selected_items: [],
@@ -236,14 +249,14 @@
                         vm.sale_id = '';
                         vm.due = 0;
                         vm.total_customer_due = 0;
-                        
+
                         if (slug) {
                             vm.pageLoading = true;
                             axios.get(this.config.get_invoices_url + '/' + slug).then(function (response) {
                                 vm.invoices = response.data.invoices;
                                 // Calculate Total Customer Due
                                 vm.total_customer_due = vm.invoices.reduce((acc, inv) => acc + (parseFloat(inv.due_amount) || 0), 0);
-                                
+
                                 vm.pageLoading = false;
                                 // Need to refresh selectpicker
                                 setTimeout(function() {
@@ -293,13 +306,14 @@
                             toastr.error('Invalid Amount');
                             return;
                         }
-                        
+
                         // Duplicate check: all fields must be same
                         let isDuplicate = vm.selected_items.some(function (item) {
                             return item.debit_account_id == vm.debit_account_id &&
                                    item.customer_id == vm.customer_id &&
                                    item.sale_id == vm.sale_id &&
-                                   item.amount == vm.amount;
+                                   item.amount == vm.amount &&
+                                   item.settle_discount == vm.settle_discount;
                         });
 
                         if (isDuplicate) {
@@ -325,7 +339,8 @@
                             customer_name: customer_name,
                             sale_id: vm.sale_id,
                             invoice_number: invoice_number,
-                            amount: vm.amount
+                            amount: vm.amount,
+                            settle_discount: vm.settle_discount
                         });
 
                         // Removed field resets to allow editing and re-adding
