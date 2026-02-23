@@ -43,8 +43,22 @@ class LedgerReportController extends Controller
         $page_title = false;
         $report_header = 'Ledger Report';
 
-        $page_title = ' Account Head  ::     ' . ChartOfAccount::find(\request()->account_id)->name;
-        $getData = $this->ledgerReportQuery(\request()->account_id, $from_date, $to_date);
+        if ($report_type === 'account_ledger') {
+            $page_title = ' Account Head  ::     ' . ChartOfAccount::find(\request()->account_id)->name;
+            $getData = $this->ledgerReportQuery(\request()->account_id, $from_date, $to_date);
+        } elseif ($report_type === 'supplier_ledger') {
+            $supplier = Supplier::find(\request()->supplier_id);
+            $page_title = ' Supplier  ::     ' . $supplier->name;
+            $report_header = 'Supplier Ledger Report';
+            $getData = $this->supplierLedgerQuery(\request()->supplier_id, $from_date, $to_date);
+        } elseif ($report_type === 'customer_ledger') {
+            $customer = Customer::find(\request()->customer_id);
+            $page_title = ' Customer  ::     ' . $customer->name;
+            $report_header = 'Customer Ledger Report';
+            $getData = $this->customerLedgerQuery(\request()->customer_id, $from_date, $to_date);
+        } else {
+            return response()->json(['success' => false, 'message' => 'Invalid Report Type']);
+        }
 
         if (!isset($getData[0])) {
             return response()->json(['success' => false]);
@@ -82,7 +96,7 @@ class LedgerReportController extends Controller
             ]
         );
 //        return $pdf->stream();
-        $pdf->stream();
+        return $pdf->stream();
     }
 
     /**
@@ -123,6 +137,82 @@ class LedgerReportController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+
+    public function supplierLedgerQuery($supplier_id, $start_date, $end_date)
+    {
+        return DB::select("WITH OpeningBalance AS (
+            SELECT
+                '$start_date' AS Date,
+                ' ' AS 'Account Head',
+                ' ' AS 'Doc Type',
+                ' ' AS 'Doc No',
+                'Opening Balance' AS Particulars,
+                ' ' AS Debit,
+                ' ' AS Credit,
+                COALESCE(SUM(amount * transaction_type), 0) AS Balance
+            FROM supplier_transactions
+            WHERE supplier_id = $supplier_id
+            AND date < '$start_date'
+            LIMIT 1
+        )
+
+        SELECT * FROM OpeningBalance
+
+        UNION ALL
+
+        SELECT
+            TR.date AS Date,
+            COA.name AS 'Account Head',
+            doc_type AS 'Doc Type',
+            doc_id AS 'Doc No',
+            TR.description AS Particulars,
+            CASE WHEN transaction_type = -1 THEN amount ELSE 0 END AS Debit,
+            CASE WHEN transaction_type = 1 THEN amount ELSE 0 END AS Credit,
+            SUM(amount * transaction_type) OVER (ORDER BY TR.date, TR.id) + (SELECT Balance FROM OpeningBalance) AS Balance
+        FROM supplier_transactions TR
+        LEFT JOIN chart_of_accounts COA ON COA.id = TR.chart_of_account_id
+        WHERE TR.supplier_id = $supplier_id
+        AND TR.date >= '$start_date' AND TR.date <= '$end_date'
+        ");
+    }
+
+    public function customerLedgerQuery($customer_id, $start_date, $end_date)
+    {
+        return DB::select("WITH OpeningBalance AS (
+            SELECT
+                '$start_date' AS Date,
+                ' ' AS 'Account Head',
+                ' ' AS 'Doc Type',
+                ' ' AS 'Doc No',
+                'Opening Balance' AS Particulars,
+                ' ' AS Debit,
+                ' ' AS Credit,
+                COALESCE(SUM(amount * transaction_type), 0) AS Balance
+            FROM customer_transactions
+            WHERE customer_id = $customer_id
+            AND date < '$start_date'
+            LIMIT 1
+        )
+
+        SELECT * FROM OpeningBalance
+
+        UNION ALL
+
+        SELECT
+            TR.date AS Date,
+            COA.name AS 'Account Head',
+            doc_type AS 'Doc Type',
+            doc_id AS 'Doc No',
+            TR.description AS Particulars,
+            CASE WHEN transaction_type = 1 THEN amount ELSE 0 END AS Debit,
+            CASE WHEN transaction_type = -1 THEN amount ELSE 0 END AS Credit,
+            SUM(amount * transaction_type) OVER (ORDER BY TR.date, TR.id) + (SELECT Balance FROM OpeningBalance) AS Balance
+        FROM customer_transactions TR
+        LEFT JOIN chart_of_accounts COA ON COA.id = TR.chart_of_account_id
+        WHERE TR.customer_id = $customer_id
+        AND TR.date >= '$start_date' AND TR.date <= '$end_date'
+        ");
     }
 
     public function ledgerReportQuery($account_id, $start_date, $end_date)
