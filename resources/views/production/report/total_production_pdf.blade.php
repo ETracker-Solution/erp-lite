@@ -62,6 +62,7 @@ foreach ($processedData as &$fgItems) {
 <body>
 <div class="report-header">
     <div class="report-title">Total Production Report</div>
+    <div class="report-date">Store: {{ $store ?? '' }}</div>
     <div class="report-date">{{ Carbon\Carbon::parse($from)->format('d M Y') }} To {{ Carbon\Carbon::parse($to)->format('d M Y') }}</div>
     <?php if (count($processedData) > 0): ?>
     <div style="margin-top: 10px;">
