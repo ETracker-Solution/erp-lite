@@ -112,7 +112,20 @@ class ProductionReportController extends Controller
 
         if ($type == 'total_consumption') {
 
-            $data = $baseQuery->get();
+            $data = InventoryTransaction::with([
+                'chartOfInventory.unit',
+                'chartOfInventory.parent',
+                'chartOfInventory.productionRecipes',
+                'chartOfInventory.productionRecipes.coi',
+                'chartOfInventory.productionRecipes.coi.parent'
+            ])
+                ->whereIn('doc_type', ['FGP', 'POS', 'PO'])
+                ->where('type','=', '-1')
+                ->whereHas('chartOfInventory', function ($query) {
+                    $query->where('rootAccountType', 'RM');
+                })
+                ->whereBetween('date', [$from, $to])
+                ->where('store_id', $storeId)->get();
 
             $pdf = PDF::loadView('production.report.total_consumption_pdf', [
                 'totalConsumption' => $data,
