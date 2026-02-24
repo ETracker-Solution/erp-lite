@@ -594,7 +594,7 @@ class ApiController extends Controller
             ];
         })->values();
 
-        $recipes = ProductionRecipe::with('coi:id,name')
+        $recipes = ProductionRecipe::with('coi:id,name,unit_id')
             ->whereIn('fg_id', $fgQuantities->keys())
             ->get();
 
