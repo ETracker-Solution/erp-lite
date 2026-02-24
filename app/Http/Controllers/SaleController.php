@@ -441,6 +441,7 @@ class SaleController extends Controller
                     'delivery_type',
                     'delivery_area',
                     'delivery_point_id',
+                    'sd',
                     'pre_order_id'
                 ])->toArray();
                 $saleCancelData['cancelled_at'] = now();
