@@ -432,7 +432,11 @@ class SaleController extends Controller
             'cancel_remark' => 'required|string|max:500'
         ]);
         try {
+
+
             DB::transaction(function () use ($sale, $request) {
+                $columns = Schema::getColumnListing('sale_cancels');
+
                 $saleCancelData = collect($sale->toArray())->except([
                     'created_at',
                     'updated_at',
@@ -442,18 +446,22 @@ class SaleController extends Controller
                     'delivery_area',
                     'delivery_point_id',
                     'sd',
+                    'is_vat',
                     'pre_order_id'
-                ])->toArray();
+                ])->only($columns)->toArray();
                 $saleCancelData['cancelled_at'] = now();
                 $saleCancelData['cancelled_by'] = auth()->id();
                 $saleCancelData['remark'] = $request->cancel_remark ?? null;
 
                 DB::table('sale_cancels')->insert($saleCancelData);
 
+                $itemColumns = Schema::getColumnListing('sale_item_cancels');
+
+
                 $saleItemCancelData = collect($sale->items->toArray())->except([
                     'created_at',
                     'updated_at',
-                ])->toArray();
+                ])->only($itemColumns)->toArray();
 
                 DB::table('sale_item_cancels')->insert($saleItemCancelData);
 
