@@ -57,6 +57,8 @@
 
 <div class="report-header">
     <div class="report-title">Total RM Consumption Report</div>
+    <div class="report-date">Store: {{ $store ?? '' }}</div>
+
     <div class="report-date">
         {{ Carbon::parse($from)->format('d M Y') }}
         To
