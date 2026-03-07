@@ -33,10 +33,10 @@
                         <!-- /.card-header -->
                         <div class="card-body table-responsive">
                             <div class="row">
-                                <div class="col-3">
+                                <div class="col-2">
                                     <div class="form-group">
                                         <label for="">Status</label>
-                                        <select name="status" id="" class="form-control">
+                                        <select name="status" id="" class="form-control filter-input">
                                             <option value="">All</option>
                                             <option value="pending">Pending</option>
                                             <option value="approved">Approved</option>
@@ -44,21 +44,30 @@
                                         </select>
                                     </div>
                                 </div>
+                                <div class="col-2">
+                                    <div class="form-group">
+                                        <label for="">FGR NO</label>
+                                        <input type="text" name="uid" id="uid" class="form-control filter-input" placeholder="FGR NO">
+                                    </div>
+                                </div>
                                 <div class="col-3">
                                     <div class="form-group">
                                         <label for="">From Date</label>
-                                        <input type="date" name="from_date" id="from_date" class="form-control">
+                                        <input type="date" name="from_date" id="from_date" class="form-control filter-input">
                                     </div>
                                 </div>
                                 <div class="col-3">
                                     <div class="form-group">
                                         <label for="">To Date</label>
-                                        <input type="date" name="to_date" id="to_date" class="form-control">
+                                        <input type="date" name="to_date" id="to_date" class="form-control filter-input">
                                     </div>
                                 </div>
-{{--                                <div class="col-12">--}}
-{{--                                    <button class="btn btn-primary" type="button" id="search-btn">Search</button>--}}
-{{--                                </div>--}}
+                                <div class="col-2">
+                                    <div class="form-group">
+                                        <label for="">&nbsp;</label>
+                                        <button class="btn btn-secondary btn-block" type="button" id="reset-btn">Reset</button>
+                                    </div>
+                                </div>
                             </div>
                             <hr>
                             <form method="GET" action="{{route('fg.requisitions.export','xlsx')}}" id="excelForm">
@@ -100,6 +109,9 @@
             if (sessionStorage.getItem('status')) {
                 $('select[name="status"]').val(sessionStorage.getItem('status'));
             }
+            if (sessionStorage.getItem('uid')) {
+                $('input[name="uid"]').val(sessionStorage.getItem('uid'));
+            }
             if (sessionStorage.getItem('from_date')) {
                 $('input[name="from_date"]').val(sessionStorage.getItem('from_date'));
             }
@@ -107,7 +119,7 @@
                 $('input[name="to_date"]').val(sessionStorage.getItem('to_date'));
             }
 
-            $('#dataTable').dataTable({
+            var table = $('#dataTable').DataTable({
                 stateSave: true,
                 responsive: true,
                 serverSide: true,
@@ -116,6 +128,7 @@
                     url: "{{ route('requisitions.index') }}",
                     data: function (d) {
                         d.status = $('select[name="status"]').val();
+                        d.uid = $('input[name="uid"]').val();
                         d.from_date = $('input[name="from_date"]').val();
                         d.to_date = $('input[name="to_date"]').val();
                     }
@@ -178,10 +191,20 @@
         }
 
         // On filter change, store the filter values in sessionStorage and recall the DataTable
-        $('select[name="status"], input[name="from_date"], input[name="to_date"]').on('change', function () {
+        $('.filter-input').on('change keyup', function () {
             sessionStorage.setItem('status', $('select[name="status"]').val());
+            sessionStorage.setItem('uid', $('input[name="uid"]').val());
             sessionStorage.setItem('from_date', $('input[name="from_date"]').val());
             sessionStorage.setItem('to_date', $('input[name="to_date"]').val());
+            recallDatatable();
+        });
+
+        $('#reset-btn').on('click', function () {
+            $('.filter-input').val('');
+            sessionStorage.removeItem('status');
+            sessionStorage.removeItem('uid');
+            sessionStorage.removeItem('from_date');
+            sessionStorage.removeItem('to_date');
             recallDatatable();
         });
 

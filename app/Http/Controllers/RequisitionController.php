@@ -364,6 +364,9 @@ class RequisitionController extends Controller
         if (\request()->filled(key: 'status')) {
             $data = $data->where('status', \request()->status);
         }
+        if (\request()->filled('uid')) {
+            $data = $data->where('uid', 'like', '%' . \request()->uid . '%');
+        }
         if (\request()->filled('from_date') && \request()->filled('to_date')) {
             $from_date = Carbon::parse(request()->from_date)->format('Y-m-d');
             $to_date = Carbon::parse(request()->to_date)->format('Y-m-d');
