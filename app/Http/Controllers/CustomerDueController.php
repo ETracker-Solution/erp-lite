@@ -18,15 +18,26 @@ class CustomerDueController extends Controller
                         $q->select(\DB::raw('SUM(amount * transaction_type)'));
                     }],
                     ''
-                )->latest();
+                );
             // We can filter those with due > 0 if needed, but for now show all with their due.
             // Or better, filter in PHP if dataset is small, or use SQL.
             // Let's return all and let frontend show.
+
+            $data = $this->filter($data);
 
             return DataTables::of($data)
                 ->addIndexColumn()
                 ->addColumn('due_amount', function ($row) {
                     return $row->due_amount ?? 0;
+                })
+                ->filterColumn('due_amount', function ($query, $keyword) {
+                    $query->whereHas('customerTransactions', function ($q) use ($keyword) {
+                        $q->select(\DB::raw('SUM(amount * transaction_type)'))
+                            ->havingRaw('SUM(amount * transaction_type) like ?', ["%{$keyword}%"]);
+                    });
+                })
+                ->orderColumn('due_amount', function ($query, $order) {
+                    $query->orderBy('due_amount', $order);
                 })
                 ->addColumn('action', function ($row) {
                     $btn = '<a href="' . route('customer-dues.show', $row->id) . '" class="btn btn-info btn-sm" title="Details"><i class="fas fa-eye"></i> Show</a>';
@@ -36,6 +47,19 @@ class CustomerDueController extends Controller
                 ->make(true);
         }
         return view('customer_due.index');
+    }
+
+    protected function filter($data)
+    {
+        if (request()->filled('customer_name')) {
+            $data->where('name', 'like', '%' . request('customer_name') . '%');
+        }
+
+        if (request()->filled('phone')) {
+            $data->where('mobile', 'like', '%' . request('phone') . '%');
+        }
+
+        return $data->latest();
     }
 
     public function show($id)
