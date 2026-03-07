@@ -18,7 +18,9 @@ class CustomerReceiveVoucherController extends Controller
     public function index()
     {
         if (\request()->ajax()) {
-            $data = CustomerReceiveVoucher::with('customer', 'sale', 'debitAccount')->latest();
+            $data = CustomerReceiveVoucher::with('customer', 'sale', 'debitAccount');
+            $data = $this->filter($data);
+
             return \Yajra\DataTables\Facades\DataTables::of($data)
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
@@ -30,10 +32,59 @@ class CustomerReceiveVoucherController extends Controller
                 ->addColumn('invoice_no', function($row){
                     return $row->sale ? $row->sale->invoice_number : 'N/A';
                 })
+                ->filterColumn('invoice_no', function($query, $keyword) {
+                    $query->whereHas('sale', function($q) use ($keyword) {
+                        $q->where('invoice_number', 'like', "%{$keyword}%");
+                    });
+                })
                 ->rawColumns(['action'])
                 ->make(true);
         }
-        return view('customer_receive_voucher.index');
+
+        if (\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->outlet_id) {
+            $chartOfAccounts = OutletAccount::where('outlet_id', \auth()->user()->employee->outlet_id)->pluck('coa_id')->toArray();
+            $paymentAccounts = ChartOfAccount::whereIn('id', $chartOfAccounts)->get();
+        } else {
+            $paymentAccounts = ChartOfAccount::where(['is_bank_cash' => 'yes', 'type' => 'ledger', 'status' => 'active'])->get();
+        }
+
+        return view('customer_receive_voucher.index', compact('paymentAccounts'));
+    }
+
+    protected function filter($data)
+    {
+        if (request('date_range')) {
+            $dateRange = [];
+            if (str_contains(request('date_range'), ' to ')) {
+                $dateRange = explode(' to ', request('date_range'));
+            } elseif (str_contains(request('date_range'), ' - ')) {
+                $dateRange = explode(' - ', request('date_range'));
+            } else {
+                $dateRange = [request('date_range'), request('date_range')];
+            }
+
+            if (isset($dateRange[0]) && isset($dateRange[1])) {
+                $data->whereBetween('date', [$dateRange[0], $dateRange[1]]);
+            } elseif (isset($dateRange[0])) {
+                $data->where('date', $dateRange[0]);
+            }
+        }
+
+        if (request()->filled('crv_no')) {
+            $data->where('uid', 'like', '%' . request('crv_no') . '%');
+        }
+
+        if (request()->filled('invoice_no')) {
+            $data->whereHas('sale', function ($query) {
+                $query->where('invoice_number', 'like', '%' . request('invoice_no') . '%');
+            });
+        }
+
+        if (request()->filled('received_to')) {
+            $data->where('debit_account_id', request('received_to'));
+        }
+
+        return $data->latest();
     }
 
     /**
