@@ -27,21 +27,13 @@ class FGTransferReceiveController extends Controller
      */
     public function index()
     {
-        if (\request()->ajax()) {
-            $data = TransferReceive::with('toStore', 'fromStore')->where(['type' => 'FG'])->latest();
+        $stores = Store::where(['type' => 'FG', 'status' => 'active'])->get();
 
-            if (!auth()->user()->is_super) {
-                if (auth()->user()->employee) {
-                    if (auth()->user()->employee->factory_id) {
-                        $stores = auth()->user()->employee->factory->stores()->pluck('id')->toArray();
-                    }
-                    if (auth()->user()->employee->outlet_id) {
-                        $stores = auth()->user()->employee->outlet->stores()->pluck('id')->toArray();
-                    }
-                    $data = TransferReceive::with('toStore', 'fromStore', 'inventoryTransfer')
-                        ->where(['type' => 'FG'])->whereIn('from_store_id', $stores)->orWhereIn('to_store_id', $stores)->latest();
-                }
-            }
+        if (\request()->ajax()) {
+            $data = TransferReceive::with('toStore', 'fromStore', 'inventoryTransfer')->where(['type' => 'FG']);
+            $data = $this->filter($data);
+            $data->latest();
+
             return DataTables::of($data)
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
@@ -56,7 +48,55 @@ class FGTransferReceiveController extends Controller
                 ->rawColumns(['action', 'created_at', 'status'])
                 ->make(true);
         }
-        return view('fg_inventory_transfer_receive.index');
+        return view('fg_inventory_transfer_receive.index', compact('stores'));
+    }
+
+    protected function filter($data)
+    {
+        if (!auth()->user()->is_super) {
+            if (auth()->user()->employee) {
+                $stores = [];
+                if (auth()->user()->employee->factory_id) {
+                    $stores = auth()->user()->employee->factory->stores()->pluck('id')->toArray();
+                }
+                if (auth()->user()->employee->outlet_id) {
+                    $stores = array_merge($stores, auth()->user()->employee->outlet->stores()->pluck('id')->toArray());
+                }
+                $data->where(function ($query) use ($stores) {
+                    $query->whereIn('from_store_id', $stores)->orWhereIn('to_store_id', $stores);
+                });
+            }
+        }
+
+        // Real-time filters
+        if (request('date_range')) {
+            $dateRange = [];
+            if (str_contains(request('date_range'), ' to ')) {
+                $dateRange = explode(' to ', request('date_range'));
+            } elseif (str_contains(request('date_range'), ' - ')) {
+                $dateRange = explode(' - ', request('date_range'));
+            } else {
+                $dateRange = [request('date_range'), request('date_range')];
+            }
+
+            if (isset($dateRange[0]) && isset($dateRange[1])) {
+                $data->whereBetween('date', [$dateRange[0], $dateRange[1]]);
+            } elseif (isset($dateRange[0])) {
+                $data->where('date', $dateRange[0]);
+            }
+        }
+
+        $data->when(request('uid'), function ($query) {
+            return $query->where('uid', 'like', '%' . request('uid') . '%');
+        })
+        ->when(request('from_store_id'), function ($query) {
+            return $query->where('from_store_id', request('from_store_id'));
+        })
+        ->when(request('to_store_id'), function ($query) {
+            return $query->where('to_store_id', request('to_store_id'));
+        });
+
+        return $data;
     }
 
     /**

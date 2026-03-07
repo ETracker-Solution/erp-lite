@@ -21,22 +21,13 @@ class FGInventoryTransferController extends Controller
      */
     public function index()
     {
+        $stores = Store::where(['type' => 'FG', 'status' => 'active'])->get();
 
         if (\request()->ajax()) {
-            $fGInventoryTransfers = InventoryTransfer::with('toStore', 'fromStore')->where(['type' => 'FG'])->latest();
+            $fGInventoryTransfers = InventoryTransfer::with('toStore', 'fromStore')->where(['type' => 'FG']);
+            $fGInventoryTransfers = $this->filter($fGInventoryTransfers);
+            $fGInventoryTransfers->latest();
 
-            if (!auth()->user()->is_super) {
-                if (auth()->user()->employee){
-                    if (auth()->user()->employee->factory_id){
-                        $fGInventoryTransfers = InventoryTransfer::with('toStore', 'fromStore')
-                            ->where(['type' => 'FG'])->whereIn('from_store_id', auth()->user()->employee->factory->stores()->pluck('id')->toArray())->latest();
-                    }
-                    if (auth()->user()->employee->outlet_id){
-                        $fGInventoryTransfers = InventoryTransfer::with('toStore', 'fromStore')
-                            ->where(['type' => 'FG'])->whereIn('from_store_id', auth()->user()->employee->outlet->stores()->pluck('id')->toArray())->latest();
-                    }
-                }
-            }
             return DataTables::of($fGInventoryTransfers)
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
@@ -48,9 +39,52 @@ class FGInventoryTransferController extends Controller
                 ->rawColumns(['action', 'amount_info'])
                 ->make(true);
         }
-        return view('fg_inventory_transfer.index');
+        return view('fg_inventory_transfer.index', compact('stores'));
     }
 
+    protected function filter($fGInventoryTransfers)
+    {
+        if (!auth()->user()->is_super) {
+            if (auth()->user()->employee) {
+                if (auth()->user()->employee->factory_id) {
+                    $fGInventoryTransfers = $fGInventoryTransfers->whereIn('from_store_id', auth()->user()->employee->factory->stores()->pluck('id')->toArray());
+                }
+                if (auth()->user()->employee->outlet_id) {
+                    $fGInventoryTransfers = $fGInventoryTransfers->whereIn('from_store_id', auth()->user()->employee->outlet->stores()->pluck('id')->toArray());
+                }
+            }
+        }
+
+        // Real-time filters
+        if (request('date_range')) {
+            $dateRange = [];
+            if (str_contains(request('date_range'), ' to ')) {
+                $dateRange = explode(' to ', request('date_range'));
+            } elseif (str_contains(request('date_range'), ' - ')) {
+                $dateRange = explode(' - ', request('date_range'));
+            } else {
+                $dateRange = [request('date_range'), request('date_range')];
+            }
+
+            if (isset($dateRange[0]) && isset($dateRange[1])) {
+                $fGInventoryTransfers->whereBetween('date', [$dateRange[0], $dateRange[1]]);
+            } elseif (isset($dateRange[0])) {
+                $fGInventoryTransfers->where('date', $dateRange[0]);
+            }
+        }
+
+        $fGInventoryTransfers->when(request('uid'), function ($query) {
+            return $query->where('uid', 'like', '%' . request('uid') . '%');
+        })
+        ->when(request('from_store_id'), function ($query) {
+            return $query->where('from_store_id', request('from_store_id'));
+        })
+        ->when(request('to_store_id'), function ($query) {
+            return $query->where('to_store_id', request('to_store_id'));
+        });
+
+        return $fGInventoryTransfers;
+    }
     /**
      * Show the form for creating a new resource.
      */
