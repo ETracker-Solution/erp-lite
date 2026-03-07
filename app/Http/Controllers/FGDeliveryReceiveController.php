@@ -24,13 +24,11 @@ class FGDeliveryReceiveController extends Controller
     public function index()
     {
         if (\request()->ajax()) {
-            $data = DeliveryReceive::with([ 'toStore','fromStore','requisitionDelivery' ])
-            ->where('delivery_receives.type', 'FG')->latest('delivery_receives.created_at');
+            $data = DeliveryReceive::with(['toStore', 'fromStore', 'requisitionDelivery'])
+                ->where('delivery_receives.type', 'FG');
+            $data = $this->filter($data);
+            $data->latest('delivery_receives.created_at');
 
-            if (auth()->user()->employee && auth()->user()->employee->outlet_id){
-                $storeIds = auth()->user()->employee->outlet->stores()->pluck('id')->toArray();
-                $data = $data->whereIn('to_store_id',$storeIds);
-            }
             return DataTables::of($data)
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
@@ -45,7 +43,50 @@ class FGDeliveryReceiveController extends Controller
                 ->rawColumns(['action', 'created_at', 'status'])
                 ->make(true);
         }
-        return view('fg_requisition_delivery_receive.index');
+
+        $from_stores = Store::where(['type' => 'FG', 'doc_type' => 'factory', 'status' => 'active'])->get();
+        $to_stores = Store::where(['type' => 'FG', 'doc_type' => 'outlet', 'status' => 'active'])->get();
+
+        return view('fg_requisition_delivery_receive.index', compact('from_stores', 'to_stores'));
+    }
+
+    protected function filter($data)
+    {
+        if (auth()->user()->employee && auth()->user()->employee->outlet_id) {
+            $storeIds = auth()->user()->employee->outlet->stores()->pluck('id')->toArray();
+            $data = $data->whereIn('to_store_id', $storeIds);
+        }
+
+        if (request('date_range')) {
+            $dateRange = [];
+            if (str_contains(request('date_range'), ' to ')) {
+                $dateRange = explode(' to ', request('date_range'));
+            } elseif (str_contains(request('date_range'), ' - ')) {
+                $dateRange = explode(' - ', request('date_range'));
+            } else {
+                $dateRange = [request('date_range'), request('date_range')];
+            }
+
+            if (isset($dateRange[0]) && isset($dateRange[1])) {
+                $data->whereBetween('date', [$dateRange[0], $dateRange[1]]);
+            } elseif (isset($dateRange[0])) {
+                $data->where('date', $dateRange[0]);
+            }
+        }
+
+        $data->when(request('fgr_no'), function ($query) {
+            return $query->whereHas('requisitionDelivery', function ($q) {
+                $q->where('uid', 'like', '%' . request('fgr_no') . '%');
+            });
+        })
+        ->when(request('from_store_id'), function ($query) {
+            return $query->where('from_store_id', request('from_store_id'));
+        })
+        ->when(request('to_store_id'), function ($query) {
+            return $query->where('to_store_id', request('to_store_id'));
+        });
+
+        return $data;
     }
 
     /**
