@@ -337,14 +337,31 @@ class SalesDeliveryController extends Controller
             $data = null;
         }
 
-        if (\request()->filled(key: 'status')) {
+        if (\request()->filled('status')) {
             $data = $data->where('status', \request()->status);
         }
-        if (\request()->filled('from_date') && \request()->filled('to_date')) {
-            $from_date = Carbon::parse(request()->from_date)->format('Y-m-d');
-            $to_date = Carbon::parse(request()->to_date)->format('Y-m-d');
-            $data = $data->whereDate('date', '>=', $from_date)->whereDate('date', '<=', $to_date);
+
+        if (request('date_range')) {
+            $dateRange = [];
+            if (str_contains(request('date_range'), ' to ')) {
+                $dateRange = explode(' to ', request('date_range'));
+            } elseif (str_contains(request('date_range'), ' - ')) {
+                $dateRange = explode(' - ', request('date_range'));
+            } else {
+                $dateRange = [request('date_range'), request('date_range')];
+            }
+
+            if (isset($dateRange[0]) && isset($dateRange[1])) {
+                $data->whereBetween('date', [$dateRange[0], $dateRange[1]]);
+            } elseif (isset($dateRange[0])) {
+                $data->where('date', $dateRange[0]);
+            }
         }
+
+        if (request()->filled('invoice_no')) {
+            $data->where('invoice_number', 'like', '%' . request('invoice_no') . '%');
+        }
+
         return $data->latest();
     }
 

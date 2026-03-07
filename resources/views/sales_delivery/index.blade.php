@@ -17,27 +17,32 @@
 
             <div class="row">
                 <div class="col-12">
-                    <div class="row">
-                        <div class="col-3">
-                            <div class="form-group">
-                                <label for="">Status</label>
-                                <select name="status" id="status" class="form-control">
+                    <div class="row align-items-end mb-3">
+                        <div class="col-md-3">
+                            <div class="form-group mb-0">
+                                <label for="status">Status</label>
+                                <select name="status" id="status" class="form-control filter-input">
                                     <option value="">All</option>
                                     <option value="delivered">Delivered</option>
                                     <option value="pending">Pending</option>
                                 </select>
                             </div>
                         </div>
-                        <div class="col-3">
-                            <div class="form-group">
-                                <label for="">From Date</label>
-                                <input type="date" name="from_date" id="from_date" class="form-control">
+                        <div class="col-md-3">
+                            <div class="form-group mb-0">
+                                <label for="date_range">Date Range</label>
+                                <input type="text" id="date_range" class="form-control filter-input flatpickr-range" placeholder="YYYY-MM-DD to YYYY-MM-DD">
                             </div>
                         </div>
-                        <div class="col-3">
-                            <div class="form-group">
-                                <label for="">To Date</label>
-                                <input type="date" name="to_date" id="to_date" class="form-control">
+                        <div class="col-md-3">
+                            <div class="form-group mb-0">
+                                <label for="invoice_no">Invoice No</label>
+                                <input type="text" id="invoice_no" class="form-control filter-input" placeholder="Invoice No">
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                             <div class="form-group mb-0">
+                                <button type="button" id="reset-btn" class="btn btn-secondary btn-block">Reset</button>
                             </div>
                         </div>
                     </div>
@@ -74,6 +79,8 @@
 @endsection
 @section('css')
     <link rel="stylesheet" href="{{ asset('assets/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css')}}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('datepicker/app-assets/vendors/css/pickers/flatpickr/flatpickr.min.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('datepicker/app-assets/css/plugins/forms/pickers/form-flat-pickr.css') }}">
 @endsection
 @section('js')
     <!-- DataTables -->
@@ -81,6 +88,7 @@
     <script src="{{ asset('assets/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js')}}"></script>
     <script src="{{ asset('assets/plugins/datatables-responsive/js/dataTables.responsive.min.js')}}"></script>
     <script src="{{ asset('assets/plugins/datatables-responsive/js/responsive.bootstrap4.min.js')}}"></script>
+    <script src="{{ asset('datepicker/app-assets/vendors/js/pickers/flatpickr/flatpickr.min.js') }}"></script>
 @endsection
 @push('script')
     <!-- page script -->
@@ -93,13 +101,13 @@
         $(document).ready(function () {
             
             if (sessionStorage.getItem('status')) {
-                $('select[name="status"]').val(sessionStorage.getItem('status'));
+                $('#status').val(sessionStorage.getItem('status'));
             }
-            if (sessionStorage.getItem('from_date')) {
-                $('input[name="from_date"]').val(sessionStorage.getItem('from_date'));
+            if (sessionStorage.getItem('date_range')) {
+                $('#date_range').val(sessionStorage.getItem('date_range'));
             }
-            if (sessionStorage.getItem('to_date')) {
-                $('input[name="to_date"]').val(sessionStorage.getItem('to_date'));
+            if (sessionStorage.getItem('invoice_no')) {
+                $('#invoice_no').val(sessionStorage.getItem('invoice_no'));
             }
 
             $('#dataTable').dataTable({
@@ -110,9 +118,9 @@
                 ajax: {
                     url: "{{ route('sales-deliveries.index') }}",
                     data: function (d) {
-                        d.status = $('select[name="status"]').val();
-                        d.from_date = $('input[name="from_date"]').val();
-                        d.to_date = $('input[name="to_date"]').val();
+                        d.status = $('#status').val();
+                        d.date_range = $('#date_range').val();
+                        d.invoice_no = $('#invoice_no').val();
                     }
                 },
                 columns: [{
@@ -169,28 +177,29 @@
                 ],
             });
 
-            $('#from_date').on('change', function () {
-            sessionStorage.setItem('from_date', $('input[name="from_date"]').val());
-                recallDatatable();
-            })
-            $('#to_date').on('change', function () {
-            sessionStorage.setItem('to_date', $('input[name="to_date"]').val());
-                recallDatatable();
-            })
-            $('#status').on('change', function () {
-                sessionStorage.setItem('status', $('select[name="status"]').val());
+            $('.flatpickr-range').flatpickr({
+                mode: "range",
+                dateFormat: "Y-m-d",
+            });
+
+            $('.filter-input').on('change keyup', function () {
+                sessionStorage.setItem('status', $('#status').val());
+                sessionStorage.setItem('date_range', $('#date_range').val());
+                sessionStorage.setItem('invoice_no', $('#invoice_no').val());
                 recallDatatable();
             });
-            })
-            $('select[name="status"], input[name="from_date"], input[name="to_date"]').on('change', function () {
-            sessionStorage.setItem('status', $('select[name="status"]').val());
-            sessionStorage.setItem('from_date', $('input[name="from_date"]').val());
-            sessionStorage.setItem('to_date', $('input[name="to_date"]').val());
-            recallDatatable();
-        });
 
-        $('#search-btn').on('click', function () {
-            recallDatatable();
+            $('#reset-btn').on('click', function () {
+                $('.filter-input').val('');
+                if ($('#date_range').length > 0 && $('#date_range')[0]._flatpickr) {
+                    $('#date_range')[0]._flatpickr.clear();
+                }
+                sessionStorage.removeItem('status');
+                sessionStorage.removeItem('date_range');
+                sessionStorage.removeItem('invoice_no');
+                recallDatatable();
+            });
         });
     </script>
 @endpush
+
