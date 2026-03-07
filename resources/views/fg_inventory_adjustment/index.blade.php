@@ -53,9 +53,12 @@
                                         <input type="date" name="to_date" id="to_date" class="form-control">
                                     </div>
                                 </div>
-{{--                                <div class="col-12">--}}
-{{--                                    <button class="btn btn-primary" type="button" id="search-btn">Search</button>--}}
-{{--                                </div>--}}
+                                <div class="col-3">
+                                    <div class="form-group">
+                                        <label for="">&nbsp;</label>
+                                        <button class="btn btn-secondary btn-block" type="button" id="reset-btn">Reset</button>
+                                    </div>
+                                </div>
                             </div>
                             <hr>
                             <!-- /.card-header -->
@@ -179,6 +182,16 @@
         });
 
         $('#search-btn').on('click', function () {
+            recallDatatable();
+        });
+
+        $('#reset-btn').on('click', function () {
+            $('select[name="transaction_type"]').val('');
+            $('input[name="from_date"]').val('');
+            $('input[name="to_date"]').val('');
+            sessionStorage.removeItem('transaction_type');
+            sessionStorage.removeItem('from_date');
+            sessionStorage.removeItem('to_date');
             recallDatatable();
         });
     </script>
