@@ -29,23 +29,29 @@ class ConsumptionController extends Controller
      */
     public function index()
     {
-        if (\request()->ajax()) {
-            $consumptions = Consumption::latest();
-            return DataTables::of($consumptions)
+        if (request()->ajax()) {
+            $query = Consumption::query();
+
+            $query = $this->filter($query, request());
+
+            return DataTables::of($query->latest())
                 ->addIndexColumn()
-                ->addColumn('action', function ($row) {
-                    return view('consumption.action', compact('row'));
-                })
-                ->editColumn('status', function ($row) {
-                    return showStatus($row->status);
-                })
-                ->addColumn('created_at', function ($row) {
-                    return $row->created_at->format('Y-m-d');
-                })
+                ->addColumn('action', fn($row) => view('consumption.action', compact('row')))
+                ->editColumn('status', fn($row) => showStatus($row->status))
+                ->addColumn('created_at', fn($row) => $row->created_at->format('Y-m-d'))
                 ->rawColumns(['status', 'action'])
                 ->make(true);
         }
         return view('consumption.index');
+    }
+
+    private function filter($query, $request)
+    {
+        return $query
+            ->when($request->date_range, function ($q) use ($request) {
+                searchColumnByDateRange($q, 'date', $request->date_range);
+            })
+            ->when($request->serial_no, fn($q) => $q->where('serial_no', 'like', "%{$request->serial_no}%"));
     }
 
     /**

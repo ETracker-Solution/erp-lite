@@ -29,19 +29,34 @@
                             </div>
                         </div>
                         <!-- /.card-header -->
-                        <div class="card-body table-responsive">
-                            <div class="row">
-                                <div class="col-md-3 form-group">
-                                    <label for="fp-range" class="font-weight-bold">DATE RANGE</label>
-                                    <input type="text" id="fp-range" class="form-control flatpickr-range"
-                                           placeholder="YYYY-MM-DD to YYYY-MM-DD" name="date_range"/>
+                        <div class="card-body">
+                            <div class="row mb-3 align-items-end">
+                                <div class="col-md-3">
+                                    <label for="date_range">Date Range</label>
+                                    <input type="text" id="date_range" class="form-control filter-input flatpickr-range" placeholder="YYYY-MM-DD to YYYY-MM-DD">
+                                </div>
+                                <div class="col-md-2">
+                                    <label for="batch_no">Batch</label>
+                                    <input type="text" id="batch_no" class="form-control filter-input" placeholder="Batch No">
+                                </div>
+                                <div class="col-md-2">
+                                    <label for="factory">Production Unit</label>
+                                    <input type="text" id="factory" class="form-control filter-input" placeholder="Factory Name">
+                                </div>
+                                <div class="col-md-2">
+                                    <label for="store">FG Store</label>
+                                    <input type="text" id="store" class="form-control filter-input" placeholder="Store Name">
+                                </div>
+                                <div class="col-md-1">
+                                    <button id="reset_filter" class="btn btn-warning btn-block">Reset</button>
+                                </div>
+                                <div class="col-md-1">
+                                    <form method="GET" action="{{route('fg.production.export','xlsx')}}" id="excelForm">
+                                        @csrf
+                                        <button class="btn btn-success" type="button" id="excel-btn">EXCEL</button>
+                                    </form>
                                 </div>
                             </div>
-
-                            <form method="GET" action="{{route('fg.production.export','xlsx')}}" id="excelForm">
-                                @csrf
-                                <button class="btn btn-success mb-2" type="button" id="excel-btn">EXCEL</button>
-                            </form>
 
                             <table id="dataTable" class="table table-bordered">
                                 {{-- show from datatable--}}
@@ -90,12 +105,7 @@
     <script>
         $(document).ready(function () {
 
-            if (sessionStorage.getItem('production_date_range')) {
-                $('input[name="date_range"]').val(sessionStorage.getItem('production_date_range'));
-            }
-
-
-            $('#dataTable').dataTable({
+            var table = $('#dataTable').DataTable({
                 stateSave: true,
                 responsive: true,
                 serverSide: true,
@@ -103,7 +113,10 @@
                 ajax: {
                     url: "{{ route('productions.index') }}",
                     data: function (d) {
-                        d.date_range = $('input[name="date_range"]').val();
+                        d.date_range = $('#date_range').val();
+                        d.batch_no = $('#batch_no').val();
+                        d.factory = $('#factory').val();
+                        d.store = $('#store').val();
                     }
                 },
                 columns: [{
@@ -159,26 +172,32 @@
                     },
                 ],
             });
+
+            $('.flatpickr-range').flatpickr({
+                mode: "range",
+                dateFormat: "Y-m-d",
+            });
+
+            $('.filter-input').on('change keyup', function () {
+                table.draw();
+            });
+
+            $('#reset_filter').click(function () {
+                $('.filter-input').val('');
+                if ($('#date_range').length > 0) {
+                    $('#date_range')[0]._flatpickr.clear();
+                }
+                table.draw();
+            });
+
+            $(document).on("click", "#excel-btn", function (e) {
+                e.preventDefault();
+                let form = $("#excelForm");
+                let date_range = $('#date_range').clone().attr('name', 'date_range');
+                form.find('input[name="date_range"]').remove();
+                // form.append(date_range);
+                form.submit();
+            });
         })
-
-        $('#fp-range').on('change', function () {
-            sessionStorage.setItem('production_date_range', $('input[name="date_range"]').val());
-            recallDatatable();
-        })
-
-        function recallDatatable() {
-            $('#dataTable').DataTable().draw(true);
-        }
-
-        $(document).on("click", "#excel-btn", function (e) {
-            e.preventDefault();
-            
-            let form = $("#excelForm");
-           
-            let date_range = $('input[name="date_range"]');
-            
-            form.append(date_range)
-            form.submit();
-        });
     </script>
 @endpush

@@ -93,33 +93,43 @@ class ProductionController extends Controller
 
     public function index()
     {
-        if (\request()->ajax()) {
-            $productions = $this->getFilteredData();
-            return DataTables::of($productions)
+        if (request()->ajax()) {
+            $query = Production::query()->with(['batch', 'factory', 'store']);
+            
+            $query = $this->filter($query, request());
+
+            return DataTables::of($query->latest())
                 ->addIndexColumn()
-                ->addColumn('action', function ($row) {
-                    return view('production.action', compact('row'));
-                })
-                ->editColumn('status', function ($row) {
-                    return showStatus($row->status);
-                })
-                ->addColumn('created_at', function ($row) {
-                    return $row->created_at->format('Y-m-d');
-                })
+                ->addColumn('action', fn($row) => view('production.action', compact('row')))
+                ->editColumn('status', fn($row) => showStatus($row->status))
+                ->addColumn('created_at', fn($row) => $row->created_at->format('Y-m-d'))
                 ->rawColumns(['status', 'action'])
                 ->make(true);
         }
         return view('production.index');
     }
 
-    protected function getFilteredData()
+    private function filter($query, $request)
     {
-        $data = Production::with('batch', 'factory', 'store');
-        if (request()->filled('date_range')) {
-            searchColumnByDateRange($data);
-        }
-
-        return $data->latest();
+        return $query
+            ->when($request->date_range, function ($q) use ($request) {
+                searchColumnByDateRange($q, 'date', $request->date_range);
+            })
+            ->when($request->batch_no, function ($q) use ($request) {
+                $q->whereHas('batch', function ($sq) use ($request) {
+                    $sq->where('batch_no', 'like', "%{$request->batch_no}%");
+                });
+            })
+            ->when($request->factory, function ($q) use ($request) {
+                $q->whereHas('factory', function ($sq) use ($request) {
+                    $sq->where('name', 'like', "%{$request->factory}%");
+                });
+            })
+            ->when($request->store, function ($q) use ($request) {
+                $q->whereHas('store', function ($sq) use ($request) {
+                    $sq->where('name', 'like', "%{$request->store}%");
+                });
+            });
     }
 
     /**

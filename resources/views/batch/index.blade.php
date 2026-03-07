@@ -102,9 +102,28 @@ Batch List
                             </div>
                             <!-- /.card-header -->
                             <div class="card-body">
-                                <table id="dataTable" class="table table-bordered table-hover">
-                                    {{-- show from datatable--}}
-                                </table>
+                                <div class="row mb-3 align-items-end">
+                                    <div class="col-md-4">
+                                        <label for="date_range">Date Range</label>
+                                        <input type="text" id="date_range" class="form-control filter-input flatpickr-range" placeholder="YYYY-MM-DD to YYYY-MM-DD">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label for="batch_no">Batch No</label>
+                                        <input type="text" id="batch_no" class="form-control filter-input" placeholder="Batch No">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label for="p_manager">Production Manager</label>
+                                        <input type="text" id="p_manager" class="form-control filter-input" placeholder="Manager Name">
+                                    </div>
+                                    <div class="col-md-2">
+                                        <button id="reset_filter" class="btn btn-warning btn-block">Reset</button>
+                                    </div>
+                                </div>
+                                <div class="table-responsive">
+                                    <table id="dataTable" class="table table-bordered table-hover">
+                                        {{-- show from datatable--}}
+                                    </table>
+                                </div>
                             </div>
                             <!-- /.card-body -->
                         </div>
@@ -124,6 +143,8 @@ Batch List
 @section('css')
 <!-- DataTables -->
 <link rel="stylesheet" href="{{ asset('assets/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css')}}">
+<link rel="stylesheet" type="text/css" href="{{ asset('datepicker/app-assets/vendors/css/pickers/flatpickr/flatpickr.min.css') }}">
+<link rel="stylesheet" type="text/css" href="{{ asset('datepicker/app-assets/css/plugins/forms/pickers/form-flat-pickr.css') }}">
 @endsection
 @section('js')
 <!-- DataTables -->
@@ -131,16 +152,24 @@ Batch List
 <script src="{{ asset('assets/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js')}}"></script>
 <script src="{{ asset('assets/plugins/datatables-responsive/js/dataTables.responsive.min.js')}}"></script>
 <script src="{{ asset('assets/plugins/datatables-responsive/js/responsive.bootstrap4.min.js')}}"></script>
+<script src="{{ asset('datepicker/app-assets/vendors/js/pickers/flatpickr/flatpickr.min.js') }}"></script>
 @endsection
 @push('script')
 <script>
     $(document).ready(function() {
-        $('#dataTable').dataTable({
+        var table = $('#dataTable').DataTable({
             stateSave: true,
             responsive: true,
             serverSide: true,
             processing: true,
-            ajax: '{{route('batches.index')}}',
+            ajax: {
+                url: '{{route('batches.index')}}',
+                data: function(d) {
+                    d.date_range = $('#date_range').val();
+                    d.batch_no = $('#batch_no').val();
+                    d.p_manager = $('#p_manager').val();
+                }
+            },
             columns: [{
                     data: "DT_RowIndex",
                     title: "#",
@@ -179,6 +208,23 @@ Batch List
                     searchable: false
                 },
             ],
+        });
+
+        $('.flatpickr-range').flatpickr({
+            mode: "range",
+            dateFormat: "Y-m-d",
+        });
+
+        $('.filter-input').on('change keyup', function () {
+            table.draw();
+        });
+
+        $('#reset_filter').click(function () {
+            $('.filter-input').val('');
+            if ($('#date_range').length > 0) {
+                $('#date_range')[0]._flatpickr.clear();
+            }
+            table.draw();
         });
     })
 
