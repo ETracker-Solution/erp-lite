@@ -22,25 +22,43 @@ class DeliveryCashTransferController extends Controller
      */
     public function index()
     {
-        if (\request()->ajax()) {
-            if (\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->outlet_id) {
-                $dcTransfers = DeliveryCashTransfer::with('creditAccount', 'debitAccount')->where(['from_outlet' => \auth()->user()->employee->outlet_id])->latest();
+        if (request()->ajax()) {
+            $query = DeliveryCashTransfer::query()
+                ->with(['creditAccount:id,name', 'debitAccount:id,name']);
 
-            } else {
-                $dcTransfers = DeliveryCashTransfer::with('creditAccount', 'debitAccount')->latest();
+            if (auth()->user() && auth()->user()->employee && auth()->user()->employee->outlet_id) {
+                $query->where('from_outlet', auth()->user()->employee->outlet_id);
             }
-            return DataTables::of($dcTransfers)
+
+            $query = $this->filter($query, request());
+
+            return DataTables::of($query->latest())
                 ->addIndexColumn()
-                ->addColumn('action', function ($row) {
-                    return view('delivery_cash_transfer.action-button', compact('row'));
-                })
-                ->addColumn('created_at', function ($row) {
-                    return view('common.created_at', compact('row'));
-                })
+                ->addColumn('action', fn($row) => view('delivery_cash_transfer.action-button', compact('row')))
+                ->addColumn('created_at', fn($row) => view('common.created_at', compact('row')))
                 ->rawColumns(['action'])
                 ->make(true);
         }
         return view('delivery_cash_transfer.index');
+    }
+
+    private function filter($query, $request)
+    {
+        return $query
+            ->when($request->date_range, function ($q) use ($request) {
+                searchColumnByDateRange($q, 'date', $request->date_range);
+            })
+            ->when($request->invoice_number, fn($q) => $q->where('invoice_number', 'like', "%{$request->invoice_number}%"))
+            ->when($request->from_account, function ($q) use ($request) {
+                $q->whereHas('creditAccount', function ($sq) use ($request) {
+                    $sq->where('name', 'like', "%{$request->from_account}%");
+                });
+            })
+            ->when($request->to_account, function ($q) use ($request) {
+                $q->whereHas('debitAccount', function ($sq) use ($request) {
+                    $sq->where('name', 'like', "%{$request->to_account}%");
+                });
+            });
     }
 
     /**

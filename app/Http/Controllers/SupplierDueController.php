@@ -12,9 +12,13 @@ class SupplierDueController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $data = Supplier::where('status', 'active')->latest()->get();
+            $data = Supplier::query()
+                ->where('status', 'active')
+                ->when($request->name, fn($q) => $q->where('name', 'like', "%{$request->name}%"))
+                ->when($request->mobile, fn($q) => $q->where('mobile', 'like', "%{$request->mobile}%"))
+                ->when($request->address, fn($q) => $q->where('address', 'like', "%{$request->address}%"));
             
-            return DataTables::of($data)
+            return DataTables::of($data->latest())
                 ->addIndexColumn()
                 ->addColumn('due_amount', function ($row) {
                      return $row->supplierTransactions()->sum(\DB::raw('amount * transaction_type'));

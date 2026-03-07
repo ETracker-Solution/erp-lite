@@ -50,6 +50,10 @@
                                                     @endforeach
                                                 </select>
                                             </div>
+
+                                            <div class="form-group col-md-3 align-self-end">
+                                                <button type="button" id="reset_filter" class="btn btn-warning btn-block">Reset</button>
+                                            </div>
                                             
                                         </div>
                                         </form>
@@ -243,6 +247,22 @@
         });
         $('#receiveReportButton').on('click', function () {
            $('#submitForm').attr('action', "{{ route('fund-transfer-vouchers.receive.report') }}").submit()
+        });
+
+        $('#reset_filter').click(function () {
+            sessionStorage.removeItem('date_range');
+            sessionStorage.removeItem('outlet_id');
+            sessionStorage.removeItem('account_id');
+            
+            $('input[name="date_range"]').val('');
+            $('select[name="outlet_id"]').val('').trigger('change.select2');
+            $('select[name="account_id"]').val('').trigger('change.select2');
+            
+            if ($('#fp-range').length > 0) {
+                $('#fp-range')[0]._flatpickr.clear();
+            }
+            
+            recallDatatable();
         });
 
         function recallDatatable() {
