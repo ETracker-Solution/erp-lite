@@ -22,20 +22,58 @@ class SupplierPaymentVoucherController extends Controller
      */
     public function index()
     {
-        if (\request()->ajax()) {
-            $journalVouchers = SupplierPaymentVoucher::with('debitAccount', 'creditAccount', 'supplier')->latest();
-            return DataTables::of($journalVouchers)
+        if (request()->ajax()) {
+            $journalVouchers = SupplierPaymentVoucher::query()
+                ->with([
+                    'debitAccount:id,name',
+                    'creditAccount:id,name',
+                    'supplier:id,name'
+                ])
+                ->select([
+                    'id',
+                    'uid',
+                    'date',
+                    'supplier_id',
+                    'debit_account_id',
+                    'credit_account_id',
+                    'amount',
+                    'settle_discount',
+                    'payee_name',
+                    'created_at'
+                ]);
+            $journalVouchers = $this->filter($journalVouchers, request());
+            return DataTables::of($journalVouchers->latest())
                 ->addIndexColumn()
-                ->addColumn('action', function ($row) {
-                    return view('supplier_payment_voucher.action-button', compact('row'));
-                })
-                ->addColumn('created_at', function ($row) {
-                    return view('common.created_at', compact('row'));
-                })
+                ->addColumn('action', fn($row) => view('supplier_payment_voucher.action-button', compact('row')))
+                ->addColumn('created_at', fn($row) => view('common.created_at', compact('row')))
                 ->rawColumns(['action'])
                 ->make(true);
         }
-        return view('supplier_payment_voucher.index');
+
+        $suppliers = Supplier::select('id', 'name')->where('status', 'active')->get();
+        $creditAccounts = ChartOfAccount::select('id', 'name')
+            ->where(['is_bank_cash' => 'yes', 'type' => 'ledger', 'status' => 'active'])
+            ->get();
+        $debitAccounts = ChartOfAccount::select('id', 'name')
+            ->where(['type' => 'ledger', 'status' => 'active'])
+            ->get();
+
+        return view('supplier_payment_voucher.index', compact('suppliers', 'creditAccounts', 'debitAccounts'));
+    }
+
+    private function filter($query, $request)
+    {
+        return $query
+            ->when($request->supplier_id, fn($q) => $q->where('supplier_id', $request->supplier_id))
+            ->when($request->date_range, function ($q) use ($request) {
+                searchColumnByDateRange($q, 'date', $request->date_range);
+            })
+            ->when($request->uid, fn($q) => $q->where('uid', 'like', "%{$request->uid}%"))
+            ->when($request->debit_account_id, fn($q) => $q->where('debit_account_id', $request->debit_account_id))
+            ->when($request->credit_account_id, fn($q) => $q->where('credit_account_id', $request->credit_account_id))
+            ->when($request->created_at_range, function ($q) use ($request) {
+                searchColumnByDateRange($q, 'created_at', $request->created_at_range);
+            });
     }
 
     /**

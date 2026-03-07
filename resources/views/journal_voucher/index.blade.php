@@ -28,11 +28,43 @@
                             </div>
                         </div>
                         <!-- /.card-header -->
-                        <div class="card-body table-responsive">
-                            <table id="dataTable"
-                                   class="table table-bordered table-hover">
-                                {{-- show from datatable--}}
-                            </table>
+                        <div class="card-body">
+                            <div class="row mb-3 align-items-end">
+                                <div class="col-md-3">
+                                    <label for="date_range">Date Range</label>
+                                    <input type="text" id="date_range" class="form-control filter-input flatpickr-range" placeholder="YYYY-MM-DD to YYYY-MM-DD">
+                                </div>
+                                <div class="col-md-2">
+                                    <label for="uid">JV No</label>
+                                    <input type="text" id="uid" class="form-control filter-input" placeholder="JV No">
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="debit_account_id">Debit Account</label>
+                                    <select id="debit_account_id" class="form-control filter-input select2">
+                                        <option value="">Select Debit Account</option>
+                                        @foreach($chartOfAccounts as $account)
+                                            <option value="{{ $account->id }}">{{ $account->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="credit_account_id">Credit Account</label>
+                                    <select id="credit_account_id" class="form-control filter-input select2">
+                                        <option value="">Select Credit Account</option>
+                                        @foreach($chartOfAccounts as $account)
+                                            <option value="{{ $account->id }}">{{ $account->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-md-1">
+                                    <button id="reset_filter" class="btn btn-warning btn-block">Reset</button>
+                                </div>
+                            </div>
+                            <div class="table-responsive">
+                                <table id="dataTable" class="table table-bordered table-hover">
+                                    {{-- show from datatable--}}
+                                </table>
+                            </div>
                         </div>
                         <!-- /.card-body -->
                     </div>
@@ -49,6 +81,8 @@
 @section('css')
     <!-- DataTables -->
     <link rel="stylesheet" href="{{ asset('assets/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css')}}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('datepicker/app-assets/vendors/css/pickers/flatpickr/flatpickr.min.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('datepicker/app-assets/css/plugins/forms/pickers/form-flat-pickr.css') }}">
 @endsection
 @push('style')
 
@@ -59,17 +93,24 @@
     <script src="{{ asset('assets/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js')}}"></script>
     <script src="{{ asset('assets/plugins/datatables-responsive/js/dataTables.responsive.min.js')}}"></script>
     <script src="{{ asset('assets/plugins/datatables-responsive/js/responsive.bootstrap4.min.js')}}"></script>
+    <script src="{{ asset('datepicker/app-assets/vendors/js/pickers/flatpickr/flatpickr.min.js') }}"></script>
 @endsection
 @push('script')
 <script>
     $(document).ready(function() {
-        $('#dataTable').dataTable({
+        var table = $('#dataTable').DataTable({
             stateSave: true,
             responsive: true,
             serverSide: true,
             processing: true,
             ajax: {
                 url: "{{ route('journal-vouchers.index') }}",
+                data: function (d) {
+                    d.date_range = $('#date_range').val();
+                    d.uid = $('#uid').val();
+                    d.debit_account_id = $('#debit_account_id').val();
+                    d.credit_account_id = $('#credit_account_id').val();
+                }
             },
             columns: [{
                     data: "DT_RowIndex",
@@ -115,6 +156,24 @@
                     searchable: false
                 },
             ],
+        });
+
+        $('.flatpickr-range').flatpickr({
+            mode: "range",
+            dateFormat: "Y-m-d",
+        });
+
+        $('.filter-input').on('change keyup', function () {
+            table.draw();
+        });
+
+        $('#reset_filter').click(function () {
+            $('.filter-input').val('');
+            $('.select2').val('').trigger('change');
+            if ($('#date_range').length > 0) {
+                $('#date_range')[0]._flatpickr.clear();
+            }
+            table.draw();
         });
     })
 </script>

@@ -63,12 +63,9 @@ class PaymentVoucherController extends Controller
     private function filter($query, $request)
     {
         return $query
-            ->when($request->start_date, fn($q) =>
-            $q->whereDate('date', '>=', $request->start_date)
-            )
-            ->when($request->end_date, fn($q) =>
-            $q->whereDate('date', '<=', $request->end_date)
-            )
+            ->when($request->date_range, function ($q) use ($request) {
+                searchColumnByDateRange($q, 'date', $request->date_range);
+            })
             ->when($request->uid, fn($q) =>
             $q->where('uid', 'like', "%{$request->uid}%")
             )

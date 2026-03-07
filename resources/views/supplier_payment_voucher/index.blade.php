@@ -30,11 +30,56 @@ Supplier Payment Voucher List
                             </div>
                         </div>
                         <!-- /.card-header -->
-                        <div class="card-body table-responsive">
-                            <table id="dataTable"
-                                   class="table table-bordered table-hover">
-                                {{-- show from datatable--}}
-                            </table>
+                        <div class="card-body">
+                            <div class="row mb-3 align-items-end">
+                                <div class="col-md-3">
+                                    <label for="supplier_id">Supplier</label>
+                                    <select id="supplier_id" class="form-control filter-input select2">
+                                        <option value="">Select Supplier</option>
+                                        @foreach($suppliers as $supplier)
+                                            <option value="{{ $supplier->id }}">{{ $supplier->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="date_range">Date Range</label>
+                                    <input type="text" id="date_range" class="form-control filter-input flatpickr-range" placeholder="YYYY-MM-DD to YYYY-MM-DD">
+                                </div>
+                                <div class="col-md-2">
+                                    <label for="uid">SPV No</label>
+                                    <input type="text" id="uid" class="form-control filter-input" placeholder="SPV No">
+                                </div>
+                                <div class="col-md-2">
+                                    <label for="debit_account_id">Debit Account</label>
+                                    <select id="debit_account_id" class="form-control filter-input select2">
+                                        <option value="">Select Debit Account</option>
+                                        @foreach($debitAccounts as $account)
+                                            <option value="{{ $account->id }}">{{ $account->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <label for="credit_account_id">Credit Account</label>
+                                    <select id="credit_account_id" class="form-control filter-input select2">
+                                        <option value="">Select Credit Account</option>
+                                        @foreach($creditAccounts as $account)
+                                            <option value="{{ $account->id }}">{{ $account->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-md-2 mt-2">
+                                    <label for="created_at_range">Created At</label>
+                                    <input type="text" id="created_at_range" class="form-control filter-input flatpickr-range" placeholder="YYYY-MM-DD to YYYY-MM-DD">
+                                </div>
+                                <div class="col-md-1">
+                                    <button id="reset_filter" class="btn btn-warning btn-block">Reset</button>
+                                </div>
+                            </div>
+                            <div class="table-responsive">
+                                <table id="dataTable" class="table table-bordered table-hover">
+                                    {{-- show from datatable--}}
+                                </table>
+                            </div>
                         </div>
                         <!-- /.card-body -->
                     </div>
@@ -51,6 +96,8 @@ Supplier Payment Voucher List
 @section('css')
     <!-- DataTables -->
     <link rel="stylesheet" href="{{ asset('assets/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css')}}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('datepicker/app-assets/vendors/css/pickers/flatpickr/flatpickr.min.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('datepicker/app-assets/css/plugins/forms/pickers/form-flat-pickr.css') }}">
 @endsection
 @push('style')
 
@@ -61,17 +108,26 @@ Supplier Payment Voucher List
     <script src="{{ asset('assets/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js')}}"></script>
     <script src="{{ asset('assets/plugins/datatables-responsive/js/dataTables.responsive.min.js')}}"></script>
     <script src="{{ asset('assets/plugins/datatables-responsive/js/responsive.bootstrap4.min.js')}}"></script>
+    <script src="{{ asset('datepicker/app-assets/vendors/js/pickers/flatpickr/flatpickr.min.js') }}"></script>
 @endsection
 @push('script')
 <script>
     $(document).ready(function() {
-        $('#dataTable').dataTable({
+        var table = $('#dataTable').DataTable({
             stateSave: true,
             responsive: true,
             serverSide: true,
             processing: true,
             ajax: {
                 url: "{{ route('supplier-vouchers.index') }}",
+                data: function (d) {
+                    d.supplier_id = $('#supplier_id').val();
+                    d.date_range = $('#date_range').val();
+                    d.uid = $('#uid').val();
+                    d.debit_account_id = $('#debit_account_id').val();
+                    d.credit_account_id = $('#credit_account_id').val();
+                    d.created_at_range = $('#created_at_range').val();
+                }
             },
             columns: [{
                     data: "DT_RowIndex",
@@ -133,6 +189,28 @@ Supplier Payment Voucher List
                     searchable: false
                 },
             ],
+        });
+
+        $('.flatpickr-range').flatpickr({
+            mode: "range",
+            dateFormat: "Y-m-d",
+        });
+
+        $('.filter-input').on('change keyup', function () {
+            table.draw();
+        });
+
+        $('#reset_filter').click(function () {
+            $('.filter-input').val('');
+            $('.select2').val('').trigger('change');
+            if ($('.flatpickr-range').length > 0) {
+                $('.flatpickr-range').each(function() {
+                    if (this._flatpickr) {
+                        this._flatpickr.clear();
+                    }
+                });
+            }
+            table.draw();
         });
     })
 </script>

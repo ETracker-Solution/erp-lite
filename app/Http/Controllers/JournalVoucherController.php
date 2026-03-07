@@ -23,20 +23,46 @@ class JournalVoucherController extends Controller
      */
     public function index()
     {
-        if (\request()->ajax()) {
-            $journalVouchers = JournalVoucher::with('debitAccount', 'creditAccount')->latest();
-            return DataTables::of($journalVouchers)
+        if (request()->ajax()) {
+            $journalVouchers = JournalVoucher::query()
+                ->with([
+                    'debitAccount:id,name',
+                    'creditAccount:id,name'
+                ])
+                ->select([
+                    'id',
+                    'uid',
+                    'date',
+                    'debit_account_id',
+                    'credit_account_id',
+                    'amount',
+                    'created_at'
+                ]);
+            $journalVouchers = $this->filter($journalVouchers, request());
+            return DataTables::of($journalVouchers->latest())
                 ->addIndexColumn()
-                ->addColumn('action', function ($row) {
-                    return view('journal_voucher.action-button', compact('row'));
-                })
-                ->addColumn('created_at', function ($row) {
-                    return view('common.created_at', compact('row'));
-                })
+                ->addColumn('action', fn($row) => view('journal_voucher.action-button', compact('row')))
+                ->addColumn('created_at', fn($row) => view('common.created_at', compact('row')))
                 ->rawColumns(['action'])
                 ->make(true);
         }
-        return view('journal_voucher.index');
+
+        $chartOfAccounts = ChartOfAccount::select('id', 'name')
+            ->where(['type' => 'ledger', 'status' => 'active'])
+            ->get();
+
+        return view('journal_voucher.index', compact('chartOfAccounts'));
+    }
+
+    private function filter($query, $request)
+    {
+        return $query
+            ->when($request->date_range, function ($q) use ($request) {
+                searchColumnByDateRange($q, 'date', $request->date_range);
+            })
+            ->when($request->uid, fn($q) => $q->where('uid', 'like', "%{$request->uid}%"))
+            ->when($request->debit_account_id, fn($q) => $q->where('debit_account_id', $request->debit_account_id))
+            ->when($request->credit_account_id, fn($q) => $q->where('credit_account_id', $request->credit_account_id));
     }
 
     /**

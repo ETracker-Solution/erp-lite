@@ -23,20 +23,51 @@ class ReceiveVoucherController extends Controller
      */
     public function index()
     {
-        if (\request()->ajax()) {
-            $journalVouchers = ReceiveVoucher::with('debitAccount', 'creditAccount')->latest();
-            return DataTables::of($journalVouchers)
+        if (request()->ajax()) {
+            $receiveVouchers = ReceiveVoucher::query()
+                ->with([
+                    'debitAccount:id,name',
+                    'creditAccount:id,name'
+                ])
+                ->select([
+                    'id',
+                    'uid',
+                    'date',
+                    'debit_account_id',
+                    'credit_account_id',
+                    'amount',
+                    'payee_name',
+                    'created_at'
+                ]);
+            $receiveVouchers = $this->filter($receiveVouchers, request());
+            return DataTables::of($receiveVouchers->latest())
                 ->addIndexColumn()
-                ->addColumn('action', function ($row) {
-                    return view('receive_voucher.action-button', compact('row'));
-                })
-                ->addColumn('created_at', function ($row) {
-                    return view('common.created_at', compact('row'));
-                })
+                ->addColumn('action', fn($row) => view('receive_voucher.action-button', compact('row')))
+                ->addColumn('created_at', fn($row) => view('common.created_at', compact('row')))
                 ->rawColumns(['action'])
                 ->make(true);
         }
-        return view('receive_voucher.index');
+
+        $creditAccounts = ChartOfAccount::select('id', 'name')
+            ->where(['is_bank_cash' => 'no', 'type' => 'ledger', 'status' => 'active'])
+            ->get();
+        $debitAccounts = ChartOfAccount::select('id', 'name')
+            ->where(['is_bank_cash' => 'yes', 'type' => 'ledger', 'status' => 'active'])
+            ->get();
+
+        return view('receive_voucher.index', compact('creditAccounts', 'debitAccounts'));
+    }
+
+    private function filter($query, $request)
+    {
+        return $query
+            ->when($request->date_range, function ($q) use ($request) {
+                searchColumnByDateRange($q, 'date', $request->date_range);
+            })
+            ->when($request->uid, fn($q) => $q->where('uid', 'like', "%{$request->uid}%"))
+            ->when($request->credit_account_id, fn($q) => $q->where('credit_account_id', $request->credit_account_id))
+            ->when($request->debit_account_id, fn($q) => $q->where('debit_account_id', $request->debit_account_id))
+            ->when($request->payee_name, fn($q) => $q->where('payee_name', 'like', "%{$request->payee_name}%"));
     }
 
     /**

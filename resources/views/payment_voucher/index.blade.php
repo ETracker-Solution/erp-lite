@@ -37,14 +37,10 @@
                         </div>
                         <!-- /.card-header -->
                         <div class="card-body">
-                            <div class="row mb-3">
-                                <div class="col-md-2">
-                                    <label for="start_date">Start Date</label>
-                                    <input type="date" id="start_date" class="form-control filter-input" placeholder="Start Date">
-                                </div>
-                                <div class="col-md-2">
-                                    <label for="end_date">End Date</label>
-                                    <input type="date" id="end_date" class="form-control filter-input" placeholder="End Date">
+                            <div class="row mb-3 align-items-end">
+                                <div class="col-md-3">
+                                    <label for="date_range">Date Range</label>
+                                    <input type="text" id="date_range" class="form-control filter-input flatpickr-range" placeholder="YYYY-MM-DD to YYYY-MM-DD">
                                 </div>
                                 <div class="col-md-2">
                                     <label for="uid">PV No</label>
@@ -69,7 +65,6 @@
                                     </select>
                                 </div>
                                 <div class="col-md-2">
-                                    <label>&nbsp;</label><br>
                                     <button id="reset_filter" class="btn btn-warning btn-block">Reset</button>
                                 </div>
                             </div>
@@ -95,6 +90,8 @@
 @section('css')
     <!-- DataTables -->
     <link rel="stylesheet" href="{{ asset('assets/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css')}}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('datepicker/app-assets/vendors/css/pickers/flatpickr/flatpickr.min.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('datepicker/app-assets/css/plugins/forms/pickers/form-flat-pickr.css') }}">
 @endsection
 @push('style')
 
@@ -105,6 +102,7 @@
     <script src="{{ asset('assets/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js')}}"></script>
     <script src="{{ asset('assets/plugins/datatables-responsive/js/dataTables.responsive.min.js')}}"></script>
     <script src="{{ asset('assets/plugins/datatables-responsive/js/responsive.bootstrap4.min.js')}}"></script>
+    <script src="{{ asset('datepicker/app-assets/vendors/js/pickers/flatpickr/flatpickr.min.js') }}"></script>
 @endsection
 @push('script')
 <script>
@@ -117,8 +115,7 @@
             ajax: {
                 url: "{{ route('payment-vouchers.index') }}",
                 data: function (d) {
-                    d.start_date = $('#start_date').val();
-                    d.end_date = $('#end_date').val();
+                    d.date_range = $('#date_range').val();
                     d.uid = $('#uid').val();
                     d.debit_account_id = $('#debit_account_id').val();
                     d.credit_account_id = $('#credit_account_id').val();
@@ -170,6 +167,11 @@
             ],
         });
 
+        $('.flatpickr-range').flatpickr({
+            mode: "range",
+            dateFormat: "Y-m-d",
+        });
+
         $('.filter-input').on('change keyup', function () {
             table.draw();
         });
@@ -177,6 +179,9 @@
         $('#reset_filter').click(function () {
             $('.filter-input').val('');
             $('.select2').val('').trigger('change');
+            if ($('#date_range').length > 0) {
+                $('#date_range')[0]._flatpickr.clear();
+            }
             table.draw();
         });
     })
