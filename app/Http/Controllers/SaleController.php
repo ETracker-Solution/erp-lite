@@ -653,16 +653,11 @@ class SaleController extends Controller
 
     public function deleted_sales()
     {
-        if (\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->outlet_id) {
-            $data = DB::table('sale_cancels')
-            ->where('outlet_id', \auth()->user()->employee->outlet_id)
-                ->latest('cancelled_at')
-                ->get();
-        } else {
-            $data = DB::table('sale_cancels')->latest('cancelled_at')->get();
-        }
-        if (\request()->ajax()) {
-            return DataTables::of($data)
+        if (request()->ajax()) {
+            $query = DB::table('sale_cancels');
+            $query = $this->deleted_sales_filter($query);
+
+            return DataTables::of($query)
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
                     return '<a href="' . route('deleted_sales_show', encrypt($row->id)) . '" class="btn btn-xs btn-primary">
@@ -675,7 +670,38 @@ class SaleController extends Controller
                 ->rawColumns(['action', 'status'])
                 ->make(true);
         }
+
         return view('sale.deleted_sale');
+    }
+
+    protected function deleted_sales_filter($query)
+    {
+        if (auth()->user() && auth()->user()->employee && auth()->user()->employee->outlet_id) {
+            $query->where('outlet_id', auth()->user()->employee->outlet_id);
+        }
+
+        if (request('date_range')) {
+            $dateRange = [];
+            if (str_contains(request('date_range'), ' to ')) {
+                $dateRange = explode(' to ', request('date_range'));
+            } elseif (str_contains(request('date_range'), ' - ')) {
+                $dateRange = explode(' - ', request('date_range'));
+            } else {
+                $dateRange = [request('date_range'), request('date_range')];
+            }
+
+            if (isset($dateRange[0]) && isset($dateRange[1])) {
+                $query->whereBetween('date', [$dateRange[0], $dateRange[1]]);
+            } elseif (isset($dateRange[0])) {
+                $query->where('date', $dateRange[0]);
+            }
+        }
+
+        if (request()->filled('invoice_no')) {
+            $query->where('invoice_number', 'like', '%' . request('invoice_no') . '%');
+        }
+
+        return $query->latest('cancelled_at');
     }
 
     public function deleted_sales_show($id)
