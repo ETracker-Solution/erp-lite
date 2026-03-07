@@ -66,16 +66,10 @@
                                         </div>
                                     </div>
                                 @endif
-                                <div class="col-md-2">
+                                <div class="col-md-3">
                                     <div class="form-group mb-2">
-                                        <label for="">From Date</label>
-                                        <input type="date" name="from_date" id="from_date" class="form-control form-control-sm filter-input">
-                                    </div>
-                                </div>
-                                <div class="col-md-2">
-                                    <div class="form-group mb-2">
-                                        <label for="">To Date</label>
-                                        <input type="date" name="to_date" id="to_date" class="form-control form-control-sm filter-input">
+                                        <label for="date_range">Date Range</label>
+                                        <input type="text" id="date_range" class="form-control form-control-sm filter-input flatpickr-range" placeholder="YYYY-MM-DD to YYYY-MM-DD">
                                     </div>
                                 </div>
                                 <div class="col-md-1">
@@ -276,6 +270,8 @@
 @section('css')
     <!-- DataTables -->
     <link rel="stylesheet" href="{{ asset('assets/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css')}}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('datepicker/app-assets/vendors/css/pickers/flatpickr/flatpickr.min.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('datepicker/app-assets/css/plugins/forms/pickers/form-flat-pickr.css') }}">
 @endsection
 @push('style')
 @endpush
@@ -285,6 +281,7 @@
     <script src="{{ asset('assets/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js')}}"></script>
     <script src="{{ asset('assets/plugins/datatables-responsive/js/dataTables.responsive.min.js')}}"></script>
     <script src="{{ asset('assets/plugins/datatables-responsive/js/responsive.bootstrap4.min.js')}}"></script>
+    <script src="{{ asset('datepicker/app-assets/vendors/js/pickers/flatpickr/flatpickr.min.js') }}"></script>
 @endsection
 @push('script')
     <script>
@@ -422,8 +419,7 @@
                         d.filter_by = $('select[name="filter_by"]').val();
                         d.status = $('select[name="status"]').val();
                         d.outlet_id = $('select[name="outlet_id"]').val();
-                        d.from_date = $('input[name="from_date"]').val();
-                        d.to_date = $('input[name="to_date"]').val();
+                        d.date_range = $('#date_range').val();
                     }
                 },
                 columns: [{
@@ -489,23 +485,29 @@
                 ],
             });
 
+            $('.flatpickr-range').flatpickr({
+                mode: "range",
+                dateFormat: "Y-m-d",
+            });
+
             $('.filter-input').on('change keyup', function () {
                 sessionStorage.setItem('filter_by', $('select[name="filter_by"]').val());
                 sessionStorage.setItem('status', $('select[name="status"]').val());
                 sessionStorage.setItem('outlet_id', $('select[name="outlet_id"]').val());
-                sessionStorage.setItem('from_date', $('input[name="from_date"]').val());
-                sessionStorage.setItem('to_date', $('input[name="to_date"]').val());
+                sessionStorage.setItem('date_range', $('#date_range').val());
                 recallDatatable();
             });
         });
 
         $('#reset-btn').on('click', function () {
             $('.filter-input').val('').trigger('change');
+            if ($('#date_range').length > 0) {
+                $('#date_range')[0]._flatpickr.clear();
+            }
             sessionStorage.removeItem('filter_by');
             sessionStorage.removeItem('status');
             sessionStorage.removeItem('outlet_id');
-            sessionStorage.removeItem('from_date');
-            sessionStorage.removeItem('to_date');
+            sessionStorage.removeItem('date_range');
             recallDatatable();
         });
 

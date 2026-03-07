@@ -214,12 +214,23 @@ class PreOrderController extends Controller
             $orders->where('pre_orders.status', request()->status);
         }
 
-        if (request()->filled('filter_by') && request()->filled('from_date') && request()->filled('to_date')) {
-            $column = request()->filter_by;
-            $from_date = Carbon::parse(request()->from_date)->format('Y-m-d');
-            $to_date = Carbon::parse(request()->to_date)->format('Y-m-d');
-            $orders->whereDate($column, '>=', $from_date)
-                ->whereDate($column, '<=', $to_date);
+        if (request('date_range')) {
+            $dateRange = [];
+            if (str_contains(request('date_range'), ' to ')) {
+                $dateRange = explode(' to ', request('date_range'));
+            } elseif (str_contains(request('date_range'), ' - ')) {
+                $dateRange = explode(' - ', request('date_range'));
+            } else {
+                $dateRange = [request('date_range'), request('date_range')];
+            }
+
+            $column = request('filter_by') ?? 'order_date';
+
+            if (isset($dateRange[0]) && isset($dateRange[1])) {
+                $orders->whereBetween($column, [$dateRange[0], $dateRange[1]]);
+            } elseif (isset($dateRange[0])) {
+                $orders->where($column, $dateRange[0]);
+            }
         }
 
         return $orders;

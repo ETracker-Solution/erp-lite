@@ -37,12 +37,10 @@ class SaleController extends Controller
      */
     public function index()
     {
-        if (\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->outlet_id) {
-            $data = Sale::where(['outlet_id' => \auth()->user()->employee->outlet_id])->latest();
-        } else {
-            $data = Sale::latest();
-        }
         if (\request()->ajax()) {
+            $data = Sale::query();
+            $data = $this->filter($data);
+
             return DataTables::of($data)
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
@@ -58,6 +56,36 @@ class SaleController extends Controller
                 ->make(true);
         }
         return view('sale.index');
+    }
+
+    protected function filter($data)
+    {
+        if (\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->outlet_id) {
+            $data->where(['outlet_id' => \auth()->user()->employee->outlet_id]);
+        }
+
+        if (request('date_range')) {
+            $dateRange = [];
+            if (str_contains(request('date_range'), ' to ')) {
+                $dateRange = explode(' to ', request('date_range'));
+            } elseif (str_contains(request('date_range'), ' - ')) {
+                $dateRange = explode(' - ', request('date_range'));
+            } else {
+                $dateRange = [request('date_range'), request('date_range')];
+            }
+
+            if (isset($dateRange[0]) && isset($dateRange[1])) {
+                $data->whereBetween('date', [$dateRange[0], $dateRange[1]]);
+            } elseif (isset($dateRange[0])) {
+                $data->where('date', $dateRange[0]);
+            }
+        }
+
+        $data->when(request('invoice_no'), function ($query) {
+            return $query->where('invoice_number', 'like', '%' . request('invoice_no') . '%');
+        });
+
+        return $data->latest();
     }
 
     /**
