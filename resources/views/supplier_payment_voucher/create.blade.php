@@ -98,6 +98,12 @@
                                     </div>
                                     <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                         <div class="form-group">
+                                            <label for="settle_discount">Settle Discount</label>
+                                            <input type="number" class="form-control" v-model="settle_discount" placeholder="Enter Amount" @change="valid_amount">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+                                        <div class="form-group">
                                             <label for="payee_name">Payee Name</label>
                                             <input type="text" class="form-control" v-model="payee_name" placeholder="Enter Payee Name">
                                         </div>
@@ -126,7 +132,8 @@
                                                     <th style="width: 15%">Payee Name</th>
                                                     <th style="width: 20%">Reference No</th>
                                                     <th style="width: 15%">Amount</th>
-                                                    <th style="width: 5%"></th>
+                                                    <th style="width: 15%">Settle Discount</th>
+                                                    <th style="width: 5%">Action</th>
                                                 </tr>
                                                 </thead>
                                                 <tbody>
@@ -153,13 +160,17 @@
                                                         <input type="hidden" :name="'products['+index+'][amount]'" :value="row.amount">
                                                     </td>
                                                     <td>
+                                                        @{{ row.settle_discount }}
+                                                        <input type="hidden" :name="'products['+index+'][settle_discount]'" :value="row.settle_discount">
+                                                    </td>
+                                                    <td>
                                                         <button type="button" class="btn btn-sm btn-danger" @click="delete_row(row)"><i class="fa fa-trash"></i></button>
                                                     </td>
                                                 </tr>
                                                 </tbody>
                                                 <tfoot>
                                                 <tr>
-                                                    <td colspan="7" style="background-color: #DDDCDC"></td>
+                                                    <td colspan="8" style="background-color: #DDDCDC"></td>
                                                 </tr>
                                                 <tr>
                                                     <td colspan="4"></td>
@@ -168,6 +179,8 @@
                                                         <input type="text" class="form-control input-sm" name="subtotal" :value="subtotal" readonly>
                                                     </td>
                                                     <td></td>
+                                                    <td></td>
+
                                                 </tr>
                                                 </tfoot>
                                             </table>
@@ -233,6 +246,7 @@
                     reference_no: '',
                     suppliers: [],
                     selected_items: [],
+                    settle_discount: '',
                     pageLoading: false
                 },
                 components: { vuejsDatepicker },
@@ -309,7 +323,8 @@
                                    item.supplier_id == vm.supplier_id &&
                                    item.payee_name == vm.payee_name &&
                                    item.reference_no == vm.reference_no &&
-                                   item.amount == vm.amount;
+                                   item.amount == vm.amount &&
+                                   item.settle_discount == vm.settle_discount;
                         });
 
                         if (isDuplicate) {
@@ -333,7 +348,8 @@
                             supplier_name: supplier_name,
                             amount: vm.amount,
                             payee_name: vm.payee_name,
-                            reference_no: vm.reference_no
+                            reference_no: vm.reference_no,
+                            settle_discount: vm.settle_discount
                         });
 
                         // Removed field resets to allow editing and re-adding

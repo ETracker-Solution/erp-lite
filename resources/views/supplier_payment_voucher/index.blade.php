@@ -112,6 +112,11 @@ Supplier Payment Voucher List
                     searchable: false
                 },
                 {
+                    data: "settle_discount",
+                    title: "settle discount",
+                    searchable: false
+                },
+                {
                     data: "payee_name",
                     title: "Receiver",
                     searchable: false

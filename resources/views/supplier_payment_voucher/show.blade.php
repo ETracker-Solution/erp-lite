@@ -59,6 +59,10 @@
                                         <td>{{ $supplierVoucher->amount }}</td>
                                     </tr>
                                     <tr>
+                                        <th><strong>Settle Discount :</strong></th>
+                                        <td>{{ $supplierVoucher->settle_discount }}</td>
+                                    </tr>
+                                    <tr>
                                         <th><strong>Receiver Name :</strong></th>
                                         <td>{{ $supplierVoucher->payee_name }}</td>
                                     </tr>
@@ -70,14 +74,14 @@
                                         <th><strong>Referance :</strong></th>
                                         <td>{{ $supplierVoucher->reference_no }}</td>
                                     </tr>
-                                    
+
                                 </thead>
                             </table>
                         </div>
                         {{-- adjust modal --}}
-                        
+
                     </div>
-                    
+
                 </div>
             </div>
         </div>

@@ -85,6 +85,10 @@
                 <td style="text-align: left; padding-right:-20px;">{{ $supplierVoucher->amount }}</td>
             </tr>
             <tr>
+                <th style="text-align: left; padding-left:35px;"><strong>Settle Discount :</strong></th>
+                <td style="text-align: left; padding-right:-20px;">{{ $supplierVoucher->settle_discount }}</td>
+            </tr>
+            <tr>
                 <th style="text-align: left; padding-left:35px;"><strong>Receiver Name :</strong></th>
                 <td style="text-align: left; padding-right:-20px;">{{ $supplierVoucher->payee_name }}</td>
             </tr>
@@ -96,11 +100,11 @@
                 <th style="text-align: left; padding-left:35px;"><strong>Referance :</strong></th>
                 <td style="text-align: left; padding-right:-20px;">{{ $supplierVoucher->reference_no }}</td>
             </tr>
-            
+
         </thead>
     </table>
     <htmlpagefooter name="page-footer">
-                                
+
         <table width="100%">
             <tbody>
                 <tr>

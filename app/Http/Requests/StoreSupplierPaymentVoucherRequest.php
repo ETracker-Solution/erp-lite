@@ -26,6 +26,7 @@ class StoreSupplierPaymentVoucherRequest extends FormRequest
             'date' => 'required',
             'products' => 'array',
             'products.*.amount' => 'required',
+            'products.*.settle_discount' => 'nullable',
             'products.*.supplier_id' => 'required',
             'products.*.credit_account_id' => ['required'],
             'products.*.payee_name' => 'required',

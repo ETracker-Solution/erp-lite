@@ -60,6 +60,10 @@
                                         <td>{{ $customerReceiveVoucher->amount }}</td>
                                     </tr>
                                     <tr>
+                                        <th><strong>Settle Discount :</strong></th>
+                                        <td>{{ $customerReceiveVoucher->settle_discount }}</td>
+                                    </tr>
+                                    <tr>
                                         <th><strong>Narration :</strong></th>
                                         <td>{{ $customerReceiveVoucher->narration }}</td>
                                     </tr>
@@ -71,7 +75,7 @@
                                         <th><strong>Created By :</strong></th>
                                         <td>{{ \App\Models\User::find($customerReceiveVoucher->created_by)->name ?? 'N/A' }}</td>
                                     </tr>
-                                    
+
                                 </thead>
                             </table>
                         </div>

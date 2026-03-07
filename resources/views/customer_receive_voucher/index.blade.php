@@ -112,6 +112,11 @@
                         searchable: false
                     },
                     {
+                        data: "settle_discount",
+                        title: "Settle Discount",
+                        searchable: false
+                    },
+                    {
                         data: "action",
                         title: "Action",
                         orderable: false,

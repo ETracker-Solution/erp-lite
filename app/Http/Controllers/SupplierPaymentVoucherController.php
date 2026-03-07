@@ -58,6 +58,7 @@ class SupplierPaymentVoucherController extends Controller
     public function store(StoreSupplierPaymentVoucherRequest $request)
     {
         $validated = $request->validated();
+
         DB::beginTransaction();
         try {
             if (!isset($validated['products']) || count($validated['products']) < 1) {
@@ -79,7 +80,7 @@ class SupplierPaymentVoucherController extends Controller
                 // Or if we want separate UIDs for each transaction row?
                 // Yes, `PaymentVoucher` and `ReceiveVoucher` loops generate unique code per row.
                 // So I will do the same here.
-                
+
                 // Note: The helper generateUniqueCode might not work if SPV model uses 'uid' as integer ID or something?
                 // Request validation said 'uid' => 'required'.
                 // I will assume generateUniqueCode(SupplierPaymentVoucher::class, 'uid') works or fallback to manual.
@@ -87,21 +88,21 @@ class SupplierPaymentVoucherController extends Controller
                 // Wait, SPV `uid` in `create` was just `$id + 1`.
                 // I will use `generateUniqueCode` to be consistent with other changes I made.
                 // But wait, the table might have it as INT.
-                // Let's check `ReceiveVoucher` `create` -> `generateUniqueCode`. 
+                // Let's check `ReceiveVoucher` `create` -> `generateUniqueCode`.
                 // So I'll use `generateUniqueCode` logic if possible.
                 // If not, I'll rely on the submitted UID or generate new ones.
-                
+
                 // Wait, if I submit multiple items, they can share the SAME Voucher ID (Grouped)?
                 // The other controllers create separate records: `PaymentVoucher::create($product)`.
                 // So they are separate rows in DB.
                 // So they should have unique UIDs if UID is a unique constraint.
                 // Yes, `uid` unique.
-                
+
                 $product['uid'] = generateUniqueCode(SupplierPaymentVoucher::class, 'uid');
                 $product['debit_account_id'] = 22; // Hardcoded Accounts Payable
-
+                $product['settle_discount'] = $product['settle_discount'] ?? 0;
                 $voucher = SupplierPaymentVoucher::create($product);
-                
+
                 //Accounts Effect
                 addAccountsTransaction('SPV', $voucher, $voucher->debit_account_id, $voucher->credit_account_id);
                 // Supplier Transaction Effect

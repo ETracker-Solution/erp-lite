@@ -39,6 +39,10 @@
                 <td style="text-align: left; padding-right:-20px;">{{ $receiveVoucher->amount }}</td>
             </tr>
             <tr>
+                <th style="text-align: left; padding-left:35px;"><strong>Settle Discount :</strong></th>
+                <td style="text-align: left; padding-right:-20px;">{{ $receiveVoucher->settle_discount }}</td>
+            </tr>
+            <tr>
                 <th style="text-align: left; padding-left:35px;"><strong>Description :</strong></th>
                 <td style="text-align: left; padding-right:-20px;">{{ $receiveVoucher->narration }}</td>
             </tr>
@@ -46,7 +50,7 @@
                 <th style="text-align: left; padding-left:35px;"><strong>Referance :</strong></th>
                 <td style="text-align: left; padding-right:-20px;">{{ $receiveVoucher->reference_no }}</td>
             </tr>
-            
+
         </thead>
     </table>
     <table width="100%" style="margin: 100px;">
