@@ -73,23 +73,54 @@ class SalesReturnController extends Controller
     public function index()
     {
         if (\request()->ajax()) {
-            $sales_return = SalesReturn::latest();
+            $sales_return = SalesReturn::with(['sale', 'store']);
+            $sales_return = $this->filter($sales_return);
+
             return DataTables::of($sales_return)
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
-//                    return view('sales_return.action', compact('row'));
+                    // return view('sales_return.action', compact('row'));
                 })
-                ->addColumn('created_at', function ($row) {
-                    return view('common.created_at', compact('row'));
+                ->addColumn('sale_invoice', function ($row) {
+                    return $row->sale->invoice_number ?? 'N/A';
+                })
+                ->addColumn('return_date', function ($row) {
+                    return $row->date ? date('d M Y', strtotime($row->date)) : 'N/A';
                 })
                 ->editColumn('status', function ($row) {
                     return showStatus($row->status);
                 })
-                ->rawColumns(['action', 'created_at', 'status'])
+                ->rawColumns(['action', 'status'])
                 ->make(true);
         }
 
         return view('sales_return.index');
+    }
+
+    protected function filter($data)
+    {
+        if (request('date_range')) {
+            $dateRange = [];
+            if (str_contains(request('date_range'), ' to ')) {
+                $dateRange = explode(' to ', request('date_range'));
+            } elseif (str_contains(request('date_range'), ' - ')) {
+                $dateRange = explode(' - ', request('date_range'));
+            } else {
+                $dateRange = [request('date_range'), request('date_range')];
+            }
+
+            if (isset($dateRange[0]) && isset($dateRange[1])) {
+                $data->whereBetween('date', [$dateRange[0], $dateRange[1]]);
+            } elseif (isset($dateRange[0])) {
+                $data->where('date', $dateRange[0]);
+            }
+        }
+
+        if (request()->filled('uid')) {
+            $data->where('uid', 'like', '%' . request('uid') . '%');
+        }
+
+        return $data;
     }
 
     /**
