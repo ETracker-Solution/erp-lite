@@ -24,13 +24,16 @@ class PurchaseReturnController extends Controller
      */
     public function index()
     {
-        if (\request()->ajax()) {
-            $purchase_returns = PurchaseReturn::with('supplier', 'store')->latest();
-            return DataTables::of($purchase_returns)
+        if (request()->ajax()) {
+            $query = PurchaseReturn::query()
+                ->with(['supplier:id,name', 'store:id,name']);
+
+            $query = $this->filter($query, request());
+
+            return DataTables::of($query->latest())
                 ->addIndexColumn()
-                ->addColumn('action', function ($row) {
-                    return view('purchase_return.action', compact('row'));
-                })->addColumn('purchase_info', function ($row) {
+                ->addColumn('action', fn($row) => view('purchase_return.action', compact('row')))
+                ->addColumn('purchase_info', function ($row) {
                     $data = [
                         'Supplier' => $row->purchase->supplier->name ?? "",
                         'Purchase No' => $row->purchase->purchase_number ?? "",
@@ -38,16 +41,32 @@ class PurchaseReturnController extends Controller
                     ];
                     return view('common.flexible', compact('data'));
                 })
-                ->editColumn('status', function ($row) {
-                    return showStatus($row->status);
-                })
-                ->addColumn('created_at', function ($row) {
-                    return $row->created_at->format('Y-m-d');
-                })
+                ->editColumn('status', fn($row) => showStatus($row->status))
+                ->addColumn('created_at', fn($row) => $row->created_at->format('Y-m-d'))
                 ->rawColumns(['status', 'action', 'purchase_info'])
                 ->make(true);
         }
         return view('purchase_return.index');
+    }
+
+    private function filter($query, $request)
+    {
+        return $query
+            ->when($request->date_range, function ($q) use ($request) {
+                searchColumnByDateRange($q, 'date', $request->date_range);
+            })
+            ->when($request->id, fn($q) => $q->where('id', 'like', "%{$request->id}%"))
+            ->when($request->supplier, function ($q) use ($request) {
+                $q->whereHas('supplier', function ($sq) use ($request) {
+                    $sq->where('name', 'like', "%{$request->supplier}%");
+                });
+            })
+            ->when($request->store, function ($q) use ($request) {
+                $q->whereHas('store', function ($sq) use ($request) {
+                    $sq->where('name', 'like', "%{$request->store}%");
+                });
+            })
+            ->when($request->status, fn($q) => $q->where('status', $request->status));
     }
 
     /**

@@ -23,23 +23,42 @@ class FGPurchaseController extends Controller
 {
     public function index()
     {
-        if (\request()->ajax()) {
-            $purchases = Purchase::with('supplier', 'store')->where('type','fg')->latest();
-            return DataTables::of($purchases)
+        if (request()->ajax()) {
+            $query = Purchase::query()
+                ->with(['supplier:id,name', 'store:id,name'])
+                ->where('type', 'fg');
+
+            $query = $this->filter($query, request());
+
+            return DataTables::of($query->latest())
                 ->addIndexColumn()
-                ->addColumn('action', function ($row) {
-                    return view('fg_purchase.action', compact('row'));
-                })
-                ->addColumn('created_at', function ($row) {
-                    return view('common.created_at', compact('row'));
-                })
-                ->editColumn('status', function ($row) {
-                    return showStatus($row->status);
-                })
+                ->addColumn('action', fn($row) => view('fg_purchase.action', compact('row')))
+                ->addColumn('created_at', fn($row) => view('common.created_at', compact('row')))
+                ->editColumn('status', fn($row) => showStatus($row->status))
                 ->rawColumns(['action', 'created_at', 'status'])
                 ->make(true);
         }
         return view('fg_purchase.index');
+    }
+
+    private function filter($query, $request)
+    {
+        return $query
+            ->when($request->date_range, function ($q) use ($request) {
+                searchColumnByDateRange($q, 'date', $request->date_range);
+            })
+            ->when($request->uid, fn($q) => $q->where('uid', 'like', "%{$request->uid}%"))
+            ->when($request->supplier, function ($q) use ($request) {
+                $q->whereHas('supplier', function ($sq) use ($request) {
+                    $sq->where('name', 'like', "%{$request->supplier}%");
+                });
+            })
+            ->when($request->store, function ($q) use ($request) {
+                $q->whereHas('store', function ($sq) use ($request) {
+                    $sq->where('name', 'like', "%{$request->store}%");
+                });
+            })
+            ->when($request->status, fn($q) => $q->where('status', $request->status));
     }
 
     /**

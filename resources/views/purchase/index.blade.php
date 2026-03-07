@@ -28,10 +28,43 @@
                             </div>
                         </div>
                         <!-- /.card-header -->
-                        <div class="card-body table-responsive">
-                            <table id="dataTable" class="table table-bordered">
-                                {{-- show from datatable--}}
-                            </table>
+                        <!-- /.card-header -->
+                        <div class="card-body">
+                            <div class="row mb-3 align-items-end">
+                                <div class="col-md-3">
+                                    <label for="date_range">Date Range</label>
+                                    <input type="text" id="date_range" class="form-control filter-input flatpickr-range" placeholder="YYYY-MM-DD to YYYY-MM-DD">
+                                </div>
+                                <div class="col-md-2">
+                                    <label for="uid">Purchase No</label>
+                                    <input type="text" id="uid" class="form-control filter-input" placeholder="Purchase No">
+                                </div>
+                                <div class="col-md-2">
+                                    <label for="supplier">Supplier</label>
+                                    <input type="text" id="supplier" class="form-control filter-input" placeholder="Supplier Name">
+                                </div>
+                                <div class="col-md-2">
+                                    <label for="store">Store</label>
+                                    <input type="text" id="store" class="form-control filter-input" placeholder="Store Name">
+                                </div>
+                                <div class="col-md-2">
+                                    <label for="status">Status</label>
+                                    <select id="status" class="form-control filter-input">
+                                        <option value="">All Status</option>
+                                        <option value="pending">Pending</option>
+                                        <option value="received">Received</option>
+                                        <option value="cancelled">Cancelled</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-1">
+                                    <button id="reset_filter" class="btn btn-warning btn-block">Reset</button>
+                                </div>
+                            </div>
+                            <div class="table-responsive">
+                                <table id="dataTable" class="table table-bordered">
+                                    {{-- show from datatable--}}
+                                </table>
+                            </div>
                         </div>
                         <!-- /.card-body -->
                     </div>
@@ -48,6 +81,8 @@
 @section('css')
     <!-- DataTables -->
     <link rel="stylesheet" href="{{ asset('assets/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css')}}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('datepicker/app-assets/vendors/css/pickers/flatpickr/flatpickr.min.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('datepicker/app-assets/css/plugins/forms/pickers/form-flat-pickr.css') }}">
 @endsection
 @push('style')
 @endpush
@@ -57,19 +92,27 @@
     <script src="{{ asset('assets/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js')}}"></script>
     <script src="{{ asset('assets/plugins/datatables-responsive/js/dataTables.responsive.min.js')}}"></script>
     <script src="{{ asset('assets/plugins/datatables-responsive/js/responsive.bootstrap4.min.js')}}"></script>
+    <script src="{{ asset('datepicker/app-assets/vendors/js/pickers/flatpickr/flatpickr.min.js') }}"></script>
 @endsection
 @push('script')
     <!-- page script -->
     <script>
         $(document).ready(function () {
-            $('#dataTable').dataTable({
-                stateSave: true,
-                responsive: true,
-                serverSide: true,
-                processing: true,
-                ajax: {
-                    url: "{{ route('purchases.index') }}",
-                },
+        var table = $('#dataTable').DataTable({
+            stateSave: true,
+            responsive: true,
+            serverSide: true,
+            processing: true,
+            ajax: {
+                url: "{{ route('purchases.index') }}",
+                data: function (d) {
+                    d.date_range = $('#date_range').val();
+                    d.uid = $('#uid').val();
+                    d.supplier = $('#supplier').val();
+                    d.store = $('#store').val();
+                    d.status = $('#status').val();
+                }
+            },
                 columns: [{
                     data: "DT_RowIndex",
                     title: "SL",
@@ -123,6 +166,23 @@
                         searchable: false
                     },
                 ],
+            });
+
+            $('.flatpickr-range').flatpickr({
+                mode: "range",
+                dateFormat: "Y-m-d",
+            });
+
+            $('.filter-input').on('change keyup', function () {
+                table.draw();
+            });
+
+            $('#reset_filter').click(function () {
+                $('.filter-input').val('');
+                if ($('#date_range').length > 0) {
+                    $('#date_range')[0]._flatpickr.clear();
+                }
+                table.draw();
             });
         })
     </script>
