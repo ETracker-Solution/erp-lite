@@ -31,20 +31,20 @@
                         <!-- /.card-header -->
                         <div class="card-body table-responsive">
                             <div class="row align-items-end">
-                                <div class="col-md-2">
+                                <!-- <div class="col-md-2">
                                     <div class="form-group mb-2">
                                         <label for="">Filter By</label>
-                                        <select name="filter_by" id="filter_by" class="form-control form-control-sm">
+                                        <select name="filter_by" id="filter_by" class="form-control form-control-sm filter-input">
                                             <option value="">All</option>
                                             <option value="delivery_date">Delivery</option>
                                             <option value="order_date">Ordered</option>
                                         </select>
                                     </div>
-                                </div>
+                                </div> -->
                                 <div class="col-md-2">
                                     <div class="form-group mb-2">
                                         <label for="">Status</label>
-                                        <select name="status" id="status" class="form-control form-control-sm">
+                                        <select name="status" id="status" class="form-control form-control-sm filter-input">
                                             <option value="">All</option>
                                             <option value="pending">Pending</option>
                                             <option value="approved">Approved</option>
@@ -57,7 +57,7 @@
                                     <div class="col-md-2">
                                         <div class="form-group mb-2">
                                             <label for="">Outlet</label>
-                                            <select name="outlet_id" id="outlet_id" class="form-control form-control-sm">
+                                            <select name="outlet_id" id="outlet_id" class="form-control form-control-sm filter-input">
                                                 <option value="">All</option>
                                                 @foreach($outlets as $outlet)
                                                     <option value="{{ $outlet->id }}">{{ $outlet->name }}</option>
@@ -69,18 +69,18 @@
                                 <div class="col-md-2">
                                     <div class="form-group mb-2">
                                         <label for="">From Date</label>
-                                        <input type="date" name="from_date" id="from_date" class="form-control form-control-sm">
+                                        <input type="date" name="from_date" id="from_date" class="form-control form-control-sm filter-input">
                                     </div>
                                 </div>
                                 <div class="col-md-2">
                                     <div class="form-group mb-2">
                                         <label for="">To Date</label>
-                                        <input type="date" name="to_date" id="to_date" class="form-control form-control-sm">
+                                        <input type="date" name="to_date" id="to_date" class="form-control form-control-sm filter-input">
                                     </div>
                                 </div>
                                 <div class="col-md-1">
                                     <div class="form-group mb-2">
-                                        <button class="btn btn-primary btn-sm btn-block" type="button" id="search-btn" title="Search"><i class="fas fa-search"></i></button>
+                                        <button class="btn btn-secondary btn-sm btn-block" type="button" id="reset-btn" title="Reset">Reset</button>
                                     </div>
                                 </div>
                                 <div class="col-md-1">
@@ -489,16 +489,23 @@
                 ],
             });
 
-            $('select[name="filter_by"], select[name="status"], select[name="outlet_id"], input[name="from_date"], input[name="to_date"]').on('change', function () {
+            $('.filter-input').on('change keyup', function () {
                 sessionStorage.setItem('filter_by', $('select[name="filter_by"]').val());
                 sessionStorage.setItem('status', $('select[name="status"]').val());
                 sessionStorage.setItem('outlet_id', $('select[name="outlet_id"]').val());
                 sessionStorage.setItem('from_date', $('input[name="from_date"]').val());
                 sessionStorage.setItem('to_date', $('input[name="to_date"]').val());
+                recallDatatable();
             });
         });
 
-        $('#search-btn').on('click', function () {
+        $('#reset-btn').on('click', function () {
+            $('.filter-input').val('').trigger('change');
+            sessionStorage.removeItem('filter_by');
+            sessionStorage.removeItem('status');
+            sessionStorage.removeItem('outlet_id');
+            sessionStorage.removeItem('from_date');
+            sessionStorage.removeItem('to_date');
             recallDatatable();
         });
 

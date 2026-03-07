@@ -90,7 +90,7 @@ class PreOrderController extends Controller
     public function index()
     {
         if (\request()->ajax()) {
-            $pre_orders = $this->getFilteredData();
+            $pre_orders = $this->filter();
             return DataTables::of($pre_orders)
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
@@ -181,7 +181,7 @@ class PreOrderController extends Controller
         return view('pre_order.index', compact('outlets', 'factoryStores', 'outletStores', 'rmStores', 'rawMaterials'));
     }
 
-    protected function getFilteredData()
+    protected function filter()
     {
         $orders = PreOrder::with(['customer', 'outlet', 'deliveryPoint'])
             ->leftJoin('others_outlet_sales', 'others_outlet_sales.invoice_number', '=', 'pre_orders.order_number')
