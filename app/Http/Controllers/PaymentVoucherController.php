@@ -23,22 +23,62 @@ class PaymentVoucherController extends Controller
      */
     public function index()
     {
-        if (\request()->ajax()) {
-            $paymentVouchers = PaymentVoucher::with('debitAccount', 'cashBankAccount')->latest();
-            return DataTables::of($paymentVouchers)
+        if (request()->ajax()) {
+            $paymentVouchers = PaymentVoucher::query()
+                ->with([
+                    'debitAccount:id,name',
+                    'cashBankAccount:id,name'
+                ])
+                ->select([
+                    'id',
+                    'uid',
+                    'date',
+                    'debit_account_id',
+                    'credit_account_id',
+                    'amount',
+                    'created_at'
+                ]);
+            $paymentVouchers = $this->filter($paymentVouchers, request());
+            return DataTables::of($paymentVouchers->latest())
                 ->addIndexColumn()
-                ->addColumn('action', function ($row) {
-                    return view('payment_voucher.action-button', compact('row'));
-                })
-                ->addColumn('created_at', function ($row) {
-                    return view('common.created_at', compact('row'));
-                })
+                ->addColumn('action', fn($row) => view('payment_voucher.action-button', compact('row')))
+                ->addColumn('created_at', fn($row) => view('common.created_at', compact('row')))
                 ->rawColumns(['action'])
                 ->make(true);
         }
-        return view('payment_voucher.index');
+        $creditAccounts = ChartOfAccount::select('id','name')
+            ->where([
+                'is_bank_cash' => 'yes',
+                'type' => 'ledger',
+                'status' => 'active'
+            ])->get();
+        $debitAccounts = ChartOfAccount::select('id','name')
+            ->where([
+                'is_bank_cash' => 'no',
+                'type' => 'ledger',
+                'status' => 'active'
+            ])->get();
+        return view('payment_voucher.index', compact('creditAccounts','debitAccounts'));
     }
-
+    private function filter($query, $request)
+    {
+        return $query
+            ->when($request->start_date, fn($q) =>
+            $q->whereDate('date', '>=', $request->start_date)
+            )
+            ->when($request->end_date, fn($q) =>
+            $q->whereDate('date', '<=', $request->end_date)
+            )
+            ->when($request->uid, fn($q) =>
+            $q->where('uid', 'like', "%{$request->uid}%")
+            )
+            ->when($request->debit_account_id, fn($q) =>
+            $q->where('debit_account_id', $request->debit_account_id)
+            )
+            ->when($request->credit_account_id, fn($q) =>
+            $q->where('credit_account_id', $request->credit_account_id)
+            );
+    }
     /**
      * Show the form for creating a new resource.
      *

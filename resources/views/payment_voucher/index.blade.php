@@ -36,11 +36,48 @@
                             </div>
                         </div>
                         <!-- /.card-header -->
-                        <div class="card-body table-responsive">
-                            <table id="dataTable"
-                                   class="table table-bordered table-hover">
-                                {{-- show from datatable--}}
-                            </table>
+                        <div class="card-body">
+                            <div class="row mb-3">
+                                <div class="col-md-2">
+                                    <label for="start_date">Start Date</label>
+                                    <input type="date" id="start_date" class="form-control filter-input" placeholder="Start Date">
+                                </div>
+                                <div class="col-md-2">
+                                    <label for="end_date">End Date</label>
+                                    <input type="date" id="end_date" class="form-control filter-input" placeholder="End Date">
+                                </div>
+                                <div class="col-md-2">
+                                    <label for="uid">PV No</label>
+                                    <input type="text" id="uid" class="form-control filter-input" placeholder="PV No">
+                                </div>
+                                <div class="col-md-2">
+                                    <label for="debit_account_id">Debit Account</label>
+                                    <select id="debit_account_id" class="form-control filter-input select2">
+                                        <option value="">Select Debit Account</option>
+                                        @foreach($debitAccounts as $account)
+                                            <option value="{{ $account->id }}">{{ $account->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <label for="credit_account_id">Payment Account</label>
+                                    <select id="credit_account_id" class="form-control filter-input select2">
+                                        <option value="">Select Payment Account</option>
+                                        @foreach($creditAccounts as $account)
+                                            <option value="{{ $account->id }}">{{ $account->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <label>&nbsp;</label><br>
+                                    <button id="reset_filter" class="btn btn-warning btn-block">Reset</button>
+                                </div>
+                            </div>
+                            <div class="table-responsive">
+                                <table id="dataTable" class="table table-bordered table-hover">
+                                    {{-- show from datatable--}}
+                                </table>
+                            </div>
                         </div>
                         <!-- /.card-body -->
                     </div>
@@ -72,13 +109,20 @@
 @push('script')
 <script>
     $(document).ready(function() {
-        $('#dataTable').dataTable({
+        var table = $('#dataTable').DataTable({
             stateSave: true,
             responsive: true,
             serverSide: true,
             processing: true,
             ajax: {
                 url: "{{ route('payment-vouchers.index') }}",
+                data: function (d) {
+                    d.start_date = $('#start_date').val();
+                    d.end_date = $('#end_date').val();
+                    d.uid = $('#uid').val();
+                    d.debit_account_id = $('#debit_account_id').val();
+                    d.credit_account_id = $('#credit_account_id').val();
+                }
             },
             columns: [{
                     data: "DT_RowIndex",
@@ -124,6 +168,16 @@
                     searchable: false
                 },
             ],
+        });
+
+        $('.filter-input').on('change keyup', function () {
+            table.draw();
+        });
+
+        $('#reset_filter').click(function () {
+            $('.filter-input').val('');
+            $('.select2').val('').trigger('change');
+            table.draw();
         });
     })
 </script>
