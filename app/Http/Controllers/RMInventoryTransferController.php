@@ -22,20 +22,42 @@ class RMInventoryTransferController extends Controller
      */
     public function index()
     {
-        $inventoryTransfers = InventoryTransfer::with('toStore', 'fromStore')->where(['inventory_transfers.type' => 'RM'])->latest('inventory_transfers.created_at');
-        if (\request()->ajax()) {
-            return DataTables::of($inventoryTransfers)
+        if (request()->ajax()) {
+            $query = InventoryTransfer::query()
+                ->with(['toStore:id,name', 'fromStore:id,name'])
+                ->where('type', 'RM');
+
+            $query = $this->filter($query, request());
+
+            return DataTables::of($query->latest())
                 ->addIndexColumn()
-                ->addColumn('action', function ($row) {
-                    return view('rm_inventory_transfer.action', compact('row'));
-                })
-                ->addColumn('created_at', function ($row) {
-                    return view('common.created_at', compact('row'));
-                })
-                ->rawColumns(['action', 'amount_info'])
+                ->addColumn('action', fn($row) => view('rm_inventory_transfer.action', compact('row')))
+                ->addColumn('created_at', fn($row) => view('common.created_at', compact('row')))
+                ->editColumn('status', fn($row) => showStatus($row->status))
+                ->rawColumns(['action', 'created_at', 'status'])
                 ->make(true);
         }
         return view('rm_inventory_transfer.index');
+    }
+
+    private function filter($query, $request)
+    {
+        return $query
+            ->when($request->date_range, function ($q) use ($request) {
+                searchColumnByDateRange($q, 'date', $request->date_range);
+            })
+            ->when($request->uid, fn($q) => $q->where('uid', 'like', "%{$request->uid}%"))
+            ->when($request->from_store, function ($q) use ($request) {
+                $q->whereHas('fromStore', function ($sq) use ($request) {
+                    $sq->where('name', 'like', "%{$request->from_store}%");
+                });
+            })
+            ->when($request->to_store, function ($q) use ($request) {
+                $q->whereHas('toStore', function ($sq) use ($request) {
+                    $sq->where('name', 'like', "%{$request->to_store}%");
+                });
+            })
+            ->when($request->status, fn($q) => $q->where('status', $request->status));
     }
 
     /**

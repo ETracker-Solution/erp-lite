@@ -23,26 +23,37 @@ class RMInventoryAdjustmentController extends Controller
      */
     public function index()
     {
-        $fGInventoryAdjustments = InventoryAdjustment::with('store')->where('type', 'RM')->latest();
-        if (\request()->ajax()) {
-            return DataTables::of($fGInventoryAdjustments)
+        if (request()->ajax()) {
+            $query = InventoryAdjustment::query()
+                ->with(['store:id,name'])
+                ->where('type', 'RM');
+
+            $query = $this->filter($query, request());
+
+            return DataTables::of($query->latest())
                 ->addIndexColumn()
-                ->addColumn('action', function ($row) {
-                    return view('rm_inventory_adjustment.action', compact('row'));
-                })
-                ->editColumn('status', function ($row) {
-                    return showStatus($row->status);
-                })
-                ->editColumn('type', function ($row) {
-                    return showStatus($row->transaction_type);
-                })
-                ->addColumn('created_at', function ($row) {
-                    return view('common.created_at', compact('row'));
-                })
-                ->rawColumns(['action', 'amount_info', 'status','type'])
+                ->addColumn('action', fn($row) => view('rm_inventory_adjustment.action', compact('row')))
+                ->editColumn('status', fn($row) => showStatus($row->status))
+                ->editColumn('type', fn($row) => showStatus($row->transaction_type))
+                ->addColumn('created_at', fn($row) => view('common.created_at', compact('row')))
+                ->rawColumns(['action', 'status', 'type', 'created_at'])
                 ->make(true);
         }
         return view('rm_inventory_adjustment.index');
+    }
+
+    private function filter($query, $request)
+    {
+        return $query
+            ->when($request->date_range, function ($q) use ($request) {
+                searchColumnByDateRange($q, 'date', $request->date_range);
+            })
+            ->when($request->uid, fn($q) => $q->where('uid', 'like', "%{$request->uid}%"))
+            ->when($request->store, function ($q) use ($request) {
+                $q->whereHas('store', function ($sq) use ($request) {
+                    $sq->where('name', 'like', "%{$request->store}%");
+                });
+            });
     }
 
     /**
