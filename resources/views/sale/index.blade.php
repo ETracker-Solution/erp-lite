@@ -102,7 +102,7 @@
                                         </select>
                                     </div>
                                 </div>
-                                <div class="col-md-3">
+                                <div class="col-md-2">
                                     <div class="form-group mb-0">
                                         <label for="group_id">Group</label>
                                         <select id="group_id" class="form-control select2 filter-input">
@@ -113,14 +113,14 @@
                                         </select>
                                     </div>
                                 </div>
-                                <div class="col-md-3">
+                                <div class="col-md-2">
                                     <div class="form-group mb-0">
-                                        <button class="btn btn-secondary btn-block" id="reset-btn">Reset</button>
+                                        <button class="btn btn-secondary btn-block" id="reset-btn"><i class="fa fa-sync"></i> Reset</button>
                                     </div>
                                 </div>
-                                <div class="col-md-3">
+                                <div class="col-md-2">
                                     <div class="form-group mb-0">
-                                        <button class="btn btn-success btn-block" id="export-btn">Export to Excel</button>
+                                        <button class="btn btn-success btn-block" id="export-btn"><i class="fa fa-file-excel"></i> Export to Excel</button>
                                     </div>
                                 </div>
                             </div>

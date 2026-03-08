@@ -30,7 +30,7 @@
             <td>{{ number_format($sale->grand_total, 2) }}</td>
             <td>
                 @foreach($sale->payments as $payment)
-                    {{ ucfirst($payment->payment_method) }}{{ !$loop->last ? ', ' : '' }}
+                    {{ ucfirst($payment->payment_method) }} ({{ number_format($payment->amount, 2) }}){{ !$loop->last ? ', ' : '' }}
                 @endforeach
             </td>
             <td>
