@@ -20,8 +20,10 @@ class OutletAccountController extends Controller
      */
     public function index()
     {
-        $outletAccounts = OutletAccount::with('outlet', 'coa')->latest();
         if (\request()->ajax()) {
+            $outletAccounts = OutletAccount::with('outlet', 'coa');
+            $outletAccounts = $this->filter($outletAccounts);
+
             return DataTables::of($outletAccounts)
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
@@ -33,10 +35,48 @@ class OutletAccountController extends Controller
                 ->addColumn('status', function ($row) {
                     return showStatus($row->status);
                 })
-                ->rawColumns(['action','status'])
+                ->rawColumns(['action', 'status'])
                 ->make(true);
         }
-        return view('outlet_account.index');
+
+        $outlets = \App\Models\Outlet::all();
+        return view('outlet_account.index', compact('outlets'));
+    }
+
+    protected function filter($data)
+    {
+        if (request('date_range')) {
+            $dateRange = [];
+            if (str_contains(request('date_range'), ' to ')) {
+                $dateRange = explode(' to ', request('date_range'));
+            } elseif (str_contains(request('date_range'), ' - ')) {
+                $dateRange = explode(' - ', request('date_range'));
+            } else {
+                $dateRange = [request('date_range'), request('date_range')];
+            }
+
+            if (isset($dateRange[0]) && isset($dateRange[1])) {
+                $data->whereBetween('created_at', [$dateRange[0] . ' 00:00:00', $dateRange[1] . ' 23:59:59']);
+            } elseif (isset($dateRange[0])) {
+                $data->whereDate('created_at', $dateRange[0]);
+            }
+        }
+
+        if (request()->filled('outlet_id')) {
+            $data->where('outlet_id', request('outlet_id'));
+        }
+
+        if (request()->filled('coa_name')) {
+            $data->whereHas('coa', function ($query) {
+                $query->where('name', 'like', '%' . request('coa_name') . '%');
+            });
+        }
+
+        if (request()->filled('status')) {
+            $data->where('status', request('status'));
+        }
+
+        return $data->latest();
     }
 
     /**
