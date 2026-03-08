@@ -27,6 +27,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\GlobalExports;
 use niklasravnsborg\LaravelPdf\Facades\Pdf;
 use stdClass;
 use Yajra\DataTables\Facades\DataTables;
@@ -56,7 +58,12 @@ class SaleController extends Controller
                 ->rawColumns(['action', 'created_at', 'status'])
                 ->make(true);
         }
-        return view('sale.index');
+
+        $outlets = Outlet::where('status', 'active')->get();
+        $groups = ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'FG'])->get();
+        $items = ChartOfInventory::where(['type' => 'item', 'rootAccountType' => 'FG'])->get();
+
+        return view('sale.index', compact('outlets', 'groups', 'items'));
     }
 
     protected function filter($data)
@@ -76,15 +83,41 @@ class SaleController extends Controller
             }
 
             if (isset($dateRange[0]) && isset($dateRange[1])) {
-                $data->whereBetween('date', [$dateRange[0], $dateRange[1]]);
+                $data->whereBetween('created_at', [$dateRange[0] . ' 00:00:00', $dateRange[1] . ' 23:59:59']);
             } elseif (isset($dateRange[0])) {
-                $data->where('date', $dateRange[0]);
+                $data->whereDate('created_at', $dateRange[0]);
             }
         }
 
-        $data->when(request('invoice_no'), function ($query) {
-            return $query->where('invoice_number', 'like', '%' . request('invoice_no') . '%');
-        });
+        if (request()->filled('invoice_no')) {
+            $data->where('invoice_number', 'like', '%' . request('invoice_no') . '%');
+        }
+
+        if (request()->filled('outlet_id')) {
+            $data->where('outlet_id', request('outlet_id'));
+        }
+
+        if (request()->filled('delivery_point_id')) {
+            $data->where('delivery_point_id', request('delivery_point_id'));
+        }
+
+        if (request()->filled('payment_method')) {
+            $data->whereHas('payments', function ($query) {
+                $query->where('payment_method', request('payment_method'));
+            });
+        }
+
+        if (request()->filled('product_id')) {
+            $data->whereHas('items', function ($query) {
+                $query->where('product_id', request('product_id'));
+            });
+        }
+
+        if (request()->filled('group_id')) {
+            $data->whereHas('items.coi', function ($query) {
+                $query->where('parent_id', request('group_id'));
+            });
+        }
 
         return $data->latest();
     }
@@ -734,5 +767,13 @@ class SaleController extends Controller
             )->first();
         $items = DB::table('sale_item_cancels')->where('sale_id', $sale->id)->get();
         return view('sale.deleted-sales-show', compact('sale', 'items'));
+    }
+
+    public function export()
+    {
+        $sales = Sale::with(['outlet', 'deliveryPoint', 'customer', 'payments', 'items.coi.parent']);
+        $sales = $this->filter($sales)->get();
+
+        return Excel::download(new GlobalExports('sales', compact('sales')), 'sales.xlsx');
     }
 }
