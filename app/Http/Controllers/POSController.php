@@ -772,7 +772,7 @@ class POSController extends Controller
         $outlet_id = \auth('web')->user()->employee->outlet_id;
         $outlet = Outlet::find($outlet_id);
 
-        $rm_store = Store::where(['doc_type' => 'outlet', 'doc_id' => $outlet->id, 'type' => 'RM'])->first();
+        $rm_store = Store::where(['doc_type' => 'outlet', 'doc_id' => $outlet->id, 'type' => 'RM','status'=>'active'])->first();
         if (!$rm_store){
             $message = "RM Store Not Found";
         }

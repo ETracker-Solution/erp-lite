@@ -26,15 +26,19 @@ foreach ($allConsumption as $transaction) {
     // Add quantity
     $processedData[$groupName][$fgName]['quantity'] += $quantity;
 
-    // Process RM consumption
-    foreach ($fgItem->productionRecipes as $recipe) {
+    // ✅ FIX: Fallback to $fgItem->recipes if productionRecipes is empty
+    $recipes = $fgItem->productionRecipes;
+    if (empty($recipes) || $recipes->isEmpty()) {
+        $recipes = $fgItem->recipes ?? collect();
+    }
+
+    foreach ($recipes as $recipe) {
         $rmItem = $recipe->coi;
         $rmName = $rmItem->name;
         $unit = $rmItem->unit->name ?? '';
         $rmQuantity = $recipe->qty * $quantity;
         $stockCost = $rmItem->price ?? 0;
 
-        // Initialize RM item if not exists
         if (!isset($processedData[$groupName][$fgName]['rm_items'][$rmName])) {
             $processedData[$groupName][$fgName]['rm_items'][$rmName] = [
                 'unit' => $unit,
@@ -43,7 +47,6 @@ foreach ($allConsumption as $transaction) {
             ];
         }
 
-        // Add to RM total quantity
         $processedData[$groupName][$fgName]['rm_items'][$rmName]['total_quantity'] += $rmQuantity;
     }
 }
@@ -75,6 +78,7 @@ ksort($processedData);
 <body>
 <div class="report-header">
     <div class="report-title">Product Wise RM Consumption Report</div>
+    <div class="report-date">Store: {{ $store ?? '' }}</div>
     <div class="report-date">{{ Carbon\Carbon::parse($from)->format('d M Y') }} To {{ Carbon\Carbon::parse($to)->format('d M Y') }}</div>
 </div>
 

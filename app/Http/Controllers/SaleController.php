@@ -26,6 +26,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 use niklasravnsborg\LaravelPdf\Facades\Pdf;
 use stdClass;
 use Yajra\DataTables\Facades\DataTables;
@@ -460,7 +461,11 @@ class SaleController extends Controller
             'cancel_remark' => 'required|string|max:500'
         ]);
         try {
+
+
             DB::transaction(function () use ($sale, $request) {
+                $columns = Schema::getColumnListing('sale_cancels');
+
                 $saleCancelData = collect($sale->toArray())->except([
                     'created_at',
                     'updated_at',
@@ -469,18 +474,23 @@ class SaleController extends Controller
                     'delivery_type',
                     'delivery_area',
                     'delivery_point_id',
+                    'sd',
+                    'is_vat',
                     'pre_order_id'
-                ])->toArray();
+                ])->only($columns)->toArray();
                 $saleCancelData['cancelled_at'] = now();
                 $saleCancelData['cancelled_by'] = auth()->id();
                 $saleCancelData['remark'] = $request->cancel_remark ?? null;
 
                 DB::table('sale_cancels')->insert($saleCancelData);
 
+                $itemColumns = Schema::getColumnListing('sale_item_cancels');
+
+
                 $saleItemCancelData = collect($sale->items->toArray())->except([
                     'created_at',
                     'updated_at',
-                ])->toArray();
+                ])->only($itemColumns)->toArray();
 
                 DB::table('sale_item_cancels')->insert($saleItemCancelData);
 

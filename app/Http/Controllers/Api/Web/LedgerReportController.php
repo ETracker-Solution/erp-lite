@@ -11,6 +11,7 @@ use App\Models\Supplier;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Mpdf\Mpdf;
 use niklasravnsborg\LaravelPdf\Facades\Pdf;
 
 class LedgerReportController extends Controller
@@ -36,53 +37,88 @@ class LedgerReportController extends Controller
     {
         $report_type = \request()->report_type;
 
-
         $from_date = Carbon::parse(\request()->from_date)->format('Y-m-d') ?? Carbon::now()->format('Y-m-d');
-        $to_date = Carbon::parse(\request()->to_date)->format('Y-m-d') ?? Carbon::now()->format('Y-m-d');
+        $to_date   = Carbon::parse(\request()->to_date)->format('Y-m-d')   ?? Carbon::now()->format('Y-m-d');
 
-        $page_title = false;
+        $page_title    = false;
         $report_header = 'Ledger Report';
 
-        $page_title = ' Account Head  ::     ' . ChartOfAccount::find(\request()->account_id)->name;
-        $getData = $this->ledgerReportQuery(\request()->account_id, $from_date, $to_date);
+        if ($report_type === 'account_ledger') {
+            $page_title = ' Account Head  ::     ' . ChartOfAccount::find(\request()->account_id)->name;
+            $getData    = $this->ledgerReportQuery(\request()->account_id, $from_date, $to_date);
+        } elseif ($report_type === 'supplier_ledger') {
+            $supplier      = Supplier::find(\request()->supplier_id);
+            $page_title    = ' Supplier  ::     ' . $supplier->name;
+            $report_header = 'Supplier Ledger Report';
+            $getData       = $this->supplierLedgerQuery(\request()->supplier_id, $from_date, $to_date);
+        } elseif ($report_type === 'customer_ledger') {
+            $customer      = Customer::find(\request()->customer_id);
+            $page_title    = ' Customer  ::     ' . $customer->name;
+            $report_header = 'Customer Ledger Report';
+            $getData       = $this->customerLedgerQuery(\request()->customer_id, $from_date, $to_date);
+        } else {
+            return response()->json(['success' => false, 'message' => 'Invalid Report Type']);
+        }
 
         if (!isset($getData[0])) {
             return response()->json(['success' => false]);
         }
+
         $columns = array_keys((array)$getData[0]);
 
-        $data = [
-            'dateRange' => ' For the Period ' . $from_date . ' to ' . $to_date,
-            'data' => $getData,
-            'page_title' => $page_title,
-            'columns' => $columns,
-            'report_header' => $report_header
-        ];
-//        return view('common.report_main', $data);
-        $pdf = Pdf::loadView(
-            'common.report_main', $data,
-            [],
-            [
-                'format' => 'A4-L',
-                'orientation' => 'L',
-                'margin-left' => 0,
+        // ---------------------------------------------------------------
+        // Use mPDF directly and write HTML in chunks to avoid the
+        // "HTML code size is larger than pcre.backtrack_limit" error.
+        // ---------------------------------------------------------------
+        $mpdf = new Mpdf([
+            'format'      => 'A4-L',
+            'orientation' => 'L',
+            'margin_left' => 5,
+            'margin_right'  => 5,
+            'margin_top'    => 10,
+            'margin_bottom' => 10,
+        ]);
 
-                '', // mode - default ''
-                '', // format - A4, for example, default ''
-                0, // font size - default 0
-                '', // default font family
-                0, // margin_left
-                1, // margin right
-                1, // margin top
-                1, // margin bottom
-                0, // margin header
-                1, // margin footer
-                'L', // L - landscape, P - portrait
+        $dateRange = ' For the Period ' . $from_date . ' to ' . $to_date;
 
-            ]
-        );
-//        return $pdf->stream();
-        $pdf->stream();
+        // --- 1. Write the full opening HTML (head + styles + company header + table open + column headers)
+        //        Use default mode (0) so mPDF processes the <head> section for styles.
+        $headerHtml = view('common.report_main_header', [
+            'report_header' => $report_header,
+            'dateRange'     => $dateRange,
+            'page_title'    => $page_title,
+            'columns'       => $columns,
+        ])->render();
+
+        $mpdf->WriteHTML($headerHtml); // mode 0 = full HTML document (default)
+
+        // --- 2. Write data rows in chunks of 100 rows ---
+        //        Use HTMLParserMode::HTML_BODY (2) for raw <tr> fragments.
+        $chunkSize = 100;
+        $chunks    = array_chunk($getData, $chunkSize);
+
+        foreach ($chunks as $chunk) {
+            $rowsHtml = '';
+            foreach ($chunk as $item) {
+                $rowsHtml .= '<tr class="items">';
+                foreach ($columns as $column) {
+                    $value     = isset($item->$column) ? $item->$column : (is_array($item) ? ($item[$column] ?? '') : '');
+                    $value     = str_replace(' ', '&nbsp;', htmlspecialchars((string)$value, ENT_QUOTES, 'UTF-8'));
+                    $rowsHtml .= '<td style="white-space:pre;padding:0.5rem;border-bottom:1px solid #dfdfdf;font-size:11px;">' . $value . '</td>';
+                }
+                $rowsHtml .= '</tr>';
+            }
+            $mpdf->WriteHTML($rowsHtml, \Mpdf\HTMLParserMode::HTML_BODY);
+        }
+
+        // --- 3. Write the closing HTML (close table/div/body/html)
+        $footerHtml = view('common.report_main_footer')->render();
+        $mpdf->WriteHTML($footerHtml, \Mpdf\HTMLParserMode::HTML_BODY);
+
+        return response($mpdf->Output('ledger_report.pdf', 'S'), 200, [
+            'Content-Type'        => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="ledger_report.pdf"',
+        ]);
     }
 
     /**
@@ -123,6 +159,82 @@ class LedgerReportController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+
+    public function supplierLedgerQuery($supplier_id, $start_date, $end_date)
+    {
+        return DB::select("WITH OpeningBalance AS (
+            SELECT
+                '$start_date' AS Date,
+                ' ' AS 'Account Head',
+                ' ' AS 'Doc Type',
+                ' ' AS 'Doc No',
+                'Opening Balance' AS Particulars,
+                ' ' AS Debit,
+                ' ' AS Credit,
+                COALESCE(SUM(amount * transaction_type), 0) AS Balance
+            FROM supplier_transactions
+            WHERE supplier_id = $supplier_id
+            AND date < '$start_date'
+            LIMIT 1
+        )
+
+        SELECT * FROM OpeningBalance
+
+        UNION ALL
+
+        SELECT
+            TR.date AS Date,
+            COA.name AS 'Account Head',
+            doc_type AS 'Doc Type',
+            doc_id AS 'Doc No',
+            TR.description AS Particulars,
+            CASE WHEN transaction_type = -1 THEN amount ELSE 0 END AS Debit,
+            CASE WHEN transaction_type = 1 THEN amount ELSE 0 END AS Credit,
+            SUM(amount * transaction_type) OVER (ORDER BY TR.date, TR.id) + (SELECT Balance FROM OpeningBalance) AS Balance
+        FROM supplier_transactions TR
+        LEFT JOIN chart_of_accounts COA ON COA.id = TR.chart_of_account_id
+        WHERE TR.supplier_id = $supplier_id
+        AND TR.date >= '$start_date' AND TR.date <= '$end_date'
+        ");
+    }
+
+    public function customerLedgerQuery($customer_id, $start_date, $end_date)
+    {
+        return DB::select("WITH OpeningBalance AS (
+            SELECT
+                '$start_date' AS Date,
+                ' ' AS 'Account Head',
+                ' ' AS 'Doc Type',
+                ' ' AS 'Doc No',
+                'Opening Balance' AS Particulars,
+                ' ' AS Debit,
+                ' ' AS Credit,
+                COALESCE(SUM(amount * transaction_type), 0) AS Balance
+            FROM customer_transactions
+            WHERE customer_id = $customer_id
+            AND date < '$start_date'
+            LIMIT 1
+        )
+
+        SELECT * FROM OpeningBalance
+
+        UNION ALL
+
+        SELECT
+            TR.date AS Date,
+            COA.name AS 'Account Head',
+            doc_type AS 'Doc Type',
+            doc_id AS 'Doc No',
+            TR.description AS Particulars,
+            CASE WHEN transaction_type = 1 THEN amount ELSE 0 END AS Debit,
+            CASE WHEN transaction_type = -1 THEN amount ELSE 0 END AS Credit,
+            SUM(amount * transaction_type) OVER (ORDER BY TR.date, TR.id) + (SELECT Balance FROM OpeningBalance) AS Balance
+        FROM customer_transactions TR
+        LEFT JOIN chart_of_accounts COA ON COA.id = TR.chart_of_account_id
+        WHERE TR.customer_id = $customer_id
+        AND TR.date >= '$start_date' AND TR.date <= '$end_date'
+        ");
     }
 
     public function ledgerReportQuery($account_id, $start_date, $end_date)
