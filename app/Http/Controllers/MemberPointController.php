@@ -20,25 +20,53 @@ class MemberPointController extends Controller
      */
     public function index()
     {
-        $memberPoints = MemberPoint::with('memberType')->latest();
         if (\request()->ajax()) {
+            $memberPoints = MemberPoint::with('memberType');
+            $memberPoints = $this->filter($memberPoints);
+
             return DataTables::of($memberPoints)
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
                     return view('member-point.action-button', compact('row'));
                 })
                 ->addColumn('amount_info', function ($row) {
-
-                    return 'BDT '.$row->from_amount .' - '. 'BDT '.$row->to_amount;
-
+                    return 'BDT ' . $row->from_amount . ' - ' . 'BDT ' . $row->to_amount;
                 })
                 ->addColumn('created_at', function ($row) {
                     return view('common.created_at', compact('row'));
                 })
-                ->rawColumns(['action','amount_info'])
+                ->rawColumns(['action', 'amount_info'])
                 ->make(true);
         }
         return view('member-point.index');
+    }
+
+    protected function filter($data)
+    {
+        if (request('date_range')) {
+            $dateRange = [];
+            if (str_contains(request('date_range'), ' to ')) {
+                $dateRange = explode(' to ', request('date_range'));
+            } elseif (str_contains(request('date_range'), ' - ')) {
+                $dateRange = explode(' - ', request('date_range'));
+            } else {
+                $dateRange = [request('date_range'), request('date_range')];
+            }
+
+            if (isset($dateRange[0]) && isset($dateRange[1])) {
+                $data->whereBetween('created_at', [$dateRange[0] . ' 00:00:00', $dateRange[1] . ' 23:59:59']);
+            } elseif (isset($dateRange[0])) {
+                $data->whereDate('created_at', $dateRange[0]);
+            }
+        }
+
+        if (request()->filled('type')) {
+            $data->whereHas('memberType', function ($query) {
+                $query->where('name', 'like', '%' . request('type') . '%');
+            });
+        }
+
+        return $data->latest();
     }
 
     /**
