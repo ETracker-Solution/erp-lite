@@ -14,7 +14,9 @@ class RecipeController extends Controller
     public function index()
     {
         if (\request()->ajax()) {
-            $recipes = Recipe::with('coi', 'item')->groupBy('uid')->latest();
+            $recipes = Recipe::with('coi', 'item')->groupBy('uid');
+            $recipes = $this->filter($recipes);
+
             return DataTables::of($recipes)
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
@@ -30,6 +32,38 @@ class RecipeController extends Controller
                 ->make(true);
         }
         return view('recipe.index');
+    }
+
+    protected function filter($data)
+    {
+        if (request('date_range')) {
+            $dateRange = [];
+            if (str_contains(request('date_range'), ' to ')) {
+                $dateRange = explode(' to ', request('date_range'));
+            } elseif (str_contains(request('date_range'), ' - ')) {
+                $dateRange = explode(' - ', request('date_range'));
+            } else {
+                $dateRange = [request('date_range'), request('date_range')];
+            }
+
+            if (isset($dateRange[0]) && isset($dateRange[1])) {
+                $data->whereBetween('created_at', [$dateRange[0] . ' 00:00:00', $dateRange[1] . ' 23:59:59']);
+            } elseif (isset($dateRange[0])) {
+                $data->whereDate('created_at', $dateRange[0]);
+            }
+        }
+
+        if (request()->filled('recipe_no')) {
+            $data->where('uid', 'like', '%' . request('recipe_no') . '%');
+        }
+
+        if (request()->filled('product')) {
+            $data->whereHas('item', function ($query) {
+                $query->where('name', 'like', '%' . request('product') . '%');
+            });
+        }
+
+        return $data->latest();
     }
 
     public function create()
