@@ -20,7 +20,9 @@ class UserController extends Controller
     public function index()
     {
         if (\request()->ajax()) {
-            $users = User::latest();
+            $users = User::query();
+            $users = $this->filter($users);
+
             return DataTables::of($users)
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
@@ -33,6 +35,36 @@ class UserController extends Controller
                 ->make(true);
         }
         return view('user.index');
+    }
+
+    protected function filter($data)
+    {
+        if (request('date_range')) {
+            $dateRange = [];
+            if (str_contains(request('date_range'), ' to ')) {
+                $dateRange = explode(' to ', request('date_range'));
+            } elseif (str_contains(request('date_range'), ' - ')) {
+                $dateRange = explode(' - ', request('date_range'));
+            } else {
+                $dateRange = [request('date_range'), request('date_range')];
+            }
+
+            if (isset($dateRange[0]) && isset($dateRange[1])) {
+                $data->whereBetween('created_at', [$dateRange[0] . ' 00:00:00', $dateRange[1] . ' 23:59:59']);
+            } elseif (isset($dateRange[0])) {
+                $data->whereDate('created_at', $dateRange[0]);
+            }
+        }
+
+        if (request()->filled('name')) {
+            $data->where('name', 'like', '%' . request('name') . '%');
+        }
+
+        if (request()->filled('email')) {
+            $data->where('email', 'like', '%' . request('email') . '%');
+        }
+
+        return $data->latest();
     }
 
     public function create()
