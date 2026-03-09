@@ -383,6 +383,7 @@ Route::middleware(['auth', 'prevent_duplicate_submission'])->group(function () {
 
     // Customer Due
     Route::get('customer-dues', [App\Http\Controllers\CustomerDueController::class, 'index'])->name('customer-dues.index');
+    Route::get('customer-dues/export', [App\Http\Controllers\CustomerDueController::class, 'export'])->name('customer-dues.export');
     Route::get('customer-dues/{id}', [App\Http\Controllers\CustomerDueController::class, 'show'])->name('customer-dues.show');
 
     // Supplier Due

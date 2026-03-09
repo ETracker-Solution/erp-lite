@@ -32,6 +32,11 @@
                                 <button type="button" id="reset-btn" class="btn btn-secondary btn-block">Reset</button>
                             </div>
                         </div>
+                        <div class="col-md-2">
+                             <div class="form-group mb-0">
+                                <button type="button" id="export-btn" class="btn btn-success btn-block"><i class="fas fa-file-excel"></i> Export</button>
+                            </div>
+                        </div>
                     </div>
                     <hr>
 
@@ -105,6 +110,16 @@
                 sessionStorage.removeItem('customer_name_due');
                 sessionStorage.removeItem('phone_due');
                 recallDatatable();
+            });
+
+            $('#export-btn').on('click', function () {
+                let customer_name = $('#customer_name').val();
+                let phone = $('#phone').val();
+                let url = "{{ route('customer-dues.export') }}?" + $.param({
+                    customer_name: customer_name,
+                    phone: phone
+                });
+                window.location.href = url;
             });
         });
     </script>

@@ -6,6 +6,9 @@ use App\Models\Customer;
 use App\Models\CustomerTransaction;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\GlobalExports;
+use App\Exports\CustomerDueExport;
 
 class CustomerDueController extends Controller
 {
@@ -18,7 +21,8 @@ class CustomerDueController extends Controller
                         $q->select(\DB::raw('SUM(amount * transaction_type)'));
                     }],
                     ''
-                );
+                )
+                ->having('due_amount', '!=', 0);
             // We can filter those with due > 0 if needed, but for now show all with their due.
             // Or better, filter in PHP if dataset is small, or use SQL.
             // Let's return all and let frontend show.
@@ -72,5 +76,30 @@ class CustomerDueController extends Controller
         // Let's pass $transactions.
 
         return view('customer_due.show', compact('customer', 'transactions'));
+    }
+
+    public function export()
+    {
+        $customers = Customer::where('status', 'active')
+            ->select('id', 'name', 'mobile')
+            ->whereHas('customerTransactions');
+
+        $customers = $this->filter($customers);
+
+        $customers = $customers->withSum(
+                ['customerTransactions as due_amount' => function ($q) {
+                    $q->select(\DB::raw('SUM(amount * transaction_type)'));
+                }],
+                ''
+            )
+            ->having('due_amount', '!=', 0)
+            ->with(['customerTransactions' => function($q) {
+                $q->select('id', 'customer_id', 'date', 'description', 'amount', 'transaction_type')
+                  ->orderBy('date', 'asc')
+                  ->orderBy('id', 'asc');
+            }])
+            ->get();
+
+        return Excel::download(new CustomerDueExport($customers), 'customer_due_list.xlsx');
     }
 }
