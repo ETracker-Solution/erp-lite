@@ -25,22 +25,26 @@ class PaymentVoucherController extends Controller
     {
         if (request()->ajax()) {
             $paymentVouchers = PaymentVoucher::query()
-                ->with([
-                    'debitAccount:id,name',
-                    'cashBankAccount:id,name'
-                ])
                 ->select([
                     DB::raw('MAX(id) as id'),
                     'uid',
                     DB::raw('MAX(date) as date'),
-                    DB::raw('MAX(debit_account_id) as debit_account_id'),
-                    DB::raw('MAX(credit_account_id) as credit_account_id'),
                     DB::raw('SUM(amount) as amount'),
                     DB::raw('MAX(created_at) as created_at')
                 ])->groupBy('uid');
             $paymentVouchers = $this->filter($paymentVouchers, request());
             return DataTables::of($paymentVouchers->latest())
                 ->addIndexColumn()
+                ->addColumn('debit_account.name', function ($row) {
+                    return \App\Models\PaymentVoucher::where('uid', $row->uid)
+                        ->join('chart_of_accounts', 'chart_of_accounts.id', '=', 'payment_vouchers.debit_account_id')
+                        ->pluck('chart_of_accounts.name')->unique()->implode(', ');
+                })
+                ->addColumn('cash_bank_account.name', function ($row) {
+                    return \App\Models\PaymentVoucher::where('uid', $row->uid)
+                        ->join('chart_of_accounts', 'chart_of_accounts.id', '=', 'payment_vouchers.credit_account_id')
+                        ->pluck('chart_of_accounts.name')->unique()->implode(', ');
+                })
                 ->addColumn('action', fn($row) => view('payment_voucher.action-button', compact('row')))
                 ->addColumn('created_at', fn($row) => view('common.created_at', compact('row')))
                 ->rawColumns(['action'])

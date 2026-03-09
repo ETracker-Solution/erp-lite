@@ -19,15 +19,10 @@ class CustomerReceiveVoucherController extends Controller
     {
         if (\request()->ajax()) {
             $data = CustomerReceiveVoucher::query()
-                ->with(['customer', 'debitAccount', 'sale'])
                 ->select([
                     \DB::raw('MAX(id) as id'),
                     'uid',
                     \DB::raw('MAX(date) as date'),
-                    \DB::raw('MAX(customer_id) as customer_id'),
-                    \DB::raw('MAX(sale_id) as sale_id'),
-                    \DB::raw('MAX(debit_account_id) as debit_account_id'),
-                    \DB::raw('MAX(credit_account_id) as credit_account_id'),
                     \DB::raw('SUM(amount) as amount'),
                     \DB::raw('SUM(settle_discount) as settle_discount'),
                     \DB::raw('MAX(narration) as narration'),
@@ -37,6 +32,16 @@ class CustomerReceiveVoucherController extends Controller
 
             return \Yajra\DataTables\Facades\DataTables::of($data)
                 ->addIndexColumn()
+                ->addColumn('debit_account.name', function ($row) {
+                    return \App\Models\CustomerReceiveVoucher::where('uid', $row->uid)
+                        ->join('chart_of_accounts', 'chart_of_accounts.id', '=', 'customer_receive_vouchers.debit_account_id')
+                        ->pluck('chart_of_accounts.name')->unique()->implode(', ');
+                })
+                ->addColumn('customer.name', function ($row) {
+                    return \App\Models\CustomerReceiveVoucher::where('uid', $row->uid)
+                        ->join('customers', 'customers.id', '=', 'customer_receive_vouchers.customer_id')
+                        ->pluck('customers.name')->unique()->implode(', ');
+                })
                 ->addColumn('action', function ($row) {
                      return view('customer_receive_voucher.action-button', compact('row'));
                 })
@@ -44,7 +49,9 @@ class CustomerReceiveVoucherController extends Controller
                     return \Carbon\Carbon::parse($row->date)->format('Y-m-d');
                 })
                 ->addColumn('invoice_no', function($row){
-                    return $row->sale ? $row->sale->invoice_number : 'N/A';
+                    return \App\Models\CustomerReceiveVoucher::where('uid', $row->uid)
+                        ->join('sales', 'sales.id', '=', 'customer_receive_vouchers.sale_id')
+                        ->pluck('sales.invoice_number')->unique()->implode(', ');
                 })
                 ->filterColumn('invoice_no', function($query, $keyword) {
                     $query->whereHas('sale', function($q) use ($keyword) {

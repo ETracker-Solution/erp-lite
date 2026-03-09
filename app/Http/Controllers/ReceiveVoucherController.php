@@ -25,16 +25,10 @@ class ReceiveVoucherController extends Controller
     {
         if (request()->ajax()) {
             $receiveVouchers = ReceiveVoucher::query()
-                ->with([
-                    'debitAccount:id,name',
-                    'creditAccount:id,name'
-                ])
                 ->select([
                     DB::raw('MAX(id) as id'),
                     'uid',
                     DB::raw('MAX(date) as date'),
-                    DB::raw('MAX(debit_account_id) as debit_account_id'),
-                    DB::raw('MAX(credit_account_id) as credit_account_id'),
                     DB::raw('SUM(amount) as amount'),
                     DB::raw('MAX(payee_name) as payee_name'),
                     DB::raw('MAX(created_at) as created_at')
@@ -42,6 +36,16 @@ class ReceiveVoucherController extends Controller
             $receiveVouchers = $this->filter($receiveVouchers, request());
             return DataTables::of($receiveVouchers->latest())
                 ->addIndexColumn()
+                ->addColumn('debit_account.name', function ($row) {
+                    return \App\Models\ReceiveVoucher::where('uid', $row->uid)
+                        ->join('chart_of_accounts', 'chart_of_accounts.id', '=', 'receive_vouchers.debit_account_id')
+                        ->pluck('chart_of_accounts.name')->unique()->implode(', ');
+                })
+                ->addColumn('credit_account.name', function ($row) {
+                    return \App\Models\ReceiveVoucher::where('uid', $row->uid)
+                        ->join('chart_of_accounts', 'chart_of_accounts.id', '=', 'receive_vouchers.credit_account_id')
+                        ->pluck('chart_of_accounts.name')->unique()->implode(', ');
+                })
                 ->addColumn('action', fn($row) => view('receive_voucher.action-button', compact('row')))
                 ->addColumn('created_at', fn($row) => view('common.created_at', compact('row')))
                 ->rawColumns(['action'])

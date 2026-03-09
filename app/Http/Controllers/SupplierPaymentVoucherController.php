@@ -24,18 +24,10 @@ class SupplierPaymentVoucherController extends Controller
     {
         if (request()->ajax()) {
             $journalVouchers = SupplierPaymentVoucher::query()
-                ->with([
-                    'debitAccount:id,name',
-                    'creditAccount:id,name',
-                    'supplier:id,name'
-                ])
                 ->select([
                     DB::raw('MAX(id) as id'),
                     'uid',
                     DB::raw('MAX(date) as date'),
-                    DB::raw('MAX(supplier_id) as supplier_id'),
-                    DB::raw('MAX(debit_account_id) as debit_account_id'),
-                    DB::raw('MAX(credit_account_id) as credit_account_id'),
                     DB::raw('SUM(amount) as amount'),
                     DB::raw('SUM(settle_discount) as settle_discount'),
                     DB::raw('MAX(payee_name) as payee_name'),
@@ -44,6 +36,21 @@ class SupplierPaymentVoucherController extends Controller
             $journalVouchers = $this->filter($journalVouchers, request());
             return DataTables::of($journalVouchers->latest())
                 ->addIndexColumn()
+                ->addColumn('debit_account.name', function ($row) {
+                    return \App\Models\SupplierPaymentVoucher::where('uid', $row->uid)
+                        ->join('chart_of_accounts', 'chart_of_accounts.id', '=', 'supplier_payment_vouchers.debit_account_id')
+                        ->pluck('chart_of_accounts.name')->unique()->implode(', ');
+                })
+                ->addColumn('credit_account.name', function ($row) {
+                    return \App\Models\SupplierPaymentVoucher::where('uid', $row->uid)
+                        ->join('chart_of_accounts', 'chart_of_accounts.id', '=', 'supplier_payment_vouchers.credit_account_id')
+                        ->pluck('chart_of_accounts.name')->unique()->implode(', ');
+                })
+                ->addColumn('supplier.name', function ($row) {
+                    return \App\Models\SupplierPaymentVoucher::where('uid', $row->uid)
+                        ->join('suppliers', 'suppliers.id', '=', 'supplier_payment_vouchers.supplier_id')
+                        ->pluck('suppliers.name')->unique()->implode(', ');
+                })
                 ->addColumn('action', fn($row) => view('supplier_payment_voucher.action-button', compact('row')))
                 ->addColumn('created_at', fn($row) => view('common.created_at', compact('row')))
                 ->rawColumns(['action'])
