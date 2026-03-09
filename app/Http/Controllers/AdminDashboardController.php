@@ -193,6 +193,15 @@ class AdminDashboardController extends Controller
             return $t ? $t->current_stock * $t->rate : 0;
         });
 
+        $todaySalesByOutlet = Outlet::where('outlets.status', 'active')
+            ->leftJoin('sales', function($join) {
+                $join->on('outlets.id', '=', 'sales.outlet_id')
+                    ->whereDate('sales.date', date('Y-m-d'));
+            })
+            ->select('outlets.id', 'outlets.name', DB::raw('COALESCE(SUM(sales.grand_total), 0) as total_sales'))
+            ->groupBy('outlets.id', 'outlets.name')
+            ->get();
+
         $data = [
             'totalSales' => $total_sales,
             'outlets' => $outlets,
@@ -221,6 +230,7 @@ class AdminDashboardController extends Controller
             'todayInvoice' => $todayInvoice,
             'rmStock' => number_format($rmAmount),
             'fgStock' => number_format($fgAmount),
+            'todaySalesByOutlet' => $todaySalesByOutlet,
         ];
         return view('dashboard.admin', $data);
     }
