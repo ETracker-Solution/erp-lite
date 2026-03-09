@@ -88,7 +88,7 @@
 </div>
 <script>
     $('.branch').click(function () {
-        $(this).children().toggleClass('fa-folder-open');
+        $(this).children('i').toggleClass('fa-folder-open');
         $(this).next().slideToggle();
 
     });
