@@ -211,7 +211,8 @@ Chart Of Accounts
                         success: function (result) {
                             if(result.success){
                                 toastr.success(result.message)
-                                getAccounts()
+                                // Update node name in the tree
+                                $('#node-' + getValue(itemIdInput)).find('.node-name').text(getValue(itemNameInput));
                             }else{
                                 toastr.error(result.message)
                             }
@@ -250,12 +251,17 @@ Chart Of Accounts
                 toastr.error('Please Select Account Type')
                 return
             }
+            
+            let parentId = getValue(itemIdInput);
+            let name = getValue(newItemNameInput);
+            let type = getValue(newItemTypeInput);
+
             $.ajax({
                 method: 'POST',
-                url: "/coa-store/" + getValue(itemIdInput),
+                url: "/coa-store/" + parentId,
                 data: {
-                    item_name: getValue(newItemNameInput),
-                    item_type: getValue(newItemTypeInput),
+                    item_name: name,
+                    item_type: type,
                 },
                 headers: {
                     'X-CSRF-TOKEN': csrfToken
@@ -263,7 +269,50 @@ Chart Of Accounts
                 success: function (result) {
                     if(result.success){
                         toastr.success(result.message)
-                        getAccounts()
+                        
+                        // Append new node to parent
+                        let parentSpan = $('#node-' + parentId);
+                        let parentLi = parentSpan.closest('li');
+                        let childUl = parentLi.children('ul.tree');
+                        
+                        if (childUl.length === 0) {
+                            childUl = $('<ul class="tree" style="display: block;"></ul>');
+                            parentLi.append(childUl);
+                        }
+
+                        let newId = result.id || Math.floor(Math.random() * 1000000); // Expecting ID from server, fallback to random if not present
+                        let iconClass = type === 'group' ? 'fa-folder' : 'fa-italic';
+                        let branchClass = type === 'group' ? 'branch' : 'Leaf';
+                        let textClass = type === 'item' ? 'text-danger' : '';
+                        
+                        let newNode = $(`
+                            <li>
+                                <span class="${branchClass} ${textClass}" onclick="changeChart(${newId})" id="node-${newId}">
+                                    <i class="fa ${iconClass}"></i>
+                                    <span class="node-name">${name}</span>
+                                </span>
+                            </li>
+                        `);
+                        
+                        childUl.append(newNode);
+                        
+                        // Re-attach toggle logic if it's a group
+                        if (type === 'group') {
+                            newNode.find('.branch').click(function () {
+                                $(this).children('i.fa').toggleClass('fa-folder-open');
+                                $(this).next().slideToggle();
+                            });
+                        }
+
+                        // Reset add form
+                        setValue(newItemNameInput, '');
+                        setValue(newItemTypeInput, '');
+                        makeHidden(addNewDiv);
+                        makeVisible(addButton);
+                        makeVisible(updateButton);
+                        makeVisible(deleteButton);
+                        itemNameInput.prop('disabled', false);
+
                     }else{
                         toastr.error(result.message)
                     }
@@ -288,20 +337,34 @@ Chart Of Accounts
                 confirmButtonText: "Yes, delete it!"
             }).then((result) => {
                 if (result.isConfirmed) {
+                    let idToDelete = getValue(itemIdInput);
                     $.ajax({
                         method: 'DELETE',
-                        url: "/coa-delete/" + getValue(itemIdInput),
+                        url: "/coa-delete/" + idToDelete,
                         headers: {
                             'X-CSRF-TOKEN': csrfToken
                         },
                         success: function (result) {
-                            toastr.success(result.message)
-                            getAccounts()
+                            if (result.success) {
+                                toastr.success(result.message)
+                                // Remove node from tree
+                                $('#node-' + idToDelete).closest('li').remove();
+                                // Reset detail view
+                                setValue(itemIdInput, '');
+                                setValue(itemNameInput, '');
+                                setValue(itemTypeInput, '');
+                                setValue(groupNameInput, '');
+                                setValue(accountTypeInput, '');
+                                makeHidden(updateButton);
+                                makeHidden(addButton);
+                                makeHidden(deleteButton);
+                            } else {
+                                toastr.error(result.message)
+                            }
                         }
                     });
                 }
             });
-            ;
         }
 
         function getAccounts() {

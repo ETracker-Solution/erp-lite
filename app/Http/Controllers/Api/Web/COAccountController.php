@@ -61,7 +61,7 @@ class COAccountController extends Controller
     {
         try {
             $account = $this->base_model->find($id);
-            $account->subChartOfAccounts()->create([
+            $newAccount = $account->subChartOfAccounts()->create([
                 'name' => \request()->item_name,
                 'type' => \request()->item_type,
                 'account_type' => $account->account_type,
@@ -76,7 +76,8 @@ class COAccountController extends Controller
         }
         return response()->json([
             'message' => 'Added',
-            'success' => true
+            'success' => true,
+            'id' => $newAccount->id
         ]);
     }
 
