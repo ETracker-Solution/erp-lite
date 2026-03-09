@@ -167,8 +167,8 @@ class LedgerReportController extends Controller
             SELECT
                 '$start_date' AS Date,
                 ' ' AS 'Account Head',
-                ' ' AS 'Doc Type',
-                ' ' AS 'Doc No',
+                ' ' AS 'Voucher Type',
+                ' ' AS 'Voucher Number',
                 'Opening Balance' AS Particulars,
                 ' ' AS Debit,
                 ' ' AS Credit,
@@ -186,14 +186,16 @@ class LedgerReportController extends Controller
         SELECT
             TR.date AS Date,
             COA.name AS 'Account Head',
-            doc_type AS 'Doc Type',
-            doc_id AS 'Doc No',
+            doc_type AS 'Voucher Type',
+            COALESCE(P.uid, SPV.uid, CAST(TR.doc_id AS CHAR)) AS 'Voucher Number',
             TR.description AS Particulars,
             CASE WHEN transaction_type = -1 THEN amount ELSE 0 END AS Debit,
             CASE WHEN transaction_type = 1 THEN amount ELSE 0 END AS Credit,
             SUM(amount * transaction_type) OVER (ORDER BY TR.date, TR.id) + (SELECT Balance FROM OpeningBalance) AS Balance
         FROM supplier_transactions TR
         LEFT JOIN chart_of_accounts COA ON COA.id = TR.chart_of_account_id
+        LEFT JOIN purchases P ON P.id = TR.doc_id AND TR.doc_type = 'GPB'
+        LEFT JOIN supplier_payment_vouchers SPV ON SPV.id = TR.doc_id AND TR.doc_type = 'SPV'
         WHERE TR.supplier_id = $supplier_id
         AND TR.date >= '$start_date' AND TR.date <= '$end_date'
         ");
@@ -205,8 +207,8 @@ class LedgerReportController extends Controller
             SELECT
                 '$start_date' AS Date,
                 ' ' AS 'Account Head',
-                ' ' AS 'Doc Type',
-                ' ' AS 'Doc No',
+                ' ' AS 'Voucher Type',
+                ' ' AS 'Voucher Number',
                 'Opening Balance' AS Particulars,
                 ' ' AS Debit,
                 ' ' AS Credit,
@@ -224,14 +226,16 @@ class LedgerReportController extends Controller
         SELECT
             TR.date AS Date,
             COA.name AS 'Account Head',
-            doc_type AS 'Doc Type',
-            doc_id AS 'Doc No',
+            doc_type AS 'Voucher Type',
+            COALESCE(S.invoice_number, CRV.uid, CAST(TR.doc_id AS CHAR)) AS 'Voucher Number',
             TR.description AS Particulars,
             CASE WHEN transaction_type = 1 THEN amount ELSE 0 END AS Debit,
             CASE WHEN transaction_type = -1 THEN amount ELSE 0 END AS Credit,
             SUM(amount * transaction_type) OVER (ORDER BY TR.date, TR.id) + (SELECT Balance FROM OpeningBalance) AS Balance
         FROM customer_transactions TR
         LEFT JOIN chart_of_accounts COA ON COA.id = TR.chart_of_account_id
+        LEFT JOIN sales S ON S.id = TR.doc_id AND TR.doc_type = 'SALE'
+        LEFT JOIN customer_receive_vouchers CRV ON CRV.id = TR.doc_id AND TR.doc_type = 'CRV'
         WHERE TR.customer_id = $customer_id
         AND TR.date >= '$start_date' AND TR.date <= '$end_date'
         ");
@@ -245,8 +249,8 @@ class LedgerReportController extends Controller
     SELECT
         '$start_date' AS Date,
         ' ' AS 'Account Head',
-        ' ' AS 'Doc Type',
-        ' ' AS 'Doc No',
+        ' ' AS 'Voucher Type',
+        ' ' AS 'Voucher Number',
         'Opening Balance' AS Particulars,
         ' ' AS Debit,
         ' ' AS Credit,
@@ -265,8 +269,8 @@ UNION ALL
 SELECT
      CASE WHEN TR.date < '$start_date' THEN '$start_date' ELSE TR.date END AS Date,
      CASE WHEN TR.date < '$start_date' THEN ' ' ELSE COA.name END AS 'Account Head',
-     doc_type AS 'Doc Type',
-     doc_id AS 'Doc No',
+     doc_type AS 'Voucher Type',
+     COALESCE(RV.uid, PV.uid, JV.uid, FTV.uid, SPV.uid, CRV.uid, P.uid, S.invoice_number, CAST(TR.doc_id AS CHAR)) AS 'Voucher Number',
     CASE WHEN TR.date < '$start_date' THEN 'Opening Balance' ELSE IFNULL(TR.narration, '') END AS Particulars,
     CASE WHEN TR.date < '$start_date' THEN ' ' ELSE CASE WHEN TR.type = 'debit' THEN TR.amount ELSE 0 END END AS Debit,
     CASE WHEN TR.date < '$start_date' THEN ' ' ELSE CASE WHEN TR.type = 'credit' THEN TR.amount ELSE 0 END END AS Credit,
@@ -278,12 +282,21 @@ LEFT JOIN receive_vouchers RV ON (RV.id = TR.doc_id AND TR.doc_type = 'RV')
 LEFT JOIN payment_vouchers PV ON PV.id = TR.doc_id AND TR.doc_type = 'PV'
 LEFT JOIN journal_vouchers JV ON JV.id = TR.doc_id AND TR.doc_type = 'JV'
 LEFT JOIN fund_transfer_vouchers FTV ON FTV.id = TR.doc_id AND TR.doc_type = 'FTV'
+LEFT JOIN supplier_payment_vouchers SPV ON SPV.id = TR.doc_id AND TR.doc_type = 'SPV'
+LEFT JOIN customer_receive_vouchers CRV ON CRV.id = TR.doc_id AND TR.doc_type = 'CRV'
+LEFT JOIN purchases P ON P.id = TR.doc_id AND TR.doc_type = 'GPB'
+LEFT JOIN sales S ON S.id = TR.doc_id AND TR.doc_type = 'SALE'
 LEFT JOIN chart_of_accounts COA ON COA.id = (
 CASE
-WHEN RV.uid IS NULL AND JV.uid IS NULL AND FTV.uid IS NULL THEN (CASE WHEN TR.type = 'debit' THEN PV.credit_account_id ELSE PV.debit_account_id END)
-WHEN RV.uid IS NULL AND PV.uid IS NULL AND FTV.uid IS NULL THEN (CASE WHEN TR.type = 'debit' THEN JV.credit_account_id ELSE JV.debit_account_id END)
-WHEN RV.uid IS NULL AND PV.uid IS NULL AND JV.uid IS NULL THEN (CASE WHEN TR.type = 'debit' THEN FTV.credit_account_id ELSE FTV.debit_account_id END)
-ELSE (CASE WHEN TR.type = 'credit' THEN RV.debit_account_id ELSE RV.credit_account_id END)
+WHEN TR.doc_type = 'RV' THEN (CASE WHEN TR.type = 'credit' THEN RV.debit_account_id ELSE RV.credit_account_id END)
+WHEN TR.doc_type = 'PV' THEN (CASE WHEN TR.type = 'debit' THEN PV.credit_account_id ELSE PV.debit_account_id END)
+WHEN TR.doc_type = 'JV' THEN (CASE WHEN TR.type = 'debit' THEN JV.credit_account_id ELSE JV.debit_account_id END)
+WHEN TR.doc_type = 'FTV' THEN (CASE WHEN TR.type = 'debit' THEN FTV.credit_account_id ELSE FTV.debit_account_id END)
+WHEN TR.doc_type = 'SPV' THEN (CASE WHEN TR.type = 'debit' THEN SPV.credit_account_id ELSE SPV.debit_account_id END)
+WHEN TR.doc_type = 'CRV' THEN (CASE WHEN TR.type = 'credit' THEN CRV.debit_account_id ELSE CRV.credit_account_id END)
+WHEN TR.doc_type = 'GPB' THEN (CASE WHEN TR.type = 'debit' THEN 22 ELSE 15 END)
+WHEN TR.doc_type = 'SALE' THEN (CASE WHEN TR.type = 'credit' THEN 1 ELSE 12 END)
+ELSE NULL
 END
 )
 LEFT JOIN chart_of_accounts COAM ON COAM.id=TR.chart_of_account_id
@@ -291,20 +304,59 @@ WHERE TR.chart_of_account_id = $account_id
 AND TR.date >= '$start_date' AND TR.date <= '$end_date'
 ");
         } else {
-            $q = "SELECT
-    CASE WHEN TR.date < '$start_date' THEN '$start_date' ELSE TR.date END AS Date,
+            $q = "WITH OpeningBalance AS (
+    SELECT
+        '$start_date' AS Date,
+        ' ' AS 'Account Head',
+        ' ' AS 'Voucher Type',
+        ' ' AS 'Voucher Number',
+        'Opening Balance' AS Particulars,
+        ' ' AS Debit,
+        ' ' AS Credit,
+        IF(COA.root_account_type='ex',COALESCE(SUM(CASE WHEN TR.type = 'debit' THEN TR.amount ELSE -TR.amount END),0),COALESCE(SUM(CASE WHEN TR.type = 'debit' THEN -TR.amount ELSE TR.amount END),0)) AS Balance
+    FROM account_transactions TR
+    LEFT JOIN chart_of_accounts COA ON COA.id = TR.chart_of_account_id
+    WHERE TR.chart_of_account_id = $account_id
+    AND TR.date < '$start_date'
+    LIMIT 1
+)
+
+SELECT * FROM OpeningBalance
+
+UNION ALL
+
+SELECT
+     CASE WHEN TR.date < '$start_date' THEN '$start_date' ELSE TR.date END AS Date,
      CASE WHEN TR.date < '$start_date' THEN ' ' ELSE COA.name END AS 'Account Head',
-     CASE WHEN TR.date < '$start_date' THEN ' ' ELSE TR.doc_type END AS 'Doc Type',
-     CASE WHEN TR.date < '$start_date' THEN ' ' ELSE TR.doc_id END AS 'Doc No',
+     doc_type AS 'Voucher Type',
+     COALESCE(RV.uid, PV.uid, JV.uid, FTV.uid, SPV.uid, CRV.uid, P.uid, S.invoice_number, CAST(TR.doc_id AS CHAR)) AS 'Voucher Number',
     CASE WHEN TR.date < '$start_date' THEN 'Opening Balance' ELSE IFNULL(TR.narration, '') END AS Particulars,
     CASE WHEN TR.date < '$start_date' THEN ' ' ELSE CASE WHEN TR.type = 'debit' THEN TR.amount ELSE 0 END END AS Debit,
     CASE WHEN TR.date < '$start_date' THEN ' ' ELSE CASE WHEN TR.type = 'credit' THEN TR.amount ELSE 0 END END AS Credit,
-    IF(COAM.root_account_type='ex', SUM(CASE WHEN TR.type = 'debit' THEN TR.amount ELSE -TR.amount END) OVER (ORDER BY TR.date, TR.id),(SUM(CASE WHEN TR.type = 'debit' THEN TR.amount ELSE -TR.amount END) OVER (ORDER BY TR.date, TR.id))*-1) AS Balance
+    IF(COAM.root_account_type='ex', SUM(CASE WHEN TR.type = 'debit' THEN TR.amount ELSE -TR.amount END) OVER (ORDER BY TR.date, TR.id) + (SELECT Balance FROM OpeningBalance), (SUM(CASE WHEN TR.type = 'debit' THEN TR.amount ELSE -TR.amount END) OVER (ORDER BY TR.date, TR.id) + (SELECT Balance FROM OpeningBalance))*-1) AS Balance
 FROM account_transactions TR
 LEFT JOIN receive_vouchers RV ON (RV.id = TR.doc_id AND TR.doc_type = 'RV')
 LEFT JOIN payment_vouchers PV ON PV.id = TR.doc_id AND TR.doc_type = 'PV'
-LEFT JOIN chart_of_accounts COA ON COA.id = (CASE WHEN RV.uid IS NULL THEN (CASE WHEN TR.type = 'debit' THEN PV.credit_account_id ELSE PV.debit_account_id END) ELSE (CASE WHEN TR.type = 'credit' THEN RV.debit_account_id ELSE RV.credit_account_id END) END)
-                                                                                  LEFT JOIN chart_of_accounts COAM ON COAM.id=TR.chart_of_account_id
+LEFT JOIN journal_vouchers JV ON JV.id = TR.doc_id AND TR.doc_type = 'JV'
+LEFT JOIN fund_transfer_vouchers FTV ON FTV.id = TR.doc_id AND TR.doc_type = 'FTV'
+LEFT JOIN supplier_payment_vouchers SPV ON SPV.id = TR.doc_id AND TR.doc_type = 'SPV'
+LEFT JOIN customer_receive_vouchers CRV ON CRV.id = TR.doc_id AND TR.doc_type = 'CRV'
+LEFT JOIN purchases P ON P.id = TR.doc_id AND TR.doc_type = 'GPB'
+LEFT JOIN sales S ON S.id = TR.doc_id AND TR.doc_type = 'SALE'
+LEFT JOIN chart_of_accounts COA ON COA.id = (
+CASE
+WHEN TR.doc_type = 'RV' THEN (CASE WHEN TR.type = 'credit' THEN RV.debit_account_id ELSE RV.credit_account_id END)
+WHEN TR.doc_type = 'PV' THEN (CASE WHEN TR.type = 'debit' THEN PV.credit_account_id ELSE PV.debit_account_id END)
+WHEN TR.doc_type = 'JV' THEN (CASE WHEN TR.type = 'debit' THEN JV.credit_account_id ELSE JV.debit_account_id END)
+WHEN TR.doc_type = 'FTV' THEN (CASE WHEN TR.type = 'debit' THEN FTV.credit_account_id ELSE FTV.debit_account_id END)
+WHEN TR.doc_type = 'SPV' THEN (CASE WHEN TR.type = 'debit' THEN SPV.credit_account_id ELSE SPV.debit_account_id END)
+WHEN TR.doc_type = 'CRV' THEN (CASE WHEN TR.type = 'credit' THEN CRV.debit_account_id ELSE CRV.credit_account_id END)
+WHEN TR.doc_type = 'GPB' THEN (CASE WHEN TR.type = 'debit' THEN 22 ELSE 15 END)
+WHEN TR.doc_type = 'SALE' THEN (CASE WHEN TR.type = 'credit' THEN 1 ELSE 12 END)
+ELSE NULL
+END
+)
+LEFT JOIN chart_of_accounts COAM ON COAM.id=TR.chart_of_account_id
 WHERE TR.chart_of_account_id = $account_id
 AND TR.date >= '$start_date' AND TR.date <= '$end_date'
 ";
