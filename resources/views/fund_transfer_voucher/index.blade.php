@@ -23,36 +23,47 @@
                                     <div class="card-body">
                                         <form method="POST" id="submitForm">
                                             @csrf
-                                        <div class="row">
-                                            <div class="col-md-3 form-group">
+                                        <div class="row align-items-end">
+                                            <div class="col-md-2 form-group mb-0">
                                                 <label for="fp-range" class="font-weight-bold">DATE RANGE</label>
-                                                <input type="text" id="fp-range" class="form-control flatpickr-range"
+                                                <input type="text" id="fp-range" class="form-control flatpickr-range filter-input"
                                                        placeholder="YYYY-MM-DD to YYYY-MM-DD" name="date_range"/>
                                             </div>
-                                            <div class="form-group col-md-3">
-                                                <label for="outlet_id" class="font-weight-bold">Select Outlet</label>
-                                                <select class="form-control select2" name="outlet_id" id="outlet_id"
-                                                        required>
-                                                    <option value="" selected>All</option>
+                                            <!-- <div class="form-group col-md-2 mb-0">
+                                                <label for="outlet_id" class="font-weight-bold">Outlet</label>
+                                                <select class="form-control select2 filter-input" name="outlet_id" id="outlet_id">
+                                                    <option value="">All</option>
                                                     @foreach ($outlets as $row)
                                                         <option value="{{ $row->id }}">{{ $row->name }}</option>
                                                     @endforeach
                                                 </select>
-                                            </div>
+                                            </div> -->
 
-                                            <div class="form-group col-md-3">
-                                                <label for="account_id" class="font-weight-bold">From Account</label>
-                                                <select class="form-control select2" name="account_id" id="account_id"
-                                                        required>
-                                                    <option value="" selected>All</option>
-                                                    @foreach ($accounts as $row)
+                                            <div class="form-group col-md-2 mb-0">
+                                                <label for="from_account_id" class="font-weight-bold">From Account</label>
+                                                <select class="form-control select2 filter-input" name="from_account_id" id="from_account_id">
+                                                    <option value="">All</option>
+                                                    @foreach ($from_accounts as $row)
                                                         <option value="{{ $row->id }}">{{ $row->name }}</option>
                                                     @endforeach
                                                 </select>
                                             </div>
 
-                                            <div class="form-group col-md-3 align-self-end">
-                                                <button type="button" id="reset_filter" class="btn btn-warning btn-block">Reset</button>
+                                            <div class="form-group col-md-2 mb-0">
+                                                <label for="to_account_id" class="font-weight-bold">To Account</label>
+                                                <select class="form-control select2 filter-input" name="to_account_id" id="to_account_id">
+                                                    <option value="">All</option>
+                                                    @foreach ($to_accounts as $row)
+                                                        <option value="{{ $row->id }}">{{ $row->name }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+
+                                            <div class="form-group col-md-2 mb-0">
+                                                <button type="button" id="reset_filter" class="btn btn-warning btn-block"><i class="fa fa-sync"></i> Reset</button>
+                                            </div>
+                                            <div class="form-group col-md-2 mb-0">
+                                                <button type="button" id="export_excel" class="btn btn-success btn-block"><i class="fa fa-file-excel"></i> Export</button>
                                             </div>
                                             
                                         </div>
@@ -91,7 +102,7 @@
                             <div class="card-tools" style="display: ruby">
                                 @if(auth()->user()->employee->user_of != 'outlet')
                                     <button class="btn btn-sm btn-danger" id="receiveReportButton"><i class="fas fa-file-pdf"
-                                                                             aria-hidden="true"></i> &nbsp;Receive Report
+                                                                              aria-hidden="true"></i> &nbsp;Receive Report
                                     </button>
                                 @endif
                                 <a href="{{route('fund-transfer-vouchers.create')}}">
@@ -134,9 +145,16 @@
           href="{{ asset('datepicker') }}/app-assets/css/core/menu/menu-types/vertical-menu.css">
     <!-- DataTables -->
     <link rel="stylesheet" href="{{ asset('assets/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css')}}">
+    <!-- Select2 -->
+    <link rel="stylesheet" href="{{ asset('assets/plugins/select2/css/select2.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css') }}">
 @endsection
 @push('style')
-
+<style>
+    .select2-container--bootstrap4 .select2-selection--single {
+        height: calc(2.25rem + 2px) !important;
+    }
+</style>
 @endpush
 @section('js')
 
@@ -151,21 +169,30 @@
     <script src="{{ asset('assets/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js')}}"></script>
     <script src="{{ asset('assets/plugins/datatables-responsive/js/dataTables.responsive.min.js')}}"></script>
     <script src="{{ asset('assets/plugins/datatables-responsive/js/responsive.bootstrap4.min.js')}}"></script>
+    <!-- Select2 -->
+    <script src="{{ asset('assets/plugins/select2/js/select2.full.min.js') }}"></script>
 @endsection
 @push('script')
     <script>
         $(document).ready(function () {
-            if (sessionStorage.getItem('outlet_id')) {
-                $('select[name="outlet_id"]').val(sessionStorage.getItem('outlet_id'));
+            $('.select2').select2({
+                theme: 'bootstrap4'
+            });
+
+            if (sessionStorage.getItem('outlet_id_ftv')) {
+                $('#outlet_id').val(sessionStorage.getItem('outlet_id_ftv')).trigger('change.select2');
             }
-            if (sessionStorage.getItem('account_id')) {
-                $('select[name="account_id"]').val(sessionStorage.getItem('account_id'));
+            if (sessionStorage.getItem('from_account_id_ftv')) {
+                $('#from_account_id').val(sessionStorage.getItem('from_account_id_ftv')).trigger('change.select2');
             }
-            if (sessionStorage.getItem('date_range')) {
-                $('input[name="date_range"]').val(sessionStorage.getItem('date_range'));
+            if (sessionStorage.getItem('to_account_id_ftv')) {
+                $('#to_account_id').val(sessionStorage.getItem('to_account_id_ftv')).trigger('change.select2');
+            }
+            if (sessionStorage.getItem('date_range_ftv')) {
+                $('#fp-range').val(sessionStorage.getItem('date_range_ftv'));
             }
 
-            $('#dataTable').dataTable({
+            let table = $('#dataTable').DataTable({
                 stateSave: true,
                 responsive: true,
                 serverSide: true,
@@ -173,10 +200,10 @@
                 ajax: {
                     url: "{{ route('fund-transfer-vouchers.index') }}",
                     data: function (d) {
-                        d.outlet_id = $('select[name="outlet_id"]').val();
-                        d.account_id = $('select[name="account_id"]').val();
-                        d.date_range = $('input[name="date_range"]').val();
-                        // d.title = $('input[name="title"]').val();
+                        d.outlet_id = $('#outlet_id').val();
+                        d.from_account_id = $('#from_account_id').val();
+                        d.to_account_id = $('#to_account_id').val();
+                        d.date_range = $('#fp-range').val();
                     }
                 },
                 columns: [{
@@ -189,18 +216,21 @@
                     {
                         data: "date",
                         title: "Date",
+                        name: "date",
                         searchable: true,
                         orderable: false
                     },
                     {
-                        data: "id",
+                        data: "uid",
                         title: "FTV No",
+                        name: "uid",
                         searchable: true,
                         orderable: false
                     },
                     {
                         data: "credit_account.name",
                         title: "Transfer From",
+                        name: "creditAccount.name",
                         searchable: false,
                         defaultContent: '-',
                         orderable: false
@@ -208,6 +238,7 @@
                     {
                         data: "debit_account.name",
                         title: "Transfer To",
+                        name: "debitAccount.name",
                         searchable: false,
                         defaultContent: '-',
                         orderable: false
@@ -215,14 +246,16 @@
                     {
                         data: "amount",
                         title: "Amount",
+                        name: "amount",
                         searchable: false,
                         orderable: false
                     },
-                    // {
-                    //     data: "created_at",
-                    //     title: "Created At",
-                    //     searchable: true
-                    // },
+                    {
+                        data: "status",
+                        title: "Status",
+                        name: "status",
+                        searchable: false
+                    },
                     {
                         data: "action",
                         title: "Action",
@@ -231,43 +264,54 @@
                     },
                 ],
             });
-        })
 
-        $('#fp-range').on('change', function () {
-            sessionStorage.setItem('date_range', $('input[name="date_range"]').val());
-            recallDatatable();
-        })
-        $('#outlet_id').on('change', function () {
-            sessionStorage.setItem('outlet_id', $('select[name="outlet_id"]').val());
-            recallDatatable();
-        });
-        $('#account_id').on('change', function () {
-            sessionStorage.setItem('account_id', $('select[name="account_id"]').val());
-            recallDatatable();
-        });
-        $('#receiveReportButton').on('click', function () {
-           $('#submitForm').attr('action', "{{ route('fund-transfer-vouchers.receive.report') }}").submit()
-        });
+            $('.filter-input').on('change keyup', function () {
+                if ($(this).attr('name') === 'date_range') {
+                    sessionStorage.setItem('date_range_ftv', $(this).val());
+                } else {
+                    sessionStorage.setItem($(this).attr('name') + '_ftv', $(this).val());
+                }
+                recallDatatable();
+            });
 
-        $('#reset_filter').click(function () {
-            sessionStorage.removeItem('date_range');
-            sessionStorage.removeItem('outlet_id');
-            sessionStorage.removeItem('account_id');
-            
-            $('input[name="date_range"]').val('');
-            $('select[name="outlet_id"]').val('').trigger('change.select2');
-            $('select[name="account_id"]').val('').trigger('change.select2');
-            
-            if ($('#fp-range').length > 0) {
-                $('#fp-range')[0]._flatpickr.clear();
+            $('#reset_filter').click(function () {
+                sessionStorage.removeItem('date_range_ftv');
+                sessionStorage.removeItem('outlet_id_ftv');
+                sessionStorage.removeItem('from_account_id_ftv');
+                sessionStorage.removeItem('to_account_id_ftv');
+                
+                $('#fp-range').val('');
+                $('#outlet_id').val('').trigger('change.select2');
+                $('#from_account_id').val('').trigger('change.select2');
+                $('#to_account_id').val('').trigger('change.select2');
+                
+                if ($('#fp-range').length > 0 && $('#fp-range')[0]._flatpickr) {
+                    $('#fp-range')[0]._flatpickr.clear();
+                }
+                
+                recallDatatable();
+            });
+
+            $('#export_excel').on('click', function () {
+                let url = "{{ route('fund-transfer-vouchers.export') }}";
+                let params = {
+                    date_range: $('#fp-range').val(),
+                    outlet_id: $('#outlet_id').val(),
+                    from_account_id: $('#from_account_id').val(),
+                    to_account_id: $('#to_account_id').val()
+                };
+                let queryString = $.param(params);
+                window.location.href = url + '?' + queryString;
+            });
+
+            $('#receiveReportButton').on('click', function () {
+                $('#submitForm').attr('action', "{{ route('fund-transfer-vouchers.receive.report') }}").submit();
+            });
+
+            function recallDatatable() {
+                table.draw(true);
             }
-            
-            recallDatatable();
         });
-
-        function recallDatatable() {
-            $('#dataTable').DataTable().draw(true);
-        }
     </script>
 
 @endpush

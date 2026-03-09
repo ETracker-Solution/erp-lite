@@ -16,7 +16,8 @@ use App\Models\Transaction;
 use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Termwind\Components\Raw;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\GlobalExports;
 use Yajra\DataTables\Facades\DataTables;
 use niklasravnsborg\LaravelPdf\Facades\Pdf;
 
@@ -31,7 +32,6 @@ class FundTransferVoucherController extends Controller
     {
         if (\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->outlet_id) {
             $oas = OutletAccount::with('coa')->where('outlet_id', \auth()->user()->employee->outlet_id)->get();
-
         } else {
             $oas = OutletAccount::with('coa')->get();
         }
@@ -45,12 +45,16 @@ class FundTransferVoucherController extends Controller
         }
 
         $outlets = Outlet::all();
-        $accounts = ChartOfAccount::where('type', 'ledger')
-        ->whereIn('id', function ($query) {
-            $query->select('coa_id')->from('outlet_accounts');
-        })
-        ->select('id', 'name')
-        ->get();
+        
+        $from_accounts = ChartOfAccount::where('type', 'ledger')
+            ->whereIn('id', function ($query) {
+                $query->select('coa_id')->from('outlet_accounts');
+            })
+            ->select('id', 'name')
+            ->get();
+
+        $to_accounts = ChartOfAccount::where(['is_bank_cash' => 'yes', 'type' => 'ledger', 'status' => 'active'])->get();
+
         if (\request()->ajax()) {
             $fundTransferVouchers = $this->getFilteredData();
             return DataTables::of($fundTransferVouchers)
@@ -67,7 +71,7 @@ class FundTransferVoucherController extends Controller
                 ->rawColumns(['action', 'created_at', 'status'])
                 ->make(true);
         }
-        return view('fund_transfer_voucher.index', compact('outlets', 'outlet_accounts','accounts'));
+        return view('fund_transfer_voucher.index', compact('outlets', 'outlet_accounts', 'from_accounts', 'to_accounts'));
     }
 
     /**
@@ -299,13 +303,10 @@ class FundTransferVoucherController extends Controller
     {
         if (\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->outlet_id) {
             $fundTransferVoucher = FundTransferVoucher::where('created_by', \auth()->user()->id)->with('creditAccount', 'debitAccount')->latest();
-
         } else {
             $fundTransferVoucher = FundTransferVoucher::with('creditAccount', 'debitAccount')->latest();
         }
-        // if (\request()->filled('status')) {
-        //     $fundTransferVoucher->where('status', \request()->status);
-        // }
+
         if (\request()->filled('outlet_id')) {
             $fundTransferVoucher->whereHas('creditAccount', function ($q) {
                 $q->whereHas('outlets', function ($query) {
@@ -313,13 +314,39 @@ class FundTransferVoucherController extends Controller
                 });
             });
         }
-        if (\request()->filled('account_id')) {
-            $fundTransferVoucher->where('credit_account_id',\request()->account_id);
+
+        if (\request()->filled('from_account_id')) {
+            $fundTransferVoucher->where('credit_account_id', \request()->from_account_id);
         }
+
+        if (\request()->filled('to_account_id')) {
+            $fundTransferVoucher->where('debit_account_id', \request()->to_account_id);
+        }
+
         if (\request()->filled('date_range')) {
-            searchColumnByDateRange($fundTransferVoucher);
+            $dateRange = [];
+            if (str_contains(request('date_range'), ' to ')) {
+                $dateRange = explode(' to ', request('date_range'));
+            } elseif (str_contains(request('date_range'), ' - ')) {
+                $dateRange = explode(' - ', request('date_range'));
+            } else {
+                $dateRange = [request('date_range'), request('date_range')];
+            }
+
+            if (isset($dateRange[0]) && isset($dateRange[1])) {
+                $fundTransferVoucher->whereBetween('date', [$dateRange[0], $dateRange[1]]);
+            } elseif (isset($dateRange[0])) {
+                $fundTransferVoucher->where('date', $dateRange[0]);
+            }
         }
+
         return $fundTransferVoucher->latest();
+    }
+
+    public function export()
+    {
+        $vouchers = $this->getFilteredData()->get();
+        return Excel::download(new GlobalExports('fund_transfer_vouchers', compact('vouchers')), 'fund_transfer_vouchers.xlsx');
     }
 
     public function receiveReport(Request $request)

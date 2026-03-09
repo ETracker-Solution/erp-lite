@@ -419,6 +419,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('fg-requisitions/{type}', [App\Http\Controllers\RequisitionController::class, 'exportFGRequisition'])->name('fg.requisitions.export');
     Route::get('fg-productions-export/{type}', [App\Http\Controllers\ProductionController::class, 'exportFGProduction'])->name('fg.production.export');
     Route::get('sales-export', [App\Http\Controllers\SaleController::class, 'export'])->name('sales.export');
+    Route::get('fund-transfer-vouchers-export', [App\Http\Controllers\FundTransferVoucherController::class, 'export'])->name('fund-transfer-vouchers.export');
     Route::get('today-requisitions', [App\Http\Controllers\RequisitionController::class, 'todayRequisition'])->name('today.requisitions');
 
     Route::get('stock-reports', [App\Http\Controllers\Welkin\StockReportController::class, 'index'])->name('stock.report.index');
