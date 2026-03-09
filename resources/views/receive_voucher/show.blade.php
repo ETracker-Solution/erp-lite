@@ -28,7 +28,7 @@
                                         &nbsp;See List
                                     </button>
                                 </a>
-                                <a href="{{ route('receive-voucher.pdf', encrypt($receiveVoucher->id)) }}" class="btn btn-sm btn-primary" target="_blank"><i class="fa fa-download"></i> PDF</a>
+                                <a href="{{ route('receive-voucher.pdf', encrypt($voucher->id)) }}" class="btn btn-sm btn-primary" target="_blank"><i class="fa fa-download"></i> PDF</a>
                             </div>
                         </div>
                         <div class="card-body">
@@ -36,38 +36,48 @@
                                 <thead>
                                     <tr>
                                         <th><strong>Date :</strong></th>
-                                        <td>{{ $receiveVoucher->date }}</td>
-                                    </tr>
-                                    <tr>
+                                        <td>{{ $voucher->date }}</td>
                                         <th><strong>RV No :</strong></th>
-                                        <td>{{ $receiveVoucher->uid }}</td>
-                                    </tr>
-                                    <tr>
-                                        <th><strong>Credit Account  :</strong></th>
-                                        <td>{{ $receiveVoucher->creditAccount->name }}</td>
-                                    </tr>
-                                    <tr>
-                                        <th><strong>Debit Account  :</strong></th>
-                                        <td>{{ $receiveVoucher->debitAccount->name }}</td>
-                                    </tr>
-                                    <tr>
-                                        <th><strong>Amount :</strong></th>
-                                        <td>{{ $receiveVoucher->amount }}</td>
-                                    </tr>
-                                    <tr>
-                                        <th><strong>Receiver Name :</strong></th>
-                                        <td>{{ $receiveVoucher->payee_name }}</td>
+                                        <td>{{ $voucher->uid }}</td>
                                     </tr>
                                     <tr>
                                         <th><strong>Description :</strong></th>
-                                        <td>{{ $receiveVoucher->narration }}</td>
+                                        <td colspan="3">{{ $voucher->narration }}</td>
                                     </tr>
-                                    <tr>
-                                        <th><strong>Referance :</strong></th>
-                                        <td>{{ $receiveVoucher->reference_no }}</td>
-                                    </tr>
-                                    
                                 </thead>
+                            </table>
+                            <h5 class="mt-4">Receive Information</h5>
+                            <table class="table table-bordered mt-3">
+                                <thead class="bg-secondary">
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Receive Mode</th>
+                                        <th>Income Head</th>
+                                        <th>Payee Name</th>
+                                        <th>Reference No</th>
+                                        <th>Amount</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @php $total = 0; @endphp
+                                    @foreach($receiveVouchers as $index => $item)
+                                    @php $total += $item->amount; @endphp
+                                    <tr>
+                                        <td>{{ $index + 1 }}</td>
+                                        <td>{{ $item->debitAccount->name ?? '' }}</td>
+                                        <td>{{ $item->creditAccount->name ?? '' }}</td>
+                                        <td>{{ $item->payee_name }}</td>
+                                        <td>{{ $item->reference_no }}</td>
+                                        <td>{{ number_format($item->amount, 2) }}</td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <th colspan="5" class="text-right">Total:</th>
+                                        <th>{{ number_format($total, 2) }}</th>
+                                    </tr>
+                                </tfoot>
                             </table>
                         </div>
                         {{-- adjust modal --}}

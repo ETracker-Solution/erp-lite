@@ -30,14 +30,14 @@ class PaymentVoucherController extends Controller
                     'cashBankAccount:id,name'
                 ])
                 ->select([
-                    'id',
+                    DB::raw('MAX(id) as id'),
                     'uid',
-                    'date',
-                    'debit_account_id',
-                    'credit_account_id',
-                    'amount',
-                    'created_at'
-                ]);
+                    DB::raw('MAX(date) as date'),
+                    DB::raw('MAX(debit_account_id) as debit_account_id'),
+                    DB::raw('MAX(credit_account_id) as credit_account_id'),
+                    DB::raw('SUM(amount) as amount'),
+                    DB::raw('MAX(created_at) as created_at')
+                ])->groupBy('uid');
             $paymentVouchers = $this->filter($paymentVouchers, request());
             return DataTables::of($paymentVouchers->latest())
                 ->addIndexColumn()
@@ -105,10 +105,11 @@ class PaymentVoucherController extends Controller
                 return back();
             }
 
+            $uid = generateUniqueCode(PaymentVoucher::class, 'uid');
             foreach ($validated['products'] as $product) {
                 $product['date'] = $validated['date'];
                 $product['narration'] = $validated['narration'];
-                $product['uid'] = generateUniqueCode(PaymentVoucher::class, 'uid');
+                $product['uid'] = $uid;
 
                 $voucher = PaymentVoucher::create($product);
                 // Accounts Effect
@@ -132,8 +133,9 @@ class PaymentVoucherController extends Controller
      */
     public function show($id)
     {
-        $paymentVoucher = PaymentVoucher::findOrFail(decrypt($id));
-        return view('payment_voucher.show', compact('paymentVoucher'));
+        $voucher = PaymentVoucher::findOrFail(decrypt($id));
+        $paymentVouchers = PaymentVoucher::where('uid', $voucher->uid)->get();
+        return view('payment_voucher.show', compact('paymentVouchers', 'voucher'));
     }
 
     /**
@@ -144,10 +146,14 @@ class PaymentVoucherController extends Controller
      */
     public function edit($id)
     {
-        $creditAccounts = ChartOfAccount::where(['is_bank_cash' => 'yes', 'type' => 'ledger', 'status' => 'active'])->get();
-        $debitAccounts = ChartOfAccount::where(['is_bank_cash' => 'no', 'type' => 'ledger', 'status' => 'active'])->get();
-        $paymentVoucher = PaymentVoucher::findOrFail(decrypt($id));
-        return view('payment_voucher.edit', compact('paymentVoucher','creditAccounts','debitAccounts'));
+        $voucher = PaymentVoucher::findOrFail(decrypt($id));
+        $paymentVouchers = PaymentVoucher::with('debitAccount', 'cashBankAccount')->where('uid', $voucher->uid)->get();
+        $chartOfAccounts = ChartOfAccount::where(['is_bank_cash' => 'yes', 'type' => 'ledger', 'status' => 'active'])->get();
+        $toChartOfAccounts = ChartOfAccount::where(['is_bank_cash' => 'no', 'type' => 'ledger', 'status' => 'active'])->get();
+        $PVno = $voucher->uid;
+        $date = $voucher->date;
+        $narration = $voucher->narration;
+        return view('payment_voucher.edit', compact('paymentVouchers', 'voucher', 'chartOfAccounts', 'toChartOfAccounts', 'PVno', 'date', 'narration'));
     }
 
     /**
@@ -157,15 +163,34 @@ class PaymentVoucherController extends Controller
      * @param \App\Models\PaymentVoucher $paymentVoucher
      * @return \Illuminate\Http\Response
      */
-    public function update(UpdatePaymentVoucherRequest $request, PaymentVoucher $paymentVoucher)
+    public function update(StorePaymentVoucherRequest $request, $id)
     {
         $validated = $request->validated();
         DB::beginTransaction();
         try {
-            $paymentVoucher->update($validated);
-            // Accounts Effect
-            AccountTransaction::where('doc_type', 'PV')->where('doc_id', $paymentVoucher->id)->delete();
-            addAccountsTransaction('PV', $paymentVoucher, $validated['debit_account_id'], $validated['credit_account_id']);
+            if (!isset($validated['products']) || count($validated['products']) < 1) {
+                Toastr::info('At Least One Item Required.', '', ["progressBar" => true]);
+                return back();
+            }
+
+            $voucher = PaymentVoucher::findOrFail($id);
+            $uid = $voucher->uid;
+
+            $oldVouchers = PaymentVoucher::where('uid', $uid)->get();
+            foreach ($oldVouchers as $oldVoucher) {
+                AccountTransaction::where('doc_type', 'PV')->where('doc_id', $oldVoucher->id)->delete();
+                $oldVoucher->delete();
+            }
+
+            foreach ($validated['products'] as $product) {
+                $product['date'] = $validated['date'];
+                $product['narration'] = $validated['narration'];
+                $product['uid'] = $uid;
+
+                $newVoucher = PaymentVoucher::create($product);
+                // Accounts Effect
+                addAccountsTransaction('PV', $newVoucher, $newVoucher->debit_account_id, $newVoucher->credit_account_id);
+            }
             DB::commit();
         } catch (\Exception $error) {
             DB::rollBack();
@@ -186,8 +211,12 @@ class PaymentVoucherController extends Controller
     {
         DB::beginTransaction();
         try {
-            PaymentVoucher::findOrFail(decrypt($id))->delete();
-            AccountTransaction::where(['doc_type' => 'PV', 'doc_id' => decrypt($id)])->delete();
+            $voucher = PaymentVoucher::findOrFail(decrypt($id));
+            $oldVouchers = PaymentVoucher::where('uid', $voucher->uid)->get();
+            foreach ($oldVouchers as $oldVoucher) {
+                AccountTransaction::where(['doc_type' => 'PV', 'doc_id' => $oldVoucher->id])->delete();
+                $oldVoucher->delete();
+            }
             DB::commit();
         } catch (\Exception $error) {
             DB::rollBack();
@@ -200,10 +229,12 @@ class PaymentVoucherController extends Controller
 
     public function Pdf($id)
     {
-        $paymentVoucher = PaymentVoucher::findOrFail(decrypt($id));
+        $voucher = PaymentVoucher::findOrFail(decrypt($id));
+        $paymentVouchers = PaymentVoucher::where('uid', $voucher->uid)->get();
 
         $data = [
-            'paymentVoucher' => $paymentVoucher,
+            'voucher' => $voucher,
+            'paymentVouchers' => $paymentVouchers,
         ];
 
         $pdf = PDF::loadView(

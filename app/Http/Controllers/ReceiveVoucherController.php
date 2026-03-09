@@ -30,15 +30,15 @@ class ReceiveVoucherController extends Controller
                     'creditAccount:id,name'
                 ])
                 ->select([
-                    'id',
+                    DB::raw('MAX(id) as id'),
                     'uid',
-                    'date',
-                    'debit_account_id',
-                    'credit_account_id',
-                    'amount',
-                    'payee_name',
-                    'created_at'
-                ]);
+                    DB::raw('MAX(date) as date'),
+                    DB::raw('MAX(debit_account_id) as debit_account_id'),
+                    DB::raw('MAX(credit_account_id) as credit_account_id'),
+                    DB::raw('SUM(amount) as amount'),
+                    DB::raw('MAX(payee_name) as payee_name'),
+                    DB::raw('MAX(created_at) as created_at')
+                ])->groupBy('uid');
             $receiveVouchers = $this->filter($receiveVouchers, request());
             return DataTables::of($receiveVouchers->latest())
                 ->addIndexColumn()
@@ -101,10 +101,11 @@ class ReceiveVoucherController extends Controller
                 return back();
             }
 
+            $uid = generateUniqueCode(ReceiveVoucher::class, 'uid');
             foreach ($validated['products'] as $product) {
                 $product['date'] = $validated['date'];
                 $product['narration'] = $validated['narration'];
-                $product['uid'] = generateUniqueCode(ReceiveVoucher::class, 'uid');
+                $product['uid'] = $uid;
 
                 $voucher = ReceiveVoucher::create($product);
                 // Accounts Effect
@@ -128,8 +129,9 @@ class ReceiveVoucherController extends Controller
      */
     public function show($id)
     {
-        $receiveVoucher = ReceiveVoucher::findOrFail(decrypt($id));
-        return view('receive_voucher.show', compact('receiveVoucher'));
+        $voucher = ReceiveVoucher::findOrFail(decrypt($id));
+        $receiveVouchers = ReceiveVoucher::where('uid', $voucher->uid)->get();
+        return view('receive_voucher.show', compact('receiveVouchers', 'voucher'));
     }
 
     /**
@@ -140,10 +142,14 @@ class ReceiveVoucherController extends Controller
      */
     public function edit($id)
     {
-        $debitAccounts = ChartOfAccount::where(['is_bank_cash' => 'yes', 'type' => 'ledger', 'status' => 'active'])->get();
-        $creditAccounts = ChartOfAccount::where(['is_bank_cash' => 'no', 'type' => 'ledger', 'status' => 'active'])->get();
-        $receiveVoucher = ReceiveVoucher::findOrFail(decrypt($id));
-        return view('receive_voucher.edit', compact('receiveVoucher', 'debitAccounts', 'creditAccounts'));
+        $voucher = ReceiveVoucher::findOrFail(decrypt($id));
+        $receiveVouchers = ReceiveVoucher::with('debitAccount', 'creditAccount')->where('uid', $voucher->uid)->get();
+        $toChartOfAccounts = ChartOfAccount::where(['is_bank_cash' => 'yes', 'type' => 'ledger', 'status' => 'active'])->get();
+        $chartOfAccounts = ChartOfAccount::where(['is_bank_cash' => 'no', 'type' => 'ledger', 'status' => 'active'])->get();
+        $RVno = $voucher->uid;
+        $date = $voucher->date;
+        $narration = $voucher->narration;
+        return view('receive_voucher.edit', compact('receiveVouchers', 'voucher', 'toChartOfAccounts', 'chartOfAccounts', 'RVno', 'date', 'narration'));
     }
 
     /**
@@ -153,15 +159,34 @@ class ReceiveVoucherController extends Controller
      * @param \App\Models\ReceiveVoucher $receiveVoucher
      * @return \Illuminate\Http\Response
      */
-    public function update(UpdateReceiveVoucherRequest $request, ReceiveVoucher $receiveVoucher)
+    public function update(StoreReceiveVoucherRequest $request, $id)
     {
         $validated = $request->validated();
         DB::beginTransaction();
         try {
-            $receiveVoucher->update($validated);
-            // Accounts Effect
-            AccountTransaction::where('doc_type', 'RV')->where('doc_id', $receiveVoucher->id)->delete();
-            addAccountsTransaction('RV', $receiveVoucher, $validated['debit_account_id'], $validated['credit_account_id']);
+            if (!isset($validated['products']) || count($validated['products']) < 1) {
+                Toastr::info('At Least One Item Required.', '', ["progressBar" => true]);
+                return back();
+            }
+
+            $voucher = ReceiveVoucher::findOrFail($id);
+            $uid = $voucher->uid;
+
+            $oldVouchers = ReceiveVoucher::where('uid', $uid)->get();
+            foreach ($oldVouchers as $oldVoucher) {
+                AccountTransaction::where('doc_type', 'RV')->where('doc_id', $oldVoucher->id)->delete();
+                $oldVoucher->delete();
+            }
+
+            foreach ($validated['products'] as $product) {
+                $product['date'] = $validated['date'];
+                $product['narration'] = $validated['narration'];
+                $product['uid'] = $uid;
+
+                $newVoucher = ReceiveVoucher::create($product);
+                // Accounts Effect
+                addAccountsTransaction('RV', $newVoucher, $newVoucher->debit_account_id, $newVoucher->credit_account_id);
+            }
             DB::commit();
         } catch (\Exception $error) {
             DB::rollBack();
@@ -182,9 +207,12 @@ class ReceiveVoucherController extends Controller
     {
         DB::beginTransaction();
         try {
-            ReceiveVoucher::findOrFail(decrypt($id))->delete();
-            AccountTransaction::where('doc_type', 'RV')->where('doc_id', decrypt($id))->delete();
-
+            $voucher = ReceiveVoucher::findOrFail(decrypt($id));
+            $oldVouchers = ReceiveVoucher::where('uid', $voucher->uid)->get();
+            foreach ($oldVouchers as $oldVoucher) {
+                AccountTransaction::where('doc_type', 'RV')->where('doc_id', $oldVoucher->id)->delete();
+                $oldVoucher->delete();
+            }
             DB::commit();
         } catch (\Exception $error) {
             DB::rollBack();
@@ -197,9 +225,11 @@ class ReceiveVoucherController extends Controller
 
     public function Pdf($id)
     {
-        $receiveVoucher = ReceiveVoucher::findOrFail(decrypt($id));
+        $voucher = ReceiveVoucher::findOrFail(decrypt($id));
+        $receiveVouchers = ReceiveVoucher::where('uid', $voucher->uid)->get();
         $data = [
-            'receiveVoucher' => $receiveVoucher,
+            'voucher' => $voucher,
+            'receiveVouchers' => $receiveVouchers,
         ];
 
         $pdf = PDF::loadView(

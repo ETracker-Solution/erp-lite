@@ -18,7 +18,21 @@ class CustomerReceiveVoucherController extends Controller
     public function index()
     {
         if (\request()->ajax()) {
-            $data = CustomerReceiveVoucher::with('customer', 'sale', 'debitAccount');
+            $data = CustomerReceiveVoucher::query()
+                ->with(['customer', 'debitAccount', 'sale'])
+                ->select([
+                    \DB::raw('MAX(id) as id'),
+                    'uid',
+                    \DB::raw('MAX(date) as date'),
+                    \DB::raw('MAX(customer_id) as customer_id'),
+                    \DB::raw('MAX(sale_id) as sale_id'),
+                    \DB::raw('MAX(debit_account_id) as debit_account_id'),
+                    \DB::raw('MAX(credit_account_id) as credit_account_id'),
+                    \DB::raw('SUM(amount) as amount'),
+                    \DB::raw('SUM(settle_discount) as settle_discount'),
+                    \DB::raw('MAX(narration) as narration'),
+                    \DB::raw('MAX(created_at) as created_at')
+                ])->groupBy('uid');
             $data = $this->filter($data);
 
             return \Yajra\DataTables\Facades\DataTables::of($data)
@@ -125,6 +139,7 @@ class CustomerReceiveVoucherController extends Controller
                 return back();
             }
 
+            $uid = generateUniqueCode(CustomerReceiveVoucher::class, 'uid');
             foreach ($validated['products'] as $product) {
 
                 // Get Sale Information
@@ -133,7 +148,7 @@ class CustomerReceiveVoucherController extends Controller
                 // Fields to create Voucher
                 // CRV fields: uid, date, amount, customer_id, debit_account_id, sale_id, narration, created_by, etc.
                 $voucherData = [
-                    'uid' => generateUniqueCode(CustomerReceiveVoucher::class, 'uid'),
+                    'uid' => $uid,
                     'date' => $validated['date'],
                     'customer_id' => $product['customer_id'],
                     'sale_id' => $product['sale_id'],
@@ -224,7 +239,150 @@ class CustomerReceiveVoucherController extends Controller
         } catch (\Exception $e) {
             abort(404);
         }
-        $customerReceiveVoucher = CustomerReceiveVoucher::with('customer', 'sale', 'debitAccount')->findOrFail($id);
-        return view('customer_receive_voucher.show', compact('customerReceiveVoucher'));
+        $voucher = CustomerReceiveVoucher::with('customer', 'sale', 'debitAccount')->findOrFail($id);
+        $customerReceiveVouchers = CustomerReceiveVoucher::where('uid', $voucher->uid)->get();
+        return view('customer_receive_voucher.show', compact('customerReceiveVouchers', 'voucher'));
+    }
+
+    public function edit($id)
+    {
+        $voucher = CustomerReceiveVoucher::findOrFail(decrypt($id));
+        $customerReceiveVouchers = CustomerReceiveVoucher::with('customer', 'sale', 'debitAccount')->where('uid', $voucher->uid)->get();
+
+        $customers = \App\Models\Customer::where('status', 'active')->get();
+
+        if (\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->outlet_id) {
+            $chartOfAccounts = OutletAccount::where('outlet_id', \auth()->user()->employee->outlet_id)->pluck('coa_id')->toArray();
+            $paymentAccounts = ChartOfAccount::whereIn('id', $chartOfAccounts)->get();
+        }else{
+            $paymentAccounts = ChartOfAccount::where(['is_bank_cash' => 'yes', 'type' => 'ledger', 'status' => 'active'])->get();
+        }
+
+        $uid = $voucher->uid;
+        $date = $voucher->date;
+        $narration = $voucher->narration;
+        return view('customer_receive_voucher.edit', compact('customerReceiveVouchers', 'voucher', 'paymentAccounts', 'uid', 'date', 'narration', 'customers'));
+    }
+
+    public function update(StoreCustomerReceiveVoucherRequest $request, $id)
+    {
+        $validated = $request->validated();
+        \DB::beginTransaction();
+        try {
+            if (!isset($validated['products']) || count($validated['products']) < 1) {
+                \Brian2694\Toastr\Facades\Toastr::info('At Least One Invoice Payment Required.', '', ["progressBar" => true]);
+                return back();
+            }
+
+            $voucher = CustomerReceiveVoucher::findOrFail($id);
+            $uid = $voucher->uid;
+
+            $oldVouchers = CustomerReceiveVoucher::where('uid', $uid)->get();
+            foreach ($oldVouchers as $oldVoucher) {
+                \App\Models\AccountTransaction::where('doc_type', 'CRV')->where('doc_id', $oldVoucher->id)->delete();
+                $sale = \App\Models\Sale::find($oldVoucher->sale_id);
+                if ($sale) {
+                    $sale->receive_amount -= $oldVoucher->amount;
+                    $sale->discount -= $oldVoucher->settle_discount;
+                    $sale->save();
+                    \App\Models\Payment::where('sale_id', $sale->id)->where('amount', $oldVoucher->amount)->where('payment_method', 'Due Collection')->first()?->delete();
+                }
+                $oldVoucher->delete();
+            }
+
+            foreach ($validated['products'] as $product) {
+                $sale = \App\Models\Sale::findOrFail($product['sale_id']);
+                $voucherData = [
+                    'uid' => $uid,
+                    'date' => $validated['date'],
+                    'customer_id' => $product['customer_id'],
+                    'sale_id' => $product['sale_id'],
+                    'debit_account_id' => $product['debit_account_id'],
+                    'credit_account_id' => getAccountsReceiveableGLId(),
+                    'amount' => $product['amount'],
+                    'settle_discount' => $product['settle_discount'] ?? 0,
+                    'narration' => $validated['narration'] ?? 'Due Collection',
+                    'created_by' => auth()->id(),
+                ];
+
+                $newVoucher = CustomerReceiveVoucher::create($voucherData);
+
+                $findSale = Sale::where('customer_id',$product['customer_id'])->find($product['sale_id']);
+                $findSale->update([
+                    'discount' => $findSale->discount + $product['settle_discount']
+                ]);
+
+                addAccountsTransaction('CRV', $newVoucher, $voucherData['debit_account_id'], $voucherData['credit_account_id']);
+
+                $sale->receive_amount += $newVoucher->amount;
+                $sale->save();
+
+                \App\Models\Payment::create([
+                    'sale_id' => $sale->id,
+                    'customer_id' => $sale->customer_id,
+                    'payment_method' => 'Due Collection',
+                    'amount' => $newVoucher->amount,
+                ]);
+            }
+            \DB::commit();
+        } catch (\Exception $error) {
+            \DB::rollBack();
+            \Brian2694\Toastr\Facades\Toastr::info('Something went wrong! ' . $error->getMessage(), '', ["progressBar" => true]);
+            return back();
+        }
+        \Brian2694\Toastr\Facades\Toastr::success('Customer Due Receive Voucher Updated Successfully!.', '', ["progressBar" => true]);
+        return redirect()->route('customer-receive-vouchers.index');
+    }
+
+    public function destroy($id)
+    {
+        \DB::beginTransaction();
+        try {
+            $voucher = CustomerReceiveVoucher::findOrFail(decrypt($id));
+            $oldVouchers = CustomerReceiveVoucher::where('uid', $voucher->uid)->get();
+            foreach ($oldVouchers as $oldVoucher) {
+                \App\Models\AccountTransaction::where('doc_type', 'CRV')->where('doc_id', $oldVoucher->id)->delete();
+                $sale = \App\Models\Sale::find($oldVoucher->sale_id);
+                if ($sale) {
+                    $sale->receive_amount -= $oldVoucher->amount;
+                    $sale->discount -= $oldVoucher->settle_discount;
+                    $sale->save();
+                    \App\Models\Payment::where('sale_id', $sale->id)->where('amount', $oldVoucher->amount)->where('payment_method', 'Due Collection')->first()?->delete();
+                }
+                $oldVoucher->delete();
+            }
+            \DB::commit();
+        } catch (\Exception $error) {
+            \DB::rollBack();
+            \Brian2694\Toastr\Facades\Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
+            return back();
+        }
+        \Brian2694\Toastr\Facades\Toastr::success('Customer Receive Voucher Deleted Successfully!.', '', ["progressBar" => true]);
+        return redirect()->route('customer-receive-vouchers.index');
+    }
+
+    public function Pdf($id)
+    {
+        $voucher = CustomerReceiveVoucher::findOrFail(decrypt($id));
+        $customerReceiveVouchers = CustomerReceiveVoucher::where('uid', $voucher->uid)->get();
+        $data = [
+            'voucher' => $voucher,
+            'customerReceiveVouchers' => $customerReceiveVouchers,
+        ];
+
+        $pdf = \niklasravnsborg\LaravelPdf\Facades\Pdf::loadView(
+            'customer_receive_voucher.pdf',
+            $data,
+            [],
+            [
+                'format' => 'A4-P',
+                'orientation' => 'P',
+                'margin-left' => 1,
+                '', '', 0, '', 1, 1, 1, 1, 1, 1, 'L',
+            ]
+        );
+        $name = \Carbon\Carbon::now()->format('d-m-Y');
+
+        return $pdf->stream($name . '.pdf');
     }
 }

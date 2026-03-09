@@ -69,8 +69,8 @@
 <p style="text-align:center;  font-size: 20px;">Payment Voucher</p>
 <table>
     <tr>
-        <td>No. : <span class="bold">{{ $paymentVoucher->uid }}</span></td>
-        <td class="textRight">Dated : <span class="bold">{{ $paymentVoucher->date }}</span></td>
+        <td>No. : <span class="bold">{{ $voucher->uid }}</span></td>
+        <td class="textRight">Dated : <span class="bold">{{ $voucher->date }}</span></td>
     </tr>
 </table>
 <br><br>
@@ -86,20 +86,20 @@
         <td class="bold">Account:</td>
         <td class="border-left">&nbsp;</td>
     </tr>
+    @php
+        $totalAmount = 0;
+    @endphp
+    @foreach($paymentVouchers as $item)
+    @php
+        $totalAmount += $item->amount;
+    @endphp
     <tr>
-        <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ $paymentVoucher->debitAccount->name }}</td>
-        <td class="textRight border-left">{{commaSeperated($paymentVoucher->amount)}}</td>
+        <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ $item->debitAccount->name }} ({{ $item->cashBankAccount->name }})</td>
+        <td class="textRight border-left">{{commaSeperated($item->amount)}}</td>
     </tr>
+    @endforeach
     <tr>
-        <td class="spacer"></td>
-        <td class="border-left">&nbsp;</td>
-    </tr>
-    <tr>
-        <td class="bold">Through:</td>
-        <td class="border-left">&nbsp;</td>
-    </tr>
-    <tr>
-        <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ $paymentVoucher->cashBankAccount->name }}</td>
+        <td class="spacer" style="height: 50px;"></td>
         <td class="border-left">&nbsp;</td>
     </tr>
     <tr>
@@ -107,7 +107,7 @@
         <td class="border-left">&nbsp;</td>
     </tr>
     <tr>
-        <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ $paymentVoucher->narration }}.</td>
+        <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ $voucher->narration }}.</td>
         <td class="border-left">&nbsp;</td>
     </tr>
     <tr>
@@ -115,8 +115,8 @@
         <td class="border-left">&nbsp;</td>
     </tr>
     <tr>
-        <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Bangladeshi Taka {{ numberToWords($paymentVoucher->amount) }} Only</td>
-        <td class="textRight border-left border-top border-bottom-thick">TK {{ commaSeperated($paymentVoucher->amount) }}</td>
+        <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Bangladeshi Taka {{ numberToWords($totalAmount) }} Only</td>
+        <td class="textRight border-left border-top border-bottom-thick">TK {{ commaSeperated($totalAmount) }}</td>
     </tr>
     </tbody>
 </table>
