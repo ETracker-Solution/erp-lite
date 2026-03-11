@@ -24,26 +24,33 @@ class SupplierPaymentVoucherController extends Controller
     {
         if (request()->ajax()) {
             $journalVouchers = SupplierPaymentVoucher::query()
-                ->with([
-                    'debitAccount:id,name',
-                    'creditAccount:id,name',
-                    'supplier:id,name'
-                ])
                 ->select([
-                    'id',
+                    DB::raw('MAX(id) as id'),
                     'uid',
-                    'date',
-                    'supplier_id',
-                    'debit_account_id',
-                    'credit_account_id',
-                    'amount',
-                    'settle_discount',
-                    'payee_name',
-                    'created_at'
-                ]);
+                    DB::raw('MAX(date) as date'),
+                    DB::raw('SUM(amount) as amount'),
+                    DB::raw('SUM(settle_discount) as settle_discount'),
+                    DB::raw('MAX(payee_name) as payee_name'),
+                    DB::raw('MAX(created_at) as created_at')
+                ])->groupBy('uid');
             $journalVouchers = $this->filter($journalVouchers, request());
             return DataTables::of($journalVouchers->latest())
                 ->addIndexColumn()
+                ->addColumn('debit_account.name', function ($row) {
+                    return \App\Models\SupplierPaymentVoucher::where('uid', $row->uid)
+                        ->join('chart_of_accounts', 'chart_of_accounts.id', '=', 'supplier_payment_vouchers.debit_account_id')
+                        ->pluck('chart_of_accounts.name')->unique()->implode(', ');
+                })
+                ->addColumn('credit_account.name', function ($row) {
+                    return \App\Models\SupplierPaymentVoucher::where('uid', $row->uid)
+                        ->join('chart_of_accounts', 'chart_of_accounts.id', '=', 'supplier_payment_vouchers.credit_account_id')
+                        ->pluck('chart_of_accounts.name')->unique()->implode(', ');
+                })
+                ->addColumn('supplier.name', function ($row) {
+                    return \App\Models\SupplierPaymentVoucher::where('uid', $row->uid)
+                        ->join('suppliers', 'suppliers.id', '=', 'supplier_payment_vouchers.supplier_id')
+                        ->pluck('suppliers.name')->unique()->implode(', ');
+                })
                 ->addColumn('action', fn($row) => view('supplier_payment_voucher.action-button', compact('row')))
                 ->addColumn('created_at', fn($row) => view('common.created_at', compact('row')))
                 ->rawColumns(['action'])
@@ -104,39 +111,11 @@ class SupplierPaymentVoucherController extends Controller
                 return back();
             }
 
+            $uid = generateUniqueCode(SupplierPaymentVoucher::class, 'uid');
             foreach ($validated['products'] as $product) {
                 $product['date'] = $validated['date'];
                 $product['narration'] = $validated['narration'];
-                $product['uid'] = $validated['uid'] ?? ($product['uid'] ?? null); // Use top level or product level, but UID logic in this controller was serial_count + 1. The Request doesn't simplify UID generation.
-                // The previous code used checks on `uid`. Let's stick to generating it or taking from form.
-                // In previous view, UID was auto-incremented in Controller create() but submitted from form.
-                // WE SHOULD GENERATE IT HERE TO BE SAFE for multi mode, but user might want same voucher no?
-                // The prompt says "update ... as like as resources/views/fund_transfer_voucher/create.blade.php".
-                // FTV generates UID in loop: `generateUniqueCode`.
-                // SPV controller original code: `$uid = $serial_count + 1`.
-                // Let's use `generateUniqueCode` if available (it is a global helper presumably).
-                // Or if we want separate UIDs for each transaction row?
-                // Yes, `PaymentVoucher` and `ReceiveVoucher` loops generate unique code per row.
-                // So I will do the same here.
-
-                // Note: The helper generateUniqueCode might not work if SPV model uses 'uid' as integer ID or something?
-                // Request validation said 'uid' => 'required'.
-                // I will assume generateUniqueCode(SupplierPaymentVoucher::class, 'uid') works or fallback to manual.
-                // To be safe, I'll try to use the helper. If not, I'll increment.
-                // Wait, SPV `uid` in `create` was just `$id + 1`.
-                // I will use `generateUniqueCode` to be consistent with other changes I made.
-                // But wait, the table might have it as INT.
-                // Let's check `ReceiveVoucher` `create` -> `generateUniqueCode`.
-                // So I'll use `generateUniqueCode` logic if possible.
-                // If not, I'll rely on the submitted UID or generate new ones.
-
-                // Wait, if I submit multiple items, they can share the SAME Voucher ID (Grouped)?
-                // The other controllers create separate records: `PaymentVoucher::create($product)`.
-                // So they are separate rows in DB.
-                // So they should have unique UIDs if UID is a unique constraint.
-                // Yes, `uid` unique.
-
-                $product['uid'] = generateUniqueCode(SupplierPaymentVoucher::class, 'uid');
+                $product['uid'] = $uid;
                 $product['debit_account_id'] = 22; // Hardcoded Accounts Payable
                 $product['settle_discount'] = $product['settle_discount'] ?? 0;
                 $voucher = SupplierPaymentVoucher::create($product);
@@ -170,24 +149,73 @@ class SupplierPaymentVoucherController extends Controller
      */
     public function show($id)
     {
-        $supplierVoucher = SupplierPaymentVoucher::findOrFail(decrypt($id));
-        return view('supplier_payment_voucher.show', compact('supplierVoucher'));
+        $voucher = SupplierPaymentVoucher::findOrFail(decrypt($id));
+        $supplierVouchers = SupplierPaymentVoucher::where('uid', $voucher->uid)->get();
+        return view('supplier_payment_voucher.show', compact('supplierVouchers', 'voucher'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(SupplierPaymentVoucher $supplierVoucher)
+    public function edit($id)
     {
-        //
+        $voucher = SupplierPaymentVoucher::findOrFail(decrypt($id));
+        $supplierVouchers = SupplierPaymentVoucher::with('supplier', 'creditAccount')->where('uid', $voucher->uid)->get();
+        $supplier_groups = SupplierGroup::where('status','active')->get();
+        $paymentAccounts = ChartOfAccount::where(['is_bank_cash' => 'yes', 'type' => 'ledger', 'status' => 'active'])->get();
+        $uid = $voucher->uid;
+        $date = $voucher->date;
+        $narration = $voucher->narration;
+        return view('supplier_payment_voucher.edit', compact('supplierVouchers', 'voucher', 'supplier_groups', 'paymentAccounts', 'uid', 'date', 'narration'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateSupplierPaymentVoucherRequest $request, SupplierPaymentVoucher $supplierVoucher)
+    public function update(StoreSupplierPaymentVoucherRequest $request, $id)
     {
-        //
+        $validated = $request->validated();
+        DB::beginTransaction();
+        try {
+            if (!isset($validated['products']) || count($validated['products']) < 1) {
+                Toastr::info('At Least One Item Required.', '', ["progressBar" => true]);
+                return back();
+            }
+
+            $voucher = SupplierPaymentVoucher::findOrFail($id);
+            $uid = $voucher->uid;
+
+            $oldVouchers = SupplierPaymentVoucher::where('uid', $uid)->get();
+            foreach ($oldVouchers as $oldVoucher) {
+                AccountTransaction::where('doc_type', 'SPV')->where('doc_id', $oldVoucher->id)->delete();
+                SupplierTransaction::where('doc_type', 'SPV')->where('doc_id', $oldVoucher->id)->delete();
+                $oldVoucher->delete();
+            }
+
+            foreach ($validated['products'] as $product) {
+                $product['date'] = $validated['date'];
+                $product['narration'] = $validated['narration'];
+                $product['uid'] = $uid;
+                $product['debit_account_id'] = 22;
+                $product['settle_discount'] = $product['settle_discount'] ?? 0;
+
+                $newVoucher = SupplierPaymentVoucher::create($product);
+                //Accounts Effect
+                addAccountsTransaction('SPV', $newVoucher, $newVoucher->debit_account_id, $newVoucher->credit_account_id);
+                // Supplier Transaction Effect
+                SupplierTransaction::query()->create([
+                    'supplier_id' => $newVoucher->supplier_id,
+                    'doc_type' => 'SPV',
+                    'doc_id' => $newVoucher->id,
+                    'amount' => $newVoucher->amount,
+                    'date' => $newVoucher->date,
+                    'transaction_type' => -1,
+                    'chart_of_account_id' => $newVoucher->credit_account_id,
+                    'description' => 'Payment For Purchase of Goods',
+                ]);
+            }
+            DB::commit();
+        } catch (\Exception $error) {
+            DB::rollBack();
+            Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
+            return back();
+        }
+        Toastr::success('Supplier Payment Voucher Updated Successfully!.', '', ["progressBar" => true]);
+        return redirect()->route('supplier-vouchers.index');
     }
 
     /**
@@ -197,9 +225,13 @@ class SupplierPaymentVoucherController extends Controller
     {
         DB::beginTransaction();
         try {
-            SupplierPaymentVoucher::findOrFail(decrypt($id))->delete();
-            AccountTransaction::where('doc_type', 'SPV')->where('doc_id', decrypt($id))->delete();
-            SupplierTransaction::where('doc_type', 'SPV')->where('doc_id', decrypt($id))->delete();
+            $voucher = SupplierPaymentVoucher::findOrFail(decrypt($id));
+            $oldVouchers = SupplierPaymentVoucher::where('uid', $voucher->uid)->get();
+            foreach ($oldVouchers as $oldVoucher) {
+                AccountTransaction::where('doc_type', 'SPV')->where('doc_id', $oldVoucher->id)->delete();
+                SupplierTransaction::where('doc_type', 'SPV')->where('doc_id', $oldVoucher->id)->delete();
+                $oldVoucher->delete();
+            }
 
             DB::commit();
         } catch (\Exception $error) {
@@ -212,9 +244,11 @@ class SupplierPaymentVoucherController extends Controller
     }
     public function Pdf($id)
     {
-        $supplierVoucher = SupplierPaymentVoucher::findOrFail(decrypt($id));
+        $voucher = SupplierPaymentVoucher::findOrFail(decrypt($id));
+        $supplierVouchers = SupplierPaymentVoucher::where('uid', $voucher->uid)->get();
         $data = [
-            'supplierVoucher' => $supplierVoucher,
+            'voucher' => $voucher,
+            'supplierVouchers' => $supplierVouchers,
         ];
 
         $pdf = Pdf::loadView(

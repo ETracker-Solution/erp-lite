@@ -376,6 +376,7 @@ Route::middleware(['auth', 'prevent_duplicate_submission'])->group(function () {
 
     Route::get('get-uuid/{store_id}', [\App\Http\Controllers\ApiController::class, 'getUUIDbyStore']);
     //-----Start Customer Receive Voucher---------
+    Route::get('customer-receive-voucher-pdf/{id}', [\App\Http\Controllers\CustomerReceiveVoucherController::class, 'Pdf'])->name('customer-receive-voucher.pdf');
     Route::resource('customer-receive-vouchers', \App\Http\Controllers\CustomerReceiveVoucherController::class);
     Route::get('fetch-due-by-customer-id/{id}', [App\Http\Controllers\ApiController::class, 'fetchCustomerDueById'])->name('customer.due');
     Route::get('fetch-due-invoices-by-customer-id/{id}', [\App\Http\Controllers\CustomerReceiveVoucherController::class, 'fetchDueInvoice']);

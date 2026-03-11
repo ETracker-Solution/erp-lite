@@ -23,35 +23,54 @@
     <table width="100%" style="text-align: center;">
         <thead>
             <tr>
-                <td style="text-align: left; padding-left:35px;"><strong>RV No. </strong><span style="border-bottom:1px solid gray; width:20px;">{{ $receiveVoucher->rv_no }}</span></td>
-                <th style="text-align: left; padding-right:-20px;"><strong>Date : </strong>{{ $receiveVoucher->date }}</th>
-            </tr>
-            <tr>
-                <th style="text-align: left; padding-left:35px;"><strong>Credit Account  :</strong></th>
-                <td style="text-align: left; padding-right:-20px;">{{ $receiveVoucher->creditAccount->name }}</td>
-            </tr>
-            <tr>
-                <th style="text-align: left; padding-left:35px;"><strong>Debit Account  :</strong></th>
-                <td style="text-align: left; padding-right:-20px;">{{ $receiveVoucher->debitAccount->name }}</td>
-            </tr>
-            <tr>
-                <th style="text-align: left; padding-left:35px;"><strong>Amount :</strong></th>
-                <td style="text-align: left; padding-right:-20px;">{{ $receiveVoucher->amount }}</td>
-            </tr>
-            <tr>
-                <th style="text-align: left; padding-left:35px;"><strong>Settle Discount :</strong></th>
-                <td style="text-align: left; padding-right:-20px;">{{ $receiveVoucher->settle_discount }}</td>
+                <td style="text-align: left; padding-left:35px;"><strong>CRV No. </strong><span style="border-bottom:1px solid gray; width:20px;">{{ $voucher->uid }}</span></td>
+                <th style="text-align: left; padding-right:-20px;"><strong>Date : </strong>{{ $voucher->date }}</th>
             </tr>
             <tr>
                 <th style="text-align: left; padding-left:35px;"><strong>Description :</strong></th>
-                <td style="text-align: left; padding-right:-20px;">{{ $receiveVoucher->narration }}</td>
+                <td style="text-align: left; padding-right:-20px;">{{ $voucher->narration }}</td>
             </tr>
-            <tr>
-                <th style="text-align: left; padding-left:35px;"><strong>Referance :</strong></th>
-                <td style="text-align: left; padding-right:-20px;">{{ $receiveVoucher->reference_no }}</td>
-            </tr>
-
         </thead>
+    </table>
+    <br>
+    <table width="100%" border="1" cellpadding="5" cellspacing="0" style="text-align: center; border-collapse: collapse;">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Receive Mode</th>
+                <th>Customer</th>
+                <th>Invoice No</th>
+                <th>Amount</th>
+                <th>Settle Discount</th>
+            </tr>
+        </thead>
+        <tbody>
+            @php
+                $totalAmount = 0;
+                $totalDiscount = 0;
+            @endphp
+            @foreach($customerReceiveVouchers as $index => $item)
+            @php
+                $totalAmount += $item->amount;
+                $totalDiscount += $item->settle_discount;
+            @endphp
+            <tr>
+                <td>{{ $index + 1 }}</td>
+                <td>{{ $item->debitAccount->name ?? '' }}</td>
+                <td>{{ $item->customer->name ?? '' }}</td>
+                <td>{{ $item->sale ? $item->sale->invoice_number : 'N/A' }}</td>
+                <td>{{ number_format($item->amount, 2) }}</td>
+                <td>{{ number_format($item->settle_discount, 2) }}</td>
+            </tr>
+            @endforeach
+        </tbody>
+        <tfoot>
+            <tr>
+                <th colspan="4" style="text-align: right;">Total:</th>
+                <th>{{ number_format($totalAmount, 2) }}</th>
+                <th>{{ number_format($totalDiscount, 2) }}</th>
+            </tr>
+        </tfoot>
     </table>
     <table width="100%" style="margin: 100px;">
         <tbody>

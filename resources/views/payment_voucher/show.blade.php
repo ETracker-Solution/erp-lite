@@ -27,7 +27,7 @@
                                         &nbsp;See List
                                     </button>
                                 </a>
-                                <a href="{{ route('payment-voucher.pdf', encrypt($paymentVoucher->id)) }}" class="btn btn-sm btn-primary" target="_blank"><i class="fa fa-download"></i> PDF</a>
+                                <a href="{{ route('payment-voucher.pdf', encrypt($voucher->id)) }}" class="btn btn-sm btn-primary" target="_blank"><i class="fa fa-download"></i> PDF</a>
                             </div>
                         </div>
                         <div class="card-body">
@@ -35,34 +35,48 @@
                                 <thead>
                                     <tr>
                                         <th><strong>Date :</strong></th>
-                                        <td>{{ $paymentVoucher->date }}</td>
-                                    </tr>
-                                    <tr>
+                                        <td>{{ $voucher->date }}</td>
                                         <th><strong>PV No :</strong></th>
-                                        <td>{{ $paymentVoucher->uid }}</td>
-                                    </tr>
-                                    <tr>
-                                        <th><strong>Debit Account  :</strong></th>
-                                        <td>{{ $paymentVoucher->debitAccount->name }}</td>
-                                    </tr>
-                                    <tr>
-                                        <th><strong>Payment Account  :</strong></th>
-                                        <td>{{ $paymentVoucher->cashBankAccount->name }}</td>
-                                    </tr>
-                                    <tr>
-                                        <th><strong>Amount :</strong></th>
-                                        <td>{{ $paymentVoucher->amount }}</td>
+                                        <td>{{ $voucher->uid }}</td>
                                     </tr>
                                     <tr>
                                         <th><strong>Description :</strong></th>
-                                        <td>{{ $paymentVoucher->narration }}</td>
+                                        <td colspan="3">{{ $voucher->narration }}</td>
                                     </tr>
-                                    <tr>
-                                        <th><strong>Referance :</strong></th>
-                                        <td>{{ $paymentVoucher->reference_no }}</td>
-                                    </tr>
-                                    
                                 </thead>
+                            </table>
+                            <h5 class="mt-4">Payment Information</h5>
+                            <table class="table table-bordered mt-3">
+                                <thead class="bg-secondary">
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Payment Account</th>
+                                        <th>Expense Head</th>
+                                        <th>Payee Name</th>
+                                        <th>Reference No</th>
+                                        <th>Amount</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @php $total = 0; @endphp
+                                    @foreach($paymentVouchers as $index => $item)
+                                    @php $total += $item->amount; @endphp
+                                    <tr>
+                                        <td>{{ $index + 1 }}</td>
+                                        <td>{{ $item->cashBankAccount->name ?? '' }}</td>
+                                        <td>{{ $item->debitAccount->name ?? '' }}</td>
+                                        <td>{{ $item->payee_name }}</td>
+                                        <td>{{ $item->reference_no }}</td>
+                                        <td>{{ number_format($item->amount, 2) }}</td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <th colspan="5" class="text-right">Total:</th>
+                                        <th>{{ number_format($total, 2) }}</th>
+                                    </tr>
+                                </tfoot>
                             </table>
                         </div>
                         {{-- adjust modal --}}     

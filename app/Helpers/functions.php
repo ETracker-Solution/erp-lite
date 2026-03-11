@@ -837,6 +837,10 @@ function getShortName($model){
             return 'JV:';
         case \App\Models\Purchase::class:
             return 'GPB:';
+        case \App\Models\SupplierPaymentVoucher::class:
+            return 'SPV:';
+        case \App\Models\CustomerReceiveVoucher::class:
+            return 'CRV:';
         default:
             return 'DD:';
     }

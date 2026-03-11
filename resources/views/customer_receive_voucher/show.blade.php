@@ -28,55 +28,62 @@
                                         &nbsp;See List
                                     </button>
                                 </a>
-                                {{-- PDF Button if needed later --}}
-                                {{-- <a href="{{ route('customer-receive-vouchers.pdf', encrypt($customerReceiveVoucher->id)) }}" class="btn btn-sm btn-primary" target="_blank"><i class="fa fa-download"></i> PDF</a> --}}
+                                <a href="{{ route('customer-receive-voucher.pdf', encrypt($voucher->id)) }}" class="btn btn-sm btn-primary" target="_blank"><i class="fa fa-download"></i> PDF</a>
                             </div>
                         </div>
-                        <div class="card-body">
                             <table class="table table-bordered">
                                 <thead>
                                     <tr>
                                         <th><strong>Date :</strong></th>
-                                        <td>{{ $customerReceiveVoucher->date }}</td>
-                                    </tr>
-                                    <tr>
+                                        <td>{{ $voucher->date }}</td>
                                         <th><strong>CRV No :</strong></th>
-                                        <td>{{ $customerReceiveVoucher->uid }}</td>
+                                        <td>{{ $voucher->uid }}</td>
                                     </tr>
                                     <tr>
-                                        <th><strong>Customer :</strong></th>
-                                        <td>{{ $customerReceiveVoucher->customer->name }} ({{ $customerReceiveVoucher->customer->mobile }})</td>
+                                        <th><strong>Description :</strong></th>
+                                        <td colspan="3">{{ $voucher->narration }}</td>
                                     </tr>
-                                    <tr>
-                                        <th><strong>Invoice No :</strong></th>
-                                        <td>{{ $customerReceiveVoucher->sale ? $customerReceiveVoucher->sale->invoice_number : 'N/A' }}</td>
-                                    </tr>
-                                    <tr>
-                                        <th><strong>Received To (Debit Account) :</strong></th>
-                                        <td>{{ $customerReceiveVoucher->debitAccount->name }}</td>
-                                    </tr>
-                                    <tr>
-                                        <th><strong>Amount :</strong></th>
-                                        <td>{{ $customerReceiveVoucher->amount }}</td>
-                                    </tr>
-                                    <tr>
-                                        <th><strong>Settle Discount :</strong></th>
-                                        <td>{{ $customerReceiveVoucher->settle_discount }}</td>
-                                    </tr>
-                                    <tr>
-                                        <th><strong>Narration :</strong></th>
-                                        <td>{{ $customerReceiveVoucher->narration }}</td>
-                                    </tr>
-                                    <tr>
-                                        <th><strong>Reference No :</strong></th>
-                                        <td>{{ $customerReceiveVoucher->reference_no }}</td>
-                                    </tr>
-                                    <tr>
-                                        <th><strong>Created By :</strong></th>
-                                        <td>{{ \App\Models\User::find($customerReceiveVoucher->created_by)->name ?? 'N/A' }}</td>
-                                    </tr>
-
                                 </thead>
+                            </table>
+                            <h5 class="mt-4">Receive Information</h5>
+                            <table class="table table-bordered mt-3">
+                                <thead class="bg-secondary">
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Receive Mode</th>
+                                        <th>Customer</th>
+                                        <th>Invoice No</th>
+                                        <th>Amount</th>
+                                        <th>Settle Discount</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @php
+                                        $total = 0;
+                                        $totalDiscount = 0;
+                                    @endphp
+                                    @foreach($customerReceiveVouchers as $index => $item)
+                                    @php
+                                        $total += $item->amount;
+                                        $totalDiscount += $item->settle_discount;
+                                    @endphp
+                                    <tr>
+                                        <td>{{ $index + 1 }}</td>
+                                        <td>{{ $item->debitAccount->name ?? '' }}</td>
+                                        <td>{{ $item->customer->name ?? '' }}</td>
+                                        <td>{{ $item->sale ? $item->sale->invoice_number : 'N/A' }}</td>
+                                        <td>{{ number_format($item->amount, 2) }}</td>
+                                        <td>{{ number_format($item->settle_discount, 2) }}</td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <th colspan="4" class="text-right">Total:</th>
+                                        <th>{{ number_format($total, 2) }}</th>
+                                        <th>{{ number_format($totalDiscount, 2) }}</th>
+                                    </tr>
+                                </tfoot>
                             </table>
                         </div>
                     </div>

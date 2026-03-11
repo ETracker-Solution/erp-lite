@@ -65,43 +65,57 @@
     <table width="100%" style="text-align: center;">
         <thead>
             <tr>
-                <td style="text-align: left; padding-left:35px;"><strong>SPV No. </strong><span style="border-bottom:1px solid gray; width:20px;">{{ $supplierVoucher->uid }}</span></td>
-                <th style="text-align: left; padding-right:-20px;"><strong>Date : </strong>{{ $supplierVoucher->date }}</th>
-            </tr>
-            <tr>
-                <th style="text-align: left; padding-left:35px;"><strong>Supplier :</strong></th>
-                <td style="text-align: left; padding-right:-20px;">{{ $supplierVoucher->supplier->name }}</td>
-            </tr>
-            <tr>
-                <th style="text-align: left; padding-left:35px;"><strong>Credit Account  :</strong></th>
-                <td style="text-align: left; padding-right:-20px;">{{ $supplierVoucher->creditAccount->name }}</td>
-            </tr>
-            <tr>
-                <th style="text-align: left; padding-left:35px;"><strong>Debit Account  :</strong></th>
-                <td style="text-align: left; padding-right:-20px;">{{ $supplierVoucher->debitAccount->name }}</td>
-            </tr>
-            <tr>
-                <th style="text-align: left; padding-left:35px;"><strong>Amount :</strong></th>
-                <td style="text-align: left; padding-right:-20px;">{{ $supplierVoucher->amount }}</td>
-            </tr>
-            <tr>
-                <th style="text-align: left; padding-left:35px;"><strong>Settle Discount :</strong></th>
-                <td style="text-align: left; padding-right:-20px;">{{ $supplierVoucher->settle_discount }}</td>
-            </tr>
-            <tr>
-                <th style="text-align: left; padding-left:35px;"><strong>Receiver Name :</strong></th>
-                <td style="text-align: left; padding-right:-20px;">{{ $supplierVoucher->payee_name }}</td>
+                <td style="text-align: left; padding-left:35px;"><strong>SPV No. </strong><span style="border-bottom:1px solid gray; width:20px;">{{ $voucher->uid }}</span></td>
+                <th style="text-align: left; padding-right:-20px;"><strong>Date : </strong>{{ $voucher->date }}</th>
             </tr>
             <tr>
                 <th style="text-align: left; padding-left:35px;"><strong>Description :</strong></th>
-                <td style="text-align: left; padding-right:-20px;">{{ $supplierVoucher->narration }}</td>
+                <td style="text-align: left; padding-right:-20px;">{{ $voucher->narration }}</td>
             </tr>
-            <tr>
-                <th style="text-align: left; padding-left:35px;"><strong>Referance :</strong></th>
-                <td style="text-align: left; padding-right:-20px;">{{ $supplierVoucher->reference_no }}</td>
-            </tr>
-
         </thead>
+    </table>
+    <br>
+    <table width="100%" border="1" cellpadding="5" cellspacing="0" style="text-align: center; border-collapse: collapse;">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Payment Mode</th>
+                <th>Supplier</th>
+                <th>Amount</th>
+                <th>Settle Discount</th>
+                <th>Receiver Name</th>
+                <th>Reference No</th>
+            </tr>
+        </thead>
+        <tbody>
+            @php
+                $totalAmount = 0;
+                $totalDiscount = 0;
+            @endphp
+            @foreach($supplierVouchers as $index => $item)
+            @php
+                $totalAmount += $item->amount;
+                $totalDiscount += $item->settle_discount;
+            @endphp
+            <tr>
+                <td>{{ $index + 1 }}</td>
+                <td>{{ $item->creditAccount->name ?? '' }}</td>
+                <td>{{ $item->supplier->name ?? '' }}</td>
+                <td>{{ $item->amount }}</td>
+                <td>{{ $item->settle_discount }}</td>
+                <td>{{ $item->payee_name }}</td>
+                <td>{{ $item->reference_no }}</td>
+            </tr>
+            @endforeach
+        </tbody>
+        <tfoot>
+            <tr>
+                <th colspan="3" style="text-align: right;">Total:</th>
+                <th>{{ $totalAmount }}</th>
+                <th>{{ $totalDiscount }}</th>
+                <th colspan="2"></th>
+            </tr>
+        </tfoot>
     </table>
     <htmlpagefooter name="page-footer">
 
