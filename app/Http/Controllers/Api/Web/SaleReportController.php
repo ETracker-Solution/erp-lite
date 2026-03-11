@@ -71,7 +71,9 @@ class SaleReportController extends Controller
             $item = Customer::find(\request()->customer_id);
             $page_title = 'Customer Name :: ' . $item->name;
             $query = $this->getSingleCustomerDetails($item->id, $from_date, $to_date);
-        }elseif ($report_type == 'All Outlet Sale Amount Report') {
+        } elseif ($report_type == 'Only Account Wise Sales Report') {
+            $query = $this->getPaymentMethodWiseSalesReport($from_date, $to_date);
+        } elseif ($report_type == 'Sale Amount Report') {
             $query = $this->getAllOutletAccountSaleReport($from_date, $to_date);
         } elseif ($report_type == 'Outlet Wise Due') {
 
@@ -578,11 +580,35 @@ AND SS.date <= '$to_date'
     ";
     }
 
+    public function getPaymentMethodWiseSalesReport($from_date, $to_date)
+    {
+        $outlet_id = auth()->user()->employee && auth()->user()->employee->outlet_id ? auth()->user()->employee->outlet_id : null;
+        $outlet_filter = "";
+        if (!auth()->user()->is_super && !(auth()->user()->employee && auth()->user()->employee->user_of == 'ho')) {
+            if ($outlet_id) {
+                $outlet_filter = " AND sales.outlet_id = '$outlet_id' ";
+            }
+        }
 
+        return "
+            SELECT
+                payment_method as Account,
+                SUM(amount) as 'Total Amount'
+            FROM payments
+            JOIN sales ON sales.id = payments.sale_id
+            WHERE sales.date >= '$from_date' AND sales.date <= '$to_date'
+            $outlet_filter
+            GROUP BY payment_method
 
+            UNION ALL
 
-
-
-
-
+            SELECT
+                'Total' as Account,
+                SUM(amount) as 'Total Amount'
+            FROM payments
+            JOIN sales ON sales.id = payments.sale_id
+            WHERE sales.date >= '$from_date' AND sales.date <= '$to_date'
+            $outlet_filter
+        ";
+    }
 }

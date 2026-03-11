@@ -169,9 +169,17 @@
                                             Show All Outlet Discount
                                         </button>
                                         <button class="btn btn-sm btn-dark w-50 mb-2"
-                                                @click="showReport('All Outlet Sale Amount Report')">
-                                            Show All Outlet Sale Amount Report
+                                                @click="showReport('Sale Amount Report')">
+                                            Sale Amount Report
                                         </button>
+                                        <button class="btn btn-sm btn-dark w-50 mb-2"
+                                                @click="showReport('Only Account Wise Sales Report')">
+                                            Only Account Wise Sales Report
+                                        </button>
+{{--                                        <button class="btn btn-sm btn-dark w-50 mb-2"--}}
+{{--                                                @click="showReport('Only Payment Method Wise Sales Report')">--}}
+{{--                                            Only Payment Method Wise Sales Report--}}
+{{--                                        </button>--}}
                                         {{-- End Due and Discount Report --}}
                                         @endif
                                     </div>
