@@ -120,6 +120,12 @@
                                                 @click="showReport('Item Wise Sales Summary')">Show Item Wise Sales
                                             Summary
                                         </button>
+
+                                        <button class="btn btn-sm btn-dark w-50 mb-2"
+                                                @click="showReport('Product Group Wise Sales Report')">
+                                            Product Group Wise Sales Report
+                                        </button>
+
                                         @if(auth()->user()->is_super)
                                             <button class="btn btn-sm btn-dark w-50 mb-2"
                                                     @click="showReport('Outlet Wise Sales Summary')">
@@ -176,6 +182,7 @@
                                                 @click="showReport('Only Account Wise Sales Report')">
                                             Only Account Wise Sales Report
                                         </button>
+
 {{--                                        <button class="btn btn-sm btn-dark w-50 mb-2"--}}
 {{--                                                @click="showReport('Only Payment Method Wise Sales Report')">--}}
 {{--                                            Only Payment Method Wise Sales Report--}}
@@ -302,6 +309,7 @@
                                 item_id: vm.item_id,
                                 customer_id: vm.customer_id,
                                 store_id: vm.store_id,
+                                group_id: vm.group_id,
                             },
                             responseType: 'blob',
                         }).then(function (response) {

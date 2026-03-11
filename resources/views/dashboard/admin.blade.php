@@ -64,7 +64,7 @@
                 </div>
             </div>
 
-    
+
             <div class="col-xl-12 col-md-12 col-12">
                 <div class="card card-statistics">
                     <div class="card-header bg-info">
@@ -87,7 +87,7 @@
                     </div>
                 </div>
             </div>
-    
+
 
             <div class="col-xl-12 col-md-12 col-12">
                 <div class="card card-statistics">
@@ -121,30 +121,7 @@
             </div>
             <!--/ Statistics Card -->
         </div>
-        <div class="row match-height">
-            <div class="col-xl-12 col-md-12 col-12">
-                <div class="card card-statistics">
-                    <div class="card-header bg-info">
-                        <h4 class="card-title">Today's Sales Breakdown by Outlet</h4>
-                    </div>
-                    <div class="card-body statistics-body">
-                        <div class="row">
-                            @foreach($todaySalesByOutlet as $row)
-                                <div class="col-xl-3 col-sm-6 col-12 mb-2">
-                                    <x-card-statistics title="{{ $row->name }}" value="{{ number_format($row->total_sales, 2) }} BDT" icon="shopping-bag"
-                                                       colorClass="bg-light-success"/>
-                                </div>
-                            @endforeach
-                            @if($todaySalesByOutlet->isEmpty())
-                                <div class="col-12 text-center">
-                                    <p class="text-muted">No sales found for today.</p>
-                                </div>
-                            @endif
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+
         <div class="row match-height">
             <!-- Revenue Report Card -->
             <div class="col-lg-12 col-12">

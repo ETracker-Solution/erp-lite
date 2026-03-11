@@ -73,6 +73,9 @@ class SaleReportController extends Controller
             $query = $this->getSingleCustomerDetails($item->id, $from_date, $to_date);
         } elseif ($report_type == 'Only Account Wise Sales Report') {
             $query = $this->getPaymentMethodWiseSalesReport($from_date, $to_date);
+        } elseif ($report_type == 'Product Group Wise Sales Report') {
+            $page_title = "";
+            $query = $this->getProductGroupWiseSalesReport($from_date, $to_date);
         } elseif ($report_type == 'Sale Amount Report') {
             $query = $this->getAllOutletAccountSaleReport($from_date, $to_date);
         } elseif ($report_type == 'Outlet Wise Due') {
@@ -294,20 +297,22 @@ class SaleReportController extends Controller
         if (auth()->user()->is_super || (auth()->user()->employee && auth()->user()->employee->user_of == 'ho')) {
             return "
 (
-select COI.name as 'Item', SUM(SI.quantity) as 'Quantity', SUM(SI.quantity * SI.unit_price) as 'Sales Amount'
+select PG.name as 'Group Name', COI.name as 'Item', SUM(SI.quantity) as 'Quantity', SUM(SI.quantity * SI.unit_price) as 'Sales Amount'
 from sales SS
 join sale_items SI
 on SI.sale_id = SS.id
 join chart_of_inventories COI
 on COI.id = SI.product_id
+join chart_of_inventories PG
+on PG.id = COI.parent_id
 WHERE SS.date >= '$from_date'
 AND SS.date <= '$to_date'
 group by COI.id
-order by COI.parent_id, COI.id
+order by PG.id, COI.id
 )
 union all
 (
- SELECT 'Total' AS 'Item',
+ SELECT '' as 'Group Name', 'Total' AS 'Item',
     SUM(SI.quantity) AS 'Quantity',
     SUM(SI.quantity * SI.unit_price) AS 'Sales Amount'
     FROM sales SS
@@ -316,42 +321,46 @@ on SI.sale_id = SS.id
     WHERE SS.date >= '$from_date'
     AND SS.date <= '$to_date'
 
-)";
+)
+";
 
         } else {
             return "
             (
-select COI.name as 'Item', SUM(SI.quantity) as 'Quantity', SUM(SI.quantity * SI.unit_price) as 'Sales Amount'
+select PG.name as 'Group Name', COI.name as 'Item', SUM(SI.quantity) as 'Quantity', SUM(SI.quantity * SI.unit_price) as 'Sales Amount'
 from sales SS
 join sale_items SI
 on SI.sale_id = SS.id
 join chart_of_inventories COI
 on COI.id = SI.product_id
+join chart_of_inventories PG
+on PG.id = COI.parent_id
 WHERE SS.date >= '$from_date'
 AND SS.date <= '$to_date'
 AND SS.outlet_id = '$outlet_id'
 group by COI.id
-order by COI.parent_id, COI.id
+order by PG.id, COI.id
 )
 union all
 (
- SELECT 'Total' AS 'Item',
+ SELECT '' as 'Group Name', 'Total' AS 'Item',
     SUM(SI.quantity) AS 'Quantity',
     SUM(SI.quantity * SI.unit_price) AS 'Sales Amount'
     FROM sales SS
-    JOIN sale_items SI ON SI.sale_id = SS.id
+    JOIN sale_items SI ON SI.sale_id = SS.id
     WHERE SS.date >= '$from_date'
     AND SS.date <= '$to_date'
     AND SS.outlet_id = '$outlet_id'
 
-)";
+)
+";
         }
     }
 
     public function getOutletWiseSalesReport($from_date, $to_date)
     {
         $query = "
-select OT.name as 'Outlet', COI.name as 'Item Name', sum(SI.quantity) as 'Quantity', sum(SI.quantity * SI.unit_price) as 'Sale Value'
+select OT.name as 'Outlet', PG.name as 'Group Name', COI.name as 'Item Name', sum(SI.quantity) as 'Quantity', sum(SI.quantity * SI.unit_price) as 'Sale Value'
 from sales SS
 join outlets OT
 on OT.id = SS.outlet_id
@@ -359,6 +368,8 @@ join sale_items SI
 on SI.sale_id = SS.id
 join chart_of_inventories as COI
 on SI.product_id = COI.id
+join chart_of_inventories as PG
+on PG.id = COI.parent_id
 join account_transactions ATT
 on ATT.doc_id = SS.id
 where ATT.doc_type='POS'
@@ -382,7 +393,7 @@ AND SS.date <= '$to_date'
         $outlet_id = auth()->user()->employee && auth()->user()->employee->outlet_id ? auth()->user()->employee->outlet_id : null;
         if (auth()->user()->is_super || (auth()->user()->employee && auth()->user()->employee->user_of == 'ho')) {
             return "
-select SS.invoice_number as 'Invoice Number', SS.date as 'Date', CU.name as 'Customer Name', COI.name as 'Item Name', SI.quantity as 'Quantity', SI.unit_price  as 'Rate', (SI.quantity * SI.unit_price)  as 'Value'
+select SS.invoice_number as 'Invoice Number', SS.date as 'Date', CU.name as 'Customer Name', PG.name as 'Group Name', COI.name as 'Item Name', SI.quantity as 'Quantity', SI.unit_price  as 'Rate', (SI.quantity * SI.unit_price)  as 'Value'
 from sales SS
 join customers CU
 on CU.id = SS.customer_id
@@ -390,12 +401,14 @@ join sale_items as SI
 on SI.sale_id = SS.id
 join chart_of_inventories as COI
 on COI.id = SI.product_id
+join chart_of_inventories as PG
+on PG.id = COI.parent_id
 WHERE SS.date >= '$from_date'
 AND SS.date <= '$to_date'
         ";
         } else {
             return "
-select SS.invoice_number as 'Invoice Number', SS.date as 'Date', CU.name as 'Customer Name', COI.name as 'Item Name', SI.quantity as 'Quantity', SI.unit_price  as 'Rate', (SI.quantity * SI.unit_price)  as 'Value'
+select SS.invoice_number as 'Invoice Number', SS.date as 'Date', CU.name as 'Customer Name', PG.name as 'Group Name', COI.name as 'Item Name', SI.quantity as 'Quantity', SI.unit_price  as 'Rate', (SI.quantity * SI.unit_price)  as 'Value'
 from sales SS
 join customers CU
 on CU.id = SS.customer_id
@@ -403,6 +416,8 @@ join sale_items as SI
 on SI.sale_id = SS.id
 join chart_of_inventories as COI
 on COI.id = SI.product_id
+join chart_of_inventories as PG
+on PG.id = COI.parent_id
 WHERE SS.date >= '$from_date'
 AND SS.date <= '$to_date'
 AND SS.outlet_id = '$outlet_id'
@@ -489,7 +504,7 @@ AND SS.date <= '$to_date'
         ";
         } else {
             return "
-        select SS.invoice_number as 'Invoice Number', SS.date as 'Date', COI.name as 'Item Name', SI.quantity as 'Quantity', SI.unit_price as 'Rate', (SI.quantity * SI.unit_price) as 'Sales Value', OT.name as 'Outlet'
+        select SS.invoice_number as 'Invoice Number', SS.date as 'Date', PG.name as 'Group Name', COI.name as 'Item Name', SI.quantity as 'Quantity', SI.unit_price as 'Rate', (SI.quantity * SI.unit_price) as 'Sales Value', OT.name as 'Outlet'
 from sales SS
 join sale_items as SI
 on SI.sale_id = SS.id
@@ -499,6 +514,8 @@ join outlets as OT
 on OT.id = SS.outlet_id
 join chart_of_inventories as COI
 on COI.id = SI.product_id
+join chart_of_inventories as PG
+on PG.id = COI.parent_id
 WHERE SS.customer_id= $customer_id
         AND SS.date >= '$from_date'
 AND SS.date <= '$to_date'
@@ -609,6 +626,90 @@ AND SS.date <= '$to_date'
             JOIN sales ON sales.id = payments.sale_id
             WHERE sales.date >= '$from_date' AND sales.date <= '$to_date'
             $outlet_filter
+        ";
+    }
+
+    public function getProductGroupWiseSalesReport($from_date, $to_date)
+    {
+        $outlet_filter = "";
+
+        if (auth()->user()->is_super || (auth()->user()->employee && auth()->user()->employee->user_of == 'ho')) {
+            if (\request()->filled('store_id')) {
+                $store_id = \request()->store_id;
+                $outlet_filter = " AND SS.outlet_id = '$store_id' ";
+            }
+        } else {
+            $outlet_id = auth()->user()->employee && auth()->user()->employee->outlet_id ? auth()->user()->employee->outlet_id : null;
+            if ($outlet_id) {
+                $outlet_filter = " AND SS.outlet_id = '$outlet_id' ";
+            }
+        }
+
+        $group_filter = "";
+        if (\request()->filled('group_id')) {
+            $group_id = \request()->group_id;
+            $group_filter = " AND PG.id = '$group_id' ";
+        }
+
+        return "
+            SELECT `Group Name`, `Item Name`, `Quantity`, `Total Amount` FROM (
+                (
+                    SELECT
+                        PG.name as 'Group Name',
+                        '' as 'Item Name',
+                        NULL as 'Quantity',
+                        NULL as 'Total Amount',
+                        PG.id as sort_pg,
+                        1 as sort_type,
+                        0 as sort_total
+                    FROM sales SS
+                    JOIN sale_items SI ON SI.sale_id = SS.id
+                    JOIN chart_of_inventories COI ON COI.id = SI.product_id
+                    JOIN chart_of_inventories PG ON PG.id = COI.parent_id
+                    WHERE SS.date >= '$from_date' AND SS.date <= '$to_date'
+                    $outlet_filter
+                    $group_filter
+                    GROUP BY PG.id
+                )
+                UNION ALL
+                (
+                    SELECT
+                        '' as 'Group Name',
+                        COI.name as 'Item Name',
+                        SUM(SI.quantity) as 'Quantity',
+                        SUM(SI.quantity * SI.unit_price) as 'Total Amount',
+                        PG.id as sort_pg,
+                        0 as sort_type,
+                        0 as sort_total
+                    FROM sales SS
+                    JOIN sale_items SI ON SI.sale_id = SS.id
+                    JOIN chart_of_inventories COI ON COI.id = SI.product_id
+                    JOIN chart_of_inventories PG ON PG.id = COI.parent_id
+                    WHERE SS.date >= '$from_date' AND SS.date <= '$to_date'
+                    $outlet_filter
+                    $group_filter
+                    GROUP BY COI.id
+                )
+                UNION ALL
+                (
+                    SELECT
+                        'Total' as 'Group Name',
+                        '' as 'Item Name',
+                        SUM(SI.quantity) as 'Quantity',
+                        SUM(SI.quantity * SI.unit_price) as 'Total Amount',
+                        0 as sort_pg,
+                        0 as sort_type,
+                        1 as sort_total
+                    FROM sales SS
+                    JOIN sale_items SI ON SI.sale_id = SS.id
+                    JOIN chart_of_inventories COI ON COI.id = SI.product_id
+                    JOIN chart_of_inventories PG ON PG.id = COI.parent_id
+                    WHERE SS.date >= '$from_date' AND SS.date <= '$to_date'
+                    $outlet_filter
+                    $group_filter
+                )
+            ) as report_data
+            ORDER BY sort_total, sort_pg, sort_type DESC
         ";
     }
 }
