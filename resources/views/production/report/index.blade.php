@@ -44,24 +44,54 @@
                             <div class="row mt-5">
                                 <div class="col-md-6 form-group">
                                     <div class="row">
-                                        <div class="col-md-12 form-group">
-                                            <a href="#" class="btn btn-primary report-btn" data-type="all"><i class="fa fa-file-pdf"></i> All Production Consumption</a>
+                                        <div class="col-md-12 form-group border-bottom pb-2">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <span>All Production Consumption</span>
+                                                <div>
+                                                    <a href="#" class="btn btn-sm btn-primary report-btn" data-type="all" data-export="pdf"><i class="fa fa-file-pdf"></i> PDF</a>
+                                                    <a href="#" class="btn btn-sm btn-success report-btn" data-type="all" data-export="excel"><i class="fa fa-file-excel"></i> Excel</a>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div class="col-md-12 form-group">
-                                            <a href="#" class="btn btn-primary report-btn"  data-type="preorder"><i class="fa fa-file-pdf"></i> Pre-Order wise Consumption</a>
+                                        <div class="col-md-12 form-group border-bottom pb-2">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <span>Pre-Order wise Consumption</span>
+                                                <div>
+                                                    <a href="#" class="btn btn-sm btn-primary report-btn" data-type="preorder" data-export="pdf"><i class="fa fa-file-pdf"></i> PDF</a>
+                                                    <a href="#" class="btn btn-sm btn-success report-btn" data-type="preorder" data-export="excel"><i class="fa fa-file-excel"></i> Excel</a>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div class="col-md-12 form-group">
-                                            <a href="#" class="btn btn-primary report-btn" data-type="without_preorder"><i class="fa fa-file-pdf"></i> Without Pre-Order wise Consumption</a>
+                                        <div class="col-md-12 form-group border-bottom pb-2">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <span>Without Pre-Order wise Consumption</span>
+                                                <div>
+                                                    <a href="#" class="btn btn-sm btn-primary report-btn" data-type="without_preorder" data-export="pdf"><i class="fa fa-file-pdf"></i> PDF</a>
+                                                    <a href="#" class="btn btn-sm btn-success report-btn" data-type="without_preorder" data-export="excel"><i class="fa fa-file-excel"></i> Excel</a>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="col-md-6 form-group">
                                     <div class="row">
-                                        <div class="col-md-12 form-group">
-                                            <a href="#" class="btn btn-primary report-btn" data-type="total_production"><i class="fa fa-file-pdf"></i> Total Production</a>
+                                        <div class="col-md-12 form-group border-bottom pb-2">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <span>Total Production</span>
+                                                <div>
+                                                    <a href="#" class="btn btn-sm btn-primary report-btn" data-type="total_production" data-export="pdf"><i class="fa fa-file-pdf"></i> PDF</a>
+                                                    <a href="#" class="btn btn-sm btn-success report-btn" data-type="total_production" data-export="excel"><i class="fa fa-file-excel"></i> Excel</a>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div class="col-md-12 form-group">
-                                            <a href="#" class="btn btn-primary report-btn"  data-type="total_consumption"><i class="fa fa-file-pdf"></i> Total Consumption</a>
+                                        <div class="col-md-12 form-group border-bottom pb-2">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <span>Total Consumption</span>
+                                                <div>
+                                                    <a href="#" class="btn btn-sm btn-primary report-btn" data-type="total_consumption" data-export="pdf"><i class="fa fa-file-pdf"></i> PDF</a>
+                                                    <a href="#" class="btn btn-sm btn-success report-btn" data-type="total_consumption" data-export="excel"><i class="fa fa-file-excel"></i> Excel</a>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -106,6 +136,7 @@
                 let dateRange = document.getElementById('fp-range').value;
                 let storeId   = document.getElementById('store_id').value;
                 let type      = this.dataset.type;
+                let exportType = this.dataset.export;
 
                 if (!dateRange || !storeId) {
                     alert('Please select Date Range and Store');
@@ -115,7 +146,8 @@
                 let url = "{{ route('production.reports') }}" +
                     "?type=" + type +
                     "&date_range=" + encodeURIComponent(dateRange) +
-                    "&store_id=" + storeId;
+                    "&store_id=" + storeId +
+                    "&export_type=" + exportType;
 
                 window.open(url, '_blank');
             });
