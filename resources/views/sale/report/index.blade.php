@@ -257,7 +257,7 @@
                     group_id: '',
                     item_id: '',
                     customers: [],
-                    customer_id: ''
+                    customer_id: '',
 
                 },
                 components: {

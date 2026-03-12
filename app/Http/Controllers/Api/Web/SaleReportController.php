@@ -43,6 +43,7 @@ class SaleReportController extends Controller
         ini_set('pcre.backtrack_limit', '2000000');
         ini_set('pcre.recursion_limit', '1000000');
         $report_type = \request()->report_type;
+        $outlet = Outlet::find(\request()->store_id);
 
 
         $from_date = Carbon::parse(\request()->from_date)->format('Y-m-d') ?? Carbon::now()->format('Y-m-d');
@@ -182,180 +183,136 @@ class SaleReportController extends Controller
         $pdf->stream();
     }
 
+
     public function getAllSaleQuery($from_date, $to_date)
     {
-        $outlet_id = auth()->user()->employee && auth()->user()->employee->outlet_id ? auth()->user()->employee->outlet_id : null;
-        if (auth()->user()->is_super || (auth()->user()->employee && auth()->user()->employee->user_of == 'ho')) {
-            return "
-                SELECT
-                    SS.invoice_number AS 'Invoice Number',
-                    US.name AS 'Seller',
-                    IFNULL(SS.waiter_name, '') AS 'Waiter',
-                    SS.date AS 'Date',
-                    SS.subtotal AS 'Subtotal',
-                    (SS.discount + IFNULL(SS.couponCodeDiscountAmount, 0)) AS 'Total Discount',
-                    (SS.subtotal - (SS.discount + IFNULL(SS.couponCodeDiscountAmount, 0))) AS 'After Discount',
-                    SS.delivery_charge AS 'Delivery Charge',
-                    SS.additional_charge AS 'Additional Charge',
-                    SS.grand_total AS 'Final Amount',
-                    0 AS 'COGS'
-                FROM
-                    sales SS
-                LEFT JOIN
-                    users US ON SS.created_by = US.id
-                JOIN
-                    account_transactions ATT ON ATT.doc_id = SS.id
-                WHERE
-                    ATT.doc_type = 'POS'
-                    AND ATT.chart_of_account_id = 43
-                    AND SS.date >= '$from_date'
-                    AND SS.date <= '$to_date'
+        $user = auth()->user();
 
-                UNION ALL
+        $requestOutlet = request()->store_id ?? null;
+        $employeeOutlet = $user->employee->outlet_id ?? null;
 
-                SELECT
-                    '' AS 'Seller',
-                    '' AS 'Waiter',
-                    'Total' AS 'Invoice Number',
-                    '' AS 'Date',
-                    SUM(SS.subtotal) AS 'Subtotal',
-                    SUM(SS.discount + IFNULL(SS.couponCodeDiscountAmount, 0)) AS 'Total Discount',
-                    SUM(SS.subtotal - (SS.discount + IFNULL(SS.couponCodeDiscountAmount, 0))) AS 'After Discount',
-                    SUM(SS.delivery_charge) AS 'Delivery Charge',
-                    SUM(SS.additional_charge) AS 'Additional Charge',
-                    SUM(SS.grand_total) AS 'Final Amount',
-                    0 AS 'COGS'
-                FROM
-                    sales SS
-                JOIN
-                    account_transactions ATT ON ATT.doc_id = SS.id
-                WHERE
-                    ATT.doc_type = 'POS'
-                    AND ATT.chart_of_account_id = 43
-                    AND SS.date >= '$from_date'
-                    AND SS.date <= '$to_date'
-            ";
-        } else {
-            return "
-                SELECT
-                    SS.invoice_number AS 'Invoice Number',
-                    US.name AS 'Seller',
-                    IFNULL(SS.waiter_name, '') AS 'Waiter',
-                    SS.date AS 'Date',
-                    SS.subtotal AS 'Subtotal',
-                    (SS.discount + IFNULL(SS.couponCodeDiscountAmount, 0)) AS 'Total Discount',
-                    (SS.subtotal - (SS.discount + IFNULL(SS.couponCodeDiscountAmount, 0))) AS 'After Discount',
-                    SS.delivery_charge AS 'Delivery Charge',
-                    SS.additional_charge AS 'Additional Charge',
-                    SS.grand_total AS 'Final Amount',
-                    0 AS 'COGS'
-                FROM
-                    sales SS
-                LEFT JOIN
-                    users US ON SS.created_by = US.id
-                JOIN
-                    account_transactions ATT ON ATT.doc_id = SS.id
-                WHERE
-                    ATT.doc_type = 'POS'
-                    AND ATT.chart_of_account_id = 43
-                    AND SS.date >= '$from_date'
-                    AND SS.date <= '$to_date'
-                    AND SS.outlet_id = '$outlet_id'
+        $outlet_id = $employeeOutlet ?: $requestOutlet;
 
-                UNION ALL
+        $outletFilter = "";
 
-                SELECT
-                    '' AS 'Seller',
-                    '' AS 'Waiter',
-                    'Total' AS 'Invoice Number',
-                    '' AS 'Date',
-                    SUM(SS.subtotal) AS 'Subtotal',
-                    SUM(SS.discount + IFNULL(SS.couponCodeDiscountAmount, 0)) AS 'Total Discount',
-                    SUM(SS.subtotal - (SS.discount + IFNULL(SS.couponCodeDiscountAmount, 0))) AS 'After Discount',
-                    SUM(SS.delivery_charge) AS 'Delivery Charge',
-                    SUM(SS.additional_charge) AS 'Additional Charge',
-                    SUM(SS.grand_total) AS 'Final Amount',
-                    0 AS 'COGS'
-                FROM
-                    sales SS
-                JOIN
-                    account_transactions ATT ON ATT.doc_id = SS.id
-                WHERE
-                    ATT.doc_type = 'POS'
-                    AND ATT.chart_of_account_id = 43
-                    AND SS.date >= '$from_date'
-                    AND SS.date <= '$to_date'
-                    AND SS.outlet_id = '$outlet_id'
-            ";
+        // Apply filter if outlet exists
+        if ($outlet_id) {
+            $outletFilter = " AND SS.outlet_id = '$outlet_id' ";
         }
+
+        // Super / HO user → allow request filter
+        if ($user->is_super || ($user->employee && $user->employee->user_of == 'ho')) {
+            $outletFilter = $requestOutlet ? " AND SS.outlet_id = '$requestOutlet' " : "";
+        }
+
+        return "
+        SELECT
+            SS.invoice_number AS 'Invoice Number',
+            US.name AS 'Seller',
+            IFNULL(SS.waiter_name, '') AS 'Waiter',
+            SS.date AS 'Date',
+            SS.subtotal AS 'Subtotal',
+            (SS.discount + IFNULL(SS.couponCodeDiscountAmount, 0)) AS 'Total Discount',
+            (SS.subtotal - (SS.discount + IFNULL(SS.couponCodeDiscountAmount, 0))) AS 'After Discount',
+            SS.delivery_charge AS 'Delivery Charge',
+            SS.additional_charge AS 'Additional Charge',
+            SS.grand_total AS 'Final Amount',
+            0 AS 'COGS'
+        FROM sales SS
+        LEFT JOIN users US ON SS.created_by = US.id
+        JOIN account_transactions ATT ON ATT.doc_id = SS.id
+        WHERE
+            ATT.doc_type = 'POS'
+            AND ATT.chart_of_account_id = 43
+            AND SS.date >= '$from_date'
+            AND SS.date <= '$to_date'
+            $outletFilter
+
+        UNION ALL
+
+        SELECT
+            'Total' AS 'Invoice Number',
+            '' AS 'Seller',
+            '' AS 'Waiter',
+            '' AS 'Date',
+            SUM(SS.subtotal) AS 'Subtotal',
+            SUM(SS.discount + IFNULL(SS.couponCodeDiscountAmount, 0)) AS 'Total Discount',
+            SUM(SS.subtotal - (SS.discount + IFNULL(SS.couponCodeDiscountAmount, 0))) AS 'After Discount',
+            SUM(SS.delivery_charge) AS 'Delivery Charge',
+            SUM(SS.additional_charge) AS 'Additional Charge',
+            SUM(SS.grand_total) AS 'Final Amount',
+            0 AS 'COGS'
+        FROM sales SS
+        JOIN account_transactions ATT ON ATT.doc_id = SS.id
+        WHERE
+            ATT.doc_type = 'POS'
+            AND ATT.chart_of_account_id = 43
+            AND SS.date >= '$from_date'
+            AND SS.date <= '$to_date'
+            $outletFilter
+    ";
     }
 
 
     public function getItemWiseSalesSummary($from_date, $to_date)
     {
-        $outlet_id = auth()->user()->employee && auth()->user()->employee->outlet_id ? auth()->user()->employee->outlet_id : null;
-        if (auth()->user()->is_super || (auth()->user()->employee && auth()->user()->employee->user_of == 'ho')) {
-            return "
-(
-select PG.name as 'Group Name', COI.name as 'Item', SUM(SI.quantity) as 'Quantity', SUM(SI.quantity * SI.unit_price) as 'Sales Amount'
-from sales SS
-join sale_items SI
-on SI.sale_id = SS.id
-join chart_of_inventories COI
-on COI.id = SI.product_id
-join chart_of_inventories PG
-on PG.id = COI.parent_id
-WHERE SS.date >= '$from_date'
-AND SS.date <= '$to_date'
-group by COI.id
-order by PG.id, COI.id
-)
-union all
-(
- SELECT '' as 'Group Name', 'Total' AS 'Item',
-    SUM(SI.quantity) AS 'Quantity',
-    SUM(SI.quantity * SI.unit_price) AS 'Sales Amount'
-    FROM sales SS
-    join sale_items SI
-on SI.sale_id = SS.id
-    WHERE SS.date >= '$from_date'
-    AND SS.date <= '$to_date'
+        $user = auth()->user();
 
-)
-";
+        $requestOutlet  = request()->store_id ?? null;
+        $employeeOutlet = $user->employee->outlet_id ?? null;
 
+        // outlet filter logic
+        if ($user->is_super || ($user->employee && $user->employee->user_of == 'ho')) {
+            $outletFilter = $requestOutlet ? " AND SS.outlet_id = '$requestOutlet' " : "";
         } else {
-            return "
-            (
-select PG.name as 'Group Name', COI.name as 'Item', SUM(SI.quantity) as 'Quantity', SUM(SI.quantity * SI.unit_price) as 'Sales Amount'
-from sales SS
-join sale_items SI
-on SI.sale_id = SS.id
-join chart_of_inventories COI
-on COI.id = SI.product_id
-join chart_of_inventories PG
-on PG.id = COI.parent_id
-WHERE SS.date >= '$from_date'
-AND SS.date <= '$to_date'
-AND SS.outlet_id = '$outlet_id'
-group by COI.id
-order by PG.id, COI.id
-)
-union all
-(
- SELECT '' as 'Group Name', 'Total' AS 'Item',
-    SUM(SI.quantity) AS 'Quantity',
-    SUM(SI.quantity * SI.unit_price) AS 'Sales Amount'
-    FROM sales SS
-    JOIN sale_items SI ON SI.sale_id = SS.id
-    WHERE SS.date >= '$from_date'
-    AND SS.date <= '$to_date'
-    AND SS.outlet_id = '$outlet_id'
-
-)
-";
+            $outletFilter = $employeeOutlet ? " AND SS.outlet_id = '$employeeOutlet' " : "";
         }
+
+        return "
+    (
+        SELECT
+            PG.name AS 'Group Name',
+            COI.name AS 'Item',
+            SUM(SI.quantity) AS 'Quantity',
+            SUM(SI.quantity * SI.unit_price) AS 'Sales Amount'
+        FROM sales SS
+        JOIN sale_items SI ON SI.sale_id = SS.id
+        JOIN chart_of_inventories COI ON COI.id = SI.product_id
+        JOIN chart_of_inventories PG ON PG.id = COI.parent_id
+        WHERE
+            SS.date >= '$from_date'
+            AND SS.date <= '$to_date'
+            $outletFilter
+        GROUP BY COI.id
+        ORDER BY PG.id, COI.id
+    )
+
+    UNION ALL
+
+    (
+        SELECT
+            '' AS 'Group Name',
+            'Total' AS 'Item',
+            SUM(SI.quantity) AS 'Quantity',
+            SUM(SI.quantity * SI.unit_price) AS 'Sales Amount'
+        FROM sales SS
+        JOIN sale_items SI ON SI.sale_id = SS.id
+        WHERE
+            SS.date >= '$from_date'
+            AND SS.date <= '$to_date'
+            $outletFilter
+    )
+    ";
     }
+
+
+
+
+
+
+
+
+
 
     public function getOutletWiseSalesReport($from_date, $to_date)
     {
@@ -388,140 +345,140 @@ AND SS.date <= '$to_date'
         return $query;
     }
 
+
     public function getAllCustomerSalesDetails($from_date, $to_date)
     {
-        $outlet_id = auth()->user()->employee && auth()->user()->employee->outlet_id ? auth()->user()->employee->outlet_id : null;
-        if (auth()->user()->is_super || (auth()->user()->employee && auth()->user()->employee->user_of == 'ho')) {
-            return "
-select SS.invoice_number as 'Invoice Number', SS.date as 'Date', CU.name as 'Customer Name', PG.name as 'Group Name', COI.name as 'Item Name', SI.quantity as 'Quantity', SI.unit_price  as 'Rate', (SI.quantity * SI.unit_price)  as 'Value'
-from sales SS
-join customers CU
-on CU.id = SS.customer_id
-join sale_items as SI
-on SI.sale_id = SS.id
-join chart_of_inventories as COI
-on COI.id = SI.product_id
-join chart_of_inventories as PG
-on PG.id = COI.parent_id
-WHERE SS.date >= '$from_date'
-AND SS.date <= '$to_date'
-        ";
+        $user = auth()->user();
+
+        $requestOutlet = request()->store_id ?? null;
+        $employeeOutlet = $user->employee->outlet_id ?? null;
+
+        // outlet filter logic
+        if ($user->is_super || ($user->employee && $user->employee->user_of == 'ho')) {
+            $outletFilter = $requestOutlet ? " AND SS.outlet_id = '$requestOutlet' " : "";
         } else {
-            return "
-select SS.invoice_number as 'Invoice Number', SS.date as 'Date', CU.name as 'Customer Name', PG.name as 'Group Name', COI.name as 'Item Name', SI.quantity as 'Quantity', SI.unit_price  as 'Rate', (SI.quantity * SI.unit_price)  as 'Value'
-from sales SS
-join customers CU
-on CU.id = SS.customer_id
-join sale_items as SI
-on SI.sale_id = SS.id
-join chart_of_inventories as COI
-on COI.id = SI.product_id
-join chart_of_inventories as PG
-on PG.id = COI.parent_id
-WHERE SS.date >= '$from_date'
-AND SS.date <= '$to_date'
-AND SS.outlet_id = '$outlet_id'
-        ";
+            $outletFilter = $employeeOutlet ? " AND SS.outlet_id = '$employeeOutlet' " : "";
         }
 
+        return "
+        SELECT
+            SS.invoice_number AS 'Invoice Number',
+            SS.date AS 'Date',
+            CU.name AS 'Customer Name',
+            PG.name AS 'Group Name',
+            COI.name AS 'Item Name',
+            SI.quantity AS 'Quantity',
+            SI.unit_price AS 'Rate',
+            (SI.quantity * SI.unit_price) AS 'Value'
+        FROM sales SS
+        JOIN customers CU ON CU.id = SS.customer_id
+        JOIN sale_items SI ON SI.sale_id = SS.id
+        JOIN chart_of_inventories COI ON COI.id = SI.product_id
+        JOIN chart_of_inventories PG ON PG.id = COI.parent_id
+        WHERE
+            SS.date >= '$from_date'
+            AND SS.date <= '$to_date'
+            $outletFilter
+    ";
     }
+
+
+
+
+
 
     public function getSinlgeItemDetails($item_id, $from_date, $to_date)
     {
-        $outlet_id = auth()->user()->employee && auth()->user()->employee->outlet_id ? auth()->user()->employee->outlet_id : null;
-        if (auth()->user()->is_super || (auth()->user()->employee && auth()->user()->employee->user_of == 'ho')) {
-            return "
-        (
-        select SS.invoice_number as 'Invoice Number', SS.date as 'Date', SI.quantity as 'Quantity', SI.unit_price as 'Rate', FORMAT((SI.quantity * SI.unit_price),2) as 'Sales Value', OT.name as 'Outlet'
-from sales SS
-join sale_items as SI
-on SI.sale_id = SS.id
-join outlets as OT
-on OT.id = SS.outlet_id
-WHERE SI.product_id = $item_id
-        AND SS.date >= '$from_date'
-AND SS.date <= '$to_date'
-ORDER BY OT.id
-        )
-        UNION ALL
-        (
-        select 'TOTAL' as 'Invoice Number', '' as 'Date', SUM(SI.quantity) as 'Quantity', '' as 'Rate', FORMAT(SUM((SI.quantity * SI.unit_price)),2) as 'Sales Value', '' as 'Outlet'
-from sales SS
-join sale_items as SI
-on SI.sale_id = SS.id
-WHERE SI.product_id = $item_id
-        AND SS.date >= '$from_date'
-AND SS.date <= '$to_date'
-        )
-        ";
+        $user = auth()->user();
+
+        $requestOutlet = request()->store_id ?? null;
+        $employeeOutlet = $user->employee->outlet_id ?? null;
+
+        // outlet filter logic
+        if ($user->is_super || ($user->employee && $user->employee->user_of == 'ho')) {
+            $outletFilter = $requestOutlet ? " AND SS.outlet_id = '$requestOutlet' " : "";
         } else {
-            return "
-       select SS.invoice_number as 'Invoice Number', SS.date as 'Date', SI.quantity as 'Quantity', SI.unit_price as 'Rate', FORMAT((SI.quantity * SI.unit_price),2) as 'Sales Value', OT.name as 'Outlet'
-from sales SS
-join sale_items as SI
-on SI.sale_id = SS.id
-join outlets as OT
-on OT.id = SS.outlet_id
-WHERE SI.product_id = $item_id
-        AND SS.date >= '$from_date'
-AND SS.date <= '$to_date'
-AND SS.outlet_id = '$outlet_id'
-ORDER BY OT.id
-        )
-        UNION ALL
-        (
-        select 'TOTAL' as 'Invoice Number', '' as 'Date', SUM(SI.quantity) as 'Quantity', '' as 'Rate', FORMAT(SUM((SI.quantity * SI.unit_price)),2) as 'Sales Value', '' as 'Outlet'
-from sales SS
-join sale_items as SI
-on SI.sale_id = SS.id
-WHERE SI.product_id = $item_id
-        AND SS.date >= '$from_date'
-AND SS.date <= '$to_date'
-AND SS.outlet_id = '$outlet_id'
-        )";
+            $outletFilter = $employeeOutlet ? " AND SS.outlet_id = '$employeeOutlet' " : "";
         }
 
+        return "
+        (
+            SELECT
+                SS.invoice_number AS 'Invoice Number',
+                SS.date AS 'Date',
+                SI.quantity AS 'Quantity',
+                SI.unit_price AS 'Rate',
+                FORMAT((SI.quantity * SI.unit_price),2) AS 'Sales Value',
+                OT.name AS 'Outlet'
+            FROM sales SS
+            JOIN sale_items SI ON SI.sale_id = SS.id
+            JOIN outlets OT ON OT.id = SS.outlet_id
+            WHERE
+                SI.product_id = $item_id
+                AND SS.date >= '$from_date'
+                AND SS.date <= '$to_date'
+                $outletFilter
+            ORDER BY OT.id
+        )
+
+        UNION ALL
+
+        (
+            SELECT
+                'TOTAL' AS 'Invoice Number',
+                '' AS 'Date',
+                SUM(SI.quantity) AS 'Quantity',
+                '' AS 'Rate',
+                FORMAT(SUM((SI.quantity * SI.unit_price)),2) AS 'Sales Value',
+                '' AS 'Outlet'
+            FROM sales SS
+            JOIN sale_items SI ON SI.sale_id = SS.id
+            WHERE
+                SI.product_id = $item_id
+                AND SS.date >= '$from_date'
+                AND SS.date <= '$to_date'
+                $outletFilter
+        )
+    ";
     }
+
 
     public function getSingleCustomerDetails($customer_id, $from_date, $to_date)
     {
-        $outlet_id = auth()->user()->employee && auth()->user()->employee->outlet_id ? auth()->user()->employee->outlet_id : null;
-        if (auth()->user()->is_super || (auth()->user()->employee && auth()->user()->employee->user_of == 'ho')) {
-            return "
-        select SS.invoice_number as 'Invoice Number', SS.date as 'Date', COI.name as 'Item Name', SI.quantity as 'Quantity', SI.unit_price as 'Rate', (SI.quantity * SI.unit_price) as 'Sales Value', OT.name as 'Outlet'
-from sales SS
-join sale_items as SI
-on SI.sale_id = SS.id
-join customers CU
-on CU.id = SS.customer_id
-join outlets as OT
-on OT.id = SS.outlet_id
-join chart_of_inventories as COI
-on COI.id = SI.product_id
-WHERE SS.customer_id= $customer_id
-        AND SS.date >= '$from_date'
-AND SS.date <= '$to_date'
-        ";
+        $user = auth()->user();
+
+        $requestOutlet = request()->store_id ?? null;
+        $employeeOutlet = $user->employee->outlet_id ?? null;
+
+        // outlet filter logic
+        if ($user->is_super || ($user->employee && $user->employee->user_of == 'ho')) {
+            $outletFilter = $requestOutlet ? " AND SS.outlet_id = '$requestOutlet' " : "";
         } else {
-            return "
-        select SS.invoice_number as 'Invoice Number', SS.date as 'Date', PG.name as 'Group Name', COI.name as 'Item Name', SI.quantity as 'Quantity', SI.unit_price as 'Rate', (SI.quantity * SI.unit_price) as 'Sales Value', OT.name as 'Outlet'
-from sales SS
-join sale_items as SI
-on SI.sale_id = SS.id
-join customers CU
-on CU.id = SS.customer_id
-join outlets as OT
-on OT.id = SS.outlet_id
-join chart_of_inventories as COI
-on COI.id = SI.product_id
-join chart_of_inventories as PG
-on PG.id = COI.parent_id
-WHERE SS.customer_id= $customer_id
-        AND SS.date >= '$from_date'
-AND SS.date <= '$to_date'
-                AND SS.outlet_id = '$outlet_id'
-        ";
+            $outletFilter = $employeeOutlet ? " AND SS.outlet_id = '$employeeOutlet' " : "";
         }
+
+        return "
+        SELECT
+            SS.invoice_number AS 'Invoice Number',
+            SS.date AS 'Date',
+            PG.name AS 'Group Name',
+            COI.name AS 'Item Name',
+            SI.quantity AS 'Quantity',
+            SI.unit_price AS 'Rate',
+            (SI.quantity * SI.unit_price) AS 'Sales Value',
+            OT.name AS 'Outlet'
+        FROM sales SS
+        JOIN sale_items SI ON SI.sale_id = SS.id
+        JOIN customers CU ON CU.id = SS.customer_id
+        JOIN outlets OT ON OT.id = SS.outlet_id
+        JOIN chart_of_inventories COI ON COI.id = SI.product_id
+        JOIN chart_of_inventories PG ON PG.id = COI.parent_id
+        WHERE
+            SS.customer_id = $customer_id
+            AND SS.date >= '$from_date'
+            AND SS.date <= '$to_date'
+            $outletFilter
+    ";
     }
 
     public function getAllOutletAccountSaleReport($from_date, $to_date)
