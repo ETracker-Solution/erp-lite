@@ -146,7 +146,7 @@ class SupplierPaymentVoucherController extends Controller
                             'reference_no' => $voucher->uid,
                             'id' => $voucher->id
                         ],
-                        $voucher->credit_account_id,
+                        $voucher->debit_account_id,
                         getDiscountGLID()
                     );
                 }
@@ -218,12 +218,28 @@ class SupplierPaymentVoucherController extends Controller
                     'supplier_id' => $newVoucher->supplier_id,
                     'doc_type' => 'SPV',
                     'doc_id' => $newVoucher->id,
-                    'amount' => $newVoucher->amount,
+                    'amount' => $newVoucher->amount + $newVoucher->settle_discount,
                     'date' => $newVoucher->date,
                     'transaction_type' => -1,
                     'chart_of_account_id' => $newVoucher->credit_account_id,
                     'description' => 'Payment For Purchase of Goods',
                 ]);
+
+                // Discount Entry
+                if ($newVoucher->settle_discount > 0) {
+                    addAccountsTransaction(
+                        'SPV',
+                        (object)[
+                            'date' => $newVoucher->date,
+                            'amount' => $newVoucher->settle_discount,
+                            'narration' => 'Supplier Discount',
+                            'reference_no' => $newVoucher->uid,
+                            'id' => $newVoucher->id
+                        ],
+                        $newVoucher->debit_account_id,
+                        getDiscountGLID()
+                    );
+                }
             }
             DB::commit();
         } catch (\Exception $error) {

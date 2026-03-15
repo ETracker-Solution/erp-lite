@@ -177,6 +177,22 @@ class CustomerReceiveVoucherController extends Controller
                 // 1. Accounting Effect: Debit Bank/Cash, Credit Accounts Receivable
                 addAccountsTransaction('CRV', $voucher, $voucherData['debit_account_id'], $voucherData['credit_account_id']);
 
+                // Discount Entry
+                if ($voucher->settle_discount > 0) {
+                    addAccountsTransaction(
+                        'CRV',
+                        (object)[
+                            'date' => $voucher->date,
+                            'amount' => $voucher->settle_discount,
+                            'narration' => 'Settle Discount',
+                            'reference_no' => $voucher->uid,
+                            'id' => $voucher->id
+                        ],
+                        getDiscountGLID(),
+                        $voucher->credit_account_id
+                    );
+                }
+
                 // 2. Update Sale Record (receive_amount, change_amount if applicable, usually 0 for due)
                 // We should track this payment. Sale table has `receive_amount`.
                 // We need to increment it.
@@ -201,6 +217,18 @@ class CustomerReceiveVoucherController extends Controller
                     // Or just 'due_collection' if supported.
                     // Let's assume 'due_collection' or similar string is fine as it's likely a string column.
                     'amount' => $voucher->amount,
+                ]);
+
+                // 4. Customer Transaction Effect
+                \App\Models\CustomerTransaction::query()->create([
+                    'customer_id' => $voucher->customer_id,
+                    'doc_type' => 'CRV',
+                    'doc_id' => $voucher->id,
+                    'amount' => $voucher->amount + $voucher->settle_discount,
+                    'date' => $voucher->date,
+                    'transaction_type' => -1, // Credit (Payment reduces balance)
+                    'chart_of_account_id' => $voucher->debit_account_id, // Payment to Bank/Cash
+                    'description' => 'Due Collection',
                 ]);
             }
             \DB::commit();
@@ -287,6 +315,7 @@ class CustomerReceiveVoucherController extends Controller
             $oldVouchers = CustomerReceiveVoucher::where('uid', $uid)->get();
             foreach ($oldVouchers as $oldVoucher) {
                 \App\Models\AccountTransaction::where('doc_type', 'CRV')->where('doc_id', $oldVoucher->id)->delete();
+                \App\Models\CustomerTransaction::where('doc_type', 'CRV')->where('doc_id', $oldVoucher->id)->delete();
                 $sale = \App\Models\Sale::find($oldVoucher->sale_id);
                 if ($sale) {
                     $sale->receive_amount -= $oldVoucher->amount;
@@ -321,6 +350,22 @@ class CustomerReceiveVoucherController extends Controller
 
                 addAccountsTransaction('CRV', $newVoucher, $voucherData['debit_account_id'], $voucherData['credit_account_id']);
 
+                // Discount Entry
+                if ($newVoucher->settle_discount > 0) {
+                    addAccountsTransaction(
+                        'CRV',
+                        (object)[
+                            'date' => $newVoucher->date,
+                            'amount' => $newVoucher->settle_discount,
+                            'narration' => 'Settle Discount',
+                            'reference_no' => $newVoucher->uid,
+                            'id' => $newVoucher->id
+                        ],
+                        getDiscountGLID(),
+                        $newVoucher->credit_account_id
+                    );
+                }
+
                 $sale->receive_amount += $newVoucher->amount;
                 $sale->save();
 
@@ -329,6 +374,18 @@ class CustomerReceiveVoucherController extends Controller
                     'customer_id' => $sale->customer_id,
                     'payment_method' => 'Due Collection',
                     'amount' => $newVoucher->amount,
+                ]);
+
+                // 4. Customer Transaction Effect
+                \App\Models\CustomerTransaction::query()->create([
+                    'customer_id' => $newVoucher->customer_id,
+                    'doc_type' => 'CRV',
+                    'doc_id' => $newVoucher->id,
+                    'amount' => $newVoucher->amount + $newVoucher->settle_discount,
+                    'date' => $newVoucher->date,
+                    'transaction_type' => -1, // Credit (Payment reduces balance)
+                    'chart_of_account_id' => $newVoucher->debit_account_id, // Payment to Bank/Cash
+                    'description' => 'Due Collection',
                 ]);
             }
             \DB::commit();
@@ -349,6 +406,7 @@ class CustomerReceiveVoucherController extends Controller
             $oldVouchers = CustomerReceiveVoucher::where('uid', $voucher->uid)->get();
             foreach ($oldVouchers as $oldVoucher) {
                 \App\Models\AccountTransaction::where('doc_type', 'CRV')->where('doc_id', $oldVoucher->id)->delete();
+                \App\Models\CustomerTransaction::where('doc_type', 'CRV')->where('doc_id', $oldVoucher->id)->delete();
                 $sale = \App\Models\Sale::find($oldVoucher->sale_id);
                 if ($sale) {
                     $sale->receive_amount -= $oldVoucher->amount;
