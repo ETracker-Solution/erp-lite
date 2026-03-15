@@ -203,7 +203,8 @@ class LedgerReportController extends Controller
 
     public function customerLedgerQuery($customer_id, $start_date, $end_date)
     {
-        return DB::select("WITH OpeningBalance AS (
+        return DB::select("
+        WITH OpeningBalance AS (
             SELECT
                 '$start_date' AS Date,
                 ' ' AS 'Account Head',
@@ -212,10 +213,10 @@ class LedgerReportController extends Controller
                 'Opening Balance' AS Particulars,
                 ' ' AS Debit,
                 ' ' AS Credit,
-                COALESCE(SUM(amount * transaction_type), 0) AS Balance
-            FROM customer_transactions
-            WHERE customer_id = $customer_id
-            AND date < '$start_date'
+                COALESCE(SUM(TR.amount * TR.transaction_type), 0) AS Balance
+            FROM customer_transactions TR
+            WHERE TR.customer_id = $customer_id
+            AND TR.date < '$start_date'
             LIMIT 1
         )
 
@@ -226,19 +227,21 @@ class LedgerReportController extends Controller
         SELECT
             TR.date AS Date,
             COA.name AS 'Account Head',
-            doc_type AS 'Voucher Type',
+            TR.doc_type AS 'Voucher Type',
             COALESCE(S.invoice_number, CRV.uid, CAST(TR.doc_id AS CHAR)) AS 'Voucher Number',
             TR.description AS Particulars,
-            CASE WHEN transaction_type = 1 THEN amount ELSE 0 END AS Debit,
-            CASE WHEN transaction_type = -1 THEN amount ELSE 0 END AS Credit,
-            SUM(amount * transaction_type) OVER (ORDER BY TR.date, TR.id) + (SELECT Balance FROM OpeningBalance) AS Balance
+            CASE WHEN TR.transaction_type = 1 THEN TR.amount ELSE 0 END AS Debit,
+            CASE WHEN TR.transaction_type = -1 THEN TR.amount ELSE 0 END AS Credit,
+            SUM(TR.amount * TR.transaction_type) OVER (ORDER BY TR.date, TR.id)
+                + (SELECT Balance FROM OpeningBalance) AS Balance
         FROM customer_transactions TR
         LEFT JOIN chart_of_accounts COA ON COA.id = TR.chart_of_account_id
         LEFT JOIN sales S ON S.id = TR.doc_id AND TR.doc_type = 'SALE'
         LEFT JOIN customer_receive_vouchers CRV ON CRV.id = TR.doc_id AND TR.doc_type = 'CRV'
         WHERE TR.customer_id = $customer_id
-        AND TR.date >= '$start_date' AND TR.date <= '$end_date'
-        ");
+        AND TR.date >= '$start_date'
+        AND TR.date <= '$end_date'
+    ");
     }
 
     public function ledgerReportQuery($account_id, $start_date, $end_date)

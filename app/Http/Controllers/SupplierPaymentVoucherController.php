@@ -118,6 +118,7 @@ class SupplierPaymentVoucherController extends Controller
                 $product['uid'] = $uid;
                 $product['debit_account_id'] = 22; // Hardcoded Accounts Payable
                 $product['settle_discount'] = $product['settle_discount'] ?? 0;
+
                 $voucher = SupplierPaymentVoucher::create($product);
 
                 //Accounts Effect
@@ -127,12 +128,28 @@ class SupplierPaymentVoucherController extends Controller
                     'supplier_id' => $voucher->supplier_id,
                     'doc_type' => 'SPV',
                     'doc_id' => $voucher->id,
-                    'amount' => $voucher->amount,
+                    'amount' => $voucher->amount + $voucher->settle_discount,
                     'date' => $voucher->date,
                     'transaction_type' => -1, // Payment reduces balance
                     'chart_of_account_id' => $voucher->credit_account_id, // Paid from Bank
                     'description' => 'Payment For Purchase of Goods',
                 ]);
+
+                // Discount Entry
+                if ($voucher->settle_discount > 0) {
+                    addAccountsTransaction(
+                        'SPV',
+                        (object)[
+                            'date' => $voucher->date,
+                            'amount' => $voucher->settle_discount,
+                            'narration' => 'Supplier Discount',
+                            'reference_no' => $voucher->uid,
+                            'id' => $voucher->id
+                        ],
+                        $voucher->credit_account_id,
+                        getDiscountGLID()
+                    );
+                }
             }
             DB::commit();
         } catch (\Exception $error) {
