@@ -196,7 +196,7 @@ class CustomerReceiveVoucherController extends Controller
                 // 2. Update Sale Record (receive_amount, change_amount if applicable, usually 0 for due)
                 // We should track this payment. Sale table has `receive_amount`.
                 // We need to increment it.
-                $sale->receive_amount += $voucher->amount;
+                $sale->receive_amount += $voucher->amount + $voucher->settle_discount;
                 // Update Sale Status if Paid
                 // Check if internal method available? No property on model.
                 // Simple logic:
