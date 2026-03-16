@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <title>Receipt Voucher </title>
+    <title>Receive Voucher </title>
     <style>
         @page {
             header: page-header;
@@ -66,58 +66,59 @@
 <div class="invoice-ribbon">
     @include('common.pdf_header')
 </div>
-<p style="text-align:center;  font-size: 20px;">Receipt Voucher</p>
+<p style="text-align:center;  font-size: 20px;">Receive Voucher</p>
 <table>
     <tr>
         <td>No. : <span class="bold">{{ $voucher->uid }}</span></td>
         <td class="textRight">Dated : <span class="bold">{{ $voucher->date }}</span></td>
     </tr>
-    <tr>
-        <td colspan="2">On Account Of : {{ $voucher->narration }}</td>
-    </tr>
 </table>
 <br><br>
-<table border="1" style="border-collapse: collapse; width: 100%;">
+<table>
     <thead>
     <tr>
-        <th class="bold border">#</th>
-        <th class="bold border">Income Head</th>
-        <th class="bold border">Receive Mode</th>
-        <th class="bold border">Payee Name</th>
-        <th class="bold border">Reference No</th>
-        <th class="textRight bold border">Amount</th>
+        <td class="bold border-top border-bottom">Particulars</td>
+        <td class="textRight border border-top">Amount</td>
     </tr>
     </thead>
     <tbody>
+    <tr>
+        <td class="bold">Account:</td>
+        <td class="border-left">&nbsp;</td>
+    </tr>
     @php
         $totalAmount = 0;
     @endphp
-    @foreach($receiveVouchers as $index => $item)
-    @php
-        $totalAmount += $item->amount;
-    @endphp
-    <tr>
-        <td class="border">{{ $index + 1 }}</td>
-        <td class="border">{{ $item->creditAccount->name ?? '' }}</td>
-        <td class="border">{{ $item->debitAccount->name ?? '' }}</td>
-        <td class="border">{{ $item->payee_name }}</td>
-        <td class="border">{{ $item->reference_no }}</td>
-        <td class="textRight border">{{ commaSeperated($item->amount) }}</td>
-    </tr>
+    @foreach($receiveVouchers as $item)
+        @php
+            $totalAmount += $item->amount;
+        @endphp
+        <tr>
+            <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ $item->creditAccount->name }} ({{ $item->debitAccount->name }} - {{ $item->payee_name }} )</td>
+            <td class="textRight border-left">{{commaSeperated($item->amount)}}</td>
+        </tr>
     @endforeach
+    <tr>
+        <td class="spacer" style="height: 50px;"></td>
+        <td class="border-left">&nbsp;</td>
+    </tr>
+    <tr>
+        <td class="bold">On Account Of:</td>
+        <td class="border-left">&nbsp;</td>
+    </tr>
+    <tr>
+        <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ $voucher->narration }}.</td>
+        <td class="border-left">&nbsp;</td>
+    </tr>
+    <tr>
+        <td class="bold">Amount (in words):</td>
+        <td class="border-left">&nbsp;</td>
+    </tr>
+    <tr>
+        <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Bangladeshi Taka {{ numberToWords($totalAmount) }} Only</td>
+        <td class="textRight border-left border-top border-bottom-thick">TK {{ commaSeperated($totalAmount) }}</td>
+    </tr>
     </tbody>
-    <tfoot>
-    <tr>
-        <td colspan="5" class="textRight bold border">Total:</td>
-        <td class="textRight bold border">{{ commaSeperated($totalAmount) }}</td>
-    </tr>
-    <tr>
-        <td colspan="6" class="border">
-            <span class="bold">Amount (in words):</span>
-            Bangladeshi Taka {{ numberToWords($totalAmount) }} Only
-        </td>
-    </tr>
-    </tfoot>
 </table>
 <br>
 <br>
@@ -125,7 +126,7 @@
 <br>
 <table>
     <tr>
-        <td></td>
+        <td>Receiver’s Signature. : </td>
         <td>Authorised Signatory : </td>
     </tr>
 </table>
@@ -140,6 +141,58 @@
         <td>Verified by </td>
     </tr>
 </table>
+{{--<table width="100%" style="text-align: center;">--}}
+{{--    <thead>--}}
+{{--    <tr>--}}
+{{--        <td style="text-align: left; padding-left:35px;"><strong>PV No. </strong><span--}}
+{{--                style="border-bottom:1px solid gray; width:20px;">{{ $paymentVoucher->uid }}</span></td>--}}
+{{--        <th style="text-align: left; padding-right:-20px;"><strong>Date : </strong>{{ $paymentVoucher->date }}</th>--}}
+{{--    </tr>--}}
+{{--    <tr>--}}
+{{--        <th style="text-align: left; padding-left:35px;"><strong>Debit Account :</strong></th>--}}
+{{--        <td style="text-align: left; padding-right:-20px;">{{ $paymentVoucher->debitAccount->name }}</td>--}}
+{{--    </tr>--}}
+{{--    <tr>--}}
+{{--        <th style="text-align: left; padding-left:35px;"><strong>Payment Account :</strong></th>--}}
+{{--        <td style="text-align: left; padding-right:-20px;">{{ $paymentVoucher->cashBankAccount->name }}</td>--}}
+{{--    </tr>--}}
+{{--    <tr>--}}
+{{--        <th style="text-align: left; padding-left:35px;"><strong>Amount :</strong></th>--}}
+{{--        <td style="text-align: left; padding-right:-20px;">{{ $paymentVoucher->amount }}</td>--}}
+{{--    </tr>--}}
+{{--    <tr>--}}
+{{--        <th style="text-align: left; padding-left:35px;"><strong>Description :</strong></th>--}}
+{{--        <td style="text-align: left; padding-right:-20px;">{{ $paymentVoucher->narration }}</td>--}}
+{{--    </tr>--}}
+{{--    <tr>--}}
+{{--        <th style="text-align: left; padding-left:35px;"><strong>Referance :</strong></th>--}}
+{{--        <td style="text-align: left; padding-right:-20px;">{{ $paymentVoucher->reference_no }}</td>--}}
+{{--    </tr>--}}
+
+{{--    </thead>--}}
+{{--</table>--}}
+{{--<htmlpagefooter name="page-footer">--}}
+
+{{--    <table width="100%">--}}
+{{--        <tbody>--}}
+{{--        <tr>--}}
+{{--            <td style="text-align: left;"><span style="border-top: 1px solid hsl(0, 0%, 2%);">Showroom Incharge :</span>--}}
+{{--            </td>--}}
+{{--            <td style="text-align: right;"><span style="border-top: 1px solid hsl(0, 0%, 2%);">Accounts :</span></td>--}}
+{{--        </tr>--}}
+{{--        </tbody>--}}
+{{--    </table>--}}
+{{--    <hr>--}}
+
+{{--    @php--}}
+{{--        $date = new DateTime('now', new DateTimezone('Asia/Dhaka'));--}}
+{{--    @endphp--}}
+{{--    <br>--}}
+{{--    <strong style="font-size: 8px">--}}
+{{--        Printing Time:- {{ $date->format('F j, Y, g:i a') }}--}}
+{{--    </strong>--}}
+{{--    <br>--}}
+{{--</htmlpagefooter>--}}
 </body>
 
 </html>
