@@ -19,4 +19,8 @@ class SupplierPaymentVoucher extends Model
     public function supplier(){
         return $this->belongsTo(Supplier::class);
     }
+    public function supplierTransactions()
+    {
+        return $this->morphMany(SupplierTransaction::class, 'document', 'doc_type', 'doc_id');
+    }
 }

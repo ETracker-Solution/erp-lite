@@ -25,10 +25,10 @@ class Purchase extends Model
 
     }
 
-    public function supplierTransactions()
-    {
-        return $this->hasMany('App\Models\SupplierTransaction', 'purchase_id');
-    }
+//    public function supplierTransactions()
+//    {
+//        return $this->hasMany('App\Models\SupplierTransaction', 'purchase_id');
+//    }
 
     public function inventoryTransactions()
     {
@@ -47,5 +47,10 @@ class Purchase extends Model
 
         return $this->hasMany('App\Models\StockIn', 'purchase_id');
 
+    }
+
+    public function supplierTransactions()
+    {
+        return $this->morphMany(SupplierTransaction::class, 'document', 'doc_type', 'doc_id');
     }
 }

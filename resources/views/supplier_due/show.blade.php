@@ -39,22 +39,22 @@
                                             // Wait. Supplier Ledger usually: Credit (Purchase), Debit (Payment).
                                             // Balance = Credit - Debit.
                                             // Let's check schema: 1 = purchase, -1 = payment.
-                                            
+
                                             // If 1 (Purchase), we owe them more. Is that Debit or Credit?
                                             // In Payable account: Purchase is Credit. Payment is Debit.
                                             // Only if we view it as "Our Liability".
                                             // Let's assume standard Payable Ledger:
                                             // Credit (Purchase in), Debit (Payment out).
-                                            
+
                                             $credit = $transaction->transaction_type == 1 ? $transaction->amount : 0;
                                             $debit = $transaction->transaction_type == -1 ? $transaction->amount : 0;
                                             $balance += ($credit - $debit); // Liability increases with Credit
                                         @endphp
                                         <tr>
                                             <td>{{ $transaction->date }}</td>
-                                            <td>{{ $transaction->description ?? 'N/A' }} 
+                                            <td>{{ $transaction->description ?? 'N/A' }}
                                                 @if($transaction->doc_type && $transaction->doc_id)
-                                                 ({{ $transaction->doc_type }} #{{ $transaction->doc_id }})
+                                                 ({{ $transaction->document->uid ?? '' }})
                                                 @endif
                                             </td>
                                             <td class="text-right">{{ $debit > 0 ? number_format($debit, 2) : '-' }}</td>

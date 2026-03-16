@@ -12,11 +12,12 @@ class SupplierTransaction extends Model
 
     public function purchase()
     {
-
-        return $this->belongsTo('App\Models\Purchase', 'purchase_id');
-
+        return $this->belongsTo(\App\Models\Purchase::class, 'doc_id', 'id');
     }
-
+    public function document()
+    {
+        return $this->morphTo(null, 'doc_type', 'doc_id');
+    }
     public function chartOfAccount()
     {
         return $this->belongsTo(ChartOfAccount::class);

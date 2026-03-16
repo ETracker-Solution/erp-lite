@@ -139,7 +139,7 @@ class FGPurchaseController extends Controller
                 'date' => $purchase->date,
                 'transaction_type' => 1,
                 'chart_of_account_id' => 22,
-                'description' => 'Purchase of goods',
+                'description' => 'Purchase of finish goods',
             ]);
             DB::commit();
         } catch (\Exception $exception) {

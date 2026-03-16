@@ -17,7 +17,7 @@ class SupplierDueController extends Controller
                 ->when($request->name, fn($q) => $q->where('name', 'like', "%{$request->name}%"))
                 ->when($request->mobile, fn($q) => $q->where('mobile', 'like', "%{$request->mobile}%"))
                 ->when($request->address, fn($q) => $q->where('address', 'like', "%{$request->address}%"));
-            
+
             return DataTables::of($data->latest())
                 ->addIndexColumn()
                 ->addColumn('due_amount', function ($row) {
@@ -36,8 +36,10 @@ class SupplierDueController extends Controller
     public function show($id)
     {
         $supplier = Supplier::findOrFail($id);
-        $transactions = SupplierTransaction::where('supplier_id', $id)->with('chartOfAccount')->get(); 
-        
+        $transactions = SupplierTransaction::where('supplier_id', $id)
+            ->whereHas('document')
+            ->with(['document','chartOfAccount'])
+            ->get();
         return view('supplier_due.show', compact('supplier', 'transactions'));
     }
 }
