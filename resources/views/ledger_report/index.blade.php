@@ -254,14 +254,19 @@
                             },
                             responseType: 'blob',
                         }).then(function (response) {
-                            const blob = new Blob([response.data], {
-                                type: 'application/pdf'
-                            });
+                            // Check what content-type was returned
+                            const contentType = response.headers['content-type'] || '';
+                            let mimeType = 'application/pdf';
+                            if (contentType.includes('text/html')) {
+                                mimeType = 'text/html';
+                            }
+                            const blob = new Blob([response.data], { type: mimeType });
                             const url = window.URL.createObjectURL(blob);
-                            window.open(url)
+                            window.open(url);
                             vm.pageLoading = false;
                         }).catch(function (error) {
-                            toastr.error('Something went to wrong', {
+                            vm.pageLoading = false;
+                            toastr.error('Something went wrong. Please try again.', {
                                 closeButton: true,
                                 progressBar: true,
                             });

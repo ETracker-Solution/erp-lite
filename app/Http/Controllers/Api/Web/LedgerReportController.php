@@ -35,6 +35,11 @@ class LedgerReportController extends Controller
 
     public function create()
     {
+        ini_set('memory_limit', '2048M');
+        ini_set('max_execution_time', '1200');
+        ini_set("pcre.backtrack_limit", "20000000");
+        ini_set("pcre.recursion_limit", "5000000");
+
         $report_type = \request()->report_type;
 
         $from_date = Carbon::parse(\request()->from_date)->format('Y-m-d') ?? Carbon::now()->format('Y-m-d');
@@ -64,22 +69,69 @@ class LedgerReportController extends Controller
             return response()->json(['success' => false]);
         }
 
-        $columns = array_keys((array)$getData[0]);
+        $columns   = array_keys((array)$getData[0]);
+        $dateRange = ' For the Period ' . $from_date . ' to ' . $to_date;
+        $rowCount  = count($getData);
 
         // ---------------------------------------------------------------
-        // Use mPDF directly and write HTML in chunks to avoid the
-        // "HTML code size is larger than pcre.backtrack_limit" error.
+        // For very large reports (> 2000 rows), stream a printable HTML
+        // page directly — bypasses mPDF's slow layout engine entirely.
+        // The user can Ctrl+P (or browser print) to get a PDF.
+        // ---------------------------------------------------------------
+        if ($rowCount > 2000) {
+            $html  = '<!DOCTYPE html><html><head><meta charset="UTF-8">';
+            $html .= '<title>' . htmlspecialchars($report_header) . '</title>';
+            $html .= '<style>
+                @media print { @page { size: A4 landscape; margin: 10mm; } }
+                body { font-family: Arial, sans-serif; font-size: 11px; color: #333; }
+                h3 { text-align:center; margin:4px 0; font-size:14px; }
+                p.subheader { text-align:center; margin:2px 0; font-size:11px; }
+                table { width:100%; border-collapse:collapse; margin-top:8px; }
+                thead th { background:#dfdfdf; padding:5px; text-align:left; font-size:11px; border:1px solid #ccc; }
+                tbody td { padding:4px 5px; border-bottom:1px solid #e0e0e0; font-size:10px; }
+                tbody tr:nth-child(even) { background:#f9f9f9; }
+                .print-btn { text-align:center; margin:10px 0; }
+                .print-btn button { padding:8px 20px; font-size:13px; cursor:pointer; background:#4a90d9; color:#fff; border:none; border-radius:4px; }
+                @media print { .print-btn { display:none; } }
+            </style></head><body>';
+            $html .= '<div class="print-btn"><button onclick="window.print()">&#128438; Print / Save as PDF</button></div>';
+            $html .= '<h3>Welkin Pastry Ltd.</h3>';
+            $html .= '<p class="subheader">' . htmlspecialchars($report_header) . '</p>';
+            $html .= '<p class="subheader">' . htmlspecialchars($dateRange) . '</p>';
+            $html .= '<p class="subheader">' . htmlspecialchars($page_title) . '</p>';
+            $html .= '<table><thead><tr>';
+            foreach ($columns as $col) {
+                $html .= '<th>' . htmlspecialchars($col) . '</th>';
+            }
+            $html .= '</tr></thead><tbody>';
+            foreach ($getData as $item) {
+                $itemArray = (array)$item;
+                $html .= '<tr>';
+                foreach ($columns as $col) {
+                    $html .= '<td>' . htmlspecialchars((string)($itemArray[$col] ?? ''), ENT_QUOTES, 'UTF-8') . '</td>';
+                }
+                $html .= '</tr>';
+            }
+            $html .= '</tbody></table></body></html>';
+
+            return response($html, 200, ['Content-Type' => 'text/html; charset=UTF-8']);
+        }
+
+        // ---------------------------------------------------------------
+        // For smaller reports, use mPDF to generate a proper PDF.
         // ---------------------------------------------------------------
         $mpdf = new Mpdf([
-            'format'      => 'A4-L',
-            'orientation' => 'L',
-            'margin_left' => 5,
-            'margin_right'  => 5,
-            'margin_top'    => 10,
-            'margin_bottom' => 10,
+            'format'           => 'A4-L',
+            'orientation'      => 'L',
+            'margin_left'      => 5,
+            'margin_right'     => 5,
+            'margin_top'       => 10,
+            'margin_bottom'    => 10,
+            'simpleTables'     => true,
+            'packTableData'    => true,
+            'useSubstitutions' => false,
+            'useKerning'       => false,
         ]);
-
-        $dateRange = ' For the Period ' . $from_date . ' to ' . $to_date;
 
         // --- 1. Write the full opening HTML (head + styles + company header + table open + column headers)
         //        Use default mode (0) so mPDF processes the <head> section for styles.
@@ -94,17 +146,16 @@ class LedgerReportController extends Controller
 
         // --- 2. Write data rows in chunks of 100 rows ---
         //        Use HTMLParserMode::HTML_BODY (2) for raw <tr> fragments.
-        $chunkSize = 100;
+        $chunkSize = 500;
         $chunks    = array_chunk($getData, $chunkSize);
 
         foreach ($chunks as $chunk) {
             $rowsHtml = '';
             foreach ($chunk as $item) {
-                $rowsHtml .= '<tr class="items">';
+                $rowsHtml .= '<tr>';
+                $itemArray = (array)$item;
                 foreach ($columns as $column) {
-                    $value     = isset($item->$column) ? $item->$column : (is_array($item) ? ($item[$column] ?? '') : '');
-                    $value     = str_replace(' ', '&nbsp;', htmlspecialchars((string)$value, ENT_QUOTES, 'UTF-8'));
-                    $rowsHtml .= '<td style="white-space:pre;padding:0.5rem;border-bottom:1px solid #dfdfdf;font-size:11px;">' . $value . '</td>';
+                    $rowsHtml .= '<td>' . htmlspecialchars((string)($itemArray[$column] ?? ''), ENT_QUOTES, 'UTF-8') . '</td>';
                 }
                 $rowsHtml .= '</tr>';
             }
@@ -172,10 +223,10 @@ class LedgerReportController extends Controller
                 'Opening Balance' AS Particulars,
                 ' ' AS Debit,
                 ' ' AS Credit,
-                COALESCE(SUM(amount * transaction_type), 0) AS Balance
-            FROM supplier_transactions
-            WHERE supplier_id = $supplier_id
-            AND date < '$start_date'
+                COALESCE(SUM(ST.amount * ST.transaction_type), 0) AS Balance
+            FROM supplier_transactions ST
+            WHERE ST.supplier_id = $supplier_id
+            AND ST.date < '$start_date'
             LIMIT 1
         )
 
@@ -186,12 +237,12 @@ class LedgerReportController extends Controller
         SELECT
             TR.date AS Date,
             COA.name AS 'Account Head',
-            doc_type AS 'Voucher Type',
+            TR.doc_type AS 'Voucher Type',
             COALESCE(P.uid, SPV.uid, CAST(TR.doc_id AS CHAR)) AS 'Voucher Number',
             TR.description AS Particulars,
-            CASE WHEN transaction_type = -1 THEN amount ELSE 0 END AS Debit,
-            CASE WHEN transaction_type = 1 THEN amount ELSE 0 END AS Credit,
-            SUM(amount * transaction_type) OVER (ORDER BY TR.date, TR.id) + (SELECT Balance FROM OpeningBalance) AS Balance
+            CASE WHEN TR.transaction_type = -1 THEN TR.amount ELSE 0 END AS Debit,
+            CASE WHEN TR.transaction_type = 1 THEN TR.amount ELSE 0 END AS Credit,
+            SUM(TR.amount * TR.transaction_type) OVER (ORDER BY TR.date, TR.id) + (SELECT Balance FROM OpeningBalance) AS Balance
         FROM supplier_transactions TR
         LEFT JOIN chart_of_accounts COA ON COA.id = TR.chart_of_account_id
         LEFT JOIN purchases P ON P.id = TR.doc_id AND TR.doc_type = 'GPB'
@@ -266,7 +317,7 @@ SELECT
      CASE WHEN TR.date < '$start_date' THEN '$start_date' ELSE TR.date END AS Date,
      CASE WHEN TR.date < '$start_date' THEN ' ' ELSE COA.name END AS 'Account Head',
      doc_type AS 'Voucher Type',
-     COALESCE(RV.uid, PV.uid, JV.uid, FTV.uid, SPV.uid, CRV.uid, P.uid, S.invoice_number, CAST(TR.doc_id AS CHAR)) AS 'Voucher Number',
+      COALESCE(RV.uid, PV.uid, JV.uid, FTV.uid, SPV.uid, CRV.uid, P.uid, S.invoice_number, CAST(TR.doc_id AS CHAR)) AS 'Voucher Number',
     CASE WHEN TR.date < '$start_date' THEN 'Opening Balance' ELSE IFNULL(TR.narration, '') END AS Particulars,
     CASE WHEN TR.date < '$start_date' THEN ' ' ELSE CASE WHEN TR.type = 'debit' THEN TR.amount ELSE 0 END END AS Debit,
     CASE WHEN TR.date < '$start_date' THEN ' ' ELSE CASE WHEN TR.type = 'credit' THEN TR.amount ELSE 0 END END AS Credit,
@@ -281,7 +332,7 @@ LEFT JOIN fund_transfer_vouchers FTV ON FTV.id = TR.doc_id AND TR.doc_type = 'FT
 LEFT JOIN supplier_payment_vouchers SPV ON SPV.id = TR.doc_id AND TR.doc_type = 'SPV'
 LEFT JOIN customer_receive_vouchers CRV ON CRV.id = TR.doc_id AND TR.doc_type = 'CRV'
 LEFT JOIN purchases P ON P.id = TR.doc_id AND TR.doc_type = 'GPB'
-LEFT JOIN sales S ON S.id = TR.doc_id AND TR.doc_type = 'SALE'
+LEFT JOIN sales S ON S.id = TR.doc_id AND TR.doc_type = 'POS'
 LEFT JOIN chart_of_accounts COA ON COA.id = (
 CASE
 WHEN TR.doc_type = 'RV' THEN (CASE WHEN TR.type = 'credit' THEN RV.debit_account_id ELSE RV.credit_account_id END)
@@ -291,7 +342,7 @@ WHEN TR.doc_type = 'FTV' THEN (CASE WHEN TR.type = 'debit' THEN FTV.credit_accou
 WHEN TR.doc_type = 'SPV' THEN (CASE WHEN TR.type = 'debit' THEN SPV.credit_account_id ELSE SPV.debit_account_id END)
 WHEN TR.doc_type = 'CRV' THEN (CASE WHEN TR.type = 'credit' THEN CRV.debit_account_id ELSE CRV.credit_account_id END)
 WHEN TR.doc_type = 'GPB' THEN (CASE WHEN TR.type = 'debit' THEN 22 ELSE 15 END)
-WHEN TR.doc_type = 'SALE' THEN (CASE WHEN TR.type = 'credit' THEN 1 ELSE 12 END)
+WHEN TR.doc_type = 'POS' THEN (CASE WHEN TR.type = 'credit' THEN 1 ELSE 12 END)
 ELSE NULL
 END
 )
@@ -325,7 +376,7 @@ SELECT
      CASE WHEN TR.date < '$start_date' THEN '$start_date' ELSE TR.date END AS Date,
      CASE WHEN TR.date < '$start_date' THEN ' ' ELSE COA.name END AS 'Account Head',
      doc_type AS 'Voucher Type',
-     COALESCE(RV.uid, PV.uid, JV.uid, FTV.uid, SPV.uid, CRV.uid, P.uid, S.invoice_number, CAST(TR.doc_id AS CHAR)) AS 'Voucher Number',
+      COALESCE(RV.uid, PV.uid, JV.uid, FTV.uid, SPV.uid, CRV.uid, P.uid, S.invoice_number, CAST(TR.doc_id AS CHAR)) AS 'Voucher Number',
     CASE WHEN TR.date < '$start_date' THEN 'Opening Balance' ELSE IFNULL(TR.narration, '') END AS Particulars,
     CASE WHEN TR.date < '$start_date' THEN ' ' ELSE CASE WHEN TR.type = 'debit' THEN TR.amount ELSE 0 END END AS Debit,
     CASE WHEN TR.date < '$start_date' THEN ' ' ELSE CASE WHEN TR.type = 'credit' THEN TR.amount ELSE 0 END END AS Credit,
@@ -338,7 +389,7 @@ LEFT JOIN fund_transfer_vouchers FTV ON FTV.id = TR.doc_id AND TR.doc_type = 'FT
 LEFT JOIN supplier_payment_vouchers SPV ON SPV.id = TR.doc_id AND TR.doc_type = 'SPV'
 LEFT JOIN customer_receive_vouchers CRV ON CRV.id = TR.doc_id AND TR.doc_type = 'CRV'
 LEFT JOIN purchases P ON P.id = TR.doc_id AND TR.doc_type = 'GPB'
-LEFT JOIN sales S ON S.id = TR.doc_id AND TR.doc_type = 'SALE'
+LEFT JOIN sales S ON S.id = TR.doc_id AND TR.doc_type = 'POS'
 LEFT JOIN chart_of_accounts COA ON COA.id = (
 CASE
 WHEN TR.doc_type = 'RV' THEN (CASE WHEN TR.type = 'credit' THEN RV.debit_account_id ELSE RV.credit_account_id END)
@@ -348,7 +399,7 @@ WHEN TR.doc_type = 'FTV' THEN (CASE WHEN TR.type = 'debit' THEN FTV.credit_accou
 WHEN TR.doc_type = 'SPV' THEN (CASE WHEN TR.type = 'debit' THEN SPV.credit_account_id ELSE SPV.debit_account_id END)
 WHEN TR.doc_type = 'CRV' THEN (CASE WHEN TR.type = 'credit' THEN CRV.debit_account_id ELSE CRV.credit_account_id END)
 WHEN TR.doc_type = 'GPB' THEN (CASE WHEN TR.type = 'debit' THEN 22 ELSE 15 END)
-WHEN TR.doc_type = 'SALE' THEN (CASE WHEN TR.type = 'credit' THEN 1 ELSE 12 END)
+WHEN TR.doc_type = 'POS' THEN (CASE WHEN TR.type = 'credit' THEN 1 ELSE 12 END)
 ELSE NULL
 END
 )

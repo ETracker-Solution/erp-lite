@@ -29,10 +29,11 @@
             text-align: left;
         }
 
-        table tr.items td {
+        table.products tr td {
             padding: 0.5rem;
             border-bottom: 1px solid #dfdfdf;
             font-size: 11px;
+            line-height: 1.2;
         }
 
         .headers { text-align: center; }
@@ -80,8 +81,11 @@
 
 <div class="margin-top">
     <table class="products">
-        <tr>
-            @foreach($columns as $column)
-                <th>{{ $column }}</th>
-            @endforeach
-        </tr>
+        <thead>
+            <tr>
+                @foreach($columns as $column)
+                    <th>{{ $column }}</th>
+                @endforeach
+            </tr>
+        </thead>
+        <tbody>
