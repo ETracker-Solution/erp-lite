@@ -481,41 +481,41 @@ AND SS.date <= '$to_date'
     ";
     }
 
+
+
     public function getAllOutletAccountSaleReport($from_date, $to_date)
     {
+        $requestOutlet = request()->store_id ?? null;
+
+        $outletCondition = $requestOutlet ? "AND s.outlet_id = '$requestOutlet'" : "";
+
         return "
     SELECT
         o.name as OutletName,
         coa.name as AccountName,
         SUM(at2.amount) as Amount
     FROM account_transactions at2
-
     JOIN chart_of_accounts coa
         ON coa.id = at2.chart_of_account_id
-
     LEFT JOIN customer_receive_vouchers crv
         ON at2.doc_type = 'CRV'
         AND at2.doc_id = crv.id
-
     JOIN sales s
         ON (
             (at2.doc_type = 'POS' AND at2.doc_id = s.id)
             OR
             (at2.doc_type = 'CRV' AND crv.sale_id = s.id)
         )
-
     JOIN outlets o
         ON o.id = s.outlet_id
-
     JOIN outlet_accounts oa
         ON oa.outlet_id = s.outlet_id
         AND coa.id = oa.coa_id
-
     WHERE at2.doc_type IN ('POS','CRV')
         AND at2.type = 'debit'
         AND s.date >= '$from_date'
         AND s.date <= '$to_date'
-
+        $outletCondition
     GROUP BY s.outlet_id, coa.id
 
     UNION ALL
@@ -525,34 +525,102 @@ AND SS.date <= '$to_date'
         'TOTAL' as AccountName,
         SUM(at2.amount) as Amount
     FROM account_transactions at2
-
     JOIN chart_of_accounts coa
         ON coa.id = at2.chart_of_account_id
-
     LEFT JOIN customer_receive_vouchers crv
         ON at2.doc_type = 'CRV'
         AND at2.doc_id = crv.id
-
     JOIN sales s
         ON (
             (at2.doc_type = 'POS' AND at2.doc_id = s.id)
             OR
             (at2.doc_type = 'CRV' AND crv.sale_id = s.id)
         )
-
     JOIN outlets o
         ON o.id = s.outlet_id
-
     JOIN outlet_accounts oa
         ON oa.outlet_id = s.outlet_id
         AND coa.id = oa.coa_id
-
     WHERE at2.doc_type IN ('POS','CRV')
         AND at2.type = 'debit'
         AND s.date >= '$from_date'
         AND s.date <= '$to_date'
+        $outletCondition
     ";
     }
+
+//    public function getAllOutletAccountSaleReport($from_date, $to_date)
+//    {
+//        return "
+//    SELECT
+//        o.name as OutletName,
+//        coa.name as AccountName,
+//        SUM(at2.amount) as Amount
+//    FROM account_transactions at2
+//
+//    JOIN chart_of_accounts coa
+//        ON coa.id = at2.chart_of_account_id
+//
+//    LEFT JOIN customer_receive_vouchers crv
+//        ON at2.doc_type = 'CRV'
+//        AND at2.doc_id = crv.id
+//
+//    JOIN sales s
+//        ON (
+//            (at2.doc_type = 'POS' AND at2.doc_id = s.id)
+//            OR
+//            (at2.doc_type = 'CRV' AND crv.sale_id = s.id)
+//        )
+//
+//    JOIN outlets o
+//        ON o.id = s.outlet_id
+//
+//    JOIN outlet_accounts oa
+//        ON oa.outlet_id = s.outlet_id
+//        AND coa.id = oa.coa_id
+//
+//    WHERE at2.doc_type IN ('POS','CRV')
+//        AND at2.type = 'debit'
+//        AND s.date >= '$from_date'
+//        AND s.date <= '$to_date'
+//
+//    GROUP BY s.outlet_id, coa.id
+//
+//    UNION ALL
+//
+//    SELECT
+//        '' as OutletName,
+//        'TOTAL' as AccountName,
+//        SUM(at2.amount) as Amount
+//    FROM account_transactions at2
+//
+//    JOIN chart_of_accounts coa
+//        ON coa.id = at2.chart_of_account_id
+//
+//    LEFT JOIN customer_receive_vouchers crv
+//        ON at2.doc_type = 'CRV'
+//        AND at2.doc_id = crv.id
+//
+//    JOIN sales s
+//        ON (
+//            (at2.doc_type = 'POS' AND at2.doc_id = s.id)
+//            OR
+//            (at2.doc_type = 'CRV' AND crv.sale_id = s.id)
+//        )
+//
+//    JOIN outlets o
+//        ON o.id = s.outlet_id
+//
+//    JOIN outlet_accounts oa
+//        ON oa.outlet_id = s.outlet_id
+//        AND coa.id = oa.coa_id
+//
+//    WHERE at2.doc_type IN ('POS','CRV')
+//        AND at2.type = 'debit'
+//        AND s.date >= '$from_date'
+//        AND s.date <= '$to_date'
+//    ";
+//    }
 
     public function getPaymentMethodWiseSalesReport($from_date, $to_date)
     {
