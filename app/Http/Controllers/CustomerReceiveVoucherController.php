@@ -43,7 +43,7 @@ class CustomerReceiveVoucherController extends Controller
                         ->pluck('customers.name')->unique()->implode(', ');
                 })
                 ->addColumn('action', function ($row) {
-                     return view('customer_receive_voucher.action-button', compact('row'));
+                    return view('customer_receive_voucher.action-button', compact('row'));
                 })
                 ->editColumn('date', function ($row) {
                     return \Carbon\Carbon::parse($row->date)->format('Y-m-d');
@@ -201,8 +201,8 @@ class CustomerReceiveVoucherController extends Controller
                 // Check if internal method available? No property on model.
                 // Simple logic:
                 if ($sale->receive_amount >= $sale->grand_total) {
-                     // Maybe status 'final' is already there, but if we have payment status?
-                     // Sale doesn't seem to have payment_status column in Controller logic, just 'receive_amount'.
+                    // Maybe status 'final' is already there, but if we have payment status?
+                    // Sale doesn't seem to have payment_status column in Controller logic, just 'receive_amount'.
                 }
                 $sale->save();
 

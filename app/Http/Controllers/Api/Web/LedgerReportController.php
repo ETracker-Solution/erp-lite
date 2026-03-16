@@ -201,10 +201,10 @@ class LedgerReportController extends Controller
         ");
     }
 
+
     public function customerLedgerQuery($customer_id, $start_date, $end_date)
     {
-        return DB::select("
-        WITH OpeningBalance AS (
+        return DB::select(" WITH OpeningBalance AS (
             SELECT
                 '$start_date' AS Date,
                 ' ' AS 'Account Head',
@@ -215,15 +215,11 @@ class LedgerReportController extends Controller
                 ' ' AS Credit,
                 COALESCE(SUM(TR.amount * TR.transaction_type), 0) AS Balance
             FROM customer_transactions TR
-            WHERE TR.customer_id = $customer_id
-            AND TR.date < '$start_date'
+            WHERE TR.customer_id = $customer_id AND TR.date < '$start_date'
             LIMIT 1
         )
-
         SELECT * FROM OpeningBalance
-
         UNION ALL
-
         SELECT
             TR.date AS Date,
             COA.name AS 'Account Head',
@@ -232,17 +228,14 @@ class LedgerReportController extends Controller
             TR.description AS Particulars,
             CASE WHEN TR.transaction_type = 1 THEN TR.amount ELSE 0 END AS Debit,
             CASE WHEN TR.transaction_type = -1 THEN TR.amount ELSE 0 END AS Credit,
-            SUM(TR.amount * TR.transaction_type) OVER (ORDER BY TR.date, TR.id)
-                + (SELECT Balance FROM OpeningBalance) AS Balance
+            SUM(TR.amount * TR.transaction_type) OVER (ORDER BY TR.date, TR.id) + (SELECT Balance FROM OpeningBalance) AS Balance
         FROM customer_transactions TR
         LEFT JOIN chart_of_accounts COA ON COA.id = TR.chart_of_account_id
-        LEFT JOIN sales S ON S.id = TR.doc_id AND TR.doc_type = 'SALE'
+        LEFT JOIN sales S ON S.id = TR.doc_id AND TR.doc_type = 'POS'
         LEFT JOIN customer_receive_vouchers CRV ON CRV.id = TR.doc_id AND TR.doc_type = 'CRV'
-        WHERE TR.customer_id = $customer_id
-        AND TR.date >= '$start_date'
-        AND TR.date <= '$end_date'
-    ");
+        WHERE TR.customer_id = $customer_id AND TR.date >= '$start_date' AND TR.date <= '$end_date' ");
     }
+
 
     public function ledgerReportQuery($account_id, $start_date, $end_date)
     {
