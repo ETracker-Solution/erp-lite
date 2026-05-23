@@ -19,7 +19,8 @@
                   </span>
                 <div class="col-lg-12 col-md-12">
                     <form action="{{ route('fund-transfer-vouchers.store') }}" method="POST" class=""
-                          enctype="multipart/form-data">
+                          enctype="multipart/form-data"
+                          onsubmit="if(this.beenSubmitted){ return false; } this.beenSubmitted=true; this.querySelector('button[type=submit]').disabled=true; this.querySelector('button[type=submit]').innerHTML='<i class=\'fas fa-spinner fa-spin\'></i> Submitting...';">
                         @csrf
                         <input type="hidden" name="submission_token"
                                value="{{ session()->get('submission_token') ?? Str::random(40) }}">
@@ -101,7 +102,7 @@
                                             <label for="reference_no">Reference No</label>
                                             <input type="text" class="form-control" id="reference_no"
                                                    name="reference_no" placeholder="Enter Reference No"
-                                                   v-model="reference_no">
+                                                   v-model="reference_no" @keyup.enter.prevent="data_input">
                                             @if ($errors->has('reference_no'))
                                                 <small class="text-danger">{{ $errors->first('reference_no') }}</small>
                                             @endif
@@ -112,7 +113,7 @@
                                             <label for="amount">Amount</label>
                                             <input type="number" class="form-control" id="amount"
                                                    name="amount" placeholder="Enter Amount"
-                                                   v-model="amount">
+                                                   v-model="amount" @keyup.enter.prevent="data_input">
                                             @if ($errors->has('amount'))
                                                 <small class="text-danger">{{ $errors->first('amount') }}</small>
                                             @endif

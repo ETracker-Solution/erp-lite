@@ -160,12 +160,30 @@ class FundTransferVoucherController extends Controller
 
             foreach ($validated['products'] as $product) {
                 $creditAccount = ChartOfAccount::find($product['credit_account_id']);
+                
+                // Extra safety: Check if an identical voucher was recently created (within last 10 seconds)
+                $duplicateExists = FundTransferVoucher::where([
+                    'credit_account_id' => $product['credit_account_id'],
+                    'debit_account_id' => $product['debit_account_id'],
+                    'amount' => $product['amount'],
+                    'created_by' => $validated['created_by'],
+                ])
+                ->where('created_at', '>=', now()->subSeconds(10))
+                ->exists();
+
+                if ($duplicateExists) {
+                    Toastr::warning('Duplicate fund transfer voucher detected. Please wait.', '', ["progressBar" => true]);
+                    DB::rollBack();
+                    return back();
+                }
+
                 $pendingAmount = FundTransferVoucher::where(['credit_account_id' => $product['credit_account_id'], 'status' => 'pending'])->sum('amount');
                 $currentBalance = AccountTransaction::where('chart_of_account_id', $product['credit_account_id'])->sum(\DB::raw('amount * transaction_type'));
                 $other_outlet_sales_balance = accountBalanceForOtherOutletSales($product['credit_account_id']);
                 $actualBalance = $currentBalance - $pendingAmount - $other_outlet_sales_balance;
                 if (max($actualBalance, 0) < $product['amount']) {
                     Toastr::warning("No Available Balance in " . $creditAccount->name);
+                    DB::rollBack();
                     return back();
                 }
                 $product['date'] = $validated['date'];
@@ -176,8 +194,8 @@ class FundTransferVoucherController extends Controller
             DB::commit();
         } catch (\Exception $error) {
             DB::rollBack();
-            return $error;
-            Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
+            \Illuminate\Support\Facades\Log::error('Error storing Fund Transfer Voucher: ' . $error->getMessage());
+            Toastr::error('Something went wrong! Please try again.', '', ["progressBar" => true]);
             return back();
         }
         Toastr::success('Fund Transfer Voucher Created Successfully!.', '', ["progressBar" => true]);
