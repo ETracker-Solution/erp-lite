@@ -426,7 +426,7 @@ class POSController extends Controller
                 ->orWhere('mobile', 'like', '%' . $request->search_string . '%')
                 ->orWhere('email', 'like', '%' . $request->search_string . '%');
         }
-        return $data->get();
+        return $data->latest()->take(10)->get();
     }
 
     public function getCustomerByNumber(Request $request)
