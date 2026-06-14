@@ -356,7 +356,7 @@ class POSController extends Controller
             $stock = $originalStock - $requisitionDelivered - $preOrderDelivered - $inventoryTransferred;
 
             // Add stock and discountable status to the product
-            $product->stock = max($stock, 0);
+            $product->stock = round(max((float) $stock, 0), 2);
             $product->discountable = !$product->parent->non_discountable;
 
             return $product;
