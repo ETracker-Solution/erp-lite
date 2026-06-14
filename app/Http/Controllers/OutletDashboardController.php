@@ -199,6 +199,52 @@ class OutletDashboardController extends Controller
         return view('dashboard.outlet', $data);
     }
 
+    public function outletDashboard2()
+    {
+        $outlet_id = Auth::user()->employee->outlet_id;
+
+        $store_ids = Store::where(['doc_type' => 'outlet', 'doc_id' => $outlet_id])->pluck('id');
+
+        $wastage_amount = InventoryAdjustment::whereIn('store_id', $store_ids)->whereDate('date', now()->subDay())->sum('subtotal');
+
+        $requisition_deliveries = RequisitionDelivery::whereHas('requisition', function ($query) use ($outlet_id) {
+            $query->where(['outlet_id' => $outlet_id]);
+        })->where(['type' => 'FG', 'status' => 'completed'])->get();
+
+        $requisition_deliveries_count = count($requisition_deliveries);
+
+        $otherOutletSales = OthersOutletSale::where('outlet_id', '!=', $outlet_id)
+            ->where(['status' => 'pending', 'delivery_point_id' => $outlet_id])
+            ->count();
+
+        $products = ChartOfInventory::where(['type' => 'item', 'rootAccountType' => 'FG', 'status' => 'active'])->count();
+
+
+        $todaySale = Sale::where('outlet_id', $outlet_id)->whereDate('created_at', Carbon::now()->format('Y-m-d'))->sum('grand_total');
+        $todayInvoice = Sale::where('outlet_id', $outlet_id)->whereDate('created_at', Carbon::now()->format('Y-m-d'))->count();
+
+        $outletPettyCashAmount = 0;
+        $outletAccounts = OutletAccount::with('coa')->where('outlet_id', $outlet_id)->get();
+        foreach ($outletAccounts as $outletAccount) {
+            if ($outletAccount->coa->default_type == 'petty_cash') {
+                $outletPettyCashAmount = $outletAccount->coa->transactions()->sum(DB::raw('transaction_type* amount'));
+            }
+        }
+
+        $data = [
+            'requisition_deliveries' => $requisition_deliveries, //
+            'requisition_deliveries_count' => $requisition_deliveries_count, //
+            'products' => $products, //
+            'wastageAmount' => round($wastage_amount), //
+            'todaySale' => $todaySale, //
+            'todayInvoice' => $todayInvoice, //
+            'otherOutletSales' => $otherOutletSales, //
+            'outletPettyCashAmount' => $outletPettyCashAmount //
+        ];
+//        return $data;
+        return view('dashboard.outlet2', $data);
+    }
+
     protected function getReq()
     {
         $q = DB::select(

@@ -26,7 +26,7 @@ class DashboardController extends Controller
                 case 'factory':
                     return (new FactoryDashboardController())->factoryDashboard();
                 case 'outlet':
-                    return (new OutletDashboardController())->outletDashboard();
+                    return (new OutletDashboardController())->outletDashboard2();
             }
         }
 
