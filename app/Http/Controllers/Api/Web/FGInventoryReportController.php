@@ -23,6 +23,9 @@ class FGInventoryReportController extends Controller
     {
         ini_set('memory_limit', '600M'); // or '-1' for unlimited
 
+        ini_set('pcre.backtrack_limit', 5000000);
+        ini_set('pcre.recursion_limit', 5000000);
+
         $asOnDate = Carbon::parse(\request()->as_on_date)->format('Y-m-d') ?? Carbon::now()->format('Y-m-d');
 
         $page_title = false;
