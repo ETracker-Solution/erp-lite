@@ -128,7 +128,8 @@ class POSController extends Controller
             foreach ($products as $row) {
                 $row['product_id'] = $row['id'];
                 $row['unit_price'] = $row['price'];
-                $currentStock = availableInventoryBalance($row['id'], $store->id);
+                $current_stock = transactionAbleStock($row['id'], [$store->id]);
+//                $currentStock = availableInventoryBalance($row['id'], $store->id);
                 if ($currentStock < $row['quantity']) {
                     Toastr::error('Delivery Quantity cannot more then ' . $currentStock . ' !', '', ["progressBar" => true]);
                     return back();
