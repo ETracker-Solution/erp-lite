@@ -130,7 +130,7 @@ class POSController extends Controller
                 $row['unit_price'] = $row['price'];
 
                 $coiItem = ChartOfInventory::findOrFail($row['id']);
-                $current_stock = transactionAbleStock($coiItem, [$store->id]);
+                $currentStock = transactionAbleStock($coiItem, [$store->id]);
 //                $currentStock = availableInventoryBalance($row['id'], $store->id);
                 if ($currentStock < $row['quantity']) {
                     Toastr::error('Delivery Quantity cannot more then ' . $currentStock . ' !', '', ["progressBar" => true]);
