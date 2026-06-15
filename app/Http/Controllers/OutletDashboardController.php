@@ -231,6 +231,8 @@ class OutletDashboardController extends Controller
             }
         }
 
+        $totalDiscountToday = Sale::where('outlet_id', $outlet_id)->whereDate('created_at', Carbon::today())->sum('discount');
+
         $data = [
             'requisition_deliveries' => $requisition_deliveries, //
             'requisition_deliveries_count' => $requisition_deliveries_count, //
@@ -239,7 +241,8 @@ class OutletDashboardController extends Controller
             'todaySale' => $todaySale, //
             'todayInvoice' => $todayInvoice, //
             'otherOutletSales' => $otherOutletSales, //
-            'outletPettyCashAmount' => $outletPettyCashAmount //
+            'outletPettyCashAmount' => $outletPettyCashAmount, //
+            'totalDiscountToday'=> $totalDiscountToday
         ];
 //        return $data;
         return view('dashboard.outlet2', $data);
