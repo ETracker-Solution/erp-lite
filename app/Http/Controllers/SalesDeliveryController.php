@@ -206,6 +206,9 @@ class SalesDeliveryController extends Controller
                     'amount' => ($paymentMethod['method'] == 'cash' && $change_amount > 0) ? ($paymentMethod['amount'] - $change_amount) : $paymentMethod['amount'],
                 ]);
                 $sale->amount = $payment->amount;
+                if ($paymentMethod['method'] == 'PBLQR') {
+                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'PBLQR'), getAccountsReceiveableGLId());
+                }
                 if ($paymentMethod['method'] == 'nexus') {
                     addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'Nexus'), getAccountsReceiveableGLId());
                 }

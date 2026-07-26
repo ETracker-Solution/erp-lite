@@ -238,6 +238,9 @@ class SaleController extends Controller
                         'exchange_id' => $ret->id
                     ]);
                 }
+                if ($paymentMethod['method'] == 'PBLQR') {
+                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'PBLQR'), getAccountsReceiveableGLId());
+                }
                 if ($paymentMethod['method'] == 'nexus') {
                     addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'Nexus'), getAccountsReceiveableGLId());
                 }

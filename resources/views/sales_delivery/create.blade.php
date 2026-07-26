@@ -331,6 +331,7 @@
                                                                             <option value="upay">Upay</option>
                                                                             <option value="nexus">Nexus</option>
                                                                             <option value="pbl">PBL POS</option>
+                                                                            <option value="PBLQR">PBL QR</option>
                                                                             <option value="due">Due Sale</option>
                                                                             <option value="FoodPanda">Food Panda</option>
                                                                             <option value="CityBank">City Bank</option>
