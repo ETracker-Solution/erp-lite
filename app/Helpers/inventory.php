@@ -60,6 +60,27 @@ function averageFGRate(int $item_id, int $store_id = null)
     return ($data->totalQuantity != 0) ? $data->totalAmount / $data->totalQuantity : 0;
 }
 
+/**
+ * Batch average FG rates for many products (matches averageFGRate() global sum behavior).
+ */
+function averageFGRates($productIds): array
+{
+    $productIds = collect($productIds)->filter()->unique()->values();
+    if ($productIds->isEmpty()) {
+        return [];
+    }
+
+    return InventoryTransaction::whereIn('coi_id', $productIds)
+        ->select('coi_id', DB::raw('SUM(amount) as totalAmount'), DB::raw('SUM(quantity) as totalQuantity'))
+        ->groupBy('coi_id')
+        ->get()
+        ->mapWithKeys(function ($row) {
+            $rate = ($row->totalQuantity != 0) ? ($row->totalAmount / $row->totalQuantity) : 0;
+            return [$row->coi_id => $rate];
+        })
+        ->all();
+}
+
 function inventoryAmount(int $outletId)
 {
 

@@ -94,11 +94,23 @@ function getAllLedgers()
 
 function outletTransactionAccount($outlet_id, $account_type = 'cash')
 {
-    $account = \App\Models\OutletTransactionConfig::where(['type' => $account_type, 'outlet_id' => $outlet_id])->first();
-    if ($account) {
-        return $account->coa_id;
+    static $cache = [];
+    $key = $outlet_id . ':' . $account_type;
+    if (array_key_exists($key, $cache)) {
+        return $cache[$key];
     }
-    return false;
+
+    if (!array_key_exists($outlet_id . ':__loaded', $cache)) {
+        $rows = \App\Models\OutletTransactionConfig::where('outlet_id', $outlet_id)
+            ->pluck('coa_id', 'type');
+        foreach ($rows as $type => $coaId) {
+            $cache[$outlet_id . ':' . $type] = $coaId;
+        }
+        $cache[$outlet_id . ':__loaded'] = true;
+    }
+
+    $cache[$key] = $cache[$key] ?? false;
+    return $cache[$key];
 }
 
 function getDiscountGLID()

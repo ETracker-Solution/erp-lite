@@ -86,26 +86,33 @@ class FundTransferVoucherController extends Controller
             })->toArray();
         }
 
-        $outlets = Outlet::query()->select(['id', 'name'])->orderBy('name')->get();
-        $accounts = ChartOfAccount::query()
-            ->where('type', 'ledger')
-            ->whereIn('id', function ($query) {
-                $query->select('coa_id')->from('outlet_accounts');
-            })
-            ->select('id', 'name')
-            ->orderBy('name')
-            ->get();
+        $outlets = collect();
+        $accounts = collect();
+        $toAccounts = collect();
 
-        $toAccounts = ChartOfAccount::query()
-            ->where([
-                'default_type' => 'office_account',
-                'is_bank_cash' => 'yes',
-                'type' => 'ledger',
-                'status' => 'active',
-            ])
-            ->select('id', 'name')
-            ->orderBy('name')
-            ->get();
+        // Filter dropdowns are only used by HO users with accounts-ft-voucher-filter permission.
+        if (!auth()->user()?->employee?->outlet_id) {
+            $outlets = Outlet::query()->select(['id', 'name'])->orderBy('name')->get();
+            $accounts = ChartOfAccount::query()
+                ->where('type', 'ledger')
+                ->whereIn('id', function ($query) {
+                    $query->select('coa_id')->from('outlet_accounts');
+                })
+                ->select('id', 'name')
+                ->orderBy('name')
+                ->get();
+
+            $toAccounts = ChartOfAccount::query()
+                ->where([
+                    'default_type' => 'office_account',
+                    'is_bank_cash' => 'yes',
+                    'type' => 'ledger',
+                    'status' => 'active',
+                ])
+                ->select('id', 'name')
+                ->orderBy('name')
+                ->get();
+        }
 
         return view('fund_transfer_voucher.index', compact('outlets', 'outlet_accounts', 'accounts', 'toAccounts'));
     }

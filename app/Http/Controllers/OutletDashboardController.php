@@ -6,6 +6,7 @@ use App\Models\ChartOfInventory;
 use App\Models\Customer;
 use App\Models\InventoryAdjustment;
 use App\Models\InventoryTransaction;
+use App\Models\AccountTransaction;
 use App\Models\OthersOutletSale;
 use App\Models\Outlet;
 use App\Models\OutletAccount;
@@ -202,16 +203,26 @@ class OutletDashboardController extends Controller
     public function outletDashboard2()
     {
         $outlet_id = Auth::user()->employee->outlet_id;
+        $today = Carbon::today()->toDateString();
 
         $store_ids = Store::where(['doc_type' => 'outlet', 'doc_id' => $outlet_id])->pluck('id');
 
-        $wastage_amount = InventoryAdjustment::whereIn('store_id', $store_ids)->whereDate('date', now()->subDay())->sum('subtotal');
+        $wastage_amount = empty($store_ids->toArray())
+            ? 0
+            : InventoryAdjustment::whereIn('store_id', $store_ids)
+                ->whereDate('date', now()->subDay())
+                ->sum('subtotal');
 
-        $requisition_deliveries = RequisitionDelivery::whereHas('requisition', function ($query) use ($outlet_id) {
-            $query->where(['outlet_id' => $outlet_id]);
-        })->where(['type' => 'FG', 'status' => 'completed'])->get();
+        $deliveryBase = RequisitionDelivery::whereHas('requisition', function ($query) use ($outlet_id) {
+            $query->where('outlet_id', $outlet_id);
+        })->where(['type' => 'FG', 'status' => 'completed']);
 
-        $requisition_deliveries_count = count($requisition_deliveries);
+        $requisition_deliveries_count = (clone $deliveryBase)->count();
+        $requisition_deliveries = (clone $deliveryBase)
+            ->select(['id', 'uid', 'status', 'created_at', 'requisition_id'])
+            ->latest('id')
+            ->limit(10)
+            ->get();
 
         $otherOutletSales = OthersOutletSale::where('outlet_id', '!=', $outlet_id)
             ->where(['status' => 'pending', 'delivery_point_id' => $outlet_id])
@@ -219,32 +230,36 @@ class OutletDashboardController extends Controller
 
         $products = ChartOfInventory::where(['type' => 'item', 'rootAccountType' => 'FG', 'status' => 'active'])->count();
 
+        $todayStats = Sale::where('outlet_id', $outlet_id)
+            ->whereDate('created_at', $today)
+            ->selectRaw('COALESCE(SUM(grand_total), 0) as today_sale, COUNT(*) as today_invoice, COALESCE(SUM(discount), 0) as total_discount')
+            ->first();
 
-        $todaySale = Sale::where('outlet_id', $outlet_id)->whereDate('created_at', Carbon::now()->format('Y-m-d'))->sum('grand_total');
-        $todayInvoice = Sale::where('outlet_id', $outlet_id)->whereDate('created_at', Carbon::now()->format('Y-m-d'))->count();
+        $pettyCashCoaId = OutletAccount::query()
+            ->where('outlet_id', $outlet_id)
+            ->whereHas('coa', function ($q) {
+                $q->where('default_type', 'petty_cash');
+            })
+            ->value('coa_id');
 
-        $outletPettyCashAmount = 0;
-        $outletAccounts = OutletAccount::with('coa')->where('outlet_id', $outlet_id)->get();
-        foreach ($outletAccounts as $outletAccount) {
-            if ($outletAccount->coa->default_type == 'petty_cash') {
-                $outletPettyCashAmount = $outletAccount->coa->transactions()->sum(DB::raw('transaction_type* amount'));
-            }
-        }
-
-        $totalDiscountToday = Sale::where('outlet_id', $outlet_id)->whereDate('created_at', Carbon::today())->sum('discount');
+        $outletPettyCashAmount = $pettyCashCoaId
+            ? (AccountTransaction::where('chart_of_account_id', $pettyCashCoaId)
+                ->selectRaw('COALESCE(SUM(amount * transaction_type), 0) as balance')
+                ->value('balance') ?? 0)
+            : 0;
 
         $data = [
-            'requisition_deliveries' => $requisition_deliveries, //
-            'requisition_deliveries_count' => $requisition_deliveries_count, //
-            'products' => $products, //
-            'wastageAmount' => round($wastage_amount), //
-            'todaySale' => $todaySale, //
-            'todayInvoice' => $todayInvoice, //
-            'otherOutletSales' => $otherOutletSales, //
-            'outletPettyCashAmount' => $outletPettyCashAmount, //
-            'totalDiscountToday'=> $totalDiscountToday
+            'requisition_deliveries' => $requisition_deliveries,
+            'requisition_deliveries_count' => $requisition_deliveries_count,
+            'products' => $products,
+            'wastageAmount' => round($wastage_amount),
+            'todaySale' => $todayStats->today_sale ?? 0,
+            'todayInvoice' => $todayStats->today_invoice ?? 0,
+            'otherOutletSales' => $otherOutletSales,
+            'outletPettyCashAmount' => $outletPettyCashAmount,
+            'totalDiscountToday' => $todayStats->total_discount ?? 0,
         ];
-//        return $data;
+
         return view('dashboard.outlet2', $data);
     }
 

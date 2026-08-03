@@ -121,6 +121,11 @@ class POSController extends Controller
             $sale->save();
 
             $products = $request->get('products');
+            $productIds = collect($products)->pluck('id')->filter()->unique()->values();
+            $stockByProduct = $productIds->isEmpty()
+                ? collect()
+                : getInventoryQuantities($productIds, $store->id);
+            $rateByProduct = averageFGRates($productIds);
 
             $salesAmount = $sale->grand_total;
             $avgProductionPrice = 0;
@@ -128,7 +133,7 @@ class POSController extends Controller
             foreach ($products as $row) {
                 $row['product_id'] = $row['id'];
                 $row['unit_price'] = $row['price'];
-                $currentStock = availableInventoryBalance($row['id'], $store->id);
+                $currentStock = $stockByProduct[$row['id']] ?? 0;
 
                 $epsilon = 0.0001;
                 if ($currentStock + $epsilon < $row['quantity']) {
@@ -136,7 +141,8 @@ class POSController extends Controller
                     return back();
                 }
 
-                $row['cogs'] = averageFGRate($row['id']) * $row['quantity'];
+                $fgRate = $rateByProduct[$row['id']] ?? 0;
+                $row['cogs'] = $fgRate * $row['quantity'];
 
                 $discount_type = $row['discountType'];
                 $discount_value = $row['discountValue'];
@@ -156,7 +162,7 @@ class POSController extends Controller
                 $sale_item = $sale->items()->create($row);
                 $sale_item['date'] = date('Y-m-d');
                 $sale_item['coi_id'] = $row['id'];
-                $sale_item['rate'] = averageFGRate($row['id']);
+                $sale_item['rate'] = $fgRate;
                 $sale_item['amount'] = $sale_item['rate'] * $row['quantity'];
                 $sale_item['store_id'] = $store->id;
 
@@ -684,15 +690,20 @@ class POSController extends Controller
 
     public function getAllPreOrders()
     {
-        return PreOrder::query()
+        $query = PreOrder::query()
             ->with([
                 'items:id,pre_order_id,coi_id,quantity,unit_price',
                 'items.product:id,name',
                 'customer:id,name,mobile',
                 'sale:id,invoice_number,created_at',
             ])
-            ->withSum('items', 'quantity')
-            ->latest()
+            ->withSum('items', 'quantity');
+
+        if ($outletId = auth()->user()?->employee?->outlet_id) {
+            $query->where('outlet_id', $outletId);
+        }
+
+        return $query->latest()
             ->limit(50)
             ->get()
             ->map(function ($order) {

@@ -1,262 +1,336 @@
 <!DOCTYPE html>
-
-<html>
-
+<html lang="en">
 <head>
-
-    <title>Login Form</title>
-
-    <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign in | {{ getSettingValue('software_name') ?: config('app.name', 'Cake Town') }}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --ink: #1c1410;
+            --paper: #f7f1e8;
+            --paper-soft: rgba(247, 241, 232, 0.92);
+            --accent: #2f6b4f;
+            --accent-deep: #245540;
+            --line: rgba(28, 20, 16, 0.14);
+            --muted: rgba(28, 20, 16, 0.68);
+            --danger: #9b2c2c;
+            --radius: 14px;
+            --font-display: "Fraunces", Georgia, serif;
+            --font-body: "Manrope", sans-serif;
+        }
+
         * {
-
-            margin: 0;
-
-            padding: 0;
-
             box-sizing: border-box;
-
-            font-family: "Poppins", sans-serif;
-
+            margin: 0;
+            padding: 0;
         }
 
         body {
-
-            display: flex;
-
-            justify-content: center;
-
-            align-items: center;
-
             min-height: 100vh;
-
-            background-size: cover;
-
-            background: url(https://images.unsplash.com/photo-1501975558162-0be7b8ca95ea?crop=entropy&cs=srgb&fm=jpg&ixid=M3wzMjM4NDZ8MHwxfHJhbmRvbXx8fHx8fHx8fDE3MDk2NTI3NDJ8&ixlib=rb-4.0.3&q=85) no-repeat center;
-
+            font-family: var(--font-body);
+            color: var(--ink);
+            background: #120e0b;
+            overflow-x: hidden;
         }
 
-        .wrapper {
-
-            width: 420px;
-
-            background: transparent;
-
-            border: 1px solid white;
-
-            backdrop-filter: blur(4px);
-
-            color: #fff;
-
-            border-radius: 12px;
-
-            padding: 30px 40px;
-
-            display: none;
-
-        }
-
-        .wrapper h1 {
-
-            font-size: 36px;
-
-            text-align: center;
-
-        }
-
-        .wrapper .input-box {
-
+        .stage {
             position: relative;
-
-            width: 100%;
-
-            height: 50px;
-
-
-            margin: 30px 0;
-
+            min-height: 100vh;
+            display: grid;
+            place-items: center;
+            padding: 2rem 1.25rem;
         }
 
-        .input-box input {
-
-            width: 100%;
-
-            height: 100%;
-
-            background: transparent;
-
-            border: none;
-
-            outline: none;
-
-            border: 1px solid white;
-
-            border-radius: 40px;
-
-            font-size: 16px;
-
-            color: #fff;
-
-            padding: 20px 45px 20px 20px;
-
-        }
-
-        .input-box input::placeholder {
-
-            color: #fff;
-
-        }
-
-        .input-box i {
-
+        .backdrop {
             position: absolute;
-
-            right: 20px;
-
-            top: 30%;
-
-            transform: translate(-50%);
-
-            font-size: 20px;
-
+            inset: 0;
+            background:
+                linear-gradient(120deg, rgba(18, 14, 11, 0.78) 0%, rgba(18, 14, 11, 0.42) 48%, rgba(18, 14, 11, 0.7) 100%),
+                url("https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=1920&q=80") center / cover no-repeat;
+            transform: scale(1.04);
+            animation: drift 18s ease-in-out infinite alternate;
         }
 
-        .wrapper .checkbox1 {
-
-            display: flex;
-
-            justify-content: space-between;
-
-            font-size: 14.5px;
-
-            margin: -15px 0 15px;
-
+        .backdrop::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(circle at 18% 22%, rgba(47, 107, 79, 0.28), transparent 42%),
+                radial-gradient(circle at 82% 78%, rgba(247, 241, 232, 0.12), transparent 36%);
+            pointer-events: none;
         }
 
-        .checkbox1 label input {
-
-            accent-color: #fff;
-
-            margin-right: 3px;
-
+        .shell {
+            position: relative;
+            z-index: 1;
+            width: min(100%, 440px);
+            animation: rise 700ms cubic-bezier(0.22, 1, 0.36, 1) both;
         }
 
-        .checkbox1 a {
-
-            color: #fff;
-
-            text-decoration: none;
-
-        }
-
-        .checkbox1 a:hover {
-
-            text-decoration: underline;
-
-        }
-
-        .wrapper .btn {
-
-            width: 100%;
-
-            height: 45px;
-
-            background: #fff;
-
-            border: none;
-
-            outline: none;
-
-            border-radius: 40px;
-
-
-            border: 1px solid white;
-
-            box-shadow: 0 0 10px rgba(0, 0, 0, .1);
-
-            cursor: pointer;
-
-            font-size: 16px;
-
-            color: #333;
-
-            font-weight: 600;
-
-        }
-
-        .wrapper .link {
-
-            font-size: 14.5px;
-
+        .brand {
             text-align: center;
-
-            margin: 20px 0 15px;
-
+            margin-bottom: 1.5rem;
+            color: var(--paper);
         }
 
-        .link p a {
-
-            color: #fff;
-
-            text-decoration: none;
-
-            font-weight: 600;
-
+        .brand-mark {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            animation: fade 900ms ease both 120ms;
         }
 
-        .link p a:hover {
-
-            text-decoration: underline;
-
+        .brand-mark img {
+            max-width: 120px;
+            max-height: 56px;
+            object-fit: contain;
+            filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.28));
         }
 
-        #loginForm:checked ~ #loginFormContent,
-        #registerForm:checked ~ #registerFormContent,
-        #forgotForm:checked ~ #forgotFormContent {
+        .brand h1 {
+            font-family: var(--font-display);
+            font-size: clamp(2.1rem, 5vw, 2.7rem);
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            line-height: 1.05;
+            animation: fade 900ms ease both 180ms;
+        }
 
+        .brand p {
+            margin-top: 0.65rem;
+            font-size: 0.98rem;
+            color: rgba(247, 241, 232, 0.82);
+            animation: fade 900ms ease both 260ms;
+        }
+
+        .panel {
+            background: var(--paper-soft);
+            border: 1px solid rgba(247, 241, 232, 0.35);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            backdrop-filter: blur(10px);
+            animation: fade 900ms ease both 340ms;
+        }
+
+        .field {
+            margin-bottom: 1rem;
+        }
+
+        .field label {
             display: block;
-
+            margin-bottom: 0.4rem;
+            font-size: 0.82rem;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
+            color: var(--muted);
         }
 
-        input[type="radio"] {
+        .field input[type="email"],
+        .field input[type="text"],
+        .field input[type="password"] {
+            width: 100%;
+            height: 48px;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            background: #fffdf9;
+            padding: 0 0.95rem;
+            font: 500 1rem/1.2 var(--font-body);
+            color: var(--ink);
+            transition: border-color 180ms ease, background-color 180ms ease;
+        }
 
-            display: none;
+        .field input:focus {
+            outline: none;
+            border-color: var(--accent);
+            background: #fff;
+        }
 
+        .row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+            margin: 0.35rem 0 1.25rem;
+        }
+
+        .remember {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            font-size: 0.92rem;
+            color: var(--muted);
+            cursor: pointer;
+        }
+
+        .remember input {
+            width: 16px;
+            height: 16px;
+            accent-color: var(--accent);
+        }
+
+        .submit {
+            width: 100%;
+            height: 50px;
+            border: 0;
+            border-radius: 10px;
+            background: var(--accent);
+            color: #f7f1e8;
+            font: 700 1rem/1 var(--font-body);
+            letter-spacing: 0.01em;
+            cursor: pointer;
+            transition: background-color 180ms ease, transform 180ms ease;
+        }
+
+        .submit:hover {
+            background: var(--accent-deep);
+        }
+
+        .submit:active {
+            transform: translateY(1px);
+        }
+
+        .errors {
+            margin-bottom: 1rem;
+            padding: 0.75rem 0.9rem;
+            border-radius: 10px;
+            background: rgba(155, 44, 44, 0.08);
+            border: 1px solid rgba(155, 44, 44, 0.18);
+            color: var(--danger);
+            font-size: 0.9rem;
+        }
+
+        .errors p + p {
+            margin-top: 0.25rem;
+        }
+
+        .foot {
+            margin-top: 1rem;
+            text-align: center;
+            font-size: 0.82rem;
+            color: rgba(247, 241, 232, 0.7);
+        }
+
+        @keyframes drift {
+            from { transform: scale(1.04) translate3d(0, 0, 0); }
+            to { transform: scale(1.08) translate3d(-1.2%, -0.8%, 0); }
+        }
+
+        @keyframes rise {
+            from { opacity: 0; transform: translateY(18px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fade {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 520px) {
+            .stage {
+                padding: 1.25rem 1rem;
+                align-items: end;
+            }
+
+            .panel {
+                padding: 1.2rem;
+            }
+
+            .brand h1 {
+                font-size: 2rem;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .backdrop,
+            .shell,
+            .brand-mark,
+            .brand h1,
+            .brand p,
+            .panel {
+                animation: none;
+            }
         }
     </style>
 </head>
-
 <body>
+@php
+    $brand = getSettingValue('software_name') ?: config('app.name', 'Cake Town');
+    $logo = getSettingValue('company_logo');
+@endphp
+<div class="stage">
+    <div class="backdrop" aria-hidden="true"></div>
 
-<input type="radio" id="loginForm" name="formToggle" checked>
+    <div class="shell">
+        <header class="brand">
+            @if($logo)
+                <div class="brand-mark">
+                    <img src="{{ asset('upload/' . $logo) }}" alt="{{ $brand }}">
+                </div>
+            @endif
+            <h1>{{ $brand }}</h1>
+            <p>Sign in to manage outlets, stock, and daily sales.</p>
+        </header>
 
-<input type="radio" id="registerForm" name="formToggle">
+        <form class="panel" action="{{ route('login') }}" method="post">
+            @csrf
 
-<input type="radio" id="forgotForm" name="formToggle">
+            @if ($errors->any())
+                <div class="errors" role="alert">
+                    @foreach ($errors->all() as $error)
+                        <p>{{ $error }}</p>
+                    @endforeach
+                </div>
+            @endif
 
+            <div class="field">
+                <label for="email">Email</label>
+                <input
+                    id="email"
+                    type="email"
+                    name="email"
+                    value="{{ old('email', $_COOKIE['email'] ?? '') }}"
+                    placeholder="you@company.com"
+                    required
+                    autofocus
+                    autocomplete="username"
+                >
+            </div>
 
-<div class="wrapper" id="loginFormContent">
-    <form action="{{ route('login') }}" method="post">
-        @csrf
-        <h1>Login</h1>
-        <div class="input-box">
-            <x-input-error :messages="$errors->get('email')" class="mt-2"/>
-            <x-input-error :messages="$errors->get('password')" class="mt-2"/>
-            <input type="text" placeholder="Enter Email" name="email"
-                   @if(isset($_COOKIE["email"])) value="{{ $_COOKIE['email'] }}" @endif required>
+            <div class="field">
+                <label for="password">Password</label>
+                <input
+                    id="password"
+                    type="password"
+                    name="password"
+                    value="{{ $_COOKIE['password'] ?? '' }}"
+                    placeholder="Enter your password"
+                    required
+                    autocomplete="current-password"
+                >
+            </div>
 
-        </div>
-        <div class="input-box">
-            <input type="password" placeholder="Password" name="password"
-                   @if(isset($_COOKIE["password"])) value="{{ $_COOKIE['password'] }}" @endif required>
-        </div>
-        <div class="checkbox1">
-            <label><input type="checkbox" @if(isset($_COOKIE['email'])) checked ="checked" @endif>Remember Me</label>
-        </div>
-        <button type="submit" class="btn">Login</button>
-    </form>
+            <div class="row">
+                <label class="remember">
+                    <input
+                        type="checkbox"
+                        name="remember"
+                        @checked(old('remember', isset($_COOKIE['email'])))
+                    >
+                    Remember me
+                </label>
+            </div>
+
+            <button type="submit" class="submit">Sign in</button>
+        </form>
+
+        <p class="foot">Secure access for authorized staff only</p>
+    </div>
 </div>
-
 </body>
-
 </html>

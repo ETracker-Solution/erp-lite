@@ -3,6 +3,7 @@
 use App\Models\Outlet;
 use App\Models\Sale;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\UploadedFile;
 
@@ -118,11 +119,17 @@ function getAllPermissions()
 
 function getSettingValue($key)
 {
-    $setting = \App\Models\SystemConfig::where('key', $key)->first();
-    if ($setting) {
-        return $setting->value;
+    static $memo = [];
+    if (array_key_exists($key, $memo)) {
+        return $memo[$key];
     }
-    return null;
+
+    $memo[$key] = Cache::remember('system_config_' . $key, 86400, function () use ($key) {
+        $setting = \App\Models\SystemConfig::where('key', $key)->value('value');
+        return $setting;
+    });
+
+    return $memo[$key];
 }
 
 function storeValue($key, $value)
@@ -138,6 +145,7 @@ function storeValue($key, $value)
             'value' => $value ?? '',
         ]);
     }
+    Cache::forget('system_config_' . $key);
 }
 
 function getFileNameAfterImageUpload(UploadedFile $image)
@@ -215,7 +223,8 @@ function generateUniqueUUID($outlet_or_factory_id, $model, $column_name, $is_fac
     }
 
     $nameWithDate = $acronym . date('ym');
-    $lastCode = $model::where($column_name, 'like', '%' . $nameWithDate . '%')->orderBy($column_name, 'DESC')->first();
+    // Prefix match (not leading %) so invoice_number indexes can be used.
+    $lastCode = $model::where($column_name, 'like', $nameWithDate . '%')->orderBy($column_name, 'DESC')->first();
     if ($lastCode) {
         $last3Digits = (int)(substr($lastCode->$column_name, -$length)) + 1;
     } else {
@@ -223,8 +232,12 @@ function generateUniqueUUID($outlet_or_factory_id, $model, $column_name, $is_fac
     }
     $code = $acronym . date('ym') . str_pad($last3Digits, $length, 0, STR_PAD_LEFT);
 
-    if ($model::where($column_name, $code)->exists()) {
-        generateInvoiceCode($outlet_name);
+    // Avoid rare collisions under concurrent POS checkouts without a recursive LIKE scan.
+    $attempts = 0;
+    while ($model::where($column_name, $code)->exists() && $attempts < 20) {
+        $last3Digits++;
+        $code = $acronym . date('ym') . str_pad($last3Digits, $length, 0, STR_PAD_LEFT);
+        $attempts++;
     }
     return $code;
 }
