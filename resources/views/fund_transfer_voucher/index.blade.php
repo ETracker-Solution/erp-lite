@@ -16,26 +16,25 @@
         <div class="container-fluid">
             <div class="row">
                 <div class="col-12">
-                    @can('accounts-ft-voucher-filter')
-                        <div class="col-lg-12 col-md-12">
-                            <div class="mb-2 card">
-                                <div class="card-content collapse show">
-                                    <div class="card-body">
-                                        <form method="POST" id="submitForm">
-                                            @csrf
-                                            <div class="row">
-                                                <div class="col-md-3 form-group">
-                                                    <label for="fp-range" class="font-weight-bold">DATE RANGE</label>
-                                                    <input type="text" id="fp-range"
-                                                           class="form-control flatpickr-range"
-                                                           placeholder="YYYY-MM-DD to YYYY-MM-DD" name="date_range"
-                                                           value="{{ now()->startOfMonth()->format('Y-m-d') . ' to ' . now()->format('Y-m-d') }}"/>
-                                                </div>
+                    <div class="col-lg-12 col-md-12">
+                        <div class="mb-2 card">
+                            <div class="card-content collapse show">
+                                <div class="card-body">
+                                    <form method="POST" id="submitForm">
+                                        @csrf
+                                        <div class="row">
+                                            <div class="col-md-3 form-group">
+                                                <label for="fp-range" class="font-weight-bold">DATE RANGE</label>
+                                                <input type="text" id="fp-range"
+                                                       class="form-control flatpickr-range"
+                                                       placeholder="YYYY-MM-DD to YYYY-MM-DD" name="date_range"
+                                                       value="{{ now()->startOfMonth()->format('Y-m-d') . ' to ' . now()->format('Y-m-d') }}"/>
+                                            </div>
+                                            @can('accounts-ft-voucher-filter')
                                                 <div class="form-group col-md-3">
                                                     <label for="outlet_id" class="font-weight-bold">Select
                                                         Outlet</label>
-                                                    <select class="form-control select2" name="outlet_id" id="outlet_id"
-                                                            required>
+                                                    <select class="form-control select2" name="outlet_id" id="outlet_id">
                                                         <option value="" selected>All</option>
                                                         @foreach ($outlets as $row)
                                                             <option value="{{ $row->id }}">{{ $row->name }}</option>
@@ -47,8 +46,7 @@
                                                     <label for="account_id" class="font-weight-bold">From
                                                         Account</label>
                                                     <select class="form-control select2" name="account_id"
-                                                            id="account_id"
-                                                            required>
+                                                            id="account_id">
                                                         <option value="" selected>All</option>
                                                         @foreach ($accounts as $row)
                                                             <option value="{{ $row->id }}">{{ $row->name }}</option>
@@ -59,23 +57,20 @@
                                                     <label for="to_account_id" class="font-weight-bold">To
                                                         Account</label>
                                                     <select class="form-control select2" name="to_account_id"
-                                                            id="to_account_id"
-                                                            required>
+                                                            id="to_account_id">
                                                         <option value="" selected>All</option>
                                                         @foreach ($toAccounts as $row)
                                                             <option value="{{ $row->id }}">{{ $row->name }}</option>
                                                         @endforeach
                                                     </select>
                                                 </div>
-
-                                            </div>
-                                        </form>
-                                    </div>
+                                            @endcan
+                                        </div>
+                                    </form>
                                 </div>
-
                             </div>
                         </div>
-                    @endcan
+                    </div>
                     @if(\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->outlet_id)
                         <div class="mb-2 card">
                             <div class="card-content collapse show">
@@ -212,10 +207,10 @@
                 ajax: {
                     url: "{{ route('fund-transfer-vouchers.index') }}",
                     data: function (d) {
-                        d.outlet_id = $('select[name="outlet_id"]').val();
-                        d.account_id = $('select[name="account_id"]').val();
-                        d.to_account_id = $('select[name="to_account_id"]').val();
-                        d.date_range = $('input[name="date_range"]').val();
+                        d.outlet_id = $('select[name="outlet_id"]').val() || '';
+                        d.account_id = $('select[name="account_id"]').val() || '';
+                        d.to_account_id = $('select[name="to_account_id"]').val() || '';
+                        d.date_range = $('input[name="date_range"]').val() || '';
                     }
                 },
                 columns: [{

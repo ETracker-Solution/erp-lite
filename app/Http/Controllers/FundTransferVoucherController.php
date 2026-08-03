@@ -117,30 +117,49 @@ class FundTransferVoucherController extends Controller
      */
     public function create()
     {
-        if (\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->outlet_id) {
+        if (auth()->user()?->employee?->outlet_id) {
+            $chartOfAccounts = OutletAccount::query()
+                ->with(['coa:id,name'])
+                ->whereHas('coa', function ($coa) {
+                    $coa->whereNull('default_type');
+                })
+                ->where('outlet_id', auth()->user()->employee->outlet_id)
+                ->get(['id', 'outlet_id', 'coa_id']);
 
-            //    $cons = OutletTransactionConfig::with('coa')->where('outlet_id', \auth()->user()->employee->outlet_id)->get();
-            //     foreach ($cons as $con) {
-            //         $chartOfAccounts[] = $con->coa;
-            //     }
-            $chartOfAccounts = OutletAccount::with(['coa'])->whereHas('coa', function ($coa) {
-                return $coa->whereNull('default_type');
-            })->where('outlet_id', \auth()->user()->employee->outlet_id)->get();
-            $toChartOfAccounts = ChartOfAccount::where(['default_type' => 'office_account', 'is_bank_cash' => 'yes', 'type' => 'ledger', 'status' => 'active'])->get();
-
+            $toChartOfAccounts = ChartOfAccount::query()
+                ->where([
+                    'default_type' => 'office_account',
+                    'is_bank_cash' => 'yes',
+                    'type' => 'ledger',
+                    'status' => 'active',
+                ])
+                ->select('id', 'name')
+                ->orderBy('name')
+                ->get();
         } else {
-            $chartOfAccounts = ChartOfAccount::where(['is_bank_cash' => 'yes', 'type' => 'ledger', 'status' => 'active'])->get();
-            $toChartOfAccounts = ChartOfAccount::where(['is_bank_cash' => 'yes', 'type' => 'ledger', 'status' => 'active'])->orWhere(['default_type' => 'petty_cash', 'type' => 'ledger', 'status' => 'active'])->get();
+            $chartOfAccounts = ChartOfAccount::query()
+                ->where([
+                    'is_bank_cash' => 'yes',
+                    'type' => 'ledger',
+                    'status' => 'active',
+                ])
+                ->select('id', 'name')
+                ->orderBy('name')
+                ->get();
 
+            $toChartOfAccounts = ChartOfAccount::query()
+                ->where('type', 'ledger')
+                ->where('status', 'active')
+                ->where(function ($q) {
+                    $q->where('is_bank_cash', 'yes')
+                        ->orWhere('default_type', 'petty_cash');
+                })
+                ->select('id', 'name')
+                ->orderBy('name')
+                ->get();
         }
 
-        $lastValue = FundTransferVoucher::latest()->pluck('uid')->first();
-        if ($lastValue !== null) {
-            $FTVno = (int)$lastValue + 1;
-        } else {
-            $FTVno = 1; // Set the default value to 1
-        }
-        return view('fund_transfer_voucher.create', compact('chartOfAccounts', 'FTVno', 'toChartOfAccounts'));
+        return view('fund_transfer_voucher.create', compact('chartOfAccounts', 'toChartOfAccounts'));
     }
 
     /**
