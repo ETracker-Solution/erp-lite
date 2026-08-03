@@ -132,20 +132,63 @@ function addCustomerTransaction($item, $transaction_type = 1)
 
 
 function accountBalanceForOtherOutletSales($chart_of_account_id){
-    $other_outlet_sales_balance = 0;
-    $account_outlet = OutletAccount::where('coa_id', $chart_of_account_id)->first();
-    if ($account_outlet) {
-        $alreadyTransferred = DeliveryCashTransfer::where('from_outlet', $account_outlet->outlet_id)->pluck('other_outlet_sale_id')->toArray();
+    $balances = accountBalancesForOtherOutletSales([$chart_of_account_id]);
+    return $balances[$chart_of_account_id] ?? 0;
+}
 
-        $otherOutletSales = OthersOutletSale::where('outlet_id', '!=', $account_outlet->outlet_id)
-            ->where('delivery_point_id', '=', $account_outlet->outlet_id)
-            ->where('payment_status', 'paid')
-            ->whereNotIn('id', $alreadyTransferred)
-            ->pluck('invoice_number')->toArray();
+/**
+ * Batch version to avoid N+1 queries when calculating balances for multiple COAs.
+ * COAs belonging to the same outlet share the expensive sale-lookup work.
+ */
+function accountBalancesForOtherOutletSales(array $chart_of_account_ids): array
+{
+    $chart_of_account_ids = array_values(array_unique(array_filter($chart_of_account_ids)));
+    $balances = array_fill_keys($chart_of_account_ids, 0);
 
-        $originalSales = Sale::whereIn('invoice_number', $otherOutletSales)->pluck('id')->toArray();
-
-        $other_outlet_sales_balance = AccountTransaction::where('chart_of_account_id', $chart_of_account_id)->where('doc_type', 'POS')->whereIn('doc_id', $originalSales)->sum(\DB::raw('amount * transaction_type'));
+    if (empty($chart_of_account_ids)) {
+        return $balances;
     }
-    return $other_outlet_sales_balance;
+
+    $outletAccounts = OutletAccount::whereIn('coa_id', $chart_of_account_ids)
+        ->get(['coa_id', 'outlet_id'])
+        ->groupBy('outlet_id');
+
+    foreach ($outletAccounts as $outletId => $accounts) {
+        $coaIds = $accounts->pluck('coa_id')->unique()->values()->all();
+
+        $alreadyTransferred = DeliveryCashTransfer::where('from_outlet', $outletId)
+            ->pluck('other_outlet_sale_id')
+            ->toArray();
+
+        $otherOutletSalesQuery = OthersOutletSale::where('outlet_id', '!=', $outletId)
+            ->where('delivery_point_id', $outletId)
+            ->where('payment_status', 'paid');
+
+        if (!empty($alreadyTransferred)) {
+            $otherOutletSalesQuery->whereNotIn('id', $alreadyTransferred);
+        }
+
+        $invoiceNumbers = $otherOutletSalesQuery->pluck('invoice_number')->toArray();
+        if (empty($invoiceNumbers)) {
+            continue;
+        }
+
+        $originalSaleIds = Sale::whereIn('invoice_number', $invoiceNumbers)->pluck('id')->toArray();
+        if (empty($originalSaleIds)) {
+            continue;
+        }
+
+        $sums = AccountTransaction::whereIn('chart_of_account_id', $coaIds)
+            ->where('doc_type', 'POS')
+            ->whereIn('doc_id', $originalSaleIds)
+            ->select('chart_of_account_id', DB::raw('SUM(amount * transaction_type) as balance'))
+            ->groupBy('chart_of_account_id')
+            ->pluck('balance', 'chart_of_account_id');
+
+        foreach ($coaIds as $coaId) {
+            $balances[$coaId] = $sums[$coaId] ?? 0;
+        }
+    }
+
+    return $balances;
 }

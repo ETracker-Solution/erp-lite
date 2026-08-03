@@ -28,7 +28,8 @@
                                                     <label for="fp-range" class="font-weight-bold">DATE RANGE</label>
                                                     <input type="text" id="fp-range"
                                                            class="form-control flatpickr-range"
-                                                           placeholder="YYYY-MM-DD to YYYY-MM-DD" name="date_range"/>
+                                                           placeholder="YYYY-MM-DD to YYYY-MM-DD" name="date_range"
+                                                           value="{{ now()->startOfMonth()->format('Y-m-d') . ' to ' . now()->format('Y-m-d') }}"/>
                                                 </div>
                                                 <div class="form-group col-md-3">
                                                     <label for="outlet_id" class="font-weight-bold">Select
@@ -195,6 +196,9 @@
             if (sessionStorage.getItem('account_id')) {
                 $('select[name="account_id"]').val(sessionStorage.getItem('account_id'));
             }
+            if (sessionStorage.getItem('to_account_id')) {
+                $('select[name="to_account_id"]').val(sessionStorage.getItem('to_account_id'));
+            }
             if (sessionStorage.getItem('date_range')) {
                 $('input[name="date_range"]').val(sessionStorage.getItem('date_range'));
             }
@@ -204,6 +208,7 @@
                 responsive: true,
                 serverSide: true,
                 processing: true,
+                pageLength: 25,
                 ajax: {
                     url: "{{ route('fund-transfer-vouchers.index') }}",
                     data: function (d) {
@@ -211,7 +216,6 @@
                         d.account_id = $('select[name="account_id"]').val();
                         d.to_account_id = $('select[name="to_account_id"]').val();
                         d.date_range = $('input[name="date_range"]').val();
-                        // d.title = $('input[name="title"]').val();
                     }
                 },
                 columns: [{
@@ -253,11 +257,6 @@
                         searchable: false,
                         orderable: false
                     },
-                    // {
-                    //     data: "created_at",
-                    //     title: "Created At",
-                    //     searchable: true
-                    // },
                     {
                         data: "action",
                         title: "Action",
@@ -265,6 +264,16 @@
                         searchable: false
                     },
                 ],
+            });
+
+            $(document).on('click', '.receive-ftv-btn', function (event) {
+                event.preventDefault();
+                const element = this;
+                const href = element.getAttribute('href');
+                element.classList.add('disabled');
+                element.style.pointerEvents = "none";
+                element.style.opacity = "0.6";
+                window.location.href = href;
             });
         })
 
