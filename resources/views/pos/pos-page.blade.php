@@ -42,6 +42,14 @@
                                     <td :class="row.stock > 0 ? 'inStock' :'outStock'">Stock (@{{ row.stock }})</td>
                                 </tr>
                                 <tr class="blank-row"></tr>
+                                <tr v-if="productsLoading">
+                                    <td colspan="3" class="text-center">Loading products...</td>
+                                </tr>
+                                <tr v-else-if="productsHasMore">
+                                    <td colspan="3" class="text-center">
+                                        <button type="button" class="btn btn-sm new-button" @click.stop="loadMoreProducts">Load More</button>
+                                    </td>
+                                </tr>
                                 </tbody>
                             </table>
                         </div>

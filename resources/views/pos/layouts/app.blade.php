@@ -300,14 +300,22 @@
                 customer_search_string: '',
                 isDisabled: false,
                 orderInvoiceNumber: '',
-                otp: ''
+                otp: '',
+                productsPage: 1,
+                productsHasMore: false,
+                productsLoading: false,
+                ordersPage: 1,
+                ordersHasMore: false,
+                ordersLoading: false,
+                customersLoaded: false,
+                ordersLoaded: false,
+                searchDebounceTimer: null,
+                orderSearchDebounceTimer: null,
+                customerSearchDebounceTimer: null,
             },
             mounted() {
-                this.getAllProducts();
+                this.getAllProducts(true);
                 this.getAllCategories();
-                this.getCustomers();
-                this.getAllOrders();
-                // this.getAllPreOrders();
             },
             computed: {
                 total_items: function () {
@@ -372,30 +380,132 @@
                 }
             },
             methods: {
-                getAllOrders() {
+                getAllOrders(reset = true) {
                     var vm = this;
-                    axios.get(this.config.get_all_orders_url + '?inv=' + vm.orderInvoiceNumber)
+                    if (vm.ordersLoading && !reset) {
+                        return;
+                    }
+                    if (reset) {
+                        vm.ordersPage = 1;
+                        vm.ordersHasMore = false;
+                    } else if (!vm.ordersHasMore) {
+                        return;
+                    }
+
+                    vm.ordersLoading = true;
+                    axios.get(this.config.get_all_orders_url, {
+                        params: {
+                            inv: vm.orderInvoiceNumber || undefined,
+                            page: vm.ordersPage,
+                            per_page: 20
+                        }
+                    })
                         .then(function (response) {
-                            vm.orders = (response.data);
+                            var payload = response.data;
+                            var rows = Array.isArray(payload) ? payload : (payload.data || []);
+                            if (reset) {
+                                vm.orders = rows;
+                            } else {
+                                vm.orders = vm.orders.concat(rows);
+                            }
+                            if (!Array.isArray(payload) && payload.current_page !== undefined) {
+                                vm.ordersHasMore = !!payload.has_more;
+                                vm.ordersPage = payload.current_page + (payload.has_more ? 1 : 0);
+                            } else {
+                                vm.ordersHasMore = false;
+                            }
+                            vm.ordersLoaded = true;
                         }).catch(function (error) {
                         toastr.error(error, {
                             closeButton: true,
                             progressBar: true,
                         });
                         return false;
+                    }).finally(function () {
+                        vm.ordersLoading = false;
                     });
                 },
-                getAllProducts() {
+                getAllProducts(reset = true) {
                     var vm = this;
-                    axios.get(this.config.get_all_products_url + '?category=' + vm.selected_category + '&search_term=' + vm.search_string)
+                    if (vm.productsLoading && !reset) {
+                        return;
+                    }
+                    if (reset) {
+                        vm.productsPage = 1;
+                        vm.productsHasMore = false;
+                    } else if (!vm.productsHasMore) {
+                        return;
+                    }
+
+                    vm.productsLoading = true;
+                    axios.get(this.config.get_all_products_url, {
+                        params: {
+                            category: vm.selected_category || undefined,
+                            search_term: vm.search_string || undefined,
+                            page: vm.productsPage,
+                            per_page: 50
+                        }
+                    })
                         .then(function (response) {
-                            vm.products = (response.data);
+                            var payload = response.data;
+                            var rows = Array.isArray(payload) ? payload : (payload.data || []);
+                            if (reset) {
+                                vm.products = rows;
+                            } else {
+                                vm.products = vm.products.concat(rows);
+                            }
+                            if (!Array.isArray(payload) && payload.current_page !== undefined) {
+                                vm.productsHasMore = !!payload.has_more;
+                                vm.productsPage = payload.current_page + (payload.has_more ? 1 : 0);
+                            } else {
+                                vm.productsHasMore = false;
+                            }
                         }).catch(function (error) {
                         toastr.error(error, {
                             closeButton: true,
                             progressBar: true,
                         });
                         return false;
+                    }).finally(function () {
+                        vm.productsLoading = false;
+                    });
+                },
+                loadMoreProducts() {
+                    this.getAllProducts(false);
+                },
+                loadMoreOrders() {
+                    this.getAllOrders(false);
+                },
+                debounceProductSearch() {
+                    var vm = this;
+                    clearTimeout(vm.searchDebounceTimer);
+                    vm.searchDebounceTimer = setTimeout(function () {
+                        vm.getAllProducts(true);
+                    }, 350);
+                },
+                debounceOrderSearch() {
+                    var vm = this;
+                    clearTimeout(vm.orderSearchDebounceTimer);
+                    vm.orderSearchDebounceTimer = setTimeout(function () {
+                        vm.getAllOrders(true);
+                    }, 350);
+                },
+                debounceCustomerSearch() {
+                    var vm = this;
+                    clearTimeout(vm.customerSearchDebounceTimer);
+                    vm.customerSearchDebounceTimer = setTimeout(function () {
+                        vm.getCustomers();
+                    }, 350);
+                },
+                adjustLocalProductStock(soldProducts) {
+                    var vm = this;
+                    (soldProducts || []).forEach(function (sold) {
+                        var product = vm.products.find(function (p) {
+                            return p.id === sold.id;
+                        });
+                        if (product) {
+                            product.stock = Math.max(0, Number(product.stock) - Number(sold.quantity));
+                        }
                     });
                 },
                 getAllCategories() {
@@ -513,7 +623,7 @@
                 },
                 clickedOnCategory(category) {
                     this.selected_category = category
-                    this.getAllProducts()
+                    this.getAllProducts(true)
                 },
                 modalClick() {
                     this.discountModal == true ? this.discountModal = false : true
@@ -532,6 +642,7 @@
                     })
                         .then(function (response) {
                             vm.customers = (response.data);
+                            vm.customersLoaded = true;
                         }).catch(function (error) {
                         toastr.error(error, {
                             closeButton: true,
@@ -589,6 +700,7 @@
                             total_discount_value: vm.total_discount_value,
                             total_discount_amount: vm.total_discount_amount,
                         }).then(function (response) {
+                            var soldProducts = vm.selectedProducts.slice();
                             vm.selectedProducts = [];
                             vm.customer = {};
                             vm.discount_type = '';
@@ -600,8 +712,10 @@
                             this.allDiscountAmount = 0;
                             vm.couponCodeDiscountValue = 0;
                             vm.couponCodeDiscountAmount = 0;
-                            vm.getAllProducts()
-                            vm.getAllOrders()
+                            vm.adjustLocalProductStock(soldProducts)
+                            if (vm.ordersLoaded || vm.currentActiveMenu === 'orders') {
+                                vm.getAllOrders(true)
+                            }
                             vm.paymentMenuShow = false
                             vm.paymentMethods = [{
                                 amount: 0,
@@ -644,12 +758,17 @@
                             break;
                         case 'customers':
                             customerElement.show()
+                            if (!this.customersLoaded) {
+                                this.getCustomers()
+                            }
                             break;
                         case 'orders':
                             orderElement.show()
+                            this.getAllOrders(true)
                             break;
                         case 'pre_orders':
                             preOrderElement.show()
+                            this.getAllPreOrders()
                             break;
                         default:
                             this.currentActiveMenu = 'home'
@@ -721,24 +840,7 @@
                     this.paymentMethods.splice(this.paymentMethods.indexOf(row), 1);
                 },
                 getProductBySearchString() {
-                    var vm = this;
-                    axios.get(this.config.get_product_by_search_string_url + '?search_term=' + vm.search_string)
-                        .then(function (response) {
-                            vm.getAllProducts()
-                            // if (response.data !== 'multiple') {
-                            //     vm.selectProductToSell(response.data)
-                            //     vm.search_string = ''
-                            //     vm.getAllProducts()
-                            // } else {
-                            //     vm.getAllProducts()
-                            // }
-                        }).catch(function (error) {
-                        toastr.error(error, {
-                            closeButton: true,
-                            progressBar: true,
-                        });
-                        return false;
-                    });
+                    this.debounceProductSearch();
                 },
                 getPointRedeemField() {
                     const vm = this
@@ -1077,8 +1179,9 @@
                             vm.selectedProducts = [];
                             vm.customer = {};
                             vm.customerNumber = '';
-                            vm.getAllProducts()
-                            vm.getAllPreOrders()
+                            if (vm.currentActiveMenu === 'pre_orders') {
+                                vm.getAllPreOrders()
+                            }
                             toastr.success('Success', {
                                 closeButton: true,
                                 progressBar: true,

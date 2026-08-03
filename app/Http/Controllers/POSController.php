@@ -322,52 +322,61 @@ class POSController extends Controller
         $outlet = auth('web')->user()->employee->outlet;
         $store = Store::where(['doc_type' => 'outlet', 'doc_id' => $outlet->id, 'status' => 'active'])->first();
         $storeId = $store->id;
+        $perPage = min((int) $request->get('per_page', 50), 100);
+        $page = max((int) $request->get('page', 1), 1);
 
-        // Fetch products with the necessary filters
-        $productsQuery = ChartOfInventory::with('parent') // Eager load the parent relationship
-        ->where([
-            'type' => 'item',
-            'status' => 'active',
-            'rootAccountType' => 'FG'
-        ])
+        $productsQuery = ChartOfInventory::query()
+            ->select(['id', 'name', 'price', 'parent_id'])
+            ->with(['parent:id,non_discountable'])
+            ->where([
+                'type' => 'item',
+                'status' => 'active',
+                'rootAccountType' => 'FG',
+            ])
             ->where('price', '>', 0)
             ->when($request->category, function ($query, $category) {
                 return $query->where('parent_id', $category);
             })
-            ->when($request->search_term, function ($query, $searchTerm) {
-                return $query->where('name', 'like', '%' . $searchTerm . '%');
-            });
+            ->when($request->filled('search_term'), function ($query) use ($request) {
+                return $query->where('name', 'like', '%' . $request->search_term . '%');
+            })
+            ->orderBy('name');
 
-        $products = $productsQuery->get();
-        $productIds = $products->pluck('id'); // Get product IDs for batch fetching
+        $paginator = $productsQuery->paginate($perPage, ['*'], 'page', $page);
+        $products = $paginator->getCollection();
+        $productIds = $products->pluck('id');
 
-        // Fetch all necessary data in batches for the products
-        $inventoryQuantities = getInventoryQuantities($productIds, $storeId);
-        $requisitionQuantities = getRequisitionQuantities($productIds, $storeId);
-        $preOrderQuantities = getPreOrderQuantities($productIds, $storeId);
-        $transferQuantities = getTransferQuantities($productIds, $storeId);
+        $inventoryQuantities = $productIds->isEmpty() ? collect() : getInventoryQuantities($productIds, $storeId);
+        $requisitionQuantities = $productIds->isEmpty() ? collect() : getRequisitionQuantities($productIds, $storeId);
+        $preOrderQuantities = $productIds->isEmpty() ? collect() : getPreOrderQuantities($productIds, $storeId);
+        $transferQuantities = $productIds->isEmpty() ? collect() : getTransferQuantities($productIds, $storeId);
 
-        // Map the data to the products
-        $products->map(function ($product) use (
+        $data = $products->map(function ($product) use (
             $inventoryQuantities, $requisitionQuantities, $preOrderQuantities, $transferQuantities
         ) {
             $productId = $product->id;
+            $stock = ($inventoryQuantities[$productId] ?? 0)
+                - ($requisitionQuantities[$productId] ?? 0)
+                - ($preOrderQuantities[$productId] ?? 0)
+                - ($transferQuantities[$productId] ?? 0);
 
-            $originalStock = $inventoryQuantities[$productId] ?? 0;
-            $requisitionDelivered = $requisitionQuantities[$productId] ?? 0;
-            $preOrderDelivered = $preOrderQuantities[$productId] ?? 0;
-            $inventoryTransferred = $transferQuantities[$productId] ?? 0;
+            return [
+                'id' => $product->id,
+                'name' => $product->name,
+                'price' => $product->price,
+                'stock' => round(max((float) $stock, 0), 2),
+                'discountable' => !($product->parent?->non_discountable ?? false),
+            ];
+        })->values();
 
-            $stock = $originalStock - $requisitionDelivered - $preOrderDelivered - $inventoryTransferred;
-
-            // Add stock and discountable status to the product
-            $product->stock = round(max((float) $stock, 0), 2);
-            $product->discountable = !$product->parent->non_discountable;
-
-            return $product;
-        });
-
-        return $products;
+        return response()->json([
+            'data' => $data,
+            'current_page' => $paginator->currentPage(),
+            'last_page' => $paginator->lastPage(),
+            'per_page' => $paginator->perPage(),
+            'total' => $paginator->total(),
+            'has_more' => $paginator->hasMorePages(),
+        ]);
     }
 
 //    public function getAllProducts(Request $request)
@@ -394,9 +403,15 @@ class POSController extends Controller
 
     public function getAllProductCategories(Request $request)
     {
-        return ChartOfInventory::where(['rootAccountType' => 'FG', 'status' => 'active'])->where('type', 'group')->whereHas('subChartOfInventories', function ($q) {
-            return $q->where('type', 'item');
-        })->get();
+        return ChartOfInventory::query()
+            ->select(['id', 'name'])
+            ->where(['rootAccountType' => 'FG', 'status' => 'active'])
+            ->where('type', 'group')
+            ->whereHas('subChartOfInventories', function ($q) {
+                return $q->where('type', 'item');
+            })
+            ->orderBy('name')
+            ->get();
     }
 
     public function getProductByNameSkuBarCode(Request $request)
@@ -425,18 +440,28 @@ class POSController extends Controller
 
     public function getAllCustomers(Request $request)
     {
-        $data = Customer::where(['status' => 'active', 'type' => 'regular']);
+        $data = Customer::query()
+            ->select(['id', 'name', 'email', 'mobile', 'address'])
+            ->where(['status' => 'active', 'type' => 'regular']);
+
         if ($request->filled('search_string')) {
-            $data = $data->where('name', 'like', '%' . $request->search_string . '%')
-                ->orWhere('mobile', 'like', '%' . $request->search_string . '%')
-                ->orWhere('email', 'like', '%' . $request->search_string . '%');
+            $search = $request->search_string;
+            $data->where(function ($q) use ($search) {
+                $q->where('name', 'like', '%' . $search . '%')
+                    ->orWhere('mobile', 'like', '%' . $search . '%')
+                    ->orWhere('email', 'like', '%' . $search . '%');
+            });
         }
-        return $data->latest()->take(10)->get();
+
+        return $data->latest()->take(20)->get();
     }
 
     public function getCustomerByNumber(Request $request)
     {
-        $data = Customer::where('mobile', $request->number)->first();
+        $data = Customer::with(['membership.memberType'])
+            ->where('mobile', $request->number)
+            ->first();
+
         if ($data) {
             $data->current_point = $data->membership ? $data->membership->point : 0;
             $data->minimum_purchase = $data->membership ? $data->membership->memberType->minimum_purchase : 0;
@@ -447,19 +472,52 @@ class POSController extends Controller
         return $data;
     }
 
-    public function getAllOrders()
+    public function getAllOrders(Request $request)
     {
-        $orders = [];
-        if (\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->outlet_id) {
-            $orders = Sale::where(['outlet_id' => \auth()->user()->employee->outlet_id])->with('items.coi', 'customer')->withSum('items', 'quantity');
-            if (\request()->filled('inv')) {
-                $orders = $orders->where('invoice_number', \request()->inv);
-            } else {
-                $orders = $orders->whereDate('date', date('Y-m-d'));
-            }
-            $orders = $orders->latest()->get();
+        if (!auth()->user()?->employee?->outlet_id) {
+            return response()->json([
+                'data' => [],
+                'current_page' => 1,
+                'last_page' => 1,
+                'per_page' => 20,
+                'total' => 0,
+                'has_more' => false,
+            ]);
         }
-        return $orders;
+
+        $perPage = min((int) $request->get('per_page', 20), 50);
+        $page = max((int) $request->get('page', 1), 1);
+        $outletId = auth()->user()->employee->outlet_id;
+
+        $ordersQuery = Sale::query()
+            ->select([
+                'id', 'invoice_number', 'date', 'subtotal', 'discount', 'grand_total',
+                'customer_id', 'created_at', 'outlet_id',
+            ])
+            ->where('outlet_id', $outletId)
+            ->with([
+                'customer:id,name,mobile,type',
+                'items:id,sale_id,product_id,unit_price,quantity',
+                'items.coi:id,name',
+            ])
+            ->withSum('items', 'quantity');
+
+        if ($request->filled('inv')) {
+            $ordersQuery->where('invoice_number', 'like', '%' . $request->inv . '%');
+        } else {
+            $ordersQuery->where('date', date('Y-m-d'));
+        }
+
+        $paginator = $ordersQuery->latest()->paginate($perPage, ['*'], 'page', $page);
+
+        return response()->json([
+            'data' => $paginator->items(),
+            'current_page' => $paginator->currentPage(),
+            'last_page' => $paginator->lastPage(),
+            'per_page' => $paginator->perPage(),
+            'total' => $paginator->total(),
+            'has_more' => $paginator->hasMorePages(),
+        ]);
     }
 
     public function getCouponDiscountValue(Request $request)
@@ -626,13 +684,24 @@ class POSController extends Controller
 
     public function getAllPreOrders()
     {
-        return PreOrder::with('items.product', 'customer')->withSum('items', 'quantity')->latest()->get()->map(function ($order) {
-            $order->status = $order->sale_id ? 'Delivered' : '';
-            $order->backgroundColor = $order->sale_id ? '#e5e5e5' : '';
-            $order->delivered_at = $order->sale_id ? $order->sale->readable_sell_date_time : '';
-            $order->invoice_number = $order->sale_id ? $order->sale->invoice_number : '';
-            return $order;
-        });
+        return PreOrder::query()
+            ->with([
+                'items:id,pre_order_id,coi_id,quantity,unit_price',
+                'items.product:id,name',
+                'customer:id,name,mobile',
+                'sale:id,invoice_number,created_at',
+            ])
+            ->withSum('items', 'quantity')
+            ->latest()
+            ->limit(50)
+            ->get()
+            ->map(function ($order) {
+                $order->status = $order->sale_id ? 'Delivered' : '';
+                $order->backgroundColor = $order->sale_id ? '#e5e5e5' : '';
+                $order->delivered_at = $order->sale_id ? $order->sale->readable_sell_date_time : '';
+                $order->invoice_number = $order->sale_id ? $order->sale->invoice_number : '';
+                return $order;
+            });
     }
 
     public function getReturnNumberValue(Request $request)

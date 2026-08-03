@@ -3,10 +3,15 @@
         <div class="col-6  header-gap" style="background-color: #cbcbcb21">
             <div class="m-2 mt-3 d-flex">
                 <h4 style="margin-right: 10px">Orders</h4>
-                <input type="text" class="form-control" placeholder="Search Order By ID" @keyup="getAllOrders" v-model="orderInvoiceNumber">
+                <input type="text" class="form-control" placeholder="Search Order By ID" @keyup="debounceOrderSearch" v-model="orderInvoiceNumber">
             </div>
             <div class="row" style="margin: 10px; max-height: 100vh; overflow-y: auto">
-                <div class="col-12"  v-if="orders.length < 1" >
+                <div class="col-12"  v-if="ordersLoading && orders.length < 1" >
+                    <div class="row">
+                       <h4>Loading orders...</h4>
+                    </div>
+                </div>
+                <div class="col-12"  v-else-if="orders.length < 1" >
                     <div class="row">
                        <h4>No Orders Found</h4>
                     </div>
@@ -23,6 +28,12 @@
                             <span>@{{ row.items_sum_quantity }} Item(s)</span>
                         </div>
                     </div>
+                </div>
+                <div class="col-12 text-center mt-2" v-if="ordersLoading && orders.length > 0">
+                    Loading...
+                </div>
+                <div class="col-12 text-center mt-2" v-else-if="ordersHasMore">
+                    <button type="button" class="btn btn-sm new-button" @click="loadMoreOrders">Load More</button>
                 </div>
 
             </div>
