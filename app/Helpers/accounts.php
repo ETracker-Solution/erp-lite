@@ -92,7 +92,7 @@ function getAllLedgers()
     return ChartOfAccount::where('type', 'ledger')->select(DB::raw('id,name,CONCAT(id,". ",name, " (",root_account_type,")") as display_name'))->get();
 }
 
-function outletTransactionAccount($outlet_id, $account_type = 'cash')
+function outletTransactionAccount($outlet_id, $account_type = 'Cash')
 {
     static $cache = [];
     $key = $outlet_id . ':' . $account_type;
