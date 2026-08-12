@@ -49,6 +49,7 @@
                                                 <th>NEXUS Account</th>
                                                 <th>PBL Account</th>
                                                 <th>PBLQR Account</th>
+                                                <th>FOODIE Account</th>
                                                 <th>DUE Account</th>
                                             </tr>
                                             </thead>
@@ -74,6 +75,8 @@
                                                     \App\Models\OutletTransactionConfig::where(['outlet_id'=>$row->id,'type'=>'PBL'])->first();
                                                     $pblqrConfig =
                                                     \App\Models\OutletTransactionConfig::where(['outlet_id'=>$row->id,'type'=>'PBLQR'])->first();
+                                                    $foodieConfig =
+                                                    \App\Models\OutletTransactionConfig::where(['outlet_id'=>$row->id,'type'=>'FOODIE'])->first();
                                                     $dueConfig =
                                                     \App\Models\OutletTransactionConfig::where(['outlet_id'=>$row->id,'type'=>'Due'])->first();
                                                     $bkash = $bkashConfig ? $bkashConfig->coa_id : null;
@@ -86,6 +89,7 @@
                                                     $nexus = $nexusConfig ? $nexusConfig->coa_id : null;
                                                     $pbl = $pblConfig ? $pblConfig->coa_id : null;
                                                     $pblqr = $pblqrConfig ? $pblConfig->coa_id : null;
+                                                    $foodie = $foodieConfig ? $foodieConfig->coa_id : null;
                                                     $due = $dueConfig ? $dueConfig->coa_id : null;
                                                 @endphp
                                                 <tr>
@@ -186,6 +190,16 @@
                                                             @foreach(getAllLedgers() as $account)
 
                                                                 <option value="{{ $account->id }}" {{ $account->id == $pblqr ?
+                                                        'selected' : '' }}>{{ $account->display_name }}</option>
+                                                            @endforeach
+                                                        </select>
+                                                    </td>
+                                                    <td>
+                                                        <select name="settings[{{ $row->id }}][FOODIE]" id=""
+                                                                class="form-control">
+                                                            @foreach(getAllLedgers() as $account)
+
+                                                                <option value="{{ $account->id }}" {{ $account->id == $foodie ?
                                                         'selected' : '' }}>{{ $account->display_name }}</option>
                                                             @endforeach
                                                         </select>
