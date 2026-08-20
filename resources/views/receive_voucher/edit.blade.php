@@ -29,7 +29,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <form action="{{ route('receive-vouchers.update',$receiveVoucher->id) }}" method="POST" class="" enctype="multipart/form-data">
+                            <form action="{{ route('receive-vouchers.update',$receiveVoucher->id) }}" method="POST" class="prevent-enter-submit" enctype="multipart/form-data">
                                 @csrf
                                 @method('put')
                                 {{-- <div class="card card-info"> --}}

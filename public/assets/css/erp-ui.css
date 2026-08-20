@@ -275,6 +275,34 @@ aside a:hover,
     color: #fff;
 }
 
+.erp-kpi-stats {
+    display: flex;
+    gap: 12px;
+    margin-top: 10px;
+}
+
+.erp-kpi-stats span {
+    flex: 1;
+    background: #faf8f5;
+    border-radius: 8px;
+    padding: 8px 10px;
+}
+
+.erp-kpi-stats .stat-label {
+    display: block;
+    color: var(--erp-muted);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.erp-kpi-stats .stat-value {
+    display: block;
+    font-weight: 800;
+    font-size: 14px;
+    margin-top: 2px;
+}
+
 #salesForm .card-box,
 #vue_app .card-body {
     background: var(--erp-card);
@@ -545,6 +573,62 @@ input[placeholder="Select date"]:focus,
 
 .modal-footer {
     border-top: 1px solid var(--erp-line);
+}
+
+.input-group-text {
+    background: #faf8f5;
+    border-color: var(--erp-line);
+    color: var(--erp-accent-deep);
+}
+
+.datetimepicker-input,
+.form-control.datetimepicker-input {
+    border-color: var(--erp-line);
+    border-radius: 8px 0 0 8px;
+}
+
+.select2-container--default .select2-selection--single {
+    height: calc(2.25rem + 2px);
+    padding: 4px 8px;
+    border-color: var(--erp-line);
+}
+
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+    line-height: 28px;
+    color: var(--erp-ink);
+}
+
+.select2-container--default .select2-selection--single .select2-selection__arrow {
+    height: 32px;
+}
+
+.select2-container--default .select2-results__option--highlighted[aria-selected] {
+    background-color: var(--erp-accent);
+}
+
+.card-body > button[type="submit"],
+.card-body .btn.float-right[type="submit"] {
+    min-width: 140px;
+    font-weight: 700;
+    padding: 8px 18px;
+    border-radius: 10px;
+}
+
+.custom-file-label,
+.custom-file-input ~ .custom-file-label {
+    border-color: var(--erp-line);
+    border-radius: 8px;
+}
+
+.callout.callout-success,
+.callout.callout-info {
+    border-left-color: var(--erp-accent);
+    background: var(--erp-accent-soft);
+}
+
+.info-box {
+    border-radius: var(--erp-radius);
+    box-shadow: var(--erp-shadow);
 }
 
 @media (max-width: 991px) {

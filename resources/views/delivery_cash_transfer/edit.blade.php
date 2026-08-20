@@ -17,7 +17,7 @@
                 <div class="col-md-12">
                     <div class="row">
                         <div class="col-md-12">
-                            <form action="{{ route('fund-transfer-vouchers.update',$fundTransferVoucher->id) }}" method="POST" class="" enctype="multipart/form-data">
+                            <form action="{{ route('fund-transfer-vouchers.update',$fundTransferVoucher->id) }}" method="POST" class="prevent-enter-submit" enctype="multipart/form-data">
                                 @csrf
                                 @method('put')
                                 <div class="card card-info">

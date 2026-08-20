@@ -17,7 +17,7 @@
             </span>
             <div class="row">
                 <div class="col-md-12">
-                    <form action="{{ route('supplier-vouchers.store') }}" method="POST" class=""
+                    <form action="{{ route('supplier-vouchers.store') }}" method="POST" class="prevent-enter-submit"
                           enctype="multipart/form-data">
                         @csrf
                         <div class="card card-info">
@@ -191,7 +191,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="card-footer">
+                            <div class="card-footer erp-save-bar">
                                 <button type="submit" class="float-right btn btn-info"><i class="fa fa-fw fa-lg fa-check-circle"></i>Submit
                                 </button>
                             </div>

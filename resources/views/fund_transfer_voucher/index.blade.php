@@ -16,116 +16,95 @@
         <div class="container-fluid">
             <div class="row">
                 <div class="col-12">
-                    <div class="col-lg-12 col-md-12">
-                        <div class="mb-2 card">
-                            <div class="card-content collapse show">
-                                <div class="card-body">
-                                    <form method="POST" id="submitForm">
-                                        @csrf
-                                        <div class="row">
-                                            <div class="col-md-3 form-group">
-                                                <label for="fp-range" class="font-weight-bold">DATE RANGE</label>
-                                                <input type="text" id="fp-range"
-                                                       class="form-control flatpickr-range"
-                                                       placeholder="YYYY-MM-DD to YYYY-MM-DD" name="date_range"
-                                                       value="{{ now()->startOfMonth()->format('Y-m-d') . ' to ' . now()->format('Y-m-d') }}"/>
-                                            </div>
-                                            @can('accounts-ft-voucher-filter')
-                                                <div class="form-group col-md-3">
-                                                    <label for="outlet_id" class="font-weight-bold">Select
-                                                        Outlet</label>
-                                                    <select class="form-control select2" name="outlet_id" id="outlet_id">
-                                                        <option value="" selected>All</option>
-                                                        @foreach ($outlets as $row)
-                                                            <option value="{{ $row->id }}">{{ $row->name }}</option>
-                                                        @endforeach
-                                                    </select>
-                                                </div>
-
-                                                <div class="form-group col-md-3">
-                                                    <label for="account_id" class="font-weight-bold">From
-                                                        Account</label>
-                                                    <select class="form-control select2" name="account_id"
-                                                            id="account_id">
-                                                        <option value="" selected>All</option>
-                                                        @foreach ($accounts as $row)
-                                                            <option value="{{ $row->id }}">{{ $row->name }}</option>
-                                                        @endforeach
-                                                    </select>
-                                                </div>
-                                                <div class="form-group col-md-3">
-                                                    <label for="to_account_id" class="font-weight-bold">To
-                                                        Account</label>
-                                                    <select class="form-control select2" name="to_account_id"
-                                                            id="to_account_id">
-                                                        <option value="" selected>All</option>
-                                                        @foreach ($toAccounts as $row)
-                                                            <option value="{{ $row->id }}">{{ $row->name }}</option>
-                                                        @endforeach
-                                                    </select>
-                                                </div>
-                                            @endcan
-                                        </div>
-                                    </form>
+                    <div class="erp-filters">
+                        <form method="POST" id="submitForm">
+                            @csrf
+                            <div class="row">
+                                <div class="col-md-3 form-group">
+                                    <label for="fp-range">Date Range</label>
+                                    <input type="text" id="fp-range"
+                                           class="form-control flatpickr-range"
+                                           placeholder="YYYY-MM-DD to YYYY-MM-DD" name="date_range"
+                                           value="{{ now()->startOfMonth()->format('Y-m-d') . ' to ' . now()->format('Y-m-d') }}"/>
                                 </div>
+                                @can('accounts-ft-voucher-filter')
+                                    <div class="form-group col-md-3">
+                                        <label for="outlet_id">Outlet</label>
+                                        <select class="form-control select2" name="outlet_id" id="outlet_id">
+                                            <option value="" selected>All</option>
+                                            @foreach ($outlets as $row)
+                                                <option value="{{ $row->id }}">{{ $row->name }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="form-group col-md-3">
+                                        <label for="account_id">From Account</label>
+                                        <select class="form-control select2" name="account_id"
+                                                id="account_id">
+                                            <option value="" selected>All</option>
+                                            @foreach ($accounts as $row)
+                                                <option value="{{ $row->id }}">{{ $row->name }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="form-group col-md-3">
+                                        <label for="to_account_id">To Account</label>
+                                        <select class="form-control select2" name="to_account_id"
+                                                id="to_account_id">
+                                            <option value="" selected>All</option>
+                                            @foreach ($toAccounts as $row)
+                                                <option value="{{ $row->id }}">{{ $row->name }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                @endcan
                             </div>
-                        </div>
+                        </form>
                     </div>
                     @if(\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->outlet_id)
-                        <div class="mb-2 card">
-                            <div class="card-content collapse show">
-                                <div class="card-body">
-
-                                    <div class="row">
-                                        <div class="col-md-12">
-                                            <div style="border: 1px solid #000" class="p-1">
-                                                <table width="100%">
-                                                    <thead>
-                                                    <tr>
-                                                        <th>Available</th>
-                                                        <th>In Transit</th>
-                                                        <th>Transferable</th>
-                                                    </tr>
-                                                    </thead>
-                                                    @foreach($outlet_accounts as $outlet_account)
-                                                        <tr>
-                                                            <td>
-                                                                <span class="badge badge-success p-1 m-1">{{$outlet_account['name']}} :   {{$outlet_account['balance']}} BDT</span>
-                                                            </td>
-                                                            <td>
-                                                                <span class="badge badge-danger p-1 m-1">{{$outlet_account['name']}} :   {{$outlet_account['pending']}} BDT</span>
-                                                            </td>
-                                                            <td>
-                                                                <span class="badge badge-info p-1 m-1">{{$outlet_account['name']}} :   {{round(($outlet_account['balance'] - $outlet_account['pending']),2)}} BDT</span>
-                                                            </td>
-                                                        </tr>
-                                                    @endforeach
-
-                                                </table>
-
-                                            </div>
-
-
-                                        </div>
-
-                                    </div>
+                        <div class="card mb-2">
+                            <div class="card-body py-2">
+                                <div class="table-responsive">
+                                    <table class="table table-sm table-bordered mb-0">
+                                        <thead>
+                                        <tr>
+                                            <th>Available</th>
+                                            <th>In Transit</th>
+                                            <th>Transferable</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        @foreach($outlet_accounts as $outlet_account)
+                                            <tr>
+                                                <td>
+                                                    <span class="badge badge-success p-1 m-1">{{ $outlet_account['name'] }} : {{ $outlet_account['balance'] }} BDT</span>
+                                                </td>
+                                                <td>
+                                                    <span class="badge badge-danger p-1 m-1">{{ $outlet_account['name'] }} : {{ $outlet_account['pending'] }} BDT</span>
+                                                </td>
+                                                <td>
+                                                    <span class="badge badge-info p-1 m-1">{{ $outlet_account['name'] }} : {{ round(($outlet_account['balance'] - $outlet_account['pending']), 2) }} BDT</span>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
-
                         </div>
                     @endif
                     <div class="card card-info">
                         <div class="card-header">
-                            <h3 class="card-title">All Fund Transfer Voucher List</h3>
-                            <div class="card-tools" style="display: ruby">
+                            <h3 class="card-title">Fund Transfer Vouchers</h3>
+                            <div class="card-tools">
                                 @if(auth()->user()->employee->user_of != 'outlet')
-                                    <button class="btn btn-sm btn-danger" id="receiveReportButton"><i
+                                    <button class="btn btn-sm btn-danger" id="receiveReportButton" type="button"><i
                                                 class="fas fa-file-pdf"
                                                 aria-hidden="true"></i> &nbsp;Receive Report
                                     </button>
                                 @endif
                                 <a href="{{route('fund-transfer-vouchers.create')}}">
-                                    <button class="btn btn-sm btn-primary"><i class="fa fa-plus-circle"
+                                    <button class="btn btn-sm btn-primary" type="button"><i class="fa fa-plus-circle"
                                                                               aria-hidden="true"></i> &nbsp;Add New
                                     </button>
                                 </a>
@@ -133,7 +112,7 @@
                         </div>
                         <!-- /.card-header -->
                         <div class="card-body table-responsive">
-                            <table id="dataTable"
+                            <table id="ftvTable"
                                    class="table table-bordered table-hover">
                                 {{-- show from datatable--}}
                             </table>
@@ -197,8 +176,11 @@
             if (sessionStorage.getItem('date_range')) {
                 $('input[name="date_range"]').val(sessionStorage.getItem('date_range'));
             }
+            if ($.fn.select2) {
+                $('.select2').select2({width: '100%'});
+            }
 
-            $('#dataTable').dataTable({
+            $('#ftvTable').dataTable({
                 stateSave: true,
                 responsive: true,
                 serverSide: true,
@@ -227,7 +209,7 @@
                         orderable: false
                     },
                     {
-                        data: "id",
+                        data: "uid",
                         title: "FTV No",
                         searchable: true,
                         orderable: false
@@ -249,6 +231,12 @@
                     {
                         data: "amount",
                         title: "Amount",
+                        searchable: false,
+                        orderable: false
+                    },
+                    {
+                        data: "status",
+                        title: "Status",
                         searchable: false,
                         orderable: false
                     },
@@ -293,7 +281,7 @@
         });
 
         function recallDatatable() {
-            $('#dataTable').DataTable().draw(true);
+            $('#ftvTable').DataTable().draw(true);
         }
     </script>
 

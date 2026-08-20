@@ -30,7 +30,7 @@
                             </div>
                         </div>
                     </div>
-                    <form action="{{ route('supplier-vouchers.store') }}" method="POST" class=""
+                    <form action="{{ route('supplier-vouchers.store') }}" method="POST" class="prevent-enter-submit"
                           enctype="multipart/form-data">
                         @csrf
                         {{-- <div class="card card-info">

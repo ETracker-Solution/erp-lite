@@ -68,7 +68,7 @@
                             <!-- end page title -->
                             <div class="row">
                                 <div class="col-lg-12 col-md-12">
-                                    <form action="{{ route('sales-returns.store') }}" method="post">
+                                    <form action="{{ route('sales-returns.store') }}" method="post" class="prevent-enter-submit">
                                         @csrf
                                         <div class="card">
                                             <div class="card-body">
@@ -298,7 +298,7 @@
                                                     <input type="hidden" name="grand_total" v-model="exchange_amount">
                                                 </div>
                                             </div>
-                                            <div class="card-footer">
+                                            <div class="card-footer erp-save-bar">
                                                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 text-right"
                                                      v-if="items.length > 0">
                                                     <button class="float-right btn btn-primary" type="submit"><i

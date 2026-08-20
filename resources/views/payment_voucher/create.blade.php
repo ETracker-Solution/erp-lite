@@ -33,7 +33,7 @@ $links = [
                                 </div>
                             </div>
                         </div>
-                        <form action="{{ route('payment-vouchers.store') }}" method="POST" class="" enctype="multipart/form-data">
+                        <form action="{{ route('payment-vouchers.store') }}" method="POST" class="prevent-enter-submit" enctype="multipart/form-data">
                             @csrf
                             {{-- <div class="card card-info"> --}}
                                 {{-- <div class="card-header">

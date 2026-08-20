@@ -19,7 +19,7 @@
                 <div class="col-md-12">
                     <div class="row">
                         <div class="col-md-12">
-                            <form action="{{ route('delivery-cash-transfers.store') }}" method="POST" class="" enctype="multipart/form-data">
+                            <form action="{{ route('delivery-cash-transfers.store') }}" method="POST" class="prevent-enter-submit" enctype="multipart/form-data">
                                 @csrf
                                 <div class="card">
                                     <div class="card-header">

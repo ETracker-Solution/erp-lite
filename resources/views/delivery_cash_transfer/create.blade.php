@@ -32,7 +32,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <form action="{{ route('delivery-cash-transfers.store') }}" method="POST" class="" enctype="multipart/form-data">
+                            <form action="{{ route('delivery-cash-transfers.store') }}" method="POST" class="prevent-enter-submit" enctype="multipart/form-data">
                                 @csrf
                                 <input type="hidden" name="submission_token"
                                        value="{{ session()->get('submission_token') ?? Str::random(40) }}">

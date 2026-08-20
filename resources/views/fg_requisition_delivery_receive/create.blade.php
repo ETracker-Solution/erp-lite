@@ -19,7 +19,7 @@
                             <img src="{{ asset('loading.gif') }}" alt="loading">
                         </span>
                 <div class="col-lg-12 col-md-12">
-                    <form method="POST" id="receiveForm">
+                    <form method="POST" id="receiveForm" class="prevent-enter-submit">
                         @csrf
                         <input type="hidden" name="submission_token" value="{{ session()->get('submission_token') ?? Str::random(40) }}">
                         <div class="card">
@@ -211,7 +211,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="card-footer">
+                            <div class="card-footer erp-save-bar">
                                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 text-right" v-if="items.length > 0">
                                     <button class="float-right btn btn-primary" type="button" @click="formSubmit"><i
                                             class="fa fa-fw fa-lg fa-check-circle"></i>Submit
