@@ -100,11 +100,10 @@
 </script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        document.querySelectorAll('form').forEach(function (form) {
+        document.querySelectorAll('form.prevent-enter-submit').forEach(function (form) {
             form.addEventListener('keypress', function (event) {
                 if (event.key === 'Enter') {
-                    console.log(event.key)
-                    event.preventDefault(); // Prevent form submission
+                    event.preventDefault();
                 }
             });
         });

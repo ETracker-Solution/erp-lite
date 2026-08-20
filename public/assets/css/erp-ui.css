@@ -1,0 +1,300 @@
+:root {
+    --erp-ink: #1c1410;
+    --erp-muted: #6b625b;
+    --erp-paper: #f6f3ee;
+    --erp-card: #ffffff;
+    --erp-line: #e6e0d8;
+    --erp-accent: #2f6b4f;
+    --erp-accent-deep: #245540;
+    --erp-accent-soft: #e7f2ec;
+    --erp-warn: #c47b1a;
+    --erp-danger: #b42318;
+    --erp-info: #1f6f8b;
+    --erp-radius: 12px;
+    --erp-shadow: 0 8px 24px rgba(28, 20, 16, 0.06);
+}
+
+body.hold-transition {
+    font-family: "Manrope", "Source Sans Pro", sans-serif;
+    background: var(--erp-paper);
+    color: var(--erp-ink);
+}
+
+.content-wrapper {
+    background: var(--erp-paper) !important;
+}
+
+.content-header {
+    padding: 12px 16px 0;
+}
+
+.breadcrumb-component {
+    background: var(--erp-card) !important;
+    color: var(--erp-ink) !important;
+    border: 1px solid var(--erp-line);
+    box-shadow: var(--erp-shadow);
+    padding: 12px 16px !important;
+    margin: 0 0 12px !important;
+    border-radius: var(--erp-radius) !important;
+}
+
+.breadcrumb-component h1 {
+    font-size: 1.35rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.breadcrumb-component .breadcrumb {
+    background: transparent;
+    margin: 0;
+}
+
+.breadcrumb-component .breadcrumb-item,
+.breadcrumb-component .breadcrumb-item a {
+    color: var(--erp-muted);
+}
+
+.main-header.navbar {
+    background: #fff !important;
+    border-bottom: 1px solid var(--erp-line);
+    min-height: 56px;
+}
+
+.navbar-nav .nav-link {
+    color: var(--erp-ink) !important;
+    font-weight: 600;
+}
+
+.erp-nav-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: var(--erp-accent-soft);
+    color: var(--erp-accent-deep);
+    font-size: 12px;
+    font-weight: 700;
+    margin-right: 8px;
+}
+
+.erp-nav-pos {
+    background: var(--erp-accent) !important;
+    color: #fff !important;
+    border-radius: 8px !important;
+    padding: 6px 14px !important;
+    margin: 8px 6px 0 !important;
+    line-height: 1.2;
+}
+
+.erp-nav-pos:hover {
+    background: var(--erp-accent-deep) !important;
+    color: #fff !important;
+}
+
+.main-sidebar {
+    background: #1c2420 !important;
+}
+
+.brand-link {
+    background: #16201c !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 57px;
+}
+
+.brand-link .brand-image {
+    max-height: 38px;
+    float: none !important;
+    margin: 0 !important;
+}
+
+.sidebar-dark-primary .nav-sidebar > .nav-item > .nav-link.active,
+.sidebar-dark-primary .nav-sidebar > .nav-item > .nav-link.active-color,
+.active-color,
+aside a:hover,
+.sidebar-dark-primary .nav-treeview > .nav-item > .nav-link.active {
+    background: var(--erp-accent) !important;
+    color: #fff !important;
+}
+
+.sidebar .form-control-sidebar {
+    background: #121a17;
+    border-color: #2a3832;
+    color: #fff;
+}
+
+.card {
+    border: 1px solid var(--erp-line);
+    border-radius: var(--erp-radius);
+    box-shadow: var(--erp-shadow);
+}
+
+.card-header {
+    border-bottom: 1px solid var(--erp-line);
+    border-radius: var(--erp-radius) var(--erp-radius) 0 0 !important;
+}
+
+.card-info .card-header,
+.card-header.bg-info,
+.bg-info {
+    background: var(--erp-accent) !important;
+    border-color: var(--erp-accent) !important;
+}
+
+.btn-info,
+.btn-primary {
+    background: var(--erp-accent);
+    border-color: var(--erp-accent);
+}
+
+.btn-info:hover,
+.btn-primary:hover,
+.btn-info:focus,
+.btn-primary:focus {
+    background: var(--erp-accent-deep);
+    border-color: var(--erp-accent-deep);
+}
+
+.btn-sm {
+    border-radius: 8px;
+    font-weight: 600;
+}
+
+.page-item.active .page-link,
+.pagination .page-item.active .page-link {
+    background-color: var(--erp-accent) !important;
+    border-color: var(--erp-accent) !important;
+}
+
+.form-control,
+.form-control-sm,
+.select2-container--default .select2-selection--single {
+    border-color: var(--erp-line);
+    border-radius: 8px;
+}
+
+.form-control:focus {
+    border-color: var(--erp-accent);
+    box-shadow: 0 0 0 0.15rem rgba(47, 107, 79, 0.18);
+}
+
+.table thead th {
+    background: #faf8f5;
+    color: var(--erp-muted);
+    font-size: 12px;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--erp-line);
+    white-space: nowrap;
+}
+
+.table-hover tbody tr:hover {
+    background: var(--erp-accent-soft);
+}
+
+.dataTables_wrapper .dataTables_filter input,
+.dataTables_wrapper .dataTables_length select {
+    border: 1px solid var(--erp-line);
+    border-radius: 8px;
+    padding: 4px 8px;
+}
+
+.badge {
+    border-radius: 999px;
+    padding: 0.35em 0.7em;
+    font-weight: 600;
+}
+
+.main-footer {
+    background: #fff;
+    border-top: 1px solid var(--erp-line);
+    color: var(--erp-muted);
+    font-size: 13px;
+}
+
+.user-panel .info a {
+    color: var(--erp-ink) !important;
+    font-weight: 600;
+}
+
+.content .card-congratulation-medal {
+    min-height: 140px;
+}
+
+.erp-kpi {
+    background: var(--erp-card);
+    border: 1px solid var(--erp-line);
+    border-radius: var(--erp-radius);
+    box-shadow: var(--erp-shadow);
+    padding: 18px 20px;
+    height: 100%;
+}
+
+.erp-kpi .label {
+    color: var(--erp-muted);
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 6px;
+}
+
+.erp-kpi .value {
+    font-size: 1.7rem;
+    font-weight: 800;
+    color: var(--erp-ink);
+    line-height: 1.2;
+}
+
+.erp-kpi .hint {
+    color: var(--erp-muted);
+    font-size: 12px;
+    margin-top: 6px;
+}
+
+.erp-kpi-link {
+    display: block;
+    color: inherit;
+}
+
+.erp-kpi-link:hover {
+    color: inherit;
+    text-decoration: none;
+}
+
+.erp-kpi.accent {
+    background: linear-gradient(160deg, var(--erp-accent) 0%, var(--erp-accent-deep) 100%);
+    color: #fff;
+    border: 0;
+}
+
+.erp-kpi.accent .label,
+.erp-kpi.accent .hint,
+.erp-kpi.accent .value {
+    color: #fff;
+}
+
+#salesForm .card-box,
+#vue_app .card-body {
+    background: var(--erp-card);
+}
+
+.sale-saving-overlay {
+    position: fixed;
+    z-index: 9999;
+    inset: 0;
+    background: rgba(28, 20, 16, .48);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+@media (max-width: 991px) {
+    .erp-nav-chip {
+        display: none;
+    }
+}

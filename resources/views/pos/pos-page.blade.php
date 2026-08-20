@@ -1,28 +1,24 @@
 <template>
-    <div id="pos-page">
+    <div id="pos-page" class="pos-shell">
         <div class="row">
-            <div class="col-6">
+            <div class="col-6 pos-catalog">
                 <div class="row">
-                    <div class="col-4 text-center header-gap">
-                        <h4>All Items</h4>
-                        <ul style="list-style-type: none; height: 80vh; overflow-y: auto; cursor: pointer">
-                            <li style="border: 1px solid #dedede; border-radius: 5px; margin-bottom: 10px"
-                                v-for="(category, index) in categories" v-bind:value="category.id"
-                                @click="clickedOnCategory(category.id)">
-                                <div style="position: relative; text-align: center; color: white">
-                                    <img
-                                        src="https://as2.ftcdn.net/v2/jpg/03/33/60/19/1000_F_333601933_hSdfWhDfRG3zaiVRvYZF24KixdVBdGfB.jpg"
-                                        alt="" width="100%" height="70px">
-                                    <p style="position:absolute; top: 50%; left: 20%; right: 20%; transform: translate(0, -50%); font-weight: 700; font-size: small; color: black">
-                                        @{{ category.name }}</p>
-                                </div>
+                    <div class="col-4">
+                        <h5 class="mb-2">Categories</h5>
+                        <ul class="pos-cats">
+                            <li>
+                                <button type="button" class="pos-cat" :class="selected_category === '' ? 'active' : ''" @click="clickedOnCategory('')">All items</button>
+                            </li>
+                            <li v-for="(category, index) in categories" :key="category.id">
+                                <button type="button" class="pos-cat" :class="selected_category == category.id ? 'active' : ''" @click="clickedOnCategory(category.id)">@{{ category.name }}</button>
                             </li>
                         </ul>
                     </div>
-                    <div class="col-8 header-gap" style="background-color: #dedede">
-                        <div class="m-2 mt-3 d-flex">
-                            <h4 style="margin-right: 10px">Products</h4>
-                            <input type="text" class="form-control" placeholder="Search Product by Title, SKU"
+                    <div class="col-8">
+                        <div class="pos-products">
+                        <div class="m-0 mb-2 d-flex align-items-center">
+                            <h5 class="mb-0 mr-2">Products</h5>
+                            <input type="text" class="form-control" placeholder="Search product or scan"
                                    v-model="search_string" @keyup="getProductBySearchString()">
                         </div>
                         <div>
@@ -30,8 +26,8 @@
                                 <thead class="new-table-header">
                                 <tr>
                                     <th>Product Name</th>
-                                    <th>Price/Unit</th>
-                                    <th>Status</th>
+                                    <th>Price</th>
+                                    <th>Stock</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -39,7 +35,7 @@
                                     v-on:click="selectProductToSell(row)">
                                     <td>@{{ row.name }}</td>
                                     <td>TK. @{{ row.price }}</td>
-                                    <td :class="row.stock > 0 ? 'inStock' :'outStock'">Stock (@{{ row.stock }})</td>
+                                    <td :class="row.stock > 0 ? 'inStock' :'outStock'">@{{ row.stock }}</td>
                                 </tr>
                                 <tr class="blank-row"></tr>
                                 <tr v-if="productsLoading">
@@ -53,55 +49,54 @@
                                 </tbody>
                             </table>
                         </div>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="col-6">
-                <div class="m-2">
-                    <div class="row">
+            <div class="col-6 pos-ticket">
+                <div class="pos-customer">
+                    <div class="row align-items-center">
                         <div class="col-6">
-                            <input type="text" class="form-control phone-input" placeholder="Enter Phone Number"
+                            <input type="text" class="form-control phone-input" placeholder="Customer phone"
                                    v-model="customerNumber"
                                    @keydown.enter="getCustomerInfo">
                         </div>
-                        <div class="col-6" style="line-height: 10px">
-                            <p>Customer Name: @{{ customer ? customer.name : 'Not Found' }}</p>
-                            <p>Customer Point: @{{ customer ? customer.reedemible_point : 'Not Found' }} <span style="color: cornflowerblue">(@{{ customer ? customer.member_type_name : 'Not Found' }})</span></p>
-                            <a v-if="customer && customer.reedemible_point > 100" @click="getPointRedeemField">[Redeem]</a>
+                        <div class="col-6">
+                            <p class="mb-1"><strong>@{{ customer && customer.name ? customer.name : 'Walking customer' }}</strong></p>
+                            <p class="mb-0 small">Points: @{{ customer ? customer.reedemible_point : 0 }}
+                                <span v-if="customer && customer.member_type_name">(@{{ customer.member_type_name }})</span>
+                            </p>
+                            <a href="#" v-if="customer && customer.reedemible_point > 100" @click.prevent="getPointRedeemField">Redeem</a>
                         </div>
                     </div>
                 </div>
-                <div style="min-height: 45vh">
-                    <h4>Cart Items</h4>
-                    <div class="row" style="max-height: 45vh; overflow-y: auto">
+                <div style="min-height: 38vh">
+                    <h5>Cart</h5>
+                    <div class="row" style="max-height: 38vh; overflow-y: auto">
+                        <div class="col-12 mb-2" v-if="selectedProducts.length < 1">
+                            <div class="product-info p-3 text-muted">No items yet. Tap a product to add it.</div>
+                        </div>
                         <div class="col-12 mb-2" v-for="(product,index) in selectedProducts">
                             <div class="product-info p-2">
                                 <div>
                                     <span>  @{{ product.name }}  <small>[TK.@{{ product.price }} x @{{ product.quantity }}]</small></span>
-                                    <span class="float-right">TK.@{{ product.total }} <small>(ex.tax)</small></span>
+                                    <span class="float-right">TK.@{{ product.total }}</span>
                                 </div>
-                                <div class="row ml-5 mr-5" style="font-size: small">
-                                    <div class="col-6 input-group " style="gap: 5px">
-                                        <label>Quantity</label>
-                                        <input type="number" class="form-control" style="height: 25px;font-size: x-small"  min="1" :max="product.stock" v-model="product.quantity" @keyup="updateQuantity(product, 'false')">
+                                <div class="row ml-1 mr-1 mt-1" style="font-size: small">
+                                    <div class="col-6 d-flex align-items-center" style="gap: 6px">
+                                        <button type="button" class="qty-btn" @click="updateQuantity(product, 'sub')">−</button>
+                                        <input type="number" class="form-control" style="height: 28px;font-size: x-small"  min="1" :max="product.stock" v-model="product.quantity" @keyup="updateQuantity(product, 'false')">
+                                        <button type="button" class="qty-btn" @click="updateQuantity(product, 'add')">+</button>
                                     </div>
                                     <div class="col-6 input-group" style="gap: 5px">
                                         <input type="text" class="form-control"
-                                               aria-label="Text input with dropdown button" style="height: 25px;font-size: x-small"  v-model="product.discountValue" @keyup="updateProductDiscount(product)" :disabled="!product.discountable">
+                                               aria-label="Text input with dropdown button" style="height: 28px;font-size: x-small"  v-model="product.discountValue" @keyup="updateProductDiscount(product)" :disabled="!product.discountable">
                                         <div class="input-group-append">
-                                            <select name="" id="" class="form-control"  style="height: 25px;font-size: x-small"  v-model="product.discountType" @change="updateProductDiscount(product)" :disabled="!product.discountable">
-                                                <option value="">Discount</option>
+                                            <select name="" id="" class="form-control"  style="height: 28px;font-size: x-small"  v-model="product.discountType" @change="updateProductDiscount(product)" :disabled="!product.discountable">
+                                                <option value="">Off</option>
                                                 <option value="p">%</option>
                                                 <option value="f">TK</option>
                                             </select>
-{{--                                            <button class="btn btn-outline-secondary dropdown-toggle" type="button"--}}
-{{--                                                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"--}}
-{{--                                                    style="height: 25px; font-size: small">Discount--}}
-{{--                                            </button>--}}
-{{--                                            <div class="dropdown-menu">--}}
-{{--                                                <a class="dropdown-item" href="#">%</a>--}}
-{{--                                                <a class="dropdown-item" href="#">TK</a>--}}
-{{--                                            </div>--}}
                                         </div>
                                         <button class="btn btn-sm btn-danger" @click="delete_selected_product(product)">X</button>
                                     </div>
@@ -111,17 +106,17 @@
                     </div>
                 </div>
                 <div>
-                    <ul style="list-style-type: none; font-size:12px">
-                        <li><span>Subtotal</span><span style="float: right">TK.@{{ total_bill }}</span></li>
-                        <li><span>Products Discount</span><span style="float: right">TK.@{{ productWiseDiscount }}</span></li>
+                    <ul class="pos-totals">
+                        <li><span>Subtotal</span><span>TK.@{{ total_bill }}</span></li>
+                        <li><span>Products Discount</span><span>TK.@{{ productWiseDiscount }}</span></li>
 
-                        <li><span>Coupon Discount</span><span style="float: right"><strong><span
+                        <li><span>Coupon Discount</span><span><strong><span
                                         v-if="couponCodeDiscountShowValue">( @{{ couponCodeDiscountShowValue }} )</span>@{{ couponCodeDiscountAmount ?? 'N/A' }}</strong></span>
                         </li>
-                        <li><span>Overall Discount</span><span style="float: right">TK.@{{ total_discount_amount }}</span></li>
-                        <li><span>Special Discount</span><span style="float: right">TK.@{{ special_discount_amount }}</span></li>
-                        <li><span>Membership Discount (@{{customer && customer.purchase_discount > 0 ? customer.purchase_discount +'% @ '+customer.minimum_purchase + 'TK' : ''}} )</span><span style="float: right">TK.@{{ membership_discount_amount }}</span></li>
-                        <li><span>Total Discount</span><span style="float: right">TK.@{{ allDiscountAmount }}</span></li>
+                        <li><span>Overall Discount</span><span>TK.@{{ total_discount_amount }}</span></li>
+                        <li><span>Special Discount</span><span>TK.@{{ special_discount_amount }}</span></li>
+                        <li><span>Membership Discount (@{{customer && customer.purchase_discount > 0 ? customer.purchase_discount +'% @ '+customer.minimum_purchase + 'TK' : ''}} )</span><span>TK.@{{ membership_discount_amount }}</span></li>
+                        <li><span>Total Discount</span><span>TK.@{{ allDiscountAmount }}</span></li>
                     </ul>
                 </div>
                 <div class="container text-center btn-group btn-group-justified" style="gap: 10px">
@@ -132,7 +127,7 @@
                 </div>
                 <div class=" payment-button mt-2 p-3" style="cursor: pointer" @click="openPaymentModal">
                     <div>
-                        <h5>Process To Pay</h5>
+                        <h5>Pay now</h5>
                         <span>@{{ total_items }} Items</span>
                         <span class="float-right">TK. @{{ total_payable_bill }} >></span>
                     </div>

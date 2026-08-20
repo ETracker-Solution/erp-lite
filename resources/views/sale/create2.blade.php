@@ -33,7 +33,7 @@
     <section class="content">
         <div class="container-fluid">
             <div class="row mt-2" id="vue_app">
-                <div v-if="isSubmitting" style="position:fixed;z-index:9999;left:0;top:0;right:0;bottom:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px;">
+                <div v-if="isSubmitting" class="sale-saving-overlay">
                     Saving sale&hellip;
                 </div>
                 <div class="col-lg-12 col-md-12">
@@ -48,7 +48,7 @@
                                 </a>
                             </div>
                         </div>
-                        <form  id="salesForm" action="{{ route('sales.store') }}" method="POST" class="" enctype="multipart/form-data">
+                        <form  id="salesForm" action="{{ route('sales.store') }}" method="POST" class="prevent-enter-submit" enctype="multipart/form-data">
                             @csrf
                             <input type="hidden" name="submission_token"
                                    value="{{ session()->get('submission_token') ?? Str::random(40) }}">

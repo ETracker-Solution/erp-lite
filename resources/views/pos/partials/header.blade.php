@@ -1,20 +1,16 @@
-<div class="header"  style="position: absolute; z-index: 1; width: 50%">
-    <div class="" >
-        <div class="text-center">
-            <div class="row">
-                <div class="col-4">
-                    <img src="{{ asset('upload').'/'.getSettingValue('company_logo') }}" alt="Logo" width="70%" height="55px">
-                </div>
-                <div class="col-8">
-                    <div class="m-2 text-center">
-                        <button class="btn new-button"  :class="currentActiveMenu == 'home' ? 'active' : ''" href="#" @click="changeToNav('home')">Home</button>
-                        <button class="btn new-button" :class="currentActiveMenu == 'customers' ? 'active' : ''" href="#" @click="changeToNav('customers')">Customer</button>
-                        <button class="btn new-button" :class="currentActiveMenu == 'orders' ? 'active' : ''" href="#" @click="changeToNav('orders')">Order</button>
-{{--                        <button class="btn new-button" :class="currentActiveMenu == 'pre_orders' ? 'active' : ''" href="#" @click="changeToNav('pre_orders')">Pre-Order</button>--}}
-                        <button class="btn new-button"  @click="openOnHoldOrderModal">On-Hold</button>
-                    </div>
-                </div>
-            </div>
+<div class="pos-topbar">
+    <div class="row align-items-center">
+        <div class="col-3 col-md-2 logo">
+            <a href="{{ url('/dashboard') }}">
+                <img src="{{ asset('upload').'/'.getSettingValue('company_logo') }}" alt="Logo">
+            </a>
+        </div>
+        <div class="col-9 col-md-10 pos-nav text-right">
+            <button class="btn new-button" :class="currentActiveMenu == 'home' ? 'active' : ''" type="button" @click="changeToNav('home')">Home</button>
+            <button class="btn new-button" :class="currentActiveMenu == 'customers' ? 'active' : ''" type="button" @click="changeToNav('customers')">Customer</button>
+            <button class="btn new-button" :class="currentActiveMenu == 'orders' ? 'active' : ''" type="button" @click="changeToNav('orders')">Order</button>
+            <button class="btn new-button" type="button" @click="openOnHoldOrderModal">On-Hold</button>
+            <a href="{{ url('/dashboard') }}" class="pos-dash-link">Dashboard</a>
         </div>
     </div>
 </div>

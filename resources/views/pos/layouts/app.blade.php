@@ -13,8 +13,9 @@
     <script src="{{ asset('admin/app-assets/vendors/js/ui/jquery.sticky.js') }}"></script>
     <script src="{{asset('admin/app-assets/js/pos/popper.js')}}"></script>
     <script src="{{asset('admin/app-assets/js/pos/bootstrap.js')}}"></script>
-    <title>POS</title>
+    <title>POS | {{ getSettingValue('software_name') ?: config('app.name', 'Cake Town') }}</title>
     <style>
+        /* Legacy class names kept; visual theme lives in pos-ui.css */
         .new-button {
             color: darkred;
             background-color: white;
@@ -208,8 +209,10 @@
         }
 
     </style>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('assets/css/pos-ui.css') }}">
 </head>
-<body style="height: 90%; overflow: hidden; padding-right: 20px">
+<body>
 <section style="position:relative;">
     <div id="vue_app">
         @include('pos.partials.header')
@@ -622,7 +625,7 @@
                     });
                 },
                 clickedOnCategory(category) {
-                    this.selected_category = category
+                    this.selected_category = this.selected_category == category ? '' : category
                     this.getAllProducts(true)
                 },
                 modalClick() {
@@ -805,14 +808,13 @@
                     this.selectedProducts.some(function (product) {
                         if (product.id === item.id) {
                             if (update_type === 'add') {
-                                product.quantity++
                                 if (Number(product.quantity) >= product.stock) {
                                     product.quantity = product.stock
                                 } else {
                                     product.quantity++
                                 }
                             } else if (update_type === 'sub') {
-                                if (Number(product.quantity) < 1) {
+                                if (Number(product.quantity) <= 1) {
                                     product.quantity = 1
                                 } else {
                                     product.quantity--

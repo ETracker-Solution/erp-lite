@@ -20,18 +20,11 @@
     <section class="content">
         <div class="row match-height">
             <!-- Medal Card -->
-            <div class="col-xl-4 col-md-6 col-12">
-                <div class="card card-congratulation-medal">
-                    <div class="card-body">
-                        <h5>Welcome to the Dashboard !🎉 </h5>
-                        <p class="card-text font-small-3">Deliverable</p>
-                        <h3 class="mb-75 mt-2 pt-50">
-                            {{ $TotalNewRequisitions }}
-                        </h3>
-                        <a href="{{route('requisitions.index')}}">
-                            <button type="button" class="btn btn-info">View FG Requisition</button>
-                        </a>
-                    </div>
+            <div class="col-xl-4 col-md-6 col-12 mb-3">
+                <div class="erp-kpi accent">
+                    <div class="label">Pending FG deliveries</div>
+                    <div class="value">{{ $TotalNewRequisitions }}</div>
+                    <div class="hint"><a href="{{route('requisitions.index')}}" class="text-white">Open requisitions</a></div>
                 </div>
             </div>
             <!--/ Medal Card -->

@@ -25,15 +25,11 @@
     <section class="content">
         <div class="row match-height">
             <!-- Medal Card -->
-            <div class="col-xl-4 col-md-6 col-12">
-                <div class="card card-congratulation-medal">
-                    <div class="card-body">
-                        <h5 class="text-info">Congratulations 🎉 Admin!</h5>
-                        <p class="card-text font-small-3">Today's Sales Overview</p>
-                        <h1 class="mb-75 mt-2 pt-50">
-                            <a href="javascript:void(0);">{{ $totalSales }} BDT</a>
-                        </h1>
-                    </div>
+            <div class="col-xl-4 col-md-6 col-12 mb-3">
+                <div class="erp-kpi accent">
+                    <div class="label">Today's sales</div>
+                    <div class="value">{{ number_format($totalSales, 2) }} BDT</div>
+                    <div class="hint">Live outlet total for today</div>
                 </div>
             </div>
             <!--/ Medal Card -->

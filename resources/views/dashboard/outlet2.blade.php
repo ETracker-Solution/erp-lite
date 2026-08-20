@@ -20,51 +20,33 @@
     <section class="content">
         <div class="row match-height">
             <!-- Medal Card -->
-            <div class="col-xl-3 col-md-6 col-12">
-                <div class="card card-congratulation-medal">
-                    <div class="card-body">
-                        <h5 class="text-info">Congratulations Outlet!</h5>
-                        <p class="card-text font-small-3">Today's Sales Overview</p>
-                        <h1 class="mb-75 mt-2 pt-50">
-                            <a href="javascript:void(0);">{{ $todaySale }} BDT</a>
-                        </h1>
-                    </div>
+            <div class="col-xl-3 col-md-6 col-12 mb-3">
+                <div class="erp-kpi accent">
+                    <div class="label">Today's sales</div>
+                    <div class="value">{{ number_format($todaySale, 2) }} BDT</div>
+                    <div class="hint">This outlet</div>
                 </div>
             </div>
-            <div class="col-xl-3 col-md-4 col-12">
-                <div class="card card-congratulation-medal">
-                    <div class="card-body">
-                        <a href="{{route('fg-delivery-receives.create')}}" class="btn btn-sm btn-block btn-info">
-                            Receivable Delivery
-                            <h1>
-                                {{ $requisition_deliveries_count }}
-                            </h1>
-                        </a>
+            <div class="col-xl-3 col-md-4 col-12 mb-3">
+                <a href="{{route('fg-delivery-receives.create')}}" class="erp-kpi-link">
+                    <div class="erp-kpi">
+                        <div class="label">Receivable deliveries</div>
+                        <div class="value">{{ $requisition_deliveries_count }}</div>
                     </div>
-                </div>
+                </a>
             </div>
-            <div class="col-xl-3 col-md-4 col-12">
-                <div class="card card-congratulation-medal">
-                    <div class="card-body">
-                        <a href="{{route('sales-deliveries.index')}}" class="btn btn-sm btn-block btn-info">
-                            OOS delivery
-                            <h1>
-                                {{ $otherOutletSales }}
-                            </h1>
-                        </a>
+            <div class="col-xl-3 col-md-4 col-12 mb-3">
+                <a href="{{route('sales-deliveries.index')}}" class="erp-kpi-link">
+                    <div class="erp-kpi">
+                        <div class="label">OOS deliveries</div>
+                        <div class="value">{{ $otherOutletSales }}</div>
                     </div>
-                </div>
+                </a>
             </div>
-            <div class="col-xl-3 col-md-4 col-12">
-                <div class="card card-congratulation-medal">
-                    <div class="card-body">
-                        <a href="javascript:void(0)" class="btn btn-sm btn-block btn-info">
-                            PETTY CASH
-                            <h1>
-                                {{ $outletPettyCashAmount }}
-                            </h1>
-                        </a>
-                    </div>
+            <div class="col-xl-3 col-md-4 col-12 mb-3">
+                <div class="erp-kpi">
+                    <div class="label">Petty cash</div>
+                    <div class="value">{{ $outletPettyCashAmount }}</div>
                 </div>
             </div>
             <!--/ Medal Card -->
