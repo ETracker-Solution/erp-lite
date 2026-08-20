@@ -19,7 +19,7 @@
                             <img src="{{ asset('loading.gif') }}" alt="loading">
                         </span>
                 <div class="col-lg-12 col-md-12">
-                    <form action="{{ route('requisitions.update',$requisition->id) }}" method="POST" class="">
+                    <form action="{{ route('requisitions.update',$requisition->id) }}" method="POST" class="prevent-enter-submit">
                         @csrf
                         @method('PUT')
                         <div class="card">
@@ -58,7 +58,7 @@
                                             </div>
                                             <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                                 <div class="form-group">
-                                                    <label for="from_store_id"> from Store</label>
+                                                    <label for="from_store_id">From Store</label>
                                                     <select name="from_store_id" id="from_store_id"
                                                             class="form-control bSelect"
                                                             v-model="from_store_id" required>
@@ -231,7 +231,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="card-footer">
+                            <div class="card-footer erp-save-bar">
                                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 text-right" v-if="items.length > 0">
                                     <button class="float-right btn btn-primary" type="submit"><i
                                             class="fa fa-fw fa-lg fa-check-circle"></i>Submit

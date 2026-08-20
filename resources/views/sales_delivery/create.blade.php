@@ -32,7 +32,7 @@
                         </div>
 
 
-                        <form id="deliveryForm" action="{{ route('sales-deliveries.store') }}" method="POST" class="">
+                        <form id="deliveryForm" action="{{ route('sales-deliveries.store') }}" method="POST" class="prevent-enter-submit">
                             @csrf
                             <input type="hidden" name="submission_token"
                                    value="{{ session()->get('submission_token') ?? Str::random(40) }}">
@@ -404,7 +404,7 @@
                                 </div>
 
                             </div>
-                            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 text-right" v-if="items.length > 0">
+                            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 text-right erp-save-bar" v-if="items.length > 0">
                                 <button class="float-right btn btn-primary"
                                         type="button"
                                         :disabled="isSubmitting"

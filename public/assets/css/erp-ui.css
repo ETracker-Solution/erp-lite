@@ -363,9 +363,13 @@ aside a:hover,
 }
 
 .card-footer {
+    position: sticky;
+    bottom: 0;
+    z-index: 6;
     background: #faf8f5;
     border-top: 1px solid var(--erp-line);
     border-radius: 0 0 var(--erp-radius) var(--erp-radius);
+    box-shadow: 0 -6px 18px rgba(28, 20, 16, 0.05);
 }
 
 .card-footer .btn-primary,
@@ -470,7 +474,8 @@ aside a:hover,
     border-color: var(--erp-accent);
 }
 
-.categoryLoader {
+.categoryLoader,
+.pageLoader {
     position: fixed !important;
     inset: 0 !important;
     top: 0 !important;
@@ -484,7 +489,8 @@ aside a:hover,
     z-index: 9998 !important;
 }
 
-.categoryLoader img {
+.categoryLoader img,
+.pageLoader img {
     width: 72px;
     height: 72px;
 }

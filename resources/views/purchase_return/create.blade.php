@@ -20,7 +20,7 @@
                             <img src="{{ asset('loading.gif') }}" alt="loading">
                         </span>
                 <div class="col-lg-12 col-md-12">
-                    <form action="{{route('purchase-returns.store')}}" method="POST" class=""
+                    <form action="{{route('purchase-returns.store')}}" method="POST" class="prevent-enter-submit"
                           enctype="multipart/form-data">
                         @csrf
                         <input type="hidden" name="submission_token"
@@ -258,7 +258,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="card-footer" v-if="selected_items.length > 0">
+                            <div class="card-footer erp-save-bar" v-if="selected_items.length > 0">
                                 <button class="float-right btn btn-primary" type="submit"><i
                                         class="fa fa-fw fa-lg fa-check-circle"></i>Submit
                                 </button>

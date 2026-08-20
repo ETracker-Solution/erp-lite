@@ -19,7 +19,7 @@
                         </span>
                 <div class="col-lg-12 col-md-12">
 
-                    <form action="{{route('productions.update',$production->id)}}" method="POST" class=""
+                    <form action="{{route('productions.update',$production->id)}}" method="POST" class="prevent-enter-submit"
                           enctype="multipart/form-data">
                         @csrf
                         @method('put')
@@ -275,7 +275,7 @@
                                 </div>
 
                             </div>
-                            <div class="card-footer" v-if="selected_items.length > 0">
+                            <div class="card-footer erp-save-bar" v-if="selected_items.length > 0">
                                 <button class="float-right btn btn-primary" type="submit"><i
                                         class="fa fa-fw fa-lg fa-check-circle"></i>Update
                                 </button>
