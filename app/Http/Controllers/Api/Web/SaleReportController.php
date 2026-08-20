@@ -48,6 +48,7 @@ class SaleReportController extends Controller
 
         $from_date = Carbon::parse(\request()->from_date)->format('Y-m-d') ?? Carbon::now()->format('Y-m-d');
         $to_date = Carbon::parse(\request()->to_date)->format('Y-m-d') ?? Carbon::now()->format('Y-m-d');
+        [$from_date, $to_date] = clampReportDateRange($from_date, $to_date, 366);
 
         $asOnDate = Carbon::parse(\request()->as_on_date)->format('Y-m-d') ?? Carbon::now()->format('Y-m-d');
 
@@ -81,7 +82,13 @@ class SaleReportController extends Controller
 
             $data = [
                 'dateRange' => $dateRange,
-                'data' => OthersOutletSale::with('customer', 'outlet')->where('outlet_id', $outlet->id)->where('date', '>=', $from_date)->where('date', '<=', $to_date)->get(),
+                'data' => OthersOutletSale::with(['customer:id,name,mobile', 'outlet:id,name'])
+                    ->select(['id', 'date', 'invoice_number', 'customer_id', 'outlet_id', 'grand_total', 'receive_amount', 'delivery_point_receive_amount'])
+                    ->where('outlet_id', $outlet->id)
+                    ->where('date', '>=', $from_date)
+                    ->where('date', '<=', $to_date)
+                    ->limit(5000)
+                    ->get(),
                 'page_title' => $page_title,
                 'report_header' => $report_header
             ];
@@ -92,7 +99,13 @@ class SaleReportController extends Controller
             $page_title = 'Customer Name :: ' . $customer->name;
             $data = [
                 'dateRange' => $dateRange,
-                'data' => OthersOutletSale::with('customer', 'outlet')->where('customer_id', $customer->id)->where('date', '>=', $from_date)->where('date', '<=', $to_date)->get(),
+                'data' => OthersOutletSale::with(['customer:id,name,mobile', 'outlet:id,name'])
+                    ->select(['id', 'date', 'invoice_number', 'customer_id', 'outlet_id', 'grand_total', 'receive_amount', 'delivery_point_receive_amount'])
+                    ->where('customer_id', $customer->id)
+                    ->where('date', '>=', $from_date)
+                    ->where('date', '<=', $to_date)
+                    ->limit(5000)
+                    ->get(),
                 'page_title' => $page_title,
                 'report_header' => $report_header
             ];
@@ -103,15 +116,12 @@ class SaleReportController extends Controller
             $page_title = 'Outlet Name :: ' . $outlet->name;
             $data = [
                 'dateRange' => $dateRange,
-                'data' => Sale::with('customer', 'outlet', 'items')->where(function ($q) {
-                    return $q->where('discount', '>', 0)
-                    ->orWhere('membership_discount_amount', '>', 0)
-                    ->orWhere('special_discount_amount', '>', 0)
-                    ->orWhere('couponCodeDiscountAmount', '>', 0)
-                    ->orWhereHas('items', function ($q) {
-                        return $q->where('discount', '>', 0);
-                    });
-                })->where('outlet_id', $outlet->id)->where('date', '>=', $from_date)->where('date', '<=', $to_date)->get(),
+                'data' => $this->discountedSalesQuery()
+                    ->where('outlet_id', $outlet->id)
+                    ->where('date', '>=', $from_date)
+                    ->where('date', '<=', $to_date)
+                    ->limit(5000)
+                    ->get(),
                 'page_title' => $page_title,
                 'report_header' => $report_header
             ];
@@ -122,15 +132,12 @@ class SaleReportController extends Controller
             $page_title = 'Customer Name :: ' . $customer->name;
             $data = [
                 'dateRange' => $dateRange,
-                'data' => Sale::with('customer', 'outlet', 'items')->where(function ($q) {
-                    return $q->where('discount', '>', 0)
-                    ->orWhere('membership_discount_amount', '>', 0)
-                    ->orWhere('special_discount_amount', '>', 0)
-                    ->orWhere('couponCodeDiscountAmount', '>', 0)
-                    ->orWhereHas('items', function ($q) {
-                        return $q->where('discount', '>', 0);
-                    });
-                })->where('customer_id', $customer->id)->where('date', '>=', $from_date)->where('date', '<=', $to_date)->get(),
+                'data' => $this->discountedSalesQuery()
+                    ->where('customer_id', $customer->id)
+                    ->where('date', '>=', $from_date)
+                    ->where('date', '<=', $to_date)
+                    ->limit(5000)
+                    ->get(),
                 'page_title' => $page_title,
                 'report_header' => $report_header
             ];
@@ -145,7 +152,7 @@ class SaleReportController extends Controller
                     return $q->where('product_id', $product->id);
                 }])->whereHas('items', function ($q) use ($product) {
                     return $q->where('product_id', $product->id);
-                })->where('date', '>=', $from_date)->where('date', '<=', $to_date)->get(),
+                })->where('date', '>=', $from_date)->where('date', '<=', $to_date)->limit(5000)->get(),
                 'page_title' => $page_title,
                 'report_header' => $report_header
             ];
@@ -153,9 +160,6 @@ class SaleReportController extends Controller
             $pdf->stream();
         } elseif ($report_type == 'All Outlet Discount') {
             try {
-                ini_set('memory_limit', '1024M');
-                ini_set('max_execution_time', 300);
-
                 $page_title = 'All Discounts';
 
                 // RAW QUERY FOR MAXIMUM SPEED
@@ -190,6 +194,7 @@ class SaleReportController extends Controller
             )
             AND s.date BETWEEN ? AND ?
             ORDER BY s.date ASC
+            LIMIT 5000
         ", [$from_date, $to_date]);
 
 
@@ -255,98 +260,86 @@ class SaleReportController extends Controller
 
     public function getAllSaleQuery($from_date, $to_date)
     {
-        $outlet_id = auth()->user()->employee && auth()->user()->employee->outlet_id ? auth()->user()->employee->outlet_id : null;
-        if (auth()->user()->is_super || (auth()->user()->employee && auth()->user()->employee->user_of == 'ho')) {
-            return "
-                SELECT
-                    SS.invoice_number AS 'Invoice Number',
-                    US.name AS 'Seller',
-                    IFNULL(SS.waiter_name, '') AS 'Waiter',
-                    SS.date AS 'Date',
-                    SS.subtotal AS 'Amount',
-                    (SS.discount + SS.membership_discount_amount + SS.special_discount_amount + SS.couponCodeDiscountAmount) AS 'Discount',
-                    (SS.subtotal - (SS.discount + SS.membership_discount_amount + SS.special_discount_amount + SS.couponCodeDiscountAmount)) AS 'After Discount',
-                    0 AS 'COGS'
-                FROM
-                    sales SS
-                LEFT JOIN
-                    users US ON SS.created_by = US.id
-                JOIN
-                    account_transactions ATT ON ATT.doc_id = SS.id
-                WHERE
-                    ATT.doc_type = 'POS'
-                    AND ATT.chart_of_account_id = 43
-                    AND SS.date >= '$from_date'
-                    AND SS.date <= '$to_date'
-
-                UNION ALL
-
-                SELECT
-                    '' AS 'Seller',
-                    '' AS 'Waiter',
-                    'Total' AS 'Invoice Number',
-                    '' AS 'Date',
-                    SUM(SS.subtotal) AS 'Amount',
-                    (SS.discount + SS.membership_discount_amount + SS.special_discount_amount + SS.couponCodeDiscountAmount) AS 'Discount',
-                    SUM(SS.subtotal - ((SS.discount + SS.membership_discount_amount + SS.special_discount_amount + SS.couponCodeDiscountAmount))) AS 'After Discount',
-                    0 AS 'COGS'
-                FROM
-                    sales SS
-                JOIN
-                    account_transactions ATT ON ATT.doc_id = SS.id
-                WHERE
-                    ATT.doc_type = 'POS'
-                    AND ATT.chart_of_account_id = 43
-                    AND SS.date >= '$from_date'
-                    AND SS.date <= '$to_date'
-            ";
-        } else {
-            return "
-                SELECT
-                    SS.invoice_number AS 'Invoice Number',
-                    US.name AS 'Seller',
-                    IFNULL(SS.waiter_name, '') AS 'Waiter',
-                    SS.date AS 'Date',
-                    SS.subtotal AS 'Amount',
-                    (SS.discount + SS.membership_discount_amount + SS.special_discount_amount + SS.couponCodeDiscountAmount) AS 'Discount',
-                    (SS.subtotal - (SS.discount + SS.membership_discount_amount + SS.special_discount_amount + SS.couponCodeDiscountAmount)) AS 'After Discount',
-                    0 AS 'COGS'
-                FROM
-                    sales SS
-                LEFT JOIN
-                    users US ON SS.created_by = US.id
-                JOIN
-                    account_transactions ATT ON ATT.doc_id = SS.id
-                WHERE
-                    ATT.doc_type = 'POS'
-                    AND ATT.chart_of_account_id = 43
-                    AND SS.date >= '$from_date'
-                    AND SS.date <= '$to_date'
-                    AND SS.outlet_id = '$outlet_id'
-
-                UNION ALL
-
-                SELECT
-                    '' AS 'Seller',
-                    '' AS 'Waiter',
-                    'Total' AS 'Invoice Number',
-                    '' AS 'Date',
-                    SUM(SS.subtotal) AS 'Amount',
-                    SUM((SS.discount + SS.membership_discount_amount + SS.special_discount_amount + SS.couponCodeDiscountAmount)) AS 'Discount',
-                    SUM(SS.subtotal - (SS.discount + SS.membership_discount_amount + SS.special_discount_amount + SS.couponCodeDiscountAmount)) AS 'After Discount',
-                    0 AS 'COGS'
-                FROM
-                    sales SS
-                JOIN
-                    account_transactions ATT ON ATT.doc_id = SS.id
-                WHERE
-                    ATT.doc_type = 'POS'
-                    AND ATT.chart_of_account_id = 43
-                    AND SS.date >= '$from_date'
-                    AND SS.date <= '$to_date'
-                    AND SS.outlet_id = '$outlet_id'
-            ";
+        $from_date = sanitizeReportDate($from_date);
+        $to_date = sanitizeReportDate($to_date);
+        $outletFilter = '';
+        $isHo = auth()->user()->is_super || (auth()->user()->employee && auth()->user()->employee->user_of == 'ho');
+        if (!$isHo) {
+            $outlet_id = (int) (auth()->user()->employee->outlet_id ?? 0);
+            if ($outlet_id) {
+                $outletFilter = " AND SS.outlet_id = {$outlet_id}";
+            }
         }
+
+        return "
+                SELECT
+                    SS.invoice_number AS 'Invoice Number',
+                    US.name AS 'Seller',
+                    IFNULL(SS.waiter_name, '') AS 'Waiter',
+                    SS.date AS 'Date',
+                    SS.subtotal AS 'Amount',
+                    (SS.discount + SS.membership_discount_amount + SS.special_discount_amount + SS.couponCodeDiscountAmount) AS 'Discount',
+                    (SS.subtotal - (SS.discount + SS.membership_discount_amount + SS.special_discount_amount + SS.couponCodeDiscountAmount)) AS 'After Discount',
+                    COALESCE(cogs.total_cogs, 0) AS 'COGS'
+                FROM
+                    sales SS
+                LEFT JOIN
+                    users US ON SS.created_by = US.id
+                LEFT JOIN (
+                    SELECT sale_id, SUM(COALESCE(cogs, 0)) AS total_cogs
+                    FROM sale_items
+                    GROUP BY sale_id
+                ) cogs ON cogs.sale_id = SS.id
+                WHERE
+                    SS.date >= '$from_date'
+                    AND SS.date <= '$to_date'
+                    {$outletFilter}
+
+                UNION ALL
+
+                SELECT
+                    '' AS 'Invoice Number',
+                    '' AS 'Seller',
+                    'Total' AS 'Waiter',
+                    '' AS 'Date',
+                    SUM(SS.subtotal) AS 'Amount',
+                    SUM(SS.discount + SS.membership_discount_amount + SS.special_discount_amount + SS.couponCodeDiscountAmount) AS 'Discount',
+                    SUM(SS.subtotal - (SS.discount + SS.membership_discount_amount + SS.special_discount_amount + SS.couponCodeDiscountAmount)) AS 'After Discount',
+                    SUM(COALESCE(cogs.total_cogs, 0)) AS 'COGS'
+                FROM
+                    sales SS
+                LEFT JOIN (
+                    SELECT sale_id, SUM(COALESCE(cogs, 0)) AS total_cogs
+                    FROM sale_items
+                    GROUP BY sale_id
+                ) cogs ON cogs.sale_id = SS.id
+                WHERE
+                    SS.date >= '$from_date'
+                    AND SS.date <= '$to_date'
+                    {$outletFilter}
+            ";
+    }
+
+    private function discountedSalesQuery()
+    {
+        return Sale::with([
+            'customer:id,name,mobile',
+            'outlet:id,name',
+            'items:id,sale_id,discount,quantity,unit_price,product_id',
+        ])
+            ->select([
+                'id', 'date', 'invoice_number', 'customer_id', 'outlet_id', 'subtotal', 'grand_total',
+                'discount', 'membership_discount_amount', 'special_discount_amount', 'couponCodeDiscountAmount',
+            ])
+            ->where(function ($q) {
+                $q->where('discount', '>', 0)
+                    ->orWhere('membership_discount_amount', '>', 0)
+                    ->orWhere('special_discount_amount', '>', 0)
+                    ->orWhere('couponCodeDiscountAmount', '>', 0)
+                    ->orWhereHas('items', function ($q) {
+                        $q->where('discount', '>', 0);
+                    });
+            });
     }
 
 
@@ -422,16 +415,13 @@ union all
         JOIN outlets OT ON OT.id = SS.outlet_id
         JOIN sale_items SI ON SI.sale_id = SS.id
         JOIN chart_of_inventories COI ON SI.product_id = COI.id
-        JOIN account_transactions ATT ON ATT.doc_id = SS.id
-        WHERE ATT.doc_type = 'POS'
-        AND ATT.chart_of_account_id = 43
-        AND SS.date >= '$from_date'
+        WHERE SS.date >= '$from_date'
         AND SS.date <= '$to_date'
     ";
 
         // Add outlet filter if store_id is provided
         if (\request()->filled('store_id')) {
-            $outlet_id = Outlet::find(\request()->store_id)->id;
+            $outlet_id = (int) Outlet::find(\request()->store_id)->id;
             $baseQuery .= " AND SS.outlet_id = $outlet_id ";
         }
 
@@ -523,6 +513,7 @@ WHERE SS.date >= '$from_date'
 
     public function getSinlgeItemDetails($item_id, $from_date, $to_date)
     {
+        $item_id = (int) $item_id;
         $outlet_id = auth()->user()->employee && auth()->user()->employee->outlet_id ? auth()->user()->employee->outlet_id : null;
         if (auth()->user()->is_super || (auth()->user()->employee && auth()->user()->employee->user_of == 'ho')) {
             return "
@@ -580,6 +571,7 @@ AND SS.outlet_id = '$outlet_id'
 
     public function getSingleCustomerDetails($customer_id, $from_date, $to_date)
     {
+        $customer_id = (int) $customer_id;
         $outlet_id = auth()->user()->employee && auth()->user()->employee->outlet_id ? auth()->user()->employee->outlet_id : null;
         if (auth()->user()->is_super || (auth()->user()->employee && auth()->user()->employee->user_of == 'ho')) {
             return "

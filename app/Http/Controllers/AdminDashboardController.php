@@ -22,25 +22,12 @@ class AdminDashboardController extends Controller
         $currentDate = now();
         $today = $currentDate->format('Y-m-d');
 
-        // Batch data fetching using aggregate queries
-        $aggregates = [
-            'total_sales' => Sale::select(DB::raw('SUM(grand_total) as total'))->whereDate('created_at', $today)->first()->total,
-            'outlets' => Outlet::where('status', 'active')->count(),
-            'customers' => Customer::where('type', 'regular')->count(),
-            'wastage_amount' => InventoryAdjustment::select(DB::raw('SUM(subtotal) as total'))
-                ->whereDate('created_at', $today)
-                ->where('transaction_type', 'decrease')
-                ->first()->total,
-            'products' => ChartOfInventory::where('type', 'item')->where('rootAccountType', 'FG')->count(),
-            'today_invoice' => Sale::whereDate('created_at', $today)->count(),
-        ];
-//        return $aggregates;
-        $total_sales = Sale::whereDate('created_at', date('Y-m-d'))->sum('grand_total');
+        $total_sales = Sale::whereDate('created_at', $today)->sum('grand_total');
         $outlets = Outlet::whereStatus('active')->count();
         $customers = Customer::where('type', 'regular')->count();
-        $wastage_amount = InventoryAdjustment::whereDate('created_at', date('Y-m-d'))->where(['transaction_type' => 'decrease'])->sum('subtotal');
+        $wastage_amount = InventoryAdjustment::whereDate('created_at', $today)->where(['transaction_type' => 'decrease'])->sum('subtotal');
         $products = ChartOfInventory::where('type', 'item')->where('rootAccountType', 'FG')->count();
-        $todayInvoice = Sale::whereDate('created_at', Carbon::now()->format('Y-m-d'))->count();
+        $todayInvoice = Sale::whereDate('created_at', $today)->count();
 
         $todayRequisitions = Requisition::whereType('FG')->whereDate('created_at', Carbon::today())->get();
 
@@ -119,8 +106,7 @@ class AdminDashboardController extends Controller
 
 
         if (\request()->ajax()) {
-            $requisitions = Requisition::all();
-            return DataTables::of($requisitions)
+            return DataTables::of(Requisition::query()->latest())
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
                     if ($row->type == 'FG') {
@@ -141,12 +127,11 @@ class AdminDashboardController extends Controller
 
         $customersWithPoint = Customer::where('type', 'regular')
             ->join('memberships', 'customers.id', '=', 'memberships.customer_id')
-            ->with(['membership', 'sales'])
+            ->with(['membership'])
             ->orderByDesc('memberships.point')
             ->select('customers.*')
-            ->take(10) // Limit to the top 10 customers
+            ->take(10)
             ->get();
-
 
         // Best and slow-selling products
         $productSales = ChartOfInventory::select('chart_of_inventories.*', DB::raw('SUM(sale_items.quantity) as total_sold'))
@@ -156,6 +141,7 @@ class AdminDashboardController extends Controller
             ->whereMonth('sales.created_at', $currentDate->month)
             ->groupBy('chart_of_inventories.id')
             ->orderByDesc('total_sold')
+            ->limit(20)
             ->get();
 
         $bestProducts = [

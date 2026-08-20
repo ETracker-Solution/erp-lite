@@ -45,8 +45,8 @@ class MembershipController extends Controller
      */
     public function create()
     {
-        $memberTypes = MemberType::all();
-        $customers = Customer::where('type', '!=', 'default')->get();
+        $memberTypes = MemberType::query()->select('id', 'name')->get();
+        $customers = Customer::query()->select('id', 'name', 'mobile')->where('type', '!=', 'default')->get();
         return view('membership.create', compact('memberTypes', 'customers'));
     }
 

@@ -240,21 +240,9 @@
                     </b-col>
                     <b-col  cols="5" class="mr-2">
                         <select class="form-control"  v-model="payment.method" @change="checkAvail(index)">
-                            <option value="cash">Cash</option>
-                            <option value="bkash">Bkash</option>
-                            <option value="nagad">Nagad</option>
-                            <option value="DBBL">DBBL</option>
-                            <option value="UCB">UCB</option>
-                            <option value="upay">Upay</option>
-                            <option value="rocket">Rocket</option>
-                            <option value="nexus">Nexus</option>
-                            <option value="pbl">PBL POS</option>
-                            <option value="PBLQR">PBL QR</option>
-                            <option value="FOODIE">FOODIE</option>
-                            <option value="due">Due Sale</option>
-                            <option value="FoodPanda">Food Panda</option>
-                            <option value="CityBank">City Bank</option>
-                            <option value="point">Redeem Point</option>
+                            @foreach(salePaymentMethodOptions() as $method)
+                            <option value="{{ $method['value'] }}">{{ $method['label'] }}</option>
+                            @endforeach
                         </select>
                     </b-col>
                     <b-col  cols="1"  v-if="index !==0" @click="deletePaymentMethod(payment)">Delete</b-col>

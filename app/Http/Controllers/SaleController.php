@@ -34,12 +34,26 @@ class SaleController extends Controller
      */
     public function index()
     {
-        if (\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->outlet_id) {
-            $data = Sale::where(['outlet_id' => \auth()->user()->employee->outlet_id])->whereDate('date', date('Y-m-d'))->latest();
+        $data = Sale::query()->select([
+            'id',
+            'invoice_number',
+            'subtotal',
+            'discount',
+            'grand_total',
+            'status',
+            'created_at',
+            'date',
+            'membership_discount_amount',
+            'special_discount_amount',
+            'couponCodeDiscountAmount',
+        ]);
 
-        } else {
-            $data = Sale::latest();
+        if (\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->outlet_id) {
+            $data->where(['outlet_id' => \auth()->user()->employee->outlet_id])->whereDate('date', date('Y-m-d'));
+        } elseif (!filled(request()->input('search.value'))) {
+            $data->where('date', '>=', now()->subMonths(6)->toDateString());
         }
+        $data->latest();
         if (\request()->ajax()) {
             return DataTables::of($data)
                 ->addIndexColumn()
@@ -86,12 +100,11 @@ class SaleController extends Controller
             'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'FG','status'=>'active'])->get(),
             'stores' => Store::where(['type' => 'FG', 'doc_type' => 'outlet','status'=>'active'])->get(),
             'serial_no' => $serial_no,
-            'customers' => Customer::where('status', 'active')->get(),
             'user_store' => $user_store,
             'invoice_number' => $serial_no,
-            'delivery_points' => Outlet::all(),
-            'user_outlet_id' => $outlet_id
-
+            'delivery_points' => Outlet::query()->select('id', 'name')->get(),
+            'user_outlet_id' => $outlet_id,
+            'payment_methods' => salePaymentMethodOptions(),
         ];
 //        return $data;
         return view('sale.create2', $data);
@@ -139,9 +152,9 @@ class SaleController extends Controller
             $sale = new Sale();
             $sale->invoice_number = generateUniqueUUID($outlet_id, Sale::class, 'invoice_number');
             // $sale->invoice_number = $request->invoice_number ?? InvoiceNumber::generateInvoiceNumber($outlet_id, $selectedDate);
-            $sale->subtotal = $request->subtotal;
+            $sale->subtotal = 0;
             $sale->discount = $request->discount ?? 0;
-            $sale->grand_total = $request->grandtotal;
+            $sale->grand_total = 0;
             $sale->receive_amount = $request->receive_amount ?? 0;
             $sale->change_amount = $request->change_amount ?? 0;
             $sale->customer_id = $customer_id;
@@ -166,8 +179,21 @@ class SaleController extends Controller
             $sale->save();
 
             $products = $request->get('products');
+            $stockProductIds = collect($products)
+                ->filter(fn ($row) => ($row['is_readonly'] ?? 'true') == 'true')
+                ->pluck('item_id')
+                ->filter()
+                ->unique()
+                ->values();
+            $stockByProduct = $stockProductIds->isEmpty()
+                ? collect()
+                : getInventoryQuantities($stockProductIds, $store->id, true);
+            $rateByProduct = averageFGRates(
+                collect($products)->pluck('item_id')->filter()->unique()->values()
+            );
 
-            $salesAmount = $sale->grand_total;
+            $computedSubtotal = 0;
+            $computedLineDiscount = 0;
             $avgProductionPrice = 0;
 
             foreach ($products as $row) {
@@ -184,10 +210,14 @@ class SaleController extends Controller
                 }
                 $row['product_id'] = $row['item_id'];
                 $row['unit_price'] = $row['rate'];
-                $currentStock = availableInventoryBalance($row['product_id'], $store->id);
+                $currentStock = $stockByProduct[$row['product_id']] ?? 0;
                 if (($currentStock < $row['quantity']) && $row['is_readonly'] == 'true' && ($request->sales_type != 'pre_order' && $outlet_id == $request->delivery_point_id)) {
+                    DB::rollBack();
                     Toastr::error('Quantity cannot more then ' . $currentStock . ' !', '', ["progressBar" => true]);
                     return back();
+                }
+                if ($row['is_readonly'] == 'true') {
+                    $stockByProduct[$row['product_id']] = $currentStock - $row['quantity'];
                 }
 
                 $discount_type = isset($row['discountType']) ? $row['discountType'] : null;
@@ -196,19 +226,18 @@ class SaleController extends Controller
                 $row['discount_type'] = $discount_type;
                 $row['discount_value'] = $discount_value;
                 $amount = $row['unit_price'] * $row['quantity'];
-                if ($discount_type == 'p') {
-                    $discount = ($amount * $discount_value) / 100;
-                } elseif ($discount_type == 'f') {
-                    $discount = $discount_value;
-                } else {
-                    $discount = 0;
-                }
+                $discount = lineDiscountAmount($amount, $discount_type, $discount_value);
                 $row['discount'] = $discount;
+                $computedSubtotal += $amount;
+                $computedLineDiscount += $discount;
+
+                $fgRate = $rateByProduct[$row['product_id']] ?? 0;
+                $row['cogs'] = $fgRate * $row['quantity'];
 
                 $sale_item = $sale->items()->create($row);
                 $sale_item['date'] = date('Y-m-d');
                 $sale_item['coi_id'] = $row['product_id'];
-                $sale_item['rate'] = averageFGRate($row['product_id']);
+                $sale_item['rate'] = $fgRate;
                 $sale_item['amount'] = $sale_item['rate'] * $row['quantity'];
                 $sale_item['store_id'] = $store->id;
                 if ($row['is_readonly'] == 'true' && ($request->sales_type != 'pre_order' && $outlet_id == $request->delivery_point_id)) {
@@ -216,6 +245,15 @@ class SaleController extends Controller
                 }
                 $avgProductionPrice += $sale_item['amount'];
             }
+
+            $headerDiscounts = ($request->membership_discount_amount ?? 0)
+                + ($request->special_discount_amount ?? 0)
+                + ($request->couponCodeDiscountAmount ?? 0)
+                + ($request->total_discount_amount ?? 0);
+            $sale->subtotal = $computedSubtotal;
+            $sale->discount = $computedLineDiscount;
+            $sale->grand_total = max(0, $computedSubtotal - $computedLineDiscount - $headerDiscounts + $delivery_charge + $additional_charge);
+            $salesAmount = $sale->grand_total;
             $receive_amount = 0;
             foreach ($request->payment_methods as $paymentMethod) {
                 $receive_amount += $paymentMethod['amount'];
@@ -238,62 +276,17 @@ class SaleController extends Controller
                         'exchange_id' => $ret->id
                     ]);
                 }
-                if ($paymentMethod['method'] == 'FOODIE') {
-                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'FOODIE'), getAccountsReceiveableGLId());
-                }
-                if ($paymentMethod['method'] == 'PBLQR') {
-                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'PBLQR'), getAccountsReceiveableGLId());
-                }
-                if ($paymentMethod['method'] == 'nexus') {
-                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'Nexus'), getAccountsReceiveableGLId());
-                }
-                if ($paymentMethod['method'] == 'pbl') {
-                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'PBL'), getAccountsReceiveableGLId());
-                }
-                if ($paymentMethod['method'] == 'due') {
-                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'Due'), getAccountsReceiveableGLId());
-                }
-                if ($paymentMethod['method'] == 'FoodPanda') {
-                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'FoodPanda'), getAccountsReceiveableGLId());
-                }
-                if ($paymentMethod['method'] == 'CityBank') {
-                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'CityBank'), getAccountsReceiveableGLId());
-                }
-                if ($paymentMethod['method'] == 'upay') {
-                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'Upay'), getAccountsReceiveableGLId());
-                }
-                if ($paymentMethod['method'] == 'rocket') {
-                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'Rocket'), getAccountsReceiveableGLId());
-                }
-                if ($paymentMethod['method'] == 'DBBL') {
-                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'DBBL'), getAccountsReceiveableGLId());
-                }
-                if ($paymentMethod['method'] == 'UCB') {
-                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'UCB'), getAccountsReceiveableGLId());
-                }
-                if ($paymentMethod['method'] == 'nagad') {
-                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'Nagad'), getAccountsReceiveableGLId());
-                }
-                if ($paymentMethod['method'] == 'bkash') {
-                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'Bkash'), getAccountsReceiveableGLId());
-                }
-                if ($paymentMethod['method'] == 'cash') {
-                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id), getAccountsReceiveableGLId());
-                }
-                if ($paymentMethod['method'] == 'point') {
-                    redeemPoint($sale->id, $customer_id, $paymentMethod['amount']);
-                    addAccountsTransaction('POS', $sale, getRewardGLID(), getAccountsReceiveableGLId());
-                }
+                postSalePaymentTransaction($sale, $paymentMethod['method'], $outlet_id, $customer_id);
                 unset($sale->amount);
             }
 
             //Start Loyalty Effect
-            pointEarnAndUpgradeMember($sale->id, $customer_id ?? null, $request->grandtotal);
+            pointEarnAndUpgradeMember($sale->id, $customer_id ?? null, $salesAmount);
             //End Loyalty Effect
             $sale->amount = $salesAmount;
             addAccountsTransaction('POS', $sale, getAccountsReceiveableGLId(), getIncomeFromSalesGLId());
 
-            $sale->amount = 0;
+            $sale->amount = $avgProductionPrice;
             addAccountsTransaction('POS', $sale, getCOGSGLId(), getFGInventoryGLId());
 
             if ($customer_id != 1 && $salesAmount > $receive_amount) {
@@ -329,7 +322,6 @@ class SaleController extends Controller
             return redirect()->route('sales.index');
         } catch (\Exception $e) {
             DB::rollBack();
-            return $e;
             Log::emergency("File:" . $e->getFile() . "Line:" . $e->getLine() . "Message:" . $e->getMessage());
             Toastr::info('Something went wrong!.', '', ["progressbar" => true]);
             return back();

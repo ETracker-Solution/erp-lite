@@ -136,7 +136,7 @@ class CustomerOpeningBalanceController extends Controller
     {
         return response()->json([
             'next_id' => getNextId(CustomerOpeningBalance::class),
-            'customers' => Customer::all(),
+            'customers' => Customer::query()->select('id', 'name', 'mobile')->get(),
             'success' => true
         ]);
     }

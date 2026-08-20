@@ -162,9 +162,9 @@ class PreOrderController extends Controller
     {
         $data = [
             'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'FG'])->get(),
-            'supplier_groups' => SupplierGroup::all(),
-            'suppliers' => Supplier::all(),
-            'customers' => Customer::all(),
+            'supplier_groups' => SupplierGroup::query()->select('id', 'name')->get(),
+            'suppliers' => Supplier::query()->select('id', 'name', 'mobile')->get(),
+            'customers' => Customer::query()->select('id', 'name', 'mobile')->get(),
             'stores' => Store::where(['type' => 'RM', 'doc_type' => 'ho', 'doc_id' => null])->get(),
             'outlets' => Outlet::where(['status' => 'active'])->get(),
             // 'outlets' => Outlet::where(['status' => 'active'])->get(),

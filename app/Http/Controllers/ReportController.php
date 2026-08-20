@@ -34,24 +34,38 @@ class ReportController extends Controller
 
     public function fetchByDaterange(Request $request)
     {
-        $date = date('Y-m-d', strtotime($request->start_date));
-        $end_date = date('Y-m-d', strtotime($request->end_date));
+        [$start, $end] = clampReportDateRange($request->start_date, $request->end_date, 366);
+        $startDate = \Carbon\Carbon::parse($start)->startOfDay();
+        $endDate = \Carbon\Carbon::parse($end)->startOfDay();
+        if ($endDate->gt(\Carbon\Carbon::today())) {
+            $endDate = \Carbon\Carbon::today();
+        }
 
-        $tommorow = date("Y-m-d", strtotime("+1 day"));
+        $profitByDate = collect(ProfitLoss::profitLoss($startDate->format('Y-m-d'), $endDate->format('Y-m-d'), true))
+            ->keyBy('date');
+
+        $expenses = Expense::query()
+            ->whereBetween('created_at', [$startDate->copy()->startOfDay(), $endDate->copy()->endOfDay()])
+            ->selectRaw('DATE(created_at) as d, SUM(amount) as amount')
+            ->groupBy('d')
+            ->pluck('amount', 'd');
+
+        $purchases = Purchase::query()
+            ->whereBetween('created_at', [$startDate->copy()->startOfDay(), $endDate->copy()->endOfDay()])
+            ->selectRaw('DATE(created_at) as d, SUM(grand_total) as amount')
+            ->groupBy('d')
+            ->pluck('amount', 'd');
+
         $data = [];
-
-        if ( $date <= $end_date ) {
-            for(; $date <= $end_date && $date < $tommorow; ){
-
-                array_push($data, (Object)[
-                    'date' => $date,
-                    'profitloss' => ProfitLoss::date($date),
-                    'expense' => Expense::whereDate('created_at', $date)->sum('amount'),
-                    'purchases' => Purchase::whereDate('created_at', $date)->sum('grand_total'),
-                ]);
-
-                $date = date('Y-m-d', strtotime( $date . " +1 days"));
-            }
+        for ($date = $startDate->copy(); $date->lte($endDate); $date->addDay()) {
+            $key = $date->format('Y-m-d');
+            $profitloss = $profitByDate->get($key) ?: (object) ProfitLoss::$default;
+            $data[] = (object) [
+                'date' => $key,
+                'profitloss' => $profitloss,
+                'expense' => $expenses[$key] ?? 0,
+                'purchases' => $purchases[$key] ?? 0,
+            ];
         }
 
         return response()->json($data);

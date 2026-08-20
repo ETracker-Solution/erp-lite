@@ -113,7 +113,7 @@ class SalesDeliveryController extends Controller
             $query->where('delivery_point_id', auth()->user()->employee->outlet_id);
         }
 
-        $sales = $query->latest()->get();
+        $sales = $query->latest()->limit(50)->get();
 
         return response()->json($sales);
     }
@@ -138,6 +138,7 @@ class SalesDeliveryController extends Controller
             $originalSale = OthersOutletSale::find($request->sale_id);
 
             if ($originalSale->status === 'delivered') {
+                DB::rollBack();
                 Toastr::error('This sale has already been processed!', '', ["progressBar" => true]);
                 return back();
             }
@@ -171,8 +172,9 @@ class SalesDeliveryController extends Controller
             if ($sale->preOrder || ($sale->outlet_id != $sale->delivery_point_id)) {
                 foreach ($originalSaleItems as $row) {
                     $row =  collect($row)->toArray();
-                    $currentStock = availableInventoryBalance($row['product_id'], $delivery_store_id);
+                    $currentStock = availableInventoryBalance($row['product_id'], $delivery_store_id, true);
                     if ($currentStock < $row['quantity']) {
+                        DB::rollBack();
                         Toastr::error('Quantity cannot more then ' . $currentStock . ' !', '', ["progressBar" => true]);
                         return back();
                     }
@@ -206,58 +208,7 @@ class SalesDeliveryController extends Controller
                     'amount' => ($paymentMethod['method'] == 'cash' && $change_amount > 0) ? ($paymentMethod['amount'] - $change_amount) : $paymentMethod['amount'],
                 ]);
                 $sale->amount = $payment->amount;
-                if ($paymentMethod['method'] == 'FOODIE') {
-                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'FOODIE'), getAccountsReceiveableGLId());
-                }
-                if ($paymentMethod['method'] == 'PBLQR') {
-                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'PBLQR'), getAccountsReceiveableGLId());
-                }
-                if ($paymentMethod['method'] == 'nexus') {
-                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'Nexus'), getAccountsReceiveableGLId());
-                }
-                if ($paymentMethod['method'] == 'nexus') {
-                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'Nexus'), getAccountsReceiveableGLId());
-                }
-                if ($paymentMethod['method'] == 'pbl') {
-                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'PBL'), getAccountsReceiveableGLId());
-                }
-                if ($paymentMethod['method'] == 'due') {
-                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'Due'), getAccountsReceiveableGLId());
-                }
-                if ($paymentMethod['method'] == 'FoodPanda') {
-                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'FoodPanda'), getAccountsReceiveableGLId());
-                }
-                if ($paymentMethod['method'] == 'CityBank') {
-                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'CityBank'), getAccountsReceiveableGLId());
-                }
-                if ($paymentMethod['method'] == 'upay') {
-                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'Upay'), getAccountsReceiveableGLId());
-                }
-                if ($paymentMethod['method'] == 'rocket') {
-                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'Rocket'), getAccountsReceiveableGLId());
-                }
-                if ($paymentMethod['method'] == 'DBBL') {
-                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'DBBL'), getAccountsReceiveableGLId());
-                }
-                if ($paymentMethod['method'] == 'UCB') {
-                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'UCB'), getAccountsReceiveableGLId());
-                }
-//                if ($paymentMethod['method'] == 'bank') {
-//                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'bank'), getAccountsReceiveableGLId());
-//                }
-                if ($paymentMethod['method'] == 'nagad') {
-                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'Nagad'), getAccountsReceiveableGLId());
-                }
-                if ($paymentMethod['method'] == 'bkash') {
-                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'Bkash'), getAccountsReceiveableGLId());
-                }
-                if ($paymentMethod['method'] == 'cash') {
-                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id,), getAccountsReceiveableGLId());
-                }
-                if ($paymentMethod['method'] == 'point') {
-                    redeemPoint($sale->id, $customer_id, $paymentMethod['amount']);
-                    addAccountsTransaction('POS', $sale, getRewardGLID(), getAccountsReceiveableGLId());
-                }
+                postSalePaymentTransaction($sale, $paymentMethod['method'], $outlet_id, $customer_id);
                 unset($sale->amount);
             }
 

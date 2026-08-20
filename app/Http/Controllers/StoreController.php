@@ -22,9 +22,8 @@ class StoreController extends Controller
         $factories = Factory::all();
         $serial_count = Store::first() ? Store::max('id') : 0;
         $serial_no = $serial_count + 1;
-        $stores = Store::all();
         if (\request()->ajax()) {
-            return DataTables::of($stores)
+            return DataTables::of(Store::query())
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
                     return view('store.action', compact('row'));

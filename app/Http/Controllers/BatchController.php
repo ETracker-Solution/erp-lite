@@ -18,9 +18,8 @@ class BatchController extends Controller
     {
         $serial_count = Batch::latest()->first() ? Batch::latest()->first()->id : 0;
         $serial_no = $serial_count + 1;
-        $batches = Batch::all();
         if (\request()->ajax()) {
-            return DataTables::of($batches)
+            return DataTables::of(Batch::query())
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
                     return view('batch.action', compact('row'));

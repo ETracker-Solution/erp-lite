@@ -89,10 +89,12 @@ class RMInventoryAdjustmentController extends Controller
                     'coi_id' => $product['coi_id'],
                 ]);
                 // Accounts Transaction Effect
+                $lineAmount = $product['quantity'] * $product['rate'];
+                $adjustment->amount = $lineAmount;
                 if ($data['transaction_type'] === 'increase') {
-                    addAccountsTransaction('RMIA', $adjustment, 16, 52);
+                    addAccountsTransaction('RMIA', $adjustment, getRMInventoryGLId(), getInventoryAdjustmentGLId());
                 } else {
-                    addAccountsTransaction('RMIA', $adjustment, 52, 16);
+                    addAccountsTransaction('RMIA', $adjustment, getInventoryAdjustmentGLId(), getRMInventoryGLId());
                 }
 
 

@@ -25,8 +25,9 @@ class FGWastegeReportController extends Controller
         $report_header = 'FG Wastage Report';
         $page_title = false;
 
-        $startDate = Carbon::parse(\request()->from_date)->format('Y-m-d') ?? Carbon::now()->format('Y-m-d');
-        $endDate = Carbon::parse(\request()->to_date)->format('Y-m-d') ?? Carbon::now()->format('Y-m-d');
+        $startDate = sanitizeReportDate(\request()->from_date ?? now());
+        $endDate = sanitizeReportDate(\request()->to_date ?? now());
+        [$startDate, $endDate] = clampReportDateRange($startDate, $endDate, 366);
         $type = 'FG';
 
         $report_type = \request()->report_type;
@@ -63,6 +64,9 @@ class FGWastegeReportController extends Controller
     }
 
     private function storeWiseReportStatement($store_id,$startDate,$endDate){
+        $store_id = (int) $store_id;
+        $startDate = sanitizeReportDate($startDate);
+        $endDate = sanitizeReportDate($endDate);
        return  "SELECT
      ia.created_at as Date,
     coi.name as ItemName,
@@ -101,6 +105,8 @@ JOIN
 
     public function productWiseReportStatement($startDate, $endDate)
     {
+        $startDate = sanitizeReportDate($startDate);
+        $endDate = sanitizeReportDate($endDate);
         return "SELECT
     coi.name as ItemName,
     iat.rate as Rate,
@@ -133,6 +139,8 @@ WHERE
 
     public function allStoreReportStatement($startDate, $endDate)
     {
+        $startDate = sanitizeReportDate($startDate);
+        $endDate = sanitizeReportDate($endDate);
         return "
 (
 SELECT

@@ -36,7 +36,7 @@ Purchase List
                     <div class="row">
                         <div class="col-12">
                             <h4>
-                                <i class="fas fa-globe"></i> Cake Town.
+                                <i class="fas fa-globe"></i> {{ getSettingValue('company_name', 'Cake Town') }}.
                                 <small class="float-right">Date:{{ $model->created_at }}</small>
                             </h4>
                         </div>

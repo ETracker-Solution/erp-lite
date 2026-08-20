@@ -22,55 +22,56 @@ function addInventoryTransaction(int $type, string $doc_type, $doc)
     ]);
 }
 
-function availableInventoryBalance(int $item_id, int $store_id = null)
+function availableInventoryBalance(int $item_id, int $store_id = null, bool $lock = false)
 {
+    $query = InventoryTransaction::where('coi_id', $item_id);
     if ($store_id) {
-        return InventoryTransaction::where(['coi_id' => $item_id, 'store_id' => $store_id])->select(DB::raw('SUM(quantity * type) AS total_sum'))
-            ->value('total_sum') ?? 0;
+        $query->where('store_id', $store_id);
     }
-    return InventoryTransaction::where(['coi_id' => $item_id])->select(DB::raw('SUM(quantity * type) AS total_sum'))
+    if ($lock) {
+        $query->lockForUpdate();
+    }
+    return $query->select(DB::raw('SUM(quantity * type) AS total_sum'))
         ->value('total_sum') ?? 0;
+}
+
+function averageInventoryRate(int $item_id, int $store_id = null)
+{
+    $query = InventoryTransaction::where(['coi_id' => $item_id, 'type' => 1]);
+    if ($store_id) {
+        $query->where('store_id', $store_id);
+    }
+    $data = $query->select(DB::raw('SUM(amount) as totalAmount, SUM(quantity) as totalQuantity'))->first();
+
+    return ($data && $data->totalQuantity != 0) ? $data->totalAmount / $data->totalQuantity : 0;
 }
 
 function averageRMRate(int $item_id, int $store_id = null)
 {
-    if ($store_id) {
-        $data = InventoryTransaction::where(['coi_id' => $item_id, 'store_id' => $store_id, 'type' => 1])->select(DB::raw('SUM(amount) as totalAmount, SUM(quantity) as totalQuantity'))
-            ->first();
-    }
-    $data = InventoryTransaction::where(['coi_id' => $item_id])->select(DB::raw('SUM(amount) as totalAmount, SUM(quantity) as totalQuantity'))
-        ->first();
-
-
-    // Calculate the average price
-    return ($data->totalQuantity != 0) ? $data->totalAmount / $data->totalQuantity : 0;
+    return averageInventoryRate($item_id, $store_id);
 }
 
 function averageFGRate(int $item_id, int $store_id = null)
 {
-    if ($store_id) {
-        $data = InventoryTransaction::where(['coi_id' => $item_id, 'store_id' => $store_id, 'type' => 1])->select(DB::raw('SUM(amount) as totalAmount, SUM(quantity) as totalQuantity'))
-            ->first();
-    }
-    $data = InventoryTransaction::where(['coi_id' => $item_id])->select(DB::raw('SUM(amount) as totalAmount, SUM(quantity) as totalQuantity'))
-        ->first();
-
-
-    // Calculate the average price
-    return ($data->totalQuantity != 0) ? $data->totalAmount / $data->totalQuantity : 0;
+    return averageInventoryRate($item_id, $store_id);
 }
 
 /**
- * Batch average FG rates for many products (matches averageFGRate() global sum behavior).
+ * Batch average FG rates for many products (matches averageFGRate()).
  */
-function averageFGRates($productIds): array
+function averageFGRates($productIds, int $store_id = null): array
 {
     $productIds = collect($productIds)->filter()->unique()->values();
     if ($productIds->isEmpty()) {
         return [];
     }
 
-    return InventoryTransaction::whereIn('coi_id', $productIds)
+    $query = InventoryTransaction::whereIn('coi_id', $productIds)->where('type', 1);
+    if ($store_id) {
+        $query->where('store_id', $store_id);
+    }
+
+    return $query
         ->select('coi_id', DB::raw('SUM(amount) as totalAmount'), DB::raw('SUM(quantity) as totalQuantity'))
         ->groupBy('coi_id')
         ->get()
@@ -189,15 +190,13 @@ function fetchStoreAvailableInventoryQuantities($product, array $storeIds)
 
 function transactionAbleStock($product, array $storeIds, $optimize = false)
 {
-    if ($optimize) {
-        return transactionAbleStockOptimized($product->toArray(), $storeIds);
+    $isCollection = $product instanceof \Illuminate\Support\Collection;
+    $products = $isCollection ? $product : collect([$product]);
+    $results = transactionAbleStockOptimized($products, $storeIds);
+    if ($optimize || $isCollection) {
+        return $results;
     }
-    $originalStock = fetchStoreAvailableInventoryQuantities($product, $storeIds);
-    $requisitionDeliveredQuantity = fetchStoreCompletedRequisitionDeliveryQuantities($product, $storeIds);
-    $preOrderDeliveredQuantity = fetchStoreDeliveredPreOrderQuantities($product, $storeIds);
-    $InventoryTransferredQuantity = fetchStoreInventoryTransferQuantities($product, $storeIds);
-    $stock =  $originalStock - $requisitionDeliveredQuantity - $preOrderDeliveredQuantity - $InventoryTransferredQuantity;
-    return max($stock,0);
+    return $results->first()['stock'] ?? 0;
 }
 
 function fetchStoreRequisitionQuantities($product, array $storeIds, $column = 'to_store_id')
@@ -209,7 +208,17 @@ function fetchStoreRequisitionQuantities($product, array $storeIds, $column = 't
 
 function transactionAbleStockOptimized($products, array $storeIds)
 {
-    $productIds = $products->pluck('id');
+    $products = collect($products);
+    $productIds = $products->map(function ($product) {
+        if (is_array($product)) {
+            return $product['id'] ?? null;
+        }
+        return $product->id ?? null;
+    })->filter()->unique()->values();
+
+    if ($productIds->isEmpty()) {
+        return $products->map(fn ($product) => ['product' => $product, 'stock' => 0]);
+    }
 
     // Batch fetch inventory transactions
     $inventoryQuantities = InventoryTransaction::whereIn('coi_id', $productIds)
@@ -247,7 +256,7 @@ function transactionAbleStockOptimized($products, array $storeIds)
 
     // Calculate stock for each product
     return $products->map(function ($product) use ($inventoryQuantities, $requisitionQuantities, $preOrderQuantities, $transferQuantities) {
-        $productId = $product->id;
+        $productId = is_array($product) ? ($product['id'] ?? null) : ($product->id ?? null);
 
         $originalStock = $inventoryQuantities[$productId] ?? 0;
         $requisitionDelivered = $requisitionQuantities[$productId] ?? 0;
@@ -263,10 +272,14 @@ function transactionAbleStockOptimized($products, array $storeIds)
     });
 }
 
-function getInventoryQuantities($productIds, $storeId)
+function getInventoryQuantities($productIds, $storeId, $lock = false)
 {
-    return InventoryTransaction::whereIn('coi_id', $productIds)
-        ->whereIn('store_id', [$storeId])
+    $query = InventoryTransaction::whereIn('coi_id', $productIds)
+        ->where('store_id', $storeId);
+    if ($lock) {
+        $query->lockForUpdate();
+    }
+    return $query
         ->select('coi_id', DB::raw('SUM(quantity * type) as total_stock'))
         ->groupBy('coi_id')
         ->pluck('total_stock', 'coi_id');

@@ -33,6 +33,9 @@
     <section class="content">
         <div class="container-fluid">
             <div class="row mt-2" id="vue_app">
+                <div v-if="isSubmitting" style="position:fixed;z-index:9999;left:0;top:0;right:0;bottom:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px;">
+                    Saving sale&hellip;
+                </div>
                 <div class="col-lg-12 col-md-12">
                     <div class="card card-info">
                         <div class="card-header">
@@ -429,21 +432,9 @@
                                                                         <select v-model="payment.method"
                                                                                 :name="'payment_methods['+index+'][method]'"
                                                                                 class="form-control form-control-sm" @change="checkAvail(index)">
-                                                                            <option value="cash">Cash</option>
-                                                                            <option value="bkash">Bkash</option>
-                                                                            <option value="nagad">Nagad</option>
-                                                                            <option value="DBBL">DBBL</option>
-                                                                            <option value="UCB">UCB</option>
-                                                                            <option value="rocket">Rocket</option>
-                                                                            <option value="upay">Upay</option>
-                                                                            <option value="nexus">Nexus</option>
-                                                                            <option value="pbl">PBL POS</option>
-                                                                            <option value="PBLQR">PBL QR</option>
-                                                                            <option value="FOODIE">FOODIE</option>
-                                                                            <option value="due">Due Sale</option>
-                                                                            <option value="FoodPanda">Food Panda</option>
-                                                                            <option value="CityBank">City Bank</option>
-                                                                            <option value="point">Redeem Point</option>
+                                                                            @foreach(($payment_methods ?? salePaymentMethodOptions()) as $method)
+                                                                            <option value="{{ $method['value'] }}">{{ $method['label'] }}</option>
+                                                                            @endforeach
                                                                             <option value="exchange">Exchange</option>
                                                                         </select>
                                                                     </td>

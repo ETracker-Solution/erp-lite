@@ -181,12 +181,11 @@ class ProductionController extends Controller
 
             $production->amount = $totalRate;
             // Accounts Transaction Effect
-            addAccountsTransaction('FGP', $production, 16, 17);
+            addAccountsTransaction('FGP', $production, getFGInventoryGLId(), getWIPGLId());
 
             DB::commit();
         } catch (\Exception $exception) {
             DB::rollBack();
-            return $exception;
             Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
             return back();
         }
@@ -263,12 +262,11 @@ class ProductionController extends Controller
 
             // Accounts Transaction Effect
             AccountTransaction::where(['doc_id' => $production->id, 'doc_type' => 'FGP'])->delete();
-            addAccountsTransaction('FGP', $production, 16, 17);
+            addAccountsTransaction('FGP', $production, getFGInventoryGLId(), getWIPGLId());
 
             DB::commit();
         } catch (\Exception $exception) {
             DB::rollBack();
-            return $exception;
             Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
             return back();
         }

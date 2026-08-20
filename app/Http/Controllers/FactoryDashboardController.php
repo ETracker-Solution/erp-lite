@@ -69,7 +69,9 @@ class FactoryDashboardController extends Controller
                 ->whereIn('status', ['pending'])
                 ->count(),
 
-            'todayTotalDeliveries' => RequisitionDelivery::where(['type' => 'FG', 'date' => $today])->count(),
+            'todayTotalDeliveries' => RequisitionDelivery::where(['type' => 'FG', 'date' => $today])
+                ->whereIn('from_store_id', $store_ids)
+                ->count(),
 
             'todayTotalWastages' => InventoryAdjustment::whereIn('store_id', $store_ids)
                 ->where(['date' => $today, 'transaction_type' => 'decrease'])
@@ -77,7 +79,7 @@ class FactoryDashboardController extends Controller
 
             'todayPreOrderDeliveries' => PreOrder::where(['status' => 'pending', 'delivery_date' => $today])->count(),
 
-            'todayInvoice' => Sale::whereDate('created_at', Carbon::now()->format('Y-m-d'))->count(),
+            'todayInvoice' => Sale::whereDate('date', $today)->count(),
 
             'thisMonthTotalWastages' => InventoryAdjustment::whereIn('store_id', $store_ids)
                 ->whereMonth('created_at', Carbon::now()->month)
@@ -92,6 +94,13 @@ class FactoryDashboardController extends Controller
 
         $daysPerPart = ceil($totalDays / $noOfWeeks);
 
+        $wastageByDate = InventoryAdjustment::whereIn('store_id', $store_ids)
+            ->where('transaction_type', 'decrease')
+            ->whereBetween('created_at', [$startDate->copy()->startOfDay(), $endDate->copy()->endOfDay()])
+            ->selectRaw('DATE(created_at) as d, SUM(subtotal) as total')
+            ->groupBy('d')
+            ->pluck('total', 'd');
+
         $parts = [];
 
         for ($part = 0; $part < $noOfWeeks; $part++) {
@@ -102,19 +111,27 @@ class FactoryDashboardController extends Controller
             if ($partEndDate->gt($endDate)) {
                 $partEndDate = $endDate->copy()->endOfDay();
             }
-            $parts[] = InventoryAdjustment::whereIn('store_id', $store_ids)
-                ->whereBetween('created_at', [$partStartDate, $partEndDate])
-                ->where('transaction_type', 'decrease')
-                ->sum('subtotal');
+            $sum = 0;
+            for ($day = $partStartDate->copy()->startOfDay(); $day->lte($partEndDate); $day->addDay()) {
+                $sum += $wastageByDate[$day->format('Y-m-d')] ?? 0;
+            }
+            $parts[] = $sum;
         }
 
         $monthlyDeliveries = RequisitionDelivery::where('type', 'FG')->select('from_store_id', DB::raw('count(id) as total'))
+            ->whereIn('from_store_id', $store_ids)
             ->whereMonth('created_at', Carbon::now()->month)
             ->orderBy('total', 'DESC')
             ->groupBy('from_store_id')
-            ->with('fromStore')
+            ->with('fromStore:id,name')
             ->get();
-        $todayRequisitions = Requisition::where('to_factory_id', $factory_id)->whereDate('created_at', Carbon::now()->format('Y-m-d'))->get();
+        $todayRequisitions = Requisition::with('fromStore:id,name')
+            ->where('to_factory_id', $factory_id)
+            ->whereDate('created_at', $today)
+            ->select('id', 'from_store_id', 'status', 'created_at', 'to_factory_id')
+            ->latest()
+            ->limit(100)
+            ->get();
 
         $data = [
 

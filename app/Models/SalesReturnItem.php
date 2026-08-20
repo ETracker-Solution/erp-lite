@@ -19,4 +19,9 @@ class SalesReturnItem extends Model
         return $this->belongsTo('App\Models\ChartOfInventory', 'coi_id');
 
     }
+
+    public function salesReturn()
+    {
+        return $this->belongsTo(SalesReturn::class, 'sales_return_id');
+    }
 }

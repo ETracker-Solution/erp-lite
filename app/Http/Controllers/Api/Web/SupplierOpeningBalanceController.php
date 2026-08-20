@@ -133,7 +133,7 @@ class SupplierOpeningBalanceController extends Controller
     {
         return response()->json([
             'next_id' => getNextId(SupplierOpeningBalance::class),
-            'suppliers' => Supplier::all(),
+            'suppliers' => Supplier::query()->select('id', 'name', 'mobile')->get(),
             'success' => true
         ]);
     }

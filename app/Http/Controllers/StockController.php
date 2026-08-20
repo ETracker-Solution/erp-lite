@@ -18,12 +18,17 @@ class StockController extends Controller
     public function index()
     {
         if (\request()->ajax()) {
-            $stocks = StockIn::with('product', 'product.category')->select(DB::raw('count(*) as product_count, product_id'))
+            $stocks = StockIn::with('product', 'product.category')
+                ->select(
+                    'product_id',
+                    DB::raw('COUNT(*) as product_count'),
+                    DB::raw('COALESCE(SUM(quantity), 0) - COALESCE((SELECT SUM(quantity) FROM stock_outs WHERE stock_outs.product_id = stock_ins.product_id), 0) as available_qty')
+                )
                 ->groupBy('product_id');
             return DataTables::of($stocks)
                 ->addIndexColumn()
                 ->addColumn('quantity', function ($row) {
-                    return AvailableProductCalculation::product_id($row->product_id);
+                    return $row->available_qty ?? 0;
                 })
                 ->rawColumns(['quantity'])
                 ->make(true);

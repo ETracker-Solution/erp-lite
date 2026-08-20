@@ -18,9 +18,8 @@ class DepartmentController extends Controller
     {
         $serial_count = Department::latest()->first() ? Department::latest()->first()->id : 0;
         $uid = $serial_count + 1;
-        $departments = Department::all();
         if (\request()->ajax()) {
-            return DataTables::of($departments)
+            return DataTables::of(Department::query())
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
                     return view('department.action', compact('row'));

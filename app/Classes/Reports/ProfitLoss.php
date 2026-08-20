@@ -14,26 +14,54 @@ class ProfitLoss {
 
     public static function profitLoss($start_date, $end_date, $set_group_by = true) {
 
-        $group_by = $set_group_by ? 'GROUP BY sales.date' : '';
-        $attributes = $set_group_by ? 'sales.date' : 'GROUP_CONCAT(DISTINCT sales.date SEPARATOR ",") AS date';
+        $salesQuery = DB::table('sales')
+            ->whereBetween('date', [$start_date, $end_date]);
 
-        $sql = "SELECT
-                    $attributes,
-                    SUM(sales.grand_total) AS total_grandtotal,
-                    SUM(sales.discount) AS total_discount,
-                    SUM((sale_items.sale_price - purchase_items.buying_price) * sale_items.quantity) AS profitloss
-                FROM sales
-                LEFT JOIN sale_items ON sale_items.sale_id = sales.id
-                LEFT JOIN purchase_items ON purchase_items.batch_number = sale_items.batch_number AND purchase_items.product_id = sale_items.product_id
-                WHERE sales.date BETWEEN '$start_date' AND '$end_date'
-                AND sale_items.deleted_at IS NULL
-                AND sales.deleted_at IS NULL
-                $group_by
-                ORDER BY sales.created_at DESC";
+        $cogsQuery = DB::table('sale_items')
+            ->join('sales', 'sales.id', '=', 'sale_items.sale_id')
+            ->whereBetween('sales.date', [$start_date, $end_date]);
 
-        $result = DB::select($sql);
+        if ($set_group_by) {
+            $salesAgg = (clone $salesQuery)
+                ->select(
+                    'date',
+                    DB::raw('SUM(grand_total) as total_grandtotal'),
+                    DB::raw('SUM(discount) as total_discount')
+                )
+                ->groupBy('date')
+                ->orderBy('date', 'desc')
+                ->get();
 
-        return $result;
+            $cogsByDate = (clone $cogsQuery)
+                ->select('sales.date', DB::raw('SUM(COALESCE(sale_items.cogs, 0)) as cogs'))
+                ->groupBy('sales.date')
+                ->pluck('cogs', 'date');
+
+            return $salesAgg->map(function ($row) use ($cogsByDate) {
+                $row->profitloss = ($row->total_grandtotal ?? 0) - ($cogsByDate[$row->date] ?? 0);
+                return $row;
+            })->all();
+        }
+
+        $salesAgg = (clone $salesQuery)
+            ->select(
+                DB::raw('GROUP_CONCAT(DISTINCT date SEPARATOR ",") AS date'),
+                DB::raw('SUM(grand_total) as total_grandtotal'),
+                DB::raw('SUM(discount) as total_discount')
+            )
+            ->first();
+
+        $cogs = (clone $cogsQuery)
+            ->selectRaw('SUM(COALESCE(sale_items.cogs, 0)) as cogs')
+            ->value('cogs') ?? 0;
+
+        if (!$salesAgg) {
+            return [];
+        }
+
+        $salesAgg->profitloss = ($salesAgg->total_grandtotal ?? 0) - $cogs;
+
+        return [$salesAgg];
     }
 
     static function today() {

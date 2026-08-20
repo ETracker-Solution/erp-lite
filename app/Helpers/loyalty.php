@@ -33,10 +33,10 @@ function customerCurrentMembership($customer_id, $totalBill = 0)
 {
     $data = \App\Models\Membership::where('customer_id', $customer_id)->first();
     if (!$data) {
-        $minimum_purchase_amount_to_be_a_member = 100;
+        $minimum_purchase_amount_to_be_a_member = (float) getSettingValue('membership_minimum_purchase_amount', 100);
         if ($minimum_purchase_amount_to_be_a_member <= $totalBill) {
             $data = \App\Models\Membership::create([
-                'member_type_id' => 1,
+                'member_type_id' => (int) getSettingValue('default_member_type_id', 1),
                 'customer_id' => $customer_id,
             ]);
         }
@@ -52,8 +52,7 @@ function membershipPointToEarn($member_type_id, $total_bill)
     if ($data && $data->per_amount > 0 && $data->point > 0) {
         $minimum_purchase_amount = $data->per_amount;
         if ($total_bill >= $minimum_purchase_amount) {
-            $amount = (int)$total_bill / $minimum_purchase_amount;
-            $point = $amount * $data->point;
+            $point = ((int) floor($total_bill / $minimum_purchase_amount)) * $data->point;
         }
     }
     return $point;
@@ -72,17 +71,21 @@ function membershipByPoint($point)
     }
 }
 
-function redeemPoint($sale_id, $customer_id,$point)
+function redeemPoint($sale_id, $customer_id, $point)
 {
     $membership = customerCurrentMembership($customer_id);
     if ($membership) {
+        $point = abs($point);
+        if ($membership->point < $point) {
+            throw new Exception('Insufficient loyalty points');
+        }
         \App\Models\MembershipPointHistory::create([
             'sale_id' => $sale_id,
             'customer_id' => $customer_id,
             'point' => $point * (-1),
             'member_type_id' => $membership->member_type_id
         ]);
-//        $membership->decrement('point', $point);
+        $membership->decrement('point', $point);
     }
 }
 

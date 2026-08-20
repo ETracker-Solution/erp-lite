@@ -101,10 +101,12 @@ class FGInventoryAdjustmentController extends Controller
                     'coi_id' => $product['coi_id'],
                 ]);
                 // Accounts Transaction Effect
+                $lineAmount = $product['quantity'] * $product['rate'];
+                $adjustment->amount = $lineAmount;
                 if ($data['transaction_type'] === 'increase') {
-                    addAccountsTransaction('FGIA', $adjustment, 16, 52);
+                    addAccountsTransaction('FGIA', $adjustment, getFGInventoryGLId(), getInventoryAdjustmentGLId());
                 } else {
-                    addAccountsTransaction('FGIA', $adjustment, 52, 16);
+                    addAccountsTransaction('FGIA', $adjustment, getInventoryAdjustmentGLId(), getFGInventoryGLId());
                 }
 
 

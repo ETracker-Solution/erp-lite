@@ -71,9 +71,10 @@ class PurchaseReturnController extends Controller
     public function store(StorePurchaseReturnRequest $request)
     {
         $data = $request->validated();
-//        DB::beginTransaction();
-//        try {
+        DB::beginTransaction();
+        try {
         if (count($data['products']) < 1) {
+            DB::rollBack();
             Toastr::info('At Least One Product Required.', '', ["progressBar" => true]);
             return back();
         }
@@ -99,7 +100,7 @@ class PurchaseReturnController extends Controller
 
         // Accounts Transaction Effect
 
-        addAccountsTransaction('GPB', $purchase_return, 22, 15);
+        addAccountsTransaction('GPB', $purchase_return, getAccountsPayableGLId(), getRMInventoryGLId());
 
         // Supplier Transaction Effect
         SupplierTransaction::query()->create([
@@ -109,15 +110,15 @@ class PurchaseReturnController extends Controller
             'amount' => $purchase_return->net_payable,
             'date' => $purchase_return->date,
             'transaction_type' => -1,
-            'chart_of_account_id' => 22,
+            'chart_of_account_id' => getAccountsPayableGLId(),
             'description' => 'Purchase of goods',
         ]);
-//            DB::commit();
-//        } catch (\Exception $exception) {
-//            DB::rollBack();
-//            Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
-//            return back();
-//        }
+            DB::commit();
+        } catch (\Exception $exception) {
+            DB::rollBack();
+            Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
+            return back();
+        }
         Toastr::success('Purchase Return Created Successfully!.', '', ["progressBar" => true]);
         return redirect()->route('purchase-returns.index');
     }

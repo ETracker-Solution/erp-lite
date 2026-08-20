@@ -18,9 +18,8 @@ class DesignationController extends Controller
     {
         $serial_count = Designation::latest()->first() ? Designation::latest()->first()->id : 0;
         $uid = $serial_count + 1;
-        $designations = Designation::all();
         if (\request()->ajax()) {
-            return DataTables::of($designations)
+            return DataTables::of(Designation::query())
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
                     return view('designation.action', compact('row'));

@@ -24,7 +24,7 @@ class RMInventoryReportController extends Controller
     public function create()
     {
 
-        $asOnDate = Carbon::parse(\request()->as_on_date)->format('Y-m-d') ?? Carbon::now()->format('Y-m-d');
+        $asOnDate = sanitizeReportDate(\request()->as_on_date ?? now());
 
         $page_title = false;
         $report_header = 'RM Inventory Report';

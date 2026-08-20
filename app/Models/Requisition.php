@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class Requisition extends Model
 {
@@ -55,26 +56,23 @@ class Requisition extends Model
 
     public static function availableRequisitions($type, $store_id)
     {
-        $requisitions = \App\Models\Requisition::where(['from_store_id' => $store_id])->where(['type' => $type, 'status' => 'approved'])->whereIn('delivery_status', ['pending', 'partial'])->get();
-        $available_requisitions = [];
-        foreach ($requisitions as $requisition) {
-            $quantity = 0;
-            foreach ($requisition->deliveries as $delivery) {
-                $quantity += $delivery->items->sum('quantity');
-            }
-            if ($requisition->items->sum('quantity') > $quantity) {
-                $available_requisitions[] = $requisition;
-            }
-        }
-        return $available_requisitions;
+        return static::availableRequisitionsQuery()
+            ->where(['from_store_id' => $store_id, 'type' => $type, 'status' => 'approved'])
+            ->whereIn('delivery_status', ['pending', 'partial'])
+            ->get();
     }
 
     public function availableItems()
     {
-        foreach ($this->items as $key => $item) {
-            $this->items[$key]->quantity -= RequisitionDeliveryItem::where('coi_id', $item->coi_id)
-                ->where('requisition_id', $this->id)
-                ->sum('quantity');
+        $this->loadMissing('items');
+        $delivered = RequisitionDeliveryItem::query()
+            ->select('coi_id', DB::raw('SUM(quantity) as qty'))
+            ->where('requisition_id', $this->id)
+            ->groupBy('coi_id')
+            ->pluck('qty', 'coi_id');
+
+        foreach ($this->items as $item) {
+            $item->quantity -= $delivered[$item->coi_id] ?? 0;
         }
         return $this->items;
     }
@@ -109,24 +107,32 @@ class Requisition extends Model
         return $this->belongsTo(Store::class, 'to_store_id');
     }
 
+    public static function availableRequisitionsQuery()
+    {
+        $delivered = DB::table('requisition_delivery_items as rdi')
+            ->join('requisition_deliveries as rd', 'rd.id', '=', 'rdi.requisition_delivery_id')
+            ->select('rd.requisition_id', DB::raw('SUM(rdi.quantity) as qty'))
+            ->groupBy('rd.requisition_id');
+
+        $requested = DB::table('requisition_items')
+            ->select('requisition_id', DB::raw('SUM(quantity) as qty'))
+            ->groupBy('requisition_id');
+
+        return static::query()
+            ->leftJoinSub($requested, 'req', 'req.requisition_id', '=', 'requisitions.id')
+            ->leftJoinSub($delivered, 'del', 'del.requisition_id', '=', 'requisitions.id')
+            ->whereRaw('COALESCE(req.qty, 0) > COALESCE(del.qty, 0)')
+            ->select('requisitions.*');
+    }
+
     public static function todayFGAvailableRequisitions($to_factory_id)
     {
-        $requisitions = Requisition::with(['deliveries.items','items'])
+        return static::availableRequisitionsQuery()
             ->where('to_factory_id', $to_factory_id)
             ->where('type', 'FG')
             ->where('status', 'approved')
             ->whereIn('delivery_status', ['pending', 'partial'])
-            ->get();
-
-        $available_requisitions = $requisitions->filter(function ($requisition) {
-            $deliveredQuantity = $requisition->deliveries->flatMap(function ($delivery) {
-                return $delivery->items;
-            })->sum('quantity');
-
-            return $requisition->items->sum('quantity') > $deliveredQuantity;
-        });
-
-// Return the available requisitions as an array
-        return $available_requisitions->values()->all();
+            ->get()
+            ->all();
     }
 }

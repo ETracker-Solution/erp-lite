@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Traits\TracksDeletions;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class Sale extends Model
 {
@@ -27,26 +28,37 @@ class Sale extends Model
 
     public static function availableSales()
     {
-        $sales = \App\Models\Sale::where(['status' => 'final'])->latest()->get();
-        $available_sales = [];
-        foreach ($sales as $row) {
-            $quantity = 0;
-            foreach ($row->saleReturns as $return) {
-                $quantity += $return->items->sum('quantity');
-            }
-            if ($row->items->sum('quantity') > $quantity) {
-                $available_sales[] = $row;
-            }
-        }
-        return $available_sales;
+        $sold = DB::table('sale_items')
+            ->select('sale_id', DB::raw('SUM(quantity) as qty'))
+            ->groupBy('sale_id');
+
+        $returned = DB::table('sales_return_items')
+            ->join('sales_returns', 'sales_returns.id', '=', 'sales_return_items.sales_return_id')
+            ->select('sales_returns.sale_id', DB::raw('SUM(sales_return_items.quantity) as qty'))
+            ->groupBy('sales_returns.sale_id');
+
+        return static::query()
+            ->where('status', 'final')
+            ->leftJoinSub($sold, 'sold', 'sold.sale_id', '=', 'sales.id')
+            ->leftJoinSub($returned, 'returned', 'returned.sale_id', '=', 'sales.id')
+            ->whereRaw('COALESCE(sold.qty, 0) > COALESCE(returned.qty, 0)')
+            ->select('sales.*')
+            ->latest()
+            ->get();
     }
 
     public function availableItems()
     {
-        foreach ($this->items as $key => $item) {
-            $this->items[$key]->quantity -= SaleReturnItem::where('product_id', $item->product_id)
-                ->where('sale_id', $this->id)
-                ->sum('quantity');
+        $returned = SalesReturnItem::query()
+            ->select('coi_id', DB::raw('SUM(quantity) as returned_qty'))
+            ->whereHas('salesReturn', function ($q) {
+                $q->where('sale_id', $this->id);
+            })
+            ->groupBy('coi_id')
+            ->pluck('returned_qty', 'coi_id');
+
+        foreach ($this->items as $item) {
+            $item->quantity -= $returned[$item->product_id] ?? 0;
         }
         return $this->items;
     }

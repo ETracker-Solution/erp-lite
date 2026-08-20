@@ -126,6 +126,8 @@ class SalesReturnController extends Controller
             $sale = Sale::find($validated['sale_id']);
             $validated['uid'] = generateUniqueUUID($sale->outlet_id, SalesReturn::class, 'uid', false, false);
             $return = SalesReturn::create($validated);
+            $returnAmount = 0;
+            $cogsAmount = 0;
             foreach ($validated['products'] as $product) {
                 $obj = new \stdClass();
                 $obj->date =  $return->date;
@@ -137,11 +139,17 @@ class SalesReturnController extends Controller
                 $obj->id =  $return->id;
                 addInventoryTransaction(1, 'SR', $obj);
                 $return->items()->create($product);
+                $lineDiscount = $product['discount'] ?? 0;
+                $returnAmount += ($product['quantity'] * $product['rate']) - $lineDiscount;
+                $cogsAmount += averageFGRate($product['coi_id']) * $product['quantity'];
             }
+            $return->amount = $returnAmount;
+            addAccountsTransaction('SR', $return, getIncomeFromSalesGLId(), getAccountsReceiveableGLId());
+            $return->amount = $cogsAmount;
+            addAccountsTransaction('SR', $return, getFGInventoryGLId(), getCOGSGLId());
             DB::commit();
         } catch (\Exception $error) {
             DB::rollBack();
-            return $error;
             Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
             return back();
         }

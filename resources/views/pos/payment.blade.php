@@ -10,13 +10,9 @@
         <div class="ddwcpos-method-row ddwcpos-method-active" v-for="(payment, index) in paymentMethods">
             <input type="number"  v-model="payment.amount" :step="payment.method == 'point' ? 100 : 1" @key.press="checkPointInput">
             <select v-model="payment.method">
-                <option value="cash">Cash</option>
-                <option value="bkash">Bkash</option>
-                <option value="nagad">Nagad</option>
-                <option value="DBBL">DBBL</option>
-                <option value="UCB">UCB</option>
-                <option value="upay">Upay</option>
-                <option value="point">Redeem Point</option>
+                @foreach(salePaymentMethodOptions() as $method)
+                <option value="{{ $method['value'] }}">{{ $method['label'] }}</option>
+                @endforeach
             </select>
 {{--            <span></span>--}}
             <span role="img" aria-label="delete" tabindex="-1" class="anticon anticon-delete" v-if="index !==0" @click="deletePaymentMethod(payment)">

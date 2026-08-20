@@ -18,11 +18,10 @@ class UnitController extends Controller
      */
     public function index()
     {
-        $units = Unit::all();
         $unit_count = Unit::latest()->first() ? Unit::latest()->first()->id : 0 ;
         $unit_no = $unit_count+1 ;
         if (\request()->ajax()) {
-            return DataTables::of($units)
+            return DataTables::of(Unit::query())
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
                     return view('unit.action', compact('row'));

@@ -18,7 +18,10 @@ class CustomerController extends Controller
      */
     public function index()
     {
-        $customers = Customer::with('points','sales')->where('type','!=','default')->latest();
+        $customers = Customer::query()
+            ->select(['id', 'name', 'mobile', 'address', 'email', 'created_at', 'type'])
+            ->where('type', '!=', 'default')
+            ->latest();
         if (\request()->ajax()) {
             return DataTables::of($customers)
                 ->addIndexColumn()

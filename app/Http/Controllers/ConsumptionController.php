@@ -77,9 +77,10 @@ class ConsumptionController extends Controller
     public function store(StoreConsumptionRequest $request)
     {
         $validated = $request->validated();
-//        DB::beginTransaction();
-//        try {
+        DB::beginTransaction();
+        try {
         if (count($validated['products']) < 1) {
+            DB::rollBack();
             Toastr::info('At Least One Product Required.', '', ["progressBar" => true]);
             return back();
         }
@@ -105,16 +106,14 @@ class ConsumptionController extends Controller
         }
         // Accounts Transaction Effect
         AccountTransaction::where(['doc_id' => $consumption->id, 'doc_type' => 'RMC'])->delete();
-        addAccountsTransaction('RMC', $consumption, 17, 15);
+        addAccountsTransaction('RMC', $consumption, getWIPGLId(), getRMInventoryGLId());
 
-
-//            DB::commit();
-//        } catch (\Exception $exception) {
-//            DB::rollBack();
-//            return $exception;
-//            Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
-//            return back();
-//        }
+            DB::commit();
+        } catch (\Exception $exception) {
+            DB::rollBack();
+            Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
+            return back();
+        }
         Toastr::success('Consumption Created Successfully!.', '', ["progressBar" => true]);
         return redirect()->route('consumptions.index');
     }
@@ -186,11 +185,10 @@ class ConsumptionController extends Controller
             }
             // Accounts Transaction Effect
             AccountTransaction::where(['doc_id' => $consumption->id, 'doc_type' => 'RMC'])->delete();
-            addAccountsTransaction('RMC', $consumption, 17, 15);
+            addAccountsTransaction('RMC', $consumption, getWIPGLId(), getRMInventoryGLId());
             DB::commit();
         } catch (\Exception $exception) {
             DB::rollBack();
-            return $exception;
             Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
             return back();
         }

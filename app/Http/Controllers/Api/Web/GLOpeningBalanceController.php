@@ -148,7 +148,7 @@ class GLOpeningBalanceController extends Controller
     {
         return response()->json([
             'next_id' => getNextId(GeneralLedgerOpeningBalance::class),
-            'accounts' => ChartOfAccount::where(['type' => 'ledger'])->whereIN('root_account_type', ['as', 'li'])->get(),
+            'accounts' => ChartOfAccount::query()->select('id', 'name')->where(['type' => 'ledger'])->whereIN('root_account_type', ['as', 'li'])->get(),
             'success' => true
         ]);
     }

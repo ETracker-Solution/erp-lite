@@ -42,8 +42,7 @@ class ApiController extends Controller
 
 //    public function fetchItemById($id)
 //    {
-//        ini_set('memory_limit', '512M');
-//        $coi = ChartOfInventory::with('unit', 'parent')->findOrFail($id);
+////        $coi = ChartOfInventory::with('unit', 'parent')->findOrFail($id);
 //        $products = ChartOfInventory::with('unit', 'parent')->where('id', $id)->get();
 //        $needToProduction = 0;
 //        if (auth()->user()->employee->user_of == 'factory') {
@@ -91,8 +90,6 @@ class ApiController extends Controller
 
     public function fetchItemById($id)
     {
-        ini_set('memory_limit', '512M');
-
         $coi = ChartOfInventory::with('unit', 'parent')->findOrFail($id);
 
         $needToProduction = 0;
@@ -258,8 +255,6 @@ class ApiController extends Controller
 
     public function fetch_products_by_cat_id($id)
     {
-        ini_set('memory_limit', '512M');
-
         // Get products efficiently
         $products = ChartOfInventory::where(['status' => 'active', 'parent_id' => $id])
             ->with(['parent:id,name', 'unit:id,name'])
@@ -454,8 +449,7 @@ class ApiController extends Controller
 
 //    public function fetch_products_by_cat_id($id)
 //    {
-//        ini_set('memory_limit', '512M');
-//        $all_requisitions = \App\Models\Requisition::todayFGAvailableRequisitions(auth('web')->user()->employee->factory_id);
+////        $all_requisitions = \App\Models\Requisition::todayFGAvailableRequisitions(auth('web')->user()->employee->factory_id);
 //
 //        $outlet_ids = collect($all_requisitions)->pluck('outlet_id')->toArray();
 //        $outlets = Outlet::with(['requisitions.items'])->select('id', 'name')->whereIn('id', $outlet_ids)->get();
@@ -549,8 +543,6 @@ class ApiController extends Controller
 
     public function fetchRequisitionById($id, $store_id = null)
     {
-        ini_set('memory_limit', '1024M');
-
         $requisition = Requisition::with(['items.coi.unit', 'items.coi.parent', 'deliveries.items', 'items.coi.requisitionDeliveryItems.requisitionDelivery', 'items.coi.preOrderItems.preOrder'])
             ->where('id', $id)
             ->firstOrFail();

@@ -117,19 +117,29 @@ function getAllPermissions()
     return \Spatie\Permission\Models\Permission::pluck('name');
 }
 
-function getSettingValue($key)
+function getSettingValue($key, $default = null)
 {
     static $memo = [];
     if (array_key_exists($key, $memo)) {
-        return $memo[$key];
+        return $memo[$key] ?? $default;
     }
 
     $memo[$key] = Cache::remember('system_config_' . $key, 86400, function () use ($key) {
-        $setting = \App\Models\SystemConfig::where('key', $key)->value('value');
-        return $setting;
+        return \App\Models\SystemConfig::where('key', $key)->value('value');
     });
 
-    return $memo[$key];
+    return $memo[$key] ?? $default;
+}
+
+function lineDiscountAmount($amount, $discountType, $discountValue): float
+{
+    if ($discountType == 'p') {
+        return ((float) $amount * (float) $discountValue) / 100;
+    }
+    if ($discountType == 'f') {
+        return (float) $discountValue;
+    }
+    return 0;
 }
 
 function storeValue($key, $value)
@@ -265,8 +275,37 @@ function getReturnedQty($sale_return_id, $coi_id)
 }
 
 
+function sanitizeReportDate($date)
+{
+    try {
+        return Carbon::parse($date)->format('Y-m-d');
+    } catch (\Throwable $e) {
+        return Carbon::now()->format('Y-m-d');
+    }
+}
+
+function sanitizeReportAccountType($ac_type)
+{
+    return $ac_type === 'RM' ? 'RM' : 'FG';
+}
+
+function clampReportDateRange($from_date, $to_date, $maxDays = 366)
+{
+    $from = Carbon::parse($from_date)->startOfDay();
+    $to = Carbon::parse($to_date)->startOfDay();
+    if ($to->lt($from)) {
+        $to = $from->copy();
+    }
+    if ($from->diffInDays($to) > $maxDays) {
+        $from = $to->copy()->subDays($maxDays);
+    }
+    return [$from->format('Y-m-d'), $to->format('Y-m-d')];
+}
+
 function get_all_groups_report($date, $ac_type)
 {
+    $date = sanitizeReportDate($date);
+    $ac_type = sanitizeReportAccountType($ac_type);
     return "SELECT
     CIP.name as `Group Name`,
     FORMAT(SUM(IT.quantity * IT.type),0) as `Balance Qty`,
@@ -281,12 +320,16 @@ function get_all_groups_report($date, $ac_type)
     WHERE
             IT.date <= '$date'
             AND CI.rootAccountType = '$ac_type'
+            AND CI.type = 'item'
     GROUP BY
     CIP.id";
 }
 
 function get_all_items_by_group($group_id, $date, $ac_type)
 {
+    $group_id = (int) $group_id;
+    $date = sanitizeReportDate($date);
+    $ac_type = sanitizeReportAccountType($ac_type);
     return "SELECT
     `Item ID`,
     `Item Name`,
@@ -327,6 +370,7 @@ FROM (
             CIP.id = '$group_id'
             AND IT.date <= '$date'
             AND CI.rootAccountType = '$ac_type'
+            AND CI.type = 'item'
         GROUP BY
             CI.id WITH ROLLUP
     ) AS subquery,
@@ -336,6 +380,8 @@ FROM (
 
 function get_all_items($date, $ac_type)
 {
+    $date = sanitizeReportDate($date);
+    $ac_type = sanitizeReportAccountType($ac_type);
     return "SELECT
     `Group Name`,
     `Item ID`,
@@ -380,6 +426,7 @@ FROM (
          WHERE
             IT.date <= '$date'
             AND CI.rootAccountType = '$ac_type'
+            AND CI.type = 'item'
         GROUP BY
             CIP.id, CI.id WITH ROLLUP
     ) AS subquery,
@@ -389,6 +436,8 @@ FROM (
 
 function get_all_stores($date, $ac_type)
 {
+    $date = sanitizeReportDate($date);
+    $ac_type = sanitizeReportAccountType($ac_type);
 //    if ($ac_type == 'FG'){
 //        return all_store_fg_report_query($date);
 //    }
@@ -439,6 +488,7 @@ FROM (
 		WHERE
             IT.date <= '$date'
             AND CI.rootAccountType = '$ac_type'
+            AND CI.type = 'item'
         GROUP BY
             IT.store_id WITH ROLLUP
     ) AS subquery,
@@ -483,6 +533,9 @@ WHERE
 
 function get_all_items_by_store($store_id, $date, $ac_type)
 {
+    $store_id = (int) $store_id;
+    $date = sanitizeReportDate($date);
+    $ac_type = sanitizeReportAccountType($ac_type);
     if ($ac_type == 'FG') {
         return get_all_items_by_fg_store($store_id, $date);
     }
@@ -543,6 +596,7 @@ FROM (
 			IT.store_id = '$store_id'
 			AND IT.date <= '$date'
 			 AND CI.rootAccountType = '$ac_type'
+             AND CI.type = 'item'
         GROUP BY
              CIP.id, CI.id WITH ROLLUP
     ) AS subquery,
@@ -553,6 +607,8 @@ FROM (
 
 function get_all_items_by_fg_store($store_id, $date)
 {
+    $store_id = (int) $store_id;
+    $date = sanitizeReportDate($date);
     return "WITH TransitStockRequisition AS (
     SELECT
         rdi.coi_id,
@@ -577,7 +633,7 @@ TransitStockInventory AS (
     JOIN
         inventory_transfers it ON it.id = iti.inventory_transfer_id
     WHERE
-        it.status = 'completed'
+        it.status = 'pending'
         AND it.type = 'FG'
          AND it.from_store_id = '$store_id'
     GROUP BY
@@ -672,6 +728,7 @@ FROM (
             IT.store_id = '$store_id'
             AND IT.date <= '$date'
             AND CI.rootAccountType = 'FG'
+            AND CI.type = 'item'
         GROUP BY
             CIP.id, CI.id WITH ROLLUP
     ) AS subquery
@@ -683,77 +740,7 @@ LEFT JOIN
 
 function testFGreport($store_id, $date)
 {
-    $data = [];
-    $parents = \App\Models\ChartOfInventory::with([
-        'parent',
-        'inventoryTransactions',
-        'requisitionDeliveryItems.requisitionDelivery',
-        'inventoryTransferItems.inventoryTransfer',
-        'preOrderItems.preOrder'])
-        ->whereHas('parent')
-        ->where(['rootAccountType' => 'FG', 'type' => 'item'])
-        ->orderBy('parent_id')
-        ->get()
-        ->groupBy('parent_id');
-    $grand_total_transit_stock = 0;
-    $grand_total_balance_qty = 0;
-    foreach ($parents as $parent_id => $parent) {
-        $parent_total_transit_stock = 0;
-        $parent_total_balance_qty = 0;
-        foreach ($parent as $key => $item) {
-            $transit_delivery_qty = $item->requisitionDeliveryItems()->whereHas('requisitionDelivery', function ($q) use ($store_id) {
-                return $q->where(['status' => 'completed', 'type' => 'FG', 'from_store_id' => $store_id]);
-            })->sum('quantity');
-
-            $transit_transfer_qty = $item->inventoryTransferItems()->whereHas('inventoryTransfer', function ($q) use ($store_id) {
-                return $q->where(['status' => 'pending', 'type' => 'FG', 'from_store_id' => $store_id]);
-            })->sum('quantity');
-
-            $transit_pre_order_qty = $item->preOrderItems()->whereHas('preOrder', function ($q) use ($store_id) {
-                return $q->where(['status' => 'delivered', 'factory_delivery_store_id' => $store_id]);
-            })->sum('quantity');
-
-            $total_transit_stock = $transit_delivery_qty + $transit_transfer_qty + $transit_pre_order_qty;
-            $main_balance = $item->inventoryTransactions()->where('store_id', $store_id)->whereDate('date', '<=', $date)->sum(DB::raw('type * quantity'));
-
-            $parent_total_transit_stock += $total_transit_stock;
-            $parent_total_balance_qty += $main_balance;
-
-            $data[] = [
-                'Group Name' => $item->parent->name,
-                'Item ID' => $item->id,
-                'Item Name' => $item->name,
-                'Transit Stock' => $total_transit_stock,
-                'Balance Qty' => number_format($main_balance, 2),
-                'Rate' => number_format($item->price, 2, '.', ','),
-                'Value' => number_format($item->price * $main_balance, 2, '.', ','),
-            ];
-
-        }
-
-        $grand_total_transit_stock += $parent_total_transit_stock;
-        $grand_total_balance_qty += $parent_total_balance_qty;
-        $data[] = [
-            'Group Name' => '', // This could be set to the parent's name or left blank
-            'Item ID' => '',
-            'Item Name' => $parent[0]->parent->name .' Total',
-            'Transit Stock' => $parent_total_transit_stock,
-            'Balance Qty' => number_format($parent_total_balance_qty, 2),
-            'Rate' => '', // Total rate is typically not used
-            'Value' => ''
-        ];
-//        return $data;
-    }
-    $data[] = [
-        'Group Name' => '', // This could be set to the parent's name or left blank
-        'Item ID' => '',
-        'Item Name' => 'Grand Total',
-        'Transit Stock' => $grand_total_transit_stock,
-        'Balance Qty' => number_format($grand_total_balance_qty, 2),
-        'Rate' => '', // Total rate is typically not used
-        'Value' => '0'
-    ];
-    return $data;
+    return DB::select(get_all_items_by_fg_store($store_id, $date));
 }
 
 // function extracode()

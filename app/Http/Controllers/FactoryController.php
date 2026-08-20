@@ -16,11 +16,10 @@ class FactoryController extends Controller
      */
     public function index()
     {
-        $factories = Factory::all();
         $factory_count = Factory::latest()->first() ? Factory::latest()->first()->id : 0 ;
         $uid = $factory_count+1 ;
         if (\request()->ajax()) {
-            return DataTables::of($factories)
+            return DataTables::of(Factory::query())
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
                     return view('factory.action', compact('row'));

@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>@yield('title') | {{ config('app.name','Cake Town') }}</title>
+    <title>@yield('title') | {{ getSettingValue('company_name', config('app.name','Cake Town')) }}</title>
     <link rel="icon" type="image/x-icon" href="{{ asset('upload').'/'.getSettingValue('fav_icon') }}">
     <link rel="stylesheet" href="{{ asset('/assets/css/style.css') }}">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

@@ -19,9 +19,9 @@ class LedgerReportController extends Controller
     public function initialInfo()
     {
         return response()->json([
-            'accounts' => ChartOfAccount::where(['type' => 'ledger'])->get(),
-            'suppliers' => Supplier::query()->get(),
-            'customers' => Customer::query()->get(),
+            'accounts' => ChartOfAccount::query()->select('id', 'name')->where(['type' => 'ledger'])->get(),
+            'suppliers' => Supplier::query()->select('id', 'name', 'mobile')->get(),
+            'customers' => Customer::query()->select('id', 'name', 'mobile')->get(),
             'success' => true
         ]);
     }
@@ -39,6 +39,10 @@ class LedgerReportController extends Controller
 
         $from_date = Carbon::parse(\request()->from_date)->format('Y-m-d') ?? Carbon::now()->format('Y-m-d');
         $to_date = Carbon::parse(\request()->to_date)->format('Y-m-d') ?? Carbon::now()->format('Y-m-d');
+        [$from_date, $to_date] = clampReportDateRange($from_date, $to_date, 730);
+
+        $asOnDate = Carbon::parse(\request()->as_on_date)->format('Y-m-d') ?? Carbon::now()->format('Y-m-d');
+        $asOnDate = sanitizeReportDate($asOnDate);
 
         $page_title = false;
         $report_header = 'Ledger Report';
@@ -123,6 +127,9 @@ class LedgerReportController extends Controller
 
     public function ledgerReportQuery($account_id, $start_date, $end_date)
     {
+        $account_id = (int) $account_id;
+        $start_date = sanitizeReportDate($start_date);
+        $end_date = sanitizeReportDate($end_date);
         $account = ChartOfAccount::find($account_id);
         if ($account->root_account_type == 'as' || $account->root_account_type == 'li') {
             return $result = DB::select("WITH OpeningBalance AS (

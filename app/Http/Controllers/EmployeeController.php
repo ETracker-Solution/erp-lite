@@ -20,9 +20,8 @@ class EmployeeController extends Controller
      */
     public function index()
     {
-        $employees = Employee::all();
         if (\request()->ajax()) {
-            return DataTables::of($employees)
+            return DataTables::of(Employee::query())
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
                     return view('employee.action', compact('row'));

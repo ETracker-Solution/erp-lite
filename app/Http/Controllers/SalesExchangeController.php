@@ -57,10 +57,13 @@ class SalesExchangeController extends Controller
             $user_store = Store::where(['doc_type' => 'outlet', 'doc_id' => \auth()->user()->employee->outlet_id])->first();
             $outlet_id = $user_store->doc_id;
         }
-        $sales = Sale::all();
+        $sales = Sale::query()
+            ->select('id', 'invoice_number', 'date', 'grand_total', 'customer_id', 'outlet_id')
+            ->latest()
+            ->limit(200);
         $data = [
-            'customers' => Customer::where('status', 'active')->get(),
-            'sales' => $sales,
+            'customers' => Customer::where('status', 'active')->limit(50)->get(),
+            'sales' => $sales->get(),
             'stores' => Store::where(['type' => 'FG', 'doc_type' => 'outlet'])->get(),
             'delivery_points' => Outlet::all(),
             'user_store' => $user_store,

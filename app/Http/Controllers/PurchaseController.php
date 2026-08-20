@@ -109,7 +109,7 @@ class PurchaseController extends Controller
 
             // Accounts Transaction Effect
 
-            addAccountsTransaction('GPB', $purchase, 15, 22);
+            addAccountsTransaction('GPB', $purchase, getRMInventoryGLId(), getAccountsPayableGLId());
 
             // Supplier Transaction Effect
             SupplierTransaction::query()->create([
@@ -119,7 +119,7 @@ class PurchaseController extends Controller
                 'amount' => $purchase->net_payable,
                 'date' => $purchase->date,
                 'transaction_type' => 1,
-                'chart_of_account_id' => 22,
+                'chart_of_account_id' => getAccountsPayableGLId(),
                 'description' => 'Purchase of goods',
             ]);
             DB::commit();
@@ -192,7 +192,7 @@ class PurchaseController extends Controller
 
             // Accounts Transaction Effect
             AccountTransaction::where(['doc_id' => $purchase->id, 'doc_type' => 'GPB'])->delete();
-            addAccountsTransaction('GPB', $purchase, 13, 12);
+            addAccountsTransaction('GPB', $purchase, getRMInventoryGLId(), getAccountsPayableGLId());
 
             // Supplier Transaction Effect
             SupplierTransaction::where(['doc_id' => $purchase->id, 'doc_type' => 'GPB'])->delete();
@@ -203,13 +203,12 @@ class PurchaseController extends Controller
                 'amount' => $purchase->net_payable,
                 'date' => $purchase->date,
                 'transaction_type' => 1,
-                'chart_of_account_id' => 12,
+                'chart_of_account_id' => getAccountsPayableGLId(),
                 'description' => 'Purchase of goods',
             ]);
             DB::commit();
         } catch (\Exception $exception) {
             DB::rollBack();
-            return $exception;
             Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
             return back();
         }

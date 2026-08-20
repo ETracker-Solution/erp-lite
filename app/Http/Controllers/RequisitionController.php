@@ -34,7 +34,6 @@ class RequisitionController extends Controller
 
     public function exportRequisition($type)
     {
-        ini_set('memory_limit', '512M');
         $exportableData = $this->getRequisitionData();
         $viewFileName = 'todays_requisition';
         $filenameToDownload = date('ymdHis') . '_todays_requisition';
@@ -44,7 +43,6 @@ class RequisitionController extends Controller
 
     public function exportFGRequisition($type)
     {
-        ini_set('memory_limit', '512M');
         $data = RequisitionItem::with('coi.parent', 'requisition.outlet')
         ->whereHas('requisition', function ($query) {
             $query->where('type', 'FG');
@@ -257,26 +255,21 @@ class RequisitionController extends Controller
 
     public function todayRequisition()
     {
-        ini_set('memory_limit', '512M');
         $data = $this->getRequisitionData();
         return view('requisition.today_requisition', $data);
     }
 
     public function getRequisitionData()
     {
-
-        $all_requisitions = \App\Models\Requisition::todayFGAvailableRequisitions(auth('web')->user()->employee->factory_id);
-
-        $requisition_ids = collect($all_requisitions)->pluck('id')->toArray();
-        $outlet_ids = collect($all_requisitions)->pluck('outlet_id')->toArray();
-
-        $product_ids = RequisitionItem::whereIn('requisition_id', $requisition_ids)->whereNotNull('coi_id')->pluck('coi_id')->toArray();
+        $all_requisitions = collect(\App\Models\Requisition::todayFGAvailableRequisitions(auth('web')->user()->employee->factory_id));
+        $requisition_ids = $all_requisitions->pluck('id')->filter()->unique()->values();
+        $outlet_ids = $all_requisitions->pluck('outlet_id')->filter()->unique()->values();
 
         $headers = [
             'Group',
             'Product',
         ];
-        $outlets = Outlet::with(['requisitions.items'])->select('id', 'name')->whereIn('id', $outlet_ids)->get();
+        $outlets = Outlet::query()->select('id', 'name')->whereIn('id', $outlet_ids)->get();
         foreach ($outlets as $outlet) {
             $headers[] = $outlet->name;
         }
@@ -284,61 +277,82 @@ class RequisitionController extends Controller
         $headers[] = 'Current Stock';
         $headers[] = 'Production';
 
-        $products = ChartOfInventory::where('type', 'item')
-            ->with('parent')
+        if ($requisition_ids->isEmpty()) {
+            return [
+                'products' => collect(),
+                'outlets' => $outlets,
+                'headers' => $headers,
+                'values' => [],
+            ];
+        }
+
+        $requested = DB::table('requisition_items as ri')
+            ->join('requisitions as r', 'r.id', '=', 'ri.requisition_id')
+            ->whereIn('ri.requisition_id', $requisition_ids)
+            ->whereNotNull('ri.coi_id')
+            ->groupBy('r.outlet_id', 'ri.coi_id')
+            ->select('r.outlet_id', 'ri.coi_id', DB::raw('SUM(ri.quantity) as qty'))
+            ->get();
+
+        $delivered = DB::table('requisition_delivery_items as rdi')
+            ->join('requisition_deliveries as rd', 'rd.id', '=', 'rdi.requisition_delivery_id')
+            ->join('requisitions as r', 'r.id', '=', 'rd.requisition_id')
+            ->whereIn('rd.requisition_id', $requisition_ids)
+            ->whereNotNull('rdi.coi_id')
+            ->groupBy('r.outlet_id', 'rdi.coi_id')
+            ->select('r.outlet_id', 'rdi.coi_id', DB::raw('SUM(rdi.quantity) as qty'))
+            ->get();
+
+        $remainingByOutletProduct = [];
+        foreach ($requested as $row) {
+            $remainingByOutletProduct[$row->outlet_id][$row->coi_id] = (float) $row->qty;
+        }
+        foreach ($delivered as $row) {
+            $remainingByOutletProduct[$row->outlet_id][$row->coi_id] =
+                ($remainingByOutletProduct[$row->outlet_id][$row->coi_id] ?? 0) - (float) $row->qty;
+        }
+
+        $product_ids = $requested->pluck('coi_id')->unique()->values();
+        $products = ChartOfInventory::query()
+            ->select('id', 'parent_id', 'name')
+            ->with('parent:id,name')
+            ->where('type', 'item')
             ->where('rootAccountType', 'FG')
             ->whereIn('id', $product_ids)
             ->orderBy('parent_id')
             ->orderBy('id')
             ->get();
 
-        $outletIds = $outlets->pluck('id'); // Get all outlet IDs
-        $requisitions = Requisition::whereIn('outlet_id', $outletIds)
-            ->where('type', 'FG')
-            ->where('status', 'approved')
-            ->whereIn('delivery_status', ['pending', 'partial'])
-            ->with(['items', 'deliveries.items'])
-            ->get()
-            ->groupBy('outlet_id'); // Group by outlet_id for easier access later
+        $storeIds = auth()->user()->employee->factory->stores()->where('type', 'FG')->pluck('id')->toArray();
+        $stocks = transactionAbleStock($products, $storeIds, true);
+        $stockByProduct = [];
+        foreach ($stocks as $row) {
+            $product = $row['product'];
+            $productId = is_array($product) ? ($product['id'] ?? null) : ($product->id ?? null);
+            $stockByProduct[$productId] = $row['stock'];
+        }
 
         $values = [];
-
-        $stores = auth()->user()->employee->factory->stores()->where('type', 'FG')->get();
-
-        $storeIds = $stores->pluck('id')->toArray();
-
         foreach ($products as $key => $product) {
-            $req_qty = 0;
             $reqLeft = 0;
-            $values[$key]['group_name'] = $product->parent->name;
+            $values[$key]['group_name'] = $product->parent->name ?? '';
             $values[$key]['product_name'] = $product->name;
 
             foreach ($outlets as $outlet) {
-                $outlet_req_qty = 0;
-                $outlet_req_delivery_qty = 0;
-                if (isset($requisitions[$outlet->id])) {
-                    foreach ($requisitions[$outlet->id] as $req) {
-                        $outlet_req_qty += $req->items->where('coi_id', $product->id)->sum('quantity');
-                        foreach ($req->deliveries as $delivery) {
-                            $outlet_req_delivery_qty += $delivery->items->where('coi_id', $product->id)->sum('quantity');
-                        }
-                    }
-                }
-                $values[$key]['product_quantity'][] = $outlet_req_qty - $outlet_req_delivery_qty;
-                $reqLeft += ($outlet_req_qty - $outlet_req_delivery_qty);
+                $qty = $remainingByOutletProduct[$outlet->id][$product->id] ?? 0;
+                $values[$key]['product_quantity'][] = $qty;
+                $reqLeft += $qty;
             }
-
-            $current_stock = transactionAbleStock($product, $storeIds);
-            $totalRequisitionLeft = fetchStoreRequisitionQuantities($product, $storeIds) - fetchStoreCompletedRequisitionDeliveryQuantities($product,$storeIds) - fetchStoreReceivedRequisitionDeliveryQuantities($product, $storeIds);
-            $needToProduction = $reqLeft - $current_stock;
-
-            $values[$key]['total'] = $reqLeft;
-            $values[$key]['current_stock'][] = $current_stock;
-            $values[$key]['productionable'][] = max($needToProduction, 0);
 
             if ($reqLeft == 0) {
                 unset($values[$key]);
+                continue;
             }
+
+            $current_stock = $stockByProduct[$product->id] ?? 0;
+            $values[$key]['total'] = $reqLeft;
+            $values[$key]['current_stock'][] = $current_stock;
+            $values[$key]['productionable'][] = max($reqLeft - $current_stock, 0);
         }
 
         return [

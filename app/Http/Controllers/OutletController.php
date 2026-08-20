@@ -20,9 +20,8 @@ class OutletController extends Controller
      */
     public function index()
     {
-        $outlets = Outlet::all();
         if (\request()->ajax()) {
-            return DataTables::of($outlets)
+            return DataTables::of(Outlet::query())
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
                     return view('outlet.action', compact('row'));

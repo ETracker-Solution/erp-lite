@@ -20,9 +20,8 @@ class MemberTypeController extends Controller
      */
     public function index()
     {
-        $memberTypes = MemberType::all();
         if (\request()->ajax()) {
-            return DataTables::of($memberTypes)
+            return DataTables::of(MemberType::query())
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
                     return view('member-type.action-button', compact('row'));

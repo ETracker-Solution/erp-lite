@@ -16,9 +16,8 @@ class SupplierGroupController extends Controller
      */
     public function index()
     {
-        $suppliers = SupplierGroup::all();
         if (\request()->ajax()) {
-            return DataTables::of($suppliers)
+            return DataTables::of(SupplierGroup::query())
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
                     return view('supplier_group.action', compact('row'));

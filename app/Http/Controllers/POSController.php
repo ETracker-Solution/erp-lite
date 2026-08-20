@@ -90,9 +90,9 @@ class POSController extends Controller
             $sale->invoice_number = generateUniqueUUID($outlet_id, Sale::class, 'invoice_number');
 
             $sale->date = date('Y-m-d');
-            $sale->subtotal = $request->sub_total;
+            $sale->subtotal = 0;
             $sale->discount = $request->discount;
-            $sale->grand_total = $request->grand_total;
+            $sale->grand_total = 0;
             $sale->customer_id = $customer_id;
             $sale->created_by = auth('web')->user()->id;
 
@@ -124,10 +124,11 @@ class POSController extends Controller
             $productIds = collect($products)->pluck('id')->filter()->unique()->values();
             $stockByProduct = $productIds->isEmpty()
                 ? collect()
-                : getInventoryQuantities($productIds, $store->id);
+                : getInventoryQuantities($productIds, $store->id, true);
             $rateByProduct = averageFGRates($productIds);
 
-            $salesAmount = $sale->grand_total;
+            $computedSubtotal = 0;
+            $computedLineDiscount = 0;
             $avgProductionPrice = 0;
 //            return $products;
             foreach ($products as $row) {
@@ -137,9 +138,13 @@ class POSController extends Controller
 
                 $epsilon = 0.0001;
                 if ($currentStock + $epsilon < $row['quantity']) {
-                    Toastr::error('Delivery Quantity cannot more then ' . $currentStock . ' !', '', ["progressBar" => true]);
-                    return back();
+                    DB::rollBack();
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Delivery Quantity cannot more then ' . $currentStock . ' !',
+                    ], 422);
                 }
+                $stockByProduct[$row['id']] = $currentStock - $row['quantity'];
 
                 $fgRate = $rateByProduct[$row['id']] ?? 0;
                 $row['cogs'] = $fgRate * $row['quantity'];
@@ -150,14 +155,10 @@ class POSController extends Controller
                 $row['discount_type'] = $discount_type;
                 $row['discount_value'] = $discount_value;
                 $amount = $row['unit_price'] * $row['quantity'];
-                if ($discount_type == 'p') {
-                    $discount = ($amount * $discount_value) / 100;
-                } elseif ($discount_type == 'f') {
-                    $discount = $discount_value;
-                } else {
-                    $discount = 0;
-                }
+                $discount = lineDiscountAmount($amount, $discount_type, $discount_value);
                 $row['discount'] = $discount;
+                $computedSubtotal += $amount;
+                $computedLineDiscount += $discount;
 
                 $sale_item = $sale->items()->create($row);
                 $sale_item['date'] = date('Y-m-d');
@@ -170,6 +171,15 @@ class POSController extends Controller
 
                 $avgProductionPrice += $sale_item['amount'];
             }
+
+            $headerDiscounts = ($request->membership_discount_amount ?? 0)
+                + ($request->special_discount_amount ?? 0)
+                + ($request->couponCodeDiscountAmount ?? 0)
+                + ($request->total_discount_amount ?? 0);
+            $sale->subtotal = $computedSubtotal;
+            $sale->discount = $computedLineDiscount;
+            $sale->grand_total = max(0, $computedSubtotal - $computedLineDiscount - $headerDiscounts);
+            $salesAmount = $sale->grand_total;
             $receive_amount = 0;
             foreach ($request->payment_methods as $paymentMethod) {
                 $receive_amount += $paymentMethod['amount'];
@@ -185,56 +195,11 @@ class POSController extends Controller
                     'amount' => ($paymentMethod['method'] == 'cash' && $sale->change_amount > 0) ? ($paymentMethod['amount'] - $sale->change_amount) : $paymentMethod['amount'],
                 ]);
                 $sale->amount = $payment->amount;
-                if ($paymentMethod['method'] == 'FOODIE') {
-                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'FOODIE'), getAccountsReceiveableGLId());
-                }
-                if ($paymentMethod['method'] == 'PBLQR') {
-                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'PBLQR'), getAccountsReceiveableGLId());
-                }
-                if ($paymentMethod['method'] == 'nexus') {
-                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'Nexus'), getAccountsReceiveableGLId());
-                }
-                if ($paymentMethod['method'] == 'pbl') {
-                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'PBL'), getAccountsReceiveableGLId());
-                }
-                if ($paymentMethod['method'] == 'FoodPanda') {
-                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'FoodPanda'), getAccountsReceiveableGLId());
-                }
-                if ($paymentMethod['method'] == 'CityBank') {
-                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'CityBank'), getAccountsReceiveableGLId());
-                }
-                if ($paymentMethod['method'] == 'due') {
-                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'Due'), getAccountsReceiveableGLId());
-                }
-                if ($paymentMethod['method'] == 'upay') {
-                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'Upay'), getAccountsReceiveableGLId());
-                }
-                if ($paymentMethod['method'] == 'rocket') {
-                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'Rocket'), getAccountsReceiveableGLId());
-                }
-                if ($paymentMethod['method'] == 'DBBL') {
-                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'DBBL'), getAccountsReceiveableGLId());
-                }
-                if ($paymentMethod['method'] == 'UCB') {
-                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'UCB'), getAccountsReceiveableGLId());
-                }
-                if ($paymentMethod['method'] == 'nagad') {
-                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'Nagad'), getAccountsReceiveableGLId());
-                }
-                if ($paymentMethod['method'] == 'bkash') {
-                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id, 'Bkash'), getAccountsReceiveableGLId());
-                }
-                if ($paymentMethod['method'] == 'cash') {
-                    addAccountsTransaction('POS', $sale, outletTransactionAccount($outlet_id), getAccountsReceiveableGLId());
-                }
-                if ($paymentMethod['method'] == 'point') {
-                    redeemPoint($sale->id, $customer_id, $paymentMethod['amount']);
-                    addAccountsTransaction('POS', $sale, getRewardGLID(), getAccountsReceiveableGLId());
-                }
+                postSalePaymentTransaction($sale, $paymentMethod['method'], $outlet_id, $customer_id);
                 unset($sale->amount);
             }
             //Start Loyalty Effect
-            pointEarnAndUpgradeMember($sale->id, $customer_id ?? null, $request->grand_total);
+            pointEarnAndUpgradeMember($sale->id, $customer_id ?? null, $salesAmount);
             //End Loyalty Effect
             $sale->amount = $salesAmount;
             addAccountsTransaction('POS', $sale, getAccountsReceiveableGLId(), getIncomeFromSalesGLId());
@@ -416,8 +381,11 @@ class POSController extends Controller
             ->select(['id', 'name'])
             ->where(['rootAccountType' => 'FG', 'status' => 'active'])
             ->where('type', 'group')
-            ->whereHas('subChartOfInventories', function ($q) {
-                return $q->where('type', 'item');
+            ->whereExists(function ($q) {
+                $q->selectRaw('1')
+                    ->from('chart_of_inventories as items')
+                    ->whereColumn('items.parent_id', 'chart_of_inventories.id')
+                    ->where('items.type', 'item');
             })
             ->orderBy('name')
             ->get();
@@ -426,11 +394,13 @@ class POSController extends Controller
     public function getProductByNameSkuBarCode(Request $request)
     {
         $searchString = $request->search_term;
-        $product = ChartOfInventory::where(['rootAccountType' => 'FG', 'status' => 'active', 'type' => 'item'])->where(function ($q) use ($searchString) {
-            $q->where('name', 'like', '%' . $searchString . '%');
-        });
-        if ($product->count() == 1) {
-            return $product->first();
+        $matches = ChartOfInventory::query()
+            ->where(['rootAccountType' => 'FG', 'status' => 'active', 'type' => 'item'])
+            ->where('name', 'like', '%' . $searchString . '%')
+            ->limit(2)
+            ->get();
+        if ($matches->count() == 1) {
+            return $matches->first();
         }
         return 'multiple';
     }
@@ -670,14 +640,20 @@ class POSController extends Controller
             $order->save();
 
             $products = $request->get('products');
+            $productIds = collect($products)->pluck('id')->filter()->unique()->values();
+            $stockByProduct = $productIds->isEmpty()
+                ? collect()
+                : getInventoryQuantities($productIds, $store->id);
             foreach ($products as $row) {
                 $row['coi_id'] = $row['id'];
                 $row['unit_price'] = $row['price'];
-                $currentStock = availableInventoryBalance($row['coi_id'], $store->id);
+                $currentStock = $stockByProduct[$row['coi_id']] ?? 0;
                 if ($currentStock < $row['quantity']) {
+                    DB::rollBack();
                     Toastr::error('Delivery Quantity cannot more then ' . $currentStock . ' !', '', ["progressBar" => true]);
                     return back();
                 }
+                $stockByProduct[$row['coi_id']] = $currentStock - $row['quantity'];
 
                 $order->items()->create($row);
             }

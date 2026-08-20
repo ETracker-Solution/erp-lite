@@ -47,44 +47,77 @@ function addAccountsTransaction($doc_type, $doc, $debit_account_id, $credit_acco
 }
 
 
+function resolveGLId(?string $settingKey, int $fallback): int
+{
+    $id = $settingKey ? getSettingValue($settingKey) : null;
+    $id = ($id !== null && $id !== '') ? (int) $id : $fallback;
+
+    static $ledgerIds = null;
+    if ($ledgerIds === null) {
+        try {
+            $ledgerIds = array_flip(
+                ChartOfAccount::where('type', 'ledger')->pluck('id')->map(fn ($v) => (int) $v)->all()
+            );
+        } catch (\Throwable $e) {
+            $ledgerIds = [];
+        }
+    }
+
+    if ($ledgerIds && !isset($ledgerIds[$id])) {
+        return isset($ledgerIds[$fallback]) ? $fallback : $id;
+    }
+
+    return $id;
+}
+
 function getOpeningBalanceOfEquityGLId()
 {
-    return 47;
+    return resolveGLId('retained_earning', 47);
 }
 
 function getRMInventoryGLId()
 {
-    return 15;
+    return resolveGLId('goods_purchase_bill_debit_account', 15);
 }
 
 function getAccountsPayableGLId()
 {
-    return 22;
+    return resolveGLId('goods_purchase_bill_credit_account', 22);
 }
 
 function getAccountsReceiveableGLId()
 {
-    return 18;
+    return resolveGLId('sales_account_receivable_account', 18);
 }
 
 function getFGInventoryGLId()
 {
-    return 16;
+    return resolveGLId('sales_fg_inventory_account', 16);
 }
 
 function getIncomeFromSalesGLId()
 {
-    return 35;
+    return resolveGLId('income_from_sales_account', 35);
 }
 
 function getCOGSGLId()
 {
-    return 43;
+    return resolveGLId('cogs_account', 43);
 }
 
 function getCashGLID()
 {
-    return 13;
+    return resolveGLId('sales_cash_account', 13);
+}
+
+function getInventoryAdjustmentGLId()
+{
+    return resolveGLId('inventory_adjustment_account', 52);
+}
+
+function getWIPGLId()
+{
+    return resolveGLId('fg_production_credit_account', 17);
 }
 
 function getAllLedgers()
@@ -115,17 +148,85 @@ function outletTransactionAccount($outlet_id, $account_type = 'Cash')
 
 function getDiscountGLID()
 {
-    return 50;
+    return resolveGLId('discount_account', 50);
 }
 
 function getRewardGLID()
 {
-    return 51;
+    return resolveGLId('reward_account', 51);
 }
 
 function getCustomersReceiveableGLId()
 {
-    return 58;
+    return resolveGLId('customers_receivable_account', 58);
+}
+
+function salePaymentMethodOptions(): array
+{
+    return [
+        ['value' => 'cash', 'label' => 'Cash'],
+        ['value' => 'bkash', 'label' => 'Bkash'],
+        ['value' => 'nagad', 'label' => 'Nagad'],
+        ['value' => 'DBBL', 'label' => 'DBBL'],
+        ['value' => 'UCB', 'label' => 'UCB'],
+        ['value' => 'rocket', 'label' => 'Rocket'],
+        ['value' => 'upay', 'label' => 'Upay'],
+        ['value' => 'nexus', 'label' => 'Nexus'],
+        ['value' => 'pbl', 'label' => 'PBL POS'],
+        ['value' => 'PBLQR', 'label' => 'PBL QR'],
+        ['value' => 'FOODIE', 'label' => 'FOODIE'],
+        ['value' => 'due', 'label' => 'Due Sale'],
+        ['value' => 'FoodPanda', 'label' => 'Food Panda'],
+        ['value' => 'CityBank', 'label' => 'City Bank'],
+        ['value' => 'point', 'label' => 'Redeem Point'],
+    ];
+}
+
+function salePaymentDebitAccount(string $method, $outlet_id)
+{
+    $types = [
+        'FOODIE' => 'FOODIE',
+        'PBLQR' => 'PBLQR',
+        'nexus' => 'Nexus',
+        'pbl' => 'PBL',
+        'due' => 'Due',
+        'FoodPanda' => 'FoodPanda',
+        'CityBank' => 'CityBank',
+        'upay' => 'Upay',
+        'rocket' => 'Rocket',
+        'DBBL' => 'DBBL',
+        'UCB' => 'UCB',
+        'nagad' => 'Nagad',
+        'bkash' => 'Bkash',
+        'cash' => 'Cash',
+    ];
+
+    if (!isset($types[$method])) {
+        return false;
+    }
+
+    $type = $types[$method];
+    return $type === 'Cash'
+        ? outletTransactionAccount($outlet_id)
+        : outletTransactionAccount($outlet_id, $type);
+}
+
+function postSalePaymentTransaction($sale, string $method, $outlet_id, $customer_id = null): void
+{
+    if ($method === 'exchange' || (float) $sale->amount <= 0) {
+        return;
+    }
+
+    if ($method === 'point') {
+        redeemPoint($sale->id, $customer_id, $sale->amount);
+        addAccountsTransaction('POS', $sale, getRewardGLID(), getAccountsReceiveableGLId());
+        return;
+    }
+
+    $debitAccount = salePaymentDebitAccount($method, $outlet_id);
+    if ($debitAccount) {
+        addAccountsTransaction('POS', $sale, $debitAccount, getAccountsReceiveableGLId());
+    }
 }
 
 function addCustomerTransaction($item, $transaction_type = 1)

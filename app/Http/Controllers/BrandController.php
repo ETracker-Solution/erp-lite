@@ -20,9 +20,8 @@ class BrandController extends Controller
 
     public function index()
     {
-        $brands = Brand::all();
         if (\request()->ajax()) {
-            return DataTables::of($brands)
+            return DataTables::of(Brand::query())
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
                     return view('brand.action', compact('row'));
