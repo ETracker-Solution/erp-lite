@@ -275,6 +275,75 @@ aside a:hover,
     color: #fff;
 }
 
+.erp-balance-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.erp-balance-table th {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--erp-line);
+}
+
+.erp-balance-table th.is-available { color: var(--erp-accent-deep); }
+.erp-balance-table th.is-transit { color: var(--erp-danger); }
+.erp-balance-table th.is-transfer { color: var(--erp-info); }
+
+.erp-balance-table td {
+    padding: 6px 8px;
+    vertical-align: middle;
+    border-bottom: 1px solid var(--erp-line);
+}
+
+.erp-balance-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.erp-balance-chip {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 8px;
+    max-width: 100%;
+    padding: 5px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    line-height: 1.3;
+}
+
+.erp-balance-chip .name {
+    font-weight: 600;
+    opacity: 0.78;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 160px;
+}
+
+.erp-balance-chip .amt {
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.erp-balance-chip.available {
+    background: var(--erp-accent-soft);
+    color: var(--erp-accent-deep);
+}
+
+.erp-balance-chip.transit {
+    background: #fde8e6;
+    color: var(--erp-danger);
+}
+
+.erp-balance-chip.transfer {
+    background: #e8f4f8;
+    color: var(--erp-info);
+}
+
 .erp-kpi-stats {
     display: flex;
     gap: 12px;

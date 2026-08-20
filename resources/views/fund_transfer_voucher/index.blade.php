@@ -63,27 +63,36 @@
                     </div>
                     @if(\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->outlet_id)
                         <div class="card mb-2">
-                            <div class="card-body py-2">
+                            <div class="card-body p-2">
                                 <div class="table-responsive">
-                                    <table class="table table-sm table-bordered mb-0">
+                                    <table class="erp-balance-table mb-0">
                                         <thead>
                                         <tr>
-                                            <th>Available</th>
-                                            <th>In Transit</th>
-                                            <th>Transferable</th>
+                                            <th class="is-available">Available</th>
+                                            <th class="is-transit">In Transit</th>
+                                            <th class="is-transfer">Transferable</th>
                                         </tr>
                                         </thead>
                                         <tbody>
                                         @foreach($outlet_accounts as $outlet_account)
                                             <tr>
                                                 <td>
-                                                    <span class="badge badge-success p-1 m-1">{{ $outlet_account['name'] }} : {{ $outlet_account['balance'] }} BDT</span>
+                                                    <span class="erp-balance-chip available">
+                                                        <span class="name">{{ $outlet_account['name'] }}</span>
+                                                        <span class="amt">{{ number_format($outlet_account['balance'], 2) }} BDT</span>
+                                                    </span>
                                                 </td>
                                                 <td>
-                                                    <span class="badge badge-danger p-1 m-1">{{ $outlet_account['name'] }} : {{ $outlet_account['pending'] }} BDT</span>
+                                                    <span class="erp-balance-chip transit">
+                                                        <span class="name">{{ $outlet_account['name'] }}</span>
+                                                        <span class="amt">{{ number_format($outlet_account['pending'], 2) }} BDT</span>
+                                                    </span>
                                                 </td>
                                                 <td>
-                                                    <span class="badge badge-info p-1 m-1">{{ $outlet_account['name'] }} : {{ round(($outlet_account['balance'] - $outlet_account['pending']), 2) }} BDT</span>
+                                                    <span class="erp-balance-chip transfer">
+                                                        <span class="name">{{ $outlet_account['name'] }}</span>
+                                                        <span class="amt">{{ number_format($outlet_account['balance'] - $outlet_account['pending'], 2) }} BDT</span>
+                                                    </span>
                                                 </td>
                                             </tr>
                                         @endforeach
