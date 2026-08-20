@@ -293,8 +293,260 @@ aside a:hover,
     font-weight: 600;
 }
 
+.card-header .card-title,
+.card-header .card-title h3,
+.card-header h3.card-title {
+    font-weight: 700;
+    letter-spacing: 0.01em;
+}
+
+.card-info .card-header .btn,
+.card-info .card-header .btn-primary,
+.card-info .card-header .btn-danger,
+.card-info .card-header .btn-success,
+.card-info .card-header .btn-info,
+.card-header.bg-info .btn,
+.card-header.bg-info .btn-primary,
+.card-header.bg-info .btn-danger,
+.card-header.bg-info .btn-success,
+.card-header.bg-info .btn-info {
+    background: #fff !important;
+    color: var(--erp-accent-deep) !important;
+    border: 1px solid rgba(255, 255, 255, 0.45) !important;
+    font-weight: 700;
+}
+
+.card-info .card-header .btn:hover,
+.card-info .card-header .btn-primary:hover,
+.card-info .card-header .btn-danger:hover,
+.card-info .card-header .btn-success:hover,
+.card-header.bg-info .btn:hover,
+.card-header.bg-info .btn-primary:hover,
+.card-header.bg-info .btn-danger:hover,
+.card-header.bg-info .btn-success:hover {
+    background: var(--erp-accent-deep) !important;
+    color: #fff !important;
+    border-color: var(--erp-accent-deep) !important;
+}
+
+.content-header .row.mb-2 {
+    background: var(--erp-card) !important;
+    color: var(--erp-ink) !important;
+    border: 1px solid var(--erp-line);
+    box-shadow: var(--erp-shadow);
+    padding: 12px 16px !important;
+    margin: 0 0 12px !important;
+    border-radius: var(--erp-radius) !important;
+}
+
+.content-header .row.mb-2 h1 {
+    color: var(--erp-ink) !important;
+    font-size: 1.35rem;
+    font-weight: 700;
+}
+
+.content-header .breadcrumb {
+    background: transparent;
+}
+
+.content-header .breadcrumb-item,
+.content-header .breadcrumb-item a,
+.content-header .breadcrumb-item.active {
+    color: var(--erp-muted) !important;
+}
+
+.form-group > label,
+.control-label {
+    font-weight: 600;
+    color: var(--erp-muted);
+    font-size: 13px;
+}
+
+.card-footer {
+    background: #faf8f5;
+    border-top: 1px solid var(--erp-line);
+    border-radius: 0 0 var(--erp-radius) var(--erp-radius);
+}
+
+.card-footer .btn-primary,
+.erp-save-bar .btn-primary {
+    min-width: 150px;
+    font-weight: 700;
+    padding: 8px 18px;
+    border-radius: 10px;
+}
+
+.erp-save-bar {
+    position: sticky;
+    bottom: 0;
+    z-index: 6;
+    background: #fff;
+    padding: 12px 16px;
+    border-top: 1px solid var(--erp-line);
+    box-shadow: 0 -6px 18px rgba(28, 20, 16, 0.05);
+}
+
+.btn-outline-info,
+.btn-outline-primary {
+    color: var(--erp-accent-deep);
+    border-color: var(--erp-accent);
+}
+
+.btn-outline-info:hover,
+.btn-outline-primary:hover {
+    background: var(--erp-accent);
+    border-color: var(--erp-accent);
+    color: #fff;
+}
+
+.btn-success {
+    background: var(--erp-accent);
+    border-color: var(--erp-accent);
+}
+
+.btn-success:hover,
+.btn-success:focus {
+    background: var(--erp-accent-deep);
+    border-color: var(--erp-accent-deep);
+}
+
+.project-actions .btn,
+.project-actions .btn-xs {
+    border-radius: 8px;
+    font-weight: 600;
+}
+
+.erp-filters {
+    background: #fff;
+    border: 1px solid var(--erp-line);
+    border-radius: var(--erp-radius);
+    box-shadow: var(--erp-shadow);
+    padding: 12px 16px 4px;
+    margin-bottom: 12px;
+}
+
+.card .erp-filters {
+    box-shadow: none;
+    background: #faf8f5;
+}
+
+.erp-filters .form-group {
+    margin-bottom: 10px;
+}
+
+.invoice-info,
+.invoice-col {
+    padding: 8px 16px;
+}
+
+.table_sticky {
+    border: 1px solid var(--erp-line);
+    border-radius: 8px;
+}
+
+.table_sticky thead th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: #faf8f5;
+}
+
+.card-body .btn.btn-sm.btn-dark.w-50 {
+    width: 100% !important;
+    max-width: 360px;
+    background: #fff;
+    color: var(--erp-accent-deep);
+    border: 1px solid var(--erp-line);
+    font-weight: 700;
+    padding: 10px 14px;
+    border-radius: 10px;
+    margin-bottom: 8px;
+}
+
+.card-body .btn.btn-sm.btn-dark.w-50:hover,
+.card-body .btn.btn-sm.btn-dark.w-50:focus {
+    background: var(--erp-accent);
+    color: #fff;
+    border-color: var(--erp-accent);
+}
+
+.categoryLoader {
+    position: fixed !important;
+    inset: 0 !important;
+    top: 0 !important;
+    right: 0 !important;
+    left: 0 !important;
+    transform: none !important;
+    background: rgba(28, 20, 16, 0.42);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9998 !important;
+}
+
+.categoryLoader img {
+    width: 72px;
+    height: 72px;
+}
+
+input[placeholder="Select date"],
+.vdp-datepicker input,
+.vdp-datepicker input[type="text"] {
+    display: block;
+    width: 100%;
+    height: calc(2.25rem + 2px);
+    padding: 0.375rem 0.75rem;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: var(--erp-ink);
+    background: #fff;
+    border: 1px solid var(--erp-line);
+    border-radius: 8px;
+}
+
+input[placeholder="Select date"]:focus,
+.vdp-datepicker input:focus {
+    border-color: var(--erp-accent);
+    outline: 0;
+    box-shadow: 0 0 0 0.15rem rgba(47, 107, 79, 0.18);
+}
+
+.erp-sale-entry .table-sm td,
+.erp-sale-entry .table-sm th {
+    vertical-align: middle;
+}
+
+.selected-discount-type {
+    color: #fff !important;
+    background-color: var(--erp-accent) !important;
+    border-color: var(--erp-accent) !important;
+}
+
+.toast-success {
+    background-color: var(--erp-accent) !important;
+}
+
+.dataTables_wrapper .dataTables_processing {
+    background: rgba(246, 243, 238, 0.92);
+    border-radius: 10px;
+    color: var(--erp-accent-deep);
+    font-weight: 700;
+}
+
+.modal-header {
+    border-bottom: 1px solid var(--erp-line);
+}
+
+.modal-footer {
+    border-top: 1px solid var(--erp-line);
+}
+
 @media (max-width: 991px) {
     .erp-nav-chip {
         display: none;
+    }
+
+    .card-body .btn.btn-sm.btn-dark.w-50 {
+        max-width: none;
     }
 }

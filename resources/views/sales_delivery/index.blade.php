@@ -17,6 +17,7 @@
 
             <div class="row">
                 <div class="col-12">
+                    <div class="erp-filters">
                     <div class="row">
                         <div class="col-3">
                             <div class="form-group">
@@ -41,7 +42,7 @@
                             </div>
                         </div>
                     </div>
-                    <hr>
+                    </div>
 
                     <div class="card card-info">
                         <div class="card-header">

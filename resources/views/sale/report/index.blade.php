@@ -61,7 +61,7 @@
                                 </div>
                                 <div class="col-12 border-bottom mb-3">
                                     <div class="form-group">
-                                        <label for="customer_id">Customer2</label>
+                                        <label for="customer_id">Customer</label>
                                         <select name="customer_id" id="customer_id" class="form-control bSelect"
                                                 v-model="customer_id">
                                             <option value="">Select a Customer</option>

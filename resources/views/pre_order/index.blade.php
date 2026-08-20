@@ -30,6 +30,7 @@
                         </div>
                         <!-- /.card-header -->
                         <div class="card-body table-responsive">
+                            <div class="erp-filters">
                             <div class="row">
                                 <div class="col-3">
                                     <div class="form-group">
@@ -86,6 +87,7 @@
                                 @csrf
                                 <button class="btn btn-success mb-2" type="button" id="excel-btn">EXCEL</button>
                             </form>
+                            </div>
                             <table id="dataTable" class="table table-bordered">
                                 {{-- show from datatable--}}
                             </table>

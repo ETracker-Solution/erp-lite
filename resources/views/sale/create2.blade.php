@@ -22,8 +22,8 @@
 
         .selected-discount-type {
             color: #fff;
-            background-color: #007bff;
-            border-color: #007bff;
+            background-color: #2f6b4f;
+            border-color: #2f6b4f;
         }
     </style>
 @endsection
@@ -37,7 +37,7 @@
                     Saving sale&hellip;
                 </div>
                 <div class="col-lg-12 col-md-12">
-                    <div class="card card-info">
+                    <div class="card card-info erp-sale-entry">
                         <div class="card-header">
                             <h3 class="card-title">Sale Entry</h3>
                             <div class="card-tools">
@@ -521,7 +521,7 @@
                                 <input type="hidden" name="returnNumber" v-model="returnNumber">
                                 <input type="hidden" name="exchangeAmount" v-model="exchangeAmount">
                             </div>
-                            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 text-right"
+                            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 text-right erp-save-bar"
                                  v-if="items.length > 0 && ((sales_type == 'sales' && !customerNumber && total_payable_bill <= total_paying) || (sales_type == 'pre_order' && customerNumber) || customerNumber)">
                                 <button class="float-right btn btn-primary" type="button"
                                         :disabled="isSubmitting"
