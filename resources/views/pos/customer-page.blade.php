@@ -1,49 +1,52 @@
-<div id="customer">
+<div id="customer" class="pos-pane">
     <div class="row">
-        <div class="col-6  header-gap" style="background-color: #cbcbcb21">
-            <div class="m-2 mt-3 d-flex">
-                <h4 style="margin-right: 10px">Customers</h4>
-                <input type="text" class="form-control" placeholder="Search Customer By Name" v-model="customer_search_string" @keyup="debounceCustomerSearch">
-            </div>
-            <div class="row" style="margin: 10px; max-height: 100vh; overflow-y: auto">
-                <div class="col-12 customerInfo"  v-for="(row, index) in customers">
-                    <h4 class="customerName">@{{ row.name }}</h4>
-                    <span>@{{ row.email }}</span>
-                    <span>@{{ row.mobile }}</span>
-                    <span style="float: right"  @click="editCustomer(row)">EDIT</span>
+        <div class="col-6">
+            <div class="pos-pane-list">
+                <div class="d-flex align-items-center mb-3">
+                    <h5 class="mb-0 mr-2">Customers</h5>
+                    <input type="text" class="form-control" placeholder="Search by name or phone" v-model="customer_search_string" @keyup="debounceCustomerSearch">
+                </div>
+                <div style="max-height: calc(100vh - 180px); overflow-y: auto">
+                    <div class="customerInfo" v-for="(row, index) in customers" :key="row.id">
+                        <div class="d-flex justify-content-between">
+                            <h5 class="customerName mb-1">@{{ row.name }}</h5>
+                            <span class="pos-edit-link" @click="editCustomer(row)">Edit</span>
+                        </div>
+                        <div class="text-muted">@{{ row.mobile }} <span v-if="row.email">· @{{ row.email }}</span></div>
+                    </div>
+                    <div v-if="customers.length < 1" class="text-muted p-3">No customers found.</div>
                 </div>
             </div>
         </div>
         <div class="col-6">
-            <div class="m-2 mb-2">
-                <h3>Customer Info </h3>
+            <div class="pos-pane-detail">
+                <h5 class="mb-3">@{{ editableCustomerId ? 'Edit customer' : 'New customer' }}</h5>
                 <div class="form-group">
                     <label for="name">Name</label>
-                    <input type="text" name="name" id="name" class="form-control" placeholder="Enter Name" v-model="newCustomer.name">
+                    <input type="text" name="name" id="name" class="form-control" placeholder="Name" v-model="newCustomer.name">
                 </div>
                 <div class="form-group">
                     <label for="email">Email</label>
-                    <input type="email" name="email" id="email" class="form-control" placeholder="Enter Email" v-model="newCustomer.email">
+                    <input type="email" name="email" id="email" class="form-control" placeholder="Email" v-model="newCustomer.email">
                 </div>
                 <div class="form-group">
                     <label for="phone">Phone</label>
-                    <input type="text" name="phone" id="phone" class="form-control" placeholder="Enter Phone Number" v-model="newCustomer.mobile">
+                    <input type="text" name="phone" id="phone" class="form-control" placeholder="Phone" v-model="newCustomer.mobile">
                 </div>
                 <div class="form-group">
-                    <label for="email">Address</label>
-                    <input type="text" name="address" id="address" class="form-control" placeholder="Enter Address Line 1" v-model="newCustomer.address">
+                    <label for="address">Address</label>
+                    <input type="text" name="address" id="address" class="form-control" placeholder="Address" v-model="newCustomer.address">
                 </div>
                 <div class="form-group">
-                    <label for="dob">Date of Birth</label>
+                    <label for="dob">Date of birth</label>
                     <input type="date" name="dob" id="dob" class="form-control" v-model="newCustomer.dob">
                 </div>
                 <div class="form-group">
-                    <label for="doa">Date of Anniversary</label>
+                    <label for="doa">Anniversary</label>
                     <input type="date" name="doa" id="doa" class="form-control" v-model="newCustomer.doa">
                 </div>
-                <button class="btn saveButton" @click="submitCustomerInfo">SAVE</button>
+                <button class="btn saveButton" @click="submitCustomerInfo">Save customer</button>
             </div>
-
         </div>
     </div>
 </div>

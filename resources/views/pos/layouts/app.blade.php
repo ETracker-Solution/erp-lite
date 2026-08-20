@@ -848,9 +848,11 @@
                     const vm = this
                     this.paymentMenuShow = true
                     if (vm.total_payable_bill > 100) {
-                        this.openPaymentModal()
-                        var amount = parseInt(this.customer.current_point / 100)
+                        this.openPaymentModal(false)
                         this.paymentMethods.push({amount: 100, method: 'point'})
+                        if (Number(this.paymentMethods[0].amount || 0) === 0) {
+                            this.paymentMethods[0].amount = Math.max(this.total_due - 100, 0)
+                        }
                     } else {
                         toastr.error('Bill must me more than TK.100');
                     }
@@ -1073,8 +1075,11 @@
                     }
 
                 },
-                openPaymentModal() {
+                openPaymentModal(fillDue) {
                     var vm = this
+                    if (fillDue !== false && vm.paymentMethods.length === 1 && Number(vm.paymentMethods[0].amount || 0) === 0) {
+                        vm.paymentMethods[0].amount = vm.total_due
+                    }
                     vm.$refs['payment-modal'].show()
                 },
                 closePaymentModal() {
