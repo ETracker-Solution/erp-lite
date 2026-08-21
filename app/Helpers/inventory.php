@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\DB;
 function addInventoryTransaction(int $type, string $doc_type, $doc)
 {
     InventoryTransaction::query()->create([
-        'date' => $doc->date,
+        'date' => $doc->date ?? date('Y-m-d'),
         'type' => $type,
         'quantity' => $doc->quantity,
         'rate' => $doc->rate,
