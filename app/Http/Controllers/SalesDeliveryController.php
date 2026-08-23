@@ -158,31 +158,51 @@ class SalesDeliveryController extends Controller
 
             $outlet = Outlet::find($store->doc_id);
             $outlet_id = $outlet->id;
-            $sale = Sale::where('invoice_number',$originalSale->invoice_number)->first();
+            // Prefer outlet + latest id: truncated invoice_numbers can collide across sales.
+            $sale = Sale::where('invoice_number', $originalSale->invoice_number)
+                ->where('outlet_id', $originalSale->outlet_id)
+                ->orderByDesc('id')
+                ->first();
+            if (!$sale) {
+                DB::rollBack();
+                Toastr::error('Original sale not found for this delivery!', '', ["progressBar" => true]);
+                return back();
+            }
             $sale->date = date('Y-m-d');
             $salesAmount = $sale->grand_total;
+            $customer_id = $sale->customer_id ?? $originalSale->customer_id;
 
-            if ($sale->preOrder || ($sale->outlet_id != $sale->delivery_point_id)) {
+            // Deduct stock only when it was NOT taken at sale time (pre-order or other outlet).
+            // sales.delivery_point_id does not exist — use OthersOutletSale columns.
+            $shouldDeductStock = $sale->preOrder
+                || ((int) $originalSale->outlet_id !== (int) $originalSale->delivery_point_id);
+
+            if ($shouldDeductStock) {
+                $productIds = collect($originalSaleItems)->pluck('product_id')->filter()->unique()->values();
+                $stockByProduct = $productIds->isEmpty()
+                    ? collect()
+                    : getInventoryQuantities($productIds, $delivery_store_id, true);
+                $rateByProduct = averageFGRates($productIds);
+
                 foreach ($originalSaleItems as $row) {
-                    $row =  collect($row)->toArray();
-                    $currentStock = availableInventoryBalance($row['product_id'], $delivery_store_id, true);
+                    $row = collect($row)->toArray();
+                    $currentStock = $stockByProduct[$row['product_id']] ?? 0;
                     if ($currentStock < $row['quantity']) {
                         DB::rollBack();
                         Toastr::error('Quantity cannot more then ' . $currentStock . ' !', '', ["progressBar" => true]);
                         return back();
                     }
+                    $stockByProduct[$row['product_id']] = $currentStock - $row['quantity'];
 
-                    $sale_item = $sale->items()->where('product_id',$row['product_id'])->first();
+                    $sale_item = $sale->items()->where('product_id', $row['product_id'])->first();
                     $sale_item['date'] = date('Y-m-d');
                     $sale_item['coi_id'] = $row['product_id'];
-                    $sale_item['rate'] = averageFGRate($row['product_id']);
+                    $sale_item['rate'] = $rateByProduct[$row['product_id']] ?? 0;
                     $sale_item['amount'] = $sale_item['rate'] * $row['quantity'];
                     $sale_item['store_id'] = $delivery_store_id;
                     addInventoryTransaction(-1, 'POS', $sale_item);
-
                 }
                 $receive_amount = $sale->receive_amount;
-
             }
             $delivery_receive = 0;
 
@@ -196,7 +216,7 @@ class SalesDeliveryController extends Controller
             foreach ($request->payment_methods as $paymentMethod) {
                 $payment = Payment::create([
                     'sale_id' => $sale->id,
-                    'customer_id' => $customer_id ?? null,
+                    'customer_id' => $customer_id,
                     'payment_method' => $paymentMethod['method'],
                     'amount' => ($paymentMethod['method'] == 'cash' && $change_amount > 0) ? ($paymentMethod['amount'] - $change_amount) : $paymentMethod['amount'],
                 ]);
@@ -224,7 +244,6 @@ class SalesDeliveryController extends Controller
             return redirect()->route('sales-deliveries.index');
         } catch (\Exception $e) {
             DB::rollBack();
-            return $e;
             Log::emergency("File:" . $e->getFile() . "Line:" . $e->getLine() . "Message:" . $e->getMessage());
             Toastr::info('Something went wrong!.', '', ["progressbar" => true]);
             return back();
@@ -327,7 +346,7 @@ class SalesDeliveryController extends Controller
         if (\request()->filled('from_date') && \request()->filled('to_date')) {
             $from_date = Carbon::parse(request()->from_date)->format('Y-m-d');
             $to_date = Carbon::parse(request()->to_date)->format('Y-m-d');
-            $data = $data->whereDate('date', '>=', $from_date)->whereDate('date', '<=', $to_date);
+            $data = $data->whereBetween('date', [$from_date, $to_date]);
         }
         return $data->latest();
     }

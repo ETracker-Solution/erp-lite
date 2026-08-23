@@ -47,7 +47,7 @@ class SaleController extends Controller
         ]);
 
         if (\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->outlet_id) {
-            $data->where(['outlet_id' => \auth()->user()->employee->outlet_id])->whereDate('date', date('Y-m-d'));
+            $data->where(['outlet_id' => \auth()->user()->employee->outlet_id])->where('date', date('Y-m-d'));
         } elseif (!filled(request()->input('search.value'))) {
             $data->where('date', '>=', now()->subMonths(6)->toDateString());
         }
@@ -78,14 +78,13 @@ class SaleController extends Controller
      */
     public function create()
     {
-        $serial_no = null;
+        $serial_no = 'Assigned on save';
         $user_store = null;
         $outlet_id = null;
         if (!auth()->user()->is_super) {
             if (\auth()->user()->employee->outlet_id) {
                 $user_store = Store::where(['doc_type' => 'outlet', 'doc_id' => \auth()->user()->employee->outlet_id,'status'=>'active'])->first();
                 $outlet_id = $user_store->doc_id;
-                $serial_no = generateUniqueUUID($outlet_id, Sale::class, 'invoice_number');
             }
         }
         $data = [
@@ -350,14 +349,17 @@ class SaleController extends Controller
     public function destroy(Sale $sale)
     {
         try {
+            DB::beginTransaction();
             $customer = $sale->customer;
-            $membership = $customer->membership;
-            $membershipPointHistory = $customer->membershipPointHistories()->where('sale_id', $sale->id)->first();
+            $membership = $customer?->membership;
+            $membershipPointHistory = $customer
+                ? $customer->membershipPointHistories()->where('sale_id', $sale->id)->first()
+                : null;
             AccountTransaction::where([
                 'doc_type' => 'POS',
                 'doc_id' => $sale->id,
             ])->delete();
-            if ($membershipPointHistory) {
+            if ($membership && $membershipPointHistory) {
                 $membership->decrement('point', $membershipPointHistory->point);
                 $membershipPointHistory->delete();
             }
@@ -368,7 +370,10 @@ class SaleController extends Controller
                 ]);
             }
 
-            $delivery_of_pre_order = OthersOutletSale::where('invoice_number', $sale->invoice_number)->first();
+            $delivery_of_pre_order = OthersOutletSale::where('invoice_number', $sale->invoice_number)
+                ->where('outlet_id', $sale->outlet_id)
+                ->orderByDesc('id')
+                ->first();
             if ($delivery_of_pre_order) {
                 $delivery_of_pre_order->delete();
             }
@@ -378,9 +383,12 @@ class SaleController extends Controller
             $sale->update([
                 'status'=>'cancelled'
             ]);
-
-        }catch (\Exception $e) {
-            return $e;
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::emergency("File:" . $e->getFile() . "Line:" . $e->getLine() . "Message:" . $e->getMessage());
+            Toastr::info('Something went wrong!.', '', ["progressbar" => true]);
+            return back();
         }
         Toastr::success('Successfully Cancelled!.', '', ["progressbar" => true]);
         return redirect()->route('sales.index');
@@ -437,7 +445,8 @@ class SaleController extends Controller
     public function getInvoiceByOutlet(Request $request, $store_id)
     {
         $store = Store::find($store_id);
-        $store->invoice = generateUniqueUUID($store->doc_id, Sale::class, 'invoice_number');
+        // Do not mint here — store() assigns the real invoice on save.
+        $store->invoice = 'Assigned on save';
         $store->outlet = $store->doc_type == 'outlet' ? $store->doc_id : null;
         return $store;
     }

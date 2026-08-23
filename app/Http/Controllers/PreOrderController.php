@@ -70,8 +70,7 @@ class PreOrderController extends Controller
             $to_date = Carbon::parse(request()->to_date)->format('Y-m-d');
 
             $preOrderItem = $preOrderItem->whereHas('preOrder', function ($query) use ($column, $from_date, $to_date) {
-                $query->whereDate($column, '>=', $from_date)
-                    ->whereDate($column, '<=', $to_date);
+                $query->whereBetween($column, [$from_date, $to_date]);
             });
         }
 
@@ -148,8 +147,7 @@ class PreOrderController extends Controller
             $column = request()->filter_by;
             $from_date = Carbon::parse(request()->from_date)->format('Y-m-d');
             $to_date = Carbon::parse(request()->to_date)->format('Y-m-d');
-            $orders->whereDate($column, '>=', $from_date)
-                ->whereDate($column, '<=', $to_date);
+            $orders->whereBetween($column, [$from_date, $to_date]);
         }
 
         return $orders;
@@ -168,7 +166,7 @@ class PreOrderController extends Controller
             'stores' => Store::where(['type' => 'RM', 'doc_type' => 'ho', 'doc_id' => null])->get(),
             'outlets' => Outlet::where(['status' => 'active'])->get(),
             // 'outlets' => Outlet::where(['status' => 'active'])->get(),
-            'uid' => PreOrderNumber::serial_number(),
+            'uid' => 'Assigned on save',
 
         ];
 
@@ -338,7 +336,7 @@ class PreOrderController extends Controller
                         'quantity' => $product->quantity,
                         'rate' => $product->unit_price,
                         'amount' => $product->quantity * $product->unit_price,
-                        'date' => date('y-m-d'),
+                        'date' => date('Y-m-d'),
                         'type' => -1,
                         'coi_id' => $product->coi_id,
                     ]);
@@ -349,7 +347,7 @@ class PreOrderController extends Controller
                         'quantity' => $product->quantity,
                         'rate' => $product->unit_price,
                         'amount' => $product->quantity * $product->unit_price,
-                        'date' => date('y-m-d'),
+                        'date' => date('Y-m-d'),
                         'type' => 1,
                         'coi_id' => $product->coi_id,
                     ]);
@@ -358,22 +356,29 @@ class PreOrderController extends Controller
 
             if ($request->status == 'cancelled') {
                 $sale_of_pre_order = $req->sale;
-                $delivery_of_pre_order = OthersOutletSale::where('invoice_number', $sale_of_pre_order->invoice_number)->first();
-                $customer = $sale_of_pre_order->customer;
-                $membership = $customer->membership;
-                $membershipPointHistory = $customer->membershipPointHistories()->where('sale_id', $sale_of_pre_order->id)->first();
-                AccountTransaction::where([
-                    'doc_type' => 'POS',
-                    'doc_id' => $sale_of_pre_order->id,
-                ])->delete();
-                if ($membershipPointHistory) {
-                    $membership->decrement('point', $membershipPointHistory->point);
-                    $membershipPointHistory->delete();
+                if ($sale_of_pre_order) {
+                    $delivery_of_pre_order = OthersOutletSale::where('invoice_number', $sale_of_pre_order->invoice_number)
+                        ->where('outlet_id', $sale_of_pre_order->outlet_id)
+                        ->orderByDesc('id')
+                        ->first();
+                    $customer = $sale_of_pre_order->customer;
+                    $membership = $customer?->membership;
+                    $membershipPointHistory = $customer
+                        ? $customer->membershipPointHistories()->where('sale_id', $sale_of_pre_order->id)->first()
+                        : null;
+                    AccountTransaction::where([
+                        'doc_type' => 'POS',
+                        'doc_id' => $sale_of_pre_order->id,
+                    ])->delete();
+                    if ($membership && $membershipPointHistory) {
+                        $membership->decrement('point', $membershipPointHistory->point);
+                        $membershipPointHistory->delete();
+                    }
+                    if ($delivery_of_pre_order) {
+                        $delivery_of_pre_order->delete();
+                    }
+                    $sale_of_pre_order->delete();
                 }
-                if ($delivery_of_pre_order) {
-                    $delivery_of_pre_order->delete();
-                }
-                $sale_of_pre_order->delete();
             }
 
             if ($request->status == 'ready_to_delivery') {
@@ -435,7 +440,9 @@ class PreOrderController extends Controller
             DB::commit();
         } catch (\Exception $exception) {
             DB::rollBack();
-            return $exception;
+            \Log::emergency("File:" . $exception->getFile() . "Line:" . $exception->getLine() . "Message:" . $exception->getMessage());
+            Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
+            return back();
         }
         Toastr::success('Pre Order Status Updated Successfully!.', '', ["progressBar" => true]);
         return redirect()->route('pre-orders.index');

@@ -554,7 +554,7 @@ class POSController extends Controller
             DB::commit();
         } catch (\Exception $error) {
             DB::rollBack();
-            return $error;
+            Log::emergency("File:" . $error->getFile() . "Line:" . $error->getLine() . "Message:" . $error->getMessage());
             return response()->json(['success' => false, 'message' => 'Something Went Wrong']);
         }
         return response()->json(['success' => true, 'message' => 'Customer Updated']);
@@ -659,7 +659,6 @@ class POSController extends Controller
             DB::commit();
         } catch (\Exception $error) {
             DB::rollBack();
-            return $error;
             Log::emergency("File:" . $error->getFile() . "Line:" . $error->getLine() . "Message:" . $error->getMessage());
             return response()->json(['message' => $error->getMessage()], 500);
         }

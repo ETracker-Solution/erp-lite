@@ -26,11 +26,28 @@ class OthersOutletSaleController extends Controller
      */
     public function index()
     {
+        $data = OthersOutletSale::query()
+            ->select([
+                'id',
+                'invoice_number',
+                'grand_total',
+                'receive_amount',
+                'delivery_point_receive_amount',
+                'status',
+                'created_at',
+                'date',
+                'outlet_id',
+                'delivery_point_id',
+            ])
+            ->with('deliveryPoint:id,name');
+
         if (\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->outlet_id) {
-            $data = OthersOutletSale::with('deliveryPoint')->where(['outlet_id' => \auth()->user()->employee->outlet_id])->latest();
-        } else {
-            $data = OthersOutletSale::with('deliveryPoint')->latest();
+            $data->where(['outlet_id' => \auth()->user()->employee->outlet_id])
+                ->where('date', date('Y-m-d'));
+        } elseif (!filled(request()->input('search.value'))) {
+            $data->where('date', '>=', now()->subMonths(6)->toDateString());
         }
+        $data->latest();
         if (\request()->ajax()) {
             return DataTables::of($data)
                 ->addIndexColumn()
@@ -57,22 +74,20 @@ class OthersOutletSaleController extends Controller
      */
     public function create()
     {
-        $serial_no = null;
+        $serial_no = 'Assigned on save';
         $user_store = null;
         $stores = Store::where(['type' => 'FG', 'doc_type' => 'outlet'])->get();
         if (!auth()->user()->is_super) {
             $user_store = Store::where(['doc_type' => 'outlet', 'doc_id' => \auth()->user()->employee->outlet_id])->first();
-            $outlet_id = $user_store->doc_id;
-            $serial_no = generateUniqueUUID($outlet_id, OthersOutletSale::class,'invoice_number');
             $stores = Store::where(['type' => 'FG', 'doc_type' => 'outlet', 'doc_id' => \auth()->user()->employee->outlet_id])->get();
         }
 
         $data = [
             'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'FG'])->get(),
             'stores' => $stores,
-            'delivery_points' => Outlet::all(),
+            'delivery_points' => Outlet::query()->select('id', 'name')->get(),
             'serial_no' => $serial_no,
-            'customers' => Customer::where('status', 'active')->get(),
+            'customers' => Customer::query()->select('id', 'name', 'mobile')->where('status', 'active')->get(),
             'user_store' => $user_store,
             'invoice_number' => $serial_no
 
@@ -132,6 +147,9 @@ class OthersOutletSaleController extends Controller
             $salesAmount = $sale->grand_total;
             $avgProductionPrice = 0;
 
+            $productIds = collect($products)->pluck('item_id')->filter()->unique()->values();
+            $rateByProduct = averageFGRates($productIds);
+
             foreach ($products as $row) {
                 // dd($row);
                 $row['product_id'] = $row['item_id'];
@@ -146,7 +164,7 @@ class OthersOutletSaleController extends Controller
                 $sale_item = $sale->items()->create($row);
                 $sale_item['date'] = date('Y-m-d');
                 $sale_item['coi_id'] = $row['product_id'];
-                $sale_item['rate'] = averageFGRate($row['product_id']);
+                $sale_item['rate'] = $rateByProduct[$row['product_id']] ?? 0;
                 $sale_item['amount'] = $sale_item['rate'] * $row['quantity'];
                 $sale_item['store_id'] = $store->id;
                 $avgProductionPrice += $sale_item['amount'];
@@ -166,7 +184,6 @@ class OthersOutletSaleController extends Controller
             return redirect()->route('others-outlet-sales.index');
         } catch (\Exception $e) {
             DB::rollBack();
-            return $e->getMessage();
             Log::emergency("File:" . $e->getFile() . "Line:" . $e->getLine() . "Message:" . $e->getMessage());
             Toastr::info('Something went wrong!.', '', ["progressbar" => true]);
             return back();
