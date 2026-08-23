@@ -2,412 +2,378 @@
 @section('title', 'Fund Transfer Voucher Entry')
 
 @section('content')
-    <!-- Content Header (Page header) -->
     @php
         $links = [
-        'Home'=>route('dashboard'),
-        'Fund Transfer Voucher'=>''
-        ]
+            'Home' => route('dashboard'),
+            'Accounts Module' => '',
+            'General Accounts' => '',
+            'Fund Transfer Voucher' => route('fund-transfer-vouchers.index'),
+            'Create' => '',
+        ];
     @endphp
-    <x-breadcrumb title='Fund Transfer Voucher' :links="$links"/>
-    <!-- Main content -->
+    <x-breadcrumb title="Fund Transfer Voucher" :links="$links"/>
+
     <section class="content">
         <div class="container-fluid">
-            <div class="row" id="vue_app">
-                   <span v-if="pageLoading" class="pageLoader">
-                       <img src="{{ asset('loading.gif') }}" alt="loading">
-                  </span>
-                <div class="col-lg-12 col-md-12">
-                    <form action="{{ route('fund-transfer-vouchers.store') }}" method="POST" class="prevent-enter-submit"
-                          enctype="multipart/form-data"
-                          onsubmit="if(this.beenSubmitted){ return false; } this.beenSubmitted=true; this.querySelector('button[type=submit]').disabled=true; this.querySelector('button[type=submit]').innerHTML='<i class=\'fas fa-spinner fa-spin\'></i> Submitting...';">
+            <div class="row" id="ftv_create_app">
+                <span v-show="pageLoading" class="ftv-loader">
+                    <img src="{{ asset('loading.gif') }}" alt="loading">
+                </span>
+
+                <div class="col-12">
+                    <form action="{{ route('fund-transfer-vouchers.store') }}"
+                          method="POST"
+                          class="prevent-enter-submit"
+                          @submit="onSubmit">
                         @csrf
                         <input type="hidden" name="submission_token"
                                value="{{ session()->get('submission_token') ?? Str::random(40) }}">
-                        <div class="card">
-                            <div class="card-header bg-info">
-                                <h3 class="card-title">FT Voucher (FTV) Entry</h3>
+
+                        <div class="card card-info">
+                            <div class="card-header">
+                                <h3 class="card-title mb-0">FT Voucher Entry</h3>
                                 <div class="card-tools">
-                                    <a href="{{route('fund-transfer-vouchers.index')}}" class="btn btn-sm btn-primary">
-                                        <i class="fas fa-bars"
-                                           aria-hidden="true"></i> &nbsp;
-                                        See List
+                                    <a href="{{ route('fund-transfer-vouchers.index') }}" class="btn btn-sm btn-primary">
+                                        <i class="fas fa-list"></i> See List
                                     </a>
                                 </div>
                             </div>
 
                             <div class="card-body">
                                 @if(!empty($officeAccountsMissing))
-                                    <div class="alert alert-warning">
+                                    <div class="alert alert-warning mb-3">
                                         <strong>No Office Account found.</strong>
-                                        Fund Transfer “Transfer To” needs a ledger tagged as
+                                        “Transfer To” needs a ledger tagged as
                                         <code>office_account</code> with Bank/Cash = Yes.
-                                        Open Chart of Accounts → select HO cash/bank → set
+                                        Open Chart of Accounts → set
                                         <em>Default Type = Office Account</em>, then reload.
-                                        Or run <code>php artisan migrate</code> (auto-tags “Cash in hand”).
                                     </div>
                                 @endif
 
-                                <div class="card-box">
-                                    <div class="row">
-                                        <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
-                                            <div class="form-group">
-                                                <label for="date">Date</label>
-                                                <vuejs-datepicker v-model="date" name="date"
-                                                                  placeholder="Select date"
-                                                                  format="yyyy-MM-dd"></vuejs-datepicker>
-                                            </div>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label for="ftv_date">Date <span class="text-danger">*</span></label>
+                                            <input type="date" id="ftv_date" name="date" class="form-control"
+                                                   v-model="date" required>
                                         </div>
-                                        <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
-                                            <div class="form-group">
-                                                <label for="narration">Remark</label>
-                                                <textarea class="form-control" name="narration" rows="1"
-                                                          placeholder="Enter Narration"></textarea>
-                                            </div>
+                                    </div>
+                                    <div class="col-md-9">
+                                        <div class="form-group">
+                                            <label for="narration">Remark</label>
+                                            <input type="text" id="narration" name="narration" class="form-control"
+                                                   placeholder="Optional narration" maxlength="500">
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-                        <div class="card">
-                            <div class="card-header bg-info">
-                                <h3 class="card-title">FT Voucher Line Item</h3>
-                            </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
-                                        <div class="form-group">
-                                            <label for="from_account_id" class="control-label">Transfer From ( @{{ from_ac_balance }})</label>
-                                            <select class="form-control bSelect" name="from_account_id"
-                                                    v-model="from_account_id" @change="fetchFromBalance">
-                                                <option value="">Select One</option>
-                                                @if (\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->outlet_id)
-                                                    @foreach ($chartOfAccounts as $row)
-                                                        <option
-                                                            value="{{ $row->coa->id }}">{{ $row->coa->name }}</option>
-                                                    @endforeach
-                                                @else
-                                                    @foreach ($chartOfAccounts as $row)
-                                                        <option value="{{ $row->id }}">{{ $row->name }}</option>
-                                                    @endforeach
-                                                @endif
 
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
-                                        <div class="form-group">
-                                            <label for="to_account_id" class="control-label">Transfer To</label>
-                                            <select class="form-control bSelect" name="to_account_id"
-                                                    v-model="to_account_id">
-                                                <option value="">Select One</option>
-                                                @foreach ($toChartOfAccounts as $row)
-                                                    <option value="{{ $row->id }}">{{ $row->name }}</option>
+                                <hr class="mt-1 mb-3">
+
+                                <div class="row align-items-end">
+                                    <div class="col-md-3">
+                                        <div class="form-group mb-2">
+                                            <label for="from_account_id">
+                                                Transfer From
+                                                <small class="text-muted" v-if="from_ac_balance !== ''">
+                                                    (Avail: @{{ formatMoney(from_ac_balance) }})
+                                                </small>
+                                            </label>
+                                            <select id="from_account_id" class="form-control select2" style="width:100%">
+                                                <option value="">Select account</option>
+                                                @foreach($fromAccounts as $account)
+                                                    <option value="{{ $account['id'] }}">{{ $account['name'] }}</option>
                                                 @endforeach
                                             </select>
+                                            @if(count($fromAccounts) === 0)
+                                                <small class="text-danger">No transferable from-accounts found.</small>
+                                            @endif
                                         </div>
                                     </div>
-                                    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
-                                        <div class="form-group">
+                                    <div class="col-md-3">
+                                        <div class="form-group mb-2">
+                                            <label for="to_account_id">Transfer To</label>
+                                            <select id="to_account_id" class="form-control select2" style="width:100%">
+                                                <option value="">Select account</option>
+                                                @foreach($toAccounts as $account)
+                                                    <option value="{{ $account['id'] }}">{{ $account['name'] }}</option>
+                                                @endforeach
+                                            </select>
+                                            @if(count($toAccounts) === 0)
+                                                <small class="text-danger">No transfer-to accounts found.</small>
+                                            @endif
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <div class="form-group mb-2">
                                             <label for="reference_no">Reference No</label>
-                                            <input type="text" class="form-control" id="reference_no"
-                                                   name="reference_no" placeholder="Enter Reference No"
-                                                   v-model="reference_no" @keyup.enter.prevent="data_input">
-                                            @if ($errors->has('reference_no'))
-                                                <small class="text-danger">{{ $errors->first('reference_no') }}</small>
-                                            @endif
+                                            <input type="text" id="reference_no" class="form-control"
+                                                   v-model.trim="reference_no"
+                                                   @keyup.enter.prevent="addLine"
+                                                   placeholder="Optional">
                                         </div>
                                     </div>
-                                    <div class="col-lg-2 col-md-2 col-sm-2 col-xs-12">
-                                        <div class="form-group">
-                                            <label for="amount">Amount</label>
-                                            <input type="number" class="form-control" id="amount"
-                                                   name="amount" placeholder="Enter Amount"
-                                                   v-model="amount" @keyup.enter.prevent="data_input">
-                                            @if ($errors->has('amount'))
-                                                <small class="text-danger">{{ $errors->first('amount') }}</small>
-                                            @endif
+                                    <div class="col-md-2">
+                                        <div class="form-group mb-2">
+                                            <label for="amount">Amount <span class="text-danger">*</span></label>
+                                            <input type="number" id="amount" class="form-control" min="0.01" step="0.01"
+                                                   v-model.number="amount"
+                                                   @keyup.enter.prevent="addLine"
+                                                   placeholder="0.00">
                                         </div>
                                     </div>
-                                    <div class="col-lg-1 col-md-1 col-sm-1 col-xs-12"
-                                         style="margin-top: 30px;">
-                                        <button type="button" class="btn btn-info btn-block"
-                                                @click="data_input">Add
-                                        </button>
+                                    <div class="col-md-2">
+                                        <div class="form-group mb-2">
+                                            <button type="button" class="btn btn-info btn-block" @click="addLine"
+                                                    :disabled="pageLoading">
+                                                <i class="fas fa-plus"></i> Add
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="row">
-                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
 
-                                        <hr>
-                                        <div class="table-responsive">
-                                            <table class="table table-bordered">
-                                                <thead class="bg-secondary">
-                                                <tr>
-                                                    <th style="width: 5%">#</th>
-                                                    <th style="width: 20%">Transfer From</th>
-                                                    <th style="width: 20%">Transfer To</th>
-                                                    <th style="width: 30%">Reference No</th>
-                                                    <th style="width: 20%">Amount</th>
-                                                    <th style="width: 5%"></th>
-                                                </tr>
-                                                </thead>
-                                                <tbody>
-                                                <tr v-for="(row, index) in selected_items">
-                                                    <td>
-                                                        @{{ ++index }}
-                                                    </td>
-                                                    <td>
-                                                        @{{ row.from_account_name }}
-                                                        <input type="hidden"
-                                                               :name="'products['+index+'][credit_account_id]'"
-                                                               class="form-control input-sm"
-                                                               v-bind:value="row.from_account_id">
-
-                                                    </td>
-                                                    <td>
-                                                        @{{ row.to_account_name }}
-                                                        <input type="hidden"
-                                                               :name="'products['+index+'][debit_account_id]'"
-                                                               class="form-control input-sm"
-                                                               v-bind:value="row.to_account_id">
-                                                    </td>
-                                                    <td>
-                                                        @{{ row.reference_no }}
-                                                        <input type="hidden" v-model="row.reference_no"
-                                                               :name="'products['+index+'][reference_no]'"
-                                                               class="form-control input-sm"
-                                                               required>
-                                                    </td>
-
-                                                    <td>
-                                                        @{{ row.amount }}
-                                                        <input type="hidden" v-model="row.amount"
-                                                               :name="'products['+index+'][amount]'"
-                                                               class="form-control input-sm"
-                                                               required>
-                                                    </td>
-
-                                                    <td>
-                                                        <button type="button" class="btn btn-sm btn-danger"
-                                                                @click="delete_row(row)"><i
-                                                                class="fa fa-trash"></i></button>
-                                                    </td>
-                                                </tr>
-                                                </tbody>
-                                                <tfoot>
-                                                <tr>
-                                                    <td colspan="6" style="background-color: #DDDCDC">
-
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td colspan="3">
-
-                                                    </td>
-                                                    <td>
-                                                        Subtotal
-                                                    </td>
-                                                    <td>
-                                                        <input type="text" class="form-control input-sm"
-                                                               name="subtotal" v-bind:value="subtotal"
-                                                               readonly>
-                                                    </td>
-                                                    <td></td>
-                                                </tr>
-                                                <tfoot>
-                                            </table>
-                                        </div>
-                                    </div>
+                                <div class="table-responsive mt-2">
+                                    <table class="table table-bordered table-sm mb-0">
+                                        <thead class="thead-light">
+                                        <tr>
+                                            <th style="width:5%">#</th>
+                                            <th>Transfer From</th>
+                                            <th>Transfer To</th>
+                                            <th>Reference</th>
+                                            <th class="text-right" style="width:18%">Amount</th>
+                                            <th style="width:5%"></th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr v-if="selected_items.length === 0">
+                                            <td colspan="6" class="text-center text-muted py-3">
+                                                No lines added yet
+                                            </td>
+                                        </tr>
+                                        <tr v-for="(row, index) in selected_items" :key="row._key">
+                                            <td>@{{ index + 1 }}</td>
+                                            <td>
+                                                @{{ row.from_account_name }}
+                                                <input type="hidden"
+                                                       :name="'products[' + index + '][credit_account_id]'"
+                                                       :value="row.from_account_id">
+                                            </td>
+                                            <td>
+                                                @{{ row.to_account_name }}
+                                                <input type="hidden"
+                                                       :name="'products[' + index + '][debit_account_id]'"
+                                                       :value="row.to_account_id">
+                                            </td>
+                                            <td>
+                                                @{{ row.reference_no || '—' }}
+                                                <input type="hidden"
+                                                       :name="'products[' + index + '][reference_no]'"
+                                                       :value="row.reference_no">
+                                            </td>
+                                            <td class="text-right font-weight-bold">
+                                                @{{ formatMoney(row.amount) }}
+                                                <input type="hidden"
+                                                       :name="'products[' + index + '][amount]'"
+                                                       :value="row.amount">
+                                            </td>
+                                            <td class="text-center">
+                                                <button type="button" class="btn btn-xs btn-danger"
+                                                        @click="removeLine(index)" title="Remove">
+                                                    <i class="fa fa-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        </tbody>
+                                        <tfoot v-if="selected_items.length > 0">
+                                        <tr>
+                                            <td colspan="4" class="text-right font-weight-bold">Subtotal</td>
+                                            <td class="text-right font-weight-bold">
+                                                @{{ formatMoney(subtotal) }}
+                                                <input type="hidden" name="subtotal" :value="subtotal">
+                                            </td>
+                                            <td></td>
+                                        </tr>
+                                        </tfoot>
+                                    </table>
                                 </div>
                             </div>
-                            <div class="card-footer erp-save-bar" v-if="selected_items.length > 0">
-                                <button class="float-right btn btn-primary" type="submit"><i
-                                        class="fa fa-fw fa-lg fa-check-circle"></i>Submit
+
+                            <div class="card-footer text-right" v-show="selected_items.length > 0">
+                                <button class="btn btn-primary" type="submit" :disabled="submitting">
+                                    <i class="fa fa-check-circle"></i>
+                                    <span v-if="!submitting">Submit</span>
+                                    <span v-else>Submitting...</span>
                                 </button>
                             </div>
                         </div>
                     </form>
-                </div> <!-- end col -->
+                </div>
             </div>
-            <!-- /.row -->
-        </div><!-- /.container-fluid -->
+        </div>
     </section>
-    <!-- /.content -->
 @endsection
-@section('css')
 
-@endsection
 @push('style')
     <style>
-        .pageLoader {
+        .ftv-loader {
             position: absolute;
-            top: 50%;
-            right: 40%;
+            top: 40%;
+            left: 50%;
             transform: translate(-50%, -50%);
-            color: red;
-            z-index: 999;
+            z-index: 20;
         }
-
-        input[placeholder="Select date"] {
-            display: block;
-            width: 100%;
-            height: calc(2.25rem + 2px);
-            padding: .375rem .75rem;
-            font-size: 1rem;
-            font-weight: 400;
-            line-height: 1.5;
-            color: #495057;
-            background-color: #fff;
-            background-clip: padding-box;
-            border: 1px solid #ced4da;
-            border-radius: .25rem;
-            box-shadow: inset 0 0 0 transparent;
-            transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
-        }
+        #ftv_create_app { position: relative; min-height: 200px; }
     </style>
-
-    <link rel="stylesheet" href="{{ asset('vue-js/bootstrap-select/dist/css/bootstrap-select.min.css') }}">
 @endpush
-@section('js')
 
-@endsection
 @push('script')
     <script src="{{ asset('vue-js/vue/dist/vue.js') }}"></script>
     <script src="{{ asset('vue-js/axios/dist/axios.min.js') }}"></script>
-    <script src="{{ asset('vue-js/bootstrap-select/dist/js/bootstrap-select.min.js') }}"></script>
-    <script src="https://cms.diu.ac/vue/vuejs-datepicker.min.js"></script>
     <script>
-        $(document).ready(function () {
+        $(function () {
+            const balanceUrl = @json(url('fetch-from-account-balance'));
 
-            var vue = new Vue({
-                el: '#vue_app',
+            function bindSelect2(vm) {
+                const $from = $('#from_account_id');
+                const $to = $('#to_account_id');
+
+                if (!$.fn.select2) {
+                    setTimeout(function () { bindSelect2(vm); }, 50);
+                    return;
+                }
+
+                // Re-init safely (global layout may also init .select2)
+                if ($from.hasClass('select2-hidden-accessible')) {
+                    $from.select2('destroy');
+                }
+                if ($to.hasClass('select2-hidden-accessible')) {
+                    $to.select2('destroy');
+                }
+
+                $from.select2({ width: '100%', placeholder: 'Select account', allowClear: true });
+                $to.select2({ width: '100%', placeholder: 'Select account', allowClear: true });
+
+                $from.off('change.ftv').on('change.ftv', function () {
+                    vm.from_account_id = this.value || '';
+                    vm.fetchFromBalance();
+                });
+                $to.off('change.ftv').on('change.ftv', function () {
+                    vm.to_account_id = this.value || '';
+                });
+            }
+
+            new Vue({
+                el: '#ftv_create_app',
                 data: {
-                    config: {
-                        get_item_info_url: "{{ url('fetch-account-info') }}",
-                        get_from_account_balance_data: "{{ url('fetch-from-account-balance') }}"
-                    },
-                    date: new Date(),
+                    date: @json(now()->toDateString()),
                     from_account_id: '',
                     to_account_id: '',
                     reference_no: '',
                     amount: '',
+                    from_ac_balance: '',
                     selected_items: [],
                     pageLoading: false,
-                    uid: "22",
-                    store_id: '',
-                    from_ac_balance: ''
-                },
-                components: {
-                    vuejsDatepicker
+                    submitting: false,
+                    lineKey: 0,
                 },
                 computed: {
-
-                    subtotal: function () {
-                        return this.selected_items.reduce((total, item) => {
-                            return total + parseFloat(item.amount)
-                        }, 0)
-                    }
+                    subtotal() {
+                        return this.selected_items.reduce((sum, row) => sum + (parseFloat(row.amount) || 0), 0);
+                    },
+                },
+                mounted() {
+                    bindSelect2(this);
                 },
                 methods: {
+                    formatMoney(value) {
+                        const n = parseFloat(value);
+                        if (isNaN(n)) return '0.00';
+                        return n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                    },
                     fetchFromBalance() {
                         const vm = this;
-                        const from_account_id = vm.from_account_id;
+                        if (!vm.from_account_id) {
+                            vm.from_ac_balance = '';
+                            return;
+                        }
                         vm.pageLoading = true;
-                        axios.get(this.config.get_from_account_balance_data + '/' + from_account_id).then(function (response) {
-                            vm.from_ac_balance = response.data.from_ac_balance;
-                            console.log(response.data.from_ac_balance);
-                            vm.pageLoading = false;
-                        })
-
+                        axios.get(balanceUrl + '/' + vm.from_account_id)
+                            .then(function (response) {
+                                vm.from_ac_balance = response.data.from_ac_balance;
+                            })
+                            .catch(function () {
+                                vm.from_ac_balance = '';
+                                toastr.error('Unable to fetch account balance');
+                            })
+                            .finally(function () {
+                                vm.pageLoading = false;
+                            });
                     },
+                    resetLineInputs() {
+                        this.from_account_id = '';
+                        this.to_account_id = '';
+                        this.reference_no = '';
+                        this.amount = '';
+                        this.from_ac_balance = '';
+                        $('#from_account_id').val('').trigger('change');
+                        $('#to_account_id').val('').trigger('change');
+                    },
+                    addLine() {
+                        const fromId = String(this.from_account_id || $('#from_account_id').val() || '');
+                        const toId = String(this.to_account_id || $('#to_account_id').val() || '');
+                        const amount = parseFloat(this.amount);
 
-                    data_input() {
-
-                        let vm = this;
-                        if (vm.from_account_id === vm.to_account_id) {
-                            toastr.error('Please Select Different Account', {
-                                closeButton: true,
-                                progressBar: true,
-                            });
-                            return false;
-                        } else {
-                            if ((vm.from_ac_balance < vm.amount) || (vm.amount < 1)) {
-                                toastr.error('Please Valid amount Input', {
-                                    closeButton: true,
-                                    progressBar: true,
-                                });
-                                return false;
-                            }
-                            let slug = vm.from_account_id;
-                            let exists = vm.selected_items.some(function (field) {
-                               return field.from_account_id == slug
-                            });
-                            if (exists) {
-                                toastr.info('Item Already Selected', {
-                                    closeButton: true,
-                                    progressBar: true,
-                                });
-                                return
-                            }
-                            let to_account_id=vm.to_account_id
-
-                            if (slug) {
-                                vm.pageLoading = true;
-                                axios.get(this.config.get_item_info_url + '/' + slug, {
-                                    params: {
-                                        from_account_id: vm.from_account_id,
-                                        to_account_id: vm.to_account_id
-                                    }
-                                }).then(function (response) {
-                                    let item_info = response.data;
-                                    console.log(item_info);
-                                    vm.selected_items.push({
-                                        id: item_info.id,
-                                        from_account_id: item_info.from_account_id,
-                                        from_account_name: item_info.from_account_name,
-                                        to_account_id: item_info.to_account_id,
-                                        to_account_name: item_info.to_account_name,
-                                        amount: vm.amount,
-                                        reference_no: vm.reference_no,
-                                    });
-                                    console.log(vm.selected_items);
-                                    vm.from_account_id = '';
-                                    vm.to_account_id = '';
-                                    vm.reference_no = '';
-                                    vm.amount = '';
-                                    vm.pageLoading = false;
-
-                                }).catch(function (error) {
-
-                                    toastr.error('Something went to wrong', {
-                                        closeButton: true,
-                                        progressBar: true,
-                                    });
-
-                                    return false;
-
-                                });
-                            }
-
-
+                        if (!fromId || !toId) {
+                            toastr.error('Please select Transfer From and Transfer To');
+                            return;
+                        }
+                        if (fromId === toId) {
+                            toastr.error('Transfer From and Transfer To must be different');
+                            return;
+                        }
+                        if (!amount || amount <= 0) {
+                            toastr.error('Please enter a valid amount');
+                            return;
+                        }
+                        if (this.from_ac_balance !== '' && amount > parseFloat(this.from_ac_balance)) {
+                            toastr.error('Amount exceeds available balance');
+                            return;
+                        }
+                        if (this.selected_items.some(row => String(row.from_account_id) === fromId)) {
+                            toastr.info('This Transfer From account is already added');
+                            return;
                         }
 
+                        const fromName = $('#from_account_id option:selected').text().trim();
+                        const toName = $('#to_account_id option:selected').text().trim();
+
+                        this.selected_items.push({
+                            _key: ++this.lineKey,
+                            from_account_id: fromId,
+                            from_account_name: fromName,
+                            to_account_id: toId,
+                            to_account_name: toName,
+                            reference_no: this.reference_no || '',
+                            amount: amount,
+                        });
+
+                        this.resetLineInputs();
                     },
-                    delete_row: function (row) {
-                        this.selected_items.splice(this.selected_items.indexOf(row), 1);
+                    removeLine(index) {
+                        this.selected_items.splice(index, 1);
+                    },
+                    onSubmit(e) {
+                        if (this.selected_items.length < 1) {
+                            e.preventDefault();
+                            toastr.error('Please add at least one transfer line');
+                            return;
+                        }
+                        if (this.submitting) {
+                            e.preventDefault();
+                            return;
+                        }
+                        this.submitting = true;
                     },
                 },
-
-                updated() {
-                    $('.bSelect').selectpicker('refresh');
-                }
-
-            });
-
-            $('.bSelect').selectpicker({
-                liveSearch: true,
-                size: 5
             });
         });
     </script>

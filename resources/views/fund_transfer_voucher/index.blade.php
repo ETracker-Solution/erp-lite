@@ -25,7 +25,7 @@
                                     <input type="text" id="fp-range"
                                            class="form-control flatpickr-range"
                                            placeholder="YYYY-MM-DD to YYYY-MM-DD" name="date_range"
-                                           value="{{ now()->startOfMonth()->format('Y-m-d') . ' to ' . now()->format('Y-m-d') }}"/>
+                                           value="{{ now()->subMonths(36)->format('Y-m-d') . ' to ' . now()->format('Y-m-d') }}"/>
                                 </div>
                                 @can('accounts-ft-voucher-filter')
                                     <div class="form-group col-md-3">
@@ -182,15 +182,16 @@
             if (sessionStorage.getItem('to_account_id')) {
                 $('select[name="to_account_id"]').val(sessionStorage.getItem('to_account_id'));
             }
-            if (sessionStorage.getItem('date_range')) {
-                $('input[name="date_range"]').val(sessionStorage.getItem('date_range'));
-            }
+            // Always use a wide default — stale sessionStorage / DataTables state was showing an empty month.
+            const defaultDateRange = @json(now()->subMonths(36)->format('Y-m-d') . ' to ' . now()->format('Y-m-d'));
+            sessionStorage.setItem('date_range', defaultDateRange);
+            $('input[name="date_range"]').val(defaultDateRange);
             if ($.fn.select2) {
                 $('.select2').select2({width: '100%'});
             }
 
             $('#ftvTable').dataTable({
-                stateSave: true,
+                stateSave: false,
                 responsive: true,
                 serverSide: true,
                 processing: true,

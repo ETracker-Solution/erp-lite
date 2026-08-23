@@ -2,9 +2,9 @@
     <form action="{{route('fund-transfer-vouchers.destroy', encrypt($row->id))}}" method="post">
         <input type="hidden" name="_method" value="DELETE">
         @csrf
-        @if($row->status == 'pending' && auth()->user()->employee->user_of != 'outlet')
+        @if($row->status == 'pending' && (auth()->user()->employee->user_of ?? null) != 'outlet')
             <a href="{{ route('fund-transfer-vouchers.receive', encrypt($row->id)) }}" class="btn btn-xs btn-secondary receive-ftv-btn">
-                <i class="fas fa-thumps-up">
+                <i class="fas fa-thumbs-up">
                 </i> Receive
             </a>
         @endif

@@ -37,6 +37,9 @@ class FundTransferVoucherController extends Controller
 
             return DataTables::eloquent($fundTransferVouchers)
                 ->addIndexColumn()
+                ->editColumn('uid', function ($row) {
+                    return ($row->uid !== null && $row->uid !== '') ? $row->uid : $row->id;
+                })
                 ->editColumn('status', function ($row) {
                     $class = $row->status === 'received' ? 'success' : 'warning';
 
@@ -126,22 +129,27 @@ class FundTransferVoucherController extends Controller
         $officeAccountsMissing = false;
 
         if (auth()->user()?->employee?->outlet_id) {
-            $chartOfAccounts = OutletAccount::query()
+            $fromAccounts = OutletAccount::query()
                 ->with(['coa:id,name,default_type'])
                 ->whereHas('coa', function ($coa) {
                     transferableOutletCoaConstraint($coa);
                 })
                 ->where('outlet_id', auth()->user()->employee->outlet_id)
                 ->where('status', 'active')
-                ->get(['id', 'outlet_id', 'coa_id']);
+                ->get(['id', 'outlet_id', 'coa_id'])
+                ->filter(fn ($row) => $row->coa)
+                ->map(fn ($row) => ['id' => $row->coa->id, 'name' => $row->coa->name])
+                ->values();
 
-            $toChartOfAccounts = officeAccountQuery()
+            $toAccounts = officeAccountQuery()
                 ->select('id', 'name')
                 ->orderBy('name')
-                ->get();
-            $officeAccountsMissing = $toChartOfAccounts->isEmpty();
+                ->get()
+                ->map(fn ($row) => ['id' => $row->id, 'name' => $row->name])
+                ->values();
+            $officeAccountsMissing = $toAccounts->isEmpty();
         } else {
-            $chartOfAccounts = ChartOfAccount::query()
+            $fromAccounts = ChartOfAccount::query()
                 ->where([
                     'is_bank_cash' => 'yes',
                     'type' => 'ledger',
@@ -149,9 +157,11 @@ class FundTransferVoucherController extends Controller
                 ])
                 ->select('id', 'name')
                 ->orderBy('name')
-                ->get();
+                ->get()
+                ->map(fn ($row) => ['id' => $row->id, 'name' => $row->name])
+                ->values();
 
-            $toChartOfAccounts = ChartOfAccount::query()
+            $toAccounts = ChartOfAccount::query()
                 ->where('type', 'ledger')
                 ->where('status', 'active')
                 ->where(function ($q) {
@@ -160,10 +170,12 @@ class FundTransferVoucherController extends Controller
                 })
                 ->select('id', 'name')
                 ->orderBy('name')
-                ->get();
+                ->get()
+                ->map(fn ($row) => ['id' => $row->id, 'name' => $row->name])
+                ->values();
         }
 
-        return view('fund_transfer_voucher.create', compact('chartOfAccounts', 'toChartOfAccounts', 'officeAccountsMissing'));
+        return view('fund_transfer_voucher.create', compact('fromAccounts', 'toAccounts', 'officeAccountsMissing'));
     }
 
     /**
@@ -234,7 +246,14 @@ class FundTransferVoucherController extends Controller
      */
     public function show($id)
     {
-        $fundTransferVoucher = FundTransferVoucher::findOrFail(decrypt($id));
+        $fundTransferVoucher = FundTransferVoucher::query()
+            ->with([
+                'creditAccount:id,name',
+                'debitAccount:id,name',
+                'createdBy:id,name',
+            ])
+            ->findOrFail(decrypt($id));
+
         return view('fund_transfer_voucher.show', compact('fundTransferVoucher'));
     }
 
@@ -380,14 +399,16 @@ class FundTransferVoucherController extends Controller
     {
         $fundTransferVoucher = FundTransferVoucher::query()
             ->select([
-                'id', 'uid', 'date', 'amount', 'status',
-                'credit_account_id', 'debit_account_id',
+                'id', 'uid', 'date', 'amount', 'status', 'narration',
+                'credit_account_id', 'debit_account_id', 'created_by', 'created_at',
             ])
             ->with([
                 'creditAccount:id,name',
                 'debitAccount:id,name',
             ]);
 
+        // Outlet users only see vouchers touching their outlet COAs.
+        // Admin / HO (no outlet_id) sees all vouchers.
         if (auth()->user()?->employee?->outlet_id) {
             $coas = is_array($coas) ? $coas : [];
             if (empty($coas)) {
@@ -413,7 +434,15 @@ class FundTransferVoucherController extends Controller
             $fundTransferVoucher->where('debit_account_id', request()->to_account_id);
         }
 
-        $this->applyVoucherDateRange($fundTransferVoucher);
+        if (request()->filled('date_range')) {
+            // Do not clampReportDateRange here — 366-day clamp was hiding older FTV rows for admin.
+            searchColumnByDateRange($fundTransferVoucher, 'date');
+        } else {
+            $fundTransferVoucher->whereBetween('date', [
+                now()->subMonths(36)->toDateString(),
+                now()->toDateString(),
+            ]);
+        }
 
         return $fundTransferVoucher->latest('id');
     }
@@ -421,10 +450,11 @@ class FundTransferVoucherController extends Controller
     private function applyVoucherDateRange($query, string $column = 'date')
     {
         if (request()->filled('date_range')) {
+            // Reports can use a wider window than the shared 366-day clamp.
             [$from, $to] = getDatesArrayFromDateRange(request('date_range'));
-            [$from, $to] = clampReportDateRange(sanitizeReportDate($from), sanitizeReportDate($to));
+            [$from, $to] = clampReportDateRange(sanitizeReportDate($from), sanitizeReportDate($to), 1100);
         } else {
-            $from = now()->startOfMonth()->toDateString();
+            $from = now()->subMonths(36)->toDateString();
             $to = now()->toDateString();
         }
 
