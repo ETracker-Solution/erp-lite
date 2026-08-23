@@ -233,23 +233,59 @@ function generateUniqueUUID($outlet_or_factory_id, $model, $column_name, $is_fac
     }
 
     $nameWithDate = $acronym . date('ym');
-    // Prefix match (not leading %) so invoice_number indexes can be used.
-    $lastCode = $model::where($column_name, 'like', $nameWithDate . '%')->orderBy($column_name, 'DESC')->first();
-    if ($lastCode) {
-        $last3Digits = (int)(substr($lastCode->$column_name, -$length)) + 1;
-    } else {
-        $last3Digits = 001;
+    if (!preg_match('/^[A-Za-z0-9_]+$/', (string) $column_name)) {
+        throw new InvalidArgumentException('Invalid document number column.');
     }
-    $code = $acronym . date('ym') . str_pad($last3Digits, $length, 0, STR_PAD_LEFT);
 
-    // Avoid rare collisions under concurrent POS checkouts without a recursive LIKE scan.
-    $attempts = 0;
-    while ($model::where($column_name, $code)->exists() && $attempts < 20) {
-        $last3Digits++;
-        $code = $acronym . date('ym') . str_pad($last3Digits, $length, 0, STR_PAD_LEFT);
-        $attempts++;
+    // Named lock (not row lock): works even when this outlet/month has no rows yet.
+    // Held until the surrounding DB transaction commits so the sale insert is visible
+    // before the next checkout reads the max suffix.
+    $lockName = substr('dn_' . md5($model . '|' . $column_name . '|' . $nameWithDate), 0, 64);
+    $gotLock = (int) (DB::selectOne('SELECT GET_LOCK(?, 8) AS got', [$lockName])->got ?? 0);
+    if ($gotLock !== 1) {
+        throw new RuntimeException('Could not generate document number. Please retry.');
     }
-    return $code;
+
+    $releaseLock = static function () use ($lockName) {
+        DB::selectOne('SELECT RELEASE_LOCK(?) AS got', [$lockName]);
+    };
+
+    try {
+        $seqStart = strlen($nameWithDate) + 1;
+        $lastCode = $model::query()
+            ->where($column_name, 'like', $nameWithDate . '%')
+            ->orderByRaw("CAST(SUBSTRING(`{$column_name}`, {$seqStart}) AS UNSIGNED) DESC")
+            ->value($column_name);
+
+        $next = 1;
+        if ($lastCode) {
+            $next = ((int) substr((string) $lastCode, strlen($nameWithDate))) + 1;
+        }
+        // Truncated VARCHAR(20) values (e.g. CT-Bashundhara-26089) parse as suffix 9.
+        // If many rows share that stub, keep counting past the real invoice volume.
+        $rowCount = $model::query()->where($column_name, 'like', $nameWithDate . '%')->count();
+        $next = max($next, $rowCount + 1);
+
+        $code = $nameWithDate . str_pad((string) $next, $length, '0', STR_PAD_LEFT);
+
+        $attempts = 0;
+        while ($model::where($column_name, $code)->exists() && $attempts < 20) {
+            $next++;
+            $code = $nameWithDate . str_pad((string) $next, $length, '0', STR_PAD_LEFT);
+            $attempts++;
+        }
+
+        if (DB::transactionLevel() > 0) {
+            DB::afterCommit($releaseLock);
+        } else {
+            $releaseLock();
+        }
+
+        return $code;
+    } catch (\Throwable $e) {
+        $releaseLock();
+        throw $e;
+    }
 }
 
 function getRequisitionQty($requisition_id, $product_id)

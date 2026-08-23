@@ -88,7 +88,6 @@ class SalesDeliveryController extends Controller
                 ->get(),
             'delivery_points' => Outlet::select('id', 'name')->get(),
             'user_store' => $user_store,
-            'invoice_number' => $user_store ? $this->generateInvoiceNumber($user_store->id) : 'Please Select Store First',
         ];
 
         return view('sales_delivery.create', $data);
@@ -116,12 +115,6 @@ class SalesDeliveryController extends Controller
         $sales = $query->latest()->limit(50)->get();
 
         return response()->json($sales);
-    }
-
-    private function generateInvoiceNumber($storeId)
-    {
-        // Your invoice generation logic here
-        return 'INV-' . date('Ymd') . '-' . str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT);
     }
 
     /**

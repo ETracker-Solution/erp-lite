@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Classes\InvoiceNumber;
 use App\Http\Requests\StoreCustomerRequest;
 use App\Http\Requests\UpdateCustomerRequest;
 use App\Models\ChartOfInventory;
@@ -622,7 +621,7 @@ class POSController extends Controller
 
             $orderData = $request->order_data;
             $order = new PreOrder();
-            $order->order_number = $request->invoice_number ?? InvoiceNumber::generateOrderNumber($outlet_id, $selectedDate);
+            $order->order_number = generateUniqueUUID($outlet_id, PreOrder::class, 'order_number');
             $order->order_date = $selectedDate;
             $order->subtotal = $request->sub_total;
             $order->discount = $request->discount;

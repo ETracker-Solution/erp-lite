@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Classes\InvoiceNumber;
-use App\Classes\PreOrderNumber;
 use App\Http\Requests\StoreSaleRequest;
 use App\Http\Requests\UpdateSaleRequest;
 use App\Models\AccountTransaction;
@@ -89,12 +87,6 @@ class SaleController extends Controller
                 $outlet_id = $user_store->doc_id;
                 $serial_no = generateUniqueUUID($outlet_id, Sale::class, 'invoice_number');
             }
-//            else {
-//
-//                Toastr::success('You are not allowed to create sales!.', '', ["progressBar" => true]);
-//                return redirect()->route('sales.index');
-//            }
-            // $serial_no = InvoiceNumber::generateInvoiceNumber(\auth()->user()->employee->outlet_id);
         }
         $data = [
             'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'FG','status'=>'active'])->get(),
@@ -151,7 +143,6 @@ class SaleController extends Controller
 
             $sale = new Sale();
             $sale->invoice_number = generateUniqueUUID($outlet_id, Sale::class, 'invoice_number');
-            // $sale->invoice_number = $request->invoice_number ?? InvoiceNumber::generateInvoiceNumber($outlet_id, $selectedDate);
             $sale->subtotal = 0;
             $sale->discount = $request->discount ?? 0;
             $sale->grand_total = 0;
