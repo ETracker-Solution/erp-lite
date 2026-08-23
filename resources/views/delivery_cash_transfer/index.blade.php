@@ -104,6 +104,12 @@
                     title: "Amount",
                     searchable: false
                 },
+                {
+                    data: "status",
+                    title: "Status",
+                    searchable: false,
+                    orderable: false
+                },
                 // {
                 //     data: "created_at",
                 //     title: "Created At",

@@ -1,85 +1,140 @@
 @extends('layouts.app')
 
 @section('title', 'Journal Voucher Details')
-@section('content')
-@push('style')
 
-@endpush
-@php
-    $links = [
-    'Home'=>route('dashboard'),
-    'Accounts Module'=>'',
-    'General Accounts'=>'',
-    'Journal Voucher Details'=>'',
-    ]
+@section('content')
+    @php
+        $links = [
+            'Home' => route('dashboard'),
+            'Accounts Module' => '',
+            'General Accounts' => '',
+            'Journal Voucher' => route('journal-vouchers.index'),
+            'Details' => '',
+        ];
+        $amountFmt = number_format((float) $journalVoucher->amount, 2);
+        $voucherDate = $journalVoucher->date;
+        if ($voucherDate instanceof \Carbon\CarbonInterface) {
+            $voucherDate = $voucherDate->format('d M Y');
+        }
     @endphp
-    <x-breadcrumb title='Journal Voucher Details' :links="$links"/>
-     <!-- Basic Inputs start -->
-     <section class="content">
+    <x-breadcrumb title="Journal Voucher" :links="$links"/>
+
+    <section class="content">
         <div class="container-fluid">
             <div class="row">
-                <div class="col-md-12">
+                <div class="col-lg-10 offset-lg-1">
                     <div class="card card-info">
                         <div class="card-header">
-                            <h4 class="card-title">Journal Voucher Details</h4>
+                            <h3 class="card-title mb-0">
+                                Journal Voucher
+                                <span class="ml-2 font-weight-normal">{{ $journalVoucher->uid ?: ('#'.$journalVoucher->id) }}</span>
+                            </h3>
                             <div class="card-tools">
-                                <a href="{{route('journal-vouchers.index')}}">
-                                    <button class="btn btn-sm btn-primary"><i class="fa fa-list" aria-hidden="true"></i>
-                                        &nbsp;See List
-                                    </button>
+                                <a href="{{ route('journal-vouchers.index') }}" class="btn btn-sm btn-primary">
+                                    <i class="fa fa-list"></i> List
                                 </a>
-                                <a href="{{ route('journal-voucher.pdf', encrypt($journalVoucher->id)) }}" class="btn btn-sm btn-primary" target="_blank"><i class="fa fa-download"></i> PDF</a>
+                                <a href="{{ route('journal-vouchers.edit', encrypt($journalVoucher->id)) }}" class="btn btn-sm btn-info">
+                                    <i class="fa fa-pencil-alt"></i> Edit
+                                </a>
+                                <a href="{{ route('journal-voucher.pdf', encrypt($journalVoucher->id)) }}"
+                                   class="btn btn-sm btn-secondary" target="_blank" rel="noopener">
+                                    <i class="fa fa-download"></i> PDF
+                                </a>
                             </div>
                         </div>
+
                         <div class="card-body">
-                            <table class="table table-bordered">
-                                <thead>
+                            <div class="row mb-3">
+                                <div class="col-md-3">
+                                    <div class="small text-muted text-uppercase">Voucher No</div>
+                                    <div class="font-weight-bold" style="font-size:1.15rem;">
+                                        {{ $journalVoucher->uid ?: ('#'.$journalVoucher->id) }}
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="small text-muted text-uppercase">Voucher Date</div>
+                                    <div class="font-weight-bold">{{ $voucherDate ?: '—' }}</div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="small text-muted text-uppercase">Reference No</div>
+                                    <div class="font-weight-bold">{{ $journalVoucher->reference_no ?: '—' }}</div>
+                                </div>
+                                <div class="col-md-3 text-md-right">
+                                    <div class="small text-muted text-uppercase">Amount</div>
+                                    <div class="font-weight-bold text-success" style="font-size:1.4rem;">
+                                        {{ $amountFmt }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="table-responsive">
+                                <table class="table table-bordered mb-2">
+                                    <thead class="thead-light">
                                     <tr>
-                                        <th><strong>Date :</strong></th>
-                                        <td>{{ $journalVoucher->date }}</td>
+                                        <th style="width:8%">#</th>
+                                        <th>Particulars (Account)</th>
+                                        <th class="text-right" style="width:18%">Debit</th>
+                                        <th class="text-right" style="width:18%">Credit</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr>
+                                        <td>1</td>
+                                        <td>
+                                            <div class="font-weight-bold">{{ $journalVoucher->debitAccount->name ?? '—' }}</div>
+                                            <small class="text-muted">Dr — Debit Account</small>
+                                        </td>
+                                        <td class="text-right font-weight-bold">{{ $amountFmt }}</td>
+                                        <td class="text-right text-muted">—</td>
                                     </tr>
                                     <tr>
-                                        <th><strong>JV No :</strong></th>
-                                        <td>{{ $journalVoucher->uid }}</td>
+                                        <td>2</td>
+                                        <td>
+                                            <div class="font-weight-bold">{{ $journalVoucher->creditAccount->name ?? '—' }}</div>
+                                            <small class="text-muted">Cr — Credit Account</small>
+                                        </td>
+                                        <td class="text-right text-muted">—</td>
+                                        <td class="text-right font-weight-bold">{{ $amountFmt }}</td>
                                     </tr>
-                                    <tr>
-                                        <th><strong>Debit Account  :</strong></th>
-                                        <td>{{ $journalVoucher->debitAccount->name }}</td>
+                                    </tbody>
+                                    <tfoot>
+                                    <tr class="bg-light">
+                                        <th colspan="2" class="text-right">Total</th>
+                                        <th class="text-right">{{ $amountFmt }}</th>
+                                        <th class="text-right">{{ $amountFmt }}</th>
                                     </tr>
-                                    <tr>
-                                        <th><strong>Credit Account  :</strong></th>
-                                        <td>{{ $journalVoucher->creditAccount->name }}</td>
-                                    </tr>
-                                    <tr>
-                                        <th><strong>Amount :</strong></th>
-                                        <td>{{ $journalVoucher->amount }}</td>
-                                    </tr>
-                                    <tr>
-                                        <th><strong>Description :</strong></th>
-                                        <td>{{ $journalVoucher->narration }}</td>
-                                    </tr>
-                                    <tr>
-                                        <th><strong>Referance :</strong></th>
-                                        <td>{{ $journalVoucher->reference_no }}</td>
-                                    </tr>
-                                    
-                                </thead>
-                            </table>
+                                    </tfoot>
+                                </table>
+                            </div>
+
+                            <div class="mb-3">
+                                <div class="small text-muted text-uppercase">Amount in Words</div>
+                                <div class="font-italic">{{ $journalVoucher->amountInWords() }}</div>
+                            </div>
+
+                            <div class="mb-4">
+                                <div class="small text-muted text-uppercase">Narration</div>
+                                <div>{{ $journalVoucher->narration ?: '—' }}</div>
+                            </div>
+
+                            <div class="row text-center mt-5 pt-3" style="border-top:1px dashed #dee2e6;">
+                                <div class="col-4">
+                                    <div style="border-top:1px solid #333; margin:3rem auto 0.35rem; width:80%;"></div>
+                                    <small class="text-muted">Prepared By</small>
+                                </div>
+                                <div class="col-4">
+                                    <div style="border-top:1px solid #333; margin:3rem auto 0.35rem; width:80%;"></div>
+                                    <small class="text-muted">Checked By</small>
+                                </div>
+                                <div class="col-4">
+                                    <div style="border-top:1px solid #333; margin:3rem auto 0.35rem; width:80%;"></div>
+                                    <small class="text-muted">Approved By</small>
+                                </div>
+                            </div>
                         </div>
-                        {{-- adjust modal --}}
-                        
                     </div>
-                    
                 </div>
             </div>
         </div>
     </section>
-    <!-- Basic Inputs end -->
-
-@endsection
-@section('css')
-
-@endsection
-@section('js')
-
 @endsection

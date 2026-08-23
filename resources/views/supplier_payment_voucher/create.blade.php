@@ -1,381 +1,294 @@
 @extends('layouts.app')
+
 @section('title', 'Supplier Payment Voucher Entry')
+
 @section('content')
     @php
         $links = [
             'Home' => route('dashboard'),
-            'Accounts Module'=>'',
-            'General Accounts'=>'',
-            'Supplier Payment Voucher Entry' => '',
+            'Accounts Module' => '',
+            'General Accounts' => '',
+            'Supplier Payment Voucher' => route('supplier-vouchers.index'),
+            'Create' => '',
         ];
     @endphp
-    <x-breadcrumb title='Supplier Payment Voucher' :links="$links"/>
-    <!-- Basic Inputs start -->
+    <x-breadcrumb title="Supplier Payment Voucher" :links="$links"/>
+
     <section class="content">
-        <div class="container-fluid" id="vue_app">
-            <span v-if="pageLoading" class="pageLoader">
+        <div class="container-fluid" id="spv_create_app">
+            <span v-show="pageLoading" class="pageLoader">
                 <img src="{{ asset('loading.gif') }}" alt="loading">
             </span>
             <div class="row">
-                <div class="col-md-12">
-                    <div class="card card-info">
-                        <div class="card-header">
-                            <h4 class="card-title">Supplier Payment</h4>
-                            <div class="card-tools">
-                                <a href="{{route('supplier-vouchers.index')}}">
-                                    <button class="btn btn-sm btn-primary"><i class="fa fa-list" aria-hidden="true"></i>
-                                        &nbsp;See List
-                                    </button>
-                                </a>
+                <div class="col-lg-10 offset-lg-1">
+                    <form action="{{ route('supplier-vouchers.store') }}" method="POST" class="prevent-enter-submit">
+                        @csrf
+                        <div class="card card-info">
+                            <div class="card-header">
+                                <h3 class="card-title mb-0">New Supplier Payment Voucher</h3>
+                                <div class="card-tools">
+                                    <a href="{{ route('supplier-vouchers.index') }}" class="btn btn-sm btn-primary">
+                                        <i class="fa fa-list"></i> List
+                                    </a>
+                                </div>
+                            </div>
+
+                            <div class="card-body">
+                                <p class="text-muted small mb-3">
+                                    Supplier payment: <strong>Accounts Payable (Dr)</strong> and
+                                    <strong>Cash/Bank payment account (Cr)</strong>.
+                                </p>
+
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="uid">SPV No <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control" id="uid" name="uid"
+                                                   v-model="uid" readonly>
+                                            @error('uid')
+                                                <small class="text-danger">{{ $message }}</small>
+                                            @enderror
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="date">Date <span class="text-danger">*</span></label>
+                                            <input type="date" class="form-control" id="date" name="date"
+                                                   value="{{ old('date', date('Y-m-d')) }}" required>
+                                            @error('date')
+                                                <small class="text-danger">{{ $message }}</small>
+                                            @enderror
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="due">Due Amount</label>
+                                            <input type="number" class="form-control" id="due"
+                                                   v-model="due" readonly placeholder="0.00">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <hr class="mt-1 mb-3">
+
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="supplier_group_id">
+                                                Supplier Group <span class="text-danger">*</span>
+                                            </label>
+                                            <select id="supplier_group_id" class="form-control"
+                                                    v-model="supplier_group_id"
+                                                    @change="fetchSupplier" required>
+                                                <option value="">Select group</option>
+                                                @foreach ($supplier_groups as $row)
+                                                    <option value="{{ $row->id }}">{{ $row->name }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="supplier_id">
+                                                Supplier <span class="text-danger">*</span>
+                                            </label>
+                                            <select name="supplier_id" id="supplier_id" class="form-control"
+                                                    v-model="supplier_id" @change="fetchDue" required>
+                                                <option value="">Select supplier</option>
+                                                <option v-for="row in suppliers" :key="row.id"
+                                                        :value="row.id" v-text="row.name"></option>
+                                            </select>
+                                            @error('supplier_id')
+                                                <small class="text-danger">{{ $message }}</small>
+                                            @enderror
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="credit_account_id">
+                                                Payment Account (Cr)
+                                                <small class="text-muted">Cash / Bank</small>
+                                                <span class="text-danger">*</span>
+                                            </label>
+                                            <select class="form-control select2" name="credit_account_id"
+                                                    id="credit_account_id" style="width:100%" required>
+                                                <option value="">Select payment account</option>
+                                                @foreach ($paymentAccounts as $row)
+                                                    <option value="{{ $row->id }}"
+                                                        {{ (string) old('credit_account_id') === (string) $row->id ? 'selected' : '' }}>
+                                                        {{ $row->name }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                            @error('credit_account_id')
+                                                <small class="text-danger">{{ $message }}</small>
+                                            @enderror
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="amount">Payment Amount <span class="text-danger">*</span></label>
+                                            <input type="number" class="form-control" id="amount" name="amount"
+                                                   min="0.01" step="0.01" placeholder="0.00"
+                                                   v-model="amount" @change="validAmount" required>
+                                            @error('amount')
+                                                <small class="text-danger">{{ $message }}</small>
+                                            @enderror
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="payee_name">Paid To <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control" id="payee_name" name="payee_name"
+                                                   placeholder="Person / party name"
+                                                   value="{{ old('payee_name') }}" required>
+                                            @error('payee_name')
+                                                <small class="text-danger">{{ $message }}</small>
+                                            @enderror
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="reference_no">Reference No</label>
+                                            <input type="text" class="form-control" id="reference_no" name="reference_no"
+                                                   placeholder="Optional"
+                                                   value="{{ old('reference_no') }}">
+                                            @error('reference_no')
+                                                <small class="text-danger">{{ $message }}</small>
+                                            @enderror
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group mb-0">
+                                    <label for="narration">Narration</label>
+                                    <textarea class="form-control" name="narration" id="narration" rows="3"
+                                              placeholder="Optional description">{{ old('narration') }}</textarea>
+                                    @error('narration')
+                                        <small class="text-danger">{{ $message }}</small>
+                                    @enderror
+                                </div>
+                            </div>
+
+                            <div class="card-footer text-right">
+                                <a href="{{ route('supplier-vouchers.index') }}" class="btn btn-default">Cancel</a>
+                                <button type="submit" class="btn btn-info">
+                                    <i class="fa fa-save"></i> Save Voucher
+                                </button>
                             </div>
                         </div>
-                    </div>
-                    <form action="{{ route('supplier-vouchers.store') }}" method="POST" class="prevent-enter-submit"
-                          enctype="multipart/form-data">
-                        @csrf
-                        {{-- <div class="card card-info">
-                            <div class="card-header">
-                                <h4 class="card-title">Supplier Information</h4>
-                            </div>
-                            <hr style="margin: 0;"> --}}
-                            <div class="card-body">
-                                <div class="col-md-12">
-                                    <div class="card">
-                                        <div class="card-body">
-                                            <div class="row">
-                                                <div class="col-xl-4 col-md-4 col-12">
-                                                    <div class="form-group">
-                                                        <label for="uid">SPV No</label>
-                                                        <input type="number" class="form-control"
-                                                               v-model="uid" id="uid"
-                                                               name="uid" placeholder="Enter SPV No"
-                                                               value="{{ old('uid') }}" readonly>
-                                                        @if ($errors->has('uid'))
-                                                            <small
-                                                                class="text-danger">{{ $errors->first('uid') }}</small>
-                                                        @endif
-                                                    </div>
-                                                </div>
-
-                                                <div class="col-xl-4 col-md-4 col-12">
-                                                    <div class="form-group">
-                                                        <label for="supplier_id">Group</label>
-                                                        <select name="supplier_group_id"
-                                                                id="supplier_group_id"
-                                                                class="form-control bSelect"
-                                                                v-model="supplier_group_id"
-                                                                @change="fetch_supplier">
-                                                            <option value="">Select Group</option>
-                                                            @foreach($supplier_groups as $row)
-                                                                <option
-                                                                    value="{{ $row->id }}">{{ $row->name }}</option>
-                                                            @endforeach
-                                                        </select>
-                                                    </div>
-                                                </div>
-                                                <div class="col-xl-4 col-md-4 col-12">
-                                                    <div class="form-group">
-                                                        <label for="supplier_id">Supplier</label>
-                                                        <select name="supplier_id" id="supplier_id"
-                                                                class="form-control bSelect"
-                                                                v-model="supplier_id"
-                                                                @change="fetch_due">
-                                                            <option value="">Select Supplier</option>
-                                                            <option :value="row.id"
-                                                                    v-for="row in suppliers"
-                                                                    v-html="row.name">
-                                                            </option>
-
-                                                        </select>
-                                                    </div>
-                                                </div>
-
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        {{-- </div> --}}
-                        {{-- <div class="card card-info">
-                            <div class="card-header">
-                                <h4 class="card-title">Payment Information</h4>
-                            </div> --}}
-                            <hr style="margin: 0;">
-                            <div class="card-body">
-                                <div class="col-md-12">
-                                    <div class="card">
-                                        <div class="card-body">
-
-                                            <div class="row">
-                                                <div class="col-md-6">
-                                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                                        <div class="form-group">
-                                                            <label for="date">Date</label>
-                                                            <vuejs-datepicker v-model="date" name="date"
-                                                                              placeholder="Select date"
-                                                                              format="yyyy-MM-dd"></vuejs-datepicker>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-xl-12 col-md-12 col-12">
-                                                        <div class="form-group">
-                                                            <label for="credit_account_id">Payment
-                                                                Account</label>
-                                                            <select class="form-control select2"
-                                                                    name="credit_account_id"
-                                                                    id="credit_account_id">
-                                                                <option value="">---Select Account---</option>
-                                                                @foreach ($paymentAccounts as $row)
-                                                                    <option
-                                                                        value="{{ $row->id }}" {{ old('credit_account_id') == $row->id ? 'selected' : '' }}>{{ $row->name }}
-                                                                    </option>
-                                                                @endforeach
-                                                            </select>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <div class="col-xl-12 col-md-12 col-12">
-                                                        <div class="form-group">
-                                                            <label for="due">Due Amount</label>
-                                                            <input type="number" class="form-control"
-                                                                   id="due"
-                                                                   v-model="due"
-                                                                   name="due" placeholder="Enter due" readonly>
-
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-xl-12 col-md-12 col-12">
-                                                        <div class="form-group">
-                                                            <label for="amount">Payment Amount</label>
-                                                            <input type="number" class="form-control"
-                                                                   id="amount"
-                                                                   v-model="amount"
-                                                                   name="amount" placeholder="Enter Amount"
-                                                                   value="{{ old('amount') }}" @change="valid_amount">
-                                                            @if ($errors->has('amount'))
-                                                                <small
-                                                                    class="text-danger">{{ $errors->first('amount') }}</small>
-                                                            @endif
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-xl-12 col-md-12 col-12">
-                                                        <div class="form-group">
-                                                            <label for="payee_name">Reciever Name</label>
-                                                            <input type="text" class="form-control"
-                                                                   id="payee_name"
-                                                                   name="payee_name"
-                                                                   placeholder="Enter Reciever Name"
-                                                                   value="{{ old('payee_name') }}">
-                                                            @if ($errors->has('payee_name'))
-                                                                <small
-                                                                    class="text-danger">{{ $errors->first('payee_name') }}</small>
-                                                            @endif
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-xl-12 col-md-12 col-12">
-                                                        <div class="form-group">
-                                                            <label for="reference_no">Reference No</label>
-                                                            <input type="text" class="form-control"
-                                                                   id="reference_no"
-                                                                   name="reference_no"
-                                                                   placeholder="Enter Reference No"
-                                                                   value="{{ old('reference_no') }}">
-                                                            @if ($errors->has('reference_no'))
-                                                                <small
-                                                                    class="text-danger">{{ $errors->first('reference_no') }}</small>
-                                                            @endif
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-xl-12 col-md-12 col-12">
-                                                        <div class="form-group">
-                                                            <label for="narration">Description</label>
-                                                            <textarea class="form-control" name="narration"
-                                                                      id="narration" cols="" rows="3"
-                                                                      placeholder="Enter Description">{{ old('narration') }}</textarea>
-                                                            @if ($errors->has('narration'))
-                                                                <small
-                                                                    class="text-danger">{{ $errors->first('narration') }}</small>
-                                                            @endif
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <button type="submit" class="float-right btn btn-info">Save
-                                </button>
-                            </div>
-                            {{-- <div class="card-footer">
-                                <button type="submit" class="float-right btn btn-info"><i class="fa fa-fw fa-lg fa-check-circle"></i>Submit
-                                </button>
-                            </div> --}}
-                        {{-- </div> --}}
                     </form>
                 </div>
             </div>
         </div>
     </section>
-    <!-- Basic Inputs end -->
-
 @endsection
-@section('css')
 
-@endsection
 @push('style')
     <style>
         .pageLoader {
             position: absolute;
-            top: 50%;
-            right: 40%;
+            top: 45%;
+            left: 50%;
             transform: translate(-50%, -50%);
-            color: red;
             z-index: 999;
         }
-
-        input[placeholder="Select date"] {
-            display: block;
-            width: 100%;
-            height: calc(2.25rem + 2px);
-            padding: .375rem .75rem;
-            font-size: 1rem;
-            font-weight: 400;
-            line-height: 1.5;
-            color: #495057;
-            background-color: #fff;
-            background-clip: padding-box;
-            border: 1px solid #ced4da;
-            border-radius: .25rem;
-            box-shadow: inset 0 0 0 transparent;
-            transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
-        }
     </style>
-
-    <link rel="stylesheet" href="{{ asset('vue-js/bootstrap-select/dist/css/bootstrap-select.min.css') }}">
 @endpush
-@section('js')
 
-@endsection
-@push('script')
+@push('js_scripts')
     <script src="{{ asset('vue-js/vue/dist/vue.js') }}"></script>
     <script src="{{ asset('vue-js/axios/dist/axios.min.js') }}"></script>
-    <script src="{{ asset('vue-js/bootstrap-select/dist/js/bootstrap-select.min.js') }}"></script>
-    <script src="https://cms.diu.ac/vue/vuejs-datepicker.min.js"></script>
     <script>
-        $(document).ready(function () {
+        $(function () {
+            if ($.fn.select2) {
+                $('#credit_account_id').select2({
+                    width: '100%',
+                    placeholder: 'Select payment account',
+                    allowClear: true
+                });
+            }
 
-            var vue = new Vue({
-                el: '#vue_app',
+            new Vue({
+                el: '#spv_create_app',
                 data: {
                     config: {
-
-                        get_suppliers_info_by_group_id_url: "{{ url('fetch-suppliers-by-group-id') }}",
-                        get_due_by_supplier_id_url: "{{ url('fetch-due-by-supplier-id') }}",
+                        getSuppliersUrl: "{{ url('fetch-suppliers-by-group-id') }}",
+                        getDueUrl: "{{ url('fetch-due-by-supplier-id') }}",
                     },
-                    date: new Date(),
-                    uid: {{$uid}},
+                    uid: @json((string) old('uid', $uid)),
                     supplier_group_id: '',
                     supplier_id: '',
-                    amount: '',
+                    amount: @json(old('amount', '')),
                     due: '',
                     suppliers: [],
                     pageLoading: false
                 },
-                components: {
-                    vuejsDatepicker
-                },
-                computed: {
-
-                    subtotal: function () {
-                        return this.selected_items.reduce((total, item) => {
-                            return total + item.quantity * item.rate
-                        }, 0)
-                    },
-
-                },
                 methods: {
-
-                    fetch_supplier() {
-
+                    fetchSupplier: function () {
                         var vm = this;
-
-                        var slug = vm.supplier_group_id;
-
-                        if (slug) {
-                            vm.pageLoading = true;
-                            axios.get(this.config.get_suppliers_info_by_group_id_url + '/' + slug).then(function (response) {
-
-                                // vm.selected_items = response.data.products;
-                                vm.suppliers = response.data.suppliers;
-                                vm.pageLoading = false;
-                            }).catch(function (error) {
-
-                                toastr.error('Something went to wrong', {
-                                    closeButton: true,
-                                    progressBar: true,
-                                });
-
-                                return false;
-
-                            });
+                        if (!vm.supplier_group_id) {
+                            return;
                         }
-
+                        vm.pageLoading = true;
+                        vm.supplier_id = '';
+                        vm.due = '';
+                        axios.get(vm.config.getSuppliersUrl + '/' + vm.supplier_group_id)
+                            .then(function (response) {
+                                vm.suppliers = response.data.suppliers || [];
+                                vm.pageLoading = false;
+                            })
+                            .catch(function () {
+                                vm.pageLoading = false;
+                                toastr.error('Something went wrong', {
+                                    closeButton: true,
+                                    progressBar: true
+                                });
+                            });
                     },
-
-                    fetch_due() {
-
+                    fetchDue: function () {
                         var vm = this;
-
-                        var slug = vm.supplier_id;
-
-                        if (slug) {
-                            vm.pageLoading = true;
-                            axios.get(this.config.get_due_by_supplier_id_url + '/' + slug).then(function (response) {
-
-                                // vm.selected_items = response.data.products;
+                        if (!vm.supplier_id) {
+                            return;
+                        }
+                        vm.pageLoading = true;
+                        axios.get(vm.config.getDueUrl + '/' + vm.supplier_id)
+                            .then(function (response) {
                                 vm.due = response.data;
                                 vm.pageLoading = false;
-                            }).catch(function (error) {
-
-                                toastr.error('Something went to wrong', {
+                            })
+                            .catch(function () {
+                                vm.pageLoading = false;
+                                toastr.error('Something went wrong', {
                                     closeButton: true,
-                                    progressBar: true,
+                                    progressBar: true
                                 });
-
-                                return false;
-
                             });
-                        }
-
                     },
-                    valid_amount: function () {
+                    validAmount: function () {
                         var vm = this;
-                        if (vm.amount <= 0) {
-                            toastr.error('Quantity 0 or Negative not Allow', {
+                        var amount = parseFloat(vm.amount);
+                        var due = parseFloat(vm.due);
+                        if (!(amount > 0)) {
+                            toastr.error('Amount 0 or negative is not allowed', {
                                 closeButton: true,
-                                progressBar: true,
+                                progressBar: true
                             });
                             vm.amount = '';
+                            return;
                         }
-                        if (vm.amount > vm.due) {
-                            toastr.warning('Given Amount greater than Due Amount', {
+                        if (!isNaN(due) && amount > due) {
+                            toastr.warning('Given amount greater than due amount', {
                                 closeButton: true,
-                                progressBar: true,
+                                progressBar: true
                             });
-                            vm.amount = vm.due;
+                            vm.amount = due;
                         }
-                    },
-                },
-
-                updated() {
-                    $('.bSelect').selectpicker('refresh');
+                    }
                 }
-
-            });
-
-            $('.bSelect').selectpicker({
-                liveSearch: true,
-                size: 5
             });
         });
     </script>

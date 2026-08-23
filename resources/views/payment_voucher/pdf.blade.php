@@ -1,117 +1,122 @@
 <!DOCTYPE html>
 <html>
-
 <head>
-    <title>Payment Voucher </title>
-    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
+    <title>Payment Voucher</title>
     <style>
         @page {
             header: page-header;
             footer: page-footer;
         }
-        body{margin-top:20px;
-        background:#eee;
+
+        body {
+            font-size: 12px;
         }
 
-        /*Invoice*/
-        .invoice .top-left {
-            font-size:65px;
-            color:#3ba0ff;
+        .meta td {
+            padding: 4px 0;
+            vertical-align: top;
         }
 
-        .invoice .top-right {
-            text-align:right;
-            padding-right:20px;
-        }
-        /* table tr, th, td{
-            padding-top:10px;
-        } */
-        @media(max-width:575px) {
-            .invoice .top-left,.invoice .top-right,.invoice .payment-details {
-                text-align:center;
-            }
-
-            .invoice .from,.invoice .to,.invoice .payment-details {
-                float:none;
-                width:100%;
-                text-align:center;
-                margin-bottom:25px;
-            }
-
-            .invoice p.lead,.invoice .from p.lead,.invoice .to p.lead,.invoice .payment-details p.lead {
-                font-size:22px;
-            }
-
-            .invoice .btn {
-                margin-top:10px;
-            }
+        .entries {
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 12px;
         }
 
-        @media print {
-            .invoice {
-                width:900px;
-                height:800px;
-            }
+        .entries th,
+        .entries td {
+            border: 1px solid #333;
+            padding: 6px 8px;
+        }
+
+        .entries th {
+            background: #f0f0f0;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .muted {
+            color: #555;
+            font-size: 10px;
         }
     </style>
 </head>
-
 <body>
-    <div class="invoice-ribbon">
-        @include('common.pdf_header')
-    </div>
-    <p style="text-align:center;  font-size: 20px;">Payment Voucher</p>
-    <hr>
-    <table width="100%" style="text-align: center;">
-        <thead>
-            <tr>
-                <td style="text-align: left; padding-left:35px;"><strong>PV No. </strong><span style="border-bottom:1px solid gray; width:20px;">{{ $paymentVoucher->uid }}</span></td>
-                <th style="text-align: left; padding-right:-20px;"><strong>Date : </strong>{{ $paymentVoucher->date }}</th>
-            </tr>
-            <tr>
-                <th style="text-align: left; padding-left:35px;"><strong>Debit Account  :</strong></th>
-                <td style="text-align: left; padding-right:-20px;">{{ $paymentVoucher->debitAccount->name }}</td>
-            </tr>
-            <tr>
-                <th style="text-align: left; padding-left:35px;"><strong>Payment Account  :</strong></th>
-                <td style="text-align: left; padding-right:-20px;">{{ $paymentVoucher->cashBankAccount->name }}</td>
-            </tr>
-            <tr>
-                <th style="text-align: left; padding-left:35px;"><strong>Amount :</strong></th>
-                <td style="text-align: left; padding-right:-20px;">{{ $paymentVoucher->amount }}</td>
-            </tr>
-            <tr>
-                <th style="text-align: left; padding-left:35px;"><strong>Description :</strong></th>
-                <td style="text-align: left; padding-right:-20px;">{{ $paymentVoucher->narration }}</td>
-            </tr>
-            <tr>
-                <th style="text-align: left; padding-left:35px;"><strong>Referance :</strong></th>
-                <td style="text-align: left; padding-right:-20px;">{{ $paymentVoucher->reference_no }}</td>
-            </tr>
+@php
+    $amountFmt = number_format((float) $paymentVoucher->amount, 2);
+@endphp
+<div>
+    @include('common.pdf_header')
+</div>
 
-        </thead>
+<p style="text-align:center; font-size:18px; margin:8px 0 4px;"><strong>Payment Voucher</strong></p>
+<p style="text-align:center; margin:0 0 10px;">{{ $paymentVoucher->uid ?: ('#'.$paymentVoucher->id) }}</p>
+<hr>
+
+<table width="100%" class="meta">
+    <tr>
+        <td width="50%"><strong>Date:</strong> {{ $paymentVoucher->date }}</td>
+        <td width="50%"><strong>Amount:</strong> {{ $amountFmt }}</td>
+    </tr>
+    <tr>
+        <td><strong>Paid To:</strong> {{ $paymentVoucher->payee_name ?: '—' }}</td>
+        <td><strong>Reference:</strong> {{ $paymentVoucher->reference_no ?: '—' }}</td>
+    </tr>
+</table>
+
+<table class="entries">
+    <thead>
+    <tr>
+        <th width="8%" style="text-align:center;">#</th>
+        <th>Particulars</th>
+        <th width="18%" class="text-right">Debit</th>
+        <th width="18%" class="text-right">Credit</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td style="text-align:center;">1</td>
+        <td>
+            {{ $paymentVoucher->debitAccount->name ?? '—' }}
+            <div class="muted">Dr — Debit Account (Expense / Payable)</div>
+        </td>
+        <td class="text-right">{{ $amountFmt }}</td>
+        <td class="text-right">—</td>
+    </tr>
+    <tr>
+        <td style="text-align:center;">2</td>
+        <td>
+            {{ $paymentVoucher->cashBankAccount->name ?? '—' }}
+            <div class="muted">Cr — Payment Account (Cash / Bank)</div>
+        </td>
+        <td class="text-right">—</td>
+        <td class="text-right">{{ $amountFmt }}</td>
+    </tr>
+    <tr>
+        <th colspan="2" class="text-right">Total</th>
+        <th class="text-right">{{ $amountFmt }}</th>
+        <th class="text-right">{{ $amountFmt }}</th>
+    </tr>
+    </tbody>
+</table>
+
+<p style="margin-top:12px;"><strong>Amount in Words:</strong> {{ $paymentVoucher->amountInWords() }}</p>
+<p><strong>Narration:</strong> {{ $paymentVoucher->narration ?: '—' }}</p>
+
+<htmlpagefooter name="page-footer">
+    <table width="100%" style="margin-top:30px;">
+        <tr>
+            <td style="text-align:left; width:33%;"><span style="border-top:1px solid #000;">Prepared By</span></td>
+            <td style="text-align:center; width:33%;"><span style="border-top:1px solid #000;">Checked By</span></td>
+            <td style="text-align:right; width:33%;"><span style="border-top:1px solid #000;">Approved By</span></td>
+        </tr>
     </table>
-    <htmlpagefooter name="page-footer">
-
-        <table width="100%">
-            <tbody>
-                <tr>
-                    <td style="text-align: left;"><span style="border-top: 1px solid hsl(0, 0%, 2%);">Showroom Incharge :</span> </td>
-                    <td style="text-align: right;"><span style="border-top: 1px solid hsl(0, 0%, 2%);">Accounts :</span> </td>
-                </tr>
-            </tbody>
-        </table>
-        <hr>
-
-        @php
-            $date = new DateTime('now', new DateTimezone('Asia/Dhaka'));
-        @endphp
-        <br>
-        <strong style="font-size: 8px">
-            Printing Time:- {{ $date->format('F j, Y, g:i a') }}
-        </strong>
-        <br>
-    </htmlpagefooter>
+    <hr>
+    <strong style="font-size:9px;">
+        Printing Time:- {{ now('Asia/Dhaka')->format('F j, Y, g:i a') }}
+    </strong>
+</htmlpagefooter>
 </body>
-
 </html>

@@ -46,16 +46,17 @@ class PaymentVoucherController extends Controller
      */
     public function create()
     {
-        $creditAccounts = ChartOfAccount::where(['is_bank_cash' => 'yes', 'type' => 'ledger', 'status' => 'active'])->get();
-        $debitAccounts = ChartOfAccount::where(['is_bank_cash' => 'no', 'type' => 'ledger', 'status' => 'active'])->get();
-        $lastValue = PaymentVoucher::latest()->pluck('uid')->first();
-        if ($lastValue !== null) {
-            $PVno = (int)$lastValue + 1;
-        } else {
-            $PVno = 1; // Set the default value to 1
-        }
-        return view('payment_voucher.create', compact('debitAccounts', 'creditAccounts', 'PVno'));
+        $creditAccounts = ChartOfAccount::query()
+            ->where(['is_bank_cash' => 'yes', 'type' => 'ledger', 'status' => 'active'])
+            ->orderBy('name')
+            ->get(['id', 'name']);
+        $debitAccounts = ChartOfAccount::query()
+            ->where(['is_bank_cash' => 'no', 'type' => 'ledger', 'status' => 'active'])
+            ->orderBy('name')
+            ->get(['id', 'name']);
+        $PVno = PaymentVoucher::nextUid();
 
+        return view('payment_voucher.create', compact('debitAccounts', 'creditAccounts', 'PVno'));
     }
 
     /**
@@ -90,7 +91,9 @@ class PaymentVoucherController extends Controller
      */
     public function show($id)
     {
-        $paymentVoucher = PaymentVoucher::findOrFail(decrypt($id));
+        $paymentVoucher = PaymentVoucher::with(['debitAccount', 'cashBankAccount'])
+            ->findOrFail(decrypt($id));
+
         return view('payment_voucher.show', compact('paymentVoucher'));
     }
 
@@ -102,10 +105,17 @@ class PaymentVoucherController extends Controller
      */
     public function edit($id)
     {
-        $creditAccounts = ChartOfAccount::where(['is_bank_cash' => 'yes', 'type' => 'ledger', 'status' => 'active'])->get();
-        $debitAccounts = ChartOfAccount::where(['is_bank_cash' => 'no', 'type' => 'ledger', 'status' => 'active'])->get();
+        $creditAccounts = ChartOfAccount::query()
+            ->where(['is_bank_cash' => 'yes', 'type' => 'ledger', 'status' => 'active'])
+            ->orderBy('name')
+            ->get(['id', 'name']);
+        $debitAccounts = ChartOfAccount::query()
+            ->where(['is_bank_cash' => 'no', 'type' => 'ledger', 'status' => 'active'])
+            ->orderBy('name')
+            ->get(['id', 'name']);
         $paymentVoucher = PaymentVoucher::findOrFail(decrypt($id));
-        return view('payment_voucher.edit', compact('paymentVoucher','creditAccounts','debitAccounts'));
+
+        return view('payment_voucher.edit', compact('paymentVoucher', 'creditAccounts', 'debitAccounts'));
     }
 
     /**
@@ -144,8 +154,9 @@ class PaymentVoucherController extends Controller
     {
         DB::beginTransaction();
         try {
-            PaymentVoucher::findOrFail(decrypt($id))->delete();
-            AccountTransaction::where(['doc_type' => 'PV', 'doc_id' => decrypt($id)])->delete();
+            $voucherId = decrypt($id);
+            PaymentVoucher::findOrFail($voucherId)->delete();
+            AccountTransaction::where(['doc_type' => 'PV', 'doc_id' => $voucherId])->delete();
             DB::commit();
         } catch (\Exception $error) {
             DB::rollBack();
@@ -158,36 +169,23 @@ class PaymentVoucherController extends Controller
 
     public function Pdf($id)
     {
-        $paymentVoucher = PaymentVoucher::findOrFail(decrypt($id));
-        $data = [
-            'paymentVoucher' => $paymentVoucher,
-        ];
+        $paymentVoucher = PaymentVoucher::with(['debitAccount', 'cashBankAccount'])
+            ->findOrFail(decrypt($id));
 
         $pdf = PDF::loadView(
             'payment_voucher.pdf',
-            $data,
+            compact('paymentVoucher'),
             [],
             [
                 'format' => 'A4-P',
                 'orientation' => 'P',
-                'margin-left' => 1,
-
-                '', // mode - default ''
-                '', // format - A4, for example, default ''
-                0, // font size - default 0
-                '', // default font family
-                1, // margin_left
-                1, // margin right
-                1, // margin top
-                1, // margin bottom
-                1, // margin header
-                1, // margin footer
-                'L', // L - landscape, P - portrait
-
+                'margin_left' => 1,
+                'margin_right' => 1,
+                'margin_top' => 1,
+                'margin_bottom' => 1,
             ]
         );
-        $name = \Carbon\Carbon::now()->format('d-m-Y');
 
-        return $pdf->stream($name . '.pdf');
+        return $pdf->stream('PV-' . ($paymentVoucher->uid ?: $paymentVoucher->id) . '.pdf');
     }
 }

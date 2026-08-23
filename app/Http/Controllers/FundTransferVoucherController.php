@@ -326,8 +326,9 @@ class FundTransferVoucherController extends Controller
     {
         DB::beginTransaction();
         try {
-            FundTransferVoucher::findOrFail(decrypt($id))->delete();
-            AccountTransaction::where('doc_type', 'FTV')->where('doc_id', decrypt($id))->delete();
+            $voucherId = decrypt($id);
+            FundTransferVoucher::findOrFail($voucherId)->delete();
+            AccountTransaction::where('doc_type', 'FTV')->where('doc_id', $voucherId)->delete();
             DB::commit();
         } catch (\Exception $error) {
             DB::rollBack();

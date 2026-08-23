@@ -31,13 +31,19 @@ class DeliveryCashTransferController extends Controller
             }
             return DataTables::of($dcTransfers)
                 ->addIndexColumn()
+                ->editColumn('status', function ($row) {
+                    $class = $row->status === 'received' ? 'success' : 'warning';
+
+                    return '<span class="badge badge-' . $class . '">' . ucfirst($row->status) . '</span>';
+                })
+                ->editColumn('amount', fn ($row) => number_format((float) $row->amount, 2))
                 ->addColumn('action', function ($row) {
                     return view('delivery_cash_transfer.action-button', compact('row'));
                 })
                 ->addColumn('created_at', function ($row) {
                     return view('common.created_at', compact('row'));
                 })
-                ->rawColumns(['action'])
+                ->rawColumns(['action', 'status'])
                 ->make(true);
         }
         return view('delivery_cash_transfer.index');
@@ -98,7 +104,6 @@ class DeliveryCashTransferController extends Controller
             DB::commit();
         } catch (\Exception $error) {
             DB::rollBack();
-            return $error;
             Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
             return back();
         }
@@ -111,7 +116,12 @@ class DeliveryCashTransferController extends Controller
      */
     public function show($id)
     {
-        $deliveryCashTransfer = DeliveryCashTransfer::with('otherOutlet')->findOrFail(decrypt($id));
+        $deliveryCashTransfer = DeliveryCashTransfer::with([
+            'otherOutlet',
+            'creditAccount',
+            'debitAccount',
+        ])->findOrFail(decrypt($id));
+
         return view('delivery_cash_transfer.show', compact('deliveryCashTransfer'));
     }
 

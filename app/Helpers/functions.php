@@ -112,6 +112,49 @@ function getNextId($model)
     return $item ? (int)$item->uid + 1 : 1;
 }
 
+/**
+ * Next voucher UID like PREFIX:MM-YYYY-#### (e.g. PV:08-2026-0001).
+ *
+ * @param  class-string<\Illuminate\Database\Eloquent\Model>  $modelClass
+ */
+function nextVoucherUid(string $modelClass, string $prefix, ?\DateTimeInterface $date = null): string
+{
+    $date = $date
+        ? \Carbon\Carbon::instance(\DateTimeImmutable::createFromInterface($date))
+        : now();
+    $monthPrefix = sprintf('%s:%s-%s-', $prefix, $date->format('m'), $date->format('Y'));
+
+    $latest = $modelClass::query()
+        ->where('uid', 'like', $monthPrefix . '%')
+        ->orderByDesc('id')
+        ->value('uid');
+
+    $seq = 1;
+    if ($latest && preg_match('/(\d+)$/', $latest, $matches)) {
+        $seq = ((int) $matches[1]) + 1;
+    }
+
+    return $monthPrefix . str_pad((string) $seq, 4, '0', STR_PAD_LEFT);
+}
+
+function amountInWords(float $amount): string
+{
+    if (!class_exists(\NumberFormatter::class)) {
+        return number_format($amount, 2) . ' Only';
+    }
+
+    $formatter = new \NumberFormatter('en', \NumberFormatter::SPELLOUT);
+    $taka = (int) floor($amount);
+    $paisa = (int) round(($amount - $taka) * 100);
+
+    $words = ucwords($formatter->format($taka)) . ' Taka';
+    if ($paisa > 0) {
+        $words .= ' and ' . ucwords($formatter->format($paisa)) . ' Paisa';
+    }
+
+    return $words . ' Only';
+}
+
 function getAllPermissions()
 {
     return \Spatie\Permission\Models\Permission::pluck('name');

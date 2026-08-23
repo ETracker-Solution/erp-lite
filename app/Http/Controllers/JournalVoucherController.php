@@ -46,15 +46,13 @@ class JournalVoucherController extends Controller
      */
     public function create()
     {
+        $chartOfAccounts = ChartOfAccount::query()
+            ->where(['type' => 'ledger', 'status' => 'active'])
+            ->orderBy('name')
+            ->get(['id', 'name']);
+        $JVno = JournalVoucher::nextUid();
 
-        $chartOfAccounts = ChartOfAccount::where(['type' => 'ledger', 'status' => 'active'])->get();
-        $lastValue = JournalVoucher::latest()->pluck('uid')->first();
-        if ($lastValue !== null) {
-            $JVno = (int)$lastValue + 1;
-        } else {
-            $JVno = 1; // Set the default value to 1
-        }
-        return view('journal_voucher.create', compact('chartOfAccounts','JVno'));
+        return view('journal_voucher.create', compact('chartOfAccounts', 'JVno'));
     }
 
     /**
@@ -89,7 +87,9 @@ class JournalVoucherController extends Controller
      */
     public function show($id)
     {
-        $journalVoucher = JournalVoucher::findOrFail(decrypt($id));
+        $journalVoucher = JournalVoucher::with(['debitAccount', 'creditAccount'])
+            ->findOrFail(decrypt($id));
+
         return view('journal_voucher.show', compact('journalVoucher'));
     }
 
@@ -101,9 +101,13 @@ class JournalVoucherController extends Controller
      */
     public function edit($id)
     {
-        $chartOfAccounts = ChartOfAccount::where(['type' => 'ledger', 'status' => 'active'])->get();
+        $chartOfAccounts = ChartOfAccount::query()
+            ->where(['type' => 'ledger', 'status' => 'active'])
+            ->orderBy('name')
+            ->get(['id', 'name']);
         $journalVoucher = JournalVoucher::findOrFail(decrypt($id));
-        return view('journal_voucher.edit', compact('journalVoucher','chartOfAccounts'));
+
+        return view('journal_voucher.edit', compact('journalVoucher', 'chartOfAccounts'));
     }
 
     /**
@@ -142,8 +146,9 @@ class JournalVoucherController extends Controller
     {
         DB::beginTransaction();
         try {
-            JournalVoucher::findOrFail(decrypt($id))->delete();
-            AccountTransaction::where('doc_type','JV')->where('doc_id',decrypt($id))->delete();
+            $voucherId = decrypt($id);
+            JournalVoucher::findOrFail($voucherId)->delete();
+            AccountTransaction::where('doc_type','JV')->where('doc_id',$voucherId)->delete();
             DB::commit();
         } catch (\Exception $error) {
             DB::rollBack();

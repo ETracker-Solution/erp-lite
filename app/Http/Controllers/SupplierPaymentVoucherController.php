@@ -43,11 +43,13 @@ class SupplierPaymentVoucherController extends Controller
      */
     public function create()
     {
-        $supplier_groups = SupplierGroup::where('status','active')->get();
-        $paymentAccounts = ChartOfAccount::where(['is_bank_cash' => 'yes', 'type' => 'ledger', 'status' => 'active'])->get();
+        $supplier_groups = SupplierGroup::where('status', 'active')->orderBy('name')->get(['id', 'name']);
+        $paymentAccounts = ChartOfAccount::query()
+            ->where(['is_bank_cash' => 'yes', 'type' => 'ledger', 'status' => 'active'])
+            ->orderBy('name')
+            ->get(['id', 'name']);
+        $uid = SupplierPaymentVoucher::nextUid();
 
-        $serial_count = SupplierPaymentVoucher::latest()->first() ? SupplierPaymentVoucher::latest()->first()->id : 0;
-        $uid = $serial_count + 1;
         return view('supplier_payment_voucher.create', compact('paymentAccounts', 'uid', 'supplier_groups'));
     }
 
@@ -88,7 +90,9 @@ class SupplierPaymentVoucherController extends Controller
      */
     public function show($id)
     {
-        $supplierVoucher = SupplierPaymentVoucher::findOrFail(decrypt($id));
+        $supplierVoucher = SupplierPaymentVoucher::with(['debitAccount', 'creditAccount', 'supplier'])
+            ->findOrFail(decrypt($id));
+
         return view('supplier_payment_voucher.show', compact('supplierVoucher'));
     }
 
@@ -115,9 +119,10 @@ class SupplierPaymentVoucherController extends Controller
     {
         DB::beginTransaction();
         try {
-            SupplierPaymentVoucher::findOrFail(decrypt($id))->delete();
-            AccountTransaction::where('doc_type', 'SPV')->where('doc_id', decrypt($id))->delete();
-            SupplierTransaction::where('doc_type', 'SPV')->where('doc_id', decrypt($id))->delete();
+            $voucherId = decrypt($id);
+            SupplierPaymentVoucher::findOrFail($voucherId)->delete();
+            AccountTransaction::where('doc_type', 'SPV')->where('doc_id', $voucherId)->delete();
+            SupplierTransaction::where('doc_type', 'SPV')->where('doc_id', $voucherId)->delete();
 
             DB::commit();
         } catch (\Exception $error) {

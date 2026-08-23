@@ -29,13 +29,19 @@ class DeliveryCashReceiveController extends Controller
             }
             return DataTables::of($dcTransfers)
                 ->addIndexColumn()
+                ->editColumn('status', function ($row) {
+                    $class = $row->status === 'received' ? 'success' : 'warning';
+
+                    return '<span class="badge badge-' . $class . '">' . ucfirst($row->status) . '</span>';
+                })
+                ->editColumn('amount', fn ($row) => number_format((float) $row->amount, 2))
                 ->addColumn('action', function ($row) {
                     return view('delivery_cash_receive.action-button', compact('row'));
                 })
                 ->addColumn('created_at', function ($row) {
                     return view('common.created_at', compact('row'));
                 })
-                ->rawColumns(['action'])
+                ->rawColumns(['action', 'status'])
                 ->make(true);
         }
         return view('delivery_cash_receive.index');
@@ -62,7 +68,12 @@ class DeliveryCashReceiveController extends Controller
      */
     public function show($id)
     {
-        $deliveryCashTransfer = DeliveryCashTransfer::with('otherOutlet')->findOrFail(decrypt($id));
+        $deliveryCashTransfer = DeliveryCashTransfer::with([
+            'otherOutlet',
+            'creditAccount',
+            'debitAccount',
+        ])->findOrFail(decrypt($id));
+
         return view('delivery_cash_receive.show', compact('deliveryCashTransfer'));
     }
 
@@ -77,20 +88,31 @@ class DeliveryCashReceiveController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, $id )
+    public function update(Request $request, $id)
     {
-        $deliveryCashTransfer = DeliveryCashTransfer::find(decrypt($id));
+        $deliveryCashTransfer = DeliveryCashTransfer::findOrFail(decrypt($id));
+
+        if ($deliveryCashTransfer->status === 'received') {
+            Toastr::info('Already received!.', '', ["progressBar" => true]);
+            return redirect()->route('delivery-cash-receives.index');
+        }
+
+        DB::beginTransaction();
         try {
-            if($deliveryCashTransfer->status !== 'received'){
-                addAccountsTransaction('DCT', $deliveryCashTransfer, $deliveryCashTransfer->debit_account_id, $deliveryCashTransfer->credit_account_id);
-                $deliveryCashTransfer->update([
-                    'status'=>'received'
-                ]);
-            }
-        }catch (\Exception $exception){
+            addAccountsTransaction(
+                'DCT',
+                $deliveryCashTransfer,
+                $deliveryCashTransfer->debit_account_id,
+                $deliveryCashTransfer->credit_account_id
+            );
+            $deliveryCashTransfer->update(['status' => 'received']);
+            DB::commit();
+        } catch (\Exception $exception) {
+            DB::rollBack();
             Toastr::error('Something went wrong!.', '', ["progressBar" => true]);
             return redirect()->route('delivery-cash-receives.index');
         }
+
         Toastr::success('Delivery Cash Received Successfully!.', '', ["progressBar" => true]);
         return redirect()->route('delivery-cash-receives.index');
     }

@@ -8,15 +8,31 @@ use Illuminate\Database\Eloquent\Model;
 class SupplierPaymentVoucher extends Model
 {
     use HasFactory;
+
     protected $guarded = ['id'];
 
-    public function creditAccount(){
-        return $this->belongsTo(ChartOfAccount::class,'credit_account_id','id');
+    public function creditAccount()
+    {
+        return $this->belongsTo(ChartOfAccount::class, 'credit_account_id', 'id');
     }
-    public function debitAccount(){
-        return $this->belongsTo(ChartOfAccount::class,'debit_account_id','id');
+
+    public function debitAccount()
+    {
+        return $this->belongsTo(ChartOfAccount::class, 'debit_account_id', 'id');
     }
-    public function supplier(){
+
+    public function supplier()
+    {
         return $this->belongsTo(Supplier::class);
+    }
+
+    public function amountInWords(): string
+    {
+        return amountInWords((float) $this->amount);
+    }
+
+    public static function nextUid(?\DateTimeInterface $date = null): string
+    {
+        return nextVoucherUid(self::class, 'DD', $date);
     }
 }
