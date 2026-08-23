@@ -65,6 +65,53 @@ Chart Of Accounts
                                     <x-forms.text label="Account Type" inputName="account_type" placeholder=""
                                                   :isRequired='false' :isReadonly='true' defaultValue=""/>
                                 </div>
+                                <div class="col-md-6 col-12">
+                                    <label>Bank / Cash</label>
+                                    <select name="is_bank_cash" class="form-control">
+                                        <option value="no">No</option>
+                                        <option value="yes">Yes</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 col-12">
+                                    <label>Default Type</label>
+                                    <select name="default_type" class="form-control">
+                                        <option value="">None</option>
+                                        <option value="payment_method">Payment Method (outlet / POS)</option>
+                                        <option value="office_account">Office Account (FT receive)</option>
+                                        <option value="petty_cash">Petty Cash</option>
+                                        <option value="accounts_receivable">Accounts Receivable</option>
+                                        <option value="accounts_payable">Accounts Payable</option>
+                                        <option value="sales">Sales</option>
+                                    </select>
+                                    <small class="text-muted">
+                                        Groups tagged <strong>Payment Method</strong> appear in outlet account sync automatically (no PHP edit).
+                                    </small>
+                                </div>
+                                <div class="col-12" id="paymentMethodFlags" hidden>
+                                    <div class="erp-chart__section-label mt-1">Payment method options</div>
+                                    <div class="custom-control custom-checkbox mb-1">
+                                        <input type="checkbox" class="custom-control-input" id="is_payment_method" name="is_payment_method" value="1">
+                                        <label class="custom-control-label" for="is_payment_method">
+                                            Use as outlet / POS payment method
+                                        </label>
+                                    </div>
+                                    <div class="custom-control custom-checkbox mb-1">
+                                        <input type="checkbox" class="custom-control-input" id="provision_everywhere" name="provision_everywhere" value="1">
+                                        <label class="custom-control-label" for="provision_everywhere">
+                                            Create ledgers for all outlets + office now
+                                        </label>
+                                    </div>
+                                    <div class="pl-3">
+                                        <div class="custom-control custom-checkbox mb-1">
+                                            <input type="checkbox" class="custom-control-input" id="provision_outlets" name="provision_outlets" value="1" checked>
+                                            <label class="custom-control-label" for="provision_outlets">All active outlets</label>
+                                        </div>
+                                        <div class="custom-control custom-checkbox mb-1">
+                                            <input type="checkbox" class="custom-control-input" id="provision_office" name="provision_office" value="1" checked>
+                                            <label class="custom-control-label" for="provision_office">Office ledger (<em>Method Office</em>)</label>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
                             <div class="row erp-chart__fields erp-chart__fields--add mt-2" id="addNewForm" hidden>
@@ -79,8 +126,34 @@ Chart Of Accounts
                                 </div>
                                 <div class="col-md-6 col-12">
                                     <x-forms.text label="Account Name" inputName="new_item_name"
-                                                  placeholder="Enter Account Name" :isRequired='false'
+                                                  placeholder="e.g. Shaj" :isRequired='false'
                                                   :isReadonly='false' defaultValue=""/>
+                                </div>
+                                <div class="col-12" id="newPaymentMethodFlags" hidden>
+                                    <div class="alert alert-light border mb-2 py-2">
+                                        <div class="custom-control custom-checkbox mb-1">
+                                            <input type="checkbox" class="custom-control-input" id="new_is_payment_method" value="1">
+                                            <label class="custom-control-label" for="new_is_payment_method">
+                                                Payment method group (auto-lists in outlet accounts / sync)
+                                            </label>
+                                        </div>
+                                        <div class="custom-control custom-checkbox mb-1">
+                                            <input type="checkbox" class="custom-control-input" id="new_provision_everywhere" value="1">
+                                            <label class="custom-control-label" for="new_provision_everywhere">
+                                                Also create ledgers for all outlets + office
+                                            </label>
+                                        </div>
+                                        <div class="pl-3">
+                                            <div class="custom-control custom-checkbox mb-1">
+                                                <input type="checkbox" class="custom-control-input" id="new_provision_outlets" value="1" checked>
+                                                <label class="custom-control-label" for="new_provision_outlets">All active outlets</label>
+                                            </div>
+                                            <div class="custom-control custom-checkbox mb-1">
+                                                <input type="checkbox" class="custom-control-input" id="new_provision_office" value="1" checked>
+                                                <label class="custom-control-label" for="new_provision_office">Office ledger (<em>Method Office</em>)</label>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -194,8 +267,56 @@ Chart Of Accounts
         let itemTypeInput = $("input[name=item_type]");
         let groupNameInput = $("input[name=group_name]");
         let accountTypeInput = $("input[name=account_type]");
+        let isBankCashInput = $("select[name=is_bank_cash]");
+        let defaultTypeInput = $("select[name=default_type]");
         let newItemNameInput = $("input[name=new_item_name]");
         let newItemTypeInput = $("select[name=new_item_type]");
+        let paymentMethodFlags = $('#paymentMethodFlags');
+        let newPaymentMethodFlags = $('#newPaymentMethodFlags');
+
+        function syncPaymentMethodUi(itemType, defaultType) {
+            const isGroup = itemType === 'group';
+            const isPayment = defaultType === 'payment_method' || $('#is_payment_method').is(':checked');
+            if (isGroup) {
+                makeVisible(paymentMethodFlags);
+                $('#is_payment_method').prop('checked', defaultType === 'payment_method');
+            } else {
+                makeHidden(paymentMethodFlags);
+                $('#is_payment_method').prop('checked', false);
+                $('#provision_everywhere').prop('checked', false);
+            }
+            if (isGroup && ($('#is_payment_method').is(':checked') || isPayment)) {
+                // keep provision options visible inside flags block
+            }
+        }
+
+        $('#is_payment_method').on('change', function () {
+            if ($(this).is(':checked')) {
+                setValue(defaultTypeInput, 'payment_method');
+                setValue(isBankCashInput, 'yes');
+            } else if (getValue(defaultTypeInput) === 'payment_method') {
+                setValue(defaultTypeInput, '');
+            }
+        });
+
+        defaultTypeInput.on('change', function () {
+            if (getValue(itemTypeInput) === 'group' && getValue(defaultTypeInput) === 'payment_method') {
+                $('#is_payment_method').prop('checked', true);
+                setValue(isBankCashInput, 'yes');
+            }
+        });
+
+        newItemTypeInput.on('change', function () {
+            if ($(this).val() === 'group') {
+                makeVisible(newPaymentMethodFlags);
+            } else {
+                makeHidden(newPaymentMethodFlags);
+                $('#new_is_payment_method').prop('checked', false);
+                $('#new_provision_everywhere').prop('checked', false);
+                $('#new_provision_outlets').prop('checked', true);
+                $('#new_provision_office').prop('checked', true);
+            }
+        });
 
         function makeHidden(element) {
             element.prop('hidden', true);
@@ -262,12 +383,15 @@ Chart Of Accounts
                     setValue(itemTypeInput, result.item_type);
                     setValue(groupNameInput, result.group_name);
                     setValue(accountTypeInput, result.account_type);
+                    setValue(isBankCashInput, result.is_bank_cash || 'no');
+                    setValue(defaultTypeInput, result.default_type || '');
                     itemNameInput.prop('disabled', false);
                     makeVisible(updateButton);
                     makeVisible(addButton);
                     makeVisible(deleteButton);
                     makeHidden(addNewDiv);
                     makeHidden(saveButton);
+                    syncPaymentMethodUi(result.item_type, result.default_type || '');
                     if (result.item_type === 'ledger') {
                         makeHidden(addButton);
                     }
@@ -299,7 +423,15 @@ Chart Of Accounts
                     $.ajax({
                         method: 'POST',
                         url: "/coa-update/" + getValue(itemIdInput),
-                        data: {item_name: getValue(itemNameInput)},
+                        data: {
+                            item_name: getValue(itemNameInput),
+                            is_bank_cash: getValue(isBankCashInput),
+                            default_type: getValue(defaultTypeInput),
+                            is_payment_method: $('#is_payment_method').is(':checked') ? 1 : 0,
+                            provision_everywhere: $('#provision_everywhere').is(':checked') ? 1 : 0,
+                            provision_outlets: $('#provision_outlets').is(':checked') ? 1 : 0,
+                            provision_office: $('#provision_office').is(':checked') ? 1 : 0,
+                        },
                         headers: {'X-CSRF-TOKEN': csrfToken},
                         success: function (result) {
                             if (result.success) {
@@ -326,6 +458,11 @@ Chart Of Accounts
             makeHidden(addButton);
             makeHidden(updateButton);
             makeHidden(deleteButton);
+            if (getValue(newItemTypeInput) === 'group') {
+                makeVisible(newPaymentMethodFlags);
+            } else {
+                makeHidden(newPaymentMethodFlags);
+            }
         }
 
         function submitItem() {
@@ -347,6 +484,10 @@ Chart Of Accounts
                 data: {
                     item_name: getValue(newItemNameInput),
                     item_type: getValue(newItemTypeInput),
+                    is_payment_method: $('#new_is_payment_method').is(':checked') ? 1 : 0,
+                    provision_everywhere: $('#new_provision_everywhere').is(':checked') ? 1 : 0,
+                    provision_outlets: $('#new_provision_outlets').is(':checked') ? 1 : 0,
+                    provision_office: $('#new_provision_office').is(':checked') ? 1 : 0,
                 },
                 headers: {'X-CSRF-TOKEN': csrfToken},
                 success: function (result) {

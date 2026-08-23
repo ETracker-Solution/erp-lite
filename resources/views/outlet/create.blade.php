@@ -3,7 +3,6 @@
     Outlet
 @endsection
 @section('style')
-    <!-- Select2 -->
     <link rel="stylesheet" href="{{ asset('assets/plugins/select2/css/select2.min.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css') }}">
 @endsection
@@ -14,10 +13,10 @@
             'Master Data'=>'',
             'Outlet' . (isset($outlet) ? ' Edit' : ' Entry') => '',
         ];
+        $selectedTypes = old('account_types', $assignedTypes ?? $defaultAccountTypes ?? defaultOutletAccountTypes());
     @endphp
     <x-breadcrumb title='Outlet' :links="$links" />
 
-    <!-- Main content -->
     <section class="content">
         <div class="container-fluid">
             <div class="row">
@@ -29,39 +28,30 @@
                         @if (isset($outlet))
                             @method('PUT')
                         @endif
-                        <!-- Horizontal Form -->
                         <div class="card card-info">
                             <div class="card-header">
-                                <h3 class="card-title">Outlet</h3>
+                                <h3 class="card-title">{{ isset($outlet) ? 'Edit Outlet' : 'Create Outlet' }}</h3>
                                 <div class="card-tools">
                                     <a href="{{ route('outlets.index') }}" class="btn btn-sm btn-primary">
                                         <i class="fa fa-list" aria-hidden="true"></i>
                                         &nbsp;See List
-
                                     </a>
                                 </div>
                             </div>
-                            <!-- /.card-header -->
-                            <!-- form start -->
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-xl-4 col-md-4 col-12 mb-1">
                                         <div class="form-group">
                                             <label for="serial_no">Outlet No</label>
                                             <input type="text" class="form-control" id="serial_no" name="serial_no"
-                                                placeholder=""
                                                 value="{{ old('serial_no', isset($outlet) ? $outlet->id : $serial_no) }}"
                                                 readonly>
-                                            @if ($errors->has('serial_no'))
-                                                <small class="text-danger">{{ $errors->first('serial_no') }}</small>
-                                            @endif
                                         </div>
                                     </div>
                                     <div class="col-xl-4 col-md-4 col-12 mb-1">
                                         <x-forms.text label="Name" inputName="name" placeholder="Enter Name"
                                             :isRequired='true' :isReadonly='false' :defaultValue="isset($outlet) ? $outlet->name : ''" />
                                     </div>
-
                                     <div class="col-xl-4 col-md-4 col-12 mb-1">
                                         <x-forms.text label="Address" inputName="address" placeholder="Enter Address"
                                             :isRequired='true' :isReadonly='false' :defaultValue="isset($outlet) ? $outlet->address : ''" />
@@ -73,38 +63,66 @@
                                             <option value="inactive" {{ old('status', isset($outlet) ? $outlet->status : '') == 'inactive' ? 'selected' : '' }}>In Active</option>
                                         </select>
                                     </div>
-{{--                                    <div class="col-xl-4 col-md-4 col-12 mb-1">--}}
-{{--                                        <label for="prefix">Prefix</label>--}}
-{{--                                        <input type="text" class="form-control" id="prefix" name="prefix"--}}
-{{--                                               placeholder="CT-"--}}
-{{--                                               value="{{ old('prefix', isset($outlet) ? $outlet->prefix : '') }}">--}}
-{{--                                    </div>--}}
                                     <div class="col-xl-4 col-md-4 col-12 mb-1">
-                                        <label for="prefix">Petty Cash</label>
-                                        <input type="text" class="form-control" id="prefix" name="petty_cash"
-                                               value="yes" readonly>
+                                        <label for="petty_cash">Petty Cash Account</label>
+                                        <select name="petty_cash" id="petty_cash" class="form-control">
+                                            <option value="1" selected>Create / Keep</option>
+                                            <option value="0">Skip</option>
+                                        </select>
                                     </div>
+                                </div>
+
+                                <hr>
+                                <div class="d-flex align-items-center justify-content-between flex-wrap mb-2">
+                                    <div>
+                                        <h5 class="mb-0">Payment accounts</h5>
+                                        <small class="text-muted">Selected methods get a ledger + outlet link + POS config automatically.</small>
+                                    </div>
+                                    <div>
+                                        <button type="button" class="btn btn-xs btn-outline-secondary" id="selectDefaultAccounts">Defaults</button>
+                                        <button type="button" class="btn btn-xs btn-outline-secondary" id="selectAllAccounts">All</button>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    @foreach(($accountTypes ?? outletAccountTypeOptions()) as $type)
+                                        <div class="col-md-3 col-sm-4 col-6 mb-2">
+                                            <div class="custom-control custom-checkbox">
+                                                <input type="checkbox"
+                                                       class="custom-control-input account-type-check"
+                                                       id="account_type_{{ $type }}"
+                                                       name="account_types[]"
+                                                       value="{{ $type }}"
+                                                       data-default="{{ in_array($type, $defaultAccountTypes ?? defaultOutletAccountTypes(), true) ? 1 : 0 }}"
+                                                       {{ in_array($type, $selectedTypes, true) ? 'checked' : '' }}>
+                                                <label class="custom-control-label" for="account_type_{{ $type }}">{{ $type }}</label>
+                                            </div>
+                                        </div>
+                                    @endforeach
                                 </div>
                             </div>
 
                             <div class="card-footer">
                                 <button class="btn btn-info float-right"><i class="fa fa-check" aria-hidden="true"></i>
-                                    Submit
+                                    {{ isset($outlet) ? 'Update & Sync Accounts' : 'Create Outlet' }}
                                 </button>
                             </div>
                         </div>
-                        <!-- /.card -->
                     </form>
                 </div>
-                <div class="col-2"></div>
             </div>
-            <!-- /.row -->
-
-        </div><!-- /.container-fluid -->
+        </div>
     </section>
-    <!-- /.content -->
 @endsection
 
 @push('js')
-
+<script>
+    $('#selectAllAccounts').on('click', function () {
+        $('.account-type-check').prop('checked', true);
+    });
+    $('#selectDefaultAccounts').on('click', function () {
+        $('.account-type-check').each(function () {
+            $(this).prop('checked', $(this).data('default') == 1);
+        });
+    });
+</script>
 @endpush

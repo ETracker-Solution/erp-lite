@@ -107,13 +107,7 @@ class FundTransferVoucherController extends Controller
                 ->orderBy('name')
                 ->get();
 
-            $toAccounts = ChartOfAccount::query()
-                ->where([
-                    'default_type' => 'office_account',
-                    'is_bank_cash' => 'yes',
-                    'type' => 'ledger',
-                    'status' => 'active',
-                ])
+            $toAccounts = officeAccountQuery()
                 ->select('id', 'name')
                 ->orderBy('name')
                 ->get();
@@ -129,25 +123,23 @@ class FundTransferVoucherController extends Controller
      */
     public function create()
     {
+        $officeAccountsMissing = false;
+
         if (auth()->user()?->employee?->outlet_id) {
             $chartOfAccounts = OutletAccount::query()
-                ->with(['coa:id,name'])
+                ->with(['coa:id,name,default_type'])
                 ->whereHas('coa', function ($coa) {
-                    $coa->whereNull('default_type');
+                    transferableOutletCoaConstraint($coa);
                 })
                 ->where('outlet_id', auth()->user()->employee->outlet_id)
+                ->where('status', 'active')
                 ->get(['id', 'outlet_id', 'coa_id']);
 
-            $toChartOfAccounts = ChartOfAccount::query()
-                ->where([
-                    'default_type' => 'office_account',
-                    'is_bank_cash' => 'yes',
-                    'type' => 'ledger',
-                    'status' => 'active',
-                ])
+            $toChartOfAccounts = officeAccountQuery()
                 ->select('id', 'name')
                 ->orderBy('name')
                 ->get();
+            $officeAccountsMissing = $toChartOfAccounts->isEmpty();
         } else {
             $chartOfAccounts = ChartOfAccount::query()
                 ->where([
@@ -171,7 +163,7 @@ class FundTransferVoucherController extends Controller
                 ->get();
         }
 
-        return view('fund_transfer_voucher.create', compact('chartOfAccounts', 'toChartOfAccounts'));
+        return view('fund_transfer_voucher.create', compact('chartOfAccounts', 'toChartOfAccounts', 'officeAccountsMissing'));
     }
 
     /**
@@ -447,9 +439,7 @@ class FundTransferVoucherController extends Controller
             })
             ->pluck('coa_id');
 
-        $officeAccountIds = ChartOfAccount::query()
-            ->where('default_type', 'office_account')
-            ->pluck('id');
+        $officeAccountIds = officeAccountQuery()->pluck('id');
 
         $data = FundTransferVoucher::query()
             ->select([

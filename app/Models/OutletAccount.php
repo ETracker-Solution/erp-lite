@@ -17,6 +17,6 @@ class OutletAccount extends Model
 
     public function coa()
     {
-        return $this->belongsTo(ChartOfAccount::class);
+        return $this->belongsTo(ChartOfAccount::class, 'coa_id');
     }
 }

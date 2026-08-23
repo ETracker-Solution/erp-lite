@@ -2,91 +2,148 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ChartOfAccount;
 use App\Models\Outlet;
+use App\Models\OutletAccount;
 use App\Models\OutletTransactionConfig;
 use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Http\Request;
-use Yajra\DataTables\Facades\DataTables;
+use Illuminate\Support\Facades\DB;
 
 class OuteletConfigController extends Controller
 {
     /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
+     * Show the form for creating / editing outlet payment configs.
      */
     public function create()
     {
-        $outlets = Outlet::all();
-        return view('outlet_config.create', compact('outlets'));
+        $paymentTypes = outletAccountTypeOptions();
+
+        $outlets = Outlet::query()
+            ->select(['id', 'name', 'status'])
+            ->with([
+                'transactionConfigs:id,outlet_id,type,coa_id',
+                'outletAccounts:id,outlet_id,coa_id,status',
+            ])
+            ->orderBy('name')
+            ->get();
+
+        // One ledger query for the whole page (was N outlets × M types before).
+        $ledgers = ChartOfAccount::query()
+            ->select(['id', 'name', 'is_bank_cash', 'root_account_type'])
+            ->where('type', 'ledger')
+            ->where('status', 'active')
+            ->orderBy('name')
+            ->get()
+            ->map(function ($ledger) {
+                $ledger->display_name = $ledger->id . '. ' . $ledger->name
+                    . ' (' . $ledger->root_account_type . ')';
+                return $ledger;
+            });
+
+        $bankCashLedgers = $ledgers->where('is_bank_cash', 'yes')->values();
+
+        $rows = $outlets->map(function (Outlet $outlet) use ($paymentTypes) {
+            $configs = $outlet->transactionConfigs->pluck('coa_id', 'type');
+            $linkedCoaIds = $outlet->outletAccounts
+                ->where('status', 'active')
+                ->pluck('coa_id')
+                ->unique()
+                ->values()
+                ->all();
+
+            $values = [];
+            $missing = 0;
+            foreach ($paymentTypes as $type) {
+                $coaId = $configs[$type] ?? null;
+                $values[$type] = $coaId;
+                if (!$coaId) {
+                    $missing++;
+                }
+            }
+
+            return [
+                'id' => $outlet->id,
+                'name' => $outlet->name,
+                'status' => $outlet->status,
+                'values' => $values,
+                'linked_coa_ids' => $linkedCoaIds,
+                'missing' => $missing,
+            ];
+        });
+
+        return view('outlet_config.create', [
+            'paymentTypes' => $paymentTypes,
+            'rows' => $rows,
+            'ledgers' => $ledgers,
+            'bankCashLedgers' => $bankCashLedgers,
+        ]);
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Upsert OTC rows and keep outlet_accounts in sync for selected ledgers.
      */
     public function store(Request $request)
     {
-        // dd($request->settings);
         $request->validate([
             'settings' => 'required|array',
         ]);
-        foreach ($request->settings as $outletId => $item) {
-            foreach ($item as $key => $value) {
-                $outletConfig = OutletTransactionConfig::where(['outlet_id' => $outletId])->where('type', $key)->first();
-                if (!$outletConfig) {
-                    OutletTransactionConfig::create([
-                        'outlet_id' => $outletId,
-                        'type' => $key,
-                        'coa_id' => $value,
-                    ]);
-                } else {
-                    $outletConfig->update([
-                        'coa_id' => $value,
-                    ]);
+
+        $allowedTypes = outletAccountTypeOptions();
+
+        DB::beginTransaction();
+        try {
+            foreach ($request->settings as $outletId => $items) {
+                if (!is_array($items)) {
+                    continue;
                 }
 
+                foreach ($items as $type => $coaId) {
+                    if (!in_array($type, $allowedTypes, true)) {
+                        continue;
+                    }
 
+                    // Empty selection skips / clears nothing — keep existing.
+                    if ($coaId === null || $coaId === '') {
+                        continue;
+                    }
+
+                    OutletTransactionConfig::updateOrCreate(
+                        [
+                            'outlet_id' => $outletId,
+                            'type' => $type,
+                        ],
+                        [
+                            'coa_id' => $coaId,
+                        ]
+                    );
+
+                    // Align with outlet-accounts: assigned payment COA must be linked.
+                    OutletAccount::firstOrCreate(
+                        [
+                            'outlet_id' => $outletId,
+                            'coa_id' => $coaId,
+                        ],
+                        [
+                            'status' => 'active',
+                        ]
+                    );
+                }
             }
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Outlet config store failed: ' . $e->getMessage());
+            Toastr::error('Something went wrong while saving configs.', '', ["progressBar" => true]);
+            return back();
         }
-        Toastr::success('Transaction configurations updated successfully!.', '', ["progressBar" => true]);
-        return redirect()->back();
+
+        Toastr::success('Outlet payment configurations updated successfully!.', '', ["progressBar" => true]);
+        return redirect()->route('outlet-configs.create');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function index()
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        return redirect()->route('outlet-configs.create');
     }
 }

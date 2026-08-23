@@ -37,6 +37,16 @@
                             </div>
 
                             <div class="card-body">
+                                @if(!empty($officeAccountsMissing))
+                                    <div class="alert alert-warning">
+                                        <strong>No Office Account found.</strong>
+                                        Fund Transfer “Transfer To” needs a ledger tagged as
+                                        <code>office_account</code> with Bank/Cash = Yes.
+                                        Open Chart of Accounts → select HO cash/bank → set
+                                        <em>Default Type = Office Account</em>, then reload.
+                                        Or run <code>php artisan migrate</code> (auto-tags “Cash in hand”).
+                                    </div>
+                                @endif
 
                                 <div class="card-box">
                                     <div class="row">

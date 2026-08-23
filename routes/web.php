@@ -118,6 +118,7 @@ Route::middleware(['auth','prevent_duplicate_submission'])->group(function () {
     Route::resource('system-settings', SystemSettingController::class);
 
     Route::resource('outlet-accounts', OutletAccountController::class);
+    Route::post('outlet-accounts-sync', [\App\Http\Controllers\OutletAccountController::class, 'sync'])->name('outlet-accounts.sync');
     Route::patch('outlet-account-active-or-inactive/{id}', [\App\Http\Controllers\OutletAccountController::class, 'changeStatus'])->name('outlet-account.change');
 
 

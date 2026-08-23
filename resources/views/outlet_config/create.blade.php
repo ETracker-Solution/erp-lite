@@ -1,262 +1,246 @@
 @extends('layouts.app')
 @section('title')
-    Outlet Payment
+    Outlet Payment Config
 @endsection
-@section('style')
-    <!-- Select2 -->
-    <link rel="stylesheet" href="{{ asset('assets/plugins/select2/css/select2.min.css')}}">
-    <link rel="stylesheet" href="{{ asset('assets/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css')}}">
+@section('styles')
+    <link rel="stylesheet" href="{{ asset('assets/plugins/select2/css/select2.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css') }}">
+    <style>
+        .erp-outlet-config__meta {
+            color: rgba(255, 255, 255, 0.85);
+            font-size: 0.82rem;
+            font-weight: 500;
+        }
+
+        .erp-outlet-config__toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .erp-outlet-config__toolbar .form-control {
+            max-width: 280px;
+            border-radius: 10px;
+        }
+
+        .erp-outlet-config__check {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 600;
+            color: #6b625b;
+            margin: 0;
+        }
+
+        .erp-outlet-config__hint {
+            margin-left: auto;
+            color: #6b625b;
+            font-size: 0.85rem;
+        }
+
+        .erp-outlet-config__table-wrap {
+            max-height: min(70vh, 720px);
+            overflow: auto;
+            border: 1px solid #e6e0d8;
+            border-radius: 12px;
+        }
+
+        .erp-outlet-config__table {
+            margin-bottom: 0;
+            min-width: 1200px;
+        }
+
+        .erp-outlet-config__table thead th {
+            position: sticky;
+            top: 0;
+            z-index: 2;
+            background: #f6f3ee;
+            white-space: nowrap;
+        }
+
+        .erp-outlet-config__sticky {
+            position: sticky;
+            left: 0;
+            z-index: 3;
+            background: #fff;
+            min-width: 190px;
+            box-shadow: 2px 0 0 rgba(0, 0, 0, 0.04);
+        }
+
+        .erp-outlet-config__table thead .erp-outlet-config__sticky {
+            z-index: 4;
+            background: #f6f3ee;
+        }
+
+        .erp-outlet-config__table .badge {
+            margin-left: 6px;
+            font-weight: 600;
+        }
+
+        .erp-outlet-config__table td {
+            vertical-align: middle;
+            min-width: 170px;
+        }
+    </style>
 @endsection
+
 @section('content')
     @php
         $links = [
-        'Home'=>route('dashboard'),
-        'System Admin Module'=>'',
-        'System Config'=>'',
-        'Outlet Payment'=>''
-        ]
+            'Home' => route('dashboard'),
+            'System Admin Module' => '',
+            'System Config' => '',
+            'Outlet Payment' => '',
+        ];
     @endphp
-    <x-breadcrumb title='Outlet Payment' :links="$links"/>
+    <x-breadcrumb title='Outlet Payment Config' :links="$links"/>
 
-
-
-    <!-- Main content -->
     <section class="content">
         <div class="container-fluid">
-            <div class="row">
-                <div class="col-12">
-                    <form action="{{route('outlet-configs.store')}}" method="POST" class=""
-                          enctype="multipart/form-data">
-                        @csrf
-                        {{-- @method('put') --}}
-                        <!-- Horizontal Form -->
-                        <div class="card card-info">
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-xl-12 col-md-12 col-12 mb-1">
-                                        <label for="name">Outlets</label>
-                                        <table class="table table-bordered">
-                                            <thead>
-                                            <tr>
-                                                <th>Outlet</th>
-                                                <th>Cash Account</th>
-                                                <th>Bkash Account</th>
-                                                <th>Nagad Account</th>
-                                                <th>DBBL Account</th>
-                                                <th>UCB Account</th>
-                                                <th>Rocket Account</th>
-                                                <th>Upay Account</th>
-                                                <th>NEXUS Account</th>
-                                                <th>PBL Account</th>
-                                                <th>PBLQR Account</th>
-                                                <th>FOODIE Account</th>
-                                                <th>DUE Account</th>
-                                            </tr>
-                                            </thead>
-                                            @foreach ($outlets as $row)
-                                                @php
-                                                    $bkashConfig =
-                                                    \App\Models\OutletTransactionConfig::where(['outlet_id'=>$row->id,'type'=>'Bkash'])->first();
-                                                    $cashConfig =
-                                                    \App\Models\OutletTransactionConfig::where(['outlet_id'=>$row->id,'type'=>'Cash'])->first();
-                                                    $nagadConfig =
-                                                    \App\Models\OutletTransactionConfig::where(['outlet_id'=>$row->id,'type'=>'Nagad'])->first();
-                                                    $dbblConfig =
-                                                    \App\Models\OutletTransactionConfig::where(['outlet_id'=>$row->id,'type'=>'DBBL'])->first();
-                                                    $ucbConfig =
-                                                    \App\Models\OutletTransactionConfig::where(['outlet_id'=>$row->id,'type'=>'UCB'])->first();
-                                                    $rocketConfig =
-                                                    \App\Models\OutletTransactionConfig::where(['outlet_id'=>$row->id,'type'=>'Rocket'])->first();
-                                                    $upayConfig =
-                                                    \App\Models\OutletTransactionConfig::where(['outlet_id'=>$row->id,'type'=>'Upay'])->first();
-                                                    $nexusConfig =
-                                                    \App\Models\OutletTransactionConfig::where(['outlet_id'=>$row->id,'type'=>'Nexus'])->first();
-                                                    $pblConfig =
-                                                    \App\Models\OutletTransactionConfig::where(['outlet_id'=>$row->id,'type'=>'PBL'])->first();
-                                                    $pblqrConfig =
-                                                    \App\Models\OutletTransactionConfig::where(['outlet_id'=>$row->id,'type'=>'PBLQR'])->first();
-                                                    $foodieConfig =
-                                                    \App\Models\OutletTransactionConfig::where(['outlet_id'=>$row->id,'type'=>'FOODIE'])->first();
-                                                    $dueConfig =
-                                                    \App\Models\OutletTransactionConfig::where(['outlet_id'=>$row->id,'type'=>'Due'])->first();
-                                                    $bkash = $bkashConfig ? $bkashConfig->coa_id : null;
-                                                    $cash = $cashConfig ? $cashConfig->coa_id : null;
-                                                    $nagad = $nagadConfig ? $nagadConfig->coa_id : null;
-                                                    $dbbl = $dbblConfig ? $dbblConfig->coa_id : null;
-                                                    $ucb = $ucbConfig ? $ucbConfig->coa_id : null;
-                                                    $rocket = $rocketConfig ? $rocketConfig->coa_id : null;
-                                                    $upay = $upayConfig ? $upayConfig->coa_id : null;
-                                                    $nexus = $nexusConfig ? $nexusConfig->coa_id : null;
-                                                    $pbl = $pblConfig ? $pblConfig->coa_id : null;
-                                                    $pblqr = $pblqrConfig ? $pblConfig->coa_id : null;
-                                                    $foodie = $foodieConfig ? $foodieConfig->coa_id : null;
-                                                    $due = $dueConfig ? $dueConfig->coa_id : null;
-                                                @endphp
-                                                <tr>
-                                                    <td>{{ $row->name }}</td>
-                                                    <td>
-                                                        <select name="settings[{{ $row->id }}][Cash]" id=""
-                                                                class="form-control">
-                                                            @foreach(getAllLedgers() as $account)
-
-                                                                <option value="{{ $account->id }}" {{ $account->id == $cash ?
-                                                        'selected' : '' }}>{{ $account->display_name }}</option>
-                                                            @endforeach
-                                                        </select>
-                                                    </td>
-                                                    <td>
-                                                        <select name="settings[{{ $row->id }}][Bkash]" id=""
-                                                                class="form-control">
-                                                            @foreach(getAllLedgers() as $account)
-
-                                                                <option value="{{ $account->id }}" {{ $account->id == $bkash ?
-                                                        'selected' : '' }}>{{ $account->display_name }}</option>
-                                                            @endforeach
-                                                        </select>
-                                                    </td>
-                                                    <td>
-                                                        <select name="settings[{{ $row->id }}][Nagad]" id=""
-                                                                class="form-control">
-                                                            @foreach(getAllLedgers() as $account)
-
-                                                                <option value="{{ $account->id }}" {{ $account->id == $nagad ?
-                                                        'selected' : '' }}>{{ $account->display_name }}</option>
-                                                            @endforeach
-                                                        </select>
-                                                    </td>
-                                                    <td>
-                                                        <select name="settings[{{ $row->id }}][DBBL]" id=""
-                                                                class="form-control">
-                                                            @foreach(getAllLedgers() as $account)
-
-                                                                <option value="{{ $account->id }}" {{ $account->id == $dbbl ?
-                                                        'selected' : '' }}>{{ $account->display_name }}</option>
-                                                            @endforeach
-                                                        </select>
-                                                    </td>
-                                                    <td>
-                                                        <select name="settings[{{ $row->id }}][UCB]" id=""
-                                                                class="form-control">
-                                                            @foreach(getAllLedgers() as $account)
-
-                                                                <option value="{{ $account->id }}" {{ $account->id == $ucb ?
-                                                        'selected' : '' }}>{{ $account->display_name }}</option>
-                                                            @endforeach
-                                                        </select>
-                                                    </td>
-                                                    <td>
-                                                        <select name="settings[{{ $row->id }}][Rocket]" id=""
-                                                                class="form-control">
-                                                            @foreach(getAllLedgers() as $account)
-
-                                                                <option value="{{ $account->id }}" {{ $account->id == $rocket ?
-                                                        'selected' : '' }}>{{ $account->display_name }}</option>
-                                                            @endforeach
-                                                        </select>
-                                                    </td>
-                                                    <td>
-                                                        <select name="settings[{{ $row->id }}][Upay]" id=""
-                                                                class="form-control">
-                                                            @foreach(getAllLedgers() as $account)
-
-                                                                <option value="{{ $account->id }}" {{ $account->id == $upay ?
-                                                        'selected' : '' }}>{{ $account->display_name }}</option>
-                                                            @endforeach
-                                                        </select>
-                                                    </td>
-                                                    <td>
-                                                        <select name="settings[{{ $row->id }}][Nexus]" id=""
-                                                                class="form-control">
-                                                            @foreach(getAllLedgers() as $account)
-
-                                                                <option value="{{ $account->id }}" {{ $account->id == $nexus ?
-                                                        'selected' : '' }}>{{ $account->display_name }}</option>
-                                                            @endforeach
-                                                        </select>
-                                                    </td>
-                                                    <td>
-                                                        <select name="settings[{{ $row->id }}][PBL]" id=""
-                                                                class="form-control">
-                                                            @foreach(getAllLedgers() as $account)
-
-                                                                <option value="{{ $account->id }}" {{ $account->id == $pbl ?
-                                                        'selected' : '' }}>{{ $account->display_name }}</option>
-                                                            @endforeach
-                                                        </select>
-                                                    </td>
-                                                    <td>
-                                                        <select name="settings[{{ $row->id }}][PBLQR]" id=""
-                                                                class="form-control">
-                                                            @foreach(getAllLedgers() as $account)
-
-                                                                <option value="{{ $account->id }}" {{ $account->id == $pblqr ?
-                                                        'selected' : '' }}>{{ $account->display_name }}</option>
-                                                            @endforeach
-                                                        </select>
-                                                    </td>
-                                                    <td>
-                                                        <select name="settings[{{ $row->id }}][FOODIE]" id=""
-                                                                class="form-control">
-                                                            @foreach(getAllLedgers() as $account)
-
-                                                                <option value="{{ $account->id }}" {{ $account->id == $foodie ?
-                                                        'selected' : '' }}>{{ $account->display_name }}</option>
-                                                            @endforeach
-                                                        </select>
-                                                    </td>
-                                                    <td>
-                                                        <select name="settings[{{ $row->id }}][Due]" id=""
-                                                                class="form-control">
-                                                            @foreach(getAllLedgers() as $account)
-
-                                                                <option value="{{ $account->id }}" {{ $account->id == $due ?
-                                                        'selected' : '' }}>{{ $account->display_name }}</option>
-                                                            @endforeach
-                                                        </select>
-                                                    </td>
-
-                                                </tr>
-                                            @endforeach
-                                        </table>
-
-
-                                    </div>
-
-                                </div>
-                            </div>
-
-                            <div class="card-footer">
-                                <button class="btn btn-info float-right"><i class="fa fa-check" aria-hidden="true"></i>
-                                    Update
-                                </button>
+            <form action="{{ route('outlet-configs.store') }}" method="POST">
+                @csrf
+                <div class="card card-info erp-outlet-config">
+                    <div class="card-header d-flex flex-wrap align-items-center justify-content-between">
+                        <div>
+                            <h3 class="card-title mb-0">Map payment methods → COA</h3>
+                            <div class="erp-outlet-config__meta mt-1">
+                                Same method list as outlet create / POS.
+                                Saving also links the ledger under Outlet Accounts.
                             </div>
                         </div>
-                        <!-- /.card -->
-                    </form>
-                </div>
-                <div class="col-2"></div>
-            </div>
-            <!-- /.row -->
+                        <div class="card-tools mt-2 mt-md-0">
+                            <a href="{{ route('outlet-accounts.index') }}" class="btn btn-sm btn-outline-light">
+                                Outlet Accounts
+                            </a>
+                            <a href="{{ route('outlets.create') }}" class="btn btn-sm btn-primary">
+                                New Outlet
+                            </a>
+                        </div>
+                    </div>
 
-        </div><!-- /.container-fluid -->
+                    <div class="card-body">
+                        <div class="erp-outlet-config__toolbar mb-3">
+                            <input type="search" id="outletFilter" class="form-control"
+                                   placeholder="Filter outlets…" autocomplete="off">
+                            <label class="erp-outlet-config__check">
+                                <input type="checkbox" id="missingOnly"> Show incomplete only
+                            </label>
+                            <span class="erp-outlet-config__hint">
+                                {{ count($rows) }} outlets · {{ count($paymentTypes) }} methods
+                            </span>
+                        </div>
+
+                        <div class="table-responsive erp-outlet-config__table-wrap">
+                            <table class="table table-bordered table-sm erp-outlet-config__table" id="outletConfigTable">
+                                <thead>
+                                <tr>
+                                    <th class="erp-outlet-config__sticky">Outlet</th>
+                                    @foreach($paymentTypes as $type)
+                                        <th>{{ $type }}</th>
+                                    @endforeach
+                                </tr>
+                                </thead>
+                                <tbody>
+                                @forelse($rows as $row)
+                                    <tr class="outlet-config-row"
+                                        data-name="{{ strtolower($row['name']) }}"
+                                        data-missing="{{ $row['missing'] }}">
+                                        <td class="erp-outlet-config__sticky">
+                                            <strong>{{ $row['name'] }}</strong>
+                                            @if($row['missing'] > 0)
+                                                <span class="badge badge-warning">{{ $row['missing'] }} missing</span>
+                                            @else
+                                                <span class="badge badge-success">complete</span>
+                                            @endif
+                                        </td>
+                                        @foreach($paymentTypes as $type)
+                                            @php $selected = $row['values'][$type] ?? null; @endphp
+                                            <td>
+                                                <select name="settings[{{ $row['id'] }}][{{ $type }}]"
+                                                        class="form-control form-control-sm select2-config">
+                                                    <option value="">— Select —</option>
+                                                    @foreach($bankCashLedgers as $account)
+                                                        @php
+                                                            $isLinked = in_array($account->id, $row['linked_coa_ids'], true);
+                                                        @endphp
+                                                        <option value="{{ $account->id }}"
+                                                            {{ (int) $selected === (int) $account->id ? 'selected' : '' }}>
+                                                            {{ $isLinked ? '★ ' : '' }}{{ $account->display_name }}
+                                                        </option>
+                                                    @endforeach
+                                                    @if($selected && !$bankCashLedgers->contains('id', (int) $selected))
+                                                        @php $extra = $ledgers->firstWhere('id', (int) $selected); @endphp
+                                                        @if($extra)
+                                                            <option value="{{ $extra->id }}" selected>
+                                                                {{ $extra->display_name }}
+                                                            </option>
+                                                        @endif
+                                                    @endif
+                                                </select>
+                                            </td>
+                                        @endforeach
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="{{ count($paymentTypes) + 1 }}" class="text-center text-muted py-4">
+                                            No outlets found. Create an outlet first.
+                                        </td>
+                                    </tr>
+                                @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+                        <small class="text-muted d-block mt-2">
+                            ★ = already linked on Outlet Accounts for that outlet. Dropdown lists Bank/Cash ledgers only.
+                        </small>
+                    </div>
+
+                    <div class="card-footer text-right">
+                        <button class="btn btn-info">
+                            <i class="fa fa-check" aria-hidden="true"></i>
+                            Save configurations
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
     </section>
-    <!-- /.content -->
 @endsection
 
-@push('js')
-    <!-- Select2 -->
-    <script src="{{ asset('assets/plugins/select2/js/select2.full.min.js')}}"></script>
-<script>
-    $(function () {
-            //Initialize Select2 Elements
-            $('.select2').select2()
+@push('js_scripts')
+    <script src="{{ asset('assets/plugins/select2/js/select2.full.min.js') }}"></script>
+    <script>
+        $(function () {
+            // Lazy Select2 — avoid initializing hundreds of widgets on load.
+            $(document).on('focus', 'select.select2-config', function () {
+                const $el = $(this);
+                if ($el.hasClass('select2-hidden-accessible')) {
+                    return;
+                }
+                $el.select2({
+                    theme: 'bootstrap4',
+                    width: '100%',
+                    placeholder: '— Select —',
+                    allowClear: true
+                });
+                $el.select2('open');
+            });
 
-            //Initialize Select2 Elements
-            $('.select2bs4').select2({
-                theme: 'bootstrap4'
-            })
+            function filterRows() {
+                const q = ($('#outletFilter').val() || '').toString().trim().toLowerCase();
+                const missingOnly = $('#missingOnly').is(':checked');
 
-        })
-</script>
+                $('#outletConfigTable .outlet-config-row').each(function () {
+                    const $row = $(this);
+                    const name = ($row.data('name') || '').toString();
+                    const missing = parseInt($row.data('missing'), 10) || 0;
+                    $row.toggle((!q || name.indexOf(q) !== -1) && (!missingOnly || missing > 0));
+                });
+            }
 
+            $('#outletFilter').on('input', filterRows);
+            $('#missingOnly').on('change', filterRows);
+        });
+    </script>
 @endpush
