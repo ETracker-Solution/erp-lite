@@ -1,6 +1,6 @@
 @extends('layouts.app')
 @section('title')
-   Financial Statement
+    Financial Statement
 @endsection
 @section('content')
     @php
@@ -25,28 +25,16 @@
                         </div>
                         <div class="card-body">
                             <div class="row">
-{{--                                <div class="col-12">--}}
-{{--                                    <div class="form-group">--}}
-{{--                                        <label for="store_id">Ledger Group</label>--}}
-{{--                                        <select name="store_id" id="store_id" class="form-control" v-model="store_id">--}}
-{{--                                            <option value="">Select a Group</option>--}}
-{{--                                            <option :value="row.id" v-for="row in stores"--}}
-{{--                                            >@{{ row.id + ' - ' + row.name }}--}}
-{{--                                            </option>--}}
-{{--                                        </select>--}}
-{{--                                    </div>--}}
-{{--                                </div>--}}
-                                <hr>
                                 <div class="col-12">
                                     <div class="form-group">
-                                        <label for="">From Date</label>
+                                        <label for="">From Date <small class="text-muted">(Income Statement / Cash Flow)</small></label>
                                         <vuejs-datepicker v-model="from_date" name="from_date"
                                                           placeholder="Select date"></vuejs-datepicker>
                                     </div>
                                 </div>
                                 <div class="col-12">
                                     <div class="form-group">
-                                        <label for="">To Date</label>
+                                        <label for="">To Date <small class="text-muted">(Income Statement / Cash Flow)</small></label>
                                         <vuejs-datepicker v-model="to_date" name="to_date"
                                                           placeholder="Select date"></vuejs-datepicker>
                                     </div>
@@ -54,7 +42,7 @@
                                 <hr>
                                 <div class="col-12">
                                     <div class="form-group">
-                                        <label for="">As On Date</label>
+                                        <label for="">As On Date <small class="text-muted">(Balance Sheet / Trial Balance)</small></label>
                                         <vuejs-datepicker v-model="as_on_date" name="as_on_date"
                                                           placeholder="Select date"></vuejs-datepicker>
                                     </div>
@@ -77,6 +65,9 @@
                                         </button>
                                         <button class="btn btn-sm btn-dark w-50 mb-2"
                                                 @click="showReport('balance_sheet')">Balance Sheet
+                                        </button>
+                                        <button class="btn btn-sm btn-dark w-50 mb-2" @click="showReport('cash_flow')">
+                                           Cash Flow
                                         </button>
                                         <button class="btn btn-sm btn-dark w-50 mb-2" @click="showReport('trial_balance')">
                                            Trial Balance
@@ -119,86 +110,81 @@
             transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
         }
     </style>
-
-    <link rel="stylesheet" href="{{ asset('vue-js/bootstrap-select/dist/css/bootstrap-select.min.css') }}">
 @endpush
 @push('script')
     <script src="{{ asset('vue-js/vue/dist/vue.js') }}"></script>
     <script src="{{ asset('vue-js/axios/dist/axios.min.js') }}"></script>
-    <script src="{{ asset('vue-js/bootstrap-select/dist/js/bootstrap-select.min.js') }}"></script>
-    <script src="https://cms.diu.ac/vue/vuejs-datepicker.min.js"></script>
+    <script src="{{ asset('vue-js/vuejs-datepicker.js') }}"></script>
     <script>
         $(document).ready(function () {
+            function toYmd(value) {
+                if (!value) return '';
+                const d = value instanceof Date ? value : new Date(value);
+                if (isNaN(d.getTime())) return '';
+                const y = d.getFullYear();
+                const m = String(d.getMonth() + 1).padStart(2, '0');
+                const day = String(d.getDate()).padStart(2, '0');
+                return y + '-' + m + '-' + day;
+            }
 
-            var vue = new Vue({
+            new Vue({
                 el: '#vue_app',
                 data: {
                     config: {
-                        inventoryReportUrl: "{{ url('financial-statements') }}",
+                        reportUrl: "{{ url('financial-statements') }}",
                     },
-                    from_date: new Date(),
+                    from_date: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
                     to_date: new Date(),
                     as_on_date: new Date(),
                     pageLoading: false,
-
                 },
                 components: {
                     vuejsDatepicker,
                 },
-                computed: {},
                 methods: {
+                    async readBlobError(error) {
+                        try {
+                            if (error.response && error.response.data) {
+                                const text = await error.response.data.text();
+                                const json = JSON.parse(text);
+                                if (json.message) return json.message;
+                            }
+                        } catch (e) {}
+                        return 'Something went wrong generating the report';
+                    },
                     showReport(reportType) {
                         const vm = this;
-                        if (reportType === 'income_statement') {
-                            if (!vm.group_id) {
-                                toastr.warning('Under Construction', {
-                                    closeButton: true,
-                                    progressBar: true,
-                                });
-                                return false;
-                            }
-                        }
-                        if (reportType === 'trial_balance') {
-                            if (!vm.store_id) {
-                                toastr.warning('Under Construction', {
-                                    closeButton: true,
-                                    progressBar: true,
-                                });
-                                return false;
-                            }
-                        }
-
                         vm.pageLoading = true;
-                        axios.get(this.config.inventoryReportUrl + '/create', {
+                        axios.get(this.config.reportUrl + '/create', {
                             params: {
                                 report_type: reportType,
-                                as_on_date: vm.as_on_date
+                                from_date: toYmd(vm.from_date),
+                                to_date: toYmd(vm.to_date),
+                                as_on_date: toYmd(vm.as_on_date),
                             },
                             responseType: 'blob',
-                        }).then(function (response) {
-                            const blob = new Blob([response.data], {
-                                type: 'application/pdf'
-                            });
-                            const url = window.URL.createObjectURL(blob);
-                            window.open(url)
+                        }).then(async function (response) {
+                            const contentType = (response.headers['content-type'] || '');
+                            if (contentType.indexOf('application/json') !== -1) {
+                                const text = await response.data.text();
+                                let message = 'Unable to generate report';
+                                try { message = JSON.parse(text).message || message; } catch (e) {}
+                                toastr.error(message, { closeButton: true, progressBar: true });
+                                vm.pageLoading = false;
+                                return;
+                            }
+                            const blob = new Blob([response.data], { type: 'application/pdf' });
+                            window.open(window.URL.createObjectURL(blob));
                             vm.pageLoading = false;
-                        }).catch(function (error) {
-                            toastr.error('Something went to wrong', {
+                        }).catch(async function (error) {
+                            vm.pageLoading = false;
+                            toastr.error(await vm.readBlobError(error), {
                                 closeButton: true,
                                 progressBar: true,
                             });
-                            return false;
                         });
                     }
                 },
-
-                updated() {
-                    $('.bSelect').selectpicker('refresh');
-                }
-            });
-            $('.bSelect').selectpicker({
-                liveSearch: true,
-                size: 5
             });
         });
     </script>
