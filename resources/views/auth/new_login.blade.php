@@ -256,6 +256,100 @@
                 animation: none;
             }
         }
+
+        .submit {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.55rem;
+        }
+
+        .submit.is-loading {
+            pointer-events: none;
+            cursor: wait;
+            opacity: 0.92;
+        }
+
+        .submit .btn-label,
+        .submit .btn-wait {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .submit .btn-wait {
+            display: none;
+        }
+
+        .submit.is-loading .btn-label {
+            display: none;
+        }
+
+        .submit.is-loading .btn-wait {
+            display: inline-flex;
+        }
+
+        .spinner {
+            width: 1rem;
+            height: 1rem;
+            border: 2px solid rgba(247, 241, 232, 0.35);
+            border-top-color: #f7f1e8;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+
+        .page-loader {
+            position: fixed;
+            inset: 0;
+            z-index: 50;
+            display: none;
+            place-items: center;
+            background: rgba(18, 14, 11, 0.55);
+            backdrop-filter: blur(4px);
+        }
+
+        .page-loader.is-on {
+            display: grid;
+            animation: fade 220ms ease both;
+        }
+
+        .page-loader__card {
+            display: grid;
+            justify-items: center;
+            gap: 0.85rem;
+            padding: 1.35rem 1.5rem;
+            border-radius: 14px;
+            background: rgba(247, 241, 232, 0.94);
+            border: 1px solid rgba(247, 241, 232, 0.4);
+            box-shadow: 0 18px 40px rgba(0, 0, 0, 0.28);
+            color: var(--ink);
+            min-width: 180px;
+        }
+
+        .page-loader__card .spinner {
+            width: 1.6rem;
+            height: 1.6rem;
+            border-color: rgba(47, 107, 79, 0.25);
+            border-top-color: var(--accent);
+        }
+
+        .page-loader__card p {
+            font-size: 0.92rem;
+            font-weight: 600;
+            letter-spacing: 0.01em;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .spinner {
+                animation: none;
+                border-top-color: var(--accent);
+            }
+        }
     </style>
 </head>
 <body>
@@ -277,7 +371,7 @@
             <p>Sign in to manage outlets, stock, and daily sales.</p>
         </header>
 
-        <form class="panel" action="{{ route('login') }}" method="post">
+        <form class="panel" id="login-form" action="{{ route('login') }}" method="post">
             @csrf
 
             @if ($errors->any())
@@ -326,11 +420,52 @@
                 </label>
             </div>
 
-            <button type="submit" class="submit">Sign in</button>
+            <button type="submit" class="submit" id="login-submit">
+                <span class="btn-label">Sign in</span>
+                <span class="btn-wait" aria-hidden="true">
+                    <span class="spinner"></span>
+                    Signing in…
+                </span>
+            </button>
         </form>
 
         <p class="foot">Secure access for authorized staff only</p>
     </div>
 </div>
+
+<div class="page-loader" id="login-loader" aria-live="polite" aria-busy="false" hidden>
+    <div class="page-loader__card">
+        <span class="spinner" aria-hidden="true"></span>
+        <p>Signing you in…</p>
+    </div>
+</div>
+<script>
+    (function () {
+        var form = document.getElementById('login-form');
+        if (!form) return;
+
+        var btn = document.getElementById('login-submit');
+        var loader = document.getElementById('login-loader');
+        var submitting = false;
+
+        form.addEventListener('submit', function (e) {
+            if (submitting) {
+                e.preventDefault();
+                return;
+            }
+            submitting = true;
+            if (btn) {
+                btn.classList.add('is-loading');
+                btn.setAttribute('aria-busy', 'true');
+            }
+            if (loader) {
+                loader.hidden = false;
+                loader.classList.add('is-on');
+                loader.setAttribute('aria-busy', 'true');
+            }
+        });
+    })();
+</script>
 </body>
+
 </html>

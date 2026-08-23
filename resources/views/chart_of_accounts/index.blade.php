@@ -5,86 +5,95 @@ Chart Of Accounts
 @section('content')
     @php
         $links = [
-       'Home'=>route('dashboard'),
-       'Master Data'=>'',
-       'Account Setting'=>'',
-       'Chart Of Accounts'=>'',
-        ]
+            'Home' => route('dashboard'),
+            'Master Data' => '',
+            'Account Setting' => '',
+            'Chart Of Accounts' => '',
+        ];
     @endphp
     <x-breadcrumb title='Chart Of Accounts' :links="$links"/>
 
-    <!-- Main content -->
     <section class="content">
         <div class="container-fluid">
-            <div class="row">
-                <div class="col-lg-4 col-md-4">
-                    <div class="card card-info">
+            <div class="row erp-chart">
+                <div class="col-lg-4 col-md-5 mb-3">
+                    <div class="card card-info erp-chart__panel h-100">
                         <div class="card-header">
-                            <h3 class="card-title">Chart Of Accounts</h3>
-                            <div class="card-tools">
-
-                            </div>
+                            <h3 class="card-title mb-0">Account tree</h3>
+                            <div class="erp-chart__meta mt-1">Select a group or ledger to edit</div>
                         </div>
-                        <div class="card-body" id="inventoryItems">
+                        <div class="card-body pt-3">
+                            <div class="erp-chart__search mb-3">
+                                <input type="search" id="coaTreeSearch" class="form-control"
+                                       placeholder="Search accounts…" autocomplete="off">
+                            </div>
+                            <div id="inventoryItems" class="erp-chart__tree-wrap">
+                                <div class="erp-chart__loading">
+                                    <div class="spinner-border spinner-border-sm text-success" role="status"></div>
+                                    <span>Loading accounts…</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="col-lg-8 col-md-8">
-                    <div class="card card-info">
+                <div class="col-lg-8 col-md-7 mb-3">
+                    <div class="card card-info erp-chart__panel h-100">
                         <div class="card-header">
-                            <h4 class="card-title">Chart of Inventory Entry</h4>
+                            <h4 class="card-title mb-0">Account details</h4>
+                            <div class="erp-chart__meta mt-1">View, add under a group, or update a name</div>
                         </div>
                         <div class="card-body">
-                            <div class="row callout callout-success">
-                                <div class="col-xl-12 col-md-12 col-12">
+                            <div class="row erp-chart__fields">
+                                <div class="col-md-6 col-12">
                                     <x-forms.text label="Account ID" inputName="item_id" placeholder=""
                                                   :isRequired='false' :isReadonly='true' defaultValue=""/>
                                 </div>
-                                <div class="col-xl-12 col-md-12 col-12">
+                                <div class="col-md-6 col-12">
+                                    <x-forms.text label="Group / Ledger" inputName="item_type" placeholder=""
+                                                  :isRequired='false' :isReadonly='true' defaultValue=""/>
+                                </div>
+                                <div class="col-12">
                                     <x-forms.text label="Account Name" inputName="item_name"
-                                                  placeholder="Enter Item Name" :isRequired='false'
+                                                  placeholder="Enter account name" :isRequired='false'
                                                   :isReadonly='false' defaultValue=""/>
                                 </div>
-                                <div class="col-xl-12 col-md-12 col-12">
-                                    <x-forms.text label="Group / Ledger" inputName="item_type" placeholder="Enter Name"
+                                <div class="col-md-6 col-12">
+                                    <x-forms.text label="Parent group" inputName="group_name" placeholder=""
                                                   :isRequired='false' :isReadonly='true' defaultValue=""/>
                                 </div>
-                                <div class="col-xl-12 col-md-12 col-12">
-                                    <x-forms.text label="Group Name" inputName="group_name" placeholder="Enter Name"
-                                                  :isRequired='false' :isReadonly='true' defaultValue=""/>
-                                </div>
-                                <div class="col-xl-12 col-md-12 col-12">
+                                <div class="col-md-6 col-12">
                                     <x-forms.text label="Account Type" inputName="account_type" placeholder=""
                                                   :isRequired='false' :isReadonly='true' defaultValue=""/>
                                 </div>
                             </div>
 
-                            <div class="row  callout callout-secondary" id="addNewForm" hidden>
-                                <div class="col-xl-12 col-md-12 col-12">
+                            <div class="row erp-chart__fields erp-chart__fields--add mt-2" id="addNewForm" hidden>
+                                <div class="col-12">
+                                    <div class="erp-chart__section-label">Add under selected group</div>
+                                </div>
+                                <div class="col-md-6 col-12">
                                     <x-forms.static-select label="Account Type" inputName="new_item_type"
                                                            placeholder="Select Type" :isRequired='false'
                                                            :isReadonly='false' defaultValue=""
                                                            :options="['group','ledger']"/>
                                 </div>
-                                <div class="col-xl-12 col-md-12 col-12">
+                                <div class="col-md-6 col-12">
                                     <x-forms.text label="Account Name" inputName="new_item_name"
                                                   placeholder="Enter Account Name" :isRequired='false'
                                                   :isReadonly='false' defaultValue=""/>
                                 </div>
                             </div>
-
                         </div>
-                        <div class="card-footer ">
-                            <div class="text-center">
+                        <div class="card-footer">
+                            <div class="erp-chart__actions">
                                 <button type="button" class="btn btn-sm btn-primary" hidden id="addButton"
-                                        onclick="addNewItem()">Add
+                                        onclick="addNewItem()">Add child
                                 </button>
                                 <button type="button" class="btn btn-sm btn-info" hidden id="saveButton"
                                         onclick="submitItem()">Save
                                 </button>
                                 <button type="button" class="btn btn-sm btn-secondary" hidden id="updateButton"
-                                        onclick="updateItem()">
-                                    Update
+                                        onclick="updateItem()">Update
                                 </button>
                                 <button type="button" class="btn btn-sm btn-danger" hidden id="deleteButton"
                                         onclick="deleteInvItem()">Delete
@@ -93,98 +102,188 @@ Chart Of Accounts
                         </div>
                     </div>
                 </div>
-            </div> <!-- end col -->
+            </div>
         </div>
-        <!-- /.row -->
-
-        </div><!-- /.container-fluid -->
     </section>
-    <!-- /.content -->
 @endsection
+
+@push('style')
+    <style>
+        .erp-chart__meta {
+            color: rgba(255, 255, 255, 0.85);
+            font-size: 0.82rem;
+            font-weight: 500;
+        }
+
+        .erp-chart__search .form-control {
+            border-radius: 10px;
+            border-color: var(--erp-line, #e6e0d8);
+        }
+
+        .erp-chart__tree-wrap {
+            max-height: min(70vh, 640px);
+            overflow: auto;
+            padding-right: 4px;
+        }
+
+        .erp-chart__loading {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--erp-muted, #6b625b);
+            padding: 24px 8px;
+            font-size: 0.9rem;
+        }
+
+        .erp-chart__fields .form-group,
+        .erp-chart__fields .mb-3 {
+            margin-bottom: 0.85rem;
+        }
+
+        .erp-chart__fields--add {
+            background: var(--erp-accent-soft, #e7f2ec);
+            border: 1px solid var(--erp-line, #e6e0d8);
+            border-radius: 12px;
+            padding: 12px 8px 4px;
+            margin-left: 0;
+            margin-right: 0;
+        }
+
+        .erp-chart__section-label {
+            font-weight: 700;
+            color: var(--erp-accent-deep, #245540);
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .erp-chart__actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        .erp-chart__actions .btn {
+            min-width: 96px;
+        }
+    </style>
+@endpush
+
 @push('script')
     <script>
-
         $(document).ready(function () {
-            getAccounts()
-        })
+            getAccounts();
+
+            $('#coaTreeSearch').on('input', function () {
+                filterChartTree($(this).val());
+            });
+        });
 
         const csrfToken = $('meta[name="csrf-token"]').attr('content');
 
-        let addButton = $('#addButton')
-        let saveButton = $('#saveButton')
-        let updateButton = $('#updateButton')
-        let deleteButton = $('#deleteButton')
+        let addButton = $('#addButton');
+        let saveButton = $('#saveButton');
+        let updateButton = $('#updateButton');
+        let deleteButton = $('#deleteButton');
 
-        let additionalInfoDiv = $('#additionalInfo')
-        let addNewDiv = $('#addNewForm')
+        let additionalInfoDiv = $('#additionalInfo');
+        let addNewDiv = $('#addNewForm');
 
-        let itemIdInput = $("input[name=item_id]")
-        let itemNameInput = $("input[name=item_name]")
-        let itemTypeInput = $("input[name=item_type]")
-        let groupNameInput = $("input[name=group_name]")
-        let accountTypeInput = $("input[name=account_type]")
-        let itemUnitInput = $("select[name=unit]")
-        let itemPriceInput = $("input[name=price]")
-        let newItemNameInput = $("input[name=new_item_name]")
-        let newItemTypeInput = $("select[name=new_item_type]")
+        let itemIdInput = $("input[name=item_id]");
+        let itemNameInput = $("input[name=item_name]");
+        let itemTypeInput = $("input[name=item_type]");
+        let groupNameInput = $("input[name=group_name]");
+        let accountTypeInput = $("input[name=account_type]");
+        let newItemNameInput = $("input[name=new_item_name]");
+        let newItemTypeInput = $("select[name=new_item_type]");
 
         function makeHidden(element) {
-            element.prop('hidden', true)
+            element.prop('hidden', true);
         }
 
         function makeVisible(element) {
-            element.prop('hidden', false)
+            element.prop('hidden', false);
         }
 
         function setValue(element, value) {
-            element.val(value)
+            element.val(value);
         }
 
         function getValue(element) {
-            return element.val()
+            return element.val();
+        }
+
+        function filterChartTree(query) {
+            const q = (query || '').toString().trim().toLowerCase();
+            const $nodes = $('#inventoryItems .erp-tree-node');
+
+            if (!q) {
+                $nodes.show();
+                $('#inventoryItems .erp-tree').each(function () {
+                    const $ul = $(this);
+                    if ($ul.closest('li').length) {
+                        $ul.hide();
+                    }
+                });
+                $('#inventoryItems .erp-tree-node.is-active > .erp-tree').show();
+                return;
+            }
+
+            $nodes.each(function () {
+                const $li = $(this);
+                const name = ($li.data('name') || '').toString().toLowerCase();
+                const match = name.indexOf(q) !== -1;
+                const childMatch = $li.find('.erp-tree-node').filter(function () {
+                    return (($(this).data('name') || '').toString().toLowerCase().indexOf(q) !== -1);
+                }).length > 0;
+
+                if (match || childMatch) {
+                    $li.show();
+                    if (childMatch) {
+                        $li.children('.erp-tree').show();
+                    }
+                } else {
+                    $li.hide();
+                }
+            });
         }
 
         function changeChart(id) {
-            event.preventDefault()
+            event.preventDefault();
+            $('#inventoryItems .erp-tree-label').removeClass('is-selected');
+            $('#inventoryItems .erp-tree-label[data-id="' + id + '"]').addClass('is-selected');
+
             $.ajax({
                 url: "/coa-details/" + id,
-                headers: {
-                    'X-CSRF-TOKEN': csrfToken
-                },
+                headers: {'X-CSRF-TOKEN': csrfToken},
                 success: function (result) {
-                    setValue(itemIdInput, result.item_id)
-                    setValue(itemNameInput, result.item_name)
-                    setValue(itemTypeInput, result.item_type)
-                    setValue(groupNameInput, result.group_name)
-                    setValue(accountTypeInput, result.account_type)
-                    setValue(itemUnitInput, '')
-                    setValue(itemPriceInput, '')
-                    makeVisible(updateButton)
-                    makeVisible(addButton)
-                    makeVisible(deleteButton)
+                    setValue(itemIdInput, result.item_id);
+                    setValue(itemNameInput, result.item_name);
+                    setValue(itemTypeInput, result.item_type);
+                    setValue(groupNameInput, result.group_name);
+                    setValue(accountTypeInput, result.account_type);
+                    itemNameInput.prop('disabled', false);
+                    makeVisible(updateButton);
+                    makeVisible(addButton);
+                    makeVisible(deleteButton);
+                    makeHidden(addNewDiv);
+                    makeHidden(saveButton);
                     if (result.item_type === 'ledger') {
-                        makeVisible(additionalInfoDiv)
-                        setValue(itemUnitInput, result.unit_id)
-                        setValue(itemPriceInput, result.price)
-                        makeHidden(addButton)
-                    } else {
-                        makeHidden(additionalInfoDiv)
+                        makeHidden(addButton);
                     }
-
-
                 }
             });
         }
 
         function updateItem() {
-            event.preventDefault()
+            event.preventDefault();
             if (!getValue(itemIdInput)) {
-                toastr.error('Please Select Item')
-                return
+                toastr.error('Please Select Item');
+                return;
             }
             if (!getValue(itemNameInput)) {
-                toastr.error('Please Enter Item Name')
-                return
+                toastr.error('Please Enter Item Name');
+                return;
             }
 
             Swal.fire({
@@ -192,7 +291,7 @@ Chart Of Accounts
                 text: "Update this Item!",
                 icon: "question",
                 showCancelButton: true,
-                confirmButtonColor: "#3085d6",
+                confirmButtonColor: "#2f6b4f",
                 cancelButtonColor: "#d33",
                 confirmButtonText: "Yes, update it!"
             }).then((result) => {
@@ -200,20 +299,14 @@ Chart Of Accounts
                     $.ajax({
                         method: 'POST',
                         url: "/coa-update/" + getValue(itemIdInput),
-                        data: {
-                            item_name: getValue(itemNameInput),
-                            unit: getValue(itemUnitInput),
-                            price: getValue(itemPriceInput),
-                        },
-                        headers: {
-                            'X-CSRF-TOKEN': csrfToken
-                        },
+                        data: {item_name: getValue(itemNameInput)},
+                        headers: {'X-CSRF-TOKEN': csrfToken},
                         success: function (result) {
-                            if(result.success){
-                                toastr.success(result.message)
-                                getAccounts()
-                            }else{
-                                toastr.error(result.message)
+                            if (result.success) {
+                                toastr.success(result.message);
+                                getAccounts();
+                            } else {
+                                toastr.error(result.message);
                             }
                         }
                     });
@@ -223,32 +316,30 @@ Chart Of Accounts
 
         function addNewItem() {
             if (!getValue(itemIdInput)) {
-                toastr.error('Please Select Item')
-                return
+                toastr.error('Please Select Item');
+                return;
             }
 
-            itemNameInput.prop('disabled', true)
-
-            makeVisible(addNewDiv)
-            makeVisible(saveButton)
-            makeHidden(addButton)
-            makeHidden(updateButton)
-            makeHidden(deleteButton)
-
+            itemNameInput.prop('disabled', true);
+            makeVisible(addNewDiv);
+            makeVisible(saveButton);
+            makeHidden(addButton);
+            makeHidden(updateButton);
+            makeHidden(deleteButton);
         }
 
         function submitItem() {
             if (!getValue(itemIdInput)) {
-                toastr.error('Please Select Account')
-                return
+                toastr.error('Please Select Account');
+                return;
             }
             if (!getValue(newItemNameInput)) {
-                toastr.error('Please Enter Account Name')
-                return
+                toastr.error('Please Enter Account Name');
+                return;
             }
             if (!getValue(newItemTypeInput)) {
-                toastr.error('Please Select Account Type')
-                return
+                toastr.error('Please Select Account Type');
+                return;
             }
             $.ajax({
                 method: 'POST',
@@ -257,25 +348,22 @@ Chart Of Accounts
                     item_name: getValue(newItemNameInput),
                     item_type: getValue(newItemTypeInput),
                 },
-                headers: {
-                    'X-CSRF-TOKEN': csrfToken
-                },
+                headers: {'X-CSRF-TOKEN': csrfToken},
                 success: function (result) {
-                    if(result.success){
-                        toastr.success(result.message)
-                        getAccounts()
-                    }else{
-                        toastr.error(result.message)
+                    if (result.success) {
+                        toastr.success(result.message);
+                        getAccounts();
+                    } else {
+                        toastr.error(result.message);
                     }
-
                 }
             });
         }
 
         function deleteInvItem() {
             if (!getValue(itemIdInput)) {
-                toastr.error('Please Select Account')
-                return
+                toastr.error('Please Select Account');
+                return;
             }
 
             Swal.fire({
@@ -283,7 +371,7 @@ Chart Of Accounts
                 text: "Delete this Item!",
                 icon: "warning",
                 showCancelButton: true,
-                confirmButtonColor: "#3085d6",
+                confirmButtonColor: "#2f6b4f",
                 cancelButtonColor: "#d33",
                 confirmButtonText: "Yes, delete it!"
             }).then((result) => {
@@ -291,44 +379,48 @@ Chart Of Accounts
                     $.ajax({
                         method: 'DELETE',
                         url: "/coa-delete/" + getValue(itemIdInput),
-                        headers: {
-                            'X-CSRF-TOKEN': csrfToken
-                        },
+                        headers: {'X-CSRF-TOKEN': csrfToken},
                         success: function (result) {
-                            toastr.success(result.message)
-                            getAccounts()
+                            if (result.success) {
+                                toastr.success(result.message);
+                            } else {
+                                toastr.error(result.message);
+                            }
+                            getAccounts();
                         }
                     });
                 }
             });
-            ;
         }
 
         function getAccounts() {
+            $('#inventoryItems').html(
+                '<div class="erp-chart__loading"><div class="spinner-border spinner-border-sm text-success" role="status"></div><span>Loading accounts…</span></div>'
+            );
             $.ajax({
                 url: "/coa-items/",
-                headers: {
-                    'X-CSRF-TOKEN': csrfToken
-                },
+                headers: {'X-CSRF-TOKEN': csrfToken},
                 success: function (result) {
-                    $('#inventoryItems').html(result)
-                    setValue(newItemNameInput, '')
-                    setValue(newItemTypeInput, '')
-                    setValue(itemIdInput, '')
-                    setValue(itemNameInput, '')
-                    setValue(itemTypeInput, '')
-                    setValue(groupNameInput, '')
-                    setValue(accountTypeInput, '')
-                    setValue(itemUnitInput, '')
-                    setValue(itemPriceInput, 0)
+                    $('#inventoryItems').html(result);
+                    setValue(newItemNameInput, '');
+                    setValue(newItemTypeInput, '');
+                    setValue(itemIdInput, '');
+                    setValue(itemNameInput, '');
+                    setValue(itemTypeInput, '');
+                    setValue(groupNameInput, '');
+                    setValue(accountTypeInput, '');
+                    itemNameInput.prop('disabled', false);
 
-                    makeHidden(addNewDiv)
-                    makeHidden(additionalInfoDiv)
+                    makeHidden(addNewDiv);
+                    makeHidden(addButton);
+                    makeHidden(updateButton);
+                    makeHidden(saveButton);
+                    makeHidden(deleteButton);
 
-                    makeHidden(addButton)
-                    makeHidden(updateButton)
-                    makeHidden(saveButton)
-                    makeHidden(deleteButton)
+                    filterChartTree($('#coaTreeSearch').val());
+                },
+                error: function () {
+                    $('#inventoryItems').html('<div class="erp-chart__loading">Could not load accounts.</div>');
                 }
             });
         }

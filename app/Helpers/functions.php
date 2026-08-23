@@ -819,3 +819,27 @@ FROM inventory_transactions ITT
 WHERE ITT.coi_id = $item_id AND ITT.store_id = $store_id group by ITT.coi_id
     ";
 }
+
+
+/**
+ * Build a parent/child tree from a flat collection using one in-memory pass.
+ * Avoids N+1 recursive relation loading for chart trees.
+ */
+function nestByParentId($items, string $relation = 'children', $rootParentId = null)
+{
+    $items = collect($items);
+    $grouped = $items->groupBy(function ($item) {
+        return $item->parent_id ?? 'root';
+    });
+
+    $build = function ($parentKey) use (&$build, $grouped, $relation) {
+        return collect($grouped->get($parentKey, []))
+            ->values()
+            ->map(function ($item) use (&$build, $relation) {
+                $item->setRelation($relation, $build($item->id));
+                return $item;
+            });
+    };
+
+    return $build($rootParentId ?? 'root');
+}
