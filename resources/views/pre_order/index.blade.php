@@ -240,6 +240,18 @@
                 $('select[name="outlet_id"]').val(sessionStorage.getItem('outlet_id'));
             }
 
+            @if(!(auth()->user()->employee->outlet_id ?? false))
+            if (!$('select[name="filter_by"]').val()) {
+                $('select[name="filter_by"]').val('delivery_date');
+            }
+            if (!$('input[name="from_date"]').val()) {
+                $('input[name="from_date"]').val('{{ now()->subMonths(3)->toDateString() }}');
+            }
+            if (!$('input[name="to_date"]').val()) {
+                $('input[name="to_date"]').val('{{ now()->toDateString() }}');
+            }
+            @endif
+
             table = $('#dataTable').DataTable({
                 stateSave: true,
                 responsive: true,

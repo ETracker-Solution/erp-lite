@@ -64,13 +64,24 @@ class PreOrderController extends Controller
             });
         }
 
-        if (\request()->filled('filter_by') && \request()->filled('from_date') && \request()->filled('to_date')) {
-            $column = \request()->filter_by;
-            $from_date = Carbon::parse(request()->from_date)->format('Y-m-d');
-            $to_date = Carbon::parse(request()->to_date)->format('Y-m-d');
+        $hasDateFilter = \request()->filled('filter_by')
+            && \request()->filled('from_date')
+            && \request()->filled('to_date');
 
-            $preOrderItem = $preOrderItem->whereHas('preOrder', function ($query) use ($column, $from_date, $to_date) {
-                $query->whereBetween($column, [$from_date, $to_date]);
+        if ($hasDateFilter) {
+            $allowed = ['order_date', 'delivery_date'];
+            $column = \request()->filter_by;
+            if (in_array($column, $allowed, true)) {
+                $from_date = Carbon::parse(request()->from_date)->format('Y-m-d');
+                $to_date = Carbon::parse(request()->to_date)->format('Y-m-d');
+
+                $preOrderItem = $preOrderItem->whereHas('preOrder', function ($query) use ($column, $from_date, $to_date) {
+                    $query->whereBetween($column, [$from_date, $to_date]);
+                });
+            }
+        } elseif (!$outlet_id) {
+            $preOrderItem = $preOrderItem->whereHas('preOrder', function ($query) {
+                $query->where('delivery_date', '>=', now()->subMonths(3)->toDateString());
             });
         }
 
@@ -112,24 +123,31 @@ class PreOrderController extends Controller
 
     protected function getFilteredData()
     {
-        $orders = PreOrder::with(['customer', 'outlet', 'deliveryPoint'])
-            ->leftJoin('others_outlet_sales', 'others_outlet_sales.invoice_number', '=', 'pre_orders.order_number')
+        // Scalar subquery avoids LEFT JOIN + DISTINCT (slow for factory/HO full lists,
+        // and wrong when truncated invoice_numbers collide across many OOS rows).
+        $orders = PreOrder::query()
+            ->with([
+                'customer:id,name,mobile',
+                'outlet:id,name',
+                'deliveryPoint:id,name',
+            ])
             ->select('pre_orders.*')
-            ->selectRaw('
-        CASE
-            WHEN others_outlet_sales.id IS NOT NULL THEN
-                GREATEST(
-                    pre_orders.grand_total - (
-                        pre_orders.advance_amount +
-                        COALESCE(others_outlet_sales.delivery_point_receive_amount, 0)
-                    ),
-                    0
-                )
-            ELSE NULL
-        END as due_amount
-    ')
-            ->distinct('pre_orders.id')   // 👈 prevents duplicate rows
-            ->latest();
+            ->selectRaw("
+                (
+                    SELECT GREATEST(
+                        pre_orders.grand_total - (
+                            pre_orders.advance_amount +
+                            COALESCE(oos.delivery_point_receive_amount, 0)
+                        ),
+                        0
+                    )
+                    FROM others_outlet_sales AS oos
+                    WHERE oos.invoice_number = pre_orders.order_number
+                    ORDER BY oos.id DESC
+                    LIMIT 1
+                ) AS due_amount
+            ")
+            ->orderByDesc('pre_orders.id');
 
         if (auth()->user()->employee && auth()->user()->employee->outlet_id) {
             $orders->where('pre_orders.delivery_point_id', auth()->user()->employee->outlet_id);
@@ -143,11 +161,21 @@ class PreOrderController extends Controller
             $orders->where('pre_orders.status', request()->status);
         }
 
-        if (request()->filled('filter_by') && request()->filled('from_date') && request()->filled('to_date')) {
+        $hasDateFilter = request()->filled('filter_by')
+            && request()->filled('from_date')
+            && request()->filled('to_date');
+
+        if ($hasDateFilter) {
+            $allowed = ['order_date', 'delivery_date'];
             $column = request()->filter_by;
-            $from_date = Carbon::parse(request()->from_date)->format('Y-m-d');
-            $to_date = Carbon::parse(request()->to_date)->format('Y-m-d');
-            $orders->whereBetween($column, [$from_date, $to_date]);
+            if (in_array($column, $allowed, true)) {
+                $from_date = Carbon::parse(request()->from_date)->format('Y-m-d');
+                $to_date = Carbon::parse(request()->to_date)->format('Y-m-d');
+                $orders->whereBetween('pre_orders.' . $column, [$from_date, $to_date]);
+            }
+        } elseif (!(auth()->user()->employee && auth()->user()->employee->outlet_id)) {
+            // Factory / HO: default to recent delivery window so first load stays usable.
+            $orders->where('pre_orders.delivery_date', '>=', now()->subMonths(3)->toDateString());
         }
 
         return $orders;
