@@ -334,6 +334,8 @@ Route::middleware(['auth','prevent_duplicate_submission'])->group(function () {
 
     /*=========== Raw Materials Opening Balance Api Starts ===========*/
     Route::get('ledger-reports-initial-info', [\App\Http\Controllers\Api\Web\LedgerReportController::class, 'initialInfo']);
+    Route::get('ledger-reports-search-suppliers', [\App\Http\Controllers\Api\Web\LedgerReportController::class, 'searchSuppliers']);
+    Route::get('ledger-reports-search-customers', [\App\Http\Controllers\Api\Web\LedgerReportController::class, 'searchCustomers']);
     Route::resource('ledger-reports', \App\Http\Controllers\Api\Web\LedgerReportController::class);
     /*=========== Raw Materials Opening Balance Api Ends ===========*/
 
