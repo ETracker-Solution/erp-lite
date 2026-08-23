@@ -91,25 +91,28 @@ Receive Voucher List
                     searchable: true
                 },
                 {
-                    data: "credit_account.name",
-                    title: "Credit",
-                    searchable: false
+                    data: "debit_account.name",
+                    title: "Receive A/C (Dr)",
+                    searchable: false,
+                    defaultContent: "—"
                 },
                 {
-                    data: "debit_account.name",
-                    title: "debit",
+                    data: "credit_account.name",
+                    title: "Credit A/C (Cr)",
                     searchable: false,
-                    "defaultContent":"Not Set"
+                    defaultContent: "—"
                 },
                 {
                     data: "amount",
                     title: "Amount",
-                    searchable: false
+                    searchable: false,
+                    className: "text-right"
                 },
                 {
                     data: "payee_name",
-                    title: "Receiver Name",
-                    searchable: false
+                    title: "Received From",
+                    searchable: false,
+                    defaultContent: "—"
                 },
                 // {
                 //     data: "created_at",

@@ -1,89 +1,151 @@
 @extends('layouts.app')
 
-@section('title', 'Receive Voucher')
-@section('content')
-    @push('style')
-    @endpush
-    @php
-    $links = [
-    'Home'=>route('dashboard'),
-    'Accounts Module'=>'',
-    'General Accounts'=>'',
-    'Receive Voucher Edit'=>'',
-    ]
-    @endphp
-    <x-breadcrumb title='Receive Voucher' :links="$links"/>
+@section('title', 'Receive Voucher Details')
 
-    <!-- Basic Inputs start -->
+@section('content')
+    @php
+        $links = [
+            'Home' => route('dashboard'),
+            'Accounts Module' => '',
+            'General Accounts' => '',
+            'Receive Voucher' => route('receive-vouchers.index'),
+            'Details' => '',
+        ];
+        $amountFmt = number_format((float) $receiveVoucher->amount, 2);
+        $voucherDate = $receiveVoucher->date;
+        if ($voucherDate instanceof \Carbon\CarbonInterface) {
+            $voucherDate = $voucherDate->format('d M Y');
+        }
+    @endphp
+    <x-breadcrumb title="Receive Voucher" :links="$links"/>
+
     <section class="content">
         <div class="container-fluid">
             <div class="row">
-                <div class="col-md-12">
+                <div class="col-lg-10 offset-lg-1">
                     <div class="card card-info">
                         <div class="card-header">
-                            <h4 class="card-title">Receive Voucher Details</h4>
+                            <h3 class="card-title mb-0">
+                                Receive Voucher
+                                <span class="ml-2 font-weight-normal">{{ $receiveVoucher->uid ?: ('#'.$receiveVoucher->id) }}</span>
+                            </h3>
                             <div class="card-tools">
-                                <a href="{{route('receive-vouchers.index')}}">
-                                    <button class="btn btn-sm btn-primary"><i class="fa fa-list" aria-hidden="true"></i>
-                                        &nbsp;See List
-                                    </button>
+                                <a href="{{ route('receive-vouchers.index') }}" class="btn btn-sm btn-primary">
+                                    <i class="fa fa-list"></i> List
                                 </a>
-                                <a href="{{ route('receive-voucher.pdf', encrypt($receiveVoucher->id)) }}" class="btn btn-sm btn-primary" target="_blank"><i class="fa fa-download"></i> PDF</a>
+                                <a href="{{ route('receive-vouchers.edit', encrypt($receiveVoucher->id)) }}" class="btn btn-sm btn-info">
+                                    <i class="fa fa-pencil-alt"></i> Edit
+                                </a>
+                                <a href="{{ route('receive-voucher.pdf', encrypt($receiveVoucher->id)) }}"
+                                   class="btn btn-sm btn-secondary" target="_blank" rel="noopener">
+                                    <i class="fa fa-download"></i> PDF
+                                </a>
                             </div>
                         </div>
+
                         <div class="card-body">
-                            <table class="table table-bordered">
-                                <thead>
+                            <div class="row mb-3">
+                                <div class="col-md-3">
+                                    <div class="small text-muted text-uppercase">Voucher No</div>
+                                    <div class="font-weight-bold" style="font-size:1.15rem;">
+                                        {{ $receiveVoucher->uid ?: ('#'.$receiveVoucher->id) }}
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="small text-muted text-uppercase">Voucher Date</div>
+                                    <div class="font-weight-bold">{{ $voucherDate ?: '—' }}</div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="small text-muted text-uppercase">Received From</div>
+                                    <div class="font-weight-bold">{{ $receiveVoucher->payee_name ?: '—' }}</div>
+                                </div>
+                                <div class="col-md-3 text-md-right">
+                                    <div class="small text-muted text-uppercase">Amount</div>
+                                    <div class="font-weight-bold text-success" style="font-size:1.4rem;">
+                                        {{ $amountFmt }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <div class="small text-muted text-uppercase">Reference No</div>
+                                    <div>{{ $receiveVoucher->reference_no ?: '—' }}</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="small text-muted text-uppercase">Prepared By</div>
+                                    <div>{{ $receiveVoucher->createdBy->name ?? '—' }}</div>
+                                </div>
+                            </div>
+
+                            <div class="table-responsive">
+                                <table class="table table-bordered mb-2">
+                                    <thead class="thead-light">
                                     <tr>
-                                        <th><strong>Date :</strong></th>
-                                        <td>{{ $receiveVoucher->date }}</td>
+                                        <th style="width:8%">#</th>
+                                        <th>Particulars (Account)</th>
+                                        <th class="text-right" style="width:18%">Debit</th>
+                                        <th class="text-right" style="width:18%">Credit</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr>
+                                        <td>1</td>
+                                        <td>
+                                            <div class="font-weight-bold">{{ $receiveVoucher->debitAccount->name ?? '—' }}</div>
+                                            <small class="text-muted">Dr — Receive Account (Cash / Bank)</small>
+                                        </td>
+                                        <td class="text-right font-weight-bold">{{ $amountFmt }}</td>
+                                        <td class="text-right text-muted">—</td>
                                     </tr>
                                     <tr>
-                                        <th><strong>RV No :</strong></th>
-                                        <td>{{ $receiveVoucher->uid }}</td>
+                                        <td>2</td>
+                                        <td>
+                                            <div class="font-weight-bold">{{ $receiveVoucher->creditAccount->name ?? '—' }}</div>
+                                            <small class="text-muted">Cr — Credit Account (Source)</small>
+                                        </td>
+                                        <td class="text-right text-muted">—</td>
+                                        <td class="text-right font-weight-bold">{{ $amountFmt }}</td>
                                     </tr>
-                                    <tr>
-                                        <th><strong>Credit Account  :</strong></th>
-                                        <td>{{ $receiveVoucher->creditAccount->name }}</td>
+                                    </tbody>
+                                    <tfoot>
+                                    <tr class="bg-light">
+                                        <th colspan="2" class="text-right">Total</th>
+                                        <th class="text-right">{{ $amountFmt }}</th>
+                                        <th class="text-right">{{ $amountFmt }}</th>
                                     </tr>
-                                    <tr>
-                                        <th><strong>Debit Account  :</strong></th>
-                                        <td>{{ $receiveVoucher->debitAccount->name }}</td>
-                                    </tr>
-                                    <tr>
-                                        <th><strong>Amount :</strong></th>
-                                        <td>{{ $receiveVoucher->amount }}</td>
-                                    </tr>
-                                    <tr>
-                                        <th><strong>Receiver Name :</strong></th>
-                                        <td>{{ $receiveVoucher->payee_name }}</td>
-                                    </tr>
-                                    <tr>
-                                        <th><strong>Description :</strong></th>
-                                        <td>{{ $receiveVoucher->narration }}</td>
-                                    </tr>
-                                    <tr>
-                                        <th><strong>Referance :</strong></th>
-                                        <td>{{ $receiveVoucher->reference_no }}</td>
-                                    </tr>
-                                    
-                                </thead>
-                            </table>
+                                    </tfoot>
+                                </table>
+                            </div>
+
+                            <div class="mb-3">
+                                <div class="small text-muted text-uppercase">Amount in Words</div>
+                                <div class="font-italic">{{ $receiveVoucher->amountInWords() }}</div>
+                            </div>
+
+                            <div class="mb-4">
+                                <div class="small text-muted text-uppercase">Narration</div>
+                                <div>{{ $receiveVoucher->narration ?: '—' }}</div>
+                            </div>
+
+                            <div class="row text-center mt-5 pt-3" style="border-top:1px dashed #dee2e6;">
+                                <div class="col-4">
+                                    <div style="border-top:1px solid #333; margin:3rem auto 0.35rem; width:80%;"></div>
+                                    <small class="text-muted">Prepared By</small>
+                                </div>
+                                <div class="col-4">
+                                    <div style="border-top:1px solid #333; margin:3rem auto 0.35rem; width:80%;"></div>
+                                    <small class="text-muted">Checked By</small>
+                                </div>
+                                <div class="col-4">
+                                    <div style="border-top:1px solid #333; margin:3rem auto 0.35rem; width:80%;"></div>
+                                    <small class="text-muted">Approved By</small>
+                                </div>
+                            </div>
                         </div>
-                        {{-- adjust modal --}}
-                        
                     </div>
-                    
                 </div>
             </div>
         </div>
     </section>
-    <!-- Basic Inputs end -->
-
-@endsection
-@section('css')
-
-@endsection
-@section('js')
-
 @endsection
