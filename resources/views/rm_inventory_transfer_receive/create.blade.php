@@ -44,7 +44,11 @@
                                                             @change="load_old">
                                                         <option value="">Select One</option>
                                                         @foreach($inventory_transfers as $row)
-                                                            <option value="{{ $row->id }}">{{ $row->id }}</option>
+                                                            <option value="{{ $row->id }}"
+                                                                {{ (string) request('transfer_id') === (string) $row->id ? 'selected' : '' }}>
+                                                                {{ $row->uid ?: ('#'.$row->id) }}
+                                                                @if($row->date) — {{ $row->date }}@endif
+                                                            </option>
                                                         @endforeach
                                                     </select>
                                                 </div>
@@ -271,7 +275,7 @@
 
                         get_old_items_data: "{{ url('fetch-inventory-transfer-by-id') }}",
                     },
-                    inventory_transfer_id: '',
+                    inventory_transfer_id: @json(request('transfer_id') ? (string) request('transfer_id') : ''),
                     date: '',
                     reference_no: '',
                     remark: '',
@@ -287,6 +291,14 @@
                 },
                 components: {
                     vuejsDatepicker
+                },
+                mounted: function () {
+                    if (this.inventory_transfer_id) {
+                        this.$nextTick(function () {
+                            this.load_old();
+                            $('.bSelect').selectpicker('refresh');
+                        }.bind(this));
+                    }
                 },
                 computed: {
 

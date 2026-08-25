@@ -389,23 +389,28 @@ function get_all_groups_report($date, $ac_type)
 {
     $date = sanitizeReportDate($date);
     $ac_type = sanitizeReportAccountType($ac_type);
+
+    // Pre-aggregate transactions by item, then roll up to groups (uses date index better).
     return "SELECT
-    CIP.name as `Group Name`,
-    FORMAT(SUM(IT.quantity * IT.type),0) as `Balance Qty`,
-    -- FORMAT((IT.amount / SUM(IT.quantity * IT.type)),0) as RATE,
-    FORMAT(IT.amount,0) as `Value`
-    FROM
-    inventory_transactions IT
-    JOIN
-    chart_of_inventories CI ON CI.id = IT.coi_id
-    JOIN
-    chart_of_inventories CIP ON CIP.id = CI.parent_id
-    WHERE
-            IT.date <= '$date'
-            AND CI.rootAccountType = '$ac_type'
-            AND CI.type = 'item'
-    GROUP BY
-    CIP.id";
+        CIP.name AS `Group Name`,
+        FORMAT(SUM(bal.qty), 0) AS `Balance Qty`,
+        FORMAT(SUM(bal.amt), 0) AS `Value`
+    FROM (
+        SELECT
+            IT.coi_id,
+            SUM(IT.quantity * IT.type) AS qty,
+            SUM(IT.amount) AS amt
+        FROM inventory_transactions IT
+        WHERE IT.date <= '{$date}'
+        GROUP BY IT.coi_id
+    ) bal
+    INNER JOIN chart_of_inventories CI
+        ON CI.id = bal.coi_id
+        AND CI.rootAccountType = '{$ac_type}'
+        AND CI.type = 'item'
+    INNER JOIN chart_of_inventories CIP ON CIP.id = CI.parent_id
+    GROUP BY CIP.id, CIP.name
+    ORDER BY CIP.name";
 }
 
 function get_all_items_by_group($group_id, $date, $ac_type)
@@ -427,37 +432,42 @@ FROM (
         `Balance Qty`,
         IF(Subgroup_ID IS NULL, '', IFNULL(
         CASE
-    WHEN '$ac_type' = 'RM' THEN IF(`AllQ` = 0, NULL,format( `AllA` / `AllQ`,0))
-    ELSE FORMAT(ORate,0)
+    WHEN '{$ac_type}' = 'RM' THEN IF(`AllQ` = 0, NULL, FORMAT(`AllA` / `AllQ`, 0))
+    ELSE FORMAT(ORate, 0)
     END
         , ''))  AS `Rate`,
-         CASE WHEN '$ac_type' = 'RM' THEN format(`Value`,0) ELSE format(( `Balance Qty` * ORate),0) END AS `Value`,
+         CASE WHEN '{$ac_type}' = 'RM' THEN FORMAT(`Value`, 0) ELSE FORMAT((`Balance Qty` * ORate), 0) END AS `Value`,
         @prev_group := Group_Name
     FROM (
         SELECT
             IF(CIP.name IS NULL, 'Total', CIP.name) AS Group_Name,
             CI.id AS Subgroup_ID,
             CI.name AS Subgroup_Name,
-            SUM(IT.quantity * IT.type) AS `Balance Qty`,
-            SUM(CASE WHEN IT.type = 1 THEN IT.quantity ELSE 0 END) as `AllQ`,
-            SUM(CASE WHEN IT.type = 1 THEN IT.amount ELSE 0 END) as `AllA`,
-            CI.price as ORate,
-            SUM(IT.amount) AS `Value`
-        FROM
-            inventory_transactions IT
-        JOIN
-            chart_of_inventories CI ON CI.id = IT.coi_id
-        JOIN
-            chart_of_inventories CIP ON CIP.id = CI.parent_id
-         WHERE
-            CIP.id = '$group_id'
-            AND IT.date <= '$date'
-            AND CI.rootAccountType = '$ac_type'
+            SUM(bal.qty) AS `Balance Qty`,
+            SUM(bal.in_qty) AS `AllQ`,
+            SUM(bal.in_amt) AS `AllA`,
+            CI.price AS ORate,
+            SUM(bal.amt) AS `Value`
+        FROM (
+            SELECT
+                IT.coi_id,
+                SUM(IT.quantity * IT.type) AS qty,
+                SUM(CASE WHEN IT.type = 1 THEN IT.quantity ELSE 0 END) AS in_qty,
+                SUM(CASE WHEN IT.type = 1 THEN IT.amount ELSE 0 END) AS in_amt,
+                SUM(IT.amount) AS amt
+            FROM inventory_transactions IT
+            WHERE IT.date <= '{$date}'
+            GROUP BY IT.coi_id
+        ) bal
+        INNER JOIN chart_of_inventories CI
+            ON CI.id = bal.coi_id
+            AND CI.rootAccountType = '{$ac_type}'
             AND CI.type = 'item'
-        GROUP BY
-            CI.id WITH ROLLUP
+            AND CI.parent_id = {$group_id}
+        INNER JOIN chart_of_inventories CIP ON CIP.id = CI.parent_id
+        GROUP BY CI.id WITH ROLLUP
     ) AS subquery,
-    (SELECT @prev_group := null) AS prev
+    (SELECT @prev_group := NULL) AS prev
 ) AS result";
 }
 
@@ -475,16 +485,16 @@ function get_all_items($date, $ac_type)
 FROM (
     SELECT
         IF(Group_Name = @prev_group, '', IFNULL(Group_Name, '')) AS `Group Name`,
-        IF(Subgroup_ID IS NULL, if(@is_last_row = 1, 'Grand Total','Total'), IFNULL(Subgroup_ID, '')) AS `Item ID`,
+        IF(Subgroup_ID IS NULL, IF(@is_last_row = 1, 'Grand Total', 'Total'), IFNULL(Subgroup_ID, '')) AS `Item ID`,
         IF(Subgroup_ID IS NULL, '', IFNULL(Subgroup_Name, '')) AS `Item Name`,
         `Balance Qty`,
         IF(Subgroup_ID IS NULL, '', IFNULL(
         CASE
-    WHEN '$ac_type' = 'RM' THEN IF(`AllQ` = 0, NULL,format( `AllA` / `AllQ`,0))
-    ELSE FORMAT(ORate,0)
+    WHEN '{$ac_type}' = 'RM' THEN IF(`AllQ` = 0, NULL, FORMAT(`AllA` / `AllQ`, 0))
+    ELSE FORMAT(ORate, 0)
     END
         , ''))  AS `Rate`,
-        CASE WHEN '$ac_type' = 'RM' THEN format(`Value`,0) ELSE format(( `Balance Qty` * ORate),0) END AS `Value`,
+        CASE WHEN '{$ac_type}' = 'RM' THEN FORMAT(`Value`, 0) ELSE FORMAT((`Balance Qty` * ORate), 0) END AS `Value`,
         @prev_group := Group_Name,
         @is_last_row := CASE
             WHEN Subgroup_ID IS NULL THEN 1
@@ -495,25 +505,30 @@ FROM (
             IF(CIP.name IS NULL, 'Total', CIP.name) AS Group_Name,
             CI.id AS Subgroup_ID,
             CI.name AS Subgroup_Name,
-            SUM(IT.quantity * IT.type) AS `Balance Qty`,
-             SUM(CASE WHEN IT.type = 1 THEN IT.quantity ELSE 0 END) as `AllQ`,
-            SUM(CASE WHEN IT.type = 1 THEN IT.amount ELSE 0 END) as `AllA`,
-            CI.price as ORate,
-            SUM(IT.amount) AS `Value`
-        FROM
-            inventory_transactions IT
-        JOIN
-            chart_of_inventories CI ON CI.id = IT.coi_id
-        JOIN
-            chart_of_inventories CIP ON CIP.id = CI.parent_id
-         WHERE
-            IT.date <= '$date'
-            AND CI.rootAccountType = '$ac_type'
+            SUM(bal.qty) AS `Balance Qty`,
+            SUM(bal.in_qty) AS `AllQ`,
+            SUM(bal.in_amt) AS `AllA`,
+            CI.price AS ORate,
+            SUM(bal.amt) AS `Value`
+        FROM (
+            SELECT
+                IT.coi_id,
+                SUM(IT.quantity * IT.type) AS qty,
+                SUM(CASE WHEN IT.type = 1 THEN IT.quantity ELSE 0 END) AS in_qty,
+                SUM(CASE WHEN IT.type = 1 THEN IT.amount ELSE 0 END) AS in_amt,
+                SUM(IT.amount) AS amt
+            FROM inventory_transactions IT
+            WHERE IT.date <= '{$date}'
+            GROUP BY IT.coi_id
+        ) bal
+        INNER JOIN chart_of_inventories CI
+            ON CI.id = bal.coi_id
+            AND CI.rootAccountType = '{$ac_type}'
             AND CI.type = 'item'
-        GROUP BY
-            CIP.id, CI.id WITH ROLLUP
+        INNER JOIN chart_of_inventories CIP ON CIP.id = CI.parent_id
+        GROUP BY CIP.id, CI.id WITH ROLLUP
     ) AS subquery,
-    (SELECT @prev_group := null, @is_last_row := 0) AS prev
+    (SELECT @prev_group := NULL, @is_last_row := 0) AS prev
 ) AS result";
 }
 
@@ -521,62 +536,72 @@ function get_all_stores($date, $ac_type)
 {
     $date = sanitizeReportDate($date);
     $ac_type = sanitizeReportAccountType($ac_type);
-//    if ($ac_type == 'FG'){
-//        return all_store_fg_report_query($date);
-//    }
+
+    // Store summary only. Single pass + UNION total (no ROLLUP/ORDER BY conflict).
     return "SELECT
-    `Store Name`,
-    -- `Group Name`,
-    -- `Item ID`,
-    -- `Item Name`,
-    `Balance Qty`,
-    `Value`
-FROM (
-    SELECT
-		IF(Store_Name = @prev_store, '', IFNULL(Store_Name, '')) AS `Store Name`,
-        IF(Group_Name = @prev_group, '', IFNULL(Group_Name, '')) AS `Group Name`,
-        IF(Subgroup_ID IS NULL, '', IFNULL(Subgroup_ID, '')) AS `Item ID`,
-        IF(Subgroup_ID IS NULL, '', IFNULL(Subgroup_Name, '')) AS `Item Name`,
-        `Balance Qty`,
-        IF(Subgroup_ID IS NULL, '', IFNULL(
-        CASE
-    WHEN '$ac_type' = 'RM' THEN IF(`AllQ` = 0, NULL,format( `AllA` / `AllQ`,0))
-    ELSE FORMAT(ORate,0)
-    END
-        , ''))  AS `Rate`,
-      IF(Subgroup_ID IS NULL,format(@total_a,0),CASE WHEN '$ac_type' = 'RM' THEN format(`Value`,0) ELSE format(( `Balance Qty` * ORate),0) END) as`Value`,
-        @prev_group := Group_Name,
-        @prev_store:= Store_Name,
-        @total_a := @total_a + `Value`
+        report.`Store Name`,
+        report.`Balance Qty`,
+        report.`Value`
     FROM (
         SELECT
-			ST.id AS Store_ID,
-            ST.name AS Store_Name,
-            IF(CIP.name IS NULL, 'Total', CIP.name) AS Group_Name,
-            CI.id AS Subgroup_ID,
-            CI.name AS Subgroup_Name,
-            SUM(IT.quantity * IT.type) AS `Balance Qty`,
-            SUM(CASE WHEN IT.type = 1 THEN IT.quantity ELSE 0 END) as `AllQ`,
-            SUM(CASE WHEN IT.type = 1 THEN IT.amount ELSE 0 END) as `AllA`,
-            CI.price as ORate,
-            SUM(IT.quantity * IT.type) * (SUM(CASE WHEN IT.type = 1 THEN IT.amount ELSE 0 END)/SUM(CASE WHEN IT.type = 1 THEN IT.quantity ELSE 0 END)) AS `Value`
-        FROM
-            inventory_transactions IT
-        JOIN
-            chart_of_inventories CI ON CI.id = IT.coi_id
-        JOIN
-            chart_of_inventories CIP ON CIP.id = CI.parent_id
-        LEFT JOIN
-			stores ST on ST.id  = IT.store_id
-		WHERE
-            IT.date <= '$date'
-            AND CI.rootAccountType = '$ac_type'
+            ST.name AS `Store Name`,
+            FORMAT(SUM(bal.qty), 0) AS `Balance Qty`,
+            FORMAT(
+                SUM(bal.qty) * (
+                    SUM(bal.in_amt) / NULLIF(SUM(bal.in_qty), 0)
+                ),
+                0
+            ) AS `Value`,
+            0 AS is_total,
+            ST.name AS sort_name
+        FROM (
+            SELECT
+                IT.store_id,
+                IT.coi_id,
+                SUM(IT.quantity * IT.type) AS qty,
+                SUM(CASE WHEN IT.type = 1 THEN IT.quantity ELSE 0 END) AS in_qty,
+                SUM(CASE WHEN IT.type = 1 THEN IT.amount ELSE 0 END) AS in_amt
+            FROM inventory_transactions IT
+            WHERE IT.date <= '{$date}'
+            GROUP BY IT.store_id, IT.coi_id
+        ) bal
+        INNER JOIN chart_of_inventories CI
+            ON CI.id = bal.coi_id
+            AND CI.rootAccountType = '{$ac_type}'
             AND CI.type = 'item'
-        GROUP BY
-            IT.store_id WITH ROLLUP
-    ) AS subquery,
-    (SELECT @prev_group := null, @prev_store:= null, @total_a :=0) AS prev
-) AS result";
+        LEFT JOIN stores ST ON ST.id = bal.store_id
+        GROUP BY bal.store_id, ST.name
+
+        UNION ALL
+
+        SELECT
+            'Total' AS `Store Name`,
+            FORMAT(SUM(bal.qty), 0) AS `Balance Qty`,
+            FORMAT(
+                SUM(bal.qty) * (
+                    SUM(bal.in_amt) / NULLIF(SUM(bal.in_qty), 0)
+                ),
+                0
+            ) AS `Value`,
+            1 AS is_total,
+            NULL AS sort_name
+        FROM (
+            SELECT
+                IT.store_id,
+                IT.coi_id,
+                SUM(IT.quantity * IT.type) AS qty,
+                SUM(CASE WHEN IT.type = 1 THEN IT.quantity ELSE 0 END) AS in_qty,
+                SUM(CASE WHEN IT.type = 1 THEN IT.amount ELSE 0 END) AS in_amt
+            FROM inventory_transactions IT
+            WHERE IT.date <= '{$date}'
+            GROUP BY IT.store_id, IT.coi_id
+        ) bal
+        INNER JOIN chart_of_inventories CI
+            ON CI.id = bal.coi_id
+            AND CI.rootAccountType = '{$ac_type}'
+            AND CI.type = 'item'
+    ) report
+    ORDER BY report.is_total, report.sort_name";
 }
 
 function all_store_fg_report_query($date){
@@ -614,7 +639,7 @@ WHERE
     ";
 }
 
-function get_all_items_by_store($store_id, $date, $ac_type)
+function get_all_items_by_store($store_id, $date, $ac_type, $group_id = null, $item_id = null)
 {
     $store_id = (int) $store_id;
     $date = sanitizeReportDate($date);
@@ -622,6 +647,16 @@ function get_all_items_by_store($store_id, $date, $ac_type)
     if ($ac_type == 'FG') {
         return get_all_items_by_fg_store($store_id, $date);
     }
+
+    $groupFilter = '';
+    if ($group_id) {
+        $groupFilter = ' AND CI.parent_id = ' . (int) $group_id;
+    }
+    $itemFilter = '';
+    if ($item_id) {
+        $itemFilter = ' AND CI.id = ' . (int) $item_id;
+    }
+
     return "SELECT
     `Group Name`,
     `Item ID`,
@@ -631,59 +666,58 @@ function get_all_items_by_store($store_id, $date, $ac_type)
     `Value`
 FROM (
     SELECT
-		IF(Store_Name = @prev_store, '', IFNULL(Store_Name, '')) AS `Store Name`,
         IF(Group_Name = @prev_group, '', IFNULL(Group_Name, '')) AS `Group Name`,
-        IF(Subgroup_ID IS NULL, if(@is_last_row = 1, 'Grand Total','Total'), IFNULL(Subgroup_ID, '')) AS `Item ID`,
+        IF(Subgroup_ID IS NULL, IF(@is_last_row = 1, 'Grand Total', 'Total'), IFNULL(Subgroup_ID, '')) AS `Item ID`,
         IF(Subgroup_ID IS NULL, '', IFNULL(Subgroup_Name, '')) AS `Item Name`,
         `Balance Qty`,
         IF(Subgroup_ID IS NULL, '', IFNULL(
         CASE
-    WHEN '$ac_type' = 'RM' THEN IF(`AllQ` = 0, NULL,format( `AllA` / `AllQ`,0))
-    ELSE FORMAT(ORate,0)
+    WHEN '{$ac_type}' = 'RM' THEN IF(`AllQ` = 0, NULL, FORMAT(`AllA` / `AllQ`, 0))
+    ELSE FORMAT(ORate, 0)
     END
         , ''))  AS `Rate`,
       IF(Subgroup_ID IS NULL, '', IFNULL(
         CASE
-    WHEN '$ac_type' = 'RM' THEN FORMAT( `Value`,0)
-    ELSE FORMAT((ORate * `Balance Qty`),0)
+    WHEN '{$ac_type}' = 'RM' THEN FORMAT(`Value`, 0)
+    ELSE FORMAT((ORate * `Balance Qty`), 0)
     END
         , ''))  AS `Value`,
         @prev_group := Group_Name,
-         @prev_store:= Store_Name,
-        @total_a := @total_a + `Value`,
-            @is_last_row := CASE
+        @is_last_row := CASE
             WHEN Subgroup_ID IS NULL THEN 1
             ELSE 0
         END
     FROM (
         SELECT
-			ST.id AS Store_ID,
-            ST.name AS Store_Name,
             IF(CIP.name IS NULL, 'Total', CIP.name) AS Group_Name,
             CI.id AS Subgroup_ID,
             CI.name AS Subgroup_Name,
-            SUM(IT.quantity * IT.type) AS `Balance Qty`,
-            SUM(CASE WHEN IT.type = 1 THEN IT.quantity ELSE 0 END) as `AllQ`,
-            SUM(CASE WHEN IT.type = 1 THEN IT.amount ELSE 0 END) as `AllA`,
-            CI.price as ORate,
-            SUM(IT.quantity * IT.type) * (SUM(CASE WHEN IT.type = 1 THEN IT.amount ELSE 0 END)/SUM(CASE WHEN IT.type = 1 THEN IT.quantity ELSE 0 END)) AS `Value`
-        FROM
-            inventory_transactions IT
-        JOIN
-            chart_of_inventories CI ON CI.id = IT.coi_id
-        JOIN
-            chart_of_inventories CIP ON CIP.id = CI.parent_id
-        LEFT JOIN
-			stores ST on ST.id  = IT.store_id
-        WHERE
-			IT.store_id = '$store_id'
-			AND IT.date <= '$date'
-			 AND CI.rootAccountType = '$ac_type'
-             AND CI.type = 'item'
-        GROUP BY
-             CIP.id, CI.id WITH ROLLUP
+            SUM(bal.qty) AS `Balance Qty`,
+            SUM(bal.in_qty) AS `AllQ`,
+            SUM(bal.in_amt) AS `AllA`,
+            CI.price AS ORate,
+            SUM(bal.qty) * (SUM(bal.in_amt) / NULLIF(SUM(bal.in_qty), 0)) AS `Value`
+        FROM (
+            SELECT
+                IT.coi_id,
+                SUM(IT.quantity * IT.type) AS qty,
+                SUM(CASE WHEN IT.type = 1 THEN IT.quantity ELSE 0 END) AS in_qty,
+                SUM(CASE WHEN IT.type = 1 THEN IT.amount ELSE 0 END) AS in_amt
+            FROM inventory_transactions IT
+            WHERE IT.store_id = {$store_id}
+              AND IT.date <= '{$date}'
+            GROUP BY IT.coi_id
+        ) bal
+        INNER JOIN chart_of_inventories CI
+            ON CI.id = bal.coi_id
+            AND CI.rootAccountType = '{$ac_type}'
+            AND CI.type = 'item'
+            {$groupFilter}
+            {$itemFilter}
+        INNER JOIN chart_of_inventories CIP ON CIP.id = CI.parent_id
+        GROUP BY CIP.id, CI.id WITH ROLLUP
     ) AS subquery,
-    (SELECT @prev_group := null, @prev_store:= null, @total_a :=0, @is_last_row := 0) AS prev
+    (SELECT @prev_group := NULL, @is_last_row := 0) AS prev
 ) AS result";
 }
 

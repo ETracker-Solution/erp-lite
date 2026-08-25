@@ -27,7 +27,7 @@ class RMInventoryTransferController extends Controller
                     'inventory_transfers.to_store_id',
                     'inventory_transfers.created_at',
                 ])
-                ->with(['fromStore:id,name', 'toStore:id,name'])
+                ->with(['fromStore:id,name', 'toStore:id,name,doc_type,doc_id'])
                 ->where('inventory_transfers.type', 'RM')
                 ->latest('inventory_transfers.id');
 
@@ -64,7 +64,6 @@ class RMInventoryTransferController extends Controller
                 ->get(['id', 'name']),
             'stores' => $stores,
             'to_stores' => Store::query()->whereType('RM')->orderBy('name')->get(['id', 'name']),
-            'serial_no' => (int) InventoryTransfer::query()->max('id') + 1,
         ];
 
         return view('rm_inventory_transfer.create', $data);

@@ -1,123 +1,119 @@
 @extends('layouts.app')
-@section('title')
-    RM Inventory Report
-@endsection
+
+@section('title', 'RM Inventory Report')
+
 @section('content')
     @php
         $links = [
             'Home' => route('dashboard'),
             'Store RM Module' => '',
-            'Report' => '',
             'RM Inventory Report' => '',
         ];
     @endphp
-    <x-breadcrumb title='RM Inventory Report' :links="$links" />
+    <x-breadcrumb title="RM Inventory Report" :links="$links"/>
 
     <section class="content">
         <div class="container-fluid">
             <div class="row" id="vue_app">
-                <span v-if="pageLoading" class="categoryLoader">
-                    <img src="{{ asset('loading.gif') }}" alt="loading">
-                </span>
-                <div class="col-6">
+                <div class="col-lg-10 offset-lg-1">
                     <div class="card card-info">
                         <div class="card-header">
-                            <div class="card-title">Select Parameters</div>
+                            <h3 class="card-title mb-0">Raw Material Inventory Report</h3>
                         </div>
                         <div class="card-body">
+                            <p class="text-muted small mb-3">
+                                Choose filters, then generate a PDF summary as of the selected date.
+                            </p>
+
                             <div class="row">
-                                <div class="col-12">
+                                <div class="col-md-4">
                                     <div class="form-group">
                                         <label for="store_id">Store</label>
-                                        <select name="store_id" id="store_id" class="form-control" v-model="store_id">
-                                            <option value="">Select a Store</option>
-                                            <option :value="row.id" v-for="row in stores">@{{ row.id + ' - ' + row.name }}
-                                            </option>
+                                        <select name="store_id" id="store_id" class="form-control bSelect"
+                                                v-model="store_id">
+                                            <option value="">All / Select store</option>
+                                            @foreach($stores as $row)
+                                                <option value="{{ $row->id }}">{{ $row->name }}</option>
+                                            @endforeach
                                         </select>
                                     </div>
                                 </div>
-                                <div class="col-12">
+                                <div class="col-md-4">
                                     <div class="form-group">
                                         <label for="group_id">Group</label>
-                                        <select name="group_id" id="group_id" @change="fetch_product" class="form-control"
-                                            v-model="group_id">
-                                            <option value="">Select a Group</option>
-                                            <option :value="row.id" v-for="row in groups">@{{ row.id + ' - ' + row.name }}
-                                            </option>
+                                        <select name="group_id" id="group_id" class="form-control bSelect"
+                                                v-model="group_id" @change="fetch_product">
+                                            <option value="">All / Select group</option>
+                                            @foreach($groups as $row)
+                                                <option value="{{ $row->id }}">{{ $row->name }}</option>
+                                            @endforeach
                                         </select>
                                     </div>
                                 </div>
-                                <div class="col-12">
+                                <div class="col-md-4">
                                     <div class="form-group">
                                         <label for="item_id">Item</label>
-                                        <select name="item_id" id="item_id" class="form-control bSelect" v-model="item_id"
-                                            @change="get_product_info">
-                                            <option value="">Select one</option>
-                                            <option :value="row.id" v-for="row in items">@{{ row.id + ' - ' + row.name }}
-                                            </option>
+                                        <select name="item_id" id="item_id" class="form-control bSelect"
+                                                v-model="item_id">
+                                            <option value="">All / Select item</option>
+                                            <option :value="row.id" v-for="row in items" :key="row.id"
+                                                    v-html="row.name"></option>
                                         </select>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card card-info">
-                        <div class="card-header">
-                            <div class="card-title">Select Date Range</div>
-                        </div>
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-12">
+                                <div class="col-md-4">
                                     <div class="form-group">
-                                        <label for="">As On Date</label>
-                                        <vuejs-datepicker v-model="from_date" name="as_on_date"
-                                            placeholder="Select date"></vuejs-datepicker>
+                                        <label for="as_on_date">As On Date <span class="text-danger">*</span></label>
+                                        <input type="date" class="form-control" id="as_on_date" v-model="as_on_date">
                                     </div>
                                 </div>
-                                {{--                                <div class="col-12"> --}}
-                                {{--                                    <div class="form-group"> --}}
-                                {{--                                        <label for="">To Date</label> --}}
-                                {{--                                        <vuejs-datepicker v-model="to_date" name="to_date" --}}
-                                {{--                                                          placeholder="Select date"></vuejs-datepicker> --}}
-                                {{--                                    </div> --}}
-                                {{--                                </div> --}}
                             </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-6">
-                    <div class="card card-info">
-                        <div class="card-header">
-                            <div class="card-title">Raw Material Inventory Report</div>
-                        </div>
-                        <div class="card-body">
+
+                            <hr class="mt-1 mb-3">
+
+                            <div class="small text-muted mb-2">Generate PDF</div>
                             <div class="row">
-                                <div class="col-12">
-                                    <div class="text-center">
-                                        @if ($isAdmin)
-                                            <button class="btn btn-sm btn-dark w-50 mb-2" @click="showReport('all_groups')">
-                                                Show All Groups Quantity Summary
-                                            </button>
-                                            <button class="btn btn-sm btn-dark w-50 mb-2"
-                                                @click="showReport('single_group_item')">Show Single Group Item Quantity
-                                                Summary
-                                            </button>
-                                            <button class="btn btn-sm btn-dark w-50 mb-2" @click="showReport('all_item')">
-                                                Show All Item Quantity Summary
-                                            </button>
-                                            {{--                                        <button class="btn btn-sm btn-dark w-50 mb-2" --}}
-                                            {{--                                                @click="showReport('single_item')">Show Single Item Quantity Summary --}}
-                                            {{--                                        </button> --}}
-                                            <button class="btn btn-sm btn-dark w-50 mb-2"
-                                                @click="showReport('store_group')">Show All Store Quantity Summary
-                                            </button>
-                                        @endif
-                                        <button class="btn btn-sm btn-dark w-50 mb-2"
-                                            @click="showReport('store_group_item')">Show Single Store + Group + Item
-                                            Quantity Summary
+                                @if ($isAdmin)
+                                    <div class="col-md-6 mb-2">
+                                        <button type="button" class="btn btn-dark btn-block"
+                                                :disabled="pageLoading"
+                                                @click="showReport('all_groups')">
+                                            All Groups Summary
                                         </button>
                                     </div>
+                                    <div class="col-md-6 mb-2">
+                                        <button type="button" class="btn btn-dark btn-block"
+                                                :disabled="pageLoading"
+                                                @click="showReport('single_group_item')">
+                                            Single Group Items
+                                        </button>
+                                    </div>
+                                    <div class="col-md-6 mb-2">
+                                        <button type="button" class="btn btn-dark btn-block"
+                                                :disabled="pageLoading"
+                                                @click="showReport('all_item')">
+                                            All Items Summary
+                                        </button>
+                                    </div>
+                                    <div class="col-md-6 mb-2">
+                                        <button type="button" class="btn btn-dark btn-block"
+                                                :disabled="pageLoading"
+                                                @click="showReport('store_group')">
+                                            All Stores Summary
+                                        </button>
+                                    </div>
+                                @endif
+                                <div class="col-md-6 mb-2">
+                                    <button type="button" class="btn btn-primary btn-block"
+                                            :disabled="pageLoading"
+                                            @click="showReport('store_group_item')">
+                                        Store (+ optional Group / Item)
+                                    </button>
                                 </div>
+                            </div>
+
+                            <div class="text-center text-muted small mt-2" v-if="pageLoading">
+                                Generating report…
                             </div>
                         </div>
                     </div>
@@ -126,168 +122,69 @@
         </div>
     </section>
 @endsection
+
 @push('style')
-    <style>
-        .categoryLoader {
-            position: absolute;
-            top: 50%;
-            right: 40%;
-            transform: translate(-50%, -50%);
-            color: red;
-            z-index: 999;
-        }
-
-        input[placeholder="Select date"] {
-            display: block;
-            width: 100%;
-            height: calc(2.25rem + 2px);
-            padding: .375rem .75rem;
-            font-size: 1rem;
-            font-weight: 400;
-            line-height: 1.5;
-            color: #495057;
-            background-color: #fff;
-            background-clip: padding-box;
-            border: 1px solid #ced4da;
-            border-radius: .25rem;
-            box-shadow: inset 0 0 0 transparent;
-            transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
-        }
-    </style>
-
     <link rel="stylesheet" href="{{ asset('vue-js/bootstrap-select/dist/css/bootstrap-select.min.css') }}">
 @endpush
+
 @push('script')
     <script src="{{ asset('vue-js/vue/dist/vue.js') }}"></script>
     <script src="{{ asset('vue-js/axios/dist/axios.min.js') }}"></script>
     <script src="{{ asset('vue-js/bootstrap-select/dist/js/bootstrap-select.min.js') }}"></script>
-    <script src="https://cms.diu.ac/vue/vuejs-datepicker.min.js"></script>
     <script>
-        $(document).ready(function() {
-
-            var vue = new Vue({
+        $(document).ready(function () {
+            new Vue({
                 el: '#vue_app',
                 data: {
                     config: {
                         inventoryReportUrl: "{{ url('raw-materials-inventory-report') }}",
-                        initial_info_url: "{{ url('raw-materials-opening-balances-initial-info') }}",
                         get_items_info_by_group_id_url: "{{ url('fetch-items-by-group-id') }}",
-                        get_item_info_url: "{{ url('fetch-item-info') }}",
-                        get_balances_url: "{{ url('raw-materials-opening-balances-list') }}",
                     },
-                    from_date: new Date(),
-                    to_date: new Date(),
+                    as_on_date: "{{ date('Y-m-d') }}",
                     group_id: '',
                     item_id: '',
                     store_id: '',
                     items: [],
                     pageLoading: false,
-                    groups: [],
-                    stores: []
-
                 },
-                components: {
-                    vuejsDatepicker,
-                },
-                computed: {},
                 methods: {
-                    fetch_product() {
+                    fetch_product: function () {
                         var vm = this;
-                        var slug = vm.group_id;
-                        if (slug) {
-                            vm.pageLoading = true;
-                            axios.get(this.config.get_items_info_by_group_id_url + '/' + slug).then(
-                                function(response) {
-                                    vm.items = response.data.products;
-                                    vm.pageLoading = false;
-                                }).catch(function(error) {
+                        vm.item_id = '';
+                        vm.items = [];
+                        if (!vm.group_id) {
+                            vm.$nextTick(function () {
+                                $('.bSelect').selectpicker('refresh');
+                            });
+                            return;
+                        }
+                        axios.get(this.config.get_items_info_by_group_id_url + '/' + vm.group_id)
+                            .then(function (response) {
+                                vm.items = response.data.products || [];
+                                vm.$nextTick(function () {
+                                    $('.bSelect').selectpicker('refresh');
+                                });
+                            })
+                            .catch(function () {
                                 toastr.error('Something went to wrong', {
                                     closeButton: true,
                                     progressBar: true,
                                 });
-                                return false;
                             });
+                    },
+                    showReport: function (reportType) {
+                        var vm = this;
+                        if (reportType === 'single_group_item' && !vm.group_id) {
+                            toastr.error('Please Select Group', {closeButton: true, progressBar: true});
+                            return;
                         }
-                    },
-                    get_product_info() {
-                        const vm = this;
-                        if (!vm.item_id) {
-                            toastr.error('Please Select Item', {
-                                closeButton: true,
-                                progressBar: true,
-                            });
-                            return false;
-                        } else {
-                            const slug = vm.item_id;
-                            if (slug) {
-                                vm.pageLoading = true;
-                                axios.get(this.config.get_item_info_url + '/' + slug).then(function(
-                                    response) {
-                                    let item_info = response.data;
-                                    vm.unit = item_info.unit ? item_info.unit.name : '';
-                                    vm.pageLoading = false;
-                                }).catch(function(error) {
-                                    toastr.error('Something went to wrong', {
-                                        closeButton: true,
-                                        progressBar: true,
-                                    });
-                                    return false;
-                                });
-                            }
-
+                        if (reportType === 'store_group_item' && !vm.store_id) {
+                            toastr.error('Please Select Store', {closeButton: true, progressBar: true});
+                            return;
                         }
-
-                    },
-                    backAsStarting() {
-                        const vm = this;
-                        vm.isEditMode = false
-                        vm.date = new Date()
-                        vm.group_id = ''
-                        vm.item_id = ''
-                        vm.unit = ''
-                        vm.store_id = ''
-                        vm.items = []
-                        vm.quantity = ''
-                        vm.rate = ''
-                        vm.pageLoading = false
-                        vm.remarks = ''
-                        vm.editableItem = ''
-                    },
-                    get_initial_data() {
-                        const vm = this;
-                        vm.pageLoading = true;
-                        axios.get(this.config.initial_info_url).then(function(response) {
-                            vm.groups = response.data.groups;
-                            vm.stores = response.data.stores;
-                            vm.next_id = response.data.next_id;
-                            vm.pageLoading = false;
-                        }).catch(function(error) {
-                            toastr.error('Something went to wrong', {
-                                closeButton: true,
-                                progressBar: true,
-                            });
-                            return false;
-                        });
-                    },
-                    showReport(reportType) {
-                        const vm = this;
-                        if (reportType === 'single_group_item') {
-                            if (!vm.group_id) {
-                                toastr.error('Please Select Group', {
-                                    closeButton: true,
-                                    progressBar: true,
-                                });
-                                return false;
-                            }
-                        }
-                        if (reportType === 'store_group_item') {
-                            if (!vm.store_id) {
-                                toastr.error('Please Select Store', {
-                                    closeButton: true,
-                                    progressBar: true,
-                                });
-                                return false;
-                            }
+                        if (!vm.as_on_date) {
+                            toastr.error('Please Select As On Date', {closeButton: true, progressBar: true});
+                            return;
                         }
 
                         vm.pageLoading = true;
@@ -295,49 +192,48 @@
                             params: {
                                 report_type: reportType,
                                 as_on_date: vm.as_on_date,
-                                group_id: vm.group_id,
-                                item_id: vm.item_id,
-                                store_id: vm.store_id,
+                                group_id: vm.group_id || null,
+                                item_id: vm.item_id || null,
+                                store_id: vm.store_id || null,
                             },
                             responseType: 'blob',
-                        }).then(function(response) {
-                            if (response.data?.size == 0){
+                        }).then(function (response) {
+                            vm.pageLoading = false;
+                            if (!response.data || response.data.size === 0 || response.status === 204) {
                                 toastr.error('No Data to Generate Report', {
                                     closeButton: true,
                                     progressBar: true,
                                 });
-                                vm.pageLoading = false;
                                 return;
                             }
-
-                            const blob = new Blob([response.data], {
-                                type: 'application/pdf'
-                            });
-
-                            const url = window.URL.createObjectURL(blob);
-
-                            window.open(url)
+                            var contentType = (response.headers['content-type'] || '');
+                            if (contentType.indexOf('application/pdf') === -1 && contentType.indexOf('octet-stream') === -1) {
+                                toastr.error('No Data to Generate Report', {
+                                    closeButton: true,
+                                    progressBar: true,
+                                });
+                                return;
+                            }
+                            var url = window.URL.createObjectURL(new Blob([response.data], {type: 'application/pdf'}));
+                            window.open(url);
+                        }).catch(function () {
                             vm.pageLoading = false;
-                        }).catch(function(error) {
                             toastr.error('Something went to wrong', {
                                 closeButton: true,
                                 progressBar: true,
                             });
-                            return false;
                         });
-                    }
+                    },
                 },
-
-                updated() {
+                updated: function () {
                     $('.bSelect').selectpicker('refresh');
                 },
-                mounted() {
-                    this.get_initial_data()
-                }
-            });
-            $('.bSelect').selectpicker({
-                liveSearch: true,
-                size: 5
+                mounted: function () {
+                    $('.bSelect').selectpicker({
+                        liveSearch: true,
+                        size: 8
+                    });
+                },
             });
         });
     </script>

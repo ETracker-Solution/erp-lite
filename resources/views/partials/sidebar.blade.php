@@ -310,10 +310,10 @@
                                     <ul class="nav nav-treeview third-child">
                                         @can('store-rm-create-rm-requisition')
                                             <li class="nav-item">
-                                                <a href="{{route('rm-requisitions.create')}}"
+                                                <a href="{{route('rm-requisitions.index')}}"
                                                    class="nav-link {{ (Request::segment(1) == 'rm-requisitions' )?' active':''}}">
                                                     <i class="far fa-circle nav-icon"></i>
-                                                    <p>Create RM Requisition</p>
+                                                    <p>RM Requisition List</p>
                                                 </a>
                                             </li>
                                         @endcan

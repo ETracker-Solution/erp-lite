@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreRMRequisitionDeliveryRequest;
-use App\Models\ChartOfInventory;
 use App\Models\InventoryTransaction;
 use App\Models\Requisition;
 use App\Models\RequisitionDelivery;
@@ -48,11 +47,21 @@ class RMRequisitionDeliveryController extends Controller
     public function create()
     {
         $data = [
-            'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'RM'])->get(),
-            'from_stores' => Store::where(['type' => 'RM', 'doc_type' => 'ho','status' => 'active'])->get(),
-            'to_stores' => Store::where(['type' => 'RM', 'doc_type' => 'factory','status' => 'active'])->get(),
-            'requisitions' => Requisition::where(['type' => 'RM', 'status' => 'pending'])->get()
+            'from_stores' => Store::query()
+                ->where(['type' => 'RM', 'doc_type' => 'ho', 'status' => 'active'])
+                ->orderBy('name')
+                ->get(['id', 'name']),
+            'to_stores' => Store::query()
+                ->where(['type' => 'RM', 'doc_type' => 'factory', 'status' => 'active'])
+                ->orderBy('name')
+                ->get(['id', 'name']),
+            'requisitions' => Requisition::query()
+                ->select(['id', 'uid', 'date', 'from_store_id', 'to_store_id', 'status', 'type'])
+                ->where(['type' => 'RM', 'status' => 'pending'])
+                ->latest('id')
+                ->get(),
         ];
+
         return view('rm_requisition_delivery.create', $data);
     }
 

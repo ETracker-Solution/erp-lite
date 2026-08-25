@@ -45,21 +45,21 @@ class RMRequisitionController extends Controller
      */
     public function create()
     {
-
-        $serial_no = null;
-        if (!auth()->user()->is_super) {
-            $doc_id = \auth()->user()->employee->outlet_id ?? \auth()->user()->employee->factory_id;
-            $doc_type = \auth()->user()->employee->outlet_id ? 'outlet' : 'factory';
-            $user_store = Store::where(['doc_type' => $doc_type, 'doc_id' => $doc_id])->first();
-            $outlet_id = $user_store->doc_id;
-            $serial_no = generateUniqueUUID($outlet_id, Requisition::class, 'uid',\auth()->user()->employee->factory_id);
-        }
         $data = [
-            'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'RM'])->get(),
-            'from_stores' => Store::where(['type' => 'RM', 'doc_type' => 'factory'])->get(),
-            'to_stores' => Store::where(['type' => 'RM', 'doc_type' => 'ho'])->get(),
-            'serial_no' => $serial_no
+            'groups' => ChartOfInventory::query()
+                ->where(['type' => 'group', 'rootAccountType' => 'RM'])
+                ->orderBy('name')
+                ->get(['id', 'name']),
+            'from_stores' => Store::query()
+                ->where(['type' => 'RM', 'doc_type' => 'factory'])
+                ->orderBy('name')
+                ->get(['id', 'name']),
+            'to_stores' => Store::query()
+                ->where(['type' => 'RM', 'doc_type' => 'ho'])
+                ->orderBy('name')
+                ->get(['id', 'name']),
         ];
+
         return view('rm_requisition.create', $data);
     }
 
