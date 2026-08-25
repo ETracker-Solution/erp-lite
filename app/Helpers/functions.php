@@ -64,11 +64,15 @@ function showStatus($status)
         case 'wait_for_pickup':
             return '<span class="badge badge-pill badge-glow badge-warning">Wait for Pickup</span>';
         case 'decrease':
-            return '<span class="badge badge-pill badge-glow badge-danger">Wastage</span>';
+            return '<span class="badge badge-danger">Decrease</span>';
         case 'increase':
-            return '<span class="badge badge-pill badge-glow badge-success">Increase</span>';
+            return '<span class="badge badge-success">Increase</span>';
         case 'ready_to_delivery':
-            return '<span class="badge badge-pill badge-glow badge-dark">' . ucwords(str_replace('_', ' ', $status)) . '</span>';
+            return '<span class="badge badge-dark">' . ucwords(str_replace('_', ' ', $status)) . '</span>';
+        default:
+            return $status
+                ? '<span class="badge badge-secondary">' . ucwords(str_replace('_', ' ', (string) $status)) . '</span>'
+                : '<span class="badge badge-secondary">—</span>';
     }
 }
 

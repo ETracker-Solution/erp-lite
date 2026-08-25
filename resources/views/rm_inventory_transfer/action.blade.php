@@ -1,20 +1,20 @@
-<div class="project-actions text-right">
-    <form action="{{route('rm-inventory-transfers.destroy', $row->id)}}" method="post">
-        <input type="hidden" name="_method" value="DELETE">
-        @csrf
-        {{-- <a href="{{ route('rm-inventory-transfers.edit', $row->id) }}" class="btn btn-info btn-xs">
-            <i class="fas fa-pencil-alt">
-            </i>
-            Edit
-        </a> --}}
-        <a href="{{ route('rm-inventory-transfers.show', $row->id) }}" class="btn btn-xs btn-primary">
-            <i class="fas fa-folder">
-            </i> Show
-        </a>
-{{--        <button id="btnDelete" class="btn btn-danger btn-xs"> <i class="fas fa-trash">--}}
-{{--            </i> Delete</button>--}}
-    </form>
+<div class="project-actions text-right text-nowrap">
+    <a href="{{ route('rm-inventory-transfers.show', $row->id) }}" class="btn btn-xs btn-primary" title="Show">
+        <i class="fas fa-eye"></i> Show
+    </a>
+    <a href="{{ route('rm-inventory-transfers.pdf', $row->id) }}" class="btn btn-xs btn-secondary" target="_blank" rel="noopener" title="PDF">
+        <i class="fas fa-file-pdf"></i> PDF
+    </a>
+    @if($row->status !== 'received')
+        <form action="{{ route('rm-inventory-transfers.destroy', $row->id) }}" method="post" class="d-inline">
+            @csrf
+            <input type="hidden" name="_method" value="DELETE">
+            <button type="submit" id="btnDelete" class="btn btn-xs btn-danger" title="Delete">
+                <i class="fas fa-trash"></i>
+            </button>
+        </form>
+    @endif
 </div>
 <script>
-    confirmAlert('#btnDelete')
+    confirmAlert('#btnDelete');
 </script>
