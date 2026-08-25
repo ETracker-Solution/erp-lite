@@ -9,7 +9,7 @@
             'RM Inventory Adjustment' => route('rm-inventory-adjustments.index'),
             'Details' => '',
         ];
-        $amountFmt = number_format((float) $RMInventoryAdjustment->subtotal, 2);
+        $totalQty = number_format((float) $items->sum('quantity'), 2);
     @endphp
     <x-breadcrumb title="RM Inventory Adjustment" :links="$links"/>
 
@@ -21,7 +21,6 @@
                         <div class="card-header">
                             <h3 class="card-title mb-0">
                                 Adjustment {{ $RMInventoryAdjustment->uid ?: ('#'.$RMInventoryAdjustment->id) }}
-                                <span class="ml-2">{!! showStatus($RMInventoryAdjustment->status) !!}</span>
                             </h3>
                             <div class="card-tools">
                                 <a href="{{ route('rm-inventory-adjustments.index') }}" class="btn btn-sm btn-primary">
@@ -44,8 +43,8 @@
                                     <div>{!! showStatus($RMInventoryAdjustment->transaction_type) !!}</div>
                                 </div>
                                 <div class="col-md-3 text-md-right">
-                                    <div class="small text-muted text-uppercase">Amount</div>
-                                    <div class="font-weight-bold text-primary" style="font-size:1.25rem;">{{ $amountFmt }}</div>
+                                    <div class="small text-muted text-uppercase">Qty</div>
+                                    <div class="font-weight-bold text-primary" style="font-size:1.25rem;">{{ $totalQty }}</div>
                                 </div>
                             </div>
 
@@ -59,14 +58,10 @@
                                         <th>Unit</th>
                                         <th class="text-right">Rate</th>
                                         <th class="text-right">Qty</th>
-                                        <th class="text-right">Amount</th>
                                     </tr>
                                     </thead>
                                     <tbody>
                                     @forelse ($items as $item)
-                                        @php
-                                            $lineAmount = (float) ($item->quantity ?? 0) * (float) ($item->rate ?? 0);
-                                        @endphp
                                         <tr>
                                             <td>{{ $loop->iteration }}</td>
                                             <td>{{ $item->coi->parent->name ?? '—' }}</td>
@@ -74,18 +69,17 @@
                                             <td>{{ $item->coi->unit->name ?? '—' }}</td>
                                             <td class="text-right">{{ number_format((float) ($item->rate ?? 0), 2) }}</td>
                                             <td class="text-right">{{ number_format((float) ($item->quantity ?? 0), 2) }}</td>
-                                            <td class="text-right">{{ number_format($lineAmount, 2) }}</td>
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="7" class="text-center text-muted">No items</td>
+                                            <td colspan="6" class="text-center text-muted">No items</td>
                                         </tr>
                                     @endforelse
                                     </tbody>
                                     <tfoot>
                                     <tr class="bg-light">
-                                        <th colspan="6" class="text-right">Total</th>
-                                        <th class="text-right">{{ $amountFmt }}</th>
+                                        <th colspan="5" class="text-right">Total Qty</th>
+                                        <th class="text-right">{{ $totalQty }}</th>
                                     </tr>
                                     </tfoot>
                                 </table>

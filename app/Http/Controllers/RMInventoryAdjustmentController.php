@@ -23,28 +23,26 @@ class RMInventoryAdjustmentController extends Controller
                     'inventory_adjustments.id',
                     'inventory_adjustments.uid',
                     'inventory_adjustments.date',
-                    'inventory_adjustments.status',
                     'inventory_adjustments.transaction_type',
                     'inventory_adjustments.store_id',
-                    'inventory_adjustments.subtotal',
                     'inventory_adjustments.created_at',
                 ])
                 ->with('store:id,name')
+                ->withSum('items as total_qty', 'quantity')
                 ->where('type', 'RM')
                 ->latest('id');
 
             return DataTables::eloquent($query)
                 ->addIndexColumn()
-                ->editColumn('status', fn ($row) => showStatus($row->status))
                 ->editColumn('transaction_type', fn ($row) => showStatus($row->transaction_type))
-                ->editColumn('subtotal', fn ($row) => number_format((float) $row->subtotal, 2))
+                ->editColumn('total_qty', fn ($row) => number_format((float) ($row->total_qty ?? 0), 2))
                 ->addColumn('action', function ($row) {
                     return view('rm_inventory_adjustment.action', compact('row'));
                 })
                 ->addColumn('created_at', function ($row) {
                     return view('common.created_at', compact('row'));
                 })
-                ->rawColumns(['action', 'status', 'transaction_type', 'created_at'])
+                ->rawColumns(['action', 'transaction_type', 'created_at'])
                 ->make(true);
         }
 
@@ -65,7 +63,6 @@ class RMInventoryAdjustmentController extends Controller
                 ->when($factoryId, fn ($q) => $q->where(['doc_type' => 'factory', 'doc_id' => $factoryId]))
                 ->orderBy('name')
                 ->get(['id', 'name']),
-            'serial_no' => (int) InventoryAdjustment::query()->max('id') + 1,
         ];
 
         return view('rm_inventory_adjustment.create', $data);
@@ -77,8 +74,16 @@ class RMInventoryAdjustmentController extends Controller
 
         DB::beginTransaction();
         try {
-            $isHeadOffice = optional(Store::find($data['store_id']))->doc_type === 'ho';
-            $data['uid'] = generateUniqueUUID($data['store_id'], InventoryAdjustment::class, 'uid', false, $isHeadOffice);
+            $store = Store::findOrFail($data['store_id']);
+            $isFactory = $store->doc_type === 'factory';
+            $isHeadOffice = $store->doc_type === 'ho';
+            $data['uid'] = generateUniqueUUID(
+                $store->doc_id,
+                InventoryAdjustment::class,
+                'uid',
+                $isFactory,
+                $isHeadOffice
+            );
             $adjustment = InventoryAdjustment::create($data);
 
             $totalAmount = 0;
