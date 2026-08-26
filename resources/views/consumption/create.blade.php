@@ -1,345 +1,237 @@
 @extends('layouts.app')
-@section('title', 'Raw Material Consumption')
+
+@section('title', 'RM Consumption Entry')
+
 @section('content')
     @php
         $links = [
             'Home' => route('dashboard'),
-            'Raw Material Consumption' => route('consumptions.index'),
-            'Raw Material Consumption Entry' => '',
-        ]
+            'RM Consumption' => route('consumptions.index'),
+            'Create' => '',
+        ];
     @endphp
-    <x-breadcrumb title='Raw Material Consumption' :links="$links"/>
+    <x-breadcrumb title="RM Consumption" :links="$links"/>
 
-    <!-- Main content -->
     <section class="content">
         <div class="container-fluid">
             <div class="row" id="vue_app">
-                   <span v-if="pageLoading" class="pageLoader">
-                            <img src="{{ asset('loading.gif') }}" alt="loading">
-                        </span>
-                <div class="col-lg-12 col-md-12">
-                    <form action="{{route('consumptions.store')}}" method="POST" class="prevent-enter-submit">
+                <div class="col-lg-10 offset-lg-1">
+                    <form action="{{ route('consumptions.store') }}" method="POST" class="prevent-enter-submit">
                         @csrf
-                        <div class="card">
-                            <div class="card-header bg-info">
-                                <h3 class="card-title">Raw Material Consumption (RMC) Entry</h3>
+
+                        <div class="card card-info">
+                            <div class="card-header">
+                                <h3 class="card-title mb-0">New RM Consumption</h3>
                                 <div class="card-tools">
-                                    <a href="{{route('consumptions.index')}}" class="btn btn-sm btn-primary">
-                                        <i class="fas fa-bars"
-                                           aria-hidden="true"></i> &nbsp;
-                                        See List
+                                    <a href="{{ route('consumptions.index') }}" class="btn btn-sm btn-primary">
+                                        <i class="fa fa-list"></i> List
                                     </a>
                                 </div>
                             </div>
 
                             <div class="card-body">
-                                <div class="card-box">
-                                    <hr>
-                                    <div id="">
-                                        <div class="row">
-                                            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                                                <div class="row">
-                                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                                        <div class="form-group">
-                                                            <label for="serial_no">RMC No</label>
+                                <p class="text-muted small mb-3">
+                                    Consume RM against a production batch. RMC No generates on save.
+                                </p>
 
-                                                            <div class="input-group">
-                                                                <input type="text" class="form-control input-sm"
-                                                                       value="{{$serial_no}}" name=""
-                                                                       id="serial_no" v-model="serial_no">
-                                                                {{-- <span class="input-group-append">
-                    <button type="button" class="btn btn-info btn-flat" @click="data_edit">Search</button> --}}
-                                                                </span>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                                        <div class="form-group">
-                                                            <label for="date">Date</label>
-                                                            <vuejs-datepicker v-model="date" name="date"
-                                                                              placeholder="Select date"
-                                                                              format="yyyy-MM-dd"></vuejs-datepicker>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                                                <div class="row">
-                                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                                        <div class="form-group">
-                                                            <label for="batch_id">Batch</label>
-                                                            <select name="batch_id" id="batch_id"
-                                                                    class="form-control bSelect"
-                                                                    v-model="batch_id" required>
-                                                                <option value="">Select Batch</option>
-                                                                @foreach($batches as $row)
-                                                                    <option
-                                                                        value="{{ $row->id }}">{{ $row->id }}
-                                                                        -{{ $row->batch_no }}</option>
-                                                                @endforeach
-                                                            </select>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                                        <div class="form-group">
-                                                            <label for="store_id">Store</label>
-                                                            <select name="store_id" id="store_id"
-                                                                    class="form-control bSelect"
-                                                                    v-model="store_id" required>
-                                                                <option value="">Select Store</option>
-                                                                @foreach($stores as $row)
-                                                                    <option
-                                                                        value="{{ $row->id }}">{{ $row->id }}
-                                                                        -{{ $row->name }}</option>
-                                                                @endforeach
-                                                            </select>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                                                <div class="row">
-                                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                                        <div class="form-group">
-                                                            <label for="reference_no">Reference No</label>
-                                                            <input type="text" class="form-control input-sm"
-                                                                   value="{{old('reference_no')}}" name="reference_no"
-                                                                   v-model="reference_no">
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                                        <div class="form-group">
-                                                            <label for="remark">Remark</label>
-                                                            <textarea class="form-control" name="remark" rows="1"
-                                                                      placeholder="Enter Remark"
-                                                                      v-model="remark"></textarea>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="batch_id">Batch <span class="text-danger">*</span></label>
+                                            <select name="batch_id" id="batch_id" class="form-control bSelect"
+                                                    v-model="batch_id" required>
+                                                <option value="">Select batch</option>
+                                                @foreach($batches as $row)
+                                                    <option value="{{ $row->id }}">{{ $row->batch_no }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="store_id">Store <span class="text-danger">*</span></label>
+                                            <select name="store_id" id="store_id" class="form-control bSelect"
+                                                    v-model="store_id" required>
+                                                <option value="">Select store</option>
+                                                @foreach($stores as $row)
+                                                    <option value="{{ $row->id }}">{{ $row->name }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="date">Date <span class="text-danger">*</span></label>
+                                            <input type="date" class="form-control" id="date" name="date"
+                                                   v-model="date" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="reference_no">Reference No</label>
+                                            <input type="text" class="form-control" id="reference_no"
+                                                   name="reference_no" v-model="reference_no" placeholder="Optional">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <div class="form-group">
+                                            <label for="remark">Remark</label>
+                                            <input type="text" class="form-control" id="remark" name="remark"
+                                                   v-model="remark" placeholder="Optional note">
                                         </div>
                                     </div>
                                 </div>
 
-                            </div>
+                                <hr class="mt-1 mb-3">
 
-                        </div>
-                        <div class="card">
-                            <div class="card-header bg-info">
-                                <h3 class="card-title">Raw Material Consumption (RMC) Line Item</h3>
-                            </div>
-                            <div class="card-body">
-                                <div class="card-box">
-                                    <div id="">
-                                        <div class="row">
-                                            <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
-                                                <div class="form-group">
-                                                    <label for="group_id" class="control-label">Group</label>
-                                                    <select class="form-control" name="group_id" v-model="group_id"
-                                                            @change="fetch_product">
-                                                        <option value="">Select One</option>
-                                                        @foreach ($groups as $row)
-                                                            <option value="{{ $row->id }}">{{ $row->name }}</option>
-                                                        @endforeach
-                                                    </select>
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
-                                                <div class="form-group">
-                                                    <label for="item_id">Item</label>
-                                                    <select name="item_id" id="item_id" class="form-control bSelect"
-                                                            v-model="item_id" @change="fetch_item_balance">
-                                                        <option value="">Select one</option>
-                                                        <option :value="row.id" v-for="row in items"
-                                                                v-html="row.name">
-                                                        </option>
-                                                    </select>
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-3 col-md-4 col-sm-3 col-xs-12">
-                                                <div class="form-group">
-                                                    <label for="balance">Available Balance</label>
-                                                    <input type="text" class="form-control input-sm"
-                                                           :value="balance" name="balance" readonly>
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-2 col-md-2 col-sm-6 col-xs-12" style="margin-top: 30px;">
-                                                <button type="button" class="btn btn-info btn-block"
-                                                        @click="data_input" :disabled="isDisabled">Add
+                                <div class="d-flex align-items-center justify-content-between mb-2">
+                                    <h6 class="mb-0 font-weight-bold">Items</h6>
+                                </div>
+
+                                <div class="row align-items-end">
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label for="group_id">Group</label>
+                                            <select class="form-control bSelect" name="group_id" id="group_id"
+                                                    v-model="group_id" @change="fetch_product">
+                                                <option value="">Select group</option>
+                                                @foreach ($groups as $row)
+                                                    <option value="{{ $row->id }}">{{ $row->name }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="item_id">Item</label>
+                                            <select name="item_id" id="item_id" class="form-control bSelect"
+                                                    v-model="item_id" @change="fetch_item_balance">
+                                                <option value="">Select item (or blank = all in group)</option>
+                                                <option :value="row.id" v-for="row in items" :key="row.id"
+                                                        v-html="row.name"></option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <div class="form-group">
+                                            <label for="balance">Balance</label>
+                                            <input type="text" class="form-control" :value="balance" readonly>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <button type="button" class="btn btn-info btn-block"
+                                                    @click="data_input" :disabled="isDisabled">
+                                                <i class="fa fa-plus"></i> Add Item
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="table-responsive">
+                                    <table class="table table-bordered table-sm mb-0">
+                                        <thead class="thead-light">
+                                        <tr>
+                                            <th style="width:4%">#</th>
+                                            <th>Group</th>
+                                            <th>Item</th>
+                                            <th style="width:8%">Unit</th>
+                                            <th class="text-right" style="width:12%">Balance</th>
+                                            <th class="text-right" style="width:12%">Qty</th>
+                                            <th class="text-right" style="width:12%">Rate</th>
+                                            <th class="text-right" style="width:12%">Value</th>
+                                            <th style="width:5%"></th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr v-if="selected_items.length === 0">
+                                            <td colspan="9" class="text-center text-muted py-4">
+                                                Select store, group + item, then Add Item.
+                                            </td>
+                                        </tr>
+                                        <tr v-for="(row, index) in selected_items" :key="row.id">
+                                            <td>@{{ index + 1 }}</td>
+                                            <td>@{{ row.group }}</td>
+                                            <td>
+                                                @{{ row.name }}
+                                                <input type="hidden" :name="'products['+index+'][coi_id]'"
+                                                       :value="row.id">
+                                            </td>
+                                            <td>@{{ row.uom }}</td>
+                                            <td>
+                                                <input type="number" class="form-control form-control-sm text-right"
+                                                       v-model="row.balance"
+                                                       :name="'products['+index+'][balance]'" readonly required>
+                                            </td>
+                                            <td>
+                                                <input type="number" step="0.01" min="0.01"
+                                                       class="form-control form-control-sm text-right"
+                                                       v-model="row.quantity"
+                                                       :name="'products['+index+'][quantity]'"
+                                                       @change="itemtotal(row); valid(row)" required>
+                                            </td>
+                                            <td>
+                                                <input type="number" step="0.01"
+                                                       class="form-control form-control-sm text-right"
+                                                       v-model="row.rate"
+                                                       :name="'products['+index+'][rate]'" readonly required>
+                                            </td>
+                                            <td class="text-right">@{{ itemtotal(row) }}</td>
+                                            <td class="text-center">
+                                                <button type="button" class="btn btn-xs btn-danger"
+                                                        @click="delete_row(row)" title="Remove">
+                                                    <i class="fa fa-trash"></i>
                                                 </button>
-                                            </div>
-                                        </div>
-
-                                        <div class="row">
-                                            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12"
-                                                 v-if="selected_items.length>0">
-
-                                                <hr>
-                                                <div class="table-responsive">
-                                                    <table class="table table-bordered">
-                                                        <thead class="bg-secondary">
-                                                        <tr>
-                                                            <th>#</th>
-                                                            <th>Group</th>
-                                                            <th>Item</th>
-                                                            <th>Unit</th>
-                                                            <th>Balance</th>
-                                                            <th>Qty</th>
-                                                            <th>Rate(Avg)</th>
-                                                            <th>Value</th>
-                                                            <th></th>
-                                                        </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                        <tr v-for="(row, index) in selected_items">
-
-                                                            <td style="width: 10px">
-                                                                @{{ ++index }}
-                                                            </td>
-                                                            <td style="width: 200px">
-                                                                @{{ row.group }}
-                                                            </td>
-                                                            <td>
-                                                                @{{ row.name }}
-                                                                <input type="hidden"
-                                                                       :name="'products['+index+'][coi_id]'"
-                                                                       class="form-control input-sm"
-                                                                       v-bind:value="row.id">
-
-                                                            </td>
-                                                            <td style="width: 50px">
-                                                                @{{ row.uom }}
-                                                            </td>
-                                                            <td style="width: 180px">
-                                                                <input type="number" v-model="row.balance"
-                                                                       :name="'products['+index+'][balance]'"
-                                                                       class="form-control input-sm" readonly required>
-                                                            </td>
-                                                            <td style="width: 180px">
-                                                                <input type="number" v-model="row.quantity"
-                                                                       :name="'products['+index+'][quantity]'"
-                                                                       class="form-control input-sm"
-                                                                       @change="itemtotal(row);valid(row)" required>
-                                                            </td>
-                                                            <td style="width: 180px">
-                                                                <input type="number" v-model="row.rate"
-                                                                       :name="'products['+index+'][rate]'"
-                                                                       class="form-control input-sm"
-                                                                       @change="itemtotal(row)" readonly required>
-                                                            </td>
-                                                            <td style="width: 180px">
-                                                                <input type="text" class="form-control input-sm"
-                                                                       v-bind:value="itemtotal(row)" readonly>
-                                                            </td>
-                                                            <td style="width: 10px">
-                                                                <button type="button" class="btn btn-sm btn-danger"
-                                                                        @click="delete_row(row)"><i
-                                                                        class="fa fa-trash"></i></button>
-                                                            </td>
-                                                        </tr>
-                                                        </tbody>
-                                                        <tfoot>
-                                                        <tr>
-                                                            <td colspan="9" style="background-color: #DDDCDC">
-
-                                                            </td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td colspan="6">
-
-                                                            </td>
-                                                            <td>
-                                                                Subtotal
-                                                            </td>
-                                                            <td>
-                                                                <input type="text" class="form-control input-sm"
-                                                                       name="subtotal" v-bind:value="subtotal" readonly>
-                                                            </td>
-                                                            <td></td>
-                                                        </tr>
-                                                        <tfoot>
-                                                    </table>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+                                            </td>
+                                        </tr>
+                                        </tbody>
+                                        <tfoot v-if="selected_items.length > 0">
+                                        <tr class="bg-light">
+                                            <th colspan="7" class="text-right">Subtotal</th>
+                                            <th class="text-right">
+                                                @{{ Number(subtotal).toFixed(2) }}
+                                                <input type="hidden" name="subtotal" :value="subtotal">
+                                            </th>
+                                            <th></th>
+                                        </tr>
+                                        </tfoot>
+                                    </table>
                                 </div>
-
                             </div>
-                            <div class="card-footer erp-save-bar" v-if="selected_items.length > 0">
-                                <button class="float-right btn btn-primary" type="submit"><i
-                                        class="fa fa-fw fa-lg fa-check-circle"></i>Submit
+
+                            <div class="card-footer text-right" v-show="selected_items.length > 0">
+                                <button class="btn btn-primary" type="submit">
+                                    <i class="fa fa-check-circle"></i> Submit
                                 </button>
                             </div>
                         </div>
                     </form>
-                </div> <!-- end col -->
+                </div>
             </div>
-            <!-- /.row -->
-
-        </div><!-- /.container-fluid -->
+        </div>
     </section>
-    <!-- /.content -->
 @endsection
-@section('css')
 
-@endsection
 @push('style')
-    <style>
-        .pageLoader {
-            position: absolute;
-            top: 50%;
-            right: 40%;
-            transform: translate(-50%, -50%);
-            color: red;
-            z-index: 999;
-        }
-
-        input[placeholder="Select date"] {
-            display: block;
-            width: 100%;
-            height: calc(2.25rem + 2px);
-            padding: .375rem .75rem;
-            font-size: 1rem;
-            font-weight: 400;
-            line-height: 1.5;
-            color: #495057;
-            background-color: #fff;
-            background-clip: padding-box;
-            border: 1px solid #ced4da;
-            border-radius: .25rem;
-            box-shadow: inset 0 0 0 transparent;
-            transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
-        }
-    </style>
-
     <link rel="stylesheet" href="{{ asset('vue-js/bootstrap-select/dist/css/bootstrap-select.min.css') }}">
 @endpush
-@section('js')
 
-@endsection
 @push('script')
     <script src="{{ asset('vue-js/vue/dist/vue.js') }}"></script>
     <script src="{{ asset('vue-js/axios/dist/axios.min.js') }}"></script>
     <script src="{{ asset('vue-js/bootstrap-select/dist/js/bootstrap-select.min.js') }}"></script>
-    <script src="https://cms.diu.ac/vue/vuejs-datepicker.min.js"></script>
     <script>
         $(document).ready(function () {
-
-            var vue = new Vue({
+            new Vue({
                 el: '#vue_app',
                 data: {
                     config: {
-
                         get_items_info_by_group_id_url: "{{ url('fetch-items-by-group-id') }}",
                         get_item_balance_info_url: "{{ url('fetch-item-available-balance') }}",
                         get_item_info_url: "{{ url('fetch-item-info-rm-consumption') }}",
                         get_items_by_group_id_rm_consumption_url: "{{ url('fetch-items-by-group-id-rm-consumption') }}",
-                        get_edit_data_url: "{{ url('fetch-consumption-by-id') }}",
                     },
-                    action: {{$store_url}},
-                    serial_no: {{$serial_no}},
-                    date: new Date(),
+                    date: "{{ date('Y-m-d') }}",
                     store_id: '',
                     batch_id: '',
                     group_id: '',
@@ -349,234 +241,160 @@
                     reference_no: '',
                     items: [],
                     selected_items: [],
-                    pageLoading: false,
-                    isDisabled: false
-                },
-                components: {
-                    vuejsDatepicker
+                    isDisabled: false,
                 },
                 computed: {
-
                     subtotal: function () {
-                        return this.selected_items.reduce((total, item) => {
-                            return parseFloat((total + (item.quantity * item.rate)).toFixed(2));
-                        }, 0)
-                    }
+                        return this.selected_items.reduce(function (total, item) {
+                            return total + ((parseFloat(item.quantity) || 0) * (parseFloat(item.rate) || 0));
+                        }, 0);
+                    },
                 },
                 methods: {
-
-                    fetch_product() {
-
-                        let vm = this;
-                        let store_id = vm.store_id;
-
-                        if (!store_id) {
-                            vm.group_id = '';
-                            toastr.error('Please Select Store', {
-                                closeButton: true,
-                                progressBar: true,
-                            });
-                            return false;
-                        }
-                        let group_id = vm.group_id;
-
-                        if (group_id) {
-                            vm.item_id = '';
-                            vm.balance = '';
-                            vm.items = [];
-                            vm.pageLoading = true;
-                            axios.get(this.config.get_items_info_by_group_id_url + '/' + group_id).then(function (response) {
-
-                                // vm.selected_items = response.data.products;
-                                vm.items = response.data.products;
-                                vm.pageLoading = false;
-                            }).catch(function (error) {
-
-                                toastr.error('Something went to wrong', {
-                                    closeButton: true,
-                                    progressBar: true,
-                                });
-
-                                return false;
-
-                            });
-                        }
-
-                    },
-                    fetch_item_balance() {
-
-                        let vm = this;
-
-                        let store_id = vm.store_id;
-                        let item_id = vm.item_id;
-                        if (!vm.store_id) {
-                            toastr.error('Please Select Store', {
-                                closeButton: true,
-                                progressBar: true,
-                            });
-                            return false;
-                        }
-                        if (item_id) {
-                            vm.pageLoading = true;
-                            axios.get(this.config.get_item_balance_info_url + '/' + item_id + '/' + store_id).then(function (response) {
-
-                                vm.balance = response.data.balance;
-                                vm.pageLoading = false;
-                            }).catch(function (error) {
-
-                                toastr.error('Something went to wrong', {
-                                    closeButton: true,
-                                    progressBar: true,
-                                });
-
-                                return false;
-
-                            });
-                        }
-
-                    },
-
-                    data_input() {
-
-                        let vm = this;
-                        let store_id = vm.store_id;
-                        let group_id = vm.group_id;
-
-                        if (!store_id) {
-                            toastr.error('Please Select Store', {
-                                closeButton: true,
-                                progressBar: true,
-                            });
-                            return false;
-                        }
-                        if (!group_id) {
-                            toastr.error('Please Select Group', {
-                                closeButton: true,
-                                progressBar: true,
-                            });
-                            return false;
-                        } else {
-                            vm.isDisabled = true
-                            let item_id = vm.item_id;
-                            let exists = vm.selected_items.some(function (field) {
-                                return field.id == item_id
-                            });
-
-                            if (exists) {
-                                toastr.info('Item Already Selected', {
-                                    closeButton: true,
-                                    progressBar: true,
-                                });
-                                vm.isDisabled = false
-                                return
-                            } else {
-                                if (item_id) {
-                                    vm.pageLoading = true;
-                                    axios.get(this.config.get_item_info_url + '/' + item_id + '/' + store_id).then(function (response) {
-                                        let data = response.data;
-                                        vm.selected_items.push({
-                                            id: data.item.id,
-                                            group: data.item.parent.name,
-                                            name: data.item.name,
-                                            uom: data.item.unit.name,
-                                            balance: data.balance,
-                                            rate: data.average_rate.toFixed(2),
-                                            quantity: '',
-                                        });
-                                        vm.balance = '';
-                                        vm.item_id = '';
-                                        vm.group_id = '';
-                                        vm.items = [];
-                                        vm.pageLoading = false;
-                                        vm.isDisabled = false
-                                    }).catch(function (error) {
-                                        toastr.error('Something went to wrong', {
-                                            closeButton: true,
-                                            progressBar: true,
-                                        });
-                                        vm.isDisabled = false
-                                        return false;
-
-                                    });
-                                } else {
-                                    vm.pageLoading = true;
-                                    axios.get(this.config.get_items_by_group_id_rm_consumption_url + '/' + vm.group_id + '/' + store_id).then(function (response) {
-
-                                        vm.item_id = '';
-                                        let items = response.data.products;
-                                        for (let key in items) {
-                                            vm.selected_items.push(items[key]);
-                                        }
-                                        vm.pageLoading = false;
-                                        vm.isDisabled = false
-                                    }).catch(function (error) {
-                                        toastr.error('Something went to wrong', {
-                                            closeButton: true,
-                                            progressBar: true,
-                                        });
-                                        vm.isDisabled = false
-                                        return false;
-                                    });
-                                }
-                            }
-                        }
-
-
-                    },
-                    data_edit() {
+                    fetch_product: function () {
                         var vm = this;
-
-                        var slug = vm.serial_no;
-
-                        if (slug) {
-                            vm.pageLoading = true;
-                            axios.get(this.config.get_edit_data_url + '/' + slug).then(function (response) {
-
-                                // vm.selected_items = response.data.products;
-                                vm.date = '2024-04-23';
-                                vm.store_id = response.data.store_id;
-                                vm.batch_id = response.data.batch_id;
-                                vm.reference_no = response.data.reference_no;
-                                vm.remark = response.data.remark;
-                                vm.selected_items = response.data.items;
-                                vm.pageLoading = false;
-                            }).catch(function (error) {
-                                vm.pageLoading = false;
+                        if (!vm.store_id) {
+                            vm.group_id = '';
+                            toastr.error('Please Select Store', {closeButton: true, progressBar: true});
+                            return;
+                        }
+                        vm.item_id = '';
+                        vm.balance = '';
+                        vm.items = [];
+                        if (!vm.group_id) {
+                            return;
+                        }
+                        axios.get(this.config.get_items_info_by_group_id_url + '/' + vm.group_id)
+                            .then(function (response) {
+                                vm.items = response.data.products || [];
+                            })
+                            .catch(function () {
                                 toastr.error('Something went to wrong', {
                                     closeButton: true,
                                     progressBar: true,
                                 });
-
-                                return false;
-
                             });
+                    },
+                    fetch_item_balance: function () {
+                        var vm = this;
+                        if (!vm.store_id) {
+                            toastr.error('Please Select Store', {closeButton: true, progressBar: true});
+                            return;
+                        }
+                        if (!vm.item_id) {
+                            vm.balance = '';
+                            return;
+                        }
+                        axios.get(this.config.get_item_balance_info_url + '/' + vm.item_id + '/' + vm.store_id)
+                            .then(function (response) {
+                                vm.balance = response.data.balance;
+                            })
+                            .catch(function () {
+                                toastr.error('Something went to wrong', {
+                                    closeButton: true,
+                                    progressBar: true,
+                                });
+                            });
+                    },
+                    data_input: function () {
+                        var vm = this;
+                        if (!vm.store_id) {
+                            toastr.error('Please Select Store', {closeButton: true, progressBar: true});
+                            return;
+                        }
+                        if (!vm.batch_id) {
+                            toastr.error('Please Select Batch', {closeButton: true, progressBar: true});
+                            return;
+                        }
+                        if (!vm.group_id) {
+                            toastr.error('Please Select Group', {closeButton: true, progressBar: true});
+                            return;
                         }
 
+                        vm.isDisabled = true;
+                        var item_id = vm.item_id;
+
+                        if (item_id) {
+                            var exists = vm.selected_items.some(function (field) {
+                                return field.id == item_id;
+                            });
+                            if (exists) {
+                                toastr.info('Item Already Selected', {closeButton: true, progressBar: true});
+                                vm.isDisabled = false;
+                                return;
+                            }
+
+                            axios.get(this.config.get_item_info_url + '/' + item_id + '/' + vm.store_id)
+                                .then(function (response) {
+                                    var data = response.data;
+                                    vm.selected_items.push({
+                                        id: data.item.id,
+                                        group: data.item.parent.name,
+                                        name: data.item.name,
+                                        uom: data.item.unit.name,
+                                        balance: data.balance,
+                                        rate: Number(data.average_rate).toFixed(2),
+                                        quantity: '',
+                                    });
+                                    vm.balance = '';
+                                    vm.item_id = '';
+                                    vm.isDisabled = false;
+                                })
+                                .catch(function () {
+                                    toastr.error('Something went to wrong', {
+                                        closeButton: true,
+                                        progressBar: true,
+                                    });
+                                    vm.isDisabled = false;
+                                });
+                            return;
+                        }
+
+                        axios.get(this.config.get_items_by_group_id_rm_consumption_url + '/' + vm.group_id + '/' + vm.store_id)
+                            .then(function (response) {
+                                var items = response.data.products || [];
+                                for (var key in items) {
+                                    if (!Object.prototype.hasOwnProperty.call(items, key)) {
+                                        continue;
+                                    }
+                                    var product = items[key];
+                                    var already = vm.selected_items.some(function (field) {
+                                        return field.id == product.id;
+                                    });
+                                    if (!already) {
+                                        vm.selected_items.push(product);
+                                    }
+                                }
+                                vm.isDisabled = false;
+                            })
+                            .catch(function () {
+                                toastr.error('Something went to wrong', {
+                                    closeButton: true,
+                                    progressBar: true,
+                                });
+                                vm.isDisabled = false;
+                            });
                     },
                     delete_row: function (row) {
                         this.selected_items.splice(this.selected_items.indexOf(row), 1);
                     },
-                    itemtotal: function (index) {
-                        return parseFloat(index.quantity * index.rate).toFixed(2);
+                    itemtotal: function (row) {
+                        return ((parseFloat(row.quantity) || 0) * (parseFloat(row.rate) || 0)).toFixed(2);
                     },
-                    valid: function (index) {
-                        //console.log(index.stock_quantity);
-                        if (index.quantity > index.balance) {
-                            //console.log('1st');
-                            index.quantity = index.balance;
+                    valid: function (row) {
+                        var qty = parseFloat(row.quantity) || 0;
+                        var balance = parseFloat(row.balance) || 0;
+                        if (qty > balance) {
+                            row.quantity = balance;
                         }
-                        if (index.quantity <= 0) {
-                            //console.log('3');
-                            index.quantity = '';
+                        if (qty <= 0) {
+                            row.quantity = '';
                         }
                     },
-
                 },
-
-                updated() {
+                updated: function () {
                     $('.bSelect').selectpicker('refresh');
-                }
-
+                },
             });
 
             $('.bSelect').selectpicker({

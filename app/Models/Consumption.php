@@ -18,7 +18,13 @@ class Consumption extends Model
         return $this->hasMany('App\Models\ConsumptionItem', 'consumption_id');
 
     }
-    public function batch(){
+    public function batch()
+    {
         return $this->belongsTo(Batch::class);
+    }
+
+    public function store()
+    {
+        return $this->belongsTo(Store::class, 'store_id');
     }
 }
