@@ -2,34 +2,23 @@
 
 namespace App\Http\Requests;
 
-use App\Classes\RequisitionDeliveryNumber;
-use App\Classes\RequisitionNumber;
 use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreFGRequisitionDeliveryRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
         return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
         return [
             'from_store_id' => 'required',
             'to_store_id' => 'required',
             'requisition_id' => 'required',
-            'products' => 'array',
-            'uid' => 'required',
+            'products' => 'required|array',
             'status' => 'required',
             'date' => 'required',
             'type' => 'required',
@@ -38,19 +27,26 @@ class StoreFGRequisitionDeliveryRequest extends FormRequest
             'total_quantity' => 'required',
             'remark' => 'nullable',
             'created_by' => 'required',
+            'delivery_status' => 'nullable|in:full,partial,close',
         ];
     }
 
     public function prepareForValidation()
     {
+        $date = $this->date;
+        if ($date) {
+            try {
+                $date = Carbon::parse($date)->format('Y-m-d');
+            } catch (\Exception $e) {
+                // keep raw; validation will fail if invalid
+            }
+        }
 
         $this->merge([
             'status' => 'completed',
             'type' => 'FG',
-            'uid' => RequisitionDeliveryNumber::serial_number(),
             'created_by' => auth()->user()->id,
-            'date' => Carbon::parse($this->date)->format('Y-m-d'),
+            'date' => $date,
         ]);
-
     }
 }

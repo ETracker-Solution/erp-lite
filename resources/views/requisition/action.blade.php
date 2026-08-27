@@ -33,6 +33,12 @@
             <i class="fas fa-folder">
             </i> Show
         </a>
+        @if($row->status === 'approved' && in_array($row->delivery_status, ['pending', 'partial'], true))
+            <a href="{{ route('fg-requisition-deliveries.create', ['requisition_id' => $row->id]) }}"
+               class="btn btn-xs btn-success" title="Deliver">
+                <i class="fas fa-truck"></i> Deliver
+            </a>
+        @endif
         @if($row->status != 'approved' && $row->status != 'completed')
             {{-- <button id="btnDelete" class="btn btn-danger btn-xs"><i class="fas fa-trash">
                 </i> Delete
