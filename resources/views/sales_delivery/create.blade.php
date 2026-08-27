@@ -1,109 +1,100 @@
 @extends('layouts.app')
-@section('title')
-    Sales Delivery
-@endsection
+@section('title', 'Sales Delivery')
+
 @section('content')
-    <!-- Content Header (Page header) -->
     @php
         $links = [
-        'Home'=>route('dashboard'),
-        'Sales Delivery'=>''
-        ]
+            'Home' => route('dashboard'),
+            'Sales Delivery' => route('sales-deliveries.index'),
+            'Create' => '',
+        ];
+        $prefillSaleId = $prefill_sale_id ?? (request('sale_id') ? (string) request('sale_id') : '');
     @endphp
-    <x-breadcrumb title='Sales Delivery' :links="$links"/>
+    <x-breadcrumb title="Sales Delivery" :links="$links"/>
 
-
-
-    <!-- Main content -->
     <section class="content">
         <div class="container-fluid">
             <div class="row" id="vue_app">
-                <div class="col-lg-12 col-md-12">
+                <div class="col-lg-10 offset-lg-1">
                     <div class="card card-info">
                         <div class="card-header">
-                            <h3 class="card-title">Sales Delivery</h3>
+                            <h3 class="card-title mb-0">Make Sales Delivery</h3>
                             <div class="card-tools">
-                                <a href="{{route('sales-deliveries.index')}}">
-                                    <button class="btn btn-sm btn-primary">
-                                        <i class="fa fa-list" aria-hidden="true"></i> &nbsp;See List
-                                    </button>
+                                <a href="{{ route('sales-deliveries.index') }}" class="btn btn-sm btn-primary">
+                                    <i class="fa fa-list"></i> List
                                 </a>
                             </div>
                         </div>
 
-
-                        <form id="deliveryForm" action="{{ route('sales-deliveries.store') }}" method="POST" class="prevent-enter-submit">
+                        <form id="deliveryForm" action="{{ route('sales-deliveries.store') }}" method="POST"
+                              class="prevent-enter-submit">
                             @csrf
                             <input type="hidden" name="submission_token"
                                    value="{{ session()->get('submission_token') ?? Str::random(40) }}">
                             <div class="card-body">
-                                <div class="card-box">
-                                    <div id="">
-                                        <div class="row">
-                                            <div class="col-3">
-                                                <div class="form-group">
-                                                    <label for="date">Date</label>
-                                                    <vuejs-datepicker v-model="date" name="date"
-                                                                      placeholder="Select date"
-                                                                      format="yyyy-MM-dd"
-                                                                      @closed="getStoreData()"></vuejs-datepicker>
-                                                </div>
-                                            </div>
-                                            <div class="col-6">
-                                                <div class="form-group">
-                                                    <label for="">Current Store</label>
-                                                    @if($user_store)
-                                                        <select name="store_id" id="" class="form-control" disabled
-                                                                @change="getStoreData()"
-                                                                v-model="store_id">
-                                                            <option value="">None</option>
-                                                            @foreach($stores as $store)
-                                                                <option
-                                                                    value="{{$store->id}}" {{ $user_store ?($user_store->id == $store->id ? 'selected' : '') :'' }}>{{ $store->name }}</option>
-                                                            @endforeach
-                                                        </select>
-                                                        <input type="hidden"
-                                                               name="store_id"
-                                                               class="form-control input-sm"
-                                                               v-bind:value="store_id">
-                                                    @else
-                                                        <select name="store_id" id="" class="form-control"
-                                                                @change="getStoreData()"
-                                                                v-model="store_id">
-                                                            <option value="">None</option>
-                                                            @foreach($stores as $store)
-                                                                <option
-                                                                    value="{{$store->id}}" {{ $user_store ?($user_store->id == $store->id ? 'selected' : '') :'' }}>{{ $store->name }}</option>
-                                                            @endforeach
-                                                        </select>
-                                                    @endif
-                                                </div>
-                                            </div>
-                                            <div class="col-3">
-                                                <div class="form-group">
-                                                    <label for="">Delivery Invoice Number</label>
-                                                    <select name="sale_id" id="" class="form-control select2" v-model="sale_id">
-                                                        <option :value="row.id" v-for="row in salesData">@{{ row.invoice_number }}</option>
-                                                    </select>
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
-                                                <div class="form-group">
-                                                    <label for="customer_id">Customer Number</label>
-                                                    <input type="text" class="form-control"
-                                                           placeholder="Enter Customer Number and Press Enter"
-                                                           v-model="customerNumber"
-                                                           @keydown.enter="getCustomerInfo" name="customer_number">
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
-                                                <div class="form-group">
-                                                    <label for="store_id">Customer Name</label>
-                                                    <input type="text" v-model="customer.name" class="form-control"
-                                                           disabled>
-                                                </div>
-                                            </div>
+                                <p class="text-muted small mb-3">
+                                    Deliver a pending other-outlet / pre-order sale and collect remaining payment.
+                                </p>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label for="date">Date <span class="text-danger">*</span></label>
+                                            <input type="date" class="form-control" id="date" name="date"
+                                                   v-model="date" required @change="getStoreData()">
                                         </div>
+                                    </div>
+                                    <div class="col-md-5">
+                                        <div class="form-group">
+                                            <label>Current Store <span class="text-danger">*</span></label>
+                                            @if($user_store)
+                                                <select class="form-control" disabled v-model="store_id"
+                                                        @change="getStoreData()">
+                                                    @foreach($stores as $store)
+                                                        <option value="{{ $store->id }}"
+                                                            {{ $user_store->id == $store->id ? 'selected' : '' }}>
+                                                            {{ $store->name }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                                <input type="hidden" name="store_id" :value="store_id">
+                                            @else
+                                                <select name="store_id" class="form-control" v-model="store_id"
+                                                        @change="getStoreData()" required>
+                                                    <option value="">Select store</option>
+                                                    @foreach($stores as $store)
+                                                        <option value="{{ $store->id }}">{{ $store->name }}</option>
+                                                    @endforeach
+                                                </select>
+                                            @endif
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label>Delivery Invoice <span class="text-danger">*</span></label>
+                                            <select name="sale_id" class="form-control select2" v-model="sale_id" required>
+                                                <option value="">Select invoice</option>
+                                                <option :value="row.id" v-for="row in salesData" :key="row.id">
+                                                    @{{ row.invoice_number }}@{{ row.date ? ' — ' + row.date : '' }}
+                                                </option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="customer_number">Customer Number</label>
+                                            <input type="text" class="form-control"
+                                                   placeholder="Enter number and press Enter"
+                                                   v-model="customerNumber"
+                                                   @keydown.enter.prevent="getCustomerInfo" name="customer_number">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label>Customer Name</label>
+                                            <input type="text" v-model="customer.name" class="form-control" readonly>
+                                        </div>
+                                    </div>
+                                </div>
                                         <div class="row" v-if="items && items.length > 0">
                                             <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                 <hr>
@@ -460,7 +451,6 @@
     <script src="{{ asset('vue-js/vue/dist/vue.js') }}"></script>
     <script src="{{ asset('vue-js/axios/dist/axios.min.js') }}"></script>
     <script src="{{ asset('vue-js/bootstrap-select/dist/js/bootstrap-select.min.js') }}"></script>
-    <script src="https://cms.diu.ac/vue/vuejs-datepicker.min.js"></script>
     <script>
         $(document).ready(function () {
             var vue = new Vue({
@@ -473,8 +463,9 @@
                         get_data_by_invoice: "{{ url('fetch-data-by-sale-id-for-sale') }}"
                     },
                     customer_id: '',
-                    store_id: "",
-                    sale_id: "",
+                    store_id: @json((string) ($prefill_store_id ?? '')),
+                    sale_id: @json($prefillSaleId),
+                    prefillSale: @json($prefill_sale),
                     delivery_point_id: '',
                     category_id: '',
                     item_id: '',
@@ -490,8 +481,7 @@
                     selling_price: 0,
                     customerNumber: '',
                     customer: {},
-                    date: new Date(),
-                    invoice_number: "{{ $invoice_number ?? 'Please Select Store First' }}",
+                    date: "{{ date('Y-m-d') }}",
                     paymentMethods: [{
                         amount: 0,
                         method: 'cash'
@@ -508,24 +498,21 @@
                     isSubmitting: false,
                     salesData: []
                 },
-                components: {
-                    vuejsDatepicker
-                },
-
                 mounted: function () {
-                    this.setStoreId()
-
                     const self = this;
 
-                    // Initialize Select2
                     $('.select2').select2();
-
-                    // Listen for change event on Select2
                     $('.select2').on('change', function () {
-                        self.sale_id = $(this).val(); // Update the Vue model
-                        self.getAllData(); // Call your method
+                        self.sale_id = $(this).val();
+                        self.getAllData();
                     });
                     this.preventEnterSubmit();
+
+                    if (this.sale_id) {
+                        this.bootstrapPrefill();
+                    } else if (this.store_id) {
+                        this.getStoreData();
+                    }
                 },
                 computed: {
                     subtotal: function () {
@@ -635,7 +622,7 @@
                                 }).then(function (response) {
                                     const product_details = response.data;
                                     vm.items.push({
-                                        item_id: vm.item_id,
+                                        item_id: slug,
                                         group: product_details.group,
                                         product_name: product_details.name,
                                         unit: product_details.unit,
@@ -696,22 +683,55 @@
                             return false;
                         });
                     },
-                    getStoreData() {
+                    getStoreData: function (afterLoad) {
                         const vm = this
                         if (!vm.store_id) {
-                            vm.invoice_number = 'Please Select Store First'
                             toastr.error('Please Select valid Store', {
                                 closeButton: true,
                                 progressBar: true,
                             });
+                            return;
                         }
                         axios.get('/search-sales/', {
                             params: {
                                 store_id: vm.store_id
                             }
                         }).then((response) => {
-                            vm.salesData = response.data
-                        })
+                            vm.salesData = response.data || []
+                            if (vm.sale_id && vm.prefillSale) {
+                                var exists = vm.salesData.some(function (row) {
+                                    return String(row.id) === String(vm.sale_id);
+                                });
+                                if (!exists) {
+                                    vm.salesData.unshift(vm.prefillSale);
+                                }
+                            }
+                            vm.$nextTick(function () {
+                                if (vm.sale_id) {
+                                    $('.select2').val(vm.sale_id).trigger('change.select2');
+                                }
+                                if (typeof afterLoad === 'function') {
+                                    afterLoad();
+                                }
+                            });
+                        }).catch(function () {
+                            if (typeof afterLoad === 'function') {
+                                afterLoad();
+                            }
+                        });
+                    },
+                    bootstrapPrefill: function () {
+                        var vm = this;
+                        if (!vm.store_id) {
+                            toastr.warning('Could not resolve store for this delivery.', {
+                                closeButton: true,
+                                progressBar: true,
+                            });
+                            return;
+                        }
+                        vm.getStoreData(function () {
+                            vm.getAllData();
+                        });
                     },
                     deletePaymentMethod: function (row) {
                         this.paymentMethods.splice(this.paymentMethods.indexOf(row), 1);
@@ -719,11 +739,11 @@
                     addMorePaymentMethod() {
                         this.paymentMethods.push({amount: 0, method: ''})
                     },
-                    setStoreId() {
-                        const vm = this
-                        vm.store_id = "{{ $user_store ?  $user_store->id : ''}}"
-                        if (vm.store_id){
-                            vm.getStoreData(); // Call your method
+                    setStoreId: function () {
+                        var vm = this;
+                        if (!vm.store_id && "{{ $user_store ? $user_store->id : '' }}") {
+                            vm.store_id = "{{ $user_store ? $user_store->id : '' }}";
+                            vm.getStoreData();
                         }
                     },
                     preventEnterSubmit() {

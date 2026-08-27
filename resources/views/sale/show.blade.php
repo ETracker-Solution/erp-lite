@@ -1,206 +1,153 @@
 @extends('layouts.app')
-@section('title')
-    Sales Details
-@endsection
+
+@section('title', 'Sales Details')
+
 @section('content')
-    <!-- Content Wrapper. Contains page content -->
-    <!-- Content Header (Page header) -->
     @php
         $links = [
-        'Home'=>route('dashboard'),
-        'Sales Details'=>''
-        ]
+            'Home' => route('dashboard'),
+            'Sales' => route('sales.index'),
+            'Details' => '',
+        ];
+        $subtotalFmt = number_format((float) $sale->subtotal, 2);
+        $grandFmt = number_format((float) $sale->grand_total, 2);
+        $discountFmt = number_format((float) $sale->discount, 2);
+        $paidAmount = number_format((float) ($sale->receive_amount ?? 0), 2);
+        $dueAmount = number_format(max((float) $sale->grand_total - (float) ($sale->receive_amount ?? 0), 0), 2);
     @endphp
-    <x-breadcrumb title='Sales Details' :links="$links"/>
+    <x-breadcrumb title="Sales" :links="$links"/>
 
     <section class="content">
         <div class="container-fluid">
             <div class="row">
-                <div class="col-12">
+                <div class="col-lg-10 offset-lg-1">
                     <div class="card card-info">
                         <div class="card-header">
-                            <h3 class="card-title">Sales Details</h3>
-                            <a href="{{route('sale.pdf-download',encrypt($sale->id))}}"
-                               class="btn btn-sm btn-primary float-right" target="_blank"><i class="fa fa-download"></i>
-                                PDF</a>
+                            <h3 class="card-title mb-0">
+                                Invoice {{ $sale->invoice_number ?: ('#'.$sale->id) }}
+                                <span class="ml-2">{!! showStatus($sale->status) !!}</span>
+                            </h3>
+                            <div class="card-tools">
+                                <a href="{{ route('sales.index') }}" class="btn btn-sm btn-primary">
+                                    <i class="fa fa-list"></i> List
+                                </a>
+                                <a href="{{ route('sale.pdf-download', encrypt($sale->id)) }}"
+                                   class="btn btn-sm btn-secondary" target="_blank" rel="noopener">
+                                    <i class="fa fa-download"></i> PDF
+                                </a>
+                            </div>
                         </div>
-                        <!-- Main content -->
-                        <div class="row invoice-info">
-                            <div class="col-sm-4 invoice-col">
-                                <table width="100%">
-                                    <tbody>
-                                    <tr>
-                                        <td style="text-align: left; padding:8px; line-height: 0.6">
-                                            <p><b>Outlet :</b> {{ $sale->outlet->name }}</p>
-                                            <p><b>Customer Name
-                                                    :</b> {{ $sale->customer ? $sale->customer->name : 'N/A' }} </p>
-                                            <p><b>Customer Number
-                                                    :</b> {{ $sale->customer ? $sale->customer->mobile ?? 'N/A' : 'N/A' }}
-                                            </p>
-                                            {{--                                            @if(isset($sale->delivery_time))--}}
-                                            {{--                                                <b>Delivery Time :</b> {{ \Carbon\Carbon::parse($sale->delivery_time)->format('h:i A') }}--}}
-                                            {{--                                            @else--}}
-
-                                            {{--                                            @endif--}}
-                                            {{--                                            <p><b>Status :</b> {!! showStatus($sale->status) !!}</p>--}}
-                                        </td>
-                                    </tr>
-                                    </tbody>
-                                </table>
+                        <div class="card-body">
+                            <div class="row mb-3">
+                                <div class="col-md-3">
+                                    <div class="small text-muted text-uppercase">Date</div>
+                                    <div class="font-weight-bold">{{ $sale->date ?: '—' }}</div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="small text-muted text-uppercase">Outlet</div>
+                                    <div class="font-weight-bold">{{ $sale->outlet->name ?? '—' }}</div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="small text-muted text-uppercase">Customer</div>
+                                    <div class="font-weight-bold">{{ $sale->customer->name ?? '—' }}</div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="small text-muted text-uppercase">Mobile</div>
+                                    <div class="font-weight-bold">{{ $sale->customer->mobile ?? '—' }}</div>
+                                </div>
                             </div>
-                            <!-- /.col -->
-                            <div class="col-sm-4 invoice-col">
-                                <table width="100%">
-                                    <tbody>
-                                    <tr>
-                                        <td style="text-align: left; padding:8px; line-height: 0.6">
-                                            <p><b>Address :</b> {{ $sale->outlet->address }}</p>
-                                            <p><b>Status :</b> {{ $sale->status }}</p>
-                                        </td>
-                                    </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                            <!-- /.col -->
-                            <div class="col-sm-4 invoice-col">
-                                <table width="100%">
-                                    <tbody>
-                                    <tr>
-                                        <td style="text-align: left; padding:8px; line-height: 0.6">
-                                            <p><b>Customer :</b> {{ $sale->customer->name }}</p>
-                                            <p><b>email :</b> {{ $sale->customer->email }} </p>
-                                            <p><b>Phone :</b> {{ $sale->customer->mobile }} </p>
-                                            <p><b>Address :</b> {{ $sale->customer->address }}</p>
-                                        </td>
-                                    </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                            <!-- /.col -->
-                        </div>
 
-                        <!-- /.row -->
-
-                        <!-- Table row -->
-                        <div class="row">
-                            <div class="col-12 table-responsive">
-                                <table class="table table-striped">
-                                    <thead>
+                            <div class="table-responsive mb-3">
+                                <table class="table table-bordered table-sm mb-0">
+                                    <thead class="thead-light">
                                     <tr>
-                                        <th>#</th>
-                                        <th>Invoice No</th>
+                                        <th style="width:5%">#</th>
                                         <th>Item</th>
-                                        <th>Unit</th>
-                                        <th>Quantity</th>
-                                        <th>Discount</th>
-                                        <th class="text-right">Grand Total</th>
-
+                                        <th class="text-right">Rate</th>
+                                        <th class="text-right">Qty</th>
+                                        <th class="text-right">Discount</th>
+                                        <th class="text-right">Value</th>
                                     </tr>
                                     </thead>
                                     <tbody>
-                                    @foreach ($sale->items as $item)
+                                    @forelse ($sale->items as $item)
+                                        @php
+                                            $line = ((float) ($item->unit_price ?? 0) * (float) ($item->quantity ?? 0))
+                                                - (float) ($item->discount ?? 0);
+                                        @endphp
                                         <tr>
                                             <td>{{ $loop->iteration }}</td>
-                                            <td>{{ $sale->invoice_number }}</td>
-                                            <td>{{ $item->coi->name ?? '' }}</td>
-                                            <td>{{ $item->unit_price ?? 0 }}</td>
-                                            <td>{{ $item->quantity ?? 0 }}</td>
-                                            <td>{{ $item->discount ?? 0 }}</td>
-                                            <td class="text-right">{{ ($item->unit_price * $item->quantity) - $item->discount }}</td>
+                                            <td>{{ $item->coi->name ?? '—' }}</td>
+                                            <td class="text-right">{{ number_format((float) ($item->unit_price ?? 0), 2) }}</td>
+                                            <td class="text-right">{{ number_format((float) ($item->quantity ?? 0), 2) }}</td>
+                                            <td class="text-right">{{ number_format((float) ($item->discount ?? 0), 2) }}</td>
+                                            <td class="text-right">{{ number_format($line, 2) }}</td>
                                         </tr>
-                                    @endforeach
+                                    @empty
+                                        <tr>
+                                            <td colspan="6" class="text-center text-muted">No items</td>
+                                        </tr>
+                                    @endforelse
                                     </tbody>
                                 </table>
                             </div>
-                            <!-- /.col -->
-                        </div>
-                        <div class="row">
-                            <!-- accepted payments column -->
-                            <div class="col-8">
 
-                            </div>
-                            <!-- /.col -->
-                            <div class="col-4">
-                                <div class="table-responsive">
-                                    <table class="table">
+                            <div class="row">
+                                <div class="col-md-6 offset-md-6">
+                                    <table class="table table-sm mb-0">
                                         <tr>
-                                            <th style="width:50%">Subtotal:</th>
-                                            <td class="text-right">{{ $sale->subtotal }}</td>
+                                            <th>Subtotal</th>
+                                            <td class="text-right">{{ $subtotalFmt }}</td>
                                         </tr>
                                         <tr>
-                                            <th style="width:50%">Delivery Charge:</th>
-                                            <td class="text-right">{{ $sale->delivery_charge }}</td>
+                                            <th>Delivery Charge</th>
+                                            <td class="text-right">{{ number_format((float) $sale->delivery_charge, 2) }}</td>
                                         </tr>
                                         <tr>
-                                            <th style="width:50%">Additional Charge:</th>
-                                            <td class="text-right">{{ $sale->additional_charge }}</td>
+                                            <th>Additional Charge</th>
+                                            <td class="text-right">{{ number_format((float) $sale->additional_charge, 2) }}</td>
                                         </tr>
                                         <tr>
-                                            <th style="width:50%">Discount:</th>
-                                            <td class="text-right">{{ $sale->discount }}</td>
+                                            <th>Discount</th>
+                                            <td class="text-right">{{ $discountFmt }}</td>
                                         </tr>
                                         @if($sale->couponCode)
                                             <tr>
-                                                <th style="width:50%">Coupon Discount: ({{ $sale->couponCode }})</th>
-                                                <td class="text-right">{{ $sale->couponCodeDiscountAmount }}</td>
+                                                <th>Coupon ({{ $sale->couponCode }})</th>
+                                                <td class="text-right">{{ number_format((float) $sale->couponCodeDiscountAmount, 2) }}</td>
                                             </tr>
                                         @endif
                                         <tr>
-                                            <th style="width:50%">Grand Total</th>
-                                            <td class="text-right">{{ $sale->grand_total }}</td>
+                                            <th class="text-primary">Grand Total</th>
+                                            <td class="text-right font-weight-bold text-primary">{{ $grandFmt }}</td>
                                         </tr>
-                                    </table>
-                                </div>
-                            </div>
-                            <hr>
-                            <div class="col-8">
-
-                            </div>
-                            <div class="col-4">
-                                <div class="table-responsive">
-                                    @php
-                                        $paidAmount = max($sale->receive_ammount,$sale->grand_total);
-                                        $dueAmount = $sale->grand_total - $paidAmount;
-                                    @endphp
-                                    <table class="table">
                                         <tr>
-                                            <th style="width:50%">Paid:</th>
+                                            <th>Paid</th>
                                             <td class="text-right">{{ $paidAmount }}</td>
                                         </tr>
                                         <tr>
-                                            <th style="width:50%">Due:</th>
+                                            <th>Due</th>
                                             <td class="text-right">{{ $dueAmount }}</td>
                                         </tr>
                                     </table>
                                 </div>
                             </div>
-                            <!-- /.col -->
-                        </div>
-                        <!-- /.row -->
-                    </div>
-                    <!-- /.row -->
-                </div>
-                <!-- /.invoice -->
-            </div><!-- /.row -->
-            @if((auth()->user()->is_super || (auth()->user()->employee && auth()->user()->employee->user_of == 'ho')))
-                <div class="row">
-                    <div class="col-12">
-                        <div class="card">
-                            <div class="card-body text-center">
-                                <form action="{{ route('sales.destroy',$sale->id) }}" method="POST">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button class="btn btn-sm btn-danger" id="salesDelete">Delete</button>
-                                </form>
-                            </div>
                         </div>
                     </div>
+
+                    @if(auth()->user()->is_super || (auth()->user()->employee && auth()->user()->employee->user_of == 'ho'))
+                        <div class="text-center mb-3">
+                            <form action="{{ route('sales.destroy', $sale->id) }}" method="POST" class="d-inline">
+                                @csrf
+                                @method('DELETE')
+                                <button class="btn btn-sm btn-danger" id="salesDelete" type="submit">Delete</button>
+                            </form>
+                        </div>
+                    @endif
                 </div>
-            @endif
-        </div><!-- /.container-fluid -->
+            </div>
+        </div>
     </section>
-    <!-- /.content -->
-    <!-- /.content-wrapper -->
 @endsection
 @push('js_scripts')
     <script>

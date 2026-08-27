@@ -32,28 +32,29 @@ class SaleController extends Controller
      */
     public function index()
     {
-        $data = Sale::query()->select([
-            'id',
-            'invoice_number',
-            'subtotal',
-            'discount',
-            'grand_total',
-            'status',
-            'created_at',
-            'date',
-            'membership_discount_amount',
-            'special_discount_amount',
-            'couponCodeDiscountAmount',
-        ]);
+        if (request()->ajax()) {
+            $query = Sale::query()->select([
+                'id',
+                'invoice_number',
+                'subtotal',
+                'discount',
+                'grand_total',
+                'status',
+                'created_at',
+                'date',
+                'membership_discount_amount',
+                'special_discount_amount',
+                'couponCodeDiscountAmount',
+            ]);
 
-        if (\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->outlet_id) {
-            $data->where(['outlet_id' => \auth()->user()->employee->outlet_id])->where('date', date('Y-m-d'));
-        } elseif (!filled(request()->input('search.value'))) {
-            $data->where('date', '>=', now()->subMonths(6)->toDateString());
-        }
-        $data->latest();
-        if (\request()->ajax()) {
-            return DataTables::of($data)
+            if (auth()->user()?->employee?->outlet_id) {
+                $query->where('outlet_id', auth()->user()->employee->outlet_id)
+                    ->where('date', date('Y-m-d'));
+            } elseif (!filled(request()->input('search.value'))) {
+                $query->where('date', '>=', now()->subMonths(6)->toDateString());
+            }
+
+            return DataTables::eloquent($query->latest('id'))
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
                     return view('sale.action', compact('row'));
@@ -61,15 +62,20 @@ class SaleController extends Controller
                 ->addColumn('created_at', function ($row) {
                     return view('common.created_at', compact('row'));
                 })
-                ->editColumn('status', function ($row) {
-                    return showStatus($row->status);
-                })
+                ->editColumn('status', fn ($row) => showStatus($row->status))
+                ->editColumn('subtotal', fn ($row) => number_format((float) $row->subtotal, 2))
+                ->editColumn('grand_total', fn ($row) => number_format((float) $row->grand_total, 2))
                 ->editColumn('discount', function ($row) {
-                    return $row->discount + $row->membership_discount_amount + $row->special_discount_amount + $row->couponCodeDiscountAmount;
+                    $total = (float) $row->discount
+                        + (float) $row->membership_discount_amount
+                        + (float) $row->special_discount_amount
+                        + (float) $row->couponCodeDiscountAmount;
+                    return number_format($total, 2);
                 })
                 ->rawColumns(['action', 'created_at', 'status'])
                 ->make(true);
         }
+
         return view('sale.index');
     }
 
@@ -78,27 +84,33 @@ class SaleController extends Controller
      */
     public function create()
     {
-        $serial_no = 'Assigned on save';
         $user_store = null;
         $outlet_id = null;
-        if (!auth()->user()->is_super) {
-            if (\auth()->user()->employee->outlet_id) {
-                $user_store = Store::where(['doc_type' => 'outlet', 'doc_id' => \auth()->user()->employee->outlet_id,'status'=>'active'])->first();
-                $outlet_id = $user_store->doc_id;
-            }
+        if (!auth()->user()->is_super && auth()->user()?->employee?->outlet_id) {
+            $user_store = Store::query()
+                ->where([
+                    'doc_type' => 'outlet',
+                    'doc_id' => auth()->user()->employee->outlet_id,
+                    'status' => 'active',
+                ])
+                ->first(['id', 'name', 'doc_id', 'doc_type']);
+            $outlet_id = $user_store?->doc_id;
         }
-        $data = [
-            'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'FG','status'=>'active'])->get(),
-            'stores' => Store::where(['type' => 'FG', 'doc_type' => 'outlet','status'=>'active'])->get(),
-            'serial_no' => $serial_no,
+
+        return view('sale.create2', [
+            'groups' => ChartOfInventory::query()
+                ->where(['type' => 'group', 'rootAccountType' => 'FG', 'status' => 'active'])
+                ->orderBy('name')
+                ->get(['id', 'name']),
+            'stores' => Store::query()
+                ->where(['type' => 'FG', 'doc_type' => 'outlet', 'status' => 'active'])
+                ->orderBy('name')
+                ->get(['id', 'name']),
             'user_store' => $user_store,
-            'invoice_number' => $serial_no,
-            'delivery_points' => Outlet::query()->select('id', 'name')->get(),
+            'delivery_points' => Outlet::query()->select('id', 'name')->orderBy('name')->get(),
             'user_outlet_id' => $outlet_id,
             'payment_methods' => salePaymentMethodOptions(),
-        ];
-//        return $data;
-        return view('sale.create2', $data);
+        ]);
     }
 
     /**
@@ -323,7 +335,15 @@ class SaleController extends Controller
      */
     public function show($id)
     {
-        $sale = Sale::findOrFail(decrypt($id));
+        $sale = Sale::query()
+            ->with([
+                'outlet:id,name,address',
+                'customer:id,name,mobile,email,address',
+                'items.coi:id,name,unit_id',
+                'items.coi.unit:id,name',
+            ])
+            ->findOrFail(decrypt($id));
+
         return view('sale.show', compact('sale'));
     }
 
@@ -410,36 +430,30 @@ class SaleController extends Controller
 
     public function pdfDownload($id)
     {
-        $data = [
-            'sale' => Sale::findOrFail(decrypt($id)),
-        ];
+        $sale = Sale::query()
+            ->with([
+                'outlet:id,name,address',
+                'customer:id,name,mobile,email,address',
+                'items.coi:id,name,unit_id',
+                'items.coi.unit:id,name',
+            ])
+            ->findOrFail(decrypt($id));
 
-        $pdf = PDF::loadView(
+        $pdf = Pdf::loadView(
             'sale.pdf',
-            $data,
+            ['sale' => $sale],
             [],
             [
                 'format' => 'A4-P',
                 'orientation' => 'P',
-                'margin-left' => 1,
-
-                '', // mode - default ''
-                '', // format - A4, for example, default ''
-                0, // font size - default 0
-                '', // default font family
-                1, // margin_left
-                1, // margin right
-                1, // margin top
-                1, // margin bottom
-                1, // margin header
-                1, // margin footer
-                'L', // L - landscape, P - portrait
-
+                'margin_left' => 8,
+                'margin_right' => 8,
+                'margin_top' => 8,
+                'margin_bottom' => 8,
             ]
         );
-        $name = \Carbon\Carbon::now()->format('d-m-Y');
 
-        return $pdf->stream($name . '.pdf');
+        return $pdf->stream('INV-' . ($sale->invoice_number ?: $sale->id) . '.pdf');
     }
 
     public function getInvoiceByOutlet(Request $request, $store_id)

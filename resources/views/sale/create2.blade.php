@@ -179,14 +179,7 @@
                                             </div>
                                         </div>
                                         <div class="row">
-                                            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                                                <div class="form-group">
-                                                    <label for="customer_id" class="small">Invoice Number</label>
-                                                    <input type="text" class="form-control form-control-sm"
-                                                           placeholder="Enter Invoice Number" v-model="invoice_number">
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                                            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                                 <div class="form-group">
                                                     <label for="customer_id" class="small">Customer Number</label>
                                                     <input type="text" class="form-control form-control-sm"
@@ -195,7 +188,7 @@
                                                            @keyup="getCustomerInfo" name="customer_number">
                                                 </div>
                                             </div>
-                                            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                                            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                                 <div class="form-group">
                                                     <label for="store_id" class="small">Customer Name</label>
                                                     <input type="text" v-model="customer.name"
@@ -717,7 +710,7 @@
                     customerNumber: '',
                     customer: {},
                     date: new Date(),
-                    invoice_number: "{{ $invoice_number ?? 'Please Select Store First' }}",
+                    invoice_number: "Assigned on save",
                     paymentMethods: [{
                         amount: 0,
                         method: 'cash'
@@ -978,18 +971,18 @@
                     getStoreData() {
                         const vm = this
                         if (!vm.store_id) {
-                            vm.invoice_number = 'Please Select Store First'
                             toastr.error('Please Select valid Store', {
                                 closeButton: true,
                                 progressBar: true,
                             });
+                            return;
                         }
                         axios.get('/invoice-by-store/' + vm.store_id, {
                             params: {
                                 date: vm.date
                             }
                         }).then((response) => {
-                            vm.invoice_number = response.data.invoice
+                            vm.invoice_number = 'Assigned on save'
                             vm.user_outlet_id = response.data.outlet
                         })
                     },

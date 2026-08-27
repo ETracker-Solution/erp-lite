@@ -1,138 +1,115 @@
 @extends('layouts.app')
-@section('title')
-    Other Outlet Sales Details
-@endsection
+
+@section('title', 'Sales Delivery Details')
+
 @section('content')
-    <!-- Content Wrapper. Contains page content -->
-    <!-- Content Header (Page header) -->
     @php
         $links = [
-        'Home'=>route('dashboard'),
-        'Other Outlet Sales Details'=>''
-        ]
+            'Home' => route('dashboard'),
+            'Sales Delivery' => route('sales-deliveries.index'),
+            'Details' => '',
+        ];
+        $grandFmt = number_format((float) $sale->grand_total, 2);
+        $dueFmt = number_format(max((float) $sale->grand_total - ((float) $sale->receive_amount + (float) $sale->delivery_point_receive_amount), 0), 2);
     @endphp
-    <x-breadcrumb title='Other Outlet Sales Details' :links="$links"/>
+    <x-breadcrumb title="Sales Delivery" :links="$links"/>
 
     <section class="content">
         <div class="container-fluid">
             <div class="row">
-                <div class="col-12">
+                <div class="col-lg-10 offset-lg-1">
                     <div class="card card-info">
                         <div class="card-header">
-                            <h3 class="card-title">Other Outlet Sales Details</h3>
-                            <a href="{{route('others.outlet.pdf-download',encrypt($otherOutletSale->id))}}"
-                               class="btn btn-sm btn-primary float-right" target="_blank"><i class="fa fa-download"></i>
-                                PDF</a>
+                            <h3 class="card-title mb-0">
+                                Invoice {{ $sale->invoice_number ?: ('#'.$sale->id) }}
+                                <span class="ml-2">{!! showStatus($sale->status) !!}</span>
+                            </h3>
+                            <div class="card-tools">
+                                <a href="{{ route('sales-deliveries.index') }}" class="btn btn-sm btn-primary">
+                                    <i class="fa fa-list"></i> List
+                                </a>
+                                @if($sale->status === 'pending')
+                                    <a href="{{ route('sales-deliveries.create', ['sale_id' => $sale->id]) }}"
+                                       class="btn btn-sm btn-success">
+                                        <i class="fa fa-truck"></i> Deliver
+                                    </a>
+                                @endif
+                            </div>
                         </div>
-                        <!-- Main content -->
-                        <div class="row invoice-info">
-                            <div class="col-sm-4 invoice-col">
-                                <table width="100%">
-                                    <tbody>
+                        <div class="card-body">
+                            <div class="row mb-3">
+                                <div class="col-md-3">
+                                    <div class="small text-muted text-uppercase">Date</div>
+                                    <div class="font-weight-bold">{{ $sale->date ?: '—' }}</div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="small text-muted text-uppercase">Order From</div>
+                                    <div class="font-weight-bold">{{ $sale->outlet->name ?? '—' }}</div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="small text-muted text-uppercase">Delivery Point</div>
+                                    <div class="font-weight-bold">{{ $sale->deliveryPoint->name ?? '—' }}</div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="small text-muted text-uppercase">Customer</div>
+                                    <div class="font-weight-bold">{{ $sale->customer->name ?? '—' }}
+                                        @if($sale->customer?->mobile)
+                                            <span class="text-muted">({{ $sale->customer->mobile }})</span>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-md-3">
+                                    <div class="small text-muted text-uppercase">Grand Total</div>
+                                    <div class="font-weight-bold text-primary" style="font-size:1.25rem;">{{ $grandFmt }}</div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="small text-muted text-uppercase">Due</div>
+                                    <div class="font-weight-bold">{{ $dueFmt }}</div>
+                                </div>
+                            </div>
+
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-sm mb-0">
+                                    <thead class="thead-light">
                                     <tr>
-                                        <td style="text-align: left; padding:8px; line-height: 0.6">
-                                            <p><b>Invoice No :</b> {{ $otherOutletSale->invoice_number }}</p>
-                                            <p><b>Delivery Point :</b> {{ $otherOutletSale->deliveryPoint->name }}</p>
-                                            <p><b>Date :</b> {{ $otherOutletSale->date }} </p>
-                                            <p><b>Sub Total :</b> {{ $otherOutletSale->subtotal }} </p>
-                                            <p><b>Delivery Status :</b> {!! showStatus($otherOutletSale->status) !!}
-                                            </p>
-                                        </td>
-                                    </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                            <!-- /.col -->
-                            <div class="col-sm-4 invoice-col">
-                            </div>
-                            <!-- /.col -->
-                            <div class="col-sm-4 invoice-col">
-
-                            </div>
-                            <!-- /.col -->
-                        </div>
-
-                        <!-- /.row -->
-
-                        <!-- Table row -->
-                        <div class="row">
-                            <div class="col-12 table-responsive">
-                                <table class="table table-striped">
-                                    <thead>
-                                    <tr>
-                                        <th>#</th>
-                                        <th>Invoice No</th>
+                                        <th style="width:5%">#</th>
+                                        <th>Group</th>
                                         <th>Item</th>
-                                        <th>Unit Price</th>
-                                        <th>Quantity</th>
-                                        <th>Discount</th>
-                                        <th class="text-right">item Total</th>
-
+                                        <th>Unit</th>
+                                        <th class="text-right">Qty</th>
+                                        <th class="text-right">Rate</th>
+                                        <th class="text-right">Value</th>
                                     </tr>
                                     </thead>
                                     <tbody>
-                                    @foreach ($otherOutletSale->items as $item)
+                                    @forelse ($sale->items as $item)
+                                        @php
+                                            $qty = (float) ($item->quantity ?? 0);
+                                            $rate = (float) ($item->unit_price ?? $item->rate ?? 0);
+                                        @endphp
                                         <tr>
                                             <td>{{ $loop->iteration }}</td>
-                                            <td>{{ $otherOutletSale->invoice_number }}</td>
-                                            <td>{{ $item->coi->name ?? '' }}</td>
-                                            <td>{{ $item->unit_price ?? '' }}</td>
-                                            <td>{{ $item->quantity ?? '' }}</td>
-                                            <td>{{ $item->discount }}</td>
-                                            <td class="text-right">{{$item->unit_price*$item->discount }}</td>
+                                            <td>{{ $item->coi->parent->name ?? '—' }}</td>
+                                            <td>{{ $item->coi->name ?? '—' }}</td>
+                                            <td>{{ $item->coi->unit->name ?? '—' }}</td>
+                                            <td class="text-right">{{ number_format($qty, 2) }}</td>
+                                            <td class="text-right">{{ number_format($rate, 2) }}</td>
+                                            <td class="text-right">{{ number_format($qty * $rate, 2) }}</td>
                                         </tr>
-                                    @endforeach
+                                    @empty
+                                        <tr>
+                                            <td colspan="7" class="text-center text-muted">No items</td>
+                                        </tr>
+                                    @endforelse
                                     </tbody>
                                 </table>
                             </div>
-                            <!-- /.col -->
                         </div>
-                        <div class="row">
-                            <!-- accepted payments column -->
-                            <div class="col-8">
-
-                            </div>
-                            <!-- /.col -->
-                            <div class="col-4">
-                                <div class="table-responsive">
-                                    <table class="table">
-                                        <tr>
-                                            <th style="width:50%">Subtotal:</th>
-                                            <td class="text-right">{{ $otherOutletSale->subtotal }}</td>
-                                        </tr>
-                                        <tr>
-                                            <th style="width:50%">Discount:</th>
-                                            <td class="text-right">{{ $otherOutletSale->discount }}</td>
-                                        </tr>
-                                        <tr>
-                                            <th style="width:50%">Grand Total</th>
-                                            <td class="text-right">{{ $otherOutletSale->grand_total }}</td>
-                                        </tr>
-                                        @php
-                                            $paid = $otherOutletSale->receive_amount +  $otherOutletSale->delivery_point_receive_amount;
-                                        @endphp
-                                        <tr>
-                                            <th style="width:50%">Paid</th>
-                                            <td class="text-right">{{ $paid  }}</td>
-                                        </tr>
-                                        <tr>
-                                            <th style="width:50%">Due</th>
-                                            <td class="text-right">{{ $otherOutletSale->grand_total -   $paid}}</td>
-                                        </tr>
-                                    </table>
-                                </div>
-                            </div>
-                            <!-- /.col -->
-                        </div>
-                        <!-- /.row -->
                     </div>
-                    <!-- /.row -->
                 </div>
-                <!-- /.invoice -->
-            </div><!-- /.row -->
-        </div><!-- /.container-fluid -->
+            </div>
+        </div>
     </section>
-    <!-- /.content -->
-
-    <!-- /.content-wrapper -->
 @endsection

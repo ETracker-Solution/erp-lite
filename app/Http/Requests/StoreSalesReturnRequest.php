@@ -25,7 +25,7 @@ class StoreSalesReturnRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'products' => 'array',
+            'products' => 'required|array',
             'sale_id' => 'required',
             'store_id' => 'required',
             'date' => 'required',
@@ -36,15 +36,22 @@ class StoreSalesReturnRequest extends FormRequest
             'remark' => 'nullable',
             'net_payable' => 'nullable',
             'created_by' => 'required',
+            'status' => 'nullable',
         ];
     }
     public function prepareForValidation()
     {
+        $date = $this->date ?: now()->format('Y-m-d');
+        try {
+            $date = \Carbon\Carbon::parse($date)->format('Y-m-d');
+        } catch (\Exception $e) {
+            $date = now()->format('Y-m-d');
+        }
 
         $this->merge([
             'created_by' => auth()->user()->id,
-            'date' => Carbon::parse($this->date)->format('Y-m-d'),
+            'date' => $date,
+            'status' => $this->status ?: 'final',
         ]);
-
     }
 }
