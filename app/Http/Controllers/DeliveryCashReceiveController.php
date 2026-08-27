@@ -3,11 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreDeliveryCashTransferRequest;
-use App\Http\Requests\UpdateDeliveryCashTransferRequest;
-use App\Models\ChartOfAccount;
 use App\Models\DeliveryCashTransfer;
-use App\Models\OthersOutletSale;
-use App\Models\OutletTransactionConfig;
 use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -15,25 +11,33 @@ use Yajra\DataTables\Facades\DataTables;
 
 class DeliveryCashReceiveController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        if (\request()->ajax()) {
-            if (\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->outlet_id) {
-                $dcTransfers = DeliveryCashTransfer::with('creditAccount', 'debitAccount')->where(['to_outlet'=>\auth()->user()->employee->outlet_id])->latest();
+        if (request()->ajax()) {
+            $outletId = auth()->user()?->employee?->outlet_id;
 
-            } else {
-                $dcTransfers = DeliveryCashTransfer::with('creditAccount', 'debitAccount')->latest();
-            }
-            return DataTables::of($dcTransfers)
+            $query = DeliveryCashTransfer::query()
+                ->select([
+                    'delivery_cash_transfers.id',
+                    'delivery_cash_transfers.date',
+                    'delivery_cash_transfers.invoice_number',
+                    'delivery_cash_transfers.amount',
+                    'delivery_cash_transfers.status',
+                    'delivery_cash_transfers.credit_account_id',
+                    'delivery_cash_transfers.debit_account_id',
+                    'delivery_cash_transfers.to_outlet',
+                    'delivery_cash_transfers.created_at',
+                ])
+                ->with([
+                    'creditAccount:id,name',
+                    'debitAccount:id,name',
+                ])
+                ->when($outletId, fn ($q) => $q->where('to_outlet', $outletId))
+                ->latest('delivery_cash_transfers.id');
+
+            return DataTables::eloquent($query)
                 ->addIndexColumn()
-                ->editColumn('status', function ($row) {
-                    $class = $row->status === 'received' ? 'success' : 'warning';
-
-                    return '<span class="badge badge-' . $class . '">' . ucfirst($row->status) . '</span>';
-                })
+                ->editColumn('status', fn ($row) => showStatus($row->status))
                 ->editColumn('amount', fn ($row) => number_format((float) $row->amount, 2))
                 ->addColumn('action', function ($row) {
                     return view('delivery_cash_receive.action-button', compact('row'));
@@ -41,59 +45,49 @@ class DeliveryCashReceiveController extends Controller
                 ->addColumn('created_at', function ($row) {
                     return view('common.created_at', compact('row'));
                 })
-                ->rawColumns(['action', 'status'])
+                ->rawColumns(['action', 'status', 'created_at'])
                 ->make(true);
         }
+
         return view('delivery_cash_receive.index');
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
         //
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(StoreDeliveryCashTransferRequest $request)
     {
         //
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show($id)
     {
-        $deliveryCashTransfer = DeliveryCashTransfer::with([
-            'otherOutlet',
-            'creditAccount',
-            'debitAccount',
-        ])->findOrFail(decrypt($id));
+        $deliveryCashTransfer = DeliveryCashTransfer::query()
+            ->with([
+                'otherOutlet:id,outlet_id,invoice_number,delivery_point_id',
+                'otherOutlet.outlet:id,name',
+                'creditAccount:id,name',
+                'debitAccount:id,name',
+            ])
+            ->findOrFail(decrypt($id));
 
         return view('delivery_cash_receive.show', compact('deliveryCashTransfer'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(DeliveryCashTransfer $deliveryCashTransfer)
     {
         //
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, $id)
     {
         $deliveryCashTransfer = DeliveryCashTransfer::findOrFail(decrypt($id));
 
         if ($deliveryCashTransfer->status === 'received') {
             Toastr::info('Already received!.', '', ["progressBar" => true]);
+
             return redirect()->route('delivery-cash-receives.index');
         }
 
@@ -110,16 +104,15 @@ class DeliveryCashReceiveController extends Controller
         } catch (\Exception $exception) {
             DB::rollBack();
             Toastr::error('Something went wrong!.', '', ["progressBar" => true]);
+
             return redirect()->route('delivery-cash-receives.index');
         }
 
         Toastr::success('Delivery Cash Received Successfully!.', '', ["progressBar" => true]);
+
         return redirect()->route('delivery-cash-receives.index');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy($id)
     {
         //

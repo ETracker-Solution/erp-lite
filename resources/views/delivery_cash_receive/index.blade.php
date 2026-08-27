@@ -29,10 +29,7 @@
                         </div>
                         <!-- /.card-header -->
                         <div class="card-body table-responsive">
-                            <table id="dataTable"
-                                   class="table table-bordered table-hover">
-                                {{-- show from datatable--}}
-                            </table>
+                            <table id="dataTable" class="table table-bordered table-hover table-sm"></table>
                         </div>
                         <!-- /.card-body -->
                     </div>
@@ -65,7 +62,7 @@
 <script>
     $(document).ready(function() {
         $('#dataTable').dataTable({
-            stateSave: true,
+            stateSave: false,
             responsive: true,
             serverSide: true,
             processing: true,

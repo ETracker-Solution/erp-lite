@@ -362,6 +362,10 @@ Route::middleware(['auth','prevent_duplicate_submission'])->group(function () {
 
 
     //delivery cash transfer
+    Route::get('delivery-cash-transfers-invoices', [\App\Http\Controllers\DeliveryCashTransferController::class, 'searchInvoices'])
+        ->name('delivery-cash-transfers.invoices');
+    Route::get('delivery-cash-transfers-invoices/{id}', [\App\Http\Controllers\DeliveryCashTransferController::class, 'invoiceDetails'])
+        ->name('delivery-cash-transfers.invoice');
     Route::resource('delivery-cash-transfers', \App\Http\Controllers\DeliveryCashTransferController::class);
     Route::resource('delivery-cash-receives', \App\Http\Controllers\DeliveryCashReceiveController::class);
     Route::resource('sales-exchanges', \App\Http\Controllers\SalesExchangeController::class);

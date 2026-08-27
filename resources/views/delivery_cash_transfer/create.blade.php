@@ -49,15 +49,13 @@
                                                     <div class="col-xl-4 col-md-4 col-12">
                                                         <div class="form-group">
                                                             <label for="uid">Others Outlet Invoice</label>
-                                                            <select class="form-control select2"
-                                                                    id="invoice_number">
+                                                            <select class="form-control"
+                                                                    id="invoice_number"
+                                                                    style="width:100%">
                                                                 <option value="">---Select One---</option>
-                                                                @foreach ($othersOutlets as $row)
-                                                                    <option value="{{ $row }}" {{ old('invoice_number') == $row->id ? 'selected' : '' }}>{{ $row->invoice_number }}
-                                                                    </option>
-                                                                @endforeach
                                                             </select>
                                                             <input type="hidden" name="sale_id">
+                                                            <small class="text-muted">Type invoice number to search</small>
                                                         </div>
                                                     </div>
                                                     <div class="col-xl-4 col-md-4 col-12">
@@ -173,15 +171,66 @@
         </div>
     </section>
 @endsection
-@push('script')
+@push('js_scripts')
     <script>
-        $('#invoice_number').on('select2:select', function (e) {
-            const othersoutlet = JSON.parse(e.params.data.id);
-            console.log(othersoutlet)
-            $('input[name=sale_id]').val(othersoutlet.id)
-            $('input[name=amount]').val(othersoutlet.delivery_point_receive_amount)
-            $('select[name=credit_account_id_display]').val(othersoutlet.paid_account).trigger('change')
-            $('input[name=credit_account_id]').val(othersoutlet.paid_account)
-        })
+        $(function () {
+            var $invoice = $('#invoice_number');
+
+            if (!$invoice.length || typeof $.fn.select2 !== 'function') {
+                return;
+            }
+
+            $invoice.select2({
+                width: '100%',
+                placeholder: '---Select One---',
+                allowClear: true,
+                minimumInputLength: 0,
+                ajax: {
+                    url: @json(route('delivery-cash-transfers.invoices')),
+                    dataType: 'json',
+                    delay: 250,
+                    data: function (params) {
+                        return {q: params.term || ''};
+                    },
+                    processResults: function (data) {
+                        return {results: data.results || []};
+                    },
+                    cache: true
+                }
+            });
+
+            $invoice.on('select2:select', function (e) {
+                var id = e.params.data.id;
+                $('input[name=sale_id]').val(id);
+                $('input[name=amount]').val('');
+                $('select[name=credit_account_id_display]').val('').trigger('change');
+                $('input[name=credit_account_id]').val('');
+
+                $.get(@json(route('delivery-cash-transfers.invoice', ['id' => '__ID__'])).replace('__ID__', id))
+                    .done(function (data) {
+                        $('input[name=sale_id]').val(data.id);
+                        $('input[name=amount]').val(data.delivery_point_receive_amount);
+                        if (data.paid_account) {
+                            $('select[name=credit_account_id_display]').val(data.paid_account).trigger('change');
+                            $('input[name=credit_account_id]').val(data.paid_account);
+                        }
+                    })
+                    .fail(function () {
+                        if (window.toastr) {
+                            toastr.error('Failed to load invoice details', {
+                                closeButton: true,
+                                progressBar: true,
+                            });
+                        }
+                    });
+            });
+
+            $invoice.on('select2:clear', function () {
+                $('input[name=sale_id]').val('');
+                $('input[name=amount]').val('');
+                $('select[name=credit_account_id_display]').val('').trigger('change');
+                $('input[name=credit_account_id]').val('');
+            });
+        });
     </script>
 @endpush

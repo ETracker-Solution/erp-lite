@@ -1,87 +1,74 @@
 @extends('layouts.app')
 
-@section('title', 'Delivery Cash Transfer')
+@section('title', 'Delivery Cash Transfer Details')
+
 @section('content')
-    @push('style')
-    @endpush
     @php
         $links = [
-        'Home'=>route('dashboard'),
-        'Accounts Module'=>'',
-        'General Accounts'=>'',
-        'Delivery Cash Transfer Details'=>'',
-        ]
+            'Home' => route('dashboard'),
+            'Delivery Cash Transfer' => route('delivery-cash-transfers.index'),
+            'Details' => '',
+        ];
     @endphp
-    <x-breadcrumb title='Delivery Cash Transfer' :links="$links"/>
-    <!-- Basic Inputs start -->
+    <x-breadcrumb title="Delivery Cash Transfer Details" :links="$links"/>
+
     <section class="content">
         <div class="container-fluid">
             <div class="row">
-                <div class="col-md-12">
+                <div class="col-lg-10 offset-lg-1">
                     <div class="card card-info">
                         <div class="card-header">
-                            <h4 class="card-title">Delivery Cash Transfer Details</h4>
+                            <h3 class="card-title mb-0">
+                                Invoice {{ $deliveryCashTransfer->invoice_number ?: ('#'.$deliveryCashTransfer->id) }}
+                                <span class="ml-2">{!! showStatus($deliveryCashTransfer->status) !!}</span>
+                            </h3>
                             <div class="card-tools">
-                                <a href="{{route('delivery-cash-transfers.index')}}">
-                                    <button class="btn btn-sm btn-primary"><i class="fa fa-list" aria-hidden="true"></i>
-                                        &nbsp;See List
-                                    </button>
+                                <a href="{{ route('delivery-cash-transfers.index') }}" class="btn btn-sm btn-primary">
+                                    <i class="fa fa-list"></i> List
                                 </a>
                             </div>
                         </div>
                         <div class="card-body">
-                            <table class="table table-bordered">
-                                <thead>
-                                <tr>
-                                    <th><strong>Date :</strong></th>
-                                    <td>{{ $deliveryCashTransfer->date }}</td>
-                                </tr>
-                                <tr>
-                                    <th><strong>Delivery Invoice :</strong></th>
-                                    <td>{{ $deliveryCashTransfer->invoice_number }}</td>
-                                </tr>
-                                <tr>
-                                    <th><strong>Other Outlet :</strong></th>
-                                    <td>{{ $deliveryCashTransfer->otherOutlet ? $deliveryCashTransfer->otherOutlet->outlet->name : '' }}</td>
-                                </tr>
-                                <tr>
-                                    <th><strong>Transfer From Account :</strong></th>
-                                    <td>{{ $deliveryCashTransfer->creditAccount->name }}</td>
-                                </tr>
-                                <tr>
-                                    <th><strong>Transfer To Account :</strong></th>
-                                    <td>{{ $deliveryCashTransfer->debitAccount->name }}</td>
-                                </tr>
-                                <tr>
-                                    <th><strong>Amount :</strong></th>
-                                    <td>{{ $deliveryCashTransfer->amount }}</td>
-                                </tr>
-                                <tr>
-                                    <th><strong>Description :</strong></th>
-                                    <td>{{ $deliveryCashTransfer->narration }}</td>
-                                </tr>
-                                <tr>
-                                    <th><strong>Referance :</strong></th>
-                                    <td>{{ $deliveryCashTransfer->reference_no }}</td>
-                                </tr>
-
-                                </thead>
-                            </table>
+                            <div class="row mb-3">
+                                <div class="col-md-3">
+                                    <div class="small text-muted text-uppercase">Date</div>
+                                    <div class="font-weight-bold">{{ $deliveryCashTransfer->date ?: '—' }}</div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="small text-muted text-uppercase">Delivery Invoice</div>
+                                    <div class="font-weight-bold">{{ $deliveryCashTransfer->invoice_number ?: '—' }}</div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="small text-muted text-uppercase">Other Outlet</div>
+                                    <div class="font-weight-bold">{{ $deliveryCashTransfer->otherOutlet->outlet->name ?? '—' }}</div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="small text-muted text-uppercase">Amount</div>
+                                    <div class="font-weight-bold text-primary" style="font-size:1.25rem;">
+                                        {{ number_format((float) $deliveryCashTransfer->amount, 2) }}
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="small text-muted text-uppercase">Transfer From</div>
+                                    <div class="font-weight-bold">{{ $deliveryCashTransfer->creditAccount->name ?? '—' }}</div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="small text-muted text-uppercase">Transfer To</div>
+                                    <div class="font-weight-bold">{{ $deliveryCashTransfer->debitAccount->name ?? '—' }}</div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="small text-muted text-uppercase">Reference</div>
+                                    <div class="font-weight-bold">{{ $deliveryCashTransfer->reference_no ?: '—' }}</div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="small text-muted text-uppercase">Description</div>
+                                    <div class="font-weight-bold">{{ $deliveryCashTransfer->narration ?: '—' }}</div>
+                                </div>
+                            </div>
                         </div>
-                        {{-- adjust modal --}}
-
                     </div>
-
                 </div>
             </div>
         </div>
     </section>
-    <!-- Basic Inputs end -->
-
-@endsection
-@section('css')
-
-@endsection
-@section('js')
-
 @endsection
