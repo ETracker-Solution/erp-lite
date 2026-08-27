@@ -39,18 +39,8 @@
                             <div class="card-body">
                                 <hr>
                                 <div class="row">
-                                    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
-                                        <div class="form-group">
-                                            <label for="uid">Purchase Return No</label>
-                                            <input type="text" class="form-control input-sm"
-                                                   value="{{$uid??0}}" name="uid"
-                                                   id="uid" readonly>
-                                            <input type="hidden" name="supplier_id"
-                                                   class="form-control input-sm" :value="supplier_id">
-                                            <input type="hidden" name="store_id"
-                                                   class="form-control input-sm" :value="store_id">
-                                        </div>
-                                    </div>
+                                    <input type="hidden" name="supplier_id" :value="supplier_id">
+                                    <input type="hidden" name="store_id" :value="store_id">
                                     <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                         <div class="form-group">
                                             <label for="purchase_id">Purchase Bill No</label>
@@ -60,51 +50,39 @@
                                                     @change="load_old">
                                                 <option value="">Select One</option>
                                                 @foreach($purchases as $row)
-                                                    <option
-                                                        value="{{ $row->id }}">{{ $row->uid }}</option>
+                                                    <option value="{{ $row->id }}"
+                                                        {{ (string) old('purchase_id', $prefillPurchaseId ?? '') === (string) $row->id ? 'selected' : '' }}>
+                                                        {{ $row->uid }}
+                                                    </option>
                                                 @endforeach
                                             </select>
                                         </div>
                                     </div>
                                     <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                         <div class="form-group">
-                                            <label for="supplier_id">Group</label>
-                                            <select name="supplier_group_id" id="supplier_group_id"
-                                                    class="form-control bSelect"
-                                                    v-model="supplier_group_id"
-                                                    @change="fetch_supplier" disabled>
-                                                <option value="">Select Group</option>
-                                                @foreach($supplier_groups as $row)
-                                                    <option
-                                                        value="{{ $row->id }}">{{ $row->name }}</option>
-                                                @endforeach
-                                            </select>
+                                            <label for="date">Date</label>
+                                            <input type="date" class="form-control input-sm" id="date"
+                                                   name="date" v-model="date" required>
                                         </div>
                                     </div>
                                     <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                         <div class="form-group">
                                             <label for="supplier_id">Supplier</label>
-                                            <select name="supplier_id" id="supplier_id"
-                                                    class="form-control bSelect" v-model="supplier_id"
-                                                    disabled>
+                                            <select id="supplier_id" class="form-control bSelect"
+                                                    v-model="supplier_id" disabled>
                                                 <option value="">Select Supplier</option>
-                                                <option :value="row.id" v-for="row in suppliers"
-                                                        v-html="row.name">
-                                                </option>
-
-                                            </select>
+                                                <option :value="row.id" v-for="row in suppliers" :key="row.id"
+                                                        v-html="row.name"></option>
                                             </select>
                                         </div>
                                     </div>
                                     <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                         <div class="form-group">
                                             <label for="store_id">Store</label>
-                                            <select name="store_id" id="store_id" v-model="store_id"
-                                                    class="form-control bSelect" disabled>
+                                            <select id="store_id" v-model="store_id" class="form-control bSelect" disabled>
                                                 <option value="">Select Store</option>
                                                 @foreach($stores as $row)
-                                                    <option
-                                                        value="{{ $row->id }}">{{ $row->name }}</option>
+                                                    <option value="{{ $row->id }}">{{ $row->name }}</option>
                                                 @endforeach
                                             </select>
                                         </div>
@@ -113,16 +91,8 @@
                                         <div class="form-group">
                                             <label for="reference_no">Reference No</label>
                                             <input type="text" class="form-control input-sm"
-                                                   value="{{old('reference_no')}}"
+                                                   value="{{ old('reference_no') }}"
                                                    name="reference_no">
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
-                                        <div class="form-group">
-                                            <label for="date">Date</label>
-                                            <vuejs-datepicker v-model="date" name="date"
-                                                              placeholder="Select date"
-                                                              format="yyyy-MM-dd"></vuejs-datepicker>
                                         </div>
                                     </div>
                                     <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
@@ -161,10 +131,9 @@
                                                 </tr>
                                                 </thead>
                                                 <tbody>
-                                                <tr v-for="(row, index) in selected_items">
-
+                                                <tr v-for="(row, index) in selected_items" :key="row.id">
                                                     <td>
-                                                        @{{ ++index }}
+                                                        @{{ index + 1 }}
                                                     </td>
                                                     <td>
                                                         @{{ row.group }}
@@ -314,7 +283,6 @@
     <script src="{{ asset('vue-js/vue/dist/vue.js') }}"></script>
     <script src="{{ asset('vue-js/axios/dist/axios.min.js') }}"></script>
     <script src="{{ asset('vue-js/bootstrap-select/dist/js/bootstrap-select.min.js') }}"></script>
-    <script src="https://cms.diu.ac/vue/vuejs-datepicker.min.js"></script>
     <script>
         $(document).ready(function () {
 
@@ -322,29 +290,18 @@
                 el: '#vue_app',
                 data: {
                     config: {
-
                         get_suppliers_info_by_group_id_url: "{{ url('fetch-suppliers-by-group-id') }}",
-                        get_items_info_by_group_id_url: "{{ url('fetch-items-by-group-id') }}",
-                        get_item_info_url: "{{ url('fetch-item-info') }}",
-
                         get_old_items_data: "{{ url('fetch-purchase-by-id') }}",
                     },
-
-                    purchase_id: '',
+                    purchase_id: "{{ old('purchase_id', $prefillPurchaseId ?? '') }}",
                     store_id: '',
-                    date: '',
-                    vat: '',
+                    date: new Date().toISOString().slice(0, 10),
+                    vat: 0,
                     supplier_group_id: '',
                     supplier_id: '',
-                    group_id: '',
-                    item_id: '',
-                    items: [],
                     suppliers: [],
                     selected_items: [],
                     pageLoading: false
-                },
-                components: {
-                    vuejsDatepicker
                 },
                 computed: {
 
@@ -465,7 +422,10 @@
                     load_old() {
                         var vm = this;
                         var slug = vm.purchase_id;
-                        //  alert(slug);
+                        if (!slug) {
+                            vm.selected_items = [];
+                            return;
+                        }
                         vm.pageLoading = true;
                         vm.selected_items = [];
                         axios.get(this.config.get_old_items_data + '/' + slug).then(function (response) {
@@ -478,8 +438,10 @@
                             for (key in item) {
                                 vm.selected_items.push(item[key]);
                             }
+                            vm.pageLoading = false;
+                        }).catch(function () {
+                            vm.pageLoading = false;
                         });
-                        vm.pageLoading = false;
                     },
                     itemtotal: function (index) {
                         return index.quantity * index.rate;
@@ -498,9 +460,10 @@
                         }
                     },
                 },
-                beforeMount() {
-                    // this.load_old();
-                    // this.fetch_supplier();
+                mounted() {
+                    if (this.purchase_id) {
+                        this.load_old();
+                    }
                 },
                 updated() {
                     $('.bSelect').selectpicker('refresh');

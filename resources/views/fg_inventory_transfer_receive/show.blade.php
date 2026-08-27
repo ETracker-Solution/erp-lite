@@ -1,121 +1,91 @@
 @extends('layouts.app')
-@section('title')
-FG Inventory Transfer Receive Details
-@endsection
+
+@section('title', 'FG Transfer Receive Details')
+
 @section('content')
-<!-- Content Wrapper. Contains page content -->
-<!-- Content Header (Page header) -->
     @php
         $links = [
-        'Home'=>route('dashboard'),
-        'FG Inventory Transfer Receive Details'=>''
-        ]
+            'Home' => route('dashboard'),
+            'FG Transfer Receive' => route('fg-transfer-receives.index'),
+            'Details' => '',
+        ];
     @endphp
-<x-breadcrumb title='FG Inventory Transfer Receive Details' :links="$links"/>
+    <x-breadcrumb title="FG Transfer Receive" :links="$links"/>
 
-<section class="content">
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-12">
-                <div class="card card-info">
-                    <div class="card-header">
-                        <h3 class="card-title">FG Inventory Transfer Receive Details</h3>
-                        <a href="{{route('fg-transfer-receive.pdf',encrypt($fgTransferReceive->id))}}"
-                            class="btn btn-sm btn-primary float-right" target="_blank"><i class="fa fa-download"></i> PDF</a>
-                    </div>
-                    <!-- Main content -->
-                    <div class="invoice p-3 mb-3">
-                        <div class="row invoice-info">
-                            <div class="col-sm-4 invoice-col">
-                                <table width="100%">
-                                    <tbody>
-                                        <tr>
-                                            <td style="text-align: left; padding:8px; line-height: 0.6">
-                                                <p><b>FGITR No :</b> {{ $fgTransferReceive->uid }}</p>
-                                                <p><b>Date :</b> {{ $fgTransferReceive->date }} </p>
-                                                <p><b>Receiver Name :</b> {{ $fgTransferReceive->createdBy->name }} </p>
-                                                <p><b>Remarks :</b> {{ $fgTransferReceive->remark }} </p>
-                                                <p><b>Reference No :</b> {{ $fgTransferReceive->reference_no }} </p>
-                                                <p><b>Status :</b> {!! showStatus($fgTransferReceive->status) !!}</p>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+    <section class="content">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-lg-10 offset-lg-1">
+                    <div class="card card-info">
+                        <div class="card-header">
+                            <h3 class="card-title mb-0">
+                                Receive {{ $fgTransferReceive->uid ?: ('#'.$fgTransferReceive->id) }}
+                                <span class="ml-2">{!! showStatus($fgTransferReceive->status) !!}</span>
+                            </h3>
+                            <div class="card-tools">
+                                <a href="{{ route('fg-transfer-receives.index') }}" class="btn btn-sm btn-primary">
+                                    <i class="fa fa-list"></i> List
+                                </a>
+                                <a href="{{ route('fg-transfer-receive.pdf', encrypt($fgTransferReceive->id)) }}"
+                                   class="btn btn-sm btn-secondary" target="_blank" rel="noopener">
+                                    <i class="fa fa-download"></i> PDF
+                                </a>
                             </div>
-                            <!-- /.col -->
-                            <div class="col-sm-4 invoice-col">
-                                {{-- <td><b>Customer :</b> {{ $fgTransferReceive->customer->name??'Walking Customer'}}</td> --}}
-                            </div>
-                            <!-- /.col -->
-                            <div class="col-sm-4 invoice-col">
-
-                            </div>
-                            <!-- /.col -->
                         </div>
+                        <div class="card-body">
+                            <div class="row mb-3">
+                                <div class="col-md-3">
+                                    <div class="small text-muted text-uppercase">Date</div>
+                                    <div class="font-weight-bold">{{ $fgTransferReceive->date ?: '—' }}</div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="small text-muted text-uppercase">Transfer UID</div>
+                                    <div class="font-weight-bold">{{ $fgTransferReceive->inventoryTransfer->uid ?? '—' }}</div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="small text-muted text-uppercase">From Store</div>
+                                    <div class="font-weight-bold">{{ $fgTransferReceive->fromStore->name ?? '—' }}</div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="small text-muted text-uppercase">To Store</div>
+                                    <div class="font-weight-bold">{{ $fgTransferReceive->toStore->name ?? '—' }}</div>
+                                </div>
+                            </div>
 
-                        <!-- /.row -->
-
-                        <!-- Table row -->
-                        <div class="row">
-                            <div class="col-12 table-responsive">
-                                <table class="table table-striped">
-                                    <thead>
-                                        <tr>
-                                            <th>#</th>
-                                            <th>Date</th>
-                                            <th>From Store</th>
-                                            <th>To Store</th>
-                                            <th>Group</th>
-                                            <th>Item</th>
-                                            <th>Quantity</th>
-                                            <th>Rate</th>
-                                            <th>Value</th>
-                                        </tr>
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-sm mb-0">
+                                    <thead class="thead-light">
+                                    <tr>
+                                        <th style="width:6%">#</th>
+                                        <th>Group</th>
+                                        <th>Item</th>
+                                        <th>Unit</th>
+                                        <th class="text-right">Rate</th>
+                                        <th class="text-right">Qty</th>
+                                    </tr>
                                     </thead>
                                     <tbody>
-                                    @php
-                                    $totalQty = 0;
-                                    $totalValue = 0;
-                                    @endphp
-                                        @foreach ($fgTransferReceive->items as $item)
-                                            @php
-                                                $totalQty += $item->quantity;
-                                                $totalValue += ($item->quantity * $item->rate);
-                                            @endphp
+                                    @forelse ($fgTransferReceive->items as $item)
                                         <tr>
                                             <td>{{ $loop->iteration }}</td>
-                                            <td>{{ $fgTransferReceive->date }}</td>
-                                            <td>{{ $fgTransferReceive->fromStore->name ?? '' }}</td>
-                                            <td>{{ $fgTransferReceive->toStore->name ?? '' }}</td>
-                                            <td>{{ $item->coi->parent->name ?? '' }}</td>
-                                            <td>{{ $item->coi->name ?? '' }}</td>
-                                            <td>{{ $item->quantity ?? '' }}</td>
-                                            <td>{{ $item->rate ?? '' }}</td>
-                                            <td>{{ $item->quantity * $item->rate }} TK</td>
+                                            <td>{{ $item->coi->parent->name ?? '—' }}</td>
+                                            <td>{{ $item->coi->name ?? '—' }}</td>
+                                            <td>{{ $item->coi->unit->name ?? '—' }}</td>
+                                            <td class="text-right">{{ number_format((float) ($item->rate ?? 0), 2) }}</td>
+                                            <td class="text-right">{{ number_format((float) ($item->quantity ?? 0), 2) }}</td>
                                         </tr>
-                                        @endforeach
-                                    <tr>
-
-                                        <td colspan="6">Total</td>
-                                        <td>{{ $totalQty }}</td>
-                                        <td></td>
-                                        <td>{{ $totalValue }}</td>
-                                    </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="6" class="text-center text-muted">No items</td>
+                                        </tr>
+                                    @endforelse
                                     </tbody>
                                 </table>
                             </div>
-                            <!-- /.col -->
                         </div>
-                        <!-- /.row -->
-                        <!-- /.row -->
                     </div>
                 </div>
-                <!-- /.invoice -->
-            </div><!-- /.col -->
-        </div><!-- /.row -->
-    </div><!-- /.container-fluid -->
-</section>
-<!-- /.content -->
-
-<!-- /.content-wrapper -->
+            </div>
+        </div>
+    </section>
 @endsection

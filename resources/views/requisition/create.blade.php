@@ -37,23 +37,9 @@
                                         <div class="row">
                                             <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                                 <div class="form-group">
-                                                    <label for="requisition_no">FGR No</label>
-                                                    <div class="input-group">
-                                                        <input type="text" class="form-control input-sm"
-                                                               value="{{$serial_no}}" name="serial_no"
-                                                               id="serial_no" v-model="serial_no">
-                                                        {{-- <span class="input-group-append">
-                                                                    <button type="button" class="btn btn-info btn-flat">Search</button>
-                                                        </span> --}}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
-                                                <div class="form-group">
                                                     <label for="date">Date</label>
-                                                    <vuejs-datepicker v-model="date" name="date"
-                                                                      placeholder="Select date"
-                                                                      format="yyyy-MM-dd"></vuejs-datepicker>
+                                                    <input type="date" class="form-control" id="date" name="date"
+                                                           v-model="date" required>
                                                 </div>
                                             </div>
 
@@ -164,9 +150,9 @@
                                                         </tr>
                                                         </thead>
                                                         <tbody>
-                                                        <tr v-for="(row, index) in selected_items">
+                                                        <tr v-for="(row, index) in selected_items" :key="row.coi_id">
                                                             <td>
-                                                                @{{ ++index }}
+                                                                @{{ index + 1 }}
                                                             </td>
                                                             <td style="vertical-align: middle">
                                                                 @{{ row.group }}
@@ -277,7 +263,6 @@
     <script src="{{ asset('vue-js/vue/dist/vue.js') }}"></script>
     <script src="{{ asset('vue-js/axios/dist/axios.min.js') }}"></script>
     <script src="{{ asset('vue-js/bootstrap-select/dist/js/bootstrap-select.min.js') }}"></script>
-    <script src="https://cms.diu.ac/vue/vuejs-datepicker.min.js"></script>
     <script>
         $(document).ready(function () {
 
@@ -289,8 +274,7 @@
                         get_items_info_by_group_id_url: "{{ url('fetch-items-by-group-id') }}",
                         get_item_info_url: "{{ url('fetch-item-by-id-for-sale') }}",
                     },
-                    date: new Date(),
-                    serial_no: {{$serial_no}},
+                    date: "{{ date('Y-m-d') }}",
                     customer_id: '',
                     from_store_id: '',
                     to_store_id: '',
@@ -301,9 +285,6 @@
                     pageLoading: false,
                     isDisabled: false
 
-                },
-                components: {
-                    vuejsDatepicker
                 },
                 computed: {
 

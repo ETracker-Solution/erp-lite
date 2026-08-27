@@ -59,11 +59,7 @@
                             </div>
                             <hr>
                             <!-- /.card-header -->
-                            <div class="card-body table-responsive">
-                                <table id="dataTable" class="table table-bordered">
-                                    {{-- show from datatable--}}
-                                </table>
-                            </div>
+                            <table id="dataTable" class="table table-bordered table-hover table-sm"></table>
                             <!-- /.card-body -->
                         </div>
                     </div>
@@ -103,7 +99,7 @@
             }
 
             $('#dataTable').dataTable({
-                stateSave: true,
+                stateSave: false,
                 responsive: true,
                 serverSide: true,
                 processing: true,
@@ -126,30 +122,30 @@
                         data: "date",
                         title: "Date",
                         searchable: true,
-                        "defaultContent":"Not Set"
+                        "defaultContent": "—"
                     },
                     {
                         data: "uid",
                         title: "FGID No",
                         searchable: true,
-                        "defaultContent":"Not Set"
+                        "defaultContent": "—"
                     },
                     {
                         data: "store.name",
                         title: "Store",
                         searchable: true,
-                        "defaultContent":"Not Set"
+                        "defaultContent": "—"
                     },
                     {
                         data: "type",
                         title: "Transaction Type",
                         searchable: true,
-                        "defaultContent":"Not Set"
+                        "defaultContent": "—"
                     },
                     {
                         data: "status",
                         title: "Status",
-                        searchable: false, "defaultContent":"Not Set"
+                        searchable: false, "defaultContent": "—"
                     },
                     {
                         data: "created_at",

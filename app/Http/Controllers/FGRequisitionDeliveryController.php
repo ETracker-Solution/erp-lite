@@ -6,6 +6,7 @@ use App\Http\Requests\StoreFGRequisitionDeliveryRequest;
 use App\Models\InventoryTransaction;
 use App\Models\Requisition;
 use App\Models\RequisitionDelivery;
+use App\Models\RequisitionItem;
 use App\Models\Store;
 use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Http\Request;
@@ -147,7 +148,9 @@ class FGRequisitionDeliveryController extends Controller
             ])
             ->findOrFail(decrypt($id));
 
-        return view('fg_requisition_delivery.show', compact('fgRequisitionDelivery'));
+        $requisitionItemQtys = $this->requisitionItemQuantities($fgRequisitionDelivery);
+
+        return view('fg_requisition_delivery.show', compact('fgRequisitionDelivery', 'requisitionItemQtys'));
     }
 
     public function edit(string $id)
@@ -164,7 +167,9 @@ class FGRequisitionDeliveryController extends Controller
             ])
             ->findOrFail(decrypt($id));
 
-        return view('fg_requisition_delivery.edit', compact('fgRequisitionDelivery'));
+        $requisitionItemQtys = $this->requisitionItemQuantities($fgRequisitionDelivery);
+
+        return view('fg_requisition_delivery.edit', compact('fgRequisitionDelivery', 'requisitionItemQtys'));
     }
 
     public function update(Request $request, string $id)
@@ -256,9 +261,14 @@ class FGRequisitionDeliveryController extends Controller
             ])
             ->findOrFail(decrypt($id));
 
+        $requisitionItemQtys = $this->requisitionItemQuantities($fgRequisitionDelivery);
+
         $pdf = Pdf::loadView(
             'fg_requisition_delivery.pdf',
-            ['fgRequisitionDelivery' => $fgRequisitionDelivery],
+            [
+                'fgRequisitionDelivery' => $fgRequisitionDelivery,
+                'requisitionItemQtys' => $requisitionItemQtys,
+            ],
             [],
             [
                 'format' => 'A4-P',
@@ -271,5 +281,12 @@ class FGRequisitionDeliveryController extends Controller
         );
 
         return $pdf->stream('FGRD-' . ($fgRequisitionDelivery->uid ?: $fgRequisitionDelivery->id) . '.pdf');
+    }
+
+    private function requisitionItemQuantities(RequisitionDelivery $delivery)
+    {
+        return RequisitionItem::query()
+            ->where('requisition_id', $delivery->requisition_id)
+            ->pluck('quantity', 'coi_id');
     }
 }

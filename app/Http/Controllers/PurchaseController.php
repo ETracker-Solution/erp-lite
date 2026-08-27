@@ -32,22 +32,43 @@ class PurchaseController extends Controller
      */
     public function index()
     {
-        if (\request()->ajax()) {
-            $purchases = Purchase::with('supplier', 'store')->where('type','rm')->latest();
-            return DataTables::of($purchases)
+        if (request()->ajax()) {
+            $query = Purchase::query()
+                ->select([
+                    'purchases.id',
+                    'purchases.uid',
+                    'purchases.date',
+                    'purchases.status',
+                    'purchases.subtotal',
+                    'purchases.vat',
+                    'purchases.net_payable',
+                    'purchases.supplier_id',
+                    'purchases.store_id',
+                    'purchases.created_at',
+                ])
+                ->with([
+                    'supplier:id,name',
+                    'store:id,name',
+                ])
+                ->where('type', 'rm')
+                ->latest('id');
+
+            return DataTables::eloquent($query)
                 ->addIndexColumn()
+                ->editColumn('status', fn ($row) => showStatus($row->status))
+                ->editColumn('subtotal', fn ($row) => number_format((float) $row->subtotal, 2))
+                ->editColumn('vat', fn ($row) => number_format((float) $row->vat, 2))
+                ->editColumn('net_payable', fn ($row) => number_format((float) $row->net_payable, 2))
                 ->addColumn('action', function ($row) {
                     return view('purchase.action', compact('row'));
                 })
                 ->addColumn('created_at', function ($row) {
                     return view('common.created_at', compact('row'));
                 })
-                ->editColumn('status', function ($row) {
-                    return showStatus($row->status);
-                })
                 ->rawColumns(['action', 'created_at', 'status'])
                 ->make(true);
         }
+
         return view('purchase.index');
     }
 
@@ -56,24 +77,20 @@ class PurchaseController extends Controller
      */
     public function create()
     {
-        $serial_no = null;
-        if (!auth()->user()->is_super && \auth()->user()->employee->user_of != 'ho') {
-            $doc_id = \auth()->user()->employee->outlet_id ?? \auth()->user()->employee->factory_id;
-            $doc_type = \auth()->user()->employee->outlet_id ? 'outlet' : 'factory';
-            $user_store = Store::where(['doc_type' => $doc_type, 'doc_id' => $doc_id])->first();
-            $outlet_id = $user_store->doc_id;
-            $serial_no = generateUniqueUUID($outlet_id, Purchase::class, 'uid',\auth()->user()->employee->factory_id);
-        }
-        $data = [
-            'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'RM'])->get(),
-            'supplier_groups' => SupplierGroup::where('status', 'active')->get(),
-            'suppliers' => Supplier::all(),
-            'stores' => Store::where(['type' => 'RM', 'doc_type' => 'ho', 'doc_id' => null])->get(),
-            'uid' => $serial_no,
-
-        ];
-
-        return view('purchase.create', $data);
+        return view('purchase.create', [
+            'groups' => ChartOfInventory::query()
+                ->where(['type' => 'group', 'rootAccountType' => 'RM'])
+                ->orderBy('name')
+                ->get(['id', 'name']),
+            'supplier_groups' => SupplierGroup::query()
+                ->where('status', 'active')
+                ->orderBy('name')
+                ->get(['id', 'name']),
+            'stores' => Store::query()
+                ->where(['type' => 'RM', 'doc_type' => 'ho', 'doc_id' => null])
+                ->orderBy('name')
+                ->get(['id', 'name']),
+        ]);
     }
 
     /**
@@ -138,12 +155,17 @@ class PurchaseController extends Controller
      */
     public function show($id)
     {
-        $data = [
-            'model' => Purchase::findOrFail(decrypt($id)),
+        $purchase = Purchase::query()
+            ->with([
+                'supplier:id,name,address,mobile',
+                'store:id,name',
+                'items.coi:id,name,parent_id,unit_id',
+                'items.coi.parent:id,name',
+                'items.coi.unit:id,name',
+            ])
+            ->findOrFail(decrypt($id));
 
-        ];
-
-        return view('purchase.show', $data);
+        return view('purchase.show', compact('purchase'));
     }
 
     /**
@@ -286,14 +308,19 @@ class PurchaseController extends Controller
 
     public function pdfDownload($id)
     {
-        $data = [
-            'model' => Purchase::find(decrypt($id)),
-
-        ];
+        $purchase = Purchase::query()
+            ->with([
+                'supplier:id,name,address,mobile',
+                'store:id,name',
+                'items.coi:id,name,parent_id,unit_id',
+                'items.coi.parent:id,name',
+                'items.coi.unit:id,name',
+            ])
+            ->findOrFail(decrypt($id));
 
         $pdf = PDF::loadView(
             'purchase.pdf',
-            $data,
+            ['model' => $purchase],
             [],
             [
                 'format' => 'A4-P',

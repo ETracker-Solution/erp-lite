@@ -607,56 +607,76 @@ class ApiController extends Controller
 
     public function fetchRequisitionDeliveryById($id)
     {
-        $requisitionDelivery = RequisitionDelivery::with('items')->where('id', $id)->first();
+        $requisitionDelivery = RequisitionDelivery::query()
+            ->with([
+                'items.coi:id,name,parent_id,unit_id',
+                'items.coi.parent:id,name',
+                'items.coi.unit:id,name',
+            ])
+            ->findOrFail($id);
+
+        $coiIds = $requisitionDelivery->items->pluck('coi_id')->filter()->unique()->values()->all();
+        $rateByCoi = averageFGRates($coiIds, $requisitionDelivery->from_store_id);
+
         $items = [];
         foreach ($requisitionDelivery->items as $row) {
             $items[] = [
-                'requisition_id' => $id,
+                'requisition_id' => $requisitionDelivery->requisition_id,
                 'coi_id' => $row->coi_id,
                 'unit' => $row->coi->unit->name ?? '',
                 'name' => $row->coi->name ?? '',
                 'group' => $row->coi->parent->name ?? '',
-                'fg_average_rate' => averageFGRate($row->coi_id),
+                'fg_average_rate' => $rateByCoi[$row->coi_id] ?? 0,
                 'delivery_quantity' => $row->quantity,
                 'quantity' => $row->quantity,
             ];
         }
-        $data = [
+
+        return response()->json([
             'items' => $items,
             'date' => $requisitionDelivery->date,
             'from_store_id' => $requisitionDelivery->from_store_id,
             'to_store_id' => $requisitionDelivery->to_store_id,
             'reference_no' => $requisitionDelivery->reference_no,
             'remark' => $requisitionDelivery->remark,
-        ];
-        return response()->json($data);
+        ]);
     }
 
     public function fetchInventoryTransferById($id)
     {
-        $requisitionDelivery = InventoryTransfer::with('items')->where('id', $id)->first();
+        $inventoryTransfer = InventoryTransfer::query()
+            ->with([
+                'items.coi:id,name,parent_id,unit_id',
+                'items.coi.parent:id,name',
+                'items.coi.unit:id,name',
+            ])
+            ->findOrFail($id);
+
+        $coiIds = $inventoryTransfer->items->pluck('coi_id')->filter()->unique()->values()->all();
+        $rateByCoi = averageFGRates($coiIds, $inventoryTransfer->from_store_id);
+
         $items = [];
-        foreach ($requisitionDelivery->items as $row) {
+        foreach ($inventoryTransfer->items as $row) {
             $items[] = [
                 'inventory_transfer_id' => $id,
                 'coi_id' => $row->coi_id,
                 'unit' => $row->coi->unit->name ?? '',
                 'name' => $row->coi->name ?? '',
                 'group' => $row->coi->parent->name ?? '',
-                'fg_average_rate' => averageFGRate($row->coi_id),
+                'fg_average_rate' => $rateByCoi[$row->coi_id] ?? 0,
                 'transfer_quantity' => $row->quantity,
                 'quantity' => '',
             ];
         }
-        $data = [
+
+        return response()->json([
             'items' => $items,
-            'date' => $requisitionDelivery->date,
-            'from_store_id' => $requisitionDelivery->from_store_id,
-            'to_store_id' => $requisitionDelivery->to_store_id,
-            'reference_no' => $requisitionDelivery->reference_no,
-            'remark' => $requisitionDelivery->remark,
-        ];
-        return response()->json($data);
+            'date' => $inventoryTransfer->date,
+            'from_store_id' => $inventoryTransfer->from_store_id,
+            'to_store_id' => $inventoryTransfer->to_store_id,
+            'reference_no' => $inventoryTransfer->reference_no,
+            'remark' => $inventoryTransfer->remark,
+        ]);
     }
 
     public function fetchConsumptionById($id)

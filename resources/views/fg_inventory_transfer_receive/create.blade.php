@@ -46,7 +46,11 @@
                                                             @change="load_old">
                                                         <option value="">Select One</option>
                                                         @foreach($inventory_transfers as $row)
-                                                            <option value="{{ $row->id }}">{{ $row->uid }}</option>
+                                                            <option value="{{ $row->id }}"
+                                                                {{ (string) ($prefillTransferId ?? '') === (string) $row->id ? 'selected' : '' }}>
+                                                                {{ $row->uid ?: ('#'.$row->id) }}
+                                                                @if($row->date) — {{ $row->date }}@endif
+                                                            </option>
                                                         @endforeach
                                                     </select>
                                                 </div>
@@ -54,9 +58,8 @@
                                             <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                                 <div class="form-group">
                                                     <label for="date">Date</label>
-                                                    <vuejs-datepicker v-model="date" name="date"
-                                                                      placeholder="Select date"
-                                                                      format="yyyy-MM-dd"></vuejs-datepicker>
+                                                    <input type="date" class="form-control" id="date" name="date"
+                                                           v-model="date" required>
                                                 </div>
                                             </div>
                                             <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
@@ -68,8 +71,7 @@
                                                             v-model="from_store_id" disabled>
                                                         {{-- <option value="">Select One</option> --}}
                                                         @foreach($from_stores as $row)
-                                                            <option value="{{ $row->id }}">{{ $row->id }}
-                                                                -{{ $row->name }}</option>
+                                                            <option value="{{ $row->id }}">{{ $row->name }}</option>
                                                         @endforeach
                                                     </select>
                                                 </div>
@@ -83,8 +85,7 @@
                                                             v-model="to_store_id" :disabled="true">
                                                         {{-- <option value="">Select One</option> --}}
                                                         @foreach($to_stores as $row)
-                                                            <option value="{{ $row->id }}">{{ $row->id }}
-                                                                -{{ $row->name }}</option>
+                                                            <option value="{{ $row->id }}">{{ $row->name }}</option>
                                                         @endforeach
                                                     </select>
                                                 </div>
@@ -139,9 +140,9 @@
                                                         </tr>
                                                         </thead>
                                                         <tbody>
-                                                        <tr v-for="(row, index) in items">
+                                                        <tr v-for="(row, index) in items" :key="row.coi_id">
                                                             <td>
-                                                                @{{ ++index }}
+                                                                @{{ index + 1 }}
                                                             </td>
                                                             <td style="vertical-align: middle">
                                                                 @{{ row.group }}
@@ -262,7 +263,6 @@
     <script src="{{ asset('vue-js/vue/dist/vue.js') }}"></script>
     <script src="{{ asset('vue-js/axios/dist/axios.min.js') }}"></script>
     <script src="{{ asset('vue-js/bootstrap-select/dist/js/bootstrap-select.min.js') }}"></script>
-    <script src="https://cms.diu.ac/vue/vuejs-datepicker.min.js"></script>
     <script>
         $(document).ready(function () {
 
@@ -273,11 +273,10 @@
 
                         get_old_items_data: "{{ url('fetch-inventory-transfer-by-id') }}",
                     },
-                    inventory_transfer_id: '',
-                    date: '',
+                    inventory_transfer_id: @json($prefillTransferId ? (string) $prefillTransferId : ''),
+                    date: "{{ date('Y-m-d') }}",
                     reference_no: '',
                     remark: '',
-                    serial_no: '',
                     from_store_id: '',
                     to_store_id: '',
                     group_id: '',
@@ -286,9 +285,6 @@
                     items: [],
                     pageLoading: false,
 
-                },
-                components: {
-                    vuejsDatepicker
                 },
                 computed: {
 
@@ -337,6 +333,12 @@
                             console.log('3');
                             index.quantity = '';
                         }
+                    }
+                },
+
+                mounted() {
+                    if (this.inventory_transfer_id) {
+                        this.load_old();
                     }
                 },
 

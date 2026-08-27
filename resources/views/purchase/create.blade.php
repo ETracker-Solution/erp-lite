@@ -40,25 +40,16 @@
                                     <div class="row">
                                         <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                             <div class="form-group">
-                                                <label for="uid">Purchase No</label>
-                                                <input type="text" class="form-control input-sm"
-                                                       name="uid" v-model="uid"
-                                                       id="uid" readonly>
-                                            </div>
-                                        </div>
-                                        <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
-                                            <div class="form-group">
                                                 <label for="date">Date</label>
-                                                <vuejs-datepicker v-model="date" name="date"
-                                                                  placeholder="Select date"
-                                                                  format="yyyy-MM-dd"></vuejs-datepicker>
+                                                <input type="date" class="form-control input-sm" id="date"
+                                                       name="date" v-model="date" required>
                                             </div>
                                         </div>
                                         <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                             <div class="form-group">
                                                 <label for="store_id">Store</label>
                                                 <select name="store_id" id="store_id"
-                                                        class="form-control bSelect" @change="getUUID" v-model="store_id" required>
+                                                        class="form-control bSelect" v-model="store_id" required>
                                                     <option value="">Select Store</option>
                                                     @foreach($stores as $row)
                                                         <option
@@ -175,9 +166,9 @@
                                                 </tr>
                                                 </thead>
                                                 <tbody>
-                                                <tr v-for="(row, index) in selected_items">
+                                                <tr v-for="(row, index) in selected_items" :key="row.id">
                                                     <td>
-                                                        @{{ ++index }}
+                                                        @{{ index + 1 }}
                                                     </td>
                                                     <td>
                                                         @{{ row.group }}
@@ -326,7 +317,6 @@
     <script src="{{ asset('vue-js/vue/dist/vue.js') }}"></script>
     <script src="{{ asset('vue-js/axios/dist/axios.min.js') }}"></script>
     <script src="{{ asset('vue-js/bootstrap-select/dist/js/bootstrap-select.min.js') }}"></script>
-    <script src="https://cms.diu.ac/vue/vuejs-datepicker.min.js"></script>
     <script>
         $(document).ready(function () {
 
@@ -339,7 +329,7 @@
                         get_items_info_by_group_id_url: "{{ url('fetch-items-by-group-id') }}",
                         get_item_info_url: "{{ url('fetch-item-info') }}",
                     },
-                    date: new Date(),
+                    date: new Date().toISOString().slice(0, 10),
                     vat: 0,
                     supplier_group_id: '',
                     supplier_id: '',
@@ -349,12 +339,8 @@
                     suppliers: [],
                     selected_items: [],
                     pageLoading: false,
-                    uid: "{{$uid}}",
                     store_id: '',
                     isDisabled: false
-                },
-                components: {
-                    vuejsDatepicker
                 },
                 computed: {
 
@@ -549,25 +535,6 @@
                             index.rate = '';
                         }
                     },
-                    getUUID(){
-                        const vm = this
-                        if (!vm.store_id) {
-                            vm.uid = 'Please Select Store First'
-                            toastr.error('Please Select valid Store', {
-                                closeButton: true,
-                                progressBar: true,
-                            });
-                        }
-                        axios.get('/get-uuid/' + vm.store_id, {
-                            params: {
-                                model: "purchase",
-                                column:'uid',
-                                is_headOffice: false
-                            }
-                        }).then((response) => {
-                            vm.uid = response.data
-                        })
-                    }
                 },
 
                 updated() {

@@ -56,12 +56,14 @@
                                 <div class="col-md-3">
                                     <div class="small text-muted text-uppercase">Delivered By</div>
                                     <div class="font-weight-bold">
-                                        {{ $fgDeliveryReceive->requisitionDelivery ? showUserInfo($fgDeliveryReceive->requisitionDelivery->createdBy) : '—' }}
+                                        {{ $fgDeliveryReceive->requisitionDelivery?->createdBy ? showUserInfo($fgDeliveryReceive->requisitionDelivery->createdBy) : '—' }}
                                     </div>
                                 </div>
                                 <div class="col-md-3">
                                     <div class="small text-muted text-uppercase">Received By</div>
-                                    <div class="font-weight-bold">{{ showUserInfo($fgDeliveryReceive->createdBy) }}</div>
+                                    <div class="font-weight-bold">
+                                        {{ $fgDeliveryReceive->createdBy ? showUserInfo($fgDeliveryReceive->createdBy) : '—' }}
+                                    </div>
                                 </div>
                                 <div class="col-md-3">
                                     <div class="small text-muted text-uppercase">Total Qty</div>

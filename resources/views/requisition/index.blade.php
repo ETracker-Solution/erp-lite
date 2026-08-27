@@ -66,9 +66,7 @@
                                 <button class="btn btn-success mb-2" type="button" id="excel-btn">EXCEL</button>
                             </form>
                             </div>
-                            <table id="dataTable" class="table table-bordered">
-                                {{-- show from datatable--}}
-                            </table>
+                            <table id="dataTable" class="table table-bordered table-hover table-sm"></table>
                         </div>
                         <!-- /.card-body -->
                     </div>
@@ -109,7 +107,7 @@
             }
 
             $('#dataTable').dataTable({
-                stateSave: true,
+                stateSave: false,
                 responsive: true,
                 serverSide: true,
                 processing: true,
@@ -133,26 +131,26 @@
                         data: "uid",
                         title: "FGR No",
                         searchable: true,
-                        "defaultContent": "Not Set"
+                        "defaultContent": "—"
                     }, {
                         data: "date",
                         title: "Date",
                         searchable: true,
-                        "defaultContent": "Not Set"
+                        "defaultContent": "—"
                     },
                     {
                         data: "from_store.name",
                         name: "fromStore.name",
                         title: "From Store",
                         searchable: true,orderable: false,
-                        "defaultContent": "Not Set"
+                        "defaultContent": "—"
                     },
                     {
                         data: "to_store.name",
                         name: "toStore.name",
                         title: "To Store",
                         searchable: true,orderable: false,
-                        "defaultContent": "Not Set"
+                        "defaultContent": "—"
                     },
                     {
                         data: "status",

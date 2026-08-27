@@ -34,6 +34,11 @@ class PurchaseReturn extends Model
         return $this->hasMany('App\Models\InventoryTransaction', 'purchase_id');
     }
 
+    public function purchase()
+    {
+        return $this->belongsTo(Purchase::class);
+    }
+
     public function items()
     {
 

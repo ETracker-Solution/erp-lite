@@ -1,6 +1,9 @@
-<div class="project-actions text-right">
-        <a href="{{ route('purchase-returns.show', encrypt($row->id)) }}" class="btn btn-xs btn-primary">
-            <i class="fas fa-folder">
-            </i> Show
-        </a>
+<div class="project-actions text-right text-nowrap">
+    <a href="{{ route('purchase-returns.show', encrypt($row->id)) }}" class="btn btn-xs btn-primary" title="Show">
+        <i class="fas fa-eye"></i> Show
+    </a>
+    <a href="{{ route('purchase_return.pdf', encrypt($row->id)) }}" class="btn btn-xs btn-secondary" target="_blank"
+       rel="noopener" title="PDF">
+        <i class="fas fa-file-pdf"></i> PDF
+    </a>
 </div>

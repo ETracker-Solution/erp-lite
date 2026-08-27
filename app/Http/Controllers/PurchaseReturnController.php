@@ -9,7 +9,6 @@ use App\Models\PurchaseReturn;
 use App\Http\Requests\StorePurchaseReturnRequest;
 use App\Http\Requests\UpdatePurchaseReturnRequest;
 use App\Models\Store;
-use App\Models\Supplier;
 use App\Models\SupplierGroup;
 use App\Models\SupplierTransaction;
 use Brian2694\Toastr\Facades\Toastr;
@@ -19,172 +18,173 @@ use niklasravnsborg\LaravelPdf\Facades\Pdf;
 
 class PurchaseReturnController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        if (\request()->ajax()) {
-            $purchase_returns = PurchaseReturn::with('supplier', 'store')->latest();
-            return DataTables::of($purchase_returns)
+        if (request()->ajax()) {
+            $query = PurchaseReturn::query()
+                ->select([
+                    'purchase_returns.id',
+                    'purchase_returns.uid',
+                    'purchase_returns.date',
+                    'purchase_returns.status',
+                    'purchase_returns.subtotal',
+                    'purchase_returns.vat',
+                    'purchase_returns.net_payable',
+                    'purchase_returns.supplier_id',
+                    'purchase_returns.store_id',
+                    'purchase_returns.purchase_id',
+                    'purchase_returns.created_at',
+                ])
+                ->with([
+                    'supplier:id,name',
+                    'store:id,name',
+                    'purchase:id,uid',
+                ])
+                ->latest('id');
+
+            return DataTables::eloquent($query)
                 ->addIndexColumn()
+                ->editColumn('status', fn ($row) => showStatus($row->status))
+                ->editColumn('subtotal', fn ($row) => number_format((float) $row->subtotal, 2))
+                ->editColumn('vat', fn ($row) => number_format((float) $row->vat, 2))
+                ->editColumn('net_payable', fn ($row) => number_format((float) $row->net_payable, 2))
                 ->addColumn('action', function ($row) {
                     return view('purchase_return.action', compact('row'));
-                })->addColumn('purchase_info', function ($row) {
-                    $data = [
-                        'Supplier' => $row->purchase->supplier->name ?? "",
-                        'Purchase No' => $row->purchase->purchase_number ?? "",
-                        'Challan No' => $row->purchase->challan_no ?? "",
-                    ];
-                    return view('common.flexible', compact('data'));
-                })
-                ->editColumn('status', function ($row) {
-                    return showStatus($row->status);
                 })
                 ->addColumn('created_at', function ($row) {
-                    return $row->created_at->format('Y-m-d');
+                    return view('common.created_at', compact('row'));
                 })
-                ->rawColumns(['status', 'action', 'purchase_info'])
+                ->rawColumns(['status', 'action', 'created_at'])
                 ->make(true);
         }
+
         return view('purchase_return.index');
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        $data = [
-            'supplier_groups' => SupplierGroup::all(),
-            'suppliers' => Supplier::all(),
-            'stores' => Store::where(['type' => 'RM', 'doc_type' => 'ho', 'doc_id' => null])->get(),
-            'uid' => getNextId(PurchaseReturn::class),
-            'purchases' => Purchase::where('status', '!=', 'returned')->get(),
-        ];
-        return view('purchase_return.create', $data);
+        $prefillPurchaseId = request()->integer('purchase_id') ?: null;
+
+        return view('purchase_return.create', [
+            'supplier_groups' => SupplierGroup::query()
+                ->where('status', 'active')
+                ->orderBy('name')
+                ->get(['id', 'name']),
+            'stores' => Store::query()
+                ->where(['type' => 'RM', 'doc_type' => 'ho', 'doc_id' => null])
+                ->orderBy('name')
+                ->get(['id', 'name']),
+            'purchases' => Purchase::query()
+                ->select(['id', 'uid', 'supplier_id', 'store_id', 'status'])
+                ->where('type', 'rm')
+                ->where('status', '!=', 'returned')
+                ->latest('id')
+                ->get(),
+            'prefillPurchaseId' => $prefillPurchaseId,
+        ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(StorePurchaseReturnRequest $request)
     {
         $data = $request->validated();
         DB::beginTransaction();
         try {
-        if (count($data['products']) < 1) {
-            DB::rollBack();
-            Toastr::info('At Least One Product Required.', '', ["progressBar" => true]);
-            return back();
-        }
-        $purchase_return = PurchaseReturn::query()->create($data);
-        Purchase::where('id', $data['purchase_id'])->update(['status' => 'returned']);
-        $purchase_return->amount = $purchase_return->net_payable;
-        foreach ($data['products'] as $product) {
-            $purchase_return->items()->create($product);
-            // Inventory Transaction Effect
-            InventoryTransaction::query()->create([
-                'store_id' => $purchase_return->store_id,
-                'doc_type' => 'GPBR',
+            if (count($data['products']) < 1) {
+                DB::rollBack();
+                Toastr::info('At Least One Product Required.', '', ['progressBar' => true]);
+
+                return back();
+            }
+            $purchase_return = PurchaseReturn::query()->create($data);
+            Purchase::where('id', $data['purchase_id'])->update(['status' => 'returned']);
+            $purchase_return->amount = $purchase_return->net_payable;
+            foreach ($data['products'] as $product) {
+                $purchase_return->items()->create($product);
+                InventoryTransaction::query()->create([
+                    'store_id' => $purchase_return->store_id,
+                    'doc_type' => 'GPBR',
+                    'doc_id' => $purchase_return->id,
+                    'quantity' => $product['quantity'],
+                    'rate' => $product['rate'],
+                    'amount' => $product['quantity'] * $product['rate'],
+                    'date' => $purchase_return->date,
+                    'type' => -1,
+                    'coi_id' => $product['coi_id'],
+                ]);
+            }
+
+            addAccountsTransaction('GPB', $purchase_return, getAccountsPayableGLId(), getRMInventoryGLId());
+
+            SupplierTransaction::query()->create([
+                'supplier_id' => $purchase_return->supplier_id,
+                'doc_type' => 'GPB',
                 'doc_id' => $purchase_return->id,
-                'quantity' => $product['quantity'],
-                'rate' => $product['rate'],
-                'amount' => $product['quantity'] * $product['rate'],
+                'amount' => $purchase_return->net_payable,
                 'date' => $purchase_return->date,
-                'type' => -1,
-                'coi_id' => $product['coi_id'],
+                'transaction_type' => -1,
+                'chart_of_account_id' => getAccountsPayableGLId(),
+                'description' => 'Purchase of goods',
             ]);
-        }
-
-
-        // Accounts Transaction Effect
-
-        addAccountsTransaction('GPB', $purchase_return, getAccountsPayableGLId(), getRMInventoryGLId());
-
-        // Supplier Transaction Effect
-        SupplierTransaction::query()->create([
-            'supplier_id' => $purchase_return->supplier_id,
-            'doc_type' => 'GPB',
-            'doc_id' => $purchase_return->id,
-            'amount' => $purchase_return->net_payable,
-            'date' => $purchase_return->date,
-            'transaction_type' => -1,
-            'chart_of_account_id' => getAccountsPayableGLId(),
-            'description' => 'Purchase of goods',
-        ]);
             DB::commit();
         } catch (\Exception $exception) {
             DB::rollBack();
-            Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
+            Toastr::info('Something went wrong!.', '', ['progressBar' => true]);
+
             return back();
         }
-        Toastr::success('Purchase Return Created Successfully!.', '', ["progressBar" => true]);
+        Toastr::success('Purchase Return Created Successfully!.', '', ['progressBar' => true]);
+
         return redirect()->route('purchase-returns.index');
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show($id)
     {
-        $data = [
-            'model' => PurchaseReturn::findOrFail(decrypt($id)),
-        ];
-        return view('purchase_return.show', $data);
-    }
+        $purchaseReturn = PurchaseReturn::query()
+            ->with([
+                'supplier:id,name,address,mobile',
+                'store:id,name',
+                'purchase:id,uid,date',
+                'items.coi:id,name,parent_id,unit_id',
+                'items.coi.parent:id,name',
+                'items.coi.unit:id,name',
+            ])
+            ->findOrFail(decrypt($id));
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(PurchaseReturn $purchaseReturn)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdatePurchaseReturnRequest $request, PurchaseReturn $purchaseReturn)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(PurchaseReturn $purchaseReturn)
-    {
-        //
+        return view('purchase_return.show', compact('purchaseReturn'));
     }
 
     public function pdfDownload($id)
     {
-        $data = [
-            'model' => PurchaseReturn::findOrFail(decrypt($id)),
-        ];
+        $purchaseReturn = PurchaseReturn::query()
+            ->with([
+                'supplier:id,name,address,mobile',
+                'store:id,name',
+                'purchase:id,uid',
+                'items.coi:id,name,parent_id,unit_id',
+                'items.coi.parent:id,name',
+                'items.coi.unit:id,name',
+            ])
+            ->findOrFail(decrypt($id));
 
         $pdf = PDF::loadView(
             'purchase_return.pdf',
-            $data,
+            ['model' => $purchaseReturn],
             [],
             [
                 'format' => 'A4-P',
                 'orientation' => 'P',
                 'margin-left' => 1,
-
-                '', // mode - default ''
-                '', // format - A4, for example, default ''
-                0, // font size - default 0
-                '', // default font family
-                1, // margin_left
-                1, // margin right
-                1, // margin top
-                1, // margin bottom
-                1, // margin header
-                1, // margin footer
-                'L', // L - landscape, P - portrait
-
+                '',
+                '',
+                0,
+                '',
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                'L',
             ]
         );
         $name = \Carbon\Carbon::now()->format('d-m-Y');

@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\PurchaseReturn;
 use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -39,12 +40,11 @@ class StorePurchaseReturnRequest extends FormRequest
 
     public function prepareForValidation()
     {
-
         $this->merge([
             'created_by' => auth()->user()->id,
             'date' => Carbon::parse($this->date)->format('Y-m-d'),
+            'uid' => getNextId(PurchaseReturn::class),
         ]);
-
     }
 }
 

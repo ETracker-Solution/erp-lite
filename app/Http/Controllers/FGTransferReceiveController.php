@@ -2,212 +2,197 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreFGDeliveryReceiveRequest;
 use App\Http\Requests\StoreFGTransferReceiveRequest;
-use App\Models\ChartOfInventory;
-use App\Models\DeliveryReceive;
 use App\Models\InventoryTransaction;
 use App\Models\InventoryTransfer;
-use App\Models\Outlet;
-use App\Models\Requisition;
-use App\Models\RequisitionDelivery;
 use App\Models\Store;
 use App\Models\TransferReceive;
 use Brian2694\Toastr\Facades\Toastr;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Yajra\DataTables\Facades\DataTables;
 use niklasravnsborg\LaravelPdf\Facades\Pdf;
 
 class FGTransferReceiveController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        if (\request()->ajax()) {
-            $data = TransferReceive::with('toStore', 'fromStore')->where(['type' => 'FG'])->latest();
+        if (request()->ajax()) {
+            $query = TransferReceive::query()
+                ->select([
+                    'transfer_receives.id',
+                    'transfer_receives.uid',
+                    'transfer_receives.date',
+                    'transfer_receives.status',
+                    'transfer_receives.from_store_id',
+                    'transfer_receives.to_store_id',
+                    'transfer_receives.inventory_transfer_id',
+                    'transfer_receives.created_at',
+                ])
+                ->with([
+                    'fromStore:id,name',
+                    'toStore:id,name',
+                    'inventoryTransfer:id,uid',
+                ])
+                ->where('transfer_receives.type', 'FG')
+                ->latest('transfer_receives.id');
 
-            if (!auth()->user()->is_super) {
-                if (auth()->user()->employee){
-                    if (auth()->user()->employee->factory_id){
-                        $stores = auth()->user()->employee->factory->stores()->pluck('id')->toArray();
-                    }
-                    if (auth()->user()->employee->outlet_id){
-                        $stores = auth()->user()->employee->outlet->stores()->pluck('id')->toArray();
-                    }
-                    $data = TransferReceive::with('toStore', 'fromStore','inventoryTransfer')
-                        ->where(['type' => 'FG'])->whereIn('from_store_id', $stores)->orWhereIn('to_store_id', $stores)->latest();
+            if (!auth()->user()->is_super && auth()->user()->employee) {
+                $storeIds = collect();
+                if (auth()->user()->employee->factory_id) {
+                    $storeIds = auth()->user()->employee->factory->stores()->pluck('id');
+                } elseif (auth()->user()->employee->outlet_id) {
+                    $storeIds = auth()->user()->employee->outlet->stores()->pluck('id');
+                }
+                if ($storeIds->isNotEmpty()) {
+                    $query->where(function ($q) use ($storeIds) {
+                        $q->whereIn('from_store_id', $storeIds)
+                            ->orWhereIn('to_store_id', $storeIds);
+                    });
                 }
             }
-            return DataTables::of($data)
+
+            return DataTables::eloquent($query)
                 ->addIndexColumn()
+                ->editColumn('status', fn ($row) => showStatus($row->status))
                 ->addColumn('action', function ($row) {
                     return view('fg_inventory_transfer_receive.action', compact('row'));
                 })
                 ->addColumn('created_at', function ($row) {
                     return view('common.created_at', compact('row'));
                 })
-                ->editColumn('status', function ($row) {
-                    return showStatus($row->status);
-                })
                 ->rawColumns(['action', 'created_at', 'status'])
                 ->make(true);
         }
+
         return view('fg_inventory_transfer_receive.index');
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        if (\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->outlet_id) {
-            $inventory_transfers = InventoryTransfer::whereHas('toStore', function ($query) {
-                $query->where(['doc_type' => 'outlet', 'doc_id' => \auth()->user()->employee->outlet_id]);
-            })->where(['type' => 'FG', 'status' => 'pending'])->get();
-        } else if (\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->factory_id) {
-            $inventory_transfers = InventoryTransfer::whereHas('toStore', function ($query) {
-                $query->where(['doc_type' => 'factory', 'doc_id' => \auth()->user()->employee->factory_id]);
-            })->where(['type' => 'FG', 'status' => 'pending'])->get();
-        } else {
-            $inventory_transfers = InventoryTransfer::where(['type' => 'FG', 'status' => 'pending'])->get();
+        $outletId = auth()->user()?->employee?->outlet_id;
+        $factoryId = auth()->user()?->employee?->factory_id;
+        $prefillTransferId = request()->integer('transfer_id') ?: null;
+
+        $transfersQuery = InventoryTransfer::query()
+            ->select(['id', 'uid', 'date', 'from_store_id', 'to_store_id', 'status', 'type'])
+            ->where(['type' => 'FG', 'status' => 'pending'])
+            ->latest('id');
+
+        if ($outletId) {
+            $transfersQuery->whereHas('toStore', fn ($q) => $q->where(['doc_type' => 'outlet', 'doc_id' => $outletId]));
+        } elseif ($factoryId) {
+            $transfersQuery->whereHas('toStore', fn ($q) => $q->where(['doc_type' => 'factory', 'doc_id' => $factoryId]));
         }
-        $data = [
-            'from_stores' => Store::where(['type' => 'FG'])->get(),
-            'to_stores' => Store::where(['type' => 'FG'])->get(),
-            'inventory_transfers' => $inventory_transfers
-        ];
-        return view('fg_inventory_transfer_receive.create', $data);
+
+        $stores = Store::query()->where(['type' => 'FG'])->orderBy('name')->get(['id', 'name']);
+
+        return view('fg_inventory_transfer_receive.create', [
+            'from_stores' => $stores,
+            'to_stores' => $stores,
+            'inventory_transfers' => $transfersQuery->get(),
+            'prefillTransferId' => $prefillTransferId,
+        ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(StoreFGTransferReceiveRequest $request)
     {
-        //        try {
-        //            DB::beginTransaction();
         $data = $request->validated();
-        $store = Store::find($data['to_store_id']);
-        $data['uid'] = generateUniqueUUID($store->outlet->id, TransferReceive::class, 'uid');
-        $fGInventoryTransfer = TransferReceive::query()->create($data);
-        $products = $request->get('products');
-        foreach ($products as $product) {
-            $fGInventoryTransfer->items()->create($product);
-            // Inventory Transaction Effect
-            InventoryTransaction::query()->create([
-                'store_id' => $fGInventoryTransfer->from_store_id,
-                'doc_type' => 'FGIT',
-                'doc_id' => $fGInventoryTransfer->id,
-                'quantity' => $product['quantity'],
-                'rate' => $product['rate'],
-                'amount' => $product['quantity'] * $product['rate'],
-                'date' => $fGInventoryTransfer->date,
-                'type' => -1,
-                'coi_id' => $product['coi_id'],
-            ]);
-            InventoryTransaction::query()->create([
-                'store_id' => $fGInventoryTransfer->to_store_id,
-                'doc_type' => 'FGIT',
-                'doc_id' => $fGInventoryTransfer->id,
-                'quantity' => $product['quantity'],
-                'rate' => $product['rate'],
-                'amount' => $product['quantity'] * $product['rate'],
-                'date' => $fGInventoryTransfer->date,
-                'type' => 1,
-                'coi_id' => $product['coi_id'],
-            ]);
-        }
-        InventoryTransfer::where('id', $data['inventory_transfer_id'])->update(['status' => 'received']);
-        //   DB::commit();
-        Toastr::success('FG Transfer Receive Entry Successful!.', '', ["progressBar" => true]);
-        return redirect()->route('fg-transfer-receives.index');
-        //        } catch (\Exception $e) {
-        //            DB::rollBack();
-        //            Log::emergency("File:" . $e->getFile() . "Line:" . $e->getLine() . "Message:" . $e->getMessage());
-        //            Toastr::info('Something went wrong!.', '', ["progressbar" => true]);
-        //            return back();
-        //        }
 
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show($id)
-    {
-        $fgTransferReceive = TransferReceive::with('toStore', 'fromStore','createdBy')->find(decrypt($id));
-        return view('fg_inventory_transfer_receive.show', compact('fgTransferReceive'));
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(DeliveryReceive $deliveryReceive)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, DeliveryReceive $deliveryReceive)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy($id)
-    {
-        DB::beginTransaction();
         try {
-            DeliveryReceive::findOrFail($id)->delete();
+            DB::beginTransaction();
+
+            $transfer = InventoryTransfer::query()
+                ->where(['id' => $data['inventory_transfer_id'], 'type' => 'FG'])
+                ->lockForUpdate()
+                ->firstOrFail();
+
+            if ($transfer->status === 'received') {
+                DB::rollBack();
+                Toastr::info('This transfer already received!.', '', ['progressBar' => true]);
+
+                return back();
+            }
+
+            $store = Store::findOrFail($data['to_store_id']);
+            $data['uid'] = generateUniqueUUID($store->doc_id, TransferReceive::class, 'uid');
+            $fGInventoryTransfer = TransferReceive::query()->create($data);
+            $products = $request->get('products', []);
+
+            foreach ($products as $product) {
+                $fGInventoryTransfer->items()->create($product);
+                InventoryTransaction::query()->create([
+                    'store_id' => $fGInventoryTransfer->from_store_id,
+                    'doc_type' => 'FGIT',
+                    'doc_id' => $fGInventoryTransfer->id,
+                    'quantity' => $product['quantity'],
+                    'rate' => $product['rate'],
+                    'amount' => $product['quantity'] * $product['rate'],
+                    'date' => $fGInventoryTransfer->date,
+                    'type' => -1,
+                    'coi_id' => $product['coi_id'],
+                ]);
+                InventoryTransaction::query()->create([
+                    'store_id' => $fGInventoryTransfer->to_store_id,
+                    'doc_type' => 'FGIT',
+                    'doc_id' => $fGInventoryTransfer->id,
+                    'quantity' => $product['quantity'],
+                    'rate' => $product['rate'],
+                    'amount' => $product['quantity'] * $product['rate'],
+                    'date' => $fGInventoryTransfer->date,
+                    'type' => 1,
+                    'coi_id' => $product['coi_id'],
+                ]);
+            }
+
+            InventoryTransfer::where('id', $data['inventory_transfer_id'])->update(['status' => 'received']);
             DB::commit();
-        } catch (\Exception $error) {
+        } catch (\Exception $e) {
             DB::rollBack();
-            Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
+            Toastr::info('Something went wrong!.', '', ['progressBar' => true]);
+
             return back();
         }
-        Toastr::success('FG Delivery Receive Deleted Successfully!.', '', ["progressBar" => true]);
-        return redirect()->route('fg-delivery-receives.index');
+
+        Toastr::success('FG Transfer Receive Entry Successful!.', '', ['progressBar' => true]);
+
+        return redirect()->route('fg-transfer-receives.index');
+    }
+
+    public function show($id)
+    {
+        $fgTransferReceive = TransferReceive::query()
+            ->with([
+                'toStore:id,name',
+                'fromStore:id,name',
+                'createdBy:id,name',
+                'inventoryTransfer:id,uid',
+                'items.coi:id,name,parent_id,unit_id',
+                'items.coi.parent:id,name',
+                'items.coi.unit:id,name',
+            ])
+            ->findOrFail(decrypt($id));
+
+        return view('fg_inventory_transfer_receive.show', compact('fgTransferReceive'));
     }
 
     public function pdf($id)
     {
-        $data = [
-            'fgTransferReceive' => TransferReceive::with('toStore', 'fromStore','createdBy')->find(decrypt($id)),
-        ];
+        $fgTransferReceive = TransferReceive::query()
+            ->with(['toStore:id,name', 'fromStore:id,name', 'createdBy:id,name', 'items.coi.parent', 'items.coi.unit'])
+            ->findOrFail(decrypt($id));
 
         $pdf = PDF::loadView(
             'fg_inventory_transfer_receive.pdf',
-            $data,
+            ['fgTransferReceive' => $fgTransferReceive],
             [],
             [
                 'format' => 'A4-P',
                 'orientation' => 'P',
                 'margin-left' => 1,
-
-                '', // mode - default ''
-                '', // format - A4, for example, default ''
-                0, // font size - default 0
-                '', // default font family
-                1, // margin_left
-                1, // margin right
-                1, // margin top
-                1, // margin bottom
-                1, // margin header
-                1, // margin footer
-                'L', // L - landscape, P - portrait
-
+                '', '', 0, '', 1, 1, 1, 1, 1, 1, 'L',
             ]
         );
-        $name = \Carbon\Carbon::now()->format('d-m-Y');
 
-        return $pdf->stream($name . '.pdf');
+        return $pdf->stream(\Carbon\Carbon::now()->format('d-m-Y') . '.pdf');
     }
 }

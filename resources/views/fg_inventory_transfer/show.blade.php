@@ -1,106 +1,91 @@
 @extends('layouts.app')
-@section('title')
-FG Inventory Transfer Details
-@endsection
+
+@section('title', 'FG Inventory Transfer Details')
+
 @section('content')
-    @php    
+    @php
         $links = [
-        'Home'=>route('dashboard'),
-        'FG Inventory Transfer'=>''
-        ]
+            'Home' => route('dashboard'),
+            'FG Inventory Transfer' => route('fg-inventory-transfers.index'),
+            'Details' => '',
+        ];
     @endphp
-<x-breadcrumb title='FG Inventory Transfer Details' :links="$links"/>
-<section class="content">
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-12">  
-                <div class="card card-info">
-                    <div class="card-header">
-                        <h3 class="card-title">FG Inventory Transfer Details</h3>
-                        <a href="{{route('fg-inventory-transfers.pdf',encrypt($fGInventoryTransfer->id))}}"
-                            class="btn btn-sm btn-primary float-right" target="_blank"><i class="fa fa-download"></i> PDF</a>
-                    </div>    
-                    <!-- Main content -->
-                    <div class="invoice p-3 mb-3">
-                        <!-- title row -->
-                        <!-- info row -->
-                        <div class="row invoice-info">
-                            <div class="col-sm-12 invoice-col">
-                                <table width="100%">
-                                    <tbody>
-                                        <tr>
-                                            <td style="text-align: left; padding:8px; line-height: 0.6">
-                                                <p><b>FGIT No :</b> {{ $fGInventoryTransfer->uid }}</p>
-                                                <p><b>Date :</b> {{ $fGInventoryTransfer->date }} </p>
-                                                <p><b>Transfer From :</b> {{ $fGInventoryTransfer->fromStore->name }} </p>
-                                                <p><b>Transfer To :</b> {{ $fGInventoryTransfer->toStore->name }} </p>
-                                                <p><b>Creator :</b> {{ $fGInventoryTransfer->createdBy->name }} </p>
-                                                <p><b>Remarks :</b> {{ $fGInventoryTransfer->remark }} </p>
-                                                <p><b>Reference No :</b> {{ $fGInventoryTransfer->reference_no }} </p>
-                                                <p><b>Status :</b> {!! showStatus($fGInventoryTransfer->status) !!}</p>
-                                            </td> 
-                                        </tr>
-                                    </tbody>
-                                </table>
+    <x-breadcrumb title="FG Inventory Transfer Details" :links="$links"/>
+
+    <section class="content">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-lg-10 offset-lg-1">
+                    <div class="card card-info">
+                        <div class="card-header">
+                            <h3 class="card-title mb-0">
+                                FGIT {{ $fGInventoryTransfer->uid ?: ('#'.$fGInventoryTransfer->id) }}
+                                <span class="ml-2">{!! showStatus($fGInventoryTransfer->status) !!}</span>
+                            </h3>
+                            <div class="card-tools">
+                                <a href="{{ route('fg-inventory-transfers.index') }}" class="btn btn-sm btn-primary">
+                                    <i class="fa fa-list"></i> List
+                                </a>
+                                <a href="{{ route('fg-inventory-transfers.pdf', encrypt($fGInventoryTransfer->id)) }}"
+                                   class="btn btn-sm btn-secondary" target="_blank" rel="noopener">
+                                    <i class="fa fa-download"></i> PDF
+                                </a>
                             </div>
-                            <!-- /.col -->
-                            <div class="col-sm-4 invoice-col">
-                            </div>
-                            <!-- /.col -->
-                            <div class="col-sm-4 invoice-col">
-                                 
-                            </div>
-                            <!-- /.col -->
                         </div>
-                        <!-- /.row -->
-    
-                        <!-- Table row -->
-                        <div class="row">
-                            <div class="col-12 table-responsive">
-                                <table class="table table-striped">
-                                    <thead>
-                                        <tr>
-                                            <th>#</th>
-                                            <th>Group</th>
-                                            <th>Name</th>
-                                            <th>Unit</th>
-                                            <th>Price</th>
-                                            <th>Quantity</th>
-                                        </tr>
+                        <div class="card-body">
+                            <div class="row mb-3">
+                                <div class="col-md-3">
+                                    <div class="small text-muted text-uppercase">Date</div>
+                                    <div class="font-weight-bold">{{ $fGInventoryTransfer->date ?: '—' }}</div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="small text-muted text-uppercase">From Store</div>
+                                    <div class="font-weight-bold">{{ $fGInventoryTransfer->fromStore->name ?? '—' }}</div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="small text-muted text-uppercase">To Store</div>
+                                    <div class="font-weight-bold">{{ $fGInventoryTransfer->toStore->name ?? '—' }}</div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="small text-muted text-uppercase">Created By</div>
+                                    <div class="font-weight-bold">{{ $fGInventoryTransfer->createdBy->name ?? '—' }}</div>
+                                </div>
+                            </div>
+
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-sm mb-0">
+                                    <thead class="thead-light">
+                                    <tr>
+                                        <th style="width:6%">#</th>
+                                        <th>Group</th>
+                                        <th>Item</th>
+                                        <th>Unit</th>
+                                        <th class="text-right">Rate</th>
+                                        <th class="text-right">Qty</th>
+                                    </tr>
                                     </thead>
                                     <tbody>
-                                        @foreach ($items as $item)
+                                    @forelse ($items as $item)
                                         <tr>
                                             <td>{{ $loop->iteration }}</td>
-                                            <td>{{ $item->coi->parent ? $item->coi->parent->name : '' }}</td>
-                                            <td>{{ $item->coi ? $item->coi->name : '' }}</td>
-                                            <td>{{ $item->coi->unit->name }}</td>
-                                            <td>{{ $item->rate ?? '' }}</td>
-                                            <td>{{ $item->quantity ?? '' }}</td>
+                                            <td>{{ $item->coi->parent->name ?? '—' }}</td>
+                                            <td>{{ $item->coi->name ?? '—' }}</td>
+                                            <td>{{ $item->coi->unit->name ?? '—' }}</td>
+                                            <td class="text-right">{{ number_format((float) ($item->rate ?? 0), 2) }}</td>
+                                            <td class="text-right">{{ number_format((float) ($item->quantity ?? 0), 2) }}</td>
                                         </tr>
-                                        @endforeach
+                                    @empty
+                                        <tr>
+                                            <td colspan="6" class="text-center text-muted">No items</td>
+                                        </tr>
+                                    @endforelse
                                     </tbody>
                                 </table>
                             </div>
-                            <!-- /.col -->
                         </div>
-                        <!-- /.row -->
-    
-                        <div class="row">
-                            <!-- accepted payments column -->
-                            <div class="col-8">
-    
-                            </div>
-                        </div>
-                        <!-- /.row -->
                     </div>
                 </div>
-                <!-- /.invoice -->
-            </div><!-- /.col -->
-        </div><!-- /.row -->
-    </div><!-- /.container-fluid -->
-</section>
-<!-- /.content -->
-
-<!-- /.content-wrapper -->
+            </div>
+        </div>
+    </section>
 @endsection

@@ -21,25 +21,24 @@ class FGInventoryAdjustmentController extends Controller
      */
     public function index()
     {
-        if (\request()->ajax()) {
-            $fGInventoryAdjustments = $this->getFilteredData();
-            return DataTables::of($fGInventoryAdjustments)
+        if (request()->ajax()) {
+            $query = $this->buildIndexQuery();
+
+            return DataTables::eloquent($query)
                 ->addIndexColumn()
+                ->editColumn('status', fn ($row) => showStatus($row->status))
+                ->editColumn('transaction_type', fn ($row) => showStatus($row->transaction_type))
+                ->addColumn('type', fn ($row) => showStatus($row->transaction_type))
                 ->addColumn('action', function ($row) {
                     return view('fg_inventory_adjustment.action', compact('row'));
-                })
-                ->editColumn('status', function ($row) {
-                    return showStatus($row->status);
-                })
-                ->editColumn('type', function ($row) {
-                    return showStatus($row->transaction_type);
                 })
                 ->addColumn('created_at', function ($row) {
                     return view('common.created_at', compact('row'));
                 })
-                ->rawColumns(['action', 'status', 'amount_info', 'type'])
+                ->rawColumns(['action', 'status', 'type', 'created_at'])
                 ->make(true);
         }
+
         return view('fg_inventory_adjustment.index');
     }
 
@@ -48,22 +47,22 @@ class FGInventoryAdjustmentController extends Controller
      */
     public function create()
     {
-        if (\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->outlet_id) {
-            $stores = Store::query()->whereType('FG')->where(['doc_type' => 'outlet', 'status' => 'active', 'doc_id' => \auth()->user()->employee->outlet_id])->get();
-        } elseif (\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->factory_id) {
-            $stores = Store::query()->whereType('FG')->where(['doc_type' => 'factory', 'status' => 'active', 'doc_id' => \auth()->user()->employee->factory_id])->get();
-        } else {
-            $stores = Store::query()->whereType('FG')->where('status', 'active')->get();
-        }
+        $outletId = auth()->user()?->employee?->outlet_id;
+        $factoryId = auth()->user()?->employee?->factory_id;
 
-        $serial_count = InventoryAdjustment::latest()->first() ? InventoryAdjustment::latest()->first()->id : 0;
-        $serial_no = $serial_count + 1;
-        $data = [
-            'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'FG'])->get(),
-            'stores' => $stores,
-            'serial_no' => $serial_no,
-        ];
-        return view('fg_inventory_adjustment.create', $data);
+        return view('fg_inventory_adjustment.create', [
+            'groups' => ChartOfInventory::query()
+                ->where(['type' => 'group', 'rootAccountType' => 'FG'])
+                ->orderBy('name')
+                ->get(['id', 'name']),
+            'stores' => Store::query()
+                ->whereType('FG')
+                ->where('status', 'active')
+                ->when($outletId, fn ($q) => $q->where(['doc_type' => 'outlet', 'doc_id' => $outletId]))
+                ->when($factoryId && !$outletId, fn ($q) => $q->where(['doc_type' => 'factory', 'doc_id' => $factoryId]))
+                ->orderBy('name')
+                ->get(['id', 'name']),
+        ]);
     }
 
     /**
@@ -126,9 +125,17 @@ class FGInventoryAdjustmentController extends Controller
      */
     public function show($id)
     {
+        $fGInventoryAdjustment = InventoryAdjustment::query()
+            ->with([
+                'store:id,name',
+                'items.coi:id,name,parent_id,unit_id',
+                'items.coi.parent:id,name',
+                'items.coi.unit:id,name',
+            ])
+            ->findOrFail(decrypt($id));
 
-        $fGInventoryAdjustment = InventoryAdjustment::findOrFail(decrypt($id));
-        $items = InventoryAdjustmentItem::where('inventory_adjustment_id', decrypt($id))->get();
+        $items = $fGInventoryAdjustment->items;
+
         return view('fg_inventory_adjustment.show', compact('fGInventoryAdjustment', 'items'));
     }
 
@@ -184,32 +191,42 @@ class FGInventoryAdjustmentController extends Controller
         return redirect()->route('fg-inventory-adjustments.index');
     }
 
-    private function getFilteredData()
+    private function buildIndexQuery()
     {
+        $query = InventoryAdjustment::query()
+            ->select([
+                'inventory_adjustments.id',
+                'inventory_adjustments.uid',
+                'inventory_adjustments.date',
+                'inventory_adjustments.transaction_type',
+                'inventory_adjustments.status',
+                'inventory_adjustments.store_id',
+                'inventory_adjustments.created_at',
+            ])
+            ->with(['store:id,name'])
+            ->where('inventory_adjustments.type', 'FG');
+
         if (auth()->user()->employee && auth()->user()->employee->user_of != 'ho') {
+            $storeIds = collect();
             if (auth()->user()->employee->factory_id) {
-                $store_id = auth()->user()->employee->factory->stores()->pluck('id')->toArray();
+                $storeIds = auth()->user()->employee->factory->stores()->pluck('id');
+            } elseif (auth()->user()->employee->outlet_id) {
+                $storeIds = auth()->user()->employee->outlet->stores()->pluck('id');
             }
-            if (auth()->user()->employee->outlet_id) {
-                $store_id = auth()->user()->employee->outlet->stores()->pluck('id')->toArray();
+            if ($storeIds->isNotEmpty()) {
+                $query->whereIn('store_id', $storeIds);
             }
-            $data = InventoryAdjustment::with('store')
-                ->where(['type' => 'FG'])->whereIn('store_id', $store_id)->latest();
-        } else {
-            $data = InventoryAdjustment::with('store')->where(['type' => 'FG'])->latest();
         }
 
-        if (\request()->filled(key: 'transaction_type')) {
-            // dd(\request()->transaction_type);
-            $data = $data->where('transaction_type', \request()->transaction_type);
+        if (request()->filled('transaction_type')) {
+            $query->where('transaction_type', request()->transaction_type);
         }
-        if (\request()->filled('from_date') && \request()->filled('to_date')) {
-            $from_date = Carbon::parse(request()->from_date)->format('Y-m-d');
-            $to_date = Carbon::parse(request()->to_date)->format('Y-m-d');
-            // dd($from_date, $to_date);
-            $data = $data->whereDate('date', '>=', $from_date)->whereDate('date', '<=', $to_date);
-            // dd($data);
+        if (request()->filled('from_date') && request()->filled('to_date')) {
+            $fromDate = Carbon::parse(request()->from_date)->format('Y-m-d');
+            $toDate = Carbon::parse(request()->to_date)->format('Y-m-d');
+            $query->whereDate('date', '>=', $fromDate)->whereDate('date', '<=', $toDate);
         }
-        return $data->latest();
+
+        return $query->latest('inventory_adjustments.id');
     }
 }

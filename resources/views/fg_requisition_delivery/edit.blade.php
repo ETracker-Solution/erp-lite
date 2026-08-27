@@ -79,7 +79,7 @@ FG Requisition Edit
                                         <tbody>
                                         @foreach ($fgRequisitionDelivery->items as $item)
                                             @php
-                                                $requisition_qty = getRequisitionQty($item->requisition_id, $item->coi_id);
+                                                $requisition_qty = (float) ($requisitionItemQtys[$item->coi_id] ?? 0);
                                                 $delivery_qty = $item->quantity;
                                             @endphp
                                             <tr>

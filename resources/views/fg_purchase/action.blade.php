@@ -1,20 +1,9 @@
-<div class="project-actions text-right">
-    <form action="{{route('fg-purchases.destroy', encrypt($row->id))}}" method="post">
-        <input type="hidden" name="_method" value="DELETE">
-        @csrf
-{{--        <a href="{{ route('purchases.edit', encrypt($row->id)) }}" class="btn btn-info btn-xs">--}}
-{{--            <i class="fas fa-pencil-alt">--}}
-{{--            </i>--}}
-{{--            Edit--}}
-{{--        </a>--}}
-        <a href="{{ route('fg-purchases.show', encrypt($row->id)) }}" class="btn btn-xs btn-primary">
-            <i class="fas fa-folder">
-            </i> Show
-        </a>
-{{--        <button id="btnDelete" class="btn btn-danger btn-xs"> <i class="fas fa-trash">--}}
-{{--            </i> Delete</button>--}}
-    </form>
+<div class="project-actions text-right text-nowrap">
+    <a href="{{ route('fg-purchases.show', encrypt($row->id)) }}" class="btn btn-xs btn-primary" title="Show">
+        <i class="fas fa-eye"></i> Show
+    </a>
+    <a href="{{ route('purchase.pdf-download', encrypt($row->id)) }}" class="btn btn-xs btn-secondary" target="_blank"
+       rel="noopener" title="PDF">
+        <i class="fas fa-file-pdf"></i> PDF
+    </a>
 </div>
-<script>
-    confirmAlert('#btnDelete')
-</script>

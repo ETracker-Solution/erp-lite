@@ -1,105 +1,109 @@
 @extends('layouts.app')
-@section('title')
-FG Requisition Details
-@endsection
-@section('content')
-<!-- Content Wrapper. Contains page content -->
-<!-- Content Header (Page header) -->
-    @php    
-        $links = [
-        'Home'=>route('dashboard'),
-        'FG Requisition Details'=>''
-        ]
-    @endphp
-<x-breadcrumb title='FG Requisition Details' :links="$links"/>
 
-<section class="content">
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-12">
-                <div class="card card-info">
-                    <div class="card-header">
-                        <h3 class="card-title">FG Requisition Details</h3>
-                        <a href="{{route('requisition.pdf',encrypt($requisition->id))}}"
-                            class="btn btn-sm btn-primary float-right" target="_blank"><i class="fa fa-download"></i> PDF</a>
-                    </div>
-                    <!-- Main content -->
-                    <div class="row invoice-info">
-                        <div class="col-sm-6 invoice-col">
-                            <table width="100%">
-                                <tbody>
-                                    <tr>
-                                        <td style="text-align: left; padding:8px; line-height: 0.6">
-                                            <p><b>Requisition No :</b> {{ $requisition->uid }}</p>
-                                            <p><b>Date :</b> {{ $requisition->date }} </p>
-                                            <p><b>Created By :</b> {{ showUserInfo($requisition->createdBy) }} </p>
-                                            <p><b>Status :</b> {!! showStatus($requisition->status) !!}</p>
-                                        </td> 
-                                    </tr>
-                                </tbody>
-                            </table>
+@section('title', 'FG Requisition Details')
+
+@section('content')
+    @php
+        $links = [
+            'Home' => route('dashboard'),
+            'FG Requisition' => route('requisitions.index'),
+            'Details' => '',
+        ];
+    @endphp
+    <x-breadcrumb title="FG Requisition Details" :links="$links"/>
+
+    <section class="content">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-lg-10 offset-lg-1">
+                    <div class="card card-info">
+                        <div class="card-header">
+                            <h3 class="card-title mb-0">
+                                FGR {{ $requisition->uid ?: ('#'.$requisition->id) }}
+                                <span class="ml-2">{!! showStatus($requisition->status) !!}</span>
+                            </h3>
+                            <div class="card-tools">
+                                <a href="{{ route('requisitions.index') }}" class="btn btn-sm btn-primary">
+                                    <i class="fa fa-list"></i> List
+                                </a>
+                                <a href="{{ route('requisition.pdf', encrypt($requisition->id)) }}"
+                                   class="btn btn-sm btn-secondary" target="_blank" rel="noopener">
+                                    <i class="fa fa-download"></i> PDF
+                                </a>
+                            </div>
                         </div>
-                        <!-- /.col -->
-                        <div class="col-sm-6 invoice-col">
-                            <table width="100%">
-                                <tbody>
+                        <div class="card-body">
+                            <div class="row mb-3">
+                                <div class="col-md-3">
+                                    <div class="small text-muted text-uppercase">Date</div>
+                                    <div class="font-weight-bold">{{ $requisition->date ?: '—' }}</div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="small text-muted text-uppercase">From Store</div>
+                                    <div class="font-weight-bold">{{ $requisition->fromStore->name ?? '—' }}</div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="small text-muted text-uppercase">To Store</div>
+                                    <div class="font-weight-bold">{{ $requisition->toStore->name ?? '—' }}</div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="small text-muted text-uppercase">Outlet</div>
+                                    <div class="font-weight-bold">{{ $requisition->outlet->name ?? '—' }}</div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="small text-muted text-uppercase">Created By</div>
+                                    <div class="font-weight-bold">{{ showUserInfo($requisition->createdBy) }}</div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="small text-muted text-uppercase">Approved By</div>
+                                    <div class="font-weight-bold">{{ $requisition->approvedBy ? showUserInfo($requisition->approvedBy) : '—' }}</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="small text-muted text-uppercase">Remarks</div>
+                                    <div class="font-weight-bold">{{ $requisition->remark ?: '—' }}</div>
+                                </div>
+                            </div>
+
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-sm mb-0">
+                                    <thead class="thead-light">
                                     <tr>
-                                        <td style="text-align: left; padding:8px; line-height: 0.6">
-                                            <p><b>Outlet :</b> {{ $requisition->outlet->name }}</p>
-                                            <p><b>Address :</b> {{ $requisition->outlet->address }} </p>
-                                            <p><b>Approved By :</b> {{ $requisition->approvedBy ? showUserInfo($requisition->approvedBy) : "N/A"  }} </p>                                            
-                                            <p><b>Remarks :</b> {{ $requisition->remark }} </p>
-                                        </td> 
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                        <!-- /.col -->
-                        <div class="col-sm-4 invoice-col">
-                                
-                        </div>
-                        <!-- /.col -->
-                    </div>
-    
-                    <!-- /.row -->
-    
-                    <!-- Table row -->
-                    <div class="row">
-                        <div class="col-12 table-responsive">
-                            <table class="table table-striped">
-                                <thead>
-                                    <tr>
-                                        <th>#</th>
+                                        <th style="width:6%">#</th>
                                         <th>Group</th>
                                         <th>Item</th>
                                         <th>Unit</th>
-                                        <th>Quantity</th>
+                                        <th class="text-right">Req Qty</th>
+                                        <th class="text-right">Delivered</th>
+                                        <th class="text-right">Remaining</th>
                                     </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach ($requisition->items as $item)
-                                    <tr>
-                                        <td>{{ $loop->iteration }}</td>
-                                        <td>{{ $item->coi->parent->name ?? '' }}</td>
-                                        <td>{{ $item->coi->name ?? '' }}</td>
-                                        <td>{{ $item->coi->unit->name ?? '' }}</td>
-                                        <td>{{ $item->quantity ?? '' }}</td>
-                                    </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
+                                    </thead>
+                                    <tbody>
+                                    @forelse ($requisition->items as $item)
+                                        @php
+                                            $reqQty = (float) ($item->quantity ?? 0);
+                                            $deliveredQty = (float) ($deliveredQtyByCoi[$item->coi_id] ?? 0);
+                                        @endphp
+                                        <tr>
+                                            <td>{{ $loop->iteration }}</td>
+                                            <td>{{ $item->coi->parent->name ?? '—' }}</td>
+                                            <td>{{ $item->coi->name ?? '—' }}</td>
+                                            <td>{{ $item->coi->unit->name ?? '—' }}</td>
+                                            <td class="text-right">{{ number_format($reqQty, 2) }}</td>
+                                            <td class="text-right">{{ number_format($deliveredQty, 2) }}</td>
+                                            <td class="text-right">{{ number_format(max($reqQty - $deliveredQty, 0), 2) }}</td>
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="7" class="text-center text-muted">No items</td>
+                                        </tr>
+                                    @endforelse
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
-                        <!-- /.col -->
                     </div>
-                    <!-- /.row -->
                 </div>
-                <!-- /.row -->
             </div>
-                <!-- /.invoice -->
-        </div><!-- /.row -->
-    </div><!-- /.container-fluid -->
-</section>
-<!-- /.content -->
-
-<!-- /.content-wrapper -->
+        </div>
+    </section>
 @endsection

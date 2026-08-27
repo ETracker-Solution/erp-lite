@@ -89,7 +89,7 @@
                                     <tbody>
                                     @forelse ($fgRequisitionDelivery->items as $item)
                                         @php
-                                            $requisitionQty = (float) getRequisitionQty($item->requisition_id, $item->coi_id);
+                                            $requisitionQty = (float) ($requisitionItemQtys[$item->coi_id] ?? 0);
                                             $deliveryQty = (float) $item->quantity;
                                         @endphp
                                         <tr>

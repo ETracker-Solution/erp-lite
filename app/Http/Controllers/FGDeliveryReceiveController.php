@@ -70,8 +70,10 @@ class FGDeliveryReceiveController extends Controller
             ->latest('id');
 
         if ($outletId) {
-            $deliveriesQuery->whereHas('requisition', function ($query) use ($outletId) {
-                $query->where('outlet_id', $outletId);
+            $deliveriesQuery->whereIn('requisition_id', function ($query) use ($outletId) {
+                $query->select('id')
+                    ->from('requisitions')
+                    ->where('outlet_id', $outletId);
             });
         }
 
@@ -159,18 +161,7 @@ class FGDeliveryReceiveController extends Controller
 
     public function show($id)
     {
-        $fgDeliveryReceive = DeliveryReceive::query()
-            ->with([
-                'toStore:id,name',
-                'fromStore:id,name',
-                'requisitionDelivery:id,uid,created_by',
-                'requisitionDelivery.createdBy:id,name',
-                'createdBy:id,name',
-                'items.coi:id,name,parent_id,unit_id',
-                'items.coi.parent:id,name',
-                'items.coi.unit:id,name',
-            ])
-            ->findOrFail(decrypt($id));
+        $fgDeliveryReceive = $this->loadDeliveryReceiveForDisplay($id);
 
         return view('fg_requisition_delivery_receive.show', compact('fgDeliveryReceive'));
     }
@@ -200,18 +191,7 @@ class FGDeliveryReceiveController extends Controller
 
     public function pdf($id)
     {
-        $fgDeliveryReceive = DeliveryReceive::query()
-            ->with([
-                'toStore:id,name',
-                'fromStore:id,name',
-                'requisitionDelivery:id,uid,created_by',
-                'requisitionDelivery.createdBy:id,name',
-                'createdBy:id,name',
-                'items.coi:id,name,parent_id,unit_id',
-                'items.coi.parent:id,name',
-                'items.coi.unit:id,name',
-            ])
-            ->findOrFail(decrypt($id));
+        $fgDeliveryReceive = $this->loadDeliveryReceiveForDisplay($id);
 
         $pdf = Pdf::loadView(
             'fg_requisition_delivery_receive.pdf',
@@ -230,5 +210,21 @@ class FGDeliveryReceiveController extends Controller
         $label = $fgDeliveryReceive->requisitionDelivery->uid ?? $fgDeliveryReceive->id;
 
         return $pdf->stream('FGDR-' . $label . '.pdf');
+    }
+
+    private function loadDeliveryReceiveForDisplay($id): DeliveryReceive
+    {
+        return DeliveryReceive::query()
+            ->with([
+                'toStore:id,name',
+                'fromStore:id,name',
+                'requisitionDelivery:id,uid,created_by',
+                'requisitionDelivery.createdBy:id,name,email',
+                'createdBy:id,name,email',
+                'items.coi:id,name,parent_id,unit_id',
+                'items.coi.parent:id,name',
+                'items.coi.unit:id,name',
+            ])
+            ->findOrFail(decrypt($id));
     }
 }

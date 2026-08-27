@@ -12,6 +12,7 @@ use App\Models\Outlet;
 use App\Models\Product;
 use App\Models\Requisition;
 use App\Models\RequisitionItem;
+use App\Models\RequisitionDeliveryItem;
 use App\Models\Store;
 use App\Services\ExportService;
 use Brian2694\Toastr\Facades\Toastr;
@@ -85,23 +86,22 @@ class RequisitionController extends Controller
 
     public function index()
     {
+        if (request()->ajax()) {
+            $query = $this->buildIndexQuery();
 
-        if (\request()->ajax()) {
-            $data = $this->getFilteredData();
-            return DataTables::of($data)
+            return DataTables::eloquent($query)
                 ->addIndexColumn()
+                ->editColumn('status', fn ($row) => showStatus($row->status))
                 ->addColumn('action', function ($row) {
                     return view('requisition.action', compact('row'));
                 })
                 ->addColumn('created_at', function ($row) {
                     return view('common.created_at', compact('row'));
                 })
-                ->editColumn('status', function ($row) {
-                    return showStatus($row->status);
-                })
                 ->rawColumns(['action', 'created_at', 'status'])
                 ->make(true);
         }
+
         return view('requisition.index');
     }
 
@@ -110,19 +110,23 @@ class RequisitionController extends Controller
      */
     public function create()
     {
-        if (\auth()->user() && \auth()->user()->employee && \auth()->user()->employee->outlet_id) {
-            $from_stores = Store::where(['type' => 'FG', 'doc_type' => 'outlet', 'status' => 'active', 'doc_id' => \auth()->user()->employee->outlet_id])->get();
-        } else {
-            $from_stores = Store::where(['type' => 'FG', 'doc_type' => 'outlet', 'status' => 'active'])->get();
-        }
+        $outletId = auth()->user()?->employee?->outlet_id;
 
-        $data = [
-            'groups' => ChartOfInventory::where(['type' => 'group', 'rootAccountType' => 'FG'])->get(),
-            'from_stores' => $from_stores,
-            'to_stores' => Store::where(['type' => 'FG', 'doc_type' => 'factory', 'status' => 'active'])->get(),
-            'serial_no' => RequisitionNumber::serial_number()
-        ];
-        return view('requisition.create', $data);
+        return view('requisition.create', [
+            'groups' => ChartOfInventory::query()
+                ->where(['type' => 'group', 'rootAccountType' => 'FG'])
+                ->orderBy('name')
+                ->get(['id', 'name']),
+            'from_stores' => Store::query()
+                ->where(['type' => 'FG', 'doc_type' => 'outlet', 'status' => 'active'])
+                ->when($outletId, fn ($q) => $q->where('doc_id', $outletId))
+                ->orderBy('name')
+                ->get(['id', 'name']),
+            'to_stores' => Store::query()
+                ->where(['type' => 'FG', 'doc_type' => 'factory', 'status' => 'active'])
+                ->orderBy('name')
+                ->get(['id', 'name']),
+        ]);
     }
 
     /**
@@ -154,8 +158,10 @@ class RequisitionController extends Controller
      */
     public function show($id)
     {
-        $requisition = Requisition::with(['createdBy', 'approvedBy'])->findOrFail(decrypt($id));
-        return view('requisition.show', compact('requisition'));
+        $requisition = $this->loadRequisitionForDisplay($id);
+        $deliveredQtyByCoi = $this->deliveredQuantitiesByCoi($requisition);
+
+        return view('requisition.show', compact('requisition', 'deliveredQtyByCoi'));
     }
 
     /**
@@ -221,13 +227,11 @@ class RequisitionController extends Controller
 
     public function pdfDownload($id)
     {
-        $data = [
-            'requisition' => Requisition::with(['createdBy', 'approvedBy'])->findOrFail(decrypt($id)),
-        ];
+        $requisition = $this->loadRequisitionForDisplay($id);
 
         $pdf = PDF::loadView(
             'requisition.pdf',
-            $data,
+            ['requisition' => $requisition],
             [],
             [
                 'format' => 'A4-P',
@@ -371,6 +375,40 @@ class RequisitionController extends Controller
         return redirect()->route('requisitions.index');
     }
 
+    private function buildIndexQuery()
+    {
+        $query = Requisition::query()
+            ->select([
+                'requisitions.id',
+                'requisitions.uid',
+                'requisitions.date',
+                'requisitions.status',
+                'requisitions.delivery_status',
+                'requisitions.from_store_id',
+                'requisitions.to_store_id',
+                'requisitions.created_at',
+            ])
+            ->with([
+                'fromStore:id,name',
+                'toStore:id,name',
+            ])
+            ->where('requisitions.type', 'FG');
+
+        if (auth()->user()?->employee?->outlet_id) {
+            $query->where('outlet_id', auth()->user()->employee->outlet_id);
+        }
+        if (request()->filled('status')) {
+            $query->where('status', request()->status);
+        }
+        if (request()->filled('from_date') && request()->filled('to_date')) {
+            $fromDate = Carbon::parse(request()->from_date)->format('Y-m-d');
+            $toDate = Carbon::parse(request()->to_date)->format('Y-m-d');
+            $query->whereDate('date', '>=', $fromDate)->whereDate('date', '<=', $toDate);
+        }
+
+        return $query->latest('requisitions.id');
+    }
+
     private function getFilteredData()
     {
         $data = Requisition::with('fromStore', 'toStore')->where('requisitions.type', 'FG');
@@ -494,5 +532,30 @@ class RequisitionController extends Controller
             'headers' => $headers,
             'values' => $values
         ];
+    }
+
+    private function loadRequisitionForDisplay($id): Requisition
+    {
+        return Requisition::query()
+            ->with([
+                'fromStore:id,name',
+                'toStore:id,name',
+                'outlet:id,name,address',
+                'createdBy:id,name,email',
+                'approvedBy:id,name,email',
+                'items.coi:id,name,parent_id,unit_id',
+                'items.coi.parent:id,name',
+                'items.coi.unit:id,name',
+            ])
+            ->findOrFail(decrypt($id));
+    }
+
+    private function deliveredQuantitiesByCoi(Requisition $requisition)
+    {
+        return RequisitionDeliveryItem::query()
+            ->where('requisition_id', $requisition->id)
+            ->select('coi_id', DB::raw('SUM(quantity) as qty'))
+            ->groupBy('coi_id')
+            ->pluck('qty', 'coi_id');
     }
 }
