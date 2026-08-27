@@ -1,126 +1,69 @@
 @extends('layouts.app')
-@section('title')
-    FG Requisition Delivery Receive List
-@endsection
+@section('title', 'FG Delivery Receive List')
+
 @section('content')
     @php
         $links = [
-        'Home'=>route('dashboard'),
-        'FG Requisition Delivery Receive list'=>''
-        ]
+            'Home' => route('dashboard'),
+            'FG Delivery Receive list' => '',
+        ];
     @endphp
-    <x-breadcrumb title='FG Requisition Delivery Receive' :links="$links"/>
+    <x-breadcrumb title="FG Delivery Receive" :links="$links"/>
 
-    <!-- Main content -->
     <section class="content">
         <div class="container-fluid">
-
             <div class="row">
                 <div class="col-12">
                     <div class="card card-info">
                         <div class="card-header">
-                            <h3 class="card-title">FG Requisition Delivery Receive List</h3>
+                            <h3 class="card-title">FG Delivery Receive List</h3>
                             <div class="card-tools">
-                                <a href="{{route('fg-delivery-receives.create')}}">
-                                    <button class="btn btn-sm btn-primary"><i class="fa fa-plus-circle"
-                                                                              aria-hidden="true"></i> &nbsp;Add New
-                                    </button>
+                                <a href="{{ route('fg-delivery-receives.create') }}" class="btn btn-sm btn-primary">
+                                    <i class="fa fa-plus-circle" aria-hidden="true"></i> Add New
                                 </a>
                             </div>
                         </div>
-                        <!-- /.card-header -->
                         <div class="card-body table-responsive">
-                            <table id="dataTable" class="table table-bordered">
-                                {{-- show from datatable--}}
-                            </table>
+                            <table id="dataTable" class="table table-bordered table-hover table-sm"></table>
                         </div>
-                        <!-- /.card-body -->
                     </div>
-                    <!-- /.card -->
-
                 </div>
             </div>
-            <!-- /.row -->
-
-        </div><!-- /.container-fluid -->
+        </div>
     </section>
-    <!-- /.content -->
 @endsection
 @section('css')
-    <!-- DataTables -->
     <link rel="stylesheet" href="{{ asset('assets/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css')}}">
 @endsection
 @section('js')
-    <!-- DataTables -->
     <script src="{{ asset('assets/plugins/datatables/jquery.dataTables.min.js')}}"></script>
     <script src="{{ asset('assets/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js')}}"></script>
     <script src="{{ asset('assets/plugins/datatables-responsive/js/dataTables.responsive.min.js')}}"></script>
     <script src="{{ asset('assets/plugins/datatables-responsive/js/responsive.bootstrap4.min.js')}}"></script>
 @endsection
 @push('script')
-    <!-- page script -->
     <script>
         $(document).ready(function () {
             $('#dataTable').dataTable({
-                stateSave: true,
+                stateSave: false,
                 responsive: true,
                 serverSide: true,
                 processing: true,
                 ajax: {
                     url: "{{ route('fg-delivery-receives.index') }}",
                 },
-                columns: [{
-                    data: "DT_RowIndex",
-                    title: "SL",
-                    name: "DT_RowIndex",
-                    searchable: false,
-                    orderable: false
-                },
-
-                    {
-                        data: "requisition_delivery.uid",
-                        name: "requisitionDelivery.uid",
-                        title: "FGR No",
-                        searchable: true,
-                        "defaultContent": "Not Set"
-                    }, {
-                        data: "date",
-                        title: "Date",
-                        searchable: true,
-                        "defaultContent": "Not Set"
-                    },
-                    {
-                        data: "from_store.name",
-                        name: "fromStore.name",
-                        title: "From Store",
-                        searchable: true,
-                        "defaultContent": "Not Set"
-                    },
-                    {
-                        data: "to_store.name",
-                        name: "toStore.name",
-                        title: "To Store",
-                        searchable: true,
-                        "defaultContent": "Not Set"
-                    },
-                    {
-                        data: "status",
-                        title: "Status",
-                        searchable: false, "defaultContent": "Not Set"
-                    },
-                    {
-                        data: "created_at",
-                        title: "Created At",
-                        searchable: true
-                    },
-                    {
-                        data: "action",
-                        title: "Action",
-                        orderable: false,
-                        searchable: false
-                    },
+                columns: [
+                    {data: "DT_RowIndex", title: "SL", name: "DT_RowIndex", searchable: false, orderable: false},
+                    {data: "requisition_delivery.uid", name: "requisitionDelivery.uid", title: "FGRD No", searchable: true, defaultContent: "—"},
+                    {data: "date", title: "Date", searchable: true, defaultContent: "—"},
+                    {data: "from_store.name", name: "fromStore.name", title: "From Store", searchable: true, defaultContent: "—"},
+                    {data: "to_store.name", name: "toStore.name", title: "To Store", searchable: true, defaultContent: "—"},
+                    {data: "total_quantity", title: "Qty", searchable: false, className: "text-right", defaultContent: "0.00"},
+                    {data: "status", title: "Status", searchable: false, orderable: false},
+                    {data: "created_at", title: "Created At", searchable: false, orderable: false},
+                    {data: "action", title: "Action", orderable: false, searchable: false},
                 ],
             });
-        })
+        });
     </script>
 @endpush
