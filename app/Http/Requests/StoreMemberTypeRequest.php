@@ -29,6 +29,14 @@ class StoreMemberTypeRequest extends FormRequest
             'to_point' => 'required',
             'minimum_purchase' => 'required',
             'discount' => 'required',
+            'created_by' => 'required',
         ];
+    }
+
+    public function prepareForValidation()
+    {
+        $this->merge([
+            'created_by' => auth()->user()->id,
+        ]);
     }
 }

@@ -27,28 +27,51 @@ class PromoCodeController extends Controller
      */
     public function index()
     {
-        if (\request()->ajax()) {
-            $codes = PromoCode::latest();
-            return DataTables::of($codes)
+        if (request()->ajax()) {
+            $query = PromoCode::query()
+                ->select([
+                    'promo_codes.id',
+                    'promo_codes.code',
+                    'promo_codes.start_date',
+                    'promo_codes.end_date',
+                    'promo_codes.discount_type',
+                    'promo_codes.discount_value',
+                    'promo_codes.minimum_purchase',
+                    'promo_codes.sms_count',
+                    'promo_codes.created_at',
+                ])
+                ->latest('id');
+
+            return DataTables::eloquent($query)
                 ->addIndexColumn()
-                ->editColumn('start_date', function ($row) {
-                    return getTimeByFormat($row->start_date, 'd F Y');
-                })
-                ->editColumn('end_date', function ($row) {
-                    return getTimeByFormat($row->end_date, 'd F Y');
-                })
-                ->editColumn('created_at', function ($row) {
-                    return $row->created_at->format('Y-m-d');
-                })
+                ->editColumn('start_date', fn ($row) => getTimeByFormat($row->start_date, 'd M Y'))
+                ->editColumn('end_date', fn ($row) => getTimeByFormat($row->end_date, 'd M Y'))
                 ->addColumn('discount', function ($row) {
-                    return $row->discount_type == 'fixed' ? $row->discount_value . ' BDT' : $row->discount_value . ' %';
+                    return $row->discount_type === 'fixed'
+                        ? number_format((float) $row->discount_value, 2) . ' BDT'
+                        : number_format((float) $row->discount_value, 2) . ' %';
+                })
+                ->addColumn('status', function ($row) {
+                    $today = date('Y-m-d');
+                    if ($row->start_date > $today) {
+                        return '<span class="badge badge-info">Upcoming</span>';
+                    }
+                    if ($row->end_date < $today) {
+                        return '<span class="badge badge-secondary">Expired</span>';
+                    }
+
+                    return '<span class="badge badge-success">Active</span>';
                 })
                 ->addColumn('action', function ($row) {
                     return view('promo_code.action-button', compact('row'));
                 })
-                ->rawColumns(['status', 'action', 'discount'])
+                ->addColumn('created_at', function ($row) {
+                    return view('common.created_at', compact('row'));
+                })
+                ->rawColumns(['status', 'action', 'created_at'])
                 ->make(true);
         }
+
         return view('promo_code.index');
     }
 
@@ -59,9 +82,10 @@ class PromoCodeController extends Controller
      */
     public function create()
     {
-        $memberTypes = MemberType::all();
+        $memberTypes = MemberType::query()->select('id', 'name')->orderBy('name')->get();
         $smsTemplates = SmsTemplate::getActiveTemplates();
-        return view('promo_code.create', compact('memberTypes','smsTemplates'));
+
+        return view('promo_code.create', compact('memberTypes', 'smsTemplates'));
     }
 
     /**
@@ -121,9 +145,14 @@ class PromoCodeController extends Controller
      */
     public function show($id)
     {
-        $row = PromoCode::find(decrypt($id));
-        $smsTemplates = SmsTemplate::getActiveTemplates();
-        return view('promo_code.show', compact('row','smsTemplates'));
+        $row = PromoCode::query()
+            ->with([
+                'smsTemplate:id,template_name,message_template',
+                'customerPromoCodes.customer:id,name,mobile,email',
+            ])
+            ->findOrFail(decrypt($id));
+
+        return view('promo_code.show', compact('row'));
     }
 
     /**
@@ -134,10 +163,11 @@ class PromoCodeController extends Controller
      */
     public function edit($id)
     {
-        $memberTypes = MemberType::all();
-        $row = PromoCode::find(decrypt($id));
+        $memberTypes = MemberType::query()->select('id', 'name')->orderBy('name')->get();
+        $row = PromoCode::findOrFail(decrypt($id));
         $smsTemplates = SmsTemplate::getActiveTemplates();
-        return view('promo_code.edit', compact('row', 'memberTypes','smsTemplates'));
+
+        return view('promo_code.edit', compact('row', 'memberTypes', 'smsTemplates'));
     }
 
     /**

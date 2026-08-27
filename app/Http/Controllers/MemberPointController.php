@@ -2,10 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
-use App\Models\MemberPoint;
 use App\Http\Requests\StoreMemberPointRequest;
 use App\Http\Requests\UpdateMemberPointRequest;
+use App\Models\MemberPoint;
 use App\Models\MemberType;
 use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Support\Facades\DB;
@@ -13,51 +12,46 @@ use Yajra\DataTables\Facades\DataTables;
 
 class MemberPointController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function index()
     {
-        $memberPoints = MemberPoint::with('memberType')->latest();
-        if (\request()->ajax()) {
-            return DataTables::of($memberPoints)
+        if (request()->ajax()) {
+            $query = MemberPoint::query()
+                ->select([
+                    'member_points.id',
+                    'member_points.from_amount',
+                    'member_points.to_amount',
+                    'member_points.per_amount',
+                    'member_points.point',
+                    'member_points.member_type_id',
+                    'member_points.created_at',
+                ])
+                ->with(['memberType:id,name'])
+                ->latest('id');
+
+            return DataTables::eloquent($query)
                 ->addIndexColumn()
+                ->editColumn('per_amount', fn ($row) => number_format((float) $row->per_amount, 2))
+                ->editColumn('point', fn ($row) => number_format((float) $row->point, 2))
                 ->addColumn('action', function ($row) {
                     return view('member-point.action-button', compact('row'));
-                })
-                ->addColumn('amount_info', function ($row) {
-
-                    return 'BDT '.$row->from_amount .' - '. 'BDT '.$row->to_amount;
-
                 })
                 ->addColumn('created_at', function ($row) {
                     return view('common.created_at', compact('row'));
                 })
-                ->rawColumns(['action','amount_info'])
+                ->rawColumns(['action', 'created_at'])
                 ->make(true);
         }
+
         return view('member-point.index');
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function create()
     {
-        $memberTypes = MemberType::all();
-        return view('member-point.create',compact('memberTypes'));
+        $memberTypes = MemberType::query()->select('id', 'name')->orderBy('name')->get();
+
+        return view('member-point.create', compact('memberTypes'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \App\Http\Requests\StoreMemberPointRequest  $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(StoreMemberPointRequest $request)
     {
         $validated = $request->validated();
@@ -68,44 +62,32 @@ class MemberPointController extends Controller
             DB::commit();
         } catch (\Exception $error) {
             DB::rollBack();
-            Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
+            Toastr::info('Something went wrong!.', '', ['progressBar' => true]);
+
             return back();
         }
-        Toastr::success('Member Point Created Successfully!.', '', ["progressBar" => true]);
+        Toastr::success('Member Point Created Successfully!.', '', ['progressBar' => true]);
+
         return redirect()->route('member-points.index');
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\MemberPoint  $memberPoint
-     * @return \Illuminate\Http\Response
-     */
-    public function show(MemberPoint $memberPoint)
+    public function show($id)
     {
-        //
+        $memberPoint = MemberPoint::query()
+            ->with(['memberType:id,name'])
+            ->findOrFail(decrypt($id));
+
+        return view('member-point.show', compact('memberPoint'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\MemberPoint  $memberPoint
-     * @return \Illuminate\Http\Response
-     */
     public function edit($id)
     {
-        $memberTypes = MemberType::all();
+        $memberTypes = MemberType::query()->select('id', 'name')->orderBy('name')->get();
         $memberPoint = MemberPoint::findOrFail(decrypt($id));
-        return view('member-point.edit',compact('memberPoint','memberTypes'));
+
+        return view('member-point.edit', compact('memberPoint', 'memberTypes'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \App\Http\Requests\UpdateMemberPointRequest  $request
-     * @param  \App\Models\MemberPoint  $memberPoint
-     * @return \Illuminate\Http\Response
-     */
     public function update(UpdateMemberPointRequest $request, $id)
     {
         $validated = $request->validated();
@@ -115,19 +97,15 @@ class MemberPointController extends Controller
             DB::commit();
         } catch (\Exception $error) {
             DB::rollBack();
-            Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
+            Toastr::info('Something went wrong!.', '', ['progressBar' => true]);
+
             return back();
         }
-        Toastr::success('Member Point Updated Successfully!.', '', ["progressBar" => true]);
+        Toastr::success('Member Point Updated Successfully!.', '', ['progressBar' => true]);
+
         return redirect()->route('member-points.index');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\MemberPoint  $memberPoint
-     * @return \Illuminate\Http\Response
-     */
     public function destroy($id)
     {
         DB::beginTransaction();
@@ -136,10 +114,12 @@ class MemberPointController extends Controller
             DB::commit();
         } catch (\Exception $error) {
             DB::rollBack();
-            Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
+            Toastr::info('Something went wrong!.', '', ['progressBar' => true]);
+
             return back();
         }
-        Toastr::success('Member Point Deleted Successfully!.', '', ["progressBar" => true]);
+        Toastr::success('Member Point Deleted Successfully!.', '', ['progressBar' => true]);
+
         return redirect()->route('member-points.index');
     }
 }

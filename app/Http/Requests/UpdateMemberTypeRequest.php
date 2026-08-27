@@ -24,11 +24,19 @@ class UpdateMemberTypeRequest extends FormRequest
     public function rules()
     {
         return [
-            'name'=>'required',
+            'name' => 'required',
             'from_point' => 'required',
             'to_point' => 'required',
             'minimum_purchase' => 'required',
             'discount' => 'required',
+            'updated_by' => 'required',
         ];
+    }
+
+    public function prepareForValidation()
+    {
+        $this->merge([
+            'updated_by' => auth()->user()->id,
+        ]);
     }
 }

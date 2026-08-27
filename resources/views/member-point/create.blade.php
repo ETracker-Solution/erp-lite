@@ -33,7 +33,7 @@ $links = [
                                 <div class="col-xl-4 col-md-8 col-12 mb-1">
                                     <div class="form-group">
                                         <label for="member_type_id">Member Type</label>
-                                        <select class="select2 form-control" name="member_type_id">
+                                        <select class="form-control" name="member_type_id">
                                             <option value="" selected disabled>Select One</option>
                                             @forelse($memberTypes as $row)
                                             <option value="{{ $row->id }}" {{ old('member_type_id')==$row->id ?

@@ -195,7 +195,7 @@
                                                 <div class="mt-2">
                                                     @php
                                                         $memberTypeIds = explode(',', $row->member_types);
-                                                        $memberTypes = \App\Models\MembershipType::whereIn('id', $memberTypeIds)->get();
+                                                        $memberTypes = \App\Models\MemberType::whereIn('id', $memberTypeIds)->get();
                                                     @endphp
                                                     @foreach($memberTypes as $type)
                                                         <span class="badge badge-info mr-1 mb-1">{{ $type->name }}</span>

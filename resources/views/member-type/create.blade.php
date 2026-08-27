@@ -44,7 +44,7 @@ $links = [
                                 <div class="form-group">
                                     <label for="from_point">From Point</label>
                                     <input type="number" class="form-control" id="from_point" name="from_point"
-                                           placeholder="Enter From Point">
+                                           placeholder="Enter From Point" value="{{ old('from_point') }}">
 
                                     @if($errors->has('from_point'))
                                         <small class="text-danger">{{$errors->first('from_point')}}</small>
@@ -55,7 +55,7 @@ $links = [
                                 <div class="form-group">
                                     <label for="to_point">To Point</label>
                                     <input type="number" class="form-control" id="to_point" name="to_point"
-                                           placeholder="Enter From Point">
+                                           placeholder="Enter To Point" value="{{ old('to_point') }}">
 
                                     @if($errors->has('to_point'))
                                         <small class="text-danger">{{$errors->first('to_point')}}</small>
@@ -66,7 +66,7 @@ $links = [
                                 <div class="form-group">
                                     <label for="minimum_purchase">Minimum Purchase</label>
                                     <input type="number" class="form-control" id="minimum_purchase" name="minimum_purchase"
-                                           placeholder="Enter From Point">
+                                           placeholder="Enter Minimum Purchase" value="{{ old('minimum_purchase') }}">
 
                                     @if($errors->has('minimum_purchase'))
                                         <small class="text-danger">{{$errors->first('minimum_purchase')}}</small>
@@ -77,7 +77,7 @@ $links = [
                                 <div class="form-group">
                                     <label for="discount">Discount</label>
                                     <input type="number" class="form-control" id="discount" name="discount"
-                                           placeholder="Enter From Point">
+                                           placeholder="Enter Discount" value="{{ old('discount') }}">
 
                                     @if($errors->has('discount'))
                                         <small class="text-danger">{{$errors->first('discount')}}</small>

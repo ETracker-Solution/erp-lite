@@ -2,11 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreMembershipRequest;
-use App\Http\Requests\UpdateMembershipRequest;
 use App\Models\Customer;
-use App\Models\MemberPoint;
 use App\Models\Membership;
 use App\Models\MemberType;
 use Brian2694\Toastr\Facades\Toastr;
@@ -15,104 +12,88 @@ use Yajra\DataTables\Facades\DataTables;
 
 class MembershipController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function index()
     {
-        $memberships = Membership::with('memberType', 'customer')->latest();
-        if (\request()->ajax()) {
-            return DataTables::of($memberships)
+        if (request()->ajax()) {
+            $query = Membership::query()
+                ->select([
+                    'memberships.id',
+                    'memberships.membership_number',
+                    'memberships.member_type_id',
+                    'memberships.customer_id',
+                    'memberships.point',
+                    'memberships.created_at',
+                ])
+                ->with([
+                    'memberType:id,name',
+                    'customer:id,name,mobile',
+                ])
+                ->latest('id');
+
+            return DataTables::eloquent($query)
                 ->addIndexColumn()
+                ->editColumn('point', fn ($row) => number_format((float) $row->point, 2))
                 ->addColumn('action', function ($row) {
                     return view('membership.action', compact('row'));
                 })
                 ->addColumn('created_at', function ($row) {
                     return view('common.created_at', compact('row'));
                 })
-                ->rawColumns(['action', 'amount_info'])
+                ->rawColumns(['action', 'created_at'])
                 ->make(true);
         }
+
         return view('membership.index');
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function create()
     {
-        $memberTypes = MemberType::query()->select('id', 'name')->get();
-        $customers = Customer::query()->select('id', 'name', 'mobile')->where('type', '!=', 'default')->get();
+        $memberTypes = MemberType::query()->select('id', 'name')->orderBy('name')->get();
+        $customers = Customer::query()
+            ->select('id', 'name')
+            ->where('type', '!=', 'default')
+            ->orderBy('name')
+            ->get();
+
         return view('membership.create', compact('memberTypes', 'customers'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param \App\Http\Requests\StoreMembershipRequest $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(StoreMembershipRequest $request)
     {
         $validated = $request->validated();
 
         DB::beginTransaction();
         try {
-            Membership::create($validated);
+            $membership = Membership::create($validated);
+            if (empty($membership->membership_number)) {
+                $membership->update([
+                    'membership_number' => 'MEM-' . str_pad((string) $membership->id, 6, '0', STR_PAD_LEFT),
+                ]);
+            }
             DB::commit();
         } catch (\Exception $error) {
             DB::rollBack();
-            Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
+            Toastr::info('Something went wrong!.', '', ['progressBar' => true]);
+
             return back();
         }
-        Toastr::success('Membership Created Successfully!.', '', ["progressBar" => true]);
+        Toastr::success('Membership Created Successfully!.', '', ['progressBar' => true]);
+
         return redirect()->route('memberships.index');
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param \App\Models\Membership $membership
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Membership $membership)
+    public function show($id)
     {
-        //
+        $membership = Membership::query()
+            ->with([
+                'memberType:id,name,discount',
+                'customer:id,name,mobile,email',
+            ])
+            ->findOrFail(decrypt($id));
+
+        return view('membership.show', compact('membership'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param \App\Models\Membership $membership
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Membership $membership)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param \App\Http\Requests\UpdateMembershipRequest $request
-     * @param \App\Models\Membership $membership
-     * @return \Illuminate\Http\Response
-     */
-    public function update(UpdateMembershipRequest $request, Membership $membership)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param \App\Models\Membership $membership
-     * @return \Illuminate\Http\Response
-     */
     public function destroy($id)
     {
         DB::beginTransaction();
@@ -121,10 +102,12 @@ class MembershipController extends Controller
             DB::commit();
         } catch (\Exception $error) {
             DB::rollBack();
-            Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
+            Toastr::info('Something went wrong!.', '', ['progressBar' => true]);
+
             return back();
         }
-        Toastr::success('Membership Deleted Successfully!.', '', ["progressBar" => true]);
+        Toastr::success('Membership Deleted Successfully!.', '', ['progressBar' => true]);
+
         return redirect()->route('memberships.index');
     }
 }
