@@ -3,178 +3,237 @@
 namespace App\Http\Controllers\Api\Web;
 
 use App\Http\Controllers\Controller;
-use App\Models\ChartOfInventory;
-use App\Models\InventoryAdjustment;
-use App\Models\InventoryTransaction;
 use App\Models\Store;
-use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use niklasravnsborg\LaravelPdf\Facades\Pdf;
 
 class FGWastegeReportController extends Controller
 {
-
     public function index()
     {
-        return view('finish_goods_wastage_report.index');
+        $employee = auth()->user()?->employee;
+
+        $storesQuery = Store::query()
+            ->whereType('FG')
+            ->where('status', 'active')
+            ->orderBy('name');
+
+        if ($employee?->outlet_id) {
+            $storesQuery->where(['doc_type' => 'outlet', 'doc_id' => $employee->outlet_id]);
+        } elseif ($employee?->factory_id) {
+            $storesQuery->where(['doc_type' => 'factory', 'doc_id' => $employee->factory_id]);
+        }
+
+        return view('finish_goods_wastage_report.index', [
+            'stores' => $storesQuery->get(['id', 'name']),
+        ]);
     }
 
     public function create()
     {
+        ini_set('pcre.backtrack_limit', '5000000');
+        ini_set('pcre.recursion_limit', '5000000');
+        ini_set('memory_limit', '512M');
+        set_time_limit(120);
 
-        $report_header = 'FG Wastage Report';
-        $page_title = false;
-
-        $startDate = sanitizeReportDate(\request()->from_date ?? now());
-        $endDate = sanitizeReportDate(\request()->to_date ?? now());
+        $startDate = sanitizeReportDate(request('from_date') ?? now());
+        $endDate = sanitizeReportDate(request('to_date') ?? now());
         [$startDate, $endDate] = clampReportDateRange($startDate, $endDate, 366);
-        $type = 'FG';
 
-        $report_type = \request()->report_type;
-        $store_id = \request()->store_id;
-        $report_header = 'FG Wastage Report | '.$report_type;
+        $reportType = (string) request('report_type');
+        $storeId = request()->integer('store_id') ?: null;
+        $pageTitle = false;
+        $reportHeader = 'FG Wastage Report | ' . $reportType;
+        $allowedStoreIds = $this->accessibleFgStoreIds();
 
-        $statement = '';
-        if ($report_type == 'Store Wise Summary'){
-            $store = Store::find($store_id);
-            $page_title = 'Store Name :: '.$store->name;
-            $statement = $this->storeWiseReportStatement($store_id,$startDate, $endDate);
-        }
-        if ($report_type == 'Product Wise'){
-            $statement = $this->productWiseReportStatement($startDate, $endDate);
-        }
-        if ($report_type == 'All Store'){
-            $statement = $this->allStoreReportStatement($startDate, $endDate);
-        }
-        $getPost = DB::select($statement);
+        if ($reportType === 'Store Wise Summary') {
+            if (!$storeId) {
+                return response('Please select a store', 422);
+            }
+            if (is_array($allowedStoreIds) && !in_array($storeId, $allowedStoreIds, true)) {
+                return response('Unauthorized store', 403);
+            }
 
-        if (!count($getPost) > 0) {
-            return false;
+            $store = Store::query()->whereType('FG')->find($storeId);
+            if (!$store) {
+                return response('Store not found', 404);
+            }
+
+            $pageTitle = 'Store Name :: ' . $store->name;
+            $rows = $this->storeWiseRows($storeId, $startDate, $endDate);
+        } elseif ($reportType === 'Product Wise') {
+            $rows = $this->productWiseRows($startDate, $endDate, $allowedStoreIds);
+        } elseif ($reportType === 'All Store') {
+            $rows = $this->allStoreRows($startDate, $endDate, $allowedStoreIds);
+        } else {
+            return response('Invalid report type', 422);
         }
-        $columns = array_keys((array)$getPost[0]);
-        $data = [
-            'dateRange' => $endDate. ' -  ' . $startDate,
-            'data' => $getPost,
-            'page_title' => $page_title,
+
+        if (count($rows) === 0) {
+            return response('No Data to Generate Report', 204);
+        }
+
+        $columns = array_keys((array) $rows[0]);
+        $pdf = Pdf::loadView('common.report_main', [
+            'dateRange' => $startDate . ' - ' . $endDate,
+            'data' => $rows,
+            'page_title' => $pageTitle,
             'columns' => $columns,
-            'report_header' => $report_header
-        ];
-        $pdf = Pdf::loadView('common.report_main', $data);
-        $pdf->stream();
+            'report_header' => $reportHeader,
+        ], [], [
+            'format' => 'A4-L',
+            'orientation' => 'L',
+            'margin_left' => 8,
+            'margin_right' => 8,
+            'margin_top' => 8,
+            'margin_bottom' => 8,
+        ]);
+
+        return $pdf->stream('FG-Wastage-Report.pdf');
     }
 
-    private function storeWiseReportStatement($store_id,$startDate,$endDate){
-        $store_id = (int) $store_id;
-        $startDate = sanitizeReportDate($startDate);
-        $endDate = sanitizeReportDate($endDate);
-       return  "SELECT
-     ia.created_at as Date,
-    coi.name as ItemName,
-    iat.rate as Rate,
-    SUM(iat.quantity) AS Qty,
-    SUM(iat.quantity * iat.rate) AS Value
-FROM
-    inventory_adjustments ia
-JOIN
-    stores s ON ia.store_id = s.id
-JOIN
-    inventory_adjustment_items iat ON ia.id = iat.inventory_adjustment_id
- JOIN
-    chart_of_inventories coi ON coi.id = iat.coi_id
-             WHERE ia.store_id='$store_id'AND ia.transaction_type='decrease' AND ia.date >= '$startDate' AND ia.date <= '$endDate'  AND ia.status = 'adjusted'
-GROUP BY
-    ia.store_id, ia.created_at, iat.coi_id
-UNION ALL
-SELECT
-     'Total' as Date,
-    '' as ItemName,
-    '' as Rate,
-    '' AS Qty,
-    SUM(iat.quantity * iat.rate) AS Value
-FROM
-    inventory_adjustments ia
-JOIN
-    stores s ON ia.store_id = s.id
-JOIN
-    inventory_adjustment_items iat ON ia.id = iat.inventory_adjustment_id
- JOIN
-    chart_of_inventories coi ON coi.id = iat.coi_id
-             WHERE ia.store_id='$store_id'AND ia.transaction_type='decrease' AND ia.date >= '$startDate' AND ia.date <= '$endDate' AND ia.status = 'adjusted'
-";
-    }
-
-    public function productWiseReportStatement($startDate, $endDate)
+    /**
+     * @return array<int>|null null = no store restriction (HO / super)
+     */
+    private function accessibleFgStoreIds(): ?array
     {
-        $startDate = sanitizeReportDate($startDate);
-        $endDate = sanitizeReportDate($endDate);
-        return "SELECT
-    coi.name as ItemName,
-    iat.rate as Rate,
-    SUM(iat.quantity) AS Qty,
-    SUM(iat.quantity * iat.rate) AS Value
-FROM
-    inventory_adjustments ia
-JOIN
-    inventory_adjustment_items iat ON ia.id = iat.inventory_adjustment_id
- JOIN
-    chart_of_inventories coi ON coi.id = iat.coi_id
-WHERE ia.transaction_type='decrease' AND ia.date >= '$startDate' AND ia.date <= '$endDate'  AND ia.status = 'adjusted'
-GROUP BY
-    iat.coi_id
-UNION ALL
-SELECT
-    'Total' AS ItemName,
-    '' AS Rate,
-    '' AS TotalQty,
-    SUM(iat.quantity * iat.rate) AS TotalValue
-FROM
-    inventory_adjustments ia
-JOIN
-    inventory_adjustment_items iat ON ia.id = iat.inventory_adjustment_id
-WHERE
-    ia.transaction_type = 'decrease'
-    AND ia.date >= '$startDate'
-    AND ia.date <= '$endDate' AND ia.status = 'adjusted';";
+        $employee = auth()->user()?->employee;
+        if (!$employee) {
+            return null;
+        }
+
+        if ($employee->outlet_id) {
+            return Store::query()
+                ->whereType('FG')
+                ->where(['doc_type' => 'outlet', 'doc_id' => $employee->outlet_id])
+                ->pluck('id')
+                ->map(fn ($id) => (int) $id)
+                ->all();
+        }
+
+        if ($employee->factory_id) {
+            return Store::query()
+                ->whereType('FG')
+                ->where(['doc_type' => 'factory', 'doc_id' => $employee->factory_id])
+                ->pluck('id')
+                ->map(fn ($id) => (int) $id)
+                ->all();
+        }
+
+        return null;
     }
 
-    public function allStoreReportStatement($startDate, $endDate)
+    private function storeWiseRows(int $storeId, string $startDate, string $endDate): array
     {
-        $startDate = sanitizeReportDate($startDate);
-        $endDate = sanitizeReportDate($endDate);
-        return "
-(
-SELECT
-    s.name as StoreName,
-    FORMAT(SUM(iat.quantity * iat.rate),2) AS Value
-FROM
-    inventory_adjustments ia
-JOIN
-stores s ON ia.store_id = s.id
-JOIN
-    inventory_adjustment_items iat ON ia.id = iat.inventory_adjustment_id
- JOIN
-    chart_of_inventories coi ON coi.id = iat.coi_id
-WHERE ia.transaction_type='decrease' AND ia.date >= '$startDate' AND ia.date <= '$endDate' AND ia.status = 'adjusted'
-GROUP BY
-    ia.store_id
-ORDER BY  s.doc_id
-)
-UNION ALL
-(
-SELECT
-    'Total' AS StoreName,
-    FORMAT(SUM(iat.quantity * iat.rate),2) AS TotalValue
-FROM
-    inventory_adjustments ia
-    JOIN
-stores s ON ia.store_id = s.id
-JOIN
-    inventory_adjustment_items iat ON ia.id = iat.inventory_adjustment_id
-WHERE
-    ia.transaction_type = 'decrease'
-    AND ia.date >= '$startDate'
-    AND ia.date <= '$endDate'
-    AND ia.status = 'adjusted'
-);";
+        $rows = DB::select(
+            "SELECT
+                ia.date AS Date,
+                coi.name AS ItemName,
+                ROUND(AVG(iat.rate), 2) AS Rate,
+                ROUND(SUM(iat.quantity), 2) AS Qty,
+                ROUND(SUM(iat.quantity * iat.rate), 2) AS Value
+            FROM inventory_adjustments ia
+            INNER JOIN inventory_adjustment_items iat ON ia.id = iat.inventory_adjustment_id
+            INNER JOIN chart_of_inventories coi ON coi.id = iat.coi_id
+            WHERE ia.store_id = ?
+              AND ia.type = 'FG'
+              AND ia.transaction_type = 'decrease'
+              AND ia.status = 'adjusted'
+              AND ia.date BETWEEN ? AND ?
+            GROUP BY ia.date, iat.coi_id, coi.name
+            ORDER BY ia.date, coi.name",
+            [$storeId, $startDate, $endDate]
+        );
+
+        return $this->appendTotalRow($rows, ['Date' => 'Total', 'ItemName' => '', 'Rate' => '', 'Qty' => ''], 'Value');
+    }
+
+    private function productWiseRows(string $startDate, string $endDate, ?array $allowedStoreIds): array
+    {
+        $bindings = [$startDate, $endDate];
+        $storeFilter = '';
+
+        if (is_array($allowedStoreIds)) {
+            if (count($allowedStoreIds) === 0) {
+                return [];
+            }
+            $placeholders = implode(',', array_fill(0, count($allowedStoreIds), '?'));
+            $storeFilter = " AND ia.store_id IN ($placeholders) ";
+            $bindings = array_merge($bindings, $allowedStoreIds);
+        }
+
+        $rows = DB::select(
+            "SELECT
+                coi.name AS ItemName,
+                ROUND(AVG(iat.rate), 2) AS Rate,
+                ROUND(SUM(iat.quantity), 2) AS Qty,
+                ROUND(SUM(iat.quantity * iat.rate), 2) AS Value
+            FROM inventory_adjustments ia
+            INNER JOIN inventory_adjustment_items iat ON ia.id = iat.inventory_adjustment_id
+            INNER JOIN chart_of_inventories coi ON coi.id = iat.coi_id
+            WHERE ia.type = 'FG'
+              AND ia.transaction_type = 'decrease'
+              AND ia.status = 'adjusted'
+              AND ia.date BETWEEN ? AND ?
+              $storeFilter
+            GROUP BY iat.coi_id, coi.name
+            ORDER BY coi.name",
+            $bindings
+        );
+
+        return $this->appendTotalRow($rows, ['ItemName' => 'Total', 'Rate' => '', 'Qty' => ''], 'Value');
+    }
+
+    private function allStoreRows(string $startDate, string $endDate, ?array $allowedStoreIds): array
+    {
+        $bindings = [$startDate, $endDate];
+        $storeFilter = '';
+
+        if (is_array($allowedStoreIds)) {
+            if (count($allowedStoreIds) === 0) {
+                return [];
+            }
+            $placeholders = implode(',', array_fill(0, count($allowedStoreIds), '?'));
+            $storeFilter = " AND ia.store_id IN ($placeholders) ";
+            $bindings = array_merge($bindings, $allowedStoreIds);
+        }
+
+        $rows = DB::select(
+            "SELECT
+                s.name AS StoreName,
+                ROUND(SUM(iat.quantity * iat.rate), 2) AS Value
+            FROM inventory_adjustments ia
+            INNER JOIN stores s ON ia.store_id = s.id
+            INNER JOIN inventory_adjustment_items iat ON ia.id = iat.inventory_adjustment_id
+            WHERE ia.type = 'FG'
+              AND ia.transaction_type = 'decrease'
+              AND ia.status = 'adjusted'
+              AND ia.date BETWEEN ? AND ?
+              $storeFilter
+            GROUP BY ia.store_id, s.name
+            ORDER BY s.name",
+            $bindings
+        );
+
+        return $this->appendTotalRow($rows, ['StoreName' => 'Total'], 'Value');
+    }
+
+    private function appendTotalRow(array $rows, array $labels, string $valueKey): array
+    {
+        if (count($rows) === 0) {
+            return [];
+        }
+
+        $total = 0;
+        foreach ($rows as $row) {
+            $total += (float) ($row->{$valueKey} ?? 0);
+        }
+
+        $totalRow = (object) array_merge($labels, [
+            $valueKey => round($total, 2),
+        ]);
+        $rows[] = $totalRow;
+
+        return $rows;
     }
 }

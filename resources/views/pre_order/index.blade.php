@@ -387,16 +387,27 @@
         $(document).on("click", "#excel-btn", function (e) {
             e.preventDefault();
 
-            let form = $("#excelForm");
+            var form = $("#excelForm");
+            form.find('input[data-export-filter="1"]').remove();
 
-            let filterBy = $('select[name="filter_by"]');
-            let status = $('select[name="status"]');
-            let outletId = $('select[name="outlet_id"]');
-            let fromDate = $('input[name="from_date"]');
-            let toDate = $('input[name="to_date"]');
+            var filters = {
+                filter_by: $('select[name="filter_by"]').val() || '',
+                status: $('select[name="status"]').val() || '',
+                outlet_id: $('select[name="outlet_id"]').val() || '',
+                from_date: $('input[name="from_date"]').val() || '',
+                to_date: $('input[name="to_date"]').val() || ''
+            };
 
-            form.append(filterBy,status,outletId,fromDate,fromDate,toDate)
-            form.submit();
+            Object.keys(filters).forEach(function (key) {
+                $('<input>', {
+                    type: 'hidden',
+                    name: key,
+                    value: filters[key],
+                    'data-export-filter': '1'
+                }).appendTo(form);
+            });
+
+            form.trigger('submit');
         });
 
     </script>
