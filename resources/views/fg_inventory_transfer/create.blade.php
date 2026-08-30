@@ -383,6 +383,20 @@
                             return false;
 
                         }
+                        if (!vm.to_store_id) {
+                            toastr.error('Select To Store', {
+                                closeButton: true,
+                                progressBar: true,
+                            });
+                            return false;
+                        }
+                        if (String(vm.from_store_id) === String(vm.to_store_id)) {
+                            toastr.error('From and To store must differ', {
+                                closeButton: true,
+                                progressBar: true,
+                            });
+                            return false;
+                        }
                         if (!vm.item_id) {
                             toastr.error('Enter product', {
                                 closeButton: true,

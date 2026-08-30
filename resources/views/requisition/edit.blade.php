@@ -341,29 +341,29 @@
                 methods: {
 
                     fetch_item() {
-
                         var vm = this;
-
                         var slug = vm.group_id;
-                        //    alert(slug);
-                        if (slug) {
-                            axios.get(this.config.get_items_info_by_group_id_url + '/' + slug).then(function (response) {
+                        vm.products = [];
+                        vm.item_id = '';
 
-                                vm.products = response.data.products;
-                                vm.pageLoading = false;
+                        if (!slug) {
+                            return;
+                        }
 
-                            }).catch(function (error) {
-
-                                toastr.error('Something went to wrong', {
+                        vm.pageLoading = true;
+                        axios.get(this.config.get_items_info_by_group_id_url + '/' + slug)
+                            .then(function (response) {
+                                vm.products = response.data.products || [];
+                            })
+                            .catch(function () {
+                                toastr.error('Unable to load items', {
                                     closeButton: true,
                                     progressBar: true,
                                 });
-
-                                return false;
-
+                            })
+                            .finally(function () {
+                                vm.pageLoading = false;
                             });
-                        }
-
                     },
                     data_input() {
 
@@ -378,7 +378,8 @@
                             return false;
 
                         } else {
-                            vm.isDisabled = true
+                            vm.isDisabled = true;
+                            vm.pageLoading = true;
                             let slug = vm.item_id;
                             let exists = vm.items.some(function (field) {
                                 return field.coi_id == slug
@@ -389,14 +390,14 @@
                                     closeButton: true,
                                     progressBar: true,
                                 });
-                                vm.isDisabled = false
+                                vm.isDisabled = false;
+                                vm.pageLoading = false;
                                 return
                             } else {
                                 if (slug) {
                                     axios.get(this.config.get_item_info_url + '/' + slug).then(function (response) {
 
                                         let product_details = response.data;
-                                        console.log(product_details);
                                         vm.items.push({
                                             coi_id: product_details.coi_id,
                                             group: product_details.group,
@@ -410,16 +411,16 @@
 
                                         vm.item_id = '';
                                         vm.group_id = '';
-                                        vm.isDisabled = false
-                                    }).catch(function (error) {
+                                        vm.isDisabled = false;
+                                    }).catch(function () {
 
-                                        toastr.error('Something went to wrong', {
+                                        toastr.error('Unable to load item', {
                                             closeButton: true,
                                             progressBar: true,
                                         });
-                                        vm.isDisabled = false
-                                        return false;
-
+                                    }).finally(function () {
+                                        vm.isDisabled = false;
+                                        vm.pageLoading = false;
                                     });
                                 }
 
@@ -435,23 +436,27 @@
                         var vm = this;
                         var slug = vm.requisition_id;
                         vm.pageLoading = true;
-                        axios.get(this.config.get_old_items_data + '/' + slug).then(function (response) {
-                            var item = response.data.items;
-                            for (key in item) {
-                                vm.items.push(item[key]);
-                            }
-                            ;
-                            vm.store_id = response.data.store_id;
-                            vm.date = response.data.date;
-                            vm.reference_no = response.data.reference_no;
-                            vm.remark = response.data.remark;
-                            vm.pageLoading = false;
-                        })
-
+                        axios.get(this.config.get_old_items_data + '/' + slug)
+                            .then(function (response) {
+                                vm.items = Object.values(response.data.items || {});
+                                vm.from_store_id = response.data.from_store_id || vm.from_store_id;
+                                vm.to_store_id = response.data.to_store_id || vm.to_store_id;
+                                vm.date = response.data.date || vm.date;
+                                vm.reference_no = response.data.reference_no || '';
+                                vm.remark = response.data.remark || '';
+                            })
+                            .catch(function () {
+                                toastr.error('Unable to load requisition', {
+                                    closeButton: true,
+                                    progressBar: true,
+                                });
+                            })
+                            .finally(function () {
+                                vm.pageLoading = false;
+                            });
                     },
                     valid: function (index) {
 
-                        console.log(index.requisition_quantity);
                         if (index.requisition_quantity <= 0) {
                             toastr.error('Quantity 0 or Negative not Allow', {
                                 closeButton: true,
