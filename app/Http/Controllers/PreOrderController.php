@@ -13,6 +13,7 @@ use App\Models\Outlet;
 use App\Models\PreOrder;
 use App\Models\PreOrderItem;
 use App\Models\Production;
+use App\Models\Sale;
 use App\Models\Store;
 use App\Models\Supplier;
 use App\Models\SupplierGroup;
@@ -239,13 +240,11 @@ class PreOrderController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(PreOrder $preOrder)
+    public function show($id)
     {
-        $data = [
-            'model' => $preOrder,
-        ];
-
-        return view('pre_order.show', $data);
+        return view('pre_order.show', [
+            'model' => $this->loadPreOrderForDisplay((int) $id),
+        ]);
     }
 
     /**
@@ -474,5 +473,100 @@ class PreOrderController extends Controller
         }
         Toastr::success('Pre Order Status Updated Successfully!.', '', ["progressBar" => true]);
         return redirect()->route('pre-orders.index');
+    }
+
+    private function loadPreOrderForDisplay(int $id): PreOrder
+    {
+        $preOrder = PreOrder::query()
+            ->select([
+                'id',
+                'order_number',
+                'order_date',
+                'delivery_date',
+                'delivery_time',
+                'size',
+                'flavour',
+                'cake_message',
+                'remark',
+                'status',
+                'subtotal',
+                'discount',
+                'grand_total',
+                'advance_amount',
+                'customer_id',
+                'outlet_id',
+                'delivery_point_id',
+                'sale_id',
+                'image',
+            ])
+            ->with([
+                'customer:id,name,mobile,type',
+                'attachments:id,pre_order_id,image',
+            ])
+            ->findOrFail($id);
+
+        $outletIds = array_values(array_unique(array_filter([
+            $preOrder->outlet_id,
+            $preOrder->delivery_point_id,
+        ])));
+
+        if ($outletIds !== []) {
+            $outlets = Outlet::query()
+                ->whereIn('id', $outletIds)
+                ->get(['id', 'name'])
+                ->keyBy('id');
+
+            $preOrder->setRelation('outlet', $outlets->get($preOrder->outlet_id));
+            $preOrder->setRelation('deliveryPoint', $outlets->get($preOrder->delivery_point_id));
+        } else {
+            $preOrder->setRelation('outlet', null);
+            $preOrder->setRelation('deliveryPoint', null);
+        }
+
+        $preOrder->setRelation(
+            'sale',
+            $preOrder->sale_id
+                ? Sale::query()
+                    ->select(['id', 'delivery_charge', 'additional_charge'])
+                    ->find($preOrder->sale_id)
+                : null
+        );
+
+        $preOrder->setRelation('items', $this->loadPreOrderLineItems($preOrder->id));
+
+        return $preOrder;
+    }
+
+    private function loadPreOrderLineItems(int $preOrderId)
+    {
+        return DB::table('pre_order_items as items')
+            ->join('chart_of_inventories as coi', 'items.coi_id', '=', 'coi.id')
+            ->leftJoin('chart_of_inventories as grp', 'coi.parent_id', '=', 'grp.id')
+            ->leftJoin('units', 'coi.unit_id', '=', 'units.id')
+            ->where('items.pre_order_id', $preOrderId)
+            ->orderBy('items.id')
+            ->get([
+                'items.id',
+                'items.quantity',
+                'items.unit_price',
+                'items.discount',
+                'coi.name as coi_name',
+                'grp.name as group_name',
+                'units.name as unit_name',
+            ])
+            ->map(fn ($row) => (object) [
+                'id' => $row->id,
+                'quantity' => $row->quantity,
+                'unit_price' => $row->unit_price,
+                'discount' => $row->discount,
+                'coi' => (object) [
+                    'name' => $row->coi_name,
+                    'parent' => $row->group_name ? (object) ['name' => $row->group_name] : null,
+                    'unit' => $row->unit_name ? (object) ['name' => $row->unit_name] : null,
+                ],
+                'product' => (object) [
+                    'unit' => $row->unit_name ? (object) ['name' => $row->unit_name] : null,
+                ],
+            ]);
     }
 }

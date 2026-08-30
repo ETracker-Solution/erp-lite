@@ -248,23 +248,111 @@ class SalesDeliveryController extends Controller
 
     public function show(string $id)
     {
-        $sale = OthersOutletSale::query()
-            ->with([
-                'deliveryPoint:id,name',
-                'outlet:id,name',
-                'customer:id,name,mobile',
-                'items.coi:id,name,parent_id,unit_id',
-                'items.coi.parent:id,name',
-                'items.coi.unit:id,name',
-            ])
-            ->findOrFail(decrypt($id));
+        $sale = $this->loadSaleForDisplay((int) decrypt($id));
 
         return view('sales_delivery.show', compact('sale'));
     }
 
     public function getItemData($id)
     {
-        return OthersOutletSale::with('deliveryPoint', 'outlet', 'items.coi', 'customer')->findOrFail($id);
+        return OthersOutletSale::query()
+            ->select([
+                'id',
+                'invoice_number',
+                'date',
+                'status',
+                'discount',
+                'grand_total',
+                'receive_amount',
+                'delivery_charge',
+                'additional_charge',
+                'customer_id',
+            ])
+            ->with([
+                'customer:id,name,mobile',
+                'items' => fn ($query) => $query->select([
+                    'id',
+                    'others_outlet_sale_id',
+                    'product_id',
+                    'quantity',
+                    'discount',
+                ]),
+            ])
+            ->findOrFail($id);
+    }
+
+    private function loadSaleForDisplay(int $id): OthersOutletSale
+    {
+        $sale = OthersOutletSale::query()
+            ->select([
+                'id',
+                'invoice_number',
+                'date',
+                'status',
+                'grand_total',
+                'receive_amount',
+                'delivery_point_receive_amount',
+                'outlet_id',
+                'delivery_point_id',
+                'customer_id',
+            ])
+            ->with([
+                'customer:id,name,mobile',
+            ])
+            ->findOrFail($id);
+
+        $outletIds = array_values(array_unique(array_filter([
+            $sale->outlet_id,
+            $sale->delivery_point_id,
+        ])));
+
+        if ($outletIds !== []) {
+            $outlets = Outlet::query()
+                ->whereIn('id', $outletIds)
+                ->get(['id', 'name'])
+                ->keyBy('id');
+
+            $sale->setRelation('outlet', $outlets->get($sale->outlet_id));
+            $sale->setRelation('deliveryPoint', $outlets->get($sale->delivery_point_id));
+        } else {
+            $sale->setRelation('outlet', null);
+            $sale->setRelation('deliveryPoint', null);
+        }
+
+        $sale->setRelation(
+            'items',
+            $this->loadSaleLineItems($sale->id)
+        );
+
+        return $sale;
+    }
+
+    private function loadSaleLineItems(int $saleId)
+    {
+        return DB::table('others_outlet_sale_items as items')
+            ->join('chart_of_inventories as coi', 'items.product_id', '=', 'coi.id')
+            ->leftJoin('chart_of_inventories as grp', 'coi.parent_id', '=', 'grp.id')
+            ->leftJoin('units', 'coi.unit_id', '=', 'units.id')
+            ->where('items.others_outlet_sale_id', $saleId)
+            ->orderBy('items.id')
+            ->get([
+                'items.id',
+                'items.quantity',
+                'items.unit_price',
+                'coi.name as coi_name',
+                'grp.name as group_name',
+                'units.name as unit_name',
+            ])
+            ->map(fn ($row) => (object) [
+                'id' => $row->id,
+                'quantity' => $row->quantity,
+                'unit_price' => $row->unit_price,
+                'coi' => (object) [
+                    'name' => $row->coi_name,
+                    'parent' => $row->group_name ? (object) ['name' => $row->group_name] : null,
+                    'unit' => $row->unit_name ? (object) ['name' => $row->unit_name] : null,
+                ],
+            ]);
     }
 
     public function print()

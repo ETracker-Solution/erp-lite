@@ -1,164 +1,209 @@
 @extends('layouts.app')
-@section('title')
-    Pre Order Details
-@endsection
+
+@section('title', 'Pre Order Details')
+
 @section('content')
-    <!-- Content Wrapper. Contains page content -->
-    <!-- Content Header (Page header) -->
-    <section class="content-header">
-        <div class="container-fluid">
-            <div class="row mb-2" style="background: #343A40; padding:8px; border-radius:6px; color:white">
-                <div class="col-sm-6">
-                    <h1>Pre Order</h1>
-                </div>
-                <div class="col-sm-6">
-                    <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a href="#">Home</a></li>
-                        <li class="breadcrumb-item active">Pre Order</li>
-                    </ol>
-                </div>
-            </div>
-        </div><!-- /.container-fluid -->
-    </section>
+    @php
+        $links = [
+            'Home' => route('dashboard'),
+            'Pre Orders' => route('pre-orders.index'),
+            'Details' => '',
+        ];
+        $deliveryTime = $model->delivery_time
+            ? \Carbon\Carbon::parse($model->delivery_time)->format('h:i A')
+            : '—';
+        $customerMobile = ($model->customer?->type ?? '') === 'default'
+            ? null
+            : $model->customer?->mobile;
+        $deliveryCharge = (float) ($model->sale->delivery_charge ?? 0);
+        $additionalCharge = (float) ($model->sale->additional_charge ?? 0);
+    @endphp
+    <x-breadcrumb title="Pre Order" :links="$links"/>
 
     <section class="content">
         <div class="container-fluid">
             <div class="row">
-                <div class="col-12">
-                    <!-- Main content -->
+                <div class="col-lg-10 offset-lg-1">
                     <div class="card card-info">
-                        <!-- title row -->
                         <div class="card-header">
-                            <h3 class="card-title">Pre Order Details</h3>
-                            <a href="{{route('pre-order.pdf',$model->id)}}"
-                               class="btn btn-sm btn-primary float-right" target="_blank"><i class="fa fa-download"></i>
-                                PDF</a>
-                        </div>
-                        <!-- info row -->
-                        <!-- /.row -->
-                        <div class="row invoice-info">
-                            <div class="col-sm-4 invoice-col pl-4" style="padding: 10px">
-                                <b>Delivery Date :</b> {{ $model->delivery_date }}, <br>
-                                <b>Delivery Time :</b> {{ $model->delivery_time ? \Carbon\Carbon::parse($model->delivery_time)->format('h:i A') : 'N/A'}}, <br>
-                                <b>Size and Shape:</b> {{ $model->size }}, <br>
-                                <b>Flavour :</b> {{ $model->flavour }}, <br>
-                                <b>Cake Message :</b> {{ $model->cake_message }}, <br>
-                                <b>Description :</b> {{ $model->remark }}.
+                            <h3 class="card-title mb-0">
+                                Order {{ $model->order_number ?: ('#'.$model->id) }}
+                                <span class="ml-2">{!! showStatus($model->status) !!}</span>
+                            </h3>
+                            <div class="card-tools">
+                                <a href="{{ route('pre-orders.index') }}" class="btn btn-sm btn-primary">
+                                    <i class="fa fa-list"></i> List
+                                </a>
+                                <a href="{{ route('pre-order.pdf', $model->id) }}"
+                                   class="btn btn-sm btn-secondary" target="_blank">
+                                    <i class="fa fa-download"></i> PDF
+                                </a>
                             </div>
-                            <!-- /.col -->
-                            <div class="col-sm-4 invoice-col pl-4" style="padding: 10px">
-                                <b>Order No :</b> {{ $model->order_number }}, <br>
-                                <b>Customer :</b> {{ $model->customer->name }}, <br>
-                                <b>Customer Number:</b> {{ $model->customer->type == 'default' ? 'N/A' : $model->customer->mobile }}, <br>
-                                <b>From Outlet :</b> {{ $model->outlet ? $model->outlet->name : '' }}, <br>
-                                <b>Delivery Point :</b> {{ $model->deliveryPoint ? $model->deliveryPoint->name : '' }}, <br>
-                            </div>
-                            <!-- /.col -->
-                            <!-- /.col -->
                         </div>
-                        <!-- Table row -->
-                        <div class="row">
-                            <div class="col-12 table-responsive">
-                                <table class="table table-striped">
-                                    <thead>
+                        <div class="card-body">
+                            <div class="row mb-3">
+                                <div class="col-md-3">
+                                    <div class="small text-muted text-uppercase">Order Date</div>
+                                    <div class="font-weight-bold">{{ $model->order_date ?: '—' }}</div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="small text-muted text-uppercase">Delivery Date</div>
+                                    <div class="font-weight-bold">{{ $model->delivery_date ?: '—' }}</div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="small text-muted text-uppercase">Delivery Time</div>
+                                    <div class="font-weight-bold">{{ $deliveryTime }}</div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="small text-muted text-uppercase">Advance Paid</div>
+                                    <div class="font-weight-bold">{{ number_format((float) $model->advance_amount, 2) }}</div>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-md-3">
+                                    <div class="small text-muted text-uppercase">Customer</div>
+                                    <div class="font-weight-bold">
+                                        {{ $model->customer->name ?? '—' }}
+                                        @if($customerMobile)
+                                            <span class="text-muted">({{ $customerMobile }})</span>
+                                        @endif
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="small text-muted text-uppercase">From Outlet</div>
+                                    <div class="font-weight-bold">{{ $model->outlet->name ?? '—' }}</div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="small text-muted text-uppercase">Delivery Point</div>
+                                    <div class="font-weight-bold">{{ $model->deliveryPoint->name ?? '—' }}</div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="small text-muted text-uppercase">Grand Total</div>
+                                    <div class="font-weight-bold text-primary" style="font-size:1.25rem;">
+                                        {{ number_format((float) $model->grand_total, 2) }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            @if($model->size || $model->flavour || $model->cake_message || $model->remark)
+                                <div class="row mb-3">
+                                    @if($model->size)
+                                        <div class="col-md-3">
+                                            <div class="small text-muted text-uppercase">Size &amp; Shape</div>
+                                            <div class="font-weight-bold">{{ $model->size }}</div>
+                                        </div>
+                                    @endif
+                                    @if($model->flavour)
+                                        <div class="col-md-3">
+                                            <div class="small text-muted text-uppercase">Flavour</div>
+                                            <div class="font-weight-bold">{{ $model->flavour }}</div>
+                                        </div>
+                                    @endif
+                                    @if($model->cake_message)
+                                        <div class="col-md-3">
+                                            <div class="small text-muted text-uppercase">Cake Message</div>
+                                            <div class="font-weight-bold">{{ $model->cake_message }}</div>
+                                        </div>
+                                    @endif
+                                    @if($model->remark)
+                                        <div class="col-md-3">
+                                            <div class="small text-muted text-uppercase">Remark</div>
+                                            <div class="font-weight-bold">{{ $model->remark }}</div>
+                                        </div>
+                                    @endif
+                                </div>
+                            @endif
+
+                            <div class="table-responsive mb-3">
+                                <table class="table table-bordered table-sm mb-0">
+                                    <thead class="thead-light">
                                     <tr>
-                                        <th>#</th>
+                                        <th style="width:5%">#</th>
                                         <th>Group</th>
                                         <th>Item</th>
-                                        <th>Rate</th>
-                                        <th>Qty</th>
-                                        <th>Discount</th>
-                                        <th class="text-right">Item Total</th>
+                                        <th>Unit</th>
+                                        <th class="text-right">Qty</th>
+                                        <th class="text-right">Rate</th>
+                                        <th class="text-right">Discount</th>
+                                        <th class="text-right">Value</th>
                                     </tr>
                                     </thead>
                                     <tbody>
-                                    @foreach ($model->items as $item)
+                                    @forelse ($model->items as $item)
+                                        @php
+                                            $qty = (float) ($item->quantity ?? 0);
+                                            $rate = (float) ($item->unit_price ?? 0);
+                                            $discount = (float) ($item->discount ?? 0);
+                                            $lineTotal = ($qty * $rate) - $discount;
+                                        @endphp
                                         <tr>
                                             <td>{{ $loop->iteration }}</td>
-                                            <td>{{ $item->coi->parent ? $item->coi->parent->name : '' }}</td>
-                                            <td>{{ $item->coi ? $item->coi->name : '' }}</td>
-                                            <td>{{ $item->unit_price }}</td>
-                                            <td>{{ $item->quantity?? '' }} {{ $item->product->unit->name?? '' }}</td>
-                                            <td>{{ $item->discount }}</td>
-                                            <td class="text-right">
-                                                <b>{{ $item->unit_price * $item->quantity }} </b>
-                                            </td>
+                                            <td>{{ $item->coi->parent->name ?? '—' }}</td>
+                                            <td>{{ $item->coi->name ?? '—' }}</td>
+                                            <td>{{ $item->coi->unit->name ?? ($item->product->unit->name ?? '—') }}</td>
+                                            <td class="text-right">{{ number_format($qty, 2) }}</td>
+                                            <td class="text-right">{{ number_format($rate, 2) }}</td>
+                                            <td class="text-right">{{ number_format($discount, 2) }}</td>
+                                            <td class="text-right">{{ number_format($lineTotal, 2) }}</td>
                                         </tr>
-                                    @endforeach
+                                    @empty
+                                        <tr>
+                                            <td colspan="8" class="text-center text-muted py-4">No items</td>
+                                        </tr>
+                                    @endforelse
                                     </tbody>
+                                    <tfoot>
+                                    <tr class="bg-light">
+                                        <th colspan="7" class="text-right">Subtotal</th>
+                                        <th class="text-right">{{ number_format((float) $model->subtotal, 2) }}</th>
+                                    </tr>
+                                    <tr>
+                                        <th colspan="7" class="text-right">Delivery Charge</th>
+                                        <th class="text-right">{{ number_format($deliveryCharge, 2) }}</th>
+                                    </tr>
+                                    <tr>
+                                        <th colspan="7" class="text-right">Additional Charge</th>
+                                        <th class="text-right">{{ number_format($additionalCharge, 2) }}</th>
+                                    </tr>
+                                    <tr>
+                                        <th colspan="7" class="text-right">Discount</th>
+                                        <th class="text-right">{{ number_format((float) $model->discount, 2) }}</th>
+                                    </tr>
+                                    <tr class="bg-light">
+                                        <th colspan="7" class="text-right">Grand Total</th>
+                                        <th class="text-right">{{ number_format((float) $model->grand_total, 2) }}</th>
+                                    </tr>
+                                    </tfoot>
                                 </table>
                             </div>
-                            <!-- /.col -->
-                        </div>
-                        <!-- /.row -->
 
-                        <div class="row">
-                            <!-- accepted payments column -->
-                            <div class="col-8">
-
-                            </div>
-                            <!-- /.col -->
-                            <div class="col-4">
-                                <div class="table-responsive">
-                                    <table class="table">
-                                        <tr>
-                                            <th style="width:50%">Subtotal:</th>
-                                            <td class="text-right">{{ $model->subtotal }}</td>
-                                        </tr>
-                                        <tr>
-                                            <th style="width:50%">Delivery Charge:</th>
-                                            <td class="text-right">{{ $model->sale->delivery_charge ?? 0 }}</td>
-                                        </tr>
-                                        <tr>
-                                            <th style="width:50%">Additional Charge:</th>
-                                            <td class="text-right">{{ $model->sale->additional_charge ?? 0 }}</td>
-                                        </tr>
-                                        <tr>
-                                            <th style="width:50%">Discount:</th>
-                                            <td class="text-right">{{ $model->discount }}</td>
-                                        </tr>
-                                        <tr>
-                                            <th style="width:50%">Grand Total</th>
-                                            <td class="text-right">{{ $model->grand_total }}</td>
-
-                                        </tr>
-                                    </table>
+                            @if($model->attachments->isNotEmpty() || $model->image)
+                                <div>
+                                    <h6 class="font-weight-bold mb-2">Attachments</h6>
+                                    <div class="d-flex flex-wrap">
+                                        @foreach($model->attachments as $attachment)
+                                            <a href="{{ asset('/upload/'.$attachment->image) }}"
+                                               target="_blank" class="mr-2 mb-2">
+                                                <img src="{{ asset('/upload/'.$attachment->image) }}"
+                                                     alt="Attachment" class="img-thumbnail"
+                                                     style="max-height:120px;">
+                                            </a>
+                                        @endforeach
+                                        @if($model->image && $model->attachments->isEmpty())
+                                            <a href="{{ asset('/upload/'.$model->image) }}" target="_blank" class="mb-2">
+                                                <img src="{{ asset('/upload/'.$model->image) }}"
+                                                     alt="Pre order image" class="img-thumbnail"
+                                                     style="max-height:120px;">
+                                            </a>
+                                        @endif
+                                    </div>
                                 </div>
-                            </div>
-                            <!-- /.col -->
+                            @endif
                         </div>
-                        <!-- /.row -->
-                        <div class="row">
-                            <div class="col-sm-12 invoice-col">
-                                @if (isset($model->attachments))
-                                    @foreach($model->attachments as $attachment)
-                                        <a target="_blank" href="{{ asset('/upload/'.$attachment->image) }}"
-                                           class="badge-light-info" target="_self">
-                                            <img src="{{ asset('/upload/'.$attachment->image) }}" class="rounded"
-                                                 alt="" width="40%">
-                                        </a>
-                                    @endforeach
-                                @else
-                                    <a target="_blank"
-                                       href="{{ asset('admin/app-assets/dummy/dammy.jpg') }}"
-                                       target="_self">
-                                    <span class="b-avatar-img">
-                                        <img src="{{ asset('admin/app-assets/dummy/dammy.jpg') }}"
-                                             width="40%" alt="">
-                                    </span>
-                                    </a>
-                                @endif
-
-                            </div>
-                        </div>
-                        <!-- this row will not appear when printing -->
                     </div>
-                    <!-- /.invoice -->
-                </div><!-- /.col -->
-            </div><!-- /.row -->
-        </div><!-- /.container-fluid -->
+                </div>
+            </div>
+        </div>
     </section>
-    <!-- /.content -->
-
-    <!-- /.content-wrapper -->
 @endsection
