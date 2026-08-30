@@ -12,7 +12,7 @@ use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Facades\DataTables;
-use niklasravnsborg\LaravelPdf\Facades\Pdf;
+use Mccarlosen\LaravelMpdf\Facades\LaravelMpdf as Pdf;
 
 class JournalVoucherController extends Controller
 {

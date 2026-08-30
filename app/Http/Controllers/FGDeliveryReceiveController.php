@@ -10,7 +10,7 @@ use App\Models\Store;
 use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use niklasravnsborg\LaravelPdf\Facades\Pdf;
+use Mccarlosen\LaravelMpdf\Facades\LaravelMpdf as Pdf;
 use Yajra\DataTables\Facades\DataTables;
 
 class FGDeliveryReceiveController extends Controller

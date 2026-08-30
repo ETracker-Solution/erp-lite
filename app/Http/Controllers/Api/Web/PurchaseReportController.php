@@ -9,7 +9,7 @@ use App\Models\InventoryTransaction;
 use App\Models\Store;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
-use niklasravnsborg\LaravelPdf\Facades\Pdf;
+use Mccarlosen\LaravelMpdf\Facades\LaravelMpdf as Pdf;
 
 class PurchaseReportController extends Controller
 {

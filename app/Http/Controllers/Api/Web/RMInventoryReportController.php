@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\ChartOfInventory;
 use App\Models\Store;
 use Illuminate\Support\Facades\DB;
-use niklasravnsborg\LaravelPdf\Facades\Pdf;
+use Mccarlosen\LaravelMpdf\Facades\LaravelMpdf as Pdf;
 
 class RMInventoryReportController extends Controller
 {

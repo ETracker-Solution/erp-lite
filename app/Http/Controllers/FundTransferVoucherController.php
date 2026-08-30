@@ -18,7 +18,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Termwind\Components\Raw;
 use Yajra\DataTables\Facades\DataTables;
-use niklasravnsborg\LaravelPdf\Facades\Pdf;
+use Mccarlosen\LaravelMpdf\Facades\LaravelMpdf as Pdf;
 
 class FundTransferVoucherController extends Controller
 {

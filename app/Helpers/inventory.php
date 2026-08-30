@@ -22,7 +22,7 @@ function addInventoryTransaction(int $type, string $doc_type, $doc)
     ]);
 }
 
-function availableInventoryBalance(int $item_id, int $store_id = null, bool $lock = false)
+function availableInventoryBalance(int $item_id, ?int $store_id = null, bool $lock = false)
 {
     $query = InventoryTransaction::where('coi_id', $item_id);
     if ($store_id) {
@@ -35,7 +35,7 @@ function availableInventoryBalance(int $item_id, int $store_id = null, bool $loc
         ->value('total_sum') ?? 0;
 }
 
-function averageInventoryRate(int $item_id, int $store_id = null)
+function averageInventoryRate(int $item_id, ?int $store_id = null)
 {
     $query = InventoryTransaction::where(['coi_id' => $item_id, 'type' => 1]);
     if ($store_id) {
@@ -46,12 +46,12 @@ function averageInventoryRate(int $item_id, int $store_id = null)
     return ($data && $data->totalQuantity != 0) ? $data->totalAmount / $data->totalQuantity : 0;
 }
 
-function averageRMRate(int $item_id, int $store_id = null)
+function averageRMRate(int $item_id, ?int $store_id = null)
 {
     return averageInventoryRate($item_id, $store_id);
 }
 
-function averageFGRate(int $item_id, int $store_id = null)
+function averageFGRate(int $item_id, ?int $store_id = null)
 {
     return averageInventoryRate($item_id, $store_id);
 }
@@ -59,7 +59,7 @@ function averageFGRate(int $item_id, int $store_id = null)
 /**
  * Batch average FG rates for many products (matches averageFGRate()).
  */
-function averageFGRates($productIds, int $store_id = null): array
+function averageFGRates($productIds, ?int $store_id = null): array
 {
     $productIds = collect($productIds)->filter()->unique()->values();
     if ($productIds->isEmpty()) {
@@ -113,7 +113,7 @@ function fetchStoreProductBalances(array $productIds, array $storeIds)
     return $storeProductBalances;
 }
 
-function fetchAverageRates(array $coiIds, int $store_id = null)
+function fetchAverageRates(array $coiIds, ?int $store_id = null)
 {
     // Query for RM rates
     $rmRates = InventoryTransaction::whereIn('coi_id', $coiIds)

@@ -12,7 +12,7 @@ use App\Models\SupplierPaymentVoucher;
 use App\Models\SupplierTransaction;
 use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Support\Facades\DB;
-use niklasravnsborg\LaravelPdf\Facades\Pdf;
+use Mccarlosen\LaravelMpdf\Facades\LaravelMpdf as Pdf;
 use Yajra\DataTables\Facades\DataTables;
 
 class SupplierPaymentVoucherController extends Controller

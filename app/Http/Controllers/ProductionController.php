@@ -16,7 +16,7 @@ use App\Services\ExportService;
 use Brian2694\Toastr\Facades\Toastr;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
-use niklasravnsborg\LaravelPdf\Facades\Pdf;
+use Mccarlosen\LaravelMpdf\Facades\LaravelMpdf as Pdf;
 use Yajra\DataTables\Facades\DataTables;
 
 class ProductionController extends Controller

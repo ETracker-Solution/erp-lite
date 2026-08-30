@@ -10,7 +10,7 @@ use Yajra\DataTables\Facades\DataTables;
 use App\Http\Requests\StoreReceiveVoucherRequest;
 use App\Http\Requests\UpdateReceiveVoucherRequest;
 use App\Models\AccountTransaction;
-use niklasravnsborg\LaravelPdf\Facades\Pdf;
+use Mccarlosen\LaravelMpdf\Facades\LaravelMpdf as Pdf;
 
 class ReceiveVoucherController extends Controller
 {

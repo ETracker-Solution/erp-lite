@@ -171,9 +171,13 @@ function getSettingValue($key, $default = null)
         return $memo[$key] ?? $default;
     }
 
-    $memo[$key] = Cache::remember('system_config_' . $key, 86400, function () use ($key) {
-        return \App\Models\SystemConfig::where('key', $key)->value('value');
-    });
+    try {
+        $memo[$key] = Cache::remember('system_config_' . $key, 86400, function () use ($key) {
+            return \App\Models\SystemConfig::where('key', $key)->value('value');
+        });
+    } catch (\Throwable $e) {
+        $memo[$key] = null;
+    }
 
     return $memo[$key] ?? $default;
 }
