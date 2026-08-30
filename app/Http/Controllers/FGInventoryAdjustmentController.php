@@ -73,43 +73,69 @@ class FGInventoryAdjustmentController extends Controller
         $data = $request->validated();
         DB::beginTransaction();
         try {
-            $is_factory = false;
-            $store = Store::find($data['store_id']);
-            if ($store->doc_type == 'factory') {
-                $is_factory = true;
-            }
-            $outlet_or_factory_id = $store->doc_id;
-            $data['uid'] = generateUniqueUUID($outlet_or_factory_id, InventoryAdjustment::class, 'uid', $is_factory);
+            $store = Store::findOrFail($data['store_id']);
+            $isFactory = $store->doc_type === 'factory';
+            $isHeadOffice = $store->doc_type === 'ho';
+            $data['uid'] = generateUniqueUUID(
+                $store->doc_id,
+                InventoryAdjustment::class,
+                'uid',
+                $isFactory,
+                $isHeadOffice
+            );
             $adjustment = InventoryAdjustment::create($data);
-            $adjustment->amount = $adjustment->subtotal;
+
+            $totalAmount = 0;
+            $stockType = $data['transaction_type'] === 'increase' ? 1 : -1;
+            $itemRows = [];
+            $inventoryRows = [];
+            $timestamp = now();
+
             foreach ($data['products'] as $product) {
-                $adjustment->items()->create($product);
+                $lineAmount = (float) $product['quantity'] * (float) $product['rate'];
+                $totalAmount += $lineAmount;
 
-                // Inventory Transaction Effect
+                $itemRows[] = [
+                    'inventory_adjustment_id' => $adjustment->id,
+                    'coi_id' => $product['coi_id'],
+                    'quantity' => $product['quantity'],
+                    'rate' => $product['rate'],
+                    'created_at' => $timestamp,
+                    'updated_at' => $timestamp,
+                ];
 
-                $type = $data['transaction_type'] === 'increase' ? 1 : -1;
-                InventoryTransaction::query()->create([
+                $inventoryRows[] = [
                     'store_id' => $adjustment->store_id,
                     'doc_type' => 'FGIA',
                     'doc_id' => $adjustment->id,
                     'quantity' => $product['quantity'],
                     'rate' => $product['rate'],
-                    'amount' => $product['quantity'] * $product['rate'],
+                    'amount' => $lineAmount,
                     'date' => $adjustment->date,
-                    'type' => $type,
+                    'type' => $stockType,
                     'coi_id' => $product['coi_id'],
-                ]);
-                // Accounts Transaction Effect
-                $lineAmount = $product['quantity'] * $product['rate'];
-                $adjustment->amount = $lineAmount;
-                if ($data['transaction_type'] === 'increase') {
-                    addAccountsTransaction('FGIA', $adjustment, getFGInventoryGLId(), getInventoryAdjustmentGLId());
-                } else {
-                    addAccountsTransaction('FGIA', $adjustment, getInventoryAdjustmentGLId(), getFGInventoryGLId());
-                }
-
-
+                    'created_at' => $timestamp,
+                    'updated_at' => $timestamp,
+                ];
             }
+
+            if ($itemRows !== []) {
+                InventoryAdjustmentItem::query()->insert($itemRows);
+                InventoryTransaction::query()->insert($inventoryRows);
+            }
+
+            $adjustment->subtotal = $totalAmount;
+            $adjustment->save();
+
+            $adjustment->amount = $totalAmount;
+            if ($data['transaction_type'] === 'increase') {
+                addAccountsTransaction('FGIA', $adjustment, getFGInventoryGLId(), getInventoryAdjustmentGLId());
+            } else {
+                addAccountsTransaction('FGIA', $adjustment, getInventoryAdjustmentGLId(), getFGInventoryGLId());
+            }
+
+            forgetPosTransactionAbleStockMap((int) $adjustment->store_id);
+
             DB::commit();
         } catch (\Exception $error) {
             DB::rollBack();

@@ -49,25 +49,42 @@ function addAccountsTransaction($doc_type, $doc, $debit_account_id, $credit_acco
 
 function resolveGLId(?string $settingKey, int $fallback): int
 {
+    static $resolved = [];
+    $cacheKey = ($settingKey ?? '_') . ':' . $fallback;
+    if (isset($resolved[$cacheKey])) {
+        return $resolved[$cacheKey];
+    }
+
     $id = $settingKey ? getSettingValue($settingKey) : null;
     $id = ($id !== null && $id !== '') ? (int) $id : $fallback;
 
-    static $ledgerIds = null;
-    if ($ledgerIds === null) {
+    static $validLedgerIds = [];
+    if (!array_key_exists($id, $validLedgerIds)) {
         try {
-            $ledgerIds = array_flip(
-                ChartOfAccount::where('type', 'ledger')->pluck('id')->map(fn ($v) => (int) $v)->all()
-            );
+            $validLedgerIds[$id] = ChartOfAccount::query()
+                ->where('id', $id)
+                ->where('type', 'ledger')
+                ->exists();
         } catch (\Throwable $e) {
-            $ledgerIds = [];
+            $validLedgerIds[$id] = false;
         }
     }
 
-    if ($ledgerIds && !isset($ledgerIds[$id])) {
-        return isset($ledgerIds[$fallback]) ? $fallback : $id;
+    if (!$validLedgerIds[$id]) {
+        if (!array_key_exists($fallback, $validLedgerIds)) {
+            try {
+                $validLedgerIds[$fallback] = ChartOfAccount::query()
+                    ->where('id', $fallback)
+                    ->where('type', 'ledger')
+                    ->exists();
+            } catch (\Throwable $e) {
+                $validLedgerIds[$fallback] = false;
+            }
+        }
+        $id = $validLedgerIds[$fallback] ? $fallback : $id;
     }
 
-    return $id;
+    return $resolved[$cacheKey] = $id;
 }
 
 function getOpeningBalanceOfEquityGLId()
