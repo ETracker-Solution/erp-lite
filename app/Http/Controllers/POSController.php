@@ -231,6 +231,7 @@ class POSController extends Controller
             }
 
             DB::commit();
+            forgetPosTransactionAbleStockMap($store->id);
 
         } catch (\Exception $error) {
             DB::rollBack();
@@ -317,27 +318,14 @@ class POSController extends Controller
 
         $paginator = $productsQuery->paginate($perPage, ['*'], 'page', $page);
         $products = $paginator->getCollection();
-        $productIds = $products->pluck('id');
+        $stockMap = getPosTransactionAbleStockMap($storeId);
 
-        $inventoryQuantities = $productIds->isEmpty() ? collect() : getInventoryQuantities($productIds, $storeId);
-        $requisitionQuantities = $productIds->isEmpty() ? collect() : getRequisitionQuantities($productIds, $storeId);
-        $preOrderQuantities = $productIds->isEmpty() ? collect() : getPreOrderQuantities($productIds, $storeId);
-        $transferQuantities = $productIds->isEmpty() ? collect() : getTransferQuantities($productIds, $storeId);
-
-        $data = $products->map(function ($product) use (
-            $inventoryQuantities, $requisitionQuantities, $preOrderQuantities, $transferQuantities
-        ) {
-            $productId = $product->id;
-            $stock = ($inventoryQuantities[$productId] ?? 0)
-                - ($requisitionQuantities[$productId] ?? 0)
-                - ($preOrderQuantities[$productId] ?? 0)
-                - ($transferQuantities[$productId] ?? 0);
-
+        $data = $products->map(function ($product) use ($stockMap) {
             return [
                 'id' => $product->id,
                 'name' => $product->name,
                 'price' => $product->price,
-                'stock' => round(max((float) $stock, 0), 2),
+                'stock' => $stockMap[$product->id] ?? 0,
                 'discountable' => !($product->parent?->non_discountable ?? false),
             ];
         })->values();

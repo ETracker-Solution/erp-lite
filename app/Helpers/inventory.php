@@ -4,6 +4,8 @@ use App\Models\InventoryTransaction;
 use App\Models\InventoryTransferItem;
 use App\Models\PreOrderItem;
 use App\Models\RequisitionDeliveryItem;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 function addInventoryTransaction(int $type, string $doc_type, $doc)
@@ -224,32 +226,10 @@ function transactionAbleStockOptimized($products, array $storeIds)
         ->get()
         ->keyBy('coi_id');
 
-    // Batch fetch completed requisition delivery quantities
-    $requisitionQuantities = RequisitionDeliveryItem::whereHas('requisitionDelivery', function ($query) use ($storeIds) {
-        $query->where('status', 'completed')->whereIn('from_store_id', $storeIds);
-    })
-        ->whereIn('coi_id', $productIds)
-        ->select('coi_id', DB::raw('SUM(quantity) as total_quantity'))
-        ->groupBy('coi_id')
-        ->pluck('total_quantity', 'coi_id');
-
-    // Batch fetch delivered pre-order quantities
-    $preOrderQuantities = PreOrderItem::whereHas('preOrder', function ($query) use ($storeIds) {
-        $query->where('status', 'delivered')->whereIn('factory_delivery_store_id', $storeIds);
-    })
-        ->whereIn('coi_id', $productIds)
-        ->select('coi_id', DB::raw('SUM(quantity) as total_quantity'))
-        ->groupBy('coi_id')
-        ->pluck('total_quantity', 'coi_id');
-
-    // Batch fetch pending inventory transfer quantities
-    $transferQuantities = InventoryTransferItem::whereHas('inventoryTransfer', function ($query) use ($storeIds) {
-        $query->where('status', 'pending')->whereIn('from_store_id', $storeIds)->where('type', 'FG');
-    })
-        ->whereIn('coi_id', $productIds)
-        ->select('coi_id', DB::raw('SUM(quantity) as total_quantity'))
-        ->groupBy('coi_id')
-        ->pluck('total_quantity', 'coi_id');
+    $storeId = (int) $storeIds[0];
+    $requisitionQuantities = sumRequisitionDeliveryQuantities($storeId, $productIds);
+    $preOrderQuantities = sumPreOrderQuantities($storeId, $productIds);
+    $transferQuantities = sumInventoryTransferQuantities($storeId, $productIds);
 
     // Calculate stock for each product
     return $products->map(function ($product) use ($inventoryQuantities, $requisitionQuantities, $preOrderQuantities, $transferQuantities) {
@@ -275,11 +255,19 @@ function transactionAbleStockOptimized($products, array $storeIds)
 
 function getInventoryQuantities($productIds, $storeId, $lock = false)
 {
-    $query = InventoryTransaction::whereIn('coi_id', $productIds)
+    $productIds = collect($productIds)->filter()->unique()->values();
+    if ($productIds->isEmpty()) {
+        return collect();
+    }
+
+    $query = InventoryTransaction::query()
+        ->from(DB::raw('inventory_transactions FORCE INDEX (inv_txn_coi_store_idx)'))
+        ->whereIn('coi_id', $productIds)
         ->where('store_id', $storeId);
     if ($lock) {
         $query->lockForUpdate();
     }
+
     return $query
         ->select('coi_id', DB::raw('SUM(quantity * type) as total_stock'))
         ->groupBy('coi_id')
@@ -288,33 +276,119 @@ function getInventoryQuantities($productIds, $storeId, $lock = false)
 
 function getRequisitionQuantities($productIds, $storeId)
 {
-    return RequisitionDeliveryItem::whereHas('requisitionDelivery', function ($query) use ($storeId) {
-        $query->where('status', 'completed')->whereIn('from_store_id', [$storeId]);
-    })
-        ->whereIn('coi_id', $productIds)
-        ->select('coi_id', DB::raw('SUM(quantity) as total_quantity'))
-        ->groupBy('coi_id')
-        ->pluck('total_quantity', 'coi_id');
+    return sumRequisitionDeliveryQuantities((int) $storeId, $productIds);
 }
 
 function getPreOrderQuantities($productIds, $storeId)
 {
-    return PreOrderItem::whereHas('preOrder', function ($query) use ($storeId) {
-        $query->where('status', 'delivered')->whereIn('factory_delivery_store_id', [$storeId]);
-    })
-        ->whereIn('coi_id', $productIds)
-        ->select('coi_id', DB::raw('SUM(quantity) as total_quantity'))
-        ->groupBy('coi_id')
-        ->pluck('total_quantity', 'coi_id');
+    return sumPreOrderQuantities((int) $storeId, $productIds);
 }
 
 function getTransferQuantities($productIds, $storeId)
 {
-    return InventoryTransferItem::whereHas('inventoryTransfer', function ($query) use ($storeId) {
-        $query->where('status', 'pending')->whereIn('from_store_id', [$storeId])->where('type', 'FG');
-    })
-        ->whereIn('coi_id', $productIds)
-        ->select('coi_id', DB::raw('SUM(quantity) as total_quantity'))
-        ->groupBy('coi_id')
+    return sumInventoryTransferQuantities((int) $storeId, $productIds);
+}
+
+function sumRequisitionDeliveryQuantities(int $storeId, $productIds = null): Collection
+{
+    $query = RequisitionDeliveryItem::query()
+        ->join('requisition_deliveries', 'requisition_delivery_items.requisition_delivery_id', '=', 'requisition_deliveries.id')
+        ->where('requisition_deliveries.status', 'completed')
+        ->where('requisition_deliveries.from_store_id', $storeId);
+
+    if ($productIds !== null) {
+        $productIds = collect($productIds)->filter()->unique()->values();
+        if ($productIds->isEmpty()) {
+            return collect();
+        }
+        $query->whereIn('requisition_delivery_items.coi_id', $productIds);
+    }
+
+    return $query
+        ->select('requisition_delivery_items.coi_id', DB::raw('SUM(requisition_delivery_items.quantity) as total_quantity'))
+        ->groupBy('requisition_delivery_items.coi_id')
         ->pluck('total_quantity', 'coi_id');
+}
+
+function sumPreOrderQuantities(int $storeId, $productIds = null): Collection
+{
+    $query = PreOrderItem::query()
+        ->join('pre_orders', 'pre_order_items.pre_order_id', '=', 'pre_orders.id')
+        ->where('pre_orders.status', 'delivered')
+        ->where('pre_orders.factory_delivery_store_id', $storeId);
+
+    if ($productIds !== null) {
+        $productIds = collect($productIds)->filter()->unique()->values();
+        if ($productIds->isEmpty()) {
+            return collect();
+        }
+        $query->whereIn('pre_order_items.coi_id', $productIds);
+    }
+
+    return $query
+        ->select('pre_order_items.coi_id', DB::raw('SUM(pre_order_items.quantity) as total_quantity'))
+        ->groupBy('pre_order_items.coi_id')
+        ->pluck('total_quantity', 'coi_id');
+}
+
+function sumInventoryTransferQuantities(int $storeId, $productIds = null): Collection
+{
+    $query = InventoryTransferItem::query()
+        ->join('inventory_transfers', 'inventory_transfer_items.inventory_transfer_id', '=', 'inventory_transfers.id')
+        ->where('inventory_transfers.status', 'pending')
+        ->where('inventory_transfers.from_store_id', $storeId)
+        ->where('inventory_transfers.type', 'FG');
+
+    if ($productIds !== null) {
+        $productIds = collect($productIds)->filter()->unique()->values();
+        if ($productIds->isEmpty()) {
+            return collect();
+        }
+        $query->whereIn('inventory_transfer_items.coi_id', $productIds);
+    }
+
+    return $query
+        ->select('inventory_transfer_items.coi_id', DB::raw('SUM(inventory_transfer_items.quantity) as total_quantity'))
+        ->groupBy('inventory_transfer_items.coi_id')
+        ->pluck('total_quantity', 'coi_id');
+}
+
+function getPosTransactionAbleStockMap(int $storeId): array
+{
+    static $memo = [];
+    if (isset($memo[$storeId])) {
+        return $memo[$storeId];
+    }
+
+    $memo[$storeId] = Cache::remember("pos_stock_map:{$storeId}", 30, function () use ($storeId) {
+        $inventoryQuantities = InventoryTransaction::query()
+            ->from(DB::raw('inventory_transactions FORCE INDEX (inv_txn_store_date_idx)'))
+            ->where('store_id', $storeId)
+            ->select('coi_id', DB::raw('SUM(quantity * type) as total_stock'))
+            ->groupBy('coi_id')
+            ->pluck('total_stock', 'coi_id');
+
+        $requisitionQuantities = sumRequisitionDeliveryQuantities($storeId);
+        $preOrderQuantities = sumPreOrderQuantities($storeId);
+        $transferQuantities = sumInventoryTransferQuantities($storeId);
+
+        $stockMap = [];
+        foreach ($inventoryQuantities as $coiId => $stock) {
+            $netStock = (float) $stock
+                - (float) ($requisitionQuantities[$coiId] ?? 0)
+                - (float) ($preOrderQuantities[$coiId] ?? 0)
+                - (float) ($transferQuantities[$coiId] ?? 0);
+
+            $stockMap[$coiId] = round(max($netStock, 0), 2);
+        }
+
+        return $stockMap;
+    });
+
+    return $memo[$storeId];
+}
+
+function forgetPosTransactionAbleStockMap(int $storeId): void
+{
+    Cache::forget("pos_stock_map:{$storeId}");
 }
