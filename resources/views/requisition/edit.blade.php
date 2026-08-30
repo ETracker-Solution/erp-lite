@@ -15,16 +15,17 @@
     <section class="content">
         <div class="container-fluid">
             <div class="row" id="vue_app">
-                  <span v-if="pageLoading" class="pageLoader">
-                            <img src="{{ asset('loading.gif') }}" alt="loading">
-                        </span>
-                <div class="col-lg-12 col-md-12">
+                <div v-if="pageLoading" class="pageLoader" role="status" aria-live="polite">
+                    <span class="spinner-border spinner-border-sm mr-2" aria-hidden="true"></span>
+                    Loading requisition…
+                </div>
+                <div class="col-lg-10 offset-lg-1 col-md-12">
                     <form action="{{ route('requisitions.update',$requisition->id) }}" method="POST" class="prevent-enter-submit">
                         @csrf
                         @method('PUT')
-                        <div class="card">
+                        <div class="card card-info">
                             <div class="card-header bg-info">
-                                <h3 class="card-title">FG Requisition Entry</h3>
+                                <h3 class="card-title mb-0">Edit Finished Goods Requisition</h3>
                                 <div class="card-tools">
                                     <a href="{{route('requisitions.index')}}" class="btn btn-sm btn-primary">
                                         <i class="fa fa-list" aria-hidden="true"></i> &nbsp;FG Requisition List
@@ -32,6 +33,9 @@
                                 </div>
                             </div>
                             <div class="card-body">
+                                <p class="text-muted small mb-3">
+                                    Update the route or quantities below, then save the requisition.
+                                </p>
                                 <div class="card-box">
                                     <div id="">
                                         <div class="row">
@@ -104,9 +108,9 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="card">
+                        <div class="card card-info">
                             <div class="card-header bg-info">
-                                <h3 class="card-title">FG Requisition Line Item</h3>
+                                <h3 class="card-title mb-0">Requisition Items</h3>
                                 <div class="card-tools">
                                     <a href="{{route('requisitions.index')}}">
 
@@ -159,7 +163,7 @@
                                             <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                 <hr>
                                                 <div class="table-responsive">
-                                                    <table class="table table-bordered">
+                                                    <table class="table table-bordered table-sm mb-0">
                                                         <thead class="bg-secondary">
                                                         <tr>
                                                             <th style="width: 5%">#</th>
@@ -171,9 +175,14 @@
                                                         </tr>
                                                         </thead>
                                                         <tbody>
+                                                        <tr v-if="items.length === 0 && !pageLoading">
+                                                            <td colspan="6" class="text-center text-muted py-4">
+                                                                Add at least one requisition item.
+                                                            </td>
+                                                        </tr>
                                                         <tr v-for="(row, index) in items">
                                                             <td>
-                                                                @{{ ++index }}
+                                                                @{{ index + 1 }}
                                                             </td>
                                                             <td style="vertical-align: middle">
                                                                 @{{ row.group }}
@@ -233,8 +242,11 @@
                             </div>
                             <div class="card-footer erp-save-bar">
                                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 text-right" v-if="items.length > 0">
-                                    <button class="float-right btn btn-primary" type="submit"><i
-                                            class="fa fa-fw fa-lg fa-check-circle"></i>Submit
+                                    <button class="float-right btn btn-primary" type="submit" :disabled="isDisabled || pageLoading">
+                                        <span v-if="pageLoading" class="spinner-border spinner-border-sm mr-1"
+                                              role="status" aria-hidden="true"></span>
+                                        <i v-else class="fa fa-fw fa-lg fa-check-circle"></i>
+                                        @{{ pageLoading ? 'Loading…' : 'Save Changes' }}
                                     </button>
                                 </div>
                             </div>
@@ -250,12 +262,15 @@
 @push('style')
     <style>
         .pageLoader {
-            position: absolute;
-            top: 50%;
-            right: 40%;
-            transform: translate(-50%, -50%);
-            color: red;
-            z-index: 999;
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            padding: .65rem 1rem;
+            color: #fff;
+            background: rgba(23, 43, 77, .95);
+            border-radius: .25rem;
+            box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .2);
+            z-index: 1050;
         }
 
         input[placeholder="Select date"] {

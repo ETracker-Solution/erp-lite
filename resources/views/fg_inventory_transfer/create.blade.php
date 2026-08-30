@@ -166,6 +166,11 @@
                                                         </tr>
                                                         </thead>
                                                         <tbody>
+                                                        <tr v-if="items.length === 0 && !pageLoading">
+                                                            <td colspan="9" class="text-center text-muted py-4">
+                                                                Select a store, group, and item, then click Add.
+                                                            </td>
+                                                        </tr>
                                                         <tr v-for="(row, index) in items" :key="row.coi_id">
                                                             <td>
                                                                 @{{ index + 1 }}

@@ -19,14 +19,14 @@
                     <span class="spinner-border spinner-border-sm mr-2" aria-hidden="true"></span>
                     Loading transfer items…
                 </div>
-                <div class="col-lg-12 col-md-12">
+                <div class="col-lg-10 offset-lg-1 col-md-12">
                     <form action="{{ route('fg-transfer-receives.store') }}" method="POST" class="prevent-enter-submit">
                         @csrf
                         <input type="hidden" name="submission_token"
                                value="{{ session()->get('submission_token') ?? Str::random(40) }}">
-                        <div class="card">
-                            <div class="card-header bg-info">
-                                <h3 class="card-title">FG Inventory Transfer Receive Entry</h3>
+                        <div class="card card-info">
+                            <div class="card-header">
+                                <h3 class="card-title mb-0">FG Inventory Transfer Receive</h3>
                                 <div class="card-tools">
                                     <a href="{{route('fg-transfer-receives.index')}}"
                                        class="btn btn-sm btn-primary">
@@ -35,6 +35,9 @@
                                 </div>
                             </div>
                             <div class="card-body">
+                                <p class="text-muted small mb-3">
+                                    Select a pending finished-goods transfer to review and receive its items.
+                                </p>
                                 <div class="card-box">
                                     <div id="">
                                         <div class="row">
@@ -113,9 +116,9 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="card">
-                            <div class="card-header bg-info">
-                                <h3 class="card-title">FG Requisition Line Item</h3>
+                        <div class="card card-info">
+                            <div class="card-header">
+                                <h3 class="card-title mb-0">Receive Items</h3>
                             </div>
                             <div class="card-body">
                                 <div class="card-box">
@@ -124,7 +127,7 @@
                                             <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                 <hr>
                                                 <div class="table-responsive">
-                                                    <table class="table table-bordered">
+                                                    <table class="table table-bordered table-sm mb-0">
                                                         <thead class="bg-secondary">
                                                         <tr>
                                                             <th style="width: 5%">#</th>
@@ -141,6 +144,11 @@
                                                         </tr>
                                                         </thead>
                                                         <tbody>
+                                                        <tr v-if="items.length === 0 && !pageLoading">
+                                                            <td colspan="7" class="text-center text-muted py-4">
+                                                                Select a transfer to load receive items.
+                                                            </td>
+                                                        </tr>
                                                         <tr v-for="(row, index) in items" :key="row.coi_id">
                                                             <td>
                                                                 @{{ index + 1 }}
