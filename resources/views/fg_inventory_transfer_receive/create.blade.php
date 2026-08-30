@@ -15,9 +15,10 @@
     <section class="content">
         <div class="container-fluid">
             <div class="row" id="vue_app">
-                  <span v-if="pageLoading" class="pageLoader">
-                            <img src="{{ asset('loading.gif') }}" alt="loading">
-                        </span>
+                <div v-if="pageLoading" class="pageLoader" role="status" aria-live="polite">
+                    <span class="spinner-border spinner-border-sm mr-2" aria-hidden="true"></span>
+                    Loading transfer items…
+                </div>
                 <div class="col-lg-12 col-md-12">
                     <form action="{{ route('fg-transfer-receives.store') }}" method="POST" class="prevent-enter-submit">
                         @csrf
@@ -43,7 +44,7 @@
                                                     <select name="inventory_transfer_id" id="inventory_transfer_id"
                                                             class="form-control bSelect"
                                                             v-model="inventory_transfer_id" required
-                                                            @change="load_old">
+                                                            @change="load_old($event)">
                                                         <option value="">Select One</option>
                                                         @foreach($inventory_transfers as $row)
                                                             <option value="{{ $row->id }}"
@@ -213,8 +214,11 @@
                             </div>
                             <div class="card-footer erp-save-bar">
                                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 text-right" v-if="items.length > 0">
-                                    <button class="float-right btn btn-primary" type="submit"><i
-                                            class="fa fa-fw fa-lg fa-check-circle"></i>Submit
+                                    <button class="float-right btn btn-primary" type="submit" :disabled="pageLoading">
+                                        <span v-if="pageLoading" class="spinner-border spinner-border-sm mr-1"
+                                              role="status" aria-hidden="true"></span>
+                                        <i v-else class="fa fa-fw fa-lg fa-check-circle"></i>
+                                        @{{ pageLoading ? 'Loading…' : 'Submit' }}
                                     </button>
                                 </div>
                             </div>
@@ -230,12 +234,15 @@
 @push('style')
     <style>
         .pageLoader {
-            position: absolute;
-            top: 50%;
-            right: 40%;
-            transform: translate(-50%, -50%);
-            color: red;
-            z-index: 999;
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            padding: .65rem 1rem;
+            color: #fff;
+            background: rgba(23, 43, 77, .95);
+            border-radius: .25rem;
+            box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .2);
+            z-index: 1050;
         }
 
         input[placeholder="Select date"] {
@@ -299,27 +306,36 @@
                     delete_row: function (row) {
                         this.items.splice(this.items.indexOf(row), 1);
                     },
-                    load_old() {
+                    load_old(event) {
                         var vm = this;
-                        var slug = vm.inventory_transfer_id;
+                        var slug = event && event.target ? event.target.value : vm.inventory_transfer_id;
+                        vm.inventory_transfer_id = slug;
+                        vm.items = [];
+                        if (!slug) {
+                            vm.pageLoading = false;
+                            vm.from_store_id = '';
+                            vm.to_store_id = '';
+                            vm.reference_no = '';
+                            vm.remark = '';
+                            return;
+                        }
+
                         vm.pageLoading = true;
                         axios.get(this.config.get_old_items_data + '/' + slug).then(function (response) {
-                            vm.items = [];
-
-                            var item = response.data.items;
-                            console.log(response.data);
-                            for (key in item) {
-                                vm.items.push(item[key]);
-                            }
-                            ;
+                            vm.items = Object.values(response.data.items || {});
                             vm.from_store_id = response.data.from_store_id;
-                            console.log(vm.from_store_id)
                             vm.to_store_id = response.data.to_store_id;
                             vm.date = response.data.date;
                             vm.reference_no = response.data.reference_no;
                             vm.remark = response.data.remark;
                             vm.pageLoading = false;
-                        })
+                        }).catch(function () {
+                            vm.pageLoading = false;
+                            toastr.error('Failed to load transfer items', {
+                                closeButton: true,
+                                progressBar: true,
+                            });
+                        });
 
                     },
                     valid: function (index) {

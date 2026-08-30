@@ -44,10 +44,12 @@
                                         <div class="form-group">
                                             <label for="requisition_id">Requisition (FGR) <span class="text-danger">*</span></label>
                                             <select name="requisition_id" id="requisition_id" class="form-control bSelect"
-                                                    v-model="requisition_id" required @change="onRequisitionChange">
+                                                    v-model="requisition_id" required @change="onRequisitionChange($event)">
                                                 <option value="">Select requisition</option>
                                                 @foreach($requisitions as $row)
                                                     <option value="{{ $row->id }}"
+                                                        data-from-store-id="{{ $row->from_store_id }}"
+                                                        data-to-store-id="{{ $row->to_store_id }}"
                                                         {{ $prefillRequisitionId === (string) $row->id ? 'selected' : '' }}>
                                                         {{ $row->uid ?: ('#'.$row->id) }}
                                                         @if($row->date) — {{ $row->date }}@endif
@@ -252,14 +254,35 @@
                     delete_row: function (row) {
                         this.items.splice(this.items.indexOf(row), 1);
                     },
-                    onRequisitionChange: function () {
+                    onRequisitionChange: function (event) {
                         var vm = this;
-                        if (!vm.requisition_id) {
+                        var selectedId = event && event.target ? event.target.value : vm.requisition_id;
+                        vm.requisition_id = selectedId;
+                        vm.pageLoading = true;
+
+                        if (!selectedId) {
                             vm.items = [];
+                            vm.pageLoading = false;
                             return;
                         }
-                        vm.pageLoading = true;
-                        axios.get(this.config.get_old_items_data + '/' + vm.requisition_id)
+
+                        var select = document.getElementById('requisition_id');
+                        var option = select && select.options ? select.options[select.selectedIndex] : null;
+                        var factoryStoreId = option ? option.getAttribute('data-to-store-id') : '';
+                        var outletStoreId = option ? option.getAttribute('data-from-store-id') : '';
+
+                        // The option already contains the requisition stores, so load items once.
+                        if (factoryStoreId) {
+                            vm.from_store_id = String(factoryStoreId);
+                            vm.to_store_id = String(outletStoreId || '');
+                            vm.$nextTick(function () {
+                                $('.bSelect').selectpicker('refresh');
+                                vm.reloadItems();
+                            });
+                            return;
+                        }
+
+                        axios.get(this.config.get_old_items_data + '/' + selectedId)
                             .then(function (response) {
                                 // Delivery: Factory (requisition.to) -> Outlet (requisition.from)
                                 vm.from_store_id = String(response.data.to_store_id || '');
@@ -283,6 +306,7 @@
                     reloadItems: function () {
                         var vm = this;
                         if (!vm.requisition_id) {
+                            vm.pageLoading = false;
                             return;
                         }
                         vm.pageLoading = true;
@@ -292,6 +316,9 @@
                         }
                         axios.get(url)
                             .then(function (response) {
+                                vm.date = response.data.date || vm.date;
+                                vm.reference_no = response.data.reference_no || '';
+                                vm.remark = response.data.remark || '';
                                 vm.items = [];
                                 var item = response.data.items || [];
                                 for (var key in item) {

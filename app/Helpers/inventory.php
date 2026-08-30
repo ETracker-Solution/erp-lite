@@ -66,7 +66,10 @@ function averageFGRates($productIds, ?int $store_id = null): array
         return [];
     }
 
-    $query = InventoryTransaction::whereIn('coi_id', $productIds)->where('type', 1);
+    $query = InventoryTransaction::query()
+        ->from(DB::raw('inventory_transactions FORCE INDEX (inv_txn_coi_store_idx)'))
+        ->whereIn('coi_id', $productIds)
+        ->where('type', 1);
     if ($store_id) {
         $query->where('store_id', $store_id);
     }
@@ -115,19 +118,7 @@ function fetchStoreProductBalances(array $productIds, array $storeIds)
 
 function fetchAverageRates(array $coiIds, ?int $store_id = null)
 {
-    // Query for RM rates
-    $rmRates = InventoryTransaction::whereIn('coi_id', $coiIds)
-        ->where('type', 1)  // Only consider the transactions of type 1 for RM
-        ->when($store_id, function ($query) use ($store_id) {
-            return $query->where('store_id', $store_id);
-        })
-        ->select('coi_id', DB::raw('SUM(amount) as totalAmount'), DB::raw('SUM(quantity) as totalQuantity'))
-        ->groupBy('coi_id')
-        ->get()
-        ->keyBy('coi_id');
-
-    // Query for FG rates
-    $fgRates = InventoryTransaction::whereIn('coi_id', $coiIds)
+    $rates = InventoryTransaction::whereIn('coi_id', $coiIds)
         ->where('type', 1)  // Assuming FG also uses type 1 for rate calculation
         ->when($store_id, function ($query) use ($store_id) {
             return $query->where('store_id', $store_id);
@@ -137,18 +128,17 @@ function fetchAverageRates(array $coiIds, ?int $store_id = null)
         ->get()
         ->keyBy('coi_id');
 
-    // Calculate average rates and store them
     $averageRates = [];
     foreach ($coiIds as $coi_id) {
-        $rmData = $rmRates->get($coi_id);
-        $fgData = $fgRates->get($coi_id);
+        $rateData = $rates->get($coi_id);
 
-        $rmRate = ($rmData && $rmData->totalQuantity != 0) ? $rmData->totalAmount / $rmData->totalQuantity : 0;
-        $fgRate = ($fgData && $fgData->totalQuantity != 0) ? $fgData->totalAmount / $fgData->totalQuantity : 0;
+        $rate = ($rateData && $rateData->totalQuantity != 0)
+            ? $rateData->totalAmount / $rateData->totalQuantity
+            : 0;
 
         $averageRates[$coi_id] = [
-            'rm_rate' => $rmRate,
-            'fg_rate' => $fgRate,
+            'rm_rate' => $rate,
+            'fg_rate' => $rate,
         ];
     }
 
@@ -222,10 +212,17 @@ function transactionAbleStockOptimized($products, array $storeIds)
 
     // Batch fetch inventory transactions
     $inventoryQuantities = InventoryTransaction::whereIn('coi_id', $productIds)
+        ->from(DB::raw('inventory_transactions FORCE INDEX (inv_txn_coi_store_idx)'))
         ->whereIn('store_id', $storeIds)
-        ->select('coi_id', DB::raw('SUM(quantity * type) as total_stock'))
+        ->select(
+            'coi_id',
+            DB::raw('SUM(quantity * type) as total_stock'),
+            DB::raw('SUM(CASE WHEN type = 1 THEN amount ELSE 0 END) as total_amount'),
+            DB::raw('SUM(CASE WHEN type = 1 THEN quantity ELSE 0 END) as total_quantity')
+        )
         ->groupBy('coi_id')
-        ->pluck('total_stock', 'coi_id');
+        ->get()
+        ->keyBy('coi_id');
 
     // Batch fetch completed requisition delivery quantities
     $requisitionQuantities = RequisitionDeliveryItem::whereHas('requisitionDelivery', function ($query) use ($storeIds) {
@@ -258,7 +255,8 @@ function transactionAbleStockOptimized($products, array $storeIds)
     return $products->map(function ($product) use ($inventoryQuantities, $requisitionQuantities, $preOrderQuantities, $transferQuantities) {
         $productId = is_array($product) ? ($product['id'] ?? null) : ($product->id ?? null);
 
-        $originalStock = $inventoryQuantities[$productId] ?? 0;
+        $inventory = $inventoryQuantities->get($productId);
+        $originalStock = $inventory->total_stock ?? 0;
         $requisitionDelivered = $requisitionQuantities[$productId] ?? 0;
         $preOrderDelivered = $preOrderQuantities[$productId] ?? 0;
         $inventoryTransferred = $transferQuantities[$productId] ?? 0;
@@ -268,6 +266,9 @@ function transactionAbleStockOptimized($products, array $storeIds)
         return [
             'product' => $product,
             'stock' => max($stock, 0),
+            'average_rate' => $inventory && (float) $inventory->total_quantity != 0
+                ? (float) $inventory->total_amount / (float) $inventory->total_quantity
+                : 0,
         ];
     });
 }

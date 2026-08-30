@@ -19,6 +19,7 @@ use App\Models\Production;
 use App\Models\Purchase;
 use App\Models\Requisition;
 use App\Models\RequisitionDelivery;
+use App\Models\RequisitionDeliveryItem;
 use App\Models\RequisitionItem;
 use App\Models\Sale;
 use App\Models\Store;
@@ -543,51 +544,74 @@ class ApiController extends Controller
 
     public function fetchRequisitionById($id, $store_id = null)
     {
-        $requisition = Requisition::with(['items.coi.unit', 'items.coi.parent', 'deliveries.items', 'items.coi.requisitionDeliveryItems.requisitionDelivery', 'items.coi.preOrderItems.preOrder'])
-            ->where('id', $id)
-            ->firstOrFail();
+        $requisition = Requisition::query()
+            ->select(['id', 'date', 'from_store_id', 'to_store_id', 'reference_no', 'remark'])
+            ->with([
+                'items' => fn ($query) => $query
+                    ->select(['id', 'requisition_id', 'coi_id', 'quantity'])
+                    ->where('quantity', '>', 0),
+                'items.coi:id,name,parent_id,unit_id',
+                'items.coi.unit:id,name',
+                'items.coi.parent:id,name',
+            ])
+            ->findOrFail($id);
 
-        // Collect all coi_ids from requisition items
-        $coiIds = $requisition->items->pluck('coi_id')->toArray();
+        $requisitionItems = $requisition->items;
+        $coiIds = $requisitionItems->pluck('coi_id')->filter()->unique()->values()->all();
 
-        // Pre-fetch average rates for all items at once (for both RM and FG)
-        $averageRates = fetchAverageRates($coiIds, $store_id);
+        // Fetch delivery totals once instead of loading every delivery item per COI.
+        $deliveredQtyByCoi = RequisitionDeliveryItem::query()
+            ->whereHas('requisitionDelivery', fn ($query) => $query->where('requisition_id', $id))
+            ->whereIn('coi_id', $coiIds)
+            ->select('coi_id', DB::raw('SUM(quantity) as total_quantity'))
+            ->groupBy('coi_id')
+            ->pluck('total_quantity', 'coi_id');
 
+        // Fetch stock for all requisition items in four grouped queries, not four per item.
+        $stockByCoi = collect();
+        if ($store_id !== null) {
+            $stockResults = transactionAbleStock(
+                $requisitionItems->pluck('coi')->filter(),
+                [(int) $store_id],
+                true
+            );
+            $stockByCoi = $stockResults->mapWithKeys(fn ($result) => [$result['product']->id => $result['stock']]);
+            $averageRates = $stockResults->mapWithKeys(
+                fn ($result) => [$result['product']->id => [
+                    'rm_rate' => $result['average_rate'],
+                    'fg_rate' => $result['average_rate'],
+                ]]
+            )->all();
+        } else {
+            $averageRates = fetchAverageRates($coiIds, null);
+        }
         $items = [];
-        foreach ($requisition->items as $row) {
-            if ($row->quantity > 0) {
-                $current_stock = transactionAbleStock($row->coi, [$store_id]);
 
-                $req_qty = $row->quantity;
-                $delivered_qty = 0;
-                foreach ($requisition->deliveries as $delivery) {
-                    $delivered_qty += $delivery->items->where('coi_id', $row->coi->id)->sum('quantity');
-                }
+        foreach ($requisitionItems as $row) {
+            $coi = $row->coi;
+            if (!$coi) {
+                continue;
+            }
 
-                $totalRequisitionLeft = $req_qty - $delivered_qty;
-                $balance_quantity = $current_stock;
+            $reqQty = (float) $row->quantity;
+            $deliveredQty = (float) ($deliveredQtyByCoi[$row->coi_id] ?? 0);
+            $totalRequisitionLeft = $reqQty - $deliveredQty;
+            $balanceQuantity = (float) ($stockByCoi[$row->coi_id] ?? 0);
+            $quantity = $balanceQuantity > 0 ? min($balanceQuantity, $totalRequisitionLeft) : '';
 
-                // Determine final quantity to show based on balances
-                if ($balance_quantity <= 0) {
-                    $quantity = '';
-                } else {
-                    $quantity = min($balance_quantity, $totalRequisitionLeft);
-                }
-                if ($totalRequisitionLeft > 0) {
-                    // Populate the items array with necessary details
-                    $items[] = [
-                        'requisition_id' => $id,
-                        'coi_id' => $row->coi_id,
-                        'unit' => $row->coi->unit->name ?? '',
-                        'name' => $row->coi->name ?? '',
-                        'group' => $row->coi->parent->name ?? '',
-                        'rm_average_rate' => $averageRates[$row->coi_id]['rm_rate'] ?? 0,
-                        'fg_average_rate' => $averageRates[$row->coi_id]['rm_rate'] ?? 0,
-                        'balance_quantity' => $balance_quantity > 0 ? max(($balance_quantity), 0) : $balance_quantity,
-                        'requisition_quantity' => $totalRequisitionLeft,
-                        'quantity' => $quantity > 0 ? number_format($quantity, 2) : 0,
-                    ];
-                }
+            if ($totalRequisitionLeft > 0) {
+                $items[] = [
+                    'requisition_id' => $id,
+                    'coi_id' => $row->coi_id,
+                    'unit' => $coi->unit->name ?? '',
+                    'name' => $coi->name,
+                    'group' => $coi->parent->name ?? '',
+                    'rm_average_rate' => $averageRates[$row->coi_id]['rm_rate'] ?? 0,
+                    'fg_average_rate' => $averageRates[$row->coi_id]['rm_rate'] ?? 0,
+                    'balance_quantity' => $balanceQuantity > 0 ? max($balanceQuantity, 0) : $balanceQuantity,
+                    'requisition_quantity' => $totalRequisitionLeft,
+                    'quantity' => $quantity !== '' && $quantity > 0 ? number_format($quantity, 2) : 0,
+                ];
             }
         }
 
@@ -645,7 +669,10 @@ class ApiController extends Controller
     public function fetchInventoryTransferById($id)
     {
         $inventoryTransfer = InventoryTransfer::query()
+            ->select(['id', 'date', 'from_store_id', 'to_store_id', 'reference_no', 'remark'])
             ->with([
+                'items' => fn ($query) => $query
+                    ->select(['id', 'inventory_transfer_id', 'coi_id', 'quantity']),
                 'items.coi:id,name,parent_id,unit_id',
                 'items.coi.parent:id,name',
                 'items.coi.unit:id,name',

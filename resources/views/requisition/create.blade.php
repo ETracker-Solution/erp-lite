@@ -15,16 +15,17 @@
     <section class="content">
         <div class="container-fluid">
             <div class="row" id="vue_app">
-                  <span v-if="pageLoading" class="pageLoader">
-                            <img src="{{ asset('loading.gif') }}" alt="loading">
-                        </span>
-                <div class="col-lg-12 col-md-12">
+                <div v-if="pageLoading" class="pageLoader" role="status" aria-live="polite">
+                    <span class="spinner-border spinner-border-sm mr-2" aria-hidden="true"></span>
+                    Loading item data…
+                </div>
+                <div class="col-lg-10 offset-lg-1 col-md-12">
                     <form action="{{ route('requisitions.store') }}" method="POST" class="prevent-enter-submit">
                         @csrf
                         <input type="hidden" name="submission_token" value="{{ session()->get('submission_token') ?? Str::random(40) }}">
                         <div class="card">
                             <div class="card-header bg-info">
-                                <h3 class="card-title">Requisition Entry</h3>
+                                <h3 class="card-title mb-0">Finished Goods Requisition</h3>
                                 <div class="card-tools">
                                     <a href="{{route('requisitions.index')}}" class="btn btn-sm btn-primary">
                                         <i class="fa fa-list" aria-hidden="true"></i> &nbsp;See List
@@ -32,6 +33,9 @@
                                 </div>
                             </div>
                             <div class="card-body">
+                                <p class="text-muted small mb-3">
+                                    Request finished goods from the source store. Add one or more items before saving.
+                                </p>
                                 <div class="card-box">
                                     <div id="">
                                         <div class="row">
@@ -85,7 +89,7 @@
                         </div>
                         <div class="card">
                             <div class="card-header bg-info">
-                                <h3 class="card-title">Requisition Line Item</h3>
+                                <h3 class="card-title mb-0">Requisition Items</h3>
                                 <div class="card-tools">
                                     <a href="{{route('requisitions.index')}}">
 
@@ -138,7 +142,7 @@
                                             <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                 <hr>
                                                 <div class="table-responsive">
-                                                    <table class="table table-bordered">
+                                                    <table class="table table-bordered table-sm mb-0">
                                                         <thead class="bg-secondary">
                                                         <tr>
                                                             <th style="width: 5%">#</th>
@@ -150,6 +154,11 @@
                                                         </tr>
                                                         </thead>
                                                         <tbody>
+                                                        <tr v-if="selected_items.length === 0">
+                                                            <td colspan="6" class="text-center text-muted py-4">
+                                                                Select a group and item, then click Add.
+                                                            </td>
+                                                        </tr>
                                                         <tr v-for="(row, index) in selected_items" :key="row.coi_id">
                                                             <td>
                                                                 @{{ index + 1 }}
@@ -213,8 +222,11 @@
                             <div class="card-footer erp-save-bar">
                                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 text-right"
                                      v-if="selected_items.length > 0">
-                                    <button class="float-right btn btn-primary" type="submit"><i
-                                            class="fa fa-fw fa-lg fa-check-circle"></i>Submit
+                                    <button class="float-right btn btn-primary" type="submit" :disabled="isDisabled || pageLoading">
+                                        <span v-if="pageLoading" class="spinner-border spinner-border-sm mr-1"
+                                              role="status" aria-hidden="true"></span>
+                                        <i v-else class="fa fa-fw fa-lg fa-check-circle"></i>
+                                        @{{ pageLoading ? 'Loading…' : 'Submit' }}
                                     </button>
                                 </div>
                             </div>
@@ -230,12 +242,15 @@
 @push('style')
     <style>
         .pageLoader {
-            position: absolute;
-            top: 50%;
-            right: 40%;
-            transform: translate(-50%, -50%);
-            color: red;
-            z-index: 999;
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            padding: .65rem 1rem;
+            color: #fff;
+            background: rgba(23, 43, 77, .95);
+            border-radius: .25rem;
+            box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .2);
+            z-index: 1050;
         }
 
         input[placeholder="Select date"] {
@@ -298,121 +313,84 @@
                 methods: {
 
                     fetch_item() {
-
                         let vm = this;
                         let group_id = vm.group_id;
+                        vm.products = [];
+                        vm.item_id = '';
 
-                        if (group_id) {
-                            axios.get(this.config.get_items_info_by_group_id_url + '/' + group_id).then(function (response) {
-                                vm.products=[];
-                                vm.item_id='';
-                                vm.products = response.data.products;
-                                vm.pageLoading = false;
+                        if (!group_id) {
+                            return;
+                        }
 
-                            }).catch(function (error) {
-
-                                toastr.error('Something went to wrong', {
+                        vm.pageLoading = true;
+                        axios.get(this.config.get_items_info_by_group_id_url + '/' + group_id)
+                            .then(function (response) {
+                                vm.products = response.data.products || [];
+                            })
+                            .catch(function () {
+                                toastr.error('Unable to load items', {
                                     closeButton: true,
                                     progressBar: true,
                                 });
-
-                                return false;
-
+                            })
+                            .finally(function () {
+                                vm.pageLoading = false;
                             });
-                        }
-
                     },
                     data_input() {
-
                         let vm = this;
-
                         if (!vm.group_id) {
-                            toastr.error('Please Select Group', {
+                            toastr.error('Please select a group', {
                                 closeButton: true,
                                 progressBar: true,
                             });
-                            return false;
-                        } else {
-                            vm.isDisabled = true
-                            let item_id = vm.item_id;
-                            let exists = vm.selected_items.some(function (field) {
-                                return field.coi_id == item_id
+                            return;
+                        }
+                        if (!vm.item_id) {
+                            toastr.error('Please select an item', {
+                                closeButton: true,
+                                progressBar: true,
                             });
+                            return;
+                        }
 
-                            if (exists) {
-                                toastr.info('Item Already Selected', {
+                        let item_id = vm.item_id;
+                        if (vm.selected_items.some(function (field) {
+                            return field.coi_id == item_id;
+                        })) {
+                            toastr.info('Item already selected', {
+                                closeButton: true,
+                                progressBar: true,
+                            });
+                            return;
+                        }
+
+                        vm.isDisabled = true;
+                        vm.pageLoading = true;
+                        axios.get(this.config.get_item_info_url + '/' + item_id)
+                            .then(function (response) {
+                                let product_details = response.data;
+                                vm.selected_items.push({
+                                    coi_id: product_details.coi_id,
+                                    group: product_details.group,
+                                    name: product_details.name,
+                                    uom: product_details.unit,
+                                    balance_qty: product_details.balance_qty,
+                                    price: product_details.price,
+                                    quantity: '',
+                                });
+                                vm.item_id = '';
+                            })
+                            .catch(function () {
+                                toastr.error('Unable to load item', {
                                     closeButton: true,
                                     progressBar: true,
                                 });
+                            })
+                            .finally(function () {
                                 vm.isDisabled = false;
-                                return
-                            } else {
-                                if (item_id) {
-                                    axios.get(this.config.get_item_info_url + '/' + item_id).then(function (response) {
-                                        let product_details = response.data;
-                                        vm.selected_items.push({
-                                            coi_id: product_details.coi_id,
-                                            group: product_details.group,
-                                            name: product_details.name,
-                                            uom: product_details.unit,
-                                            balance_qty: product_details.balance_qty,
-                                            price: product_details.price,
-                                            quantity: '',
-
-                                        });
-
-                                        vm.isDisabled = false
-
-                                    }).catch(function (error) {
-
-                                        toastr.error('Something went to wrong', {
-                                            closeButton: true,
-                                            progressBar: true,
-                                        });
-                                        vm.isDisabled = false;
-                                        return false;
-
-                                    });
-                                } else {
-                                    vm.pageLoading = true;
-                                    axios.get(this.config.get_items_info_by_group_id_url + '/' + vm.group_id).then(function (response) {
-                                       // vm.selected_items=[];
-                                        vm.item_id= '';
-                                        let items = response.data.products;
-
-                                        for (let key in items) {
-                                            let exists = vm.selected_items.some(function (field) {
-                                                return field.coi_id == items[key].id
-                                            });
-                                            if (exists){
-                                                vm.pageLoading = false;
-                                                toastr.error('Item Already Selected Fom this group', {
-                                                    closeButton: true,
-                                                    progressBar: true,
-                                                });
-                                                vm.isDisabled = false;
-                                                return
-                                            }
-                                            vm.selected_items.push(items[key]);
-                                        }
-
-                                        vm.pageLoading = false;
-                                        vm.isDisabled = false;
-
-                                    }).catch(function (error) {
-                                        vm.pageLoading = false;
-                                        toastr.error('Something went to wrong', {
-                                            closeButton: true,
-                                            progressBar: true,
-                                        });
-                                        vm.isDisabled = false;
-                                        return false;
-
-                                    });
-
-                                }
-                            }
-                        }
+                                vm.pageLoading = false;
+                            });
                     },
 
                     delete_row: function (row) {

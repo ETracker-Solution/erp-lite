@@ -15,17 +15,18 @@
     <section class="content">
         <div class="container-fluid">
             <div class="row" id="vue_app">
-                <span v-if="pageLoading" class="pageLoader">
-                    <img src="{{ asset('loading.gif') }}" alt="loading">
-                </span>
-                <div class="col-lg-12 col-md-12">
+                <div v-if="pageLoading" class="pageLoader" role="status" aria-live="polite">
+                    <span class="spinner-border spinner-border-sm mr-2" aria-hidden="true"></span>
+                    Loading item data…
+                </div>
+                <div class="col-lg-10 offset-lg-1 col-md-12">
                     <form action="{{ route('fg-inventory-adjustments.store') }}" method="POST" class="prevent-enter-submit">
                         @csrf
                         <input type="hidden" name="submission_token"
                                value="{{ session()->get('submission_token') ?? Str::random(40) }}">
                         <div class="card card-info">
                             <div class="card-header">
-                                <h3 class="card-title">FG Inventory Adjustment(FGIA) Entry </h3>
+                                <h3 class="card-title mb-0">FG Inventory Adjustment (FGIA)</h3>
                                 <div class="card-tools">
                                     <a class="btn btn-sm btn-primary"
                                        href="{{route('fg-inventory-adjustments.index')}}">
@@ -35,6 +36,9 @@
                                 </div>
                             </div>
                             <div class="card-body">
+                                <p class="text-muted small mb-3">
+                                    Adjust finished-goods stock by selecting a store, transaction type, and items.
+                                </p>
                                 <div class="card-box">
                                     <hr>
                                     <div id="">
@@ -94,7 +98,7 @@
                         </div>
                         <div class="card card-info">
                             <div class="card-header">
-                                <h3 class="card-title">FGIA Item Information</h3>
+                                <h3 class="card-title mb-0">Adjustment Items</h3>
                                 <div class="card-tools">
 
                                 </div>
@@ -147,7 +151,7 @@
 
                                                 <hr>
                                                 <div class="table-responsive">
-                                                    <table class="table table-bordered">
+                                                    <table class="table table-bordered table-sm mb-0">
                                                         <thead class="bg-secondary">
                                                         <tr>
                                                             <th style="width: 3%">#</th>
@@ -240,8 +244,11 @@
                             </div>
                             <div class="card-footer erp-save-bar">
                                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 text-right" v-if="items.length > 0">
-                                    <button class="float-right btn btn-primary" type="submit"><i
-                                            class="fa fa-fw fa-lg fa-check-circle"></i>Submit
+                                    <button class="float-right btn btn-primary" type="submit" :disabled="isDisabled || pageLoading">
+                                        <span v-if="pageLoading" class="spinner-border spinner-border-sm mr-1"
+                                              role="status" aria-hidden="true"></span>
+                                        <i v-else class="fa fa-fw fa-lg fa-check-circle"></i>
+                                        @{{ pageLoading ? 'Loading…' : 'Submit' }}
                                     </button>
                                 </div>
                             </div>
@@ -261,12 +268,15 @@
 @push('style')
     <style>
         .pageLoader {
-            position: absolute;
-            top: 50%;
-            right: 40%;
-            transform: translate(-50%, -50%);
-            color: red;
-            z-index: 999;
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            padding: .65rem 1rem;
+            color: #fff;
+            background: rgba(23, 43, 77, .95);
+            border-radius: .25rem;
+            box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .2);
+            z-index: 1050;
         }
 
         input[placeholder="Select date"] {
@@ -314,6 +324,7 @@
                     item_id: '',
                     products: [],
                     items: [],
+                    pageLoading: false,
                     quantity: '',
                     Stock_quantity: 0,
                     price: 0,
@@ -336,29 +347,29 @@
                 methods: {
 
                     fetch_item() {
-
                         var vm = this;
-
                         var slug = vm.category_id;
-                        //    alert(slug);
-                        if (slug) {
-                            axios.get(this.config.get_items_info_by_group_id_url + '/' + slug).then(function (response) {
+                        vm.products = [];
+                        vm.item_id = '';
 
-                                vm.products = response.data.products;
-                                vm.pageLoading = false;
+                        if (!slug) {
+                            return;
+                        }
 
-                            }).catch(function (error) {
-
-                                toastr.error('Something went to wrong', {
+                        vm.pageLoading = true;
+                        axios.get(this.config.get_items_info_by_group_id_url + '/' + slug)
+                            .then(function (response) {
+                                vm.products = response.data.products || [];
+                            })
+                            .catch(function () {
+                                toastr.error('Unable to load items', {
                                     closeButton: true,
                                     progressBar: true,
                                 });
-
-                                return false;
-
+                            })
+                            .finally(function () {
+                                vm.pageLoading = false;
                             });
-                        }
-
                     },
                     data_input() {
 
@@ -391,7 +402,8 @@
                             return false;
 
                         } else {
-                            vm.isDisabled = true
+                            vm.isDisabled = true;
+                            vm.pageLoading = true;
                             let slug = vm.item_id;
                             let exists = vm.items.some(function (field) {
                                 return field.coi_id == slug
@@ -402,7 +414,8 @@
                                     closeButton: true,
                                     progressBar: true,
                                 });
-                                vm.isDisabled = false
+                                vm.isDisabled = false;
+                                vm.pageLoading = false;
                                 return
                             } else {
                                 if (slug) {
@@ -425,17 +438,17 @@
                                             item_total: 0,
                                         });
 
-                                        vm.isDisabled = false
+                                        vm.isDisabled = false;
 
-                                    }).catch(function (error) {
+                                    }).catch(function () {
 
-                                        toastr.error('Something went to wrong', {
+                                        toastr.error('Unable to load item', {
                                             closeButton: true,
                                             progressBar: true,
                                         });
-                                        vm.isDisabled = false
-                                        return false;
-
+                                    }).finally(function () {
+                                        vm.isDisabled = false;
+                                        vm.pageLoading = false;
                                     });
                                 }
 

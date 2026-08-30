@@ -46,6 +46,8 @@
                                                 <option value="">Select requisition</option>
                                                 @foreach($requisitions as $row)
                                                     <option value="{{ $row->id }}"
+                                                        data-from-store-id="{{ $row->from_store_id }}"
+                                                        data-to-store-id="{{ $row->to_store_id }}"
                                                         {{ $prefillRequisitionId === (string) $row->id ? 'selected' : '' }}>
                                                         {{ $row->uid ?: ('#'.$row->id) }}
                                                         @if($row->date) — {{ $row->date }}@endif
@@ -244,6 +246,23 @@
                             vm.items = [];
                             return;
                         }
+
+                        var select = document.getElementById('requisition_id');
+                        var option = select && select.selectedOptions ? select.selectedOptions[0] : null;
+                        var factoryStoreId = option ? option.getAttribute('data-to-store-id') : '';
+                        var outletStoreId = option ? option.getAttribute('data-from-store-id') : '';
+
+                        // The option already contains the requisition stores, so load items once.
+                        if (factoryStoreId) {
+                            vm.from_store_id = String(factoryStoreId);
+                            vm.to_store_id = String(outletStoreId || '');
+                            vm.$nextTick(function () {
+                                $('.bSelect').selectpicker('refresh');
+                                vm.reloadItems();
+                            });
+                            return;
+                        }
+
                         vm.pageLoading = true;
                         // First load stores from requisition (no stock store yet).
                         axios.get(this.config.get_old_items_data + '/' + vm.requisition_id)
