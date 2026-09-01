@@ -376,9 +376,9 @@
                 <div class="col-md-3 col-6 mb-2">
                     <a href="{{ route('requisitions.index') }}" class="dash-quick-link"><i class="fas fa-truck-loading"></i> Requisitions</a>
                 </div>
-                <div class="col-md-3 col-6 mb-2">
-                    <a href="{{ route('pos.get-view') }}" class="dash-quick-link"><i class="fas fa-cash-register"></i> POS</a>
-                </div>
+{{--                <div class="col-md-3 col-6 mb-2">--}}
+{{--                    <a href="{{ route('pos.get-view') }}" class="dash-quick-link"><i class="fas fa-cash-register"></i> POS</a>--}}
+{{--                </div>--}}
             </div>
         </div>
     </section>
