@@ -10,6 +10,7 @@ use App\Models\Outlet;
 use App\Models\Purchase;
 use App\Models\Requisition;
 use App\Models\Sale;
+use App\Services\AdminDashboardService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Facades\DataTables;
@@ -183,26 +184,7 @@ class AdminDashboardController extends Controller
 
     public function adminDashboard2()
     {
-        $currentDate = now();
-        $today = $currentDate->format('Y-m-d');
-
-
-        $total_sales = Sale::whereDate('created_at', date('Y-m-d'))->sum('grand_total');
-        $outlets = Outlet::whereStatus('active')->count();
-        $customers = Customer::where('type', 'regular')->count();
-        $wastage_amount = InventoryAdjustment::whereDate('created_at', date('Y-m-d'))->where(['transaction_type' => 'decrease'])->sum('subtotal');
-        $products = ChartOfInventory::where('type', 'item')->where('rootAccountType', 'FG')->count();
-        $todayInvoice = Sale::whereDate('created_at', Carbon::now()->format('Y-m-d'))->count();
-
-        $data = [
-            'totalSales' => $total_sales, //
-            'outlets' => $outlets, //
-            'customers' => $customers, //
-            'products' => $products, //
-            'wastageAmount' => round($wastage_amount), //
-            'todayInvoice' => $todayInvoice //
-        ];
-        return view('dashboard.admin2', $data);
+        return view('dashboard.admin2', app(AdminDashboardService::class)->getData());
     }
 
 }

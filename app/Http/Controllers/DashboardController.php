@@ -16,7 +16,7 @@ class DashboardController extends Controller
         $user = auth()->user();
 
         if ($user->is_super) {
-            return (new AdminDashboardController())->adminDashboard2();
+            return app(AdminDashboardController::class)->adminDashboard2();
         }
 
         $employee = $user->employee;
@@ -30,7 +30,7 @@ class DashboardController extends Controller
             }
         }
 
-        return (new AdminDashboardController())->adminDashboard2();
+        return app(AdminDashboardController::class)->adminDashboard2();
     }
 
 }
