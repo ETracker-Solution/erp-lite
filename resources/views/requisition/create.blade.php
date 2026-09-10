@@ -15,7 +15,7 @@
     <section class="content">
         <div class="container-fluid">
             <div class="row" id="vue_app">
-                <div v-if="pageLoading" class="pageLoader" role="status" aria-live="polite">
+                <div v-if="pageLoading" class="reqToastLoader" role="status" aria-live="polite">
                     <span class="spinner-border spinner-border-sm mr-2" aria-hidden="true"></span>
                     Loading item data…
                 </div>
@@ -241,7 +241,7 @@
 @endsection
 @push('style')
     <style>
-        .pageLoader {
+        .reqToastLoader {
             position: fixed;
             top: 1rem;
             right: 1rem;
@@ -312,6 +312,14 @@
                 },
                 methods: {
 
+                    refreshSelectpickers() {
+                        let scrollY = window.scrollY || window.pageYOffset || 0;
+                        this.$nextTick(function () {
+                            $('.bSelect').selectpicker('refresh');
+                            window.scrollTo(0, scrollY);
+                        });
+                    },
+
                     fetch_item() {
                         let vm = this;
                         let group_id = vm.group_id;
@@ -319,6 +327,7 @@
                         vm.item_id = '';
 
                         if (!group_id) {
+                            vm.refreshSelectpickers();
                             return;
                         }
 
@@ -335,6 +344,7 @@
                             })
                             .finally(function () {
                                 vm.pageLoading = false;
+                                vm.refreshSelectpickers();
                             });
                     },
                     data_input() {
@@ -390,6 +400,7 @@
                             .finally(function () {
                                 vm.isDisabled = false;
                                 vm.pageLoading = false;
+                                vm.refreshSelectpickers();
                             });
                     },
 
@@ -404,10 +415,6 @@
                             index.quantity = '';
                         }
                     }
-                },
-
-                updated() {
-                    $('.bSelect').selectpicker('refresh');
                 }
 
             });

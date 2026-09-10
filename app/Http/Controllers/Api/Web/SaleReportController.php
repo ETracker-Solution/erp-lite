@@ -80,84 +80,114 @@ class SaleReportController extends Controller
             $outlet = Outlet::find(\request()->store_id);
             $page_title = 'Outlet Name :: ' . $outlet->name;
 
+            $rows = OthersOutletSale::with(['customer:id,name,mobile', 'outlet:id,name'])
+                ->select(['id', 'date', 'invoice_number', 'customer_id', 'outlet_id', 'grand_total', 'receive_amount', 'delivery_point_receive_amount'])
+                ->where('outlet_id', $outlet->id)
+                ->where('date', '>=', $from_date)
+                ->where('date', '<=', $to_date)
+                ->limit(5000)
+                ->get();
+
+            if (wantsReportExcelExport()) {
+                return downloadReportExcel($this->mapDueRowsForExcel($rows), 'Outlet-Wise-Due');
+            }
+
             $data = [
                 'dateRange' => $dateRange,
-                'data' => OthersOutletSale::with(['customer:id,name,mobile', 'outlet:id,name'])
-                    ->select(['id', 'date', 'invoice_number', 'customer_id', 'outlet_id', 'grand_total', 'receive_amount', 'delivery_point_receive_amount'])
-                    ->where('outlet_id', $outlet->id)
-                    ->where('date', '>=', $from_date)
-                    ->where('date', '<=', $to_date)
-                    ->limit(5000)
-                    ->get(),
+                'data' => $rows,
                 'page_title' => $page_title,
                 'report_header' => $report_header
             ];
             $pdf = Pdf::loadView('sale.report.all_due', $data);
-            $pdf->stream();
+            return $pdf->stream();
         } elseif ($report_type == 'Single Customer Due') {
             $customer = Customer::find(\request()->customer_id);
             $page_title = 'Customer Name :: ' . $customer->name;
+            $rows = OthersOutletSale::with(['customer:id,name,mobile', 'outlet:id,name'])
+                ->select(['id', 'date', 'invoice_number', 'customer_id', 'outlet_id', 'grand_total', 'receive_amount', 'delivery_point_receive_amount'])
+                ->where('customer_id', $customer->id)
+                ->where('date', '>=', $from_date)
+                ->where('date', '<=', $to_date)
+                ->limit(5000)
+                ->get();
+
+            if (wantsReportExcelExport()) {
+                return downloadReportExcel($this->mapDueRowsForExcel($rows), 'Single-Customer-Due');
+            }
+
             $data = [
                 'dateRange' => $dateRange,
-                'data' => OthersOutletSale::with(['customer:id,name,mobile', 'outlet:id,name'])
-                    ->select(['id', 'date', 'invoice_number', 'customer_id', 'outlet_id', 'grand_total', 'receive_amount', 'delivery_point_receive_amount'])
-                    ->where('customer_id', $customer->id)
-                    ->where('date', '>=', $from_date)
-                    ->where('date', '<=', $to_date)
-                    ->limit(5000)
-                    ->get(),
+                'data' => $rows,
                 'page_title' => $page_title,
                 'report_header' => $report_header
             ];
             $pdf = Pdf::loadView('sale.report.single_due', $data);
-            $pdf->stream();
+            return $pdf->stream();
         } elseif ($report_type == 'Outlet Wise Discount') {
             $outlet = Outlet::find(\request()->store_id);
             $page_title = 'Outlet Name :: ' . $outlet->name;
+            $rows = $this->discountedSalesQuery()
+                ->where('outlet_id', $outlet->id)
+                ->where('date', '>=', $from_date)
+                ->where('date', '<=', $to_date)
+                ->limit(5000)
+                ->get();
+
+            if (wantsReportExcelExport()) {
+                return downloadReportExcel($this->mapDiscountRowsForExcel($rows), 'Outlet-Wise-Discount');
+            }
+
             $data = [
                 'dateRange' => $dateRange,
-                'data' => $this->discountedSalesQuery()
-                    ->where('outlet_id', $outlet->id)
-                    ->where('date', '>=', $from_date)
-                    ->where('date', '<=', $to_date)
-                    ->limit(5000)
-                    ->get(),
+                'data' => $rows,
                 'page_title' => $page_title,
                 'report_header' => $report_header
             ];
             $pdf = Pdf::loadView('sale.report.all_discount', $data);
-            $pdf->stream();
+            return $pdf->stream();
         } elseif ($report_type == 'Single Customer Discount') {
             $customer = Customer::find(\request()->customer_id);
             $page_title = 'Customer Name :: ' . $customer->name;
+            $rows = $this->discountedSalesQuery()
+                ->where('customer_id', $customer->id)
+                ->where('date', '>=', $from_date)
+                ->where('date', '<=', $to_date)
+                ->limit(5000)
+                ->get();
+
+            if (wantsReportExcelExport()) {
+                return downloadReportExcel($this->mapDiscountRowsForExcel($rows), 'Single-Customer-Discount');
+            }
+
             $data = [
                 'dateRange' => $dateRange,
-                'data' => $this->discountedSalesQuery()
-                    ->where('customer_id', $customer->id)
-                    ->where('date', '>=', $from_date)
-                    ->where('date', '<=', $to_date)
-                    ->limit(5000)
-                    ->get(),
+                'data' => $rows,
                 'page_title' => $page_title,
                 'report_header' => $report_header
             ];
             $pdf = Pdf::loadView('sale.report.all_discount', $data);
-            $pdf->stream();
+            return $pdf->stream();
         } elseif ($report_type == 'Product Wise Discount') {
             $product = ChartOfInventory::find(\request()->item_id);
             $page_title = 'Product Name :: ' . $product->name;
+            $rows = Sale::with(['customer', 'outlet', 'items' => function ($q) use ($product) {
+                return $q->where('product_id', $product->id);
+            }])->whereHas('items', function ($q) use ($product) {
+                return $q->where('product_id', $product->id);
+            })->where('date', '>=', $from_date)->where('date', '<=', $to_date)->limit(5000)->get();
+
+            if (wantsReportExcelExport()) {
+                return downloadReportExcel($this->mapDiscountRowsForExcel($rows), 'Product-Wise-Discount');
+            }
+
             $data = [
                 'dateRange' => $dateRange,
-                'data' => Sale::with(['customer', 'outlet', 'items' => function ($q) use ($product) {
-                    return $q->where('product_id', $product->id);
-                }])->whereHas('items', function ($q) use ($product) {
-                    return $q->where('product_id', $product->id);
-                })->where('date', '>=', $from_date)->where('date', '<=', $to_date)->limit(5000)->get(),
+                'data' => $rows,
                 'page_title' => $page_title,
                 'report_header' => $report_header
             ];
             $pdf = Pdf::loadView('sale.report.product_discount', $data);
-            $pdf->stream();
+            return $pdf->stream();
         } elseif ($report_type == 'All Outlet Discount') {
             try {
                 $page_title = 'All Discounts';
@@ -197,6 +227,10 @@ class SaleReportController extends Controller
             LIMIT 5000
         ", [$from_date, $to_date]);
 
+
+                if (wantsReportExcelExport()) {
+                    return downloadReportExcel($allSales, 'All-Outlet-Discount');
+                }
 
                 $data = [
                     'dateRange'     => $dateRange,
@@ -254,8 +288,7 @@ class SaleReportController extends Controller
             'report_header' => $report_header
         ];
 //        return view('common.report_main', $data);
-        $pdf = Pdf::loadView('common.report_main', $data);
-        $pdf->stream();
+        return streamTabularReport($data, 'Sale-Report');
     }
 
     public function getAllSaleQuery($from_date, $to_date)
@@ -649,5 +682,41 @@ WHERE at2.doc_type ='POS' AND at2.`type` ='debit' AND coa.id in (oa.coa_id)
 AND s.date >= '$from_date'
 AND s.date <= '$to_date'
         ";
+    }
+
+    private function mapDueRowsForExcel($rows): array
+    {
+        return collect($rows)->map(function ($sale) {
+            return [
+                'Date' => $sale->date,
+                'Invoice' => $sale->invoice_number,
+                'Customer' => $sale->customer->name ?? '',
+                'Mobile' => $sale->customer->mobile ?? '',
+                'Outlet' => $sale->outlet->name ?? '',
+                'Grand Total' => $sale->grand_total,
+                'Receive Amount' => $sale->receive_amount,
+                'Delivery Point Receive' => $sale->delivery_point_receive_amount,
+            ];
+        })->all();
+    }
+
+    private function mapDiscountRowsForExcel($rows): array
+    {
+        return collect($rows)->map(function ($sale) {
+            $discount = ($sale->discount ?? 0)
+                + ($sale->membership_discount_amount ?? 0)
+                + ($sale->special_discount_amount ?? 0)
+                + ($sale->couponCodeDiscountAmount ?? 0);
+
+            return [
+                'Date' => $sale->date,
+                'Invoice' => $sale->invoice_number,
+                'Customer' => $sale->customer->name ?? '',
+                'Mobile' => $sale->customer->mobile ?? '',
+                'Outlet' => $sale->outlet->name ?? '',
+                'Discount' => $discount,
+                'Grand Total' => $sale->grand_total ?? '',
+            ];
+        })->all();
     }
 }

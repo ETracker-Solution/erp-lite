@@ -71,7 +71,9 @@
 
                             <hr class="mt-1 mb-3">
 
-                            <div class="small text-muted mb-2">Generate PDF</div>
+                            @include('partials.report_export_format')
+
+                            <div class="small text-muted mb-2">Generate Report</div>
                             <div class="row">
                                 @if ($isAdmin)
                                     <div class="col-md-6 mb-2">
@@ -128,6 +130,7 @@
 @endpush
 
 @push('script')
+    @include('partials.report_export_blob')
     <script src="{{ asset('vue-js/vue/dist/vue.js') }}"></script>
     <script src="{{ asset('vue-js/axios/dist/axios.min.js') }}"></script>
     <script src="{{ asset('vue-js/bootstrap-select/dist/js/bootstrap-select.min.js') }}"></script>
@@ -145,6 +148,7 @@
                     item_id: '',
                     store_id: '',
                     items: [],
+                    export_format: 'pdf',
                     pageLoading: false,
                 },
                 methods: {
@@ -195,27 +199,20 @@
                                 group_id: vm.group_id || null,
                                 item_id: vm.item_id || null,
                                 store_id: vm.store_id || null,
+                                export_format: vm.export_format,
                             },
                             responseType: 'blob',
                         }).then(function (response) {
-                            vm.pageLoading = false;
                             if (!response.data || response.data.size === 0 || response.status === 204) {
                                 toastr.error('No Data to Generate Report', {
                                     closeButton: true,
                                     progressBar: true,
                                 });
+                                vm.pageLoading = false;
                                 return;
                             }
-                            var contentType = (response.headers['content-type'] || '');
-                            if (contentType.indexOf('application/pdf') === -1 && contentType.indexOf('octet-stream') === -1) {
-                                toastr.error('No Data to Generate Report', {
-                                    closeButton: true,
-                                    progressBar: true,
-                                });
-                                return;
-                            }
-                            var url = window.URL.createObjectURL(new Blob([response.data], {type: 'application/pdf'}));
-                            window.open(url);
+                            return window.handleReportBlobResponse(response, vm.export_format, 'rm-inventory-report')
+                                .finally(function () { vm.pageLoading = false; });
                         }).catch(function () {
                             vm.pageLoading = false;
                             toastr.error('Something went to wrong', {

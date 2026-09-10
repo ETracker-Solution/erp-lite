@@ -6,6 +6,15 @@
 
     th {
         background-color: #c4c7c7;
+        font-size: 11px;
+        word-wrap: break-word;
+        white-space: normal;
+        padding: 4px;
+    }
+
+    td {
+        font-size: 11px;
+        padding: 3px;
     }
 
     .headers {
@@ -22,6 +31,10 @@
         text-align: center;
         font-weight: bold;
         width: 32%;
+    }
+
+    .pdf-page-break {
+        page-break-after: always;
     }
 </style>
 
@@ -44,27 +57,40 @@
     </table>
     <hr>
 @endif
-<table style="width: 100%">
-    <thead>
-    <tr>
-        @foreach($headers as $header)
-            <th>{{$header}}</th>
-        @endforeach
-    </tr>
-    </thead>
-    <tbody>
-    @foreach($values as $key=>$value)
+
+@php
+    $renderPages = !empty($pages) ? $pages : [[
+        'headers' => $headers ?? [],
+        'values' => $values ?? [],
+    ]];
+@endphp
+
+@foreach($renderPages as $page)
+    <table style="width: 100%">
+        <thead>
         <tr>
-            @foreach(array_keys($value) as $mainKey)
-                @if(!is_array($value[$mainKey]))
-                    <td style="text-align: center">{{$value[$mainKey]}}</td>
-                @else
-                    @foreach($value[$mainKey] as $item)
-                        <td style="text-align: center">{{$item}}</td>
-                    @endforeach
-                @endif
+            @foreach($page['headers'] as $header)
+                <th>{{ $header }}</th>
             @endforeach
         </tr>
-    @endforeach
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+        @foreach($page['values'] as $value)
+            <tr>
+                @foreach(array_keys($value) as $mainKey)
+                    @if(!is_array($value[$mainKey]))
+                        <td style="text-align: center">{{ $value[$mainKey] }}</td>
+                    @else
+                        @foreach($value[$mainKey] as $item)
+                            <td style="text-align: center">{{ $item }}</td>
+                        @endforeach
+                    @endif
+                @endforeach
+            </tr>
+        @endforeach
+        </tbody>
+    </table>
+    @if(!$loop->last)
+        <div class="pdf-page-break"></div>
+    @endif
+@endforeach

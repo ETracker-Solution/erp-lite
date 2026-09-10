@@ -164,10 +164,10 @@ class LedgerReportController extends Controller
 
     private function streamLedgerPdf(array $getData, string $pageTitle, string $fromDate, string $toDate)
     {
-        if (count($getData) > self::MAX_PDF_ROWS) {
+        if (count($getData) > self::MAX_PDF_ROWS && !wantsReportExcelExport()) {
             return response()->json([
                 'success' => false,
-                'message' => 'Too many rows (' . count($getData) . '). Please shorten the date range (max ' . self::MAX_PDF_ROWS . ' rows).',
+                'message' => 'Too many rows (' . count($getData) . '). Please shorten the date range (max ' . self::MAX_PDF_ROWS . ' rows), or export as Excel.',
             ], 422);
         }
 
@@ -203,6 +203,10 @@ class LedgerReportController extends Controller
             'columns' => $columns,
             'report_header' => 'Ledger Report',
         ];
+
+        if (wantsReportExcelExport()) {
+            return downloadReportExcel($getData, 'Ledger-Report', $columns);
+        }
 
         $html = view('common.ledger_report_pdf', $data)->render();
 

@@ -74,22 +74,14 @@ class FGWastegeReportController extends Controller
         }
 
         $columns = array_keys((array) $rows[0]);
-        $pdf = Pdf::loadView('common.report_main', [
+
+        return streamTabularReport([
             'dateRange' => $startDate . ' - ' . $endDate,
             'data' => $rows,
             'page_title' => $pageTitle,
             'columns' => $columns,
             'report_header' => $reportHeader,
-        ], [], [
-            'format' => 'A4-L',
-            'orientation' => 'L',
-            'margin_left' => 8,
-            'margin_right' => 8,
-            'margin_top' => 8,
-            'margin_bottom' => 8,
-        ]);
-
-        return $pdf->stream('FG-Wastage-Report.pdf');
+        ], 'FG-Wastage-Report');
     }
 
     /**

@@ -314,7 +314,7 @@ class POSController extends Controller
             ->when($request->filled('search_term'), function ($query) use ($request) {
                 return $query->where('name', 'like', '%' . $request->search_term . '%');
             })
-            ->orderBy('name');
+            ->orderBy('id');
 
         $paginator = $productsQuery->paginate($perPage, ['*'], 'page', $page);
         $products = $paginator->getCollection();
@@ -374,7 +374,7 @@ class POSController extends Controller
                     ->whereColumn('items.parent_id', 'chart_of_inventories.id')
                     ->where('items.type', 'item');
             })
-            ->orderBy('name')
+            ->orderBy('id')
             ->get();
     }
 
@@ -605,9 +605,38 @@ class POSController extends Controller
 
             $outlet_id = \auth('web')->user()->employee->outlet_id;
             $outlet = Outlet::find($outlet_id);
-            $store = Store::where(['doc_type' => 'outlet', 'doc_id' => $outlet->id])->first();
+            if (!$outlet) {
+                DB::rollBack();
+                return response()->json(['message' => 'Outlet not found for current user.'], 422);
+            }
 
-            $orderData = $request->order_data;
+            $store = Store::where([
+                'doc_type' => 'outlet',
+                'doc_id' => $outlet->id,
+                'status' => 'active',
+                'type' => 'FG',
+            ])->first();
+
+            if (!$store) {
+                $store = Store::where([
+                    'doc_type' => 'outlet',
+                    'doc_id' => $outlet->id,
+                    'status' => 'active',
+                ])->first();
+            }
+
+            if (!$store) {
+                DB::rollBack();
+                return response()->json(['message' => 'Active outlet store not found.'], 422);
+            }
+
+            $orderData = $request->order_data ?? [];
+            $deliveryDateRaw = $orderData['delivery_date'] ?? null;
+            if (empty($deliveryDateRaw)) {
+                DB::rollBack();
+                return response()->json(['message' => 'Delivery date is required.'], 422);
+            }
+
             $order = new PreOrder();
             $order->order_number = generateUniqueUUID($outlet_id, PreOrder::class, 'order_number');
             $order->order_date = $selectedDate;
@@ -617,32 +646,53 @@ class POSController extends Controller
             $order->customer_id = $customer_id;
             $order->created_by = auth('web')->user()->id;
 
-            $order->advance_amount = $orderData['advance_payment'];
-            $order->remark = $orderData['comment'];
-            $order->order_from = $orderData['order_from'];
-            $order->paid_by = $orderData['paid_by'];
-            $order->delivery_date = Carbon::parse($orderData['delivery_date'])->format('Y-m-d');
-            $order->customer_number = $request->customer_number;
+            $order->advance_amount = $orderData['advance_payment'] ?? 0;
+            $order->remark = $orderData['comment'] ?? null;
+            $order->order_from = $orderData['order_from'] ?? null;
+            $order->paid_by = $orderData['paid_by'] ?? null;
+            $order->delivery_date = Carbon::parse($deliveryDateRaw)->format('Y-m-d');
+            $order->customer_number = $request->customer_number ?: '';
             $order->outlet_id = $outlet_id;
+            $order->delivery_point_id = $outlet_id;
+            $order->status = 'pending';
             $order->save();
 
-            $products = $request->get('products');
+            $products = $request->get('products') ?? [];
+            if (count($products) < 1) {
+                DB::rollBack();
+                return response()->json(['message' => 'At least one product is required.'], 422);
+            }
+
             $productIds = collect($products)->pluck('id')->filter()->unique()->values();
             $stockByProduct = $productIds->isEmpty()
-                ? collect()
-                : getInventoryQuantities($productIds, $store->id);
-            foreach ($products as $row) {
-                $row['coi_id'] = $row['id'];
-                $row['unit_price'] = $row['price'];
-                $currentStock = $stockByProduct[$row['coi_id']] ?? 0;
-                if ($currentStock < $row['quantity']) {
-                    DB::rollBack();
-                    Toastr::error('Delivery Quantity cannot more then ' . $currentStock . ' !', '', ["progressBar" => true]);
-                    return back();
-                }
-                $stockByProduct[$row['coi_id']] = $currentStock - $row['quantity'];
+                ? []
+                : getPosTransactionAbleStockMap($store->id);
 
-                $order->items()->create($row);
+            foreach ($products as $row) {
+                $coiId = $row['id'] ?? null;
+                $quantity = (float) ($row['quantity'] ?? 0);
+                $unitPrice = $row['price'] ?? 0;
+
+                if (!$coiId || $quantity <= 0) {
+                    DB::rollBack();
+                    return response()->json(['message' => 'Invalid product quantity.'], 422);
+                }
+
+                $currentStock = (float) ($stockByProduct[$coiId] ?? 0);
+                if ($currentStock < $quantity) {
+                    DB::rollBack();
+                    return response()->json([
+                        'message' => 'Quantity cannot be more than available stock (' . $currentStock . ').',
+                    ], 422);
+                }
+                $stockByProduct[$coiId] = $currentStock - $quantity;
+
+                $order->items()->create([
+                    'coi_id' => $coiId,
+                    'quantity' => $quantity,
+                    'unit_price' => $unitPrice,
+                    'discount' => $row['discountAmount'] ?? ($row['discount'] ?? 0),
+                ]);
             }
             DB::commit();
         } catch (\Exception $error) {

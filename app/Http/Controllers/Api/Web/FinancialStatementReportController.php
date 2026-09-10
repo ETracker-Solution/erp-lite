@@ -76,6 +76,10 @@ class FinancialStatementReportController extends Controller
 
     private function streamReport(array $getData, string $reportHeader, string $dateRange, bool $showDebitCredit = false)
     {
+        if (wantsReportExcelExport()) {
+            return downloadFinancialStatementExcel($getData, $reportHeader, $dateRange, $showDebitCredit);
+        }
+
         @ini_set('pcre.backtrack_limit', '5000000');
         @ini_set('memory_limit', '512M');
 

@@ -85,6 +85,7 @@
                         <div class="card-body">
                             <div class="row">
                                 <div class="col-12">
+                                    @include('partials.report_export_format')
                                     <div class="text-center">
                                         <button class="btn btn-sm btn-dark w-50 mb-2" @click="showReport('account_ledger')">
                                             Show General Account Ledger
@@ -137,6 +138,7 @@
     <link rel="stylesheet" href="{{ asset('vue-js/bootstrap-select/dist/css/bootstrap-select.min.css') }}">
 @endpush
 @push('script')
+    @include('partials.report_export_blob')
     <script src="{{ asset('vue-js/vue/dist/vue.js') }}"></script>
     <script src="{{ asset('vue-js/axios/dist/axios.min.js') }}"></script>
     <script src="{{ asset('vue-js/bootstrap-select/dist/js/bootstrap-select.min.js') }}"></script>
@@ -188,6 +190,7 @@
                     supplier_id: '',
                     customer_id: '',
                     accounts: [],
+                    export_format: 'pdf',
                     pageLoading: false,
                 },
                 components: {
@@ -258,6 +261,7 @@
                                 account_id: vm.account_id,
                                 supplier_id: vm.supplier_id,
                                 customer_id: vm.customer_id,
+                                export_format: vm.export_format,
                             },
                             responseType: 'blob',
                         }).then(async function (response) {
@@ -270,10 +274,11 @@
                                 vm.pageLoading = false;
                                 return;
                             }
-                            const blob = new Blob([response.data], { type: 'application/pdf' });
-                            const url = window.URL.createObjectURL(blob);
-                            window.open(url);
-                            vm.pageLoading = false;
+                            try {
+                                await window.handleReportBlobResponse(response, vm.export_format, 'ledger-report');
+                            } finally {
+                                vm.pageLoading = false;
+                            }
                         }).catch(async function (error) {
                             vm.pageLoading = false;
                             const message = await vm.readBlobError(error);

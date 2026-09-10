@@ -42,7 +42,8 @@
             "app/Helpers/functions.php",
             "app/Helpers/inventory.php",
             "app/Helpers/accounts.php",
-            "app/Helpers/loyalty.php"
+            "app/Helpers/loyalty.php",
+            "app/Helpers/report_export.php"
         ]
     },
     "autoload-dev": {

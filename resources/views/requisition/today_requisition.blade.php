@@ -26,8 +26,8 @@
                                 </div>
                             </div>
                             <div class="card-tools mt-2 mt-md-0">
-                                <x-button-pdf route="{{ route('today.requisitions.export', 'pdf') }}"/>
-                                <x-button-excel route="{{ route('today.requisitions.export', 'xlsx') }}"/>
+                                <x-buttons.pdf route="{{ route('today.requisitions.export', 'pdf') }}"/>
+                                <x-buttons.excel route="{{ route('today.requisitions.export', 'xlsx') }}"/>
                             </div>
                         </div>
 

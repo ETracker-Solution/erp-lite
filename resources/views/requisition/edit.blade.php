@@ -15,7 +15,7 @@
     <section class="content">
         <div class="container-fluid">
             <div class="row" id="vue_app">
-                <div v-if="pageLoading" class="pageLoader" role="status" aria-live="polite">
+                <div v-if="pageLoading" class="reqToastLoader" role="status" aria-live="polite">
                     <span class="spinner-border spinner-border-sm mr-2" aria-hidden="true"></span>
                     Loading requisition…
                 </div>
@@ -261,7 +261,7 @@
 @endsection
 @push('style')
     <style>
-        .pageLoader {
+        .reqToastLoader {
             position: fixed;
             top: 1rem;
             right: 1rem;
@@ -340,6 +340,14 @@
                 },
                 methods: {
 
+                    refreshSelectpickers() {
+                        let scrollY = window.scrollY || window.pageYOffset || 0;
+                        this.$nextTick(function () {
+                            $('.bSelect').selectpicker('refresh');
+                            window.scrollTo(0, scrollY);
+                        });
+                    },
+
                     fetch_item() {
                         var vm = this;
                         var slug = vm.group_id;
@@ -347,6 +355,7 @@
                         vm.item_id = '';
 
                         if (!slug) {
+                            vm.refreshSelectpickers();
                             return;
                         }
 
@@ -363,6 +372,7 @@
                             })
                             .finally(function () {
                                 vm.pageLoading = false;
+                                vm.refreshSelectpickers();
                             });
                     },
                     data_input() {
@@ -421,6 +431,7 @@
                                     }).finally(function () {
                                         vm.isDisabled = false;
                                         vm.pageLoading = false;
+                                        vm.refreshSelectpickers();
                                     });
                                 }
 
@@ -453,6 +464,7 @@
                             })
                             .finally(function () {
                                 vm.pageLoading = false;
+                                vm.refreshSelectpickers();
                             });
                     },
                     valid: function (index) {
@@ -468,9 +480,6 @@
                 },
                 beforeMount() {
                     this.load_old();
-                },
-                updated() {
-                    $('.bSelect').selectpicker('refresh');
                 }
 
             });

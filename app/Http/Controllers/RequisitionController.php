@@ -36,10 +36,65 @@ class RequisitionController extends Controller
     public function exportRequisition($type)
     {
         $exportableData = $this->getRequisitionData();
+        if ($type === 'pdf') {
+            $exportableData = $this->chunkRequisitionDataForPdf($exportableData, 7);
+        }
         $viewFileName = 'todays_requisition';
         $filenameToDownload = date('ymdHis') . '_todays_requisition';
-        return $this->exportService->exportFile($type, $viewFileName, $exportableData, $filenameToDownload, 'L'); // L stands for Landscape, if Portrait needed, just remove this params
+        return $this->exportService->exportFile($type, $viewFileName, $exportableData, $filenameToDownload, 'L');
+    }
 
+    /**
+     * Split outlet columns into pages of $perPage for Dompdf readability (full outlet names).
+     */
+    private function chunkRequisitionDataForPdf(array $data, int $perPage = 7): array
+    {
+        $outlets = collect($data['outlets'] ?? [])->values();
+        $values = $data['values'] ?? [];
+
+        if ($outlets->isEmpty()) {
+            $data['pages'] = [[
+                'headers' => $data['headers'] ?? ['Group', 'Product', 'Total', 'Current Stock', 'Production'],
+                'values' => $values,
+            ]];
+            return $data;
+        }
+
+        $pages = [];
+        foreach ($outlets->chunk($perPage) as $chunk) {
+            $indices = $chunk->keys()->all();
+            $headers = ['Group', 'Product'];
+            foreach ($chunk as $outlet) {
+                $headers[] = $outlet->name;
+            }
+            $headers[] = 'Total';
+            $headers[] = 'Current Stock';
+            $headers[] = 'Production';
+
+            $pageValues = [];
+            foreach ($values as $value) {
+                $qtySlice = [];
+                foreach ($indices as $i) {
+                    $qtySlice[] = $value['product_quantity'][$i] ?? 0;
+                }
+                $pageValues[] = [
+                    'group_name' => $value['group_name'] ?? '',
+                    'product_name' => $value['product_name'] ?? '',
+                    'product_quantity' => $qtySlice,
+                    'total' => $value['total'] ?? 0,
+                    'current_stock' => $value['current_stock'] ?? [0],
+                    'productionable' => $value['productionable'] ?? [0],
+                ];
+            }
+
+            $pages[] = [
+                'headers' => $headers,
+                'values' => $pageValues,
+            ];
+        }
+
+        $data['pages'] = $pages;
+        return $data;
     }
 
     public function exportFGRequisition($type)

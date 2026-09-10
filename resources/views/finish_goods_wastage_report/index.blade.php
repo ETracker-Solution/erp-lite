@@ -23,7 +23,7 @@
                         </div>
                         <div class="card-body">
                             <p class="text-muted small mb-3">
-                                Choose store / date range, then generate a PDF. Store Wise requires a store.
+                                Choose store / date range, then generate a PDF or Excel. Store Wise requires a store.
                             </p>
 
                             <div class="row">
@@ -55,7 +55,9 @@
 
                             <hr class="mt-1 mb-3">
 
-                            <div class="small text-muted mb-2">Generate PDF</div>
+                            @include('partials.report_export_format')
+
+                            <div class="small text-muted mb-2">Generate Report</div>
                             <div class="row">
                                 <div class="col-md-4 mb-2">
                                     <button type="button" class="btn btn-dark btn-block"
@@ -79,7 +81,7 @@
                                     </button>
                                 </div>
                             </div>
-                            <div v-if="pageLoading" class="text-muted small mt-2">Generating PDF…</div>
+                            <div v-if="pageLoading" class="text-muted small mt-2">Generating report…</div>
                         </div>
                     </div>
                 </div>
@@ -93,6 +95,7 @@
 @endpush
 
 @push('js_scripts')
+    @include('partials.report_export_blob')
     <script src="{{ asset('vue-js/vue/dist/vue.js') }}"></script>
     <script src="{{ asset('vue-js/axios/dist/axios.min.js') }}"></script>
     <script src="{{ asset('vue-js/bootstrap-select/dist/js/bootstrap-select.min.js') }}"></script>
@@ -107,6 +110,7 @@
                     from_date: @json(date('Y-m-d')),
                     to_date: @json(date('Y-m-d')),
                     store_id: '',
+                    export_format: 'pdf',
                     pageLoading: false,
                 },
                 methods: {
@@ -128,6 +132,7 @@
                                 from_date: vm.from_date,
                                 to_date: vm.to_date,
                                 store_id: vm.store_id || '',
+                                export_format: vm.export_format,
                             },
                             responseType: 'blob',
                         }).then(function (response) {
@@ -139,10 +144,10 @@
                                 vm.pageLoading = false;
                                 return;
                             }
-                            var blob = new Blob([response.data], {type: 'application/pdf'});
-                            var url = window.URL.createObjectURL(blob);
-                            window.open(url);
-                            vm.pageLoading = false;
+                            return window.handleReportBlobResponse(response, vm.export_format, 'fg-wastage-report')
+                                .finally(function () {
+                                    vm.pageLoading = false;
+                                });
                         }).catch(function (error) {
                             var message = 'Something went wrong';
                             if (error.response && error.response.data) {

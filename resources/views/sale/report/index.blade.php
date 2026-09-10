@@ -106,6 +106,7 @@
                         <div class="card-body">
                             <div class="row">
                                 <div class="col-12">
+                                    @include('partials.report_export_format')
                                     <div class="text-center">
                                         <button class="btn btn-sm btn-dark w-50 mb-2"
                                                 @click="showReport('All Sales Record')">
@@ -211,6 +212,7 @@
     <link rel="stylesheet" href="{{ asset('vue-js/bootstrap-select/dist/css/bootstrap-select.min.css') }}">
 @endpush
 @push('script')
+    @include('partials.report_export_blob')
     <script src="{{ asset('vue-js/vue/dist/vue.js') }}"></script>
     <script src="{{ asset('vue-js/axios/dist/axios.min.js') }}"></script>
     <script src="{{ asset('vue-js/bootstrap-select/dist/js/bootstrap-select.min.js') }}"></script>
@@ -229,6 +231,7 @@
                     from_date: new Date(),
                     to_date: new Date(),
                     as_on_date: new Date(),
+                    export_format: 'pdf',
                     pageLoading: false,
                     stores: [],
                     groups: [],
@@ -289,6 +292,7 @@
                                 item_id: vm.item_id,
                                 customer_id: vm.customer_id,
                                 store_id: vm.store_id,
+                                export_format: vm.export_format,
                             },
                             responseType: 'blob',
                         }).then(function (response) {
@@ -300,13 +304,12 @@
                                 vm.pageLoading = false;
                                 return false;
                             }
-                            const blob = new Blob([response.data], {
-                                type: 'application/pdf'
-                            });
-                            const url = window.URL.createObjectURL(blob);
-                            window.open(url)
-                            vm.pageLoading = false;
+                            return window.handleReportBlobResponse(response, vm.export_format, 'sale-report')
+                                .finally(function () {
+                                    vm.pageLoading = false;
+                                });
                         }).catch(function (error) {
+                            vm.pageLoading = false;
                             toastr.error('Something went to wrong', {
                                 closeButton: true,
                                 progressBar: true,

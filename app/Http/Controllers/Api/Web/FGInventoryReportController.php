@@ -65,7 +65,7 @@ class FGInventoryReportController extends Controller
             'columns' => $columns,
             'report_header'=>$report_header
         ];
-        $pdf = Pdf::loadView('common.report_main', $data);
-        $pdf->stream();
+
+        return streamTabularReport($data, 'FG-Inventory-Report');
     }
 }

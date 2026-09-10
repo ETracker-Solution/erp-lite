@@ -1199,7 +1199,10 @@
                             // vm.printInvoice(response.data.sale.id)
                         }).catch(function (error) {
                             console.log(error)
-                            toastr.error('Something Went Wrong', {
+                            var message = (error.response && error.response.data && error.response.data.message)
+                                ? error.response.data.message
+                                : 'Something Went Wrong';
+                            toastr.error(message, {
                                 closeButton: true,
                                 progressBar: true,
                             });

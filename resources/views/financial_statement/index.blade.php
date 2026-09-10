@@ -59,6 +59,7 @@
                         <div class="card-body">
                             <div class="row">
                                 <div class="col-12">
+                                    @include('partials.report_export_format')
                                     <div class="text-center">
                                         <button class="btn btn-sm btn-dark w-50 mb-2" @click="showReport('income_statement')">
                                            Income Statement
@@ -112,6 +113,7 @@
     </style>
 @endpush
 @push('script')
+    @include('partials.report_export_blob')
     <script src="{{ asset('vue-js/vue/dist/vue.js') }}"></script>
     <script src="{{ asset('vue-js/axios/dist/axios.min.js') }}"></script>
     <script src="{{ asset('vue-js/vuejs-datepicker.js') }}"></script>
@@ -136,6 +138,7 @@
                     from_date: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
                     to_date: new Date(),
                     as_on_date: new Date(),
+                    export_format: 'pdf',
                     pageLoading: false,
                 },
                 components: {
@@ -161,6 +164,7 @@
                                 from_date: toYmd(vm.from_date),
                                 to_date: toYmd(vm.to_date),
                                 as_on_date: toYmd(vm.as_on_date),
+                                export_format: vm.export_format,
                             },
                             responseType: 'blob',
                         }).then(async function (response) {
@@ -173,9 +177,11 @@
                                 vm.pageLoading = false;
                                 return;
                             }
-                            const blob = new Blob([response.data], { type: 'application/pdf' });
-                            window.open(window.URL.createObjectURL(blob));
-                            vm.pageLoading = false;
+                            try {
+                                await window.handleReportBlobResponse(response, vm.export_format, 'financial-statement');
+                            } finally {
+                                vm.pageLoading = false;
+                            }
                         }).catch(async function (error) {
                             vm.pageLoading = false;
                             toastr.error(await vm.readBlobError(error), {
