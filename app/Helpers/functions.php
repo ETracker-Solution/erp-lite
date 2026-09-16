@@ -78,9 +78,15 @@ function showStatus($status)
 
 function getDatesArrayFromDateRange(string $date_range)
 {
-    if (str_contains($date_range, ' to ')) {
-        return explode(' to ', $date_range);
+    $date_range = trim($date_range);
+    foreach ([' to ', ' - ', ' – ', ' — '] as $separator) {
+        if (str_contains($date_range, $separator)) {
+            $parts = array_map('trim', explode($separator, $date_range, 2));
+
+            return [$parts[0] ?? $date_range, $parts[1] ?? $parts[0] ?? $date_range];
+        }
     }
+
     return [$date_range, $date_range];
 }
 

@@ -424,8 +424,36 @@ class FundTransferVoucherController extends Controller
         }
 
         if (request()->filled('date_range')) {
-            // Do not clampReportDateRange here — 366-day clamp was hiding older FTV rows for admin.
-            searchColumnByDateRange($fundTransferVoucher, 'date');
+            // Sanitize / require both ends — raw flatpickr "change" can send a single date
+            // or "YYYY-MM-DD to " while the user is still picking the range.
+            $rawRange = trim((string) request('date_range'));
+            $hasBothEnds = str_contains($rawRange, ' to ')
+                || str_contains($rawRange, ' - ')
+                || str_contains($rawRange, ' – ')
+                || str_contains($rawRange, ' — ');
+
+            if ($hasBothEnds) {
+                [$rawFrom, $rawTo] = getDatesArrayFromDateRange($rawRange);
+                if (trim((string) $rawFrom) !== '' && trim((string) $rawTo) !== '') {
+                    $from = sanitizeReportDate($rawFrom);
+                    $to = sanitizeReportDate($rawTo);
+                    if ($to < $from) {
+                        [$from, $to] = [$to, $from];
+                    }
+                    $fundTransferVoucher->whereBetween('date', [$from, $to]);
+                } else {
+                    $fundTransferVoucher->whereBetween('date', [
+                        now()->subMonths(36)->toDateString(),
+                        now()->toDateString(),
+                    ]);
+                }
+            } else {
+                // Incomplete single-date pick — keep wide default instead of filtering one day.
+                $fundTransferVoucher->whereBetween('date', [
+                    now()->subMonths(36)->toDateString(),
+                    now()->toDateString(),
+                ]);
+            }
         } else {
             $fundTransferVoucher->whereBetween('date', [
                 now()->subMonths(36)->toDateString(),

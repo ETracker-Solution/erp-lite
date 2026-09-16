@@ -182,10 +182,46 @@
             if (sessionStorage.getItem('to_account_id')) {
                 $('select[name="to_account_id"]').val(sessionStorage.getItem('to_account_id'));
             }
-            // Always use a wide default — stale sessionStorage / DataTables state was showing an empty month.
-            const defaultDateRange = @json(now()->subMonths(36)->format('Y-m-d') . ' to ' . now()->format('Y-m-d'));
-            sessionStorage.setItem('date_range', defaultDateRange);
-            $('input[name="date_range"]').val(defaultDateRange);
+
+            const defaultFrom = @json(now()->subMonths(36)->format('Y-m-d'));
+            const defaultTo = @json(now()->format('Y-m-d'));
+            const defaultDateRange = defaultFrom + ' to ' + defaultTo;
+
+            // Prefer last chosen complete range; fall back to wide default.
+            let initialRange = sessionStorage.getItem('date_range') || defaultDateRange;
+            if (!initialRange.includes(' to ')) {
+                initialRange = defaultDateRange;
+            }
+            const initialParts = initialRange.split(' to ');
+            const initialFrom = (initialParts[0] || defaultFrom).trim();
+            const initialTo = (initialParts[1] || defaultTo).trim();
+            const safeInitialRange = initialFrom + ' to ' + initialTo;
+
+            sessionStorage.setItem('date_range', safeInitialRange);
+            $('input[name="date_range"]').val(safeInitialRange);
+
+            // Re-init range picker ourselves so we control format + when to reload.
+            // Global form-pickers.js already attached; destroy that instance first.
+            const rangeInput = document.getElementById('fp-range');
+            if (rangeInput && rangeInput._flatpickr) {
+                rangeInput._flatpickr.destroy();
+            }
+            if (rangeInput && typeof flatpickr !== 'undefined') {
+                flatpickr(rangeInput, {
+                    mode: 'range',
+                    dateFormat: 'Y-m-d',
+                    defaultDate: [initialFrom, initialTo],
+                    onClose: function (selectedDates, dateStr) {
+                        // Only reload when both ends are chosen (avoids empty mid-pick filter).
+                        if (selectedDates.length !== 2 || !dateStr || dateStr.indexOf(' to ') === -1) {
+                            return;
+                        }
+                        sessionStorage.setItem('date_range', dateStr);
+                        recallDatatable();
+                    }
+                });
+            }
+
             if ($.fn.select2) {
                 $('.select2').select2({width: '100%'});
             }
@@ -268,12 +304,8 @@
                 element.style.opacity = "0.6";
                 window.location.href = href;
             });
-        })
+        });
 
-        $('#fp-range').on('change', function () {
-            sessionStorage.setItem('date_range', $('input[name="date_range"]').val());
-            recallDatatable();
-        })
         $('#outlet_id').on('change', function () {
             sessionStorage.setItem('outlet_id', $('select[name="outlet_id"]').val());
             recallDatatable();
@@ -291,7 +323,9 @@
         });
 
         function recallDatatable() {
-            $('#ftvTable').DataTable().draw(true);
+            if ($.fn.DataTable.isDataTable('#ftvTable')) {
+                $('#ftvTable').DataTable().ajax.reload(null, false);
+            }
         }
     </script>
 
