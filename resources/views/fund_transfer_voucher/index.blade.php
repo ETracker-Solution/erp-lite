@@ -24,7 +24,7 @@
                                     <label for="fp-range">Date Range</label>
                                     <input type="text" id="fp-range"
                                            class="form-control flatpickr-range"
-                                           placeholder="YYYY-MM-DD to YYYY-MM-DD" name="date_range"
+                                           placeholder="Pick day, or same day twice, or from–to" name="date_range"
                                            value="{{ now()->startOfMonth()->format('Y-m-d') . ' to ' . now()->format('Y-m-d') }}"/>
                                 </div>
                                 @can('accounts-ft-voucher-filter')
@@ -202,27 +202,49 @@
                     mode: 'range',
                     dateFormat: 'Y-m-d',
                     defaultDate: [defaultFrom, defaultTo],
+                    onChange: function (selectedDates, dateStr, instance) {
+                        // Two clicks (including same day twice) complete the range.
+                        if (selectedDates.length === 2) {
+                            applyFtvDateRange(selectedDates, dateStr, instance);
+                        }
+                    },
                     onClose: function (selectedDates, dateStr, instance) {
-                        if (!selectedDates.length) {
-                            return;
-                        }
-
-                        // One day selected then closed → same-day range (flatpickr would otherwise clear it).
+                        // One click then close → same-day range.
                         if (selectedDates.length === 1) {
-                            var day = selectedDates[0];
-                            instance.setDate([day, day], false);
-                            dateStr = instance.formatDate(day, 'Y-m-d') + ' to ' + instance.formatDate(day, 'Y-m-d');
+                            applyFtvDateRange(selectedDates, dateStr, instance);
                         }
-
-                        if (!dateStr || String(dateStr).indexOf(' to ') === -1) {
-                            return;
-                        }
-
-                        $('input[name="date_range"]').val(dateStr);
-                        sessionStorage.setItem('date_range', dateStr);
-                        recallDatatable();
                     }
                 });
+            }
+
+            function applyFtvDateRange(selectedDates, dateStr, instance) {
+                if (!selectedDates || !selectedDates.length) {
+                    return;
+                }
+
+                var fromDate = selectedDates[0];
+                var toDate = selectedDates.length > 1 ? selectedDates[1] : selectedDates[0];
+
+                // Normalize same-day (one click, or same date clicked twice).
+                if (selectedDates.length === 1 || fromDate.getTime() === toDate.getTime()) {
+                    instance.setDate([fromDate, fromDate], false);
+                    dateStr = instance.formatDate(fromDate, 'Y-m-d') + ' to ' + instance.formatDate(fromDate, 'Y-m-d');
+                } else if (!dateStr || String(dateStr).indexOf(' to ') === -1) {
+                    dateStr = instance.formatDate(fromDate, 'Y-m-d') + ' to ' + instance.formatDate(toDate, 'Y-m-d');
+                }
+
+                if (!dateStr || String(dateStr).indexOf(' to ') === -1) {
+                    return;
+                }
+
+                var current = $('input[name="date_range"]').val();
+                if (current === dateStr) {
+                    return;
+                }
+
+                $('input[name="date_range"]').val(dateStr);
+                sessionStorage.setItem('date_range', dateStr);
+                recallDatatable();
             }
 
             if ($.fn.select2) {
