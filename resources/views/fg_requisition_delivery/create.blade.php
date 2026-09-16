@@ -39,28 +39,12 @@
 
                             <div class="card-body">
                                 <p class="text-muted small mb-3">
-                                    Deliver approved FG requisition from factory to outlet. FGRD No generates on save.
+                                    Select factory store, then outlet store, then FGR. Delivery lines load from the
+                                    requisition. FGRD No generates on save.
                                 </p>
 
+                                {{-- Step order matches main: Date → From → To → FGR → extras --}}
                                 <div class="row">
-                                    <div class="col-md-4">
-                                        <div class="form-group">
-                                            <label for="requisition_id">Requisition (FGR) <span class="text-danger">*</span></label>
-                                            <select name="requisition_id" id="requisition_id" class="form-control bSelect"
-                                                    v-model="requisition_id" required @change="onRequisitionChange($event)">
-                                                <option value="">Select requisition</option>
-                                                @foreach($requisitions as $row)
-                                                    <option value="{{ $row->id }}"
-                                                        data-from-store-id="{{ $row->from_store_id }}"
-                                                        data-to-store-id="{{ $row->to_store_id }}"
-                                                        {{ $prefillRequisitionId === (string) $row->id ? 'selected' : '' }}>
-                                                        {{ $row->uid ?: ('#'.$row->id) }}
-                                                        @if($row->date) — {{ $row->date }}@endif
-                                                    </option>
-                                                @endforeach
-                                            </select>
-                                        </div>
-                                    </div>
                                     <div class="col-md-4">
                                         <div class="form-group">
                                             <label for="date">Date <span class="text-danger">*</span></label>
@@ -70,20 +54,9 @@
                                     </div>
                                     <div class="col-md-4">
                                         <div class="form-group">
-                                            <label for="delivery_status">Delivery Status <span class="text-danger">*</span></label>
-                                            <select name="delivery_status" id="delivery_status" class="form-control"
-                                                    v-model="delivery_status" required>
-                                                <option value="full">Full Delivery</option>
-                                                <option value="partial">Partial</option>
-                                                <option value="close">Partial & Close</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <div class="form-group">
                                             <label for="from_store_id">From Store (Factory) <span class="text-danger">*</span></label>
                                             <select name="from_store_id" id="from_store_id" class="form-control bSelect"
-                                                    v-model="from_store_id" required @change="reloadItems">
+                                                    v-model="from_store_id" required>
                                                 <option value="">Select store</option>
                                                 @foreach($from_stores as $row)
                                                     <option value="{{ $row->id }}">{{ $row->name }}</option>
@@ -95,7 +68,7 @@
                                         <div class="form-group">
                                             <label for="to_store_id">To Store (Outlet) <span class="text-danger">*</span></label>
                                             <select name="to_store_id" id="to_store_id" class="form-control bSelect"
-                                                    v-model="to_store_id" required>
+                                                    v-model="to_store_id" required @change="getPendingRequisitions">
                                                 <option value="">Select store</option>
                                                 @foreach($to_stores as $row)
                                                     <option value="{{ $row->id }}">{{ $row->name }}</option>
@@ -105,9 +78,37 @@
                                     </div>
                                     <div class="col-md-4">
                                         <div class="form-group">
+                                            <label for="requisition_id">Requisition (FGR) <span class="text-danger">*</span></label>
+                                            <select name="requisition_id" id="requisition_id" class="form-control bSelect"
+                                                    v-model="requisition_id" required @change="load_old">
+                                                <option value="">Select requisition</option>
+                                                <option :value="requisition.id"
+                                                        v-for="requisition in requisitions"
+                                                        :key="requisition.id">
+                                                    @{{ requisition.uid || ('#' + requisition.id) }}
+                                                </option>
+                                            </select>
+                                            <small class="text-muted" v-if="to_store_id && requisitions.length === 0 && !pageLoading">
+                                                No pending FGR for this outlet store.
+                                            </small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
                                             <label for="reference_no">Reference No</label>
                                             <input type="text" class="form-control" id="reference_no"
                                                    name="reference_no" v-model="reference_no" placeholder="Optional">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="delivery_status">Delivery Status <span class="text-danger">*</span></label>
+                                            <select name="delivery_status" id="delivery_status" class="form-control"
+                                                    v-model="delivery_status" required>
+                                                <option value="full">Full Delivery</option>
+                                                <option value="partial">Partial</option>
+                                                <option value="close">Partial & Close</option>
+                                            </select>
                                         </div>
                                     </div>
                                     <div class="col-md-12">
@@ -142,7 +143,7 @@
                                         <tbody>
                                         <tr v-if="!pageLoading && items.length === 0">
                                             <td colspan="8" class="text-center text-muted py-4">
-                                                Select an approved requisition to load lines.
+                                                Select To Store, then FGR, to load delivery lines.
                                             </td>
                                         </tr>
                                         <tr v-for="(row, index) in items" :key="row.coi_id">
@@ -226,8 +227,10 @@
                 data: {
                     config: {
                         get_old_items_data: "{{ url('fetch-requisition-by-id') }}",
+                        get_requisitions_by_store: "{{ url('fetch-requisitions-by-store-id') }}",
                     },
-                    requisition_id: @json($prefillRequisitionId),
+                    requisition_id: '',
+                    prefillRequisitionId: @json($prefillRequisitionId),
                     date: "{{ date('Y-m-d') }}",
                     reference_no: '',
                     remark: '',
@@ -235,6 +238,7 @@
                     from_store_id: '',
                     to_store_id: '',
                     items: [],
+                    requisitions: [],
                     pageLoading: false,
                 },
                 computed: {
@@ -244,98 +248,100 @@
                         }, 0);
                     },
                 },
-                mounted: function () {
-                    if (this.requisition_id) {
-                        this.$nextTick(function () {
-                            this.onRequisitionChange();
-                            $('.bSelect').selectpicker('refresh');
-                        }.bind(this));
-                    }
-                },
                 methods: {
+                    refreshSelectpickers: function () {
+                        this.$nextTick(function () {
+                            $('.bSelect').selectpicker('refresh');
+                        });
+                    },
                     delete_row: function (row) {
                         this.items.splice(this.items.indexOf(row), 1);
                     },
-                    onRequisitionChange: function (event) {
+                    getPendingRequisitions: function () {
                         var vm = this;
-                        var selectedId = event && event.target ? event.target.value : vm.requisition_id;
-                        vm.requisition_id = selectedId;
+                        vm.requisition_id = '';
+                        vm.requisitions = [];
+                        vm.items = [];
+
+                        if (!vm.to_store_id) {
+                            vm.refreshSelectpickers();
+                            return;
+                        }
+
                         vm.pageLoading = true;
-
-                        if (!selectedId) {
-                            vm.items = [];
-                            vm.pageLoading = false;
-                            return;
-                        }
-
-                        var select = document.getElementById('requisition_id');
-                        var option = select && select.options ? select.options[select.selectedIndex] : null;
-                        var factoryStoreId = option ? option.getAttribute('data-to-store-id') : '';
-                        var outletStoreId = option ? option.getAttribute('data-from-store-id') : '';
-
-                        // The option already contains the requisition stores, so load items once.
-                        if (factoryStoreId) {
-                            vm.from_store_id = String(factoryStoreId);
-                            vm.to_store_id = String(outletStoreId || '');
-                            vm.$nextTick(function () {
-                                $('.bSelect').selectpicker('refresh');
-                                vm.reloadItems();
-                            });
-                            return;
-                        }
-
-                        axios.get(this.config.get_old_items_data + '/' + selectedId)
-                            .then(function (response) {
-                                // Delivery: Factory (requisition.to) -> Outlet (requisition.from)
-                                vm.from_store_id = String(response.data.to_store_id || '');
-                                vm.to_store_id = String(response.data.from_store_id || '');
-                                vm.date = response.data.date || vm.date;
-                                vm.reference_no = response.data.reference_no || '';
-                                vm.remark = response.data.remark || '';
-                                vm.$nextTick(function () {
-                                    $('.bSelect').selectpicker('refresh');
-                                    vm.reloadItems();
-                                });
+                        axios.get(vm.config.get_requisitions_by_store + '/' + vm.to_store_id)
+                            .then(function (res) {
+                                vm.requisitions = res.data.requisitions || [];
+                                if (vm.prefillRequisitionId) {
+                                    var match = vm.requisitions.find(function (r) {
+                                        return String(r.id) === String(vm.prefillRequisitionId);
+                                    });
+                                    if (match) {
+                                        vm.requisition_id = String(match.id);
+                                        vm.prefillRequisitionId = '';
+                                        vm.$nextTick(function () {
+                                            vm.load_old();
+                                        });
+                                    }
+                                }
                             })
                             .catch(function () {
-                                vm.pageLoading = false;
-                                toastr.error('Failed to load requisition', {
+                                toastr.error('Failed to load requisitions', {
                                     closeButton: true,
                                     progressBar: true,
                                 });
+                            })
+                            .finally(function () {
+                                vm.pageLoading = false;
+                                vm.refreshSelectpickers();
                             });
                     },
-                    reloadItems: function () {
+                    load_old: function () {
                         var vm = this;
-                        if (!vm.requisition_id) {
-                            vm.pageLoading = false;
+                        var slug = vm.requisition_id;
+                        vm.items = [];
+
+                        if (!slug) {
+                            vm.refreshSelectpickers();
                             return;
                         }
-                        vm.pageLoading = true;
-                        var url = this.config.get_old_items_data + '/' + vm.requisition_id;
-                        if (vm.from_store_id) {
-                            url += '/' + vm.from_store_id;
+                        if (!vm.from_store_id) {
+                            toastr.error('Please select From Store (Factory) first', {
+                                closeButton: true,
+                                progressBar: true,
+                            });
+                            return;
                         }
-                        axios.get(url)
+
+                        vm.pageLoading = true;
+                        axios.get(vm.config.get_old_items_data + '/' + slug + '/' + vm.from_store_id)
                             .then(function (response) {
-                                vm.date = response.data.date || vm.date;
-                                vm.reference_no = response.data.reference_no || '';
-                                vm.remark = response.data.remark || '';
-                                vm.items = [];
                                 var item = response.data.items || [];
                                 for (var key in item) {
                                     if (Object.prototype.hasOwnProperty.call(item, key)) {
                                         vm.items.push(item[key]);
                                     }
                                 }
-                                vm.pageLoading = false;
+                                // Same store mapping as main: delivery factory = req.to, outlet = req.from
+                                if (response.data.to_store_id) {
+                                    vm.from_store_id = String(response.data.to_store_id);
+                                }
+                                if (response.data.from_store_id) {
+                                    vm.to_store_id = String(response.data.from_store_id);
+                                }
+                                vm.date = response.data.date || vm.date;
+                                vm.reference_no = response.data.reference_no || '';
+                                vm.remark = response.data.remark || '';
                             })
                             .catch(function () {
-                                vm.pageLoading = false;
-                                toastr.error('Failed to load items', {
+                                toastr.error('Failed to load requisition items', {
                                     closeButton: true,
                                     progressBar: true,
                                 });
+                            })
+                            .finally(function () {
+                                vm.pageLoading = false;
+                                vm.refreshSelectpickers();
                             });
                     },
                     valid: function (row) {
@@ -354,9 +360,6 @@
                             row.quantity = '';
                         }
                     },
-                },
-                updated: function () {
-                    $('.bSelect').selectpicker('refresh');
                 },
             });
 

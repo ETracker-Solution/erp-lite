@@ -60,11 +60,6 @@ class FGRequisitionDeliveryController extends Controller
     public function create()
     {
         $factoryId = auth()->user()?->employee?->factory_id;
-        $factoryStoreIds = $factoryId
-            ? Store::query()
-                ->where(['type' => 'FG', 'doc_type' => 'factory', 'doc_id' => $factoryId])
-                ->pluck('id')
-            : collect();
 
         return view('fg_requisition_delivery.create', [
             'from_stores' => Store::query()
@@ -76,13 +71,6 @@ class FGRequisitionDeliveryController extends Controller
                 ->where(['type' => 'FG', 'doc_type' => 'outlet', 'status' => 'active'])
                 ->orderBy('name')
                 ->get(['id', 'name']),
-            'requisitions' => Requisition::query()
-                ->select(['id', 'uid', 'date', 'from_store_id', 'to_store_id', 'status', 'delivery_status', 'type'])
-                ->where(['type' => 'FG', 'status' => 'approved'])
-                ->whereIn('delivery_status', ['pending', 'partial'])
-                ->when($factoryStoreIds->isNotEmpty(), fn ($q) => $q->whereIn('to_store_id', $factoryStoreIds))
-                ->latest('id')
-                ->get(),
         ]);
     }
 
