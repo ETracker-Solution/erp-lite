@@ -167,7 +167,7 @@
                                             </td>
                                             <td>@{{ row.uom }}</td>
                                             <td>
-                                                <input type="number" step="0.01" min="0.01"
+                                                <input type="number" step="0.01" min="0"
                                                        class="form-control form-control-sm text-right"
                                                        v-model="row.quantity"
                                                        :name="'products['+index+'][quantity]'"
@@ -271,7 +271,9 @@
                             return;
                         }
                         vm.pageLoading = true;
-                        axios.get(this.config.get_items_info_by_group_id_url + '/' + vm.group_id)
+                        axios.get(this.config.get_items_info_by_group_id_url + '/' + vm.group_id, {
+                            params: { light: 1 },
+                        })
                             .then(function (response) {
                                 vm.items = response.data.products || [];
                             })
@@ -293,7 +295,7 @@
                             name: product.name,
                             uom: product.uom || (product.unit ? product.unit.name : ''),
                             rate: product.rate != null ? product.rate : product.price,
-                            quantity: product.quantity || '',
+                            quantity: 0,
                         };
                     },
                     refreshSelectpickers: function () {
@@ -388,13 +390,13 @@
                         return ((parseFloat(row.quantity) || 0) * (parseFloat(row.rate) || 0)).toFixed(2);
                     },
                     valid_quantity: function (row) {
-                        var qty = parseFloat(row.quantity) || 0;
-                        if (qty <= 0) {
-                            toastr.error('Quantity 0 or Negative not Allow', {
+                        var qty = parseFloat(row.quantity);
+                        if (isNaN(qty) || qty < 0) {
+                            toastr.error('Quantity cannot be negative', {
                                 closeButton: true,
                                 progressBar: true,
                             });
-                            row.quantity = '';
+                            row.quantity = 0;
                         }
                     },
                 },

@@ -261,37 +261,19 @@ class ApiController extends Controller
             ->with(['parent:id,name', 'unit:id,name'])
             ->get();
 
+        // Fast path: item picker only (e.g. FG production entry) — skip stock / requisition math.
+        if (request()->boolean('light')) {
+            return ['products' => $this->mapGroupProductsForPicker($products, 0)];
+        }
+
         // Check if user is from factory
         if (auth()->user()->employee->user_of != 'factory') {
-            // If not factory user, return products without quantity calculation
-            foreach ($products as $product) {
-                $product['quantity'] = 0;
-                $product['group'] = $product->parent ? $product->parent->name : '';
-                $product['uom'] = $product->unit ? $product->unit->name : '';
-                $product['coi_id'] = $product->id;
-                $product['stock'] = '';
-                $product['price'] = $product->price;
-                $product['rate'] = $product->price;
-                $product['selling_price'] = '';
-            }
-
-            return ['products' => $products];
+            return ['products' => $this->mapGroupProductsForPicker($products, 0)];
         }
 
         // Check if factory exists
         if (!auth()->user()->employee->factory) {
-            foreach ($products as $product) {
-                $product['quantity'] = 0;
-                $product['group'] = $product->parent ? $product->parent->name : '';
-                $product['uom'] = $product->unit ? $product->unit->name : '';
-                $product['coi_id'] = $product->id;
-                $product['stock'] = '';
-                $product['price'] = $product->price;
-                $product['rate'] = $product->price;
-                $product['selling_price'] = '';
-            }
-
-            return ['products' => $products];
+            return ['products' => $this->mapGroupProductsForPicker($products, 0)];
         }
 
         $factoryId = auth()->user()->employee->factory_id;
@@ -319,25 +301,47 @@ class ApiController extends Controller
         // Batch calculate requisition left quantities
         $reqLeftData = $this->batchCalculateReqLeft($productIds, $outletIds);
 
-        // Map results to products
+        $quantities = [];
         foreach ($products as $product) {
             $currentStock = $stockData[$product->id] ?? 0;
             $reqLeft = $reqLeftData[$product->id] ?? 0;
-            $needToProduction = $reqLeft - $currentStock;
-
-            $product['quantity'] = max($needToProduction, 0);
-            $product['group'] = $product->parent ? $product->parent->name : '';
-            $product['uom'] = $product->unit ? $product->unit->name : '';
-            $product['coi_id'] = $product->id;
-            $product['stock'] = '';
-            $product['price'] = $product->price;
-            $product['rate'] = $product->price;
-            $product['selling_price'] = '';
+            $quantities[$product->id] = max($reqLeft - $currentStock, 0);
         }
 
         return [
-            'products' => $products
+            'products' => $this->mapGroupProductsForPicker($products, $quantities),
         ];
+    }
+
+    /**
+     * @param  \Illuminate\Support\Collection|iterable  $products
+     * @param  float|int|array<int, float|int>  $defaultQuantity  scalar or map coi_id => qty
+     */
+    private function mapGroupProductsForPicker($products, $defaultQuantity = 0): array
+    {
+        $mapped = [];
+        foreach ($products as $product) {
+            $qty = is_array($defaultQuantity)
+                ? ($defaultQuantity[$product->id] ?? 0)
+                : $defaultQuantity;
+
+            $mapped[] = [
+                'id' => $product->id,
+                'name' => $product->name,
+                'group' => $product->parent ? $product->parent->name : '',
+                'uom' => $product->unit ? $product->unit->name : '',
+                'coi_id' => $product->id,
+                'stock' => '',
+                'price' => $product->price,
+                'rate' => $product->price,
+                'selling_price' => '',
+                'quantity' => $qty,
+                'parent' => $product->parent,
+                'unit' => $product->unit,
+            ];
+        }
+
+        return $mapped;
     }
 
     private function batchCalculateStock(array $productIds, array $storeIds): array
