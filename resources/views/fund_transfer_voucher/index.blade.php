@@ -186,10 +186,41 @@
             const defaultFrom = @json(now()->startOfMonth()->format('Y-m-d'));
             const defaultTo = @json(now()->format('Y-m-d'));
             const defaultDateRange = defaultFrom + ' to ' + defaultTo;
+            let lastAppliedRange = defaultDateRange;
 
             // Always open on current month (ignore old wide sessionStorage ranges).
             sessionStorage.setItem('date_range', defaultDateRange);
             $('input[name="date_range"]').val(defaultDateRange);
+
+            function applyFtvDateRange(selectedDates, dateStr, instance) {
+                if (!selectedDates || !selectedDates.length || !instance) {
+                    return;
+                }
+
+                var fromDate = selectedDates[0];
+                var toDate = selectedDates.length > 1 ? selectedDates[1] : selectedDates[0];
+                var fromStr = instance.formatDate(fromDate, 'Y-m-d');
+                var toStr = instance.formatDate(toDate, 'Y-m-d');
+
+                // One click, or same day clicked twice → single-day filter.
+                if (selectedDates.length === 1 || fromStr === toStr) {
+                    instance.setDate([fromDate, fromDate], false);
+                    dateStr = fromStr + ' to ' + fromStr;
+                } else {
+                    dateStr = fromStr + ' to ' + toStr;
+                }
+
+                // Flatpickr already writes dateStr into the input before onChange,
+                // so compare against last applied filter (not the input value).
+                if (lastAppliedRange === dateStr) {
+                    return;
+                }
+
+                lastAppliedRange = dateStr;
+                $('input[name="date_range"]').val(dateStr);
+                sessionStorage.setItem('date_range', dateStr);
+                recallDatatable();
+            }
 
             // Re-init range picker ourselves so we control format + when to reload.
             // Global form-pickers.js already attached; destroy that instance first.
@@ -215,36 +246,6 @@
                         }
                     }
                 });
-            }
-
-            function applyFtvDateRange(selectedDates, dateStr, instance) {
-                if (!selectedDates || !selectedDates.length) {
-                    return;
-                }
-
-                var fromDate = selectedDates[0];
-                var toDate = selectedDates.length > 1 ? selectedDates[1] : selectedDates[0];
-
-                // Normalize same-day (one click, or same date clicked twice).
-                if (selectedDates.length === 1 || fromDate.getTime() === toDate.getTime()) {
-                    instance.setDate([fromDate, fromDate], false);
-                    dateStr = instance.formatDate(fromDate, 'Y-m-d') + ' to ' + instance.formatDate(fromDate, 'Y-m-d');
-                } else if (!dateStr || String(dateStr).indexOf(' to ') === -1) {
-                    dateStr = instance.formatDate(fromDate, 'Y-m-d') + ' to ' + instance.formatDate(toDate, 'Y-m-d');
-                }
-
-                if (!dateStr || String(dateStr).indexOf(' to ') === -1) {
-                    return;
-                }
-
-                var current = $('input[name="date_range"]').val();
-                if (current === dateStr) {
-                    return;
-                }
-
-                $('input[name="date_range"]').val(dateStr);
-                sessionStorage.setItem('date_range', dateStr);
-                recallDatatable();
             }
 
             if ($.fn.select2) {
