@@ -15,6 +15,9 @@
     <section class="content">
         <div class="container-fluid">
             <div class="row" id="vue_app">
+                <span v-if="pageLoading" class="categoryLoader">
+                    <img src="{{ asset('loading.gif') }}" alt="loading">
+                </span>
                 <div class="col-lg-10 offset-lg-1">
                     <form action="{{ route('productions.store') }}" method="POST" class="prevent-enter-submit">
                         @csrf
@@ -127,7 +130,7 @@
                                     <div class="col-md-3">
                                         <div class="form-group">
                                             <button type="button" class="btn btn-info btn-block"
-                                                    @click="data_input" :disabled="isDisabled">
+                                                    @click="data_input" :disabled="isDisabled || pageLoading">
                                                 <i class="fa fa-plus"></i> Add Item
                                             </button>
                                         </div>
@@ -245,6 +248,7 @@
                     items: [],
                     selected_items: [],
                     isDisabled: false,
+                    pageLoading: false,
                 },
                 computed: {
                     total_quantity: function () {
@@ -266,6 +270,7 @@
                         if (!vm.group_id) {
                             return;
                         }
+                        vm.pageLoading = true;
                         axios.get(this.config.get_items_info_by_group_id_url + '/' + vm.group_id)
                             .then(function (response) {
                                 vm.items = response.data.products || [];
@@ -275,6 +280,9 @@
                                     closeButton: true,
                                     progressBar: true,
                                 });
+                            })
+                            .finally(function () {
+                                vm.pageLoading = false;
                             });
                     },
                     data_input: function () {
@@ -297,6 +305,7 @@
                         }
 
                         vm.isDisabled = true;
+                        vm.pageLoading = true;
                         var item_id = vm.item_id;
 
                         if (item_id) {
@@ -306,6 +315,7 @@
                             if (exists) {
                                 toastr.info('Item Already Selected', {closeButton: true, progressBar: true});
                                 vm.isDisabled = false;
+                                vm.pageLoading = false;
                                 return;
                             }
 
@@ -321,14 +331,16 @@
                                         quantity: item_info.quantity || '',
                                     });
                                     vm.item_id = '';
-                                    vm.isDisabled = false;
                                 })
                                 .catch(function () {
                                     toastr.error('Something went to wrong', {
                                         closeButton: true,
                                         progressBar: true,
                                     });
+                                })
+                                .finally(function () {
                                     vm.isDisabled = false;
+                                    vm.pageLoading = false;
                                 });
                             return;
                         }
@@ -348,14 +360,16 @@
                                         vm.selected_items.push(product);
                                     }
                                 }
-                                vm.isDisabled = false;
                             })
                             .catch(function () {
                                 toastr.error('Something went to wrong', {
                                     closeButton: true,
                                     progressBar: true,
                                 });
+                            })
+                            .finally(function () {
                                 vm.isDisabled = false;
+                                vm.pageLoading = false;
                             });
                     },
                     delete_row: function (row) {

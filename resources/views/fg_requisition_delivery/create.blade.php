@@ -16,6 +16,9 @@
     <section class="content">
         <div class="container-fluid">
             <div class="row" id="vue_app">
+                <span v-if="pageLoading" class="categoryLoader">
+                    <img src="{{ asset('loading.gif') }}" alt="loading">
+                </span>
                 <div class="col-lg-10 offset-lg-1">
                     <form action="{{ route('fg-requisition-deliveries.store') }}" method="POST"
                           class="prevent-enter-submit">
@@ -120,7 +123,6 @@
 
                                 <div class="d-flex align-items-center justify-content-between mb-2">
                                     <h6 class="mb-0 font-weight-bold">Delivery Items</h6>
-                                    <span class="text-muted small" v-if="pageLoading">Loading…</span>
                                 </div>
 
                                 <div class="table-responsive">
