@@ -15,87 +15,78 @@
         <div class="container-fluid">
             <div class="row">
                 <div class="col-12">
-                    <div class="card">
-                        <div class="card-header bg-info">
-                            <h3 class="card-title">Pre Order List</h3>
-                            <div class="card-tools">
-                                {{--                                @can('sales-pre-order-entry')--}}
-                                {{--                                    <a href="{{route('pre-orders.create')}}">--}}
-                                {{--                                        <button class="btn btn-sm btn-primary"><i class="fa fa-plus-circle"--}}
-                                {{--                                                                                  aria-hidden="true"></i> &nbsp;Add New--}}
-                                {{--                                        </button>--}}
-                                {{--                                    </a>--}}
-                                {{--                                @endcan--}}
-                            </div>
+                    <div class="card card-info">
+                        <div class="card-header">
+                            <h3 class="card-title mb-0">Pre Order List</h3>
                         </div>
-                        <!-- /.card-header -->
-                        <div class="card-body table-responsive">
-                            <div class="erp-filters">
-                            <div class="row">
-                                <div class="col-3">
-                                    <div class="form-group">
-                                        <label for="">Filter By</label>
-                                        <select name="filter_by" id="filter_by" class="form-control">
-                                            <option value="">All</option>
-                                            <option value="delivery_date">Delivery</option>
-                                            <option value="order_date">Ordered</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="col-3">
-                                    <div class="form-group">
-                                        <label for="">Status</label>
-                                        <select name="status" id="" class="form-control">
-                                            <option value="">All</option>
-                                            <option value="pending">Pending</option>
-                                            <option value="approved">Approved</option>
-                                            <option value="delivered">Delivered</option>
-                                            <option value="received">Received</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                @if(!isset(auth()->user()?->employee?->outlet_id))
-                                    <div class="col-3">
+                        <div class="card-body">
+                            <div class="erp-filters mb-3">
+                                <div class="row">
+                                    <div class="col-md-3">
                                         <div class="form-group">
-                                            <label for="">Outlet</label>
-                                            <select name="outlet_id" id="outlet_id" class="form-control">
+                                            <label for="filter_by">Filter By</label>
+                                            <select name="filter_by" id="filter_by" class="form-control">
                                                 <option value="">All</option>
-                                                @foreach($outlets as $outlet)
-                                                    <option value="{{ $outlet->id }}">{{ $outlet->name }}</option>
-                                                @endforeach
+                                                <option value="delivery_date">Delivery</option>
+                                                <option value="order_date">Ordered</option>
                                             </select>
                                         </div>
                                     </div>
-                                @endif
-                            </div>
-                            <div class="row">
-                                <div class="col-3">
-                                    <div class="form-group">
-                                        <label for="">From Date</label>
-                                        <input type="date" name="from_date" id="from_date" class="form-control">
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label for="status">Status</label>
+                                            <select name="status" id="status" class="form-control">
+                                                <option value="">All</option>
+                                                <option value="pending">Pending</option>
+                                                <option value="approved">Approved</option>
+                                                <option value="delivered">Delivered</option>
+                                                <option value="received">Received</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    @if(!isset(auth()->user()?->employee?->outlet_id))
+                                        <div class="col-md-3">
+                                            <div class="form-group">
+                                                <label for="outlet_id">Outlet</label>
+                                                <select name="outlet_id" id="outlet_id" class="form-control">
+                                                    <option value="">All</option>
+                                                    @foreach($outlets as $outlet)
+                                                        <option value="{{ $outlet->id }}">{{ $outlet->name }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                        </div>
+                                    @endif
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label for="from_date">From Date</label>
+                                            <input type="date" name="from_date" id="from_date" class="form-control">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label for="to_date">To Date</label>
+                                            <input type="date" name="to_date" id="to_date" class="form-control">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 d-flex align-items-end mb-3">
+                                        <button class="btn btn-primary mr-2" type="button" id="search-btn">Search</button>
+                                        <form method="GET" action="{{ route('pre-order.excel.export','xlsx') }}"
+                                              id="excelForm" class="mb-0">
+                                            @csrf
+                                            <button class="btn btn-success" type="button" id="excel-btn">EXCEL</button>
+                                        </form>
                                     </div>
                                 </div>
-                                <div class="col-3">
-                                    <div class="form-group">
-                                        <label for="">To Date</label>
-                                        <input type="date" name="to_date" id="to_date" class="form-control">
-                                    </div>
-                                </div>
                             </div>
-                            <button class="btn btn-primary mb-2" type="button" id="search-btn">Search</button>
-                            <form method="GET" action="{{route('pre-order.excel.export','xlsx')}}" id="excelForm">
-                                @csrf
-                                <button class="btn btn-success mb-2" type="button" id="excel-btn">EXCEL</button>
-                            </form>
-                            </div>
-                            <table id="dataTable" class="table table-bordered">
-                                {{-- show from datatable--}}
-                            </table>
-                        </div>
-                        <!-- /.card-body -->
-                    </div>
-                    <!-- /.card -->
 
+                            <div class="table-responsive pre-order-table-wrap">
+                                <table id="dataTable" class="table table-bordered table-hover table-sm w-100 mb-0">
+                                    {{-- filled by DataTables --}}
+                                </table>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
             <!-- /.row -->
@@ -209,13 +200,33 @@
     <link rel="stylesheet" href="{{ asset('assets/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css')}}">
 @endsection
 @push('style')
+    <style>
+        /* Keep all columns visible: scroll inside the window instead of DataTables hiding them */
+        .pre-order-table-wrap {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        #dataTable {
+            width: 100% !important;
+        }
+
+        #dataTable th,
+        #dataTable td {
+            white-space: nowrap;
+            vertical-align: middle;
+        }
+
+        .dataTables_wrapper .dataTables_scroll {
+            width: 100%;
+        }
+    </style>
 @endpush
 @section('js')
     <!-- DataTables -->
     <script src="{{ asset('assets/plugins/datatables/jquery.dataTables.min.js')}}"></script>
     <script src="{{ asset('assets/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js')}}"></script>
-    <script src="{{ asset('assets/plugins/datatables-responsive/js/dataTables.responsive.min.js')}}"></script>
-    <script src="{{ asset('assets/plugins/datatables-responsive/js/responsive.bootstrap4.min.js')}}"></script>
 @endsection
 @push('script')
     <!-- page script -->
@@ -253,8 +264,10 @@
             @endif
 
             table = $('#dataTable').DataTable({
-                stateSave: true,
-                responsive: true,
+                stateSave: false,
+                responsive: false,
+                scrollX: true,
+                autoWidth: false,
                 serverSide: true,
                 processing: true,
                 ajax: {
@@ -308,12 +321,12 @@
                     },
                     {
                         data: "delivery_date",
-                        title: "delivery date",
+                        title: "Delivery Date",
                         searchable: true
                     },
                     {
                         data: "order_date",
-                        title: "order date",
+                        title: "Order Date",
                         searchable: true
                     },
                     {
@@ -328,6 +341,13 @@
                         searchable: false
                     },
                 ],
+            });
+
+            // Keep table sized to the content area on sidebar/window resize
+            $(window).on('resize.preOrderTable', function () {
+                if (table) {
+                    table.columns.adjust();
+                }
             });
 
             $('select[name="filter_by"], select[name="status"], select[name="outlet_id"], input[name="from_date"], input[name="to_date"]').on('change', function () {
