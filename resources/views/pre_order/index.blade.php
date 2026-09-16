@@ -242,7 +242,7 @@
 
             @if(!(auth()->user()->employee->outlet_id ?? false))
             if (!$('select[name="filter_by"]').val()) {
-                $('select[name="filter_by"]').val('delivery_date');
+                $('select[name="filter_by"]').val('');
             }
             if (!$('input[name="from_date"]').val()) {
                 $('input[name="from_date"]').val('{{ now()->subMonths(3)->toDateString() }}');
