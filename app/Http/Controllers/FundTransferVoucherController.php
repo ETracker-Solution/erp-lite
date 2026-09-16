@@ -424,39 +424,28 @@ class FundTransferVoucherController extends Controller
         }
 
         if (request()->filled('date_range')) {
-            // Sanitize / require both ends — raw flatpickr "change" can send a single date
-            // or "YYYY-MM-DD to " while the user is still picking the range.
             $rawRange = trim((string) request('date_range'));
-            $hasBothEnds = str_contains($rawRange, ' to ')
-                || str_contains($rawRange, ' - ')
-                || str_contains($rawRange, ' – ')
-                || str_contains($rawRange, ' — ');
+            [$rawFrom, $rawTo] = getDatesArrayFromDateRange($rawRange);
 
-            if ($hasBothEnds) {
-                [$rawFrom, $rawTo] = getDatesArrayFromDateRange($rawRange);
-                if (trim((string) $rawFrom) !== '' && trim((string) $rawTo) !== '') {
-                    $from = sanitizeReportDate($rawFrom);
-                    $to = sanitizeReportDate($rawTo);
-                    if ($to < $from) {
-                        [$from, $to] = [$to, $from];
-                    }
-                    $fundTransferVoucher->whereBetween('date', [$from, $to]);
-                } else {
-                    $fundTransferVoucher->whereBetween('date', [
-                        now()->subMonths(36)->toDateString(),
-                        now()->toDateString(),
-                    ]);
+            // Single date ("2024-05-01") or full range both map to from/to.
+            if (trim((string) $rawFrom) !== '') {
+                $from = sanitizeReportDate($rawFrom);
+                $to = trim((string) $rawTo) !== ''
+                    ? sanitizeReportDate($rawTo)
+                    : $from;
+                if ($to < $from) {
+                    [$from, $to] = [$to, $from];
                 }
+                $fundTransferVoucher->whereBetween('date', [$from, $to]);
             } else {
-                // Incomplete single-date pick — keep wide default instead of filtering one day.
                 $fundTransferVoucher->whereBetween('date', [
-                    now()->subMonths(36)->toDateString(),
+                    now()->startOfMonth()->toDateString(),
                     now()->toDateString(),
                 ]);
             }
         } else {
             $fundTransferVoucher->whereBetween('date', [
-                now()->subMonths(36)->toDateString(),
+                now()->startOfMonth()->toDateString(),
                 now()->toDateString(),
             ]);
         }
@@ -471,7 +460,7 @@ class FundTransferVoucherController extends Controller
             [$from, $to] = getDatesArrayFromDateRange(request('date_range'));
             [$from, $to] = clampReportDateRange(sanitizeReportDate($from), sanitizeReportDate($to), 1100);
         } else {
-            $from = now()->subMonths(36)->toDateString();
+            $from = now()->startOfMonth()->toDateString();
             $to = now()->toDateString();
         }
 

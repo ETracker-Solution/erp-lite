@@ -25,7 +25,7 @@
                                     <input type="text" id="fp-range"
                                            class="form-control flatpickr-range"
                                            placeholder="YYYY-MM-DD to YYYY-MM-DD" name="date_range"
-                                           value="{{ now()->subMonths(36)->format('Y-m-d') . ' to ' . now()->format('Y-m-d') }}"/>
+                                           value="{{ now()->startOfMonth()->format('Y-m-d') . ' to ' . now()->format('Y-m-d') }}"/>
                                 </div>
                                 @can('accounts-ft-voucher-filter')
                                     <div class="form-group col-md-3">
@@ -183,22 +183,13 @@
                 $('select[name="to_account_id"]').val(sessionStorage.getItem('to_account_id'));
             }
 
-            const defaultFrom = @json(now()->subMonths(36)->format('Y-m-d'));
+            const defaultFrom = @json(now()->startOfMonth()->format('Y-m-d'));
             const defaultTo = @json(now()->format('Y-m-d'));
             const defaultDateRange = defaultFrom + ' to ' + defaultTo;
 
-            // Prefer last chosen complete range; fall back to wide default.
-            let initialRange = sessionStorage.getItem('date_range') || defaultDateRange;
-            if (!initialRange.includes(' to ')) {
-                initialRange = defaultDateRange;
-            }
-            const initialParts = initialRange.split(' to ');
-            const initialFrom = (initialParts[0] || defaultFrom).trim();
-            const initialTo = (initialParts[1] || defaultTo).trim();
-            const safeInitialRange = initialFrom + ' to ' + initialTo;
-
-            sessionStorage.setItem('date_range', safeInitialRange);
-            $('input[name="date_range"]').val(safeInitialRange);
+            // Always open on current month (ignore old wide sessionStorage ranges).
+            sessionStorage.setItem('date_range', defaultDateRange);
+            $('input[name="date_range"]').val(defaultDateRange);
 
             // Re-init range picker ourselves so we control format + when to reload.
             // Global form-pickers.js already attached; destroy that instance first.
@@ -210,12 +201,24 @@
                 flatpickr(rangeInput, {
                     mode: 'range',
                     dateFormat: 'Y-m-d',
-                    defaultDate: [initialFrom, initialTo],
-                    onClose: function (selectedDates, dateStr) {
-                        // Only reload when both ends are chosen (avoids empty mid-pick filter).
-                        if (selectedDates.length !== 2 || !dateStr || dateStr.indexOf(' to ') === -1) {
+                    defaultDate: [defaultFrom, defaultTo],
+                    onClose: function (selectedDates, dateStr, instance) {
+                        if (!selectedDates.length) {
                             return;
                         }
+
+                        // One day selected then closed → same-day range (flatpickr would otherwise clear it).
+                        if (selectedDates.length === 1) {
+                            var day = selectedDates[0];
+                            instance.setDate([day, day], false);
+                            dateStr = instance.formatDate(day, 'Y-m-d') + ' to ' + instance.formatDate(day, 'Y-m-d');
+                        }
+
+                        if (!dateStr || String(dateStr).indexOf(' to ') === -1) {
+                            return;
+                        }
+
+                        $('input[name="date_range"]').val(dateStr);
                         sessionStorage.setItem('date_range', dateStr);
                         recallDatatable();
                     }
