@@ -50,8 +50,6 @@ class SaleController extends Controller
             if (auth()->user()?->employee?->outlet_id) {
                 $query->where('outlet_id', auth()->user()->employee->outlet_id)
                     ->where('date', date('Y-m-d'));
-            } elseif (!filled(request()->input('search.value'))) {
-                $query->where('date', '>=', now()->subMonths(6)->toDateString());
             }
 
             return DataTables::eloquent($query->latest('id'))

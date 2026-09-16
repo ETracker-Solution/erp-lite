@@ -235,7 +235,6 @@
                 data: {
                     config: {
                         get_items_info_by_group_id_url: "{{ url('fetch-items-by-group-id') }}",
-                        get_item_info_url: "{{ url('fetch-item-info') }}",
                     },
                     date: "{{ date('Y-m-d') }}",
                     factory_id: '',
@@ -268,6 +267,7 @@
                         vm.item_id = '';
                         vm.items = [];
                         if (!vm.group_id) {
+                            vm.refreshSelectpickers();
                             return;
                         }
                         vm.pageLoading = true;
@@ -283,7 +283,23 @@
                             })
                             .finally(function () {
                                 vm.pageLoading = false;
+                                vm.refreshSelectpickers();
                             });
+                    },
+                    mapProductRow: function (product) {
+                        return {
+                            id: product.id,
+                            group: product.group || (product.parent ? product.parent.name : ''),
+                            name: product.name,
+                            uom: product.uom || (product.unit ? product.unit.name : ''),
+                            rate: product.rate != null ? product.rate : product.price,
+                            quantity: product.quantity || '',
+                        };
+                    },
+                    refreshSelectpickers: function () {
+                        this.$nextTick(function () {
+                            $('.bSelect').selectpicker('refresh');
+                        });
                     },
                     data_input: function () {
                         var vm = this;
@@ -304,73 +320,66 @@
                             return;
                         }
 
-                        vm.isDisabled = true;
-                        vm.pageLoading = true;
                         var item_id = vm.item_id;
+                        var selectedIds = {};
+                        vm.selected_items.forEach(function (field) {
+                            selectedIds[field.id] = true;
+                        });
 
                         if (item_id) {
-                            var exists = vm.selected_items.some(function (field) {
-                                return field.id == item_id;
-                            });
-                            if (exists) {
+                            if (selectedIds[item_id]) {
                                 toastr.info('Item Already Selected', {closeButton: true, progressBar: true});
-                                vm.isDisabled = false;
-                                vm.pageLoading = false;
                                 return;
                             }
 
-                            axios.get(this.config.get_item_info_url + '/' + item_id)
-                                .then(function (response) {
-                                    var item_info = response.data;
-                                    vm.selected_items.push({
-                                        id: item_info.id,
-                                        group: item_info.parent ? item_info.parent.name : '',
-                                        name: item_info.name,
-                                        uom: item_info.unit ? item_info.unit.name : '',
-                                        rate: item_info.price,
-                                        quantity: item_info.quantity || '',
-                                    });
-                                    vm.item_id = '';
-                                })
-                                .catch(function () {
-                                    toastr.error('Something went to wrong', {
-                                        closeButton: true,
-                                        progressBar: true,
-                                    });
-                                })
-                                .finally(function () {
-                                    vm.isDisabled = false;
-                                    vm.pageLoading = false;
-                                });
-                            return;
-                        }
-
-                        axios.get(this.config.get_items_info_by_group_id_url + '/' + vm.group_id)
-                            .then(function (response) {
-                                var items = response.data.products || [];
-                                for (var key in items) {
-                                    if (!Object.prototype.hasOwnProperty.call(items, key)) {
-                                        continue;
-                                    }
-                                    var product = items[key];
-                                    var already = vm.selected_items.some(function (field) {
-                                        return field.id == product.id;
-                                    });
-                                    if (!already) {
-                                        vm.selected_items.push(product);
-                                    }
+                            var product = null;
+                            for (var i = 0; i < vm.items.length; i++) {
+                                if (String(vm.items[i].id) === String(item_id)) {
+                                    product = vm.items[i];
+                                    break;
                                 }
-                            })
-                            .catch(function () {
-                                toastr.error('Something went to wrong', {
+                            }
+
+                            if (!product) {
+                                toastr.error('Please select group again to load items', {
                                     closeButton: true,
                                     progressBar: true,
                                 });
-                            })
-                            .finally(function () {
-                                vm.isDisabled = false;
-                                vm.pageLoading = false;
+                                return;
+                            }
+
+                            vm.selected_items.push(vm.mapProductRow(product));
+                            vm.item_id = '';
+                            vm.refreshSelectpickers();
+                            return;
+                        }
+
+                        if (!vm.items.length) {
+                            toastr.error('Please select group again to load items', {
+                                closeButton: true,
+                                progressBar: true,
                             });
+                            return;
+                        }
+
+                        vm.isDisabled = true;
+                        vm.pageLoading = true;
+
+                        // Batch-append from already-loaded group items (no second API call).
+                        var toAdd = [];
+                        for (var key = 0; key < vm.items.length; key++) {
+                            var row = vm.items[key];
+                            if (!selectedIds[row.id]) {
+                                toAdd.push(vm.mapProductRow(row));
+                            }
+                        }
+                        if (toAdd.length) {
+                            vm.selected_items = vm.selected_items.concat(toAdd);
+                        }
+
+                        vm.isDisabled = false;
+                        vm.pageLoading = false;
+                        vm.refreshSelectpickers();
                     },
                     delete_row: function (row) {
                         this.selected_items.splice(this.selected_items.indexOf(row), 1);
@@ -389,8 +398,8 @@
                         }
                     },
                 },
-                updated: function () {
-                    $('.bSelect').selectpicker('refresh');
+                mounted: function () {
+                    this.refreshSelectpickers();
                 },
             });
 
