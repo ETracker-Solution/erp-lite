@@ -106,7 +106,7 @@ class ProductionController extends Controller
         return view('production.create', [
             'groups' => ChartOfInventory::query()
                 ->where(['type' => 'group', 'rootAccountType' => 'FG'])
-                ->orderBy('name')
+                ->orderBy('id')
                 ->get(['id', 'name']),
             'batches' => Batch::query()
                 ->where('is_production', false)
