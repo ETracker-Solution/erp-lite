@@ -235,6 +235,7 @@
                 data: {
                     config: {
                         get_items_info_by_group_id_url: "{{ url('fetch-items-by-group-id') }}",
+                        get_item_info_url: "{{ url('fetch-item-info') }}",
                     },
                     date: "{{ date('Y-m-d') }}",
                     factory_id: '',
@@ -288,6 +289,14 @@
                                 vm.refreshSelectpickers();
                             });
                     },
+                    lineQuantity: function (product) {
+                        var q = product.quantity;
+                        if (q === null || q === undefined || q === '') {
+                            return 0;
+                        }
+                        var n = Number(q);
+                        return isNaN(n) ? 0 : n;
+                    },
                     mapProductRow: function (product) {
                         return {
                             id: product.id,
@@ -295,7 +304,7 @@
                             name: product.name,
                             uom: product.uom || (product.unit ? product.unit.name : ''),
                             rate: product.rate != null ? product.rate : product.price,
-                            quantity: 0,
+                            quantity: this.lineQuantity(product),
                         };
                     },
                     refreshSelectpickers: function () {
@@ -334,25 +343,32 @@
                                 return;
                             }
 
-                            var product = null;
-                            for (var i = 0; i < vm.items.length; i++) {
-                                if (String(vm.items[i].id) === String(item_id)) {
-                                    product = vm.items[i];
-                                    break;
-                                }
-                            }
-
-                            if (!product) {
-                                toastr.error('Please select group again to load items', {
-                                    closeButton: true,
-                                    progressBar: true,
+                            vm.isDisabled = true;
+                            vm.pageLoading = true;
+                            axios.get(this.config.get_item_info_url + '/' + item_id)
+                                .then(function (response) {
+                                    var item_info = response.data;
+                                    vm.selected_items.push({
+                                        id: item_info.id,
+                                        group: item_info.parent ? item_info.parent.name : '',
+                                        name: item_info.name,
+                                        uom: item_info.unit ? item_info.unit.name : '',
+                                        rate: item_info.price,
+                                        quantity: vm.lineQuantity(item_info),
+                                    });
+                                    vm.item_id = '';
+                                })
+                                .catch(function () {
+                                    toastr.error('Something went to wrong', {
+                                        closeButton: true,
+                                        progressBar: true,
+                                    });
+                                })
+                                .finally(function () {
+                                    vm.isDisabled = false;
+                                    vm.pageLoading = false;
+                                    vm.refreshSelectpickers();
                                 });
-                                return;
-                            }
-
-                            vm.selected_items.push(vm.mapProductRow(product));
-                            vm.item_id = '';
-                            vm.refreshSelectpickers();
                             return;
                         }
 
@@ -367,21 +383,32 @@
                         vm.isDisabled = true;
                         vm.pageLoading = true;
 
-                        // Batch-append from already-loaded group items (no second API call).
-                        var toAdd = [];
-                        for (var key = 0; key < vm.items.length; key++) {
-                            var row = vm.items[key];
-                            if (!selectedIds[row.id]) {
-                                toAdd.push(vm.mapProductRow(row));
-                            }
-                        }
-                        if (toAdd.length) {
-                            vm.selected_items = vm.selected_items.concat(toAdd);
-                        }
-
-                        vm.isDisabled = false;
-                        vm.pageLoading = false;
-                        vm.refreshSelectpickers();
+                        // Full group fetch here only (suggested qty); group dropdown stays on light load.
+                        axios.get(this.config.get_items_info_by_group_id_url + '/' + vm.group_id)
+                            .then(function (response) {
+                                var items = response.data.products || [];
+                                var toAdd = [];
+                                for (var key = 0; key < items.length; key++) {
+                                    var row = items[key];
+                                    if (!selectedIds[row.id]) {
+                                        toAdd.push(vm.mapProductRow(row));
+                                    }
+                                }
+                                if (toAdd.length) {
+                                    vm.selected_items = vm.selected_items.concat(toAdd);
+                                }
+                            })
+                            .catch(function () {
+                                toastr.error('Something went to wrong', {
+                                    closeButton: true,
+                                    progressBar: true,
+                                });
+                            })
+                            .finally(function () {
+                                vm.isDisabled = false;
+                                vm.pageLoading = false;
+                                vm.refreshSelectpickers();
+                            });
                     },
                     delete_row: function (row) {
                         this.selected_items.splice(this.selected_items.indexOf(row), 1);
