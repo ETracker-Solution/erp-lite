@@ -170,7 +170,7 @@ class RequisitionController extends Controller
         return view('requisition.create', [
             'groups' => ChartOfInventory::query()
                 ->where(['type' => 'group', 'rootAccountType' => 'FG'])
-                ->orderBy('name')
+                ->orderBy('id')
                 ->get(['id', 'name']),
             'from_stores' => Store::query()
                 ->where(['type' => 'FG', 'doc_type' => 'outlet', 'status' => 'active'])
