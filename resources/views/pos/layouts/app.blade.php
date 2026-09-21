@@ -67,11 +67,26 @@
             width: 100%;
             max-height: 70vh;
             overflow-y: scroll;
-            /*scrollbar-width: none;*/
+            scrollbar-width: thin;
+            scrollbar-color: #2f6b4f #e6e0d8;
         }
 
         .table-scroll tbody::-webkit-scrollbar {
-            width: 3; /* Chrome & Edge */
+            width: 10px;
+        }
+
+        .table-scroll tbody::-webkit-scrollbar-track {
+            background: #e6e0d8;
+            border-radius: 8px;
+        }
+
+        .table-scroll tbody::-webkit-scrollbar-thumb {
+            background: #2f6b4f;
+            border-radius: 8px;
+        }
+
+        .table-scroll tbody::-webkit-scrollbar-thumb:hover {
+            background: #245540;
         }
 
         .table-scroll tr {

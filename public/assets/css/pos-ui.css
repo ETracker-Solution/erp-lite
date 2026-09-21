@@ -108,11 +108,27 @@ body {
 
 .table-scroll tbody {
     max-height: 68vh;
-    overflow-y: auto;
+    overflow-y: scroll;
+    scrollbar-width: thin;
+    scrollbar-color: var(--pos-accent) var(--pos-line);
 }
 
 .table-scroll tbody::-webkit-scrollbar {
-    width: 6px;
+    width: 10px;
+}
+
+.table-scroll tbody::-webkit-scrollbar-track {
+    background: var(--pos-line);
+    border-radius: 8px;
+}
+
+.table-scroll tbody::-webkit-scrollbar-thumb {
+    background: var(--pos-accent);
+    border-radius: 8px;
+}
+
+.table-scroll tbody::-webkit-scrollbar-thumb:hover {
+    background: var(--pos-accent-deep);
 }
 
 .table-scroll tr {

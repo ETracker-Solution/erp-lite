@@ -156,7 +156,7 @@
                                                         <tbody>
                                                         <tr v-if="selected_items.length === 0">
                                                             <td colspan="6" class="text-center text-muted py-4">
-                                                                Select a group and item, then click Add.
+                                                                Select a group and click Add (all items), or pick a single item then Add.
                                                             </td>
                                                         </tr>
                                                         <tr v-for="(row, index) in selected_items" :key="row.coi_id">
@@ -347,6 +347,44 @@
                                 vm.refreshSelectpickers();
                             });
                     },
+                    mapProductRow(product) {
+                        return {
+                            coi_id: product.coi_id || product.id,
+                            group: product.group || '',
+                            name: product.name,
+                            uom: product.uom || (product.unit && product.unit.name) || '',
+                            balance_qty: product.balance_qty || '',
+                            price: product.price,
+                            quantity: '',
+                        };
+                    },
+
+                    addGroupProducts(items) {
+                        let vm = this;
+                        let added = 0;
+
+                        items.forEach(function (item) {
+                            let coiId = item.coi_id || item.id;
+                            let exists = vm.selected_items.some(function (field) {
+                                return field.coi_id == coiId;
+                            });
+                            if (exists) {
+                                return;
+                            }
+                            vm.selected_items.push(vm.mapProductRow(item));
+                            added++;
+                        });
+
+                        if (added === 0) {
+                            toastr.info('All items from this group are already selected', {
+                                closeButton: true,
+                                progressBar: true,
+                            });
+                        }
+
+                        vm.item_id = '';
+                    },
+
                     data_input() {
                         let vm = this;
                         if (!vm.group_id) {
@@ -356,43 +394,67 @@
                             });
                             return;
                         }
-                        if (!vm.item_id) {
-                            toastr.error('Please select an item', {
-                                closeButton: true,
-                                progressBar: true,
-                            });
+
+                        let item_id = vm.item_id;
+
+                        if (item_id) {
+                            if (vm.selected_items.some(function (field) {
+                                return field.coi_id == item_id;
+                            })) {
+                                toastr.info('Item already selected', {
+                                    closeButton: true,
+                                    progressBar: true,
+                                });
+                                return;
+                            }
+
+                            vm.isDisabled = true;
+                            vm.pageLoading = true;
+                            axios.get(this.config.get_item_info_url + '/' + item_id)
+                                .then(function (response) {
+                                    let product_details = response.data;
+                                    vm.selected_items.push({
+                                        coi_id: product_details.coi_id,
+                                        group: product_details.group,
+                                        name: product_details.name,
+                                        uom: product_details.unit,
+                                        balance_qty: product_details.balance_qty,
+                                        price: product_details.price,
+                                        quantity: '',
+                                    });
+                                    vm.item_id = '';
+                                })
+                                .catch(function () {
+                                    toastr.error('Unable to load item', {
+                                        closeButton: true,
+                                        progressBar: true,
+                                    });
+                                })
+                                .finally(function () {
+                                    vm.isDisabled = false;
+                                    vm.pageLoading = false;
+                                    vm.refreshSelectpickers();
+                                });
                             return;
                         }
 
-                        let item_id = vm.item_id;
-                        if (vm.selected_items.some(function (field) {
-                            return field.coi_id == item_id;
-                        })) {
-                            toastr.info('Item already selected', {
-                                closeButton: true,
-                                progressBar: true,
-                            });
+                        // No item selected → add all products of the selected group
+                        if (vm.products && vm.products.length) {
+                            vm.addGroupProducts(vm.products);
+                            vm.refreshSelectpickers();
                             return;
                         }
 
                         vm.isDisabled = true;
                         vm.pageLoading = true;
-                        axios.get(this.config.get_item_info_url + '/' + item_id)
+                        axios.get(this.config.get_items_info_by_group_id_url + '/' + vm.group_id)
                             .then(function (response) {
-                                let product_details = response.data;
-                                vm.selected_items.push({
-                                    coi_id: product_details.coi_id,
-                                    group: product_details.group,
-                                    name: product_details.name,
-                                    uom: product_details.unit,
-                                    balance_qty: product_details.balance_qty,
-                                    price: product_details.price,
-                                    quantity: '',
-                                });
-                                vm.item_id = '';
+                                let items = response.data.products || [];
+                                vm.products = items;
+                                vm.addGroupProducts(items);
                             })
                             .catch(function () {
-                                toastr.error('Unable to load item', {
+                                toastr.error('Unable to load group items', {
                                     closeButton: true,
                                     progressBar: true,
                                 });
