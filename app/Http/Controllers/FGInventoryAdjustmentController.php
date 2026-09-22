@@ -6,7 +6,6 @@ use App\Http\Requests\StoreFGInventoryAdjustmentRequest;
 use App\Http\Requests\UpdateFGInventoryAdjustmentRequest;
 use App\Models\ChartOfInventory;
 use App\Models\InventoryAdjustment;
-use App\Models\InventoryAdjustmentItem;
 use App\Models\InventoryTransaction;
 use App\Models\Store;
 use Brian2694\Toastr\Facades\Toastr;
@@ -53,7 +52,7 @@ class FGInventoryAdjustmentController extends Controller
         return view('fg_inventory_adjustment.create', [
             'groups' => ChartOfInventory::query()
                 ->where(['type' => 'group', 'rootAccountType' => 'FG'])
-                ->orderBy('name')
+                ->orderBy('id')
                 ->get(['id', 'name']),
             'stores' => Store::query()
                 ->whereType('FG')
@@ -71,6 +70,9 @@ class FGInventoryAdjustmentController extends Controller
     public function store(StoreFGInventoryAdjustmentRequest $request)
     {
         $data = $request->validated();
+        $products = $data['products'];
+        unset($data['products']);
+
         DB::beginTransaction();
         try {
             $store = Store::findOrFail($data['store_id']);
@@ -87,41 +89,33 @@ class FGInventoryAdjustmentController extends Controller
 
             $totalAmount = 0;
             $stockType = $data['transaction_type'] === 'increase' ? 1 : -1;
-            $itemRows = [];
-            $inventoryRows = [];
-            $timestamp = now();
 
-            foreach ($data['products'] as $product) {
-                $lineAmount = (float) $product['quantity'] * (float) $product['rate'];
+            // Create each line individually with explicit scalars so multi-item
+            // adjustments never reuse another line's coi_id / quantity / rate.
+            foreach ($products as $product) {
+                $coiId = (int) $product['coi_id'];
+                $quantity = (float) $product['quantity'];
+                $rate = (float) $product['rate'];
+                $lineAmount = $quantity * $rate;
                 $totalAmount += $lineAmount;
 
-                $itemRows[] = [
-                    'inventory_adjustment_id' => $adjustment->id,
-                    'coi_id' => $product['coi_id'],
-                    'quantity' => $product['quantity'],
-                    'rate' => $product['rate'],
-                    'created_at' => $timestamp,
-                    'updated_at' => $timestamp,
-                ];
+                $adjustment->items()->create([
+                    'coi_id' => $coiId,
+                    'quantity' => $quantity,
+                    'rate' => $rate,
+                ]);
 
-                $inventoryRows[] = [
+                InventoryTransaction::query()->create([
                     'store_id' => $adjustment->store_id,
                     'doc_type' => 'FGIA',
                     'doc_id' => $adjustment->id,
-                    'quantity' => $product['quantity'],
-                    'rate' => $product['rate'],
+                    'quantity' => $quantity,
+                    'rate' => $rate,
                     'amount' => $lineAmount,
                     'date' => $adjustment->date,
                     'type' => $stockType,
-                    'coi_id' => $product['coi_id'],
-                    'created_at' => $timestamp,
-                    'updated_at' => $timestamp,
-                ];
-            }
-
-            if ($itemRows !== []) {
-                InventoryAdjustmentItem::query()->insert($itemRows);
-                InventoryTransaction::query()->insert($inventoryRows);
+                    'coi_id' => $coiId,
+                ]);
             }
 
             $adjustment->subtotal = $totalAmount;

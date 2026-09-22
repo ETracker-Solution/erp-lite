@@ -24,6 +24,7 @@
                         @csrf
                         <input type="hidden" name="submission_token"
                                value="{{ session()->get('submission_token') ?? Str::random(40) }}">
+                        <input type="hidden" name="products_payload" :value="productsPayload">
                         <div class="card card-info">
                             <div class="card-header">
                                 <h3 class="card-title mb-0">FG Inventory Adjustment (FGIA)</h3>
@@ -346,6 +347,16 @@
                         return this.items.reduce((total, item) => {
                             return total + (item.quantity * item.price)
                         }, 0)
+                    },
+
+                    productsPayload: function () {
+                        return JSON.stringify(this.items.map(function (item) {
+                            return {
+                                coi_id: item.coi_id,
+                                quantity: item.quantity,
+                                rate: item.price,
+                            };
+                        }));
                     },
 
                 },

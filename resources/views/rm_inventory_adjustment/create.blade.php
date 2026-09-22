@@ -20,6 +20,7 @@
                         @csrf
                         <input type="hidden" name="submission_token"
                                value="{{ session()->get('submission_token') ?? Str::random(40) }}">
+                        <input type="hidden" name="products_payload" :value="productsPayload">
 
                         <div class="card card-info">
                             <div class="card-header">
@@ -240,6 +241,15 @@
                         return this.items.reduce(function (total, item) {
                             return total + ((parseFloat(item.quantity) || 0) * (parseFloat(item.price) || 0));
                         }, 0);
+                    },
+                    productsPayload: function () {
+                        return JSON.stringify(this.items.map(function (item) {
+                            return {
+                                coi_id: item.coi_id,
+                                quantity: item.quantity,
+                                rate: item.price,
+                            };
+                        }));
                     },
                 },
                 methods: {

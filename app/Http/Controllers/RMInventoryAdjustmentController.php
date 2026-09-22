@@ -71,6 +71,8 @@ class RMInventoryAdjustmentController extends Controller
     public function store(StoreRMInventoryAdjustmentRequest $request)
     {
         $data = $request->validated();
+        $products = $data['products'];
+        unset($data['products']);
 
         DB::beginTransaction();
         try {
@@ -89,21 +91,29 @@ class RMInventoryAdjustmentController extends Controller
             $totalAmount = 0;
             $stockType = $data['transaction_type'] === 'increase' ? 1 : -1;
 
-            foreach ($data['products'] as $product) {
-                $lineAmount = (float) $product['quantity'] * (float) $product['rate'];
+            foreach ($products as $product) {
+                $coiId = (int) $product['coi_id'];
+                $quantity = (float) $product['quantity'];
+                $rate = (float) $product['rate'];
+                $lineAmount = $quantity * $rate;
                 $totalAmount += $lineAmount;
-                $adjustment->items()->create($product);
+
+                $adjustment->items()->create([
+                    'coi_id' => $coiId,
+                    'quantity' => $quantity,
+                    'rate' => $rate,
+                ]);
 
                 InventoryTransaction::query()->create([
                     'store_id' => $adjustment->store_id,
                     'doc_type' => 'RMIA',
                     'doc_id' => $adjustment->id,
-                    'quantity' => $product['quantity'],
-                    'rate' => $product['rate'],
+                    'quantity' => $quantity,
+                    'rate' => $rate,
                     'amount' => $lineAmount,
                     'date' => $adjustment->date,
                     'type' => $stockType,
-                    'coi_id' => $product['coi_id'],
+                    'coi_id' => $coiId,
                 ]);
             }
 
