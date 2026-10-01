@@ -129,6 +129,27 @@
                                     <td class="text-left">Discount:</td>
                                     <td class="text-right">{{ $sale->discount }}</td>
                                 </tr>
+                                @if($sale->special_discount_amount > 0)
+                                    <tr>
+                                        <td colspan="5"></td>
+                                        <td class="text-left">Special Discount:</td>
+                                        <td class="text-right">{{ $sale->special_discount_amount }}</td>
+                                    </tr>
+                                @endif
+                                @if($sale->membership_discount_amount > 0)
+                                    <tr>
+                                        <td colspan="5"></td>
+                                        <td class="text-left">Membership Discount:</td>
+                                        <td class="text-right">{{ $sale->membership_discount_amount }}</td>
+                                    </tr>
+                                @endif
+                                @if($sale->couponCodeDiscountAmount > 0)
+                                    <tr>
+                                        <td colspan="5"></td>
+                                        <td class="text-left">Coupon Discount: ({{ $sale->couponCode }})</td>
+                                        <td class="text-right">{{ $sale->couponCodeDiscountAmount }}</td>
+                                    </tr>
+                                @endif
                                 @if($sale->couponCode)
                                     <tr>
                                         <td colspan="5"></td>

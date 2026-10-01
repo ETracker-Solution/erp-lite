@@ -111,6 +111,24 @@
                                             <th>Discount</th>
                                             <td class="text-right">{{ $discountFmt }}</td>
                                         </tr>
+                                        @if($sale->special_discount_amount > 0)
+                                        <tr>
+                                            <th>Special Discount</th>
+                                            <td class="text-right">{{ number_format((float) $sale->special_discount_amount, 2) }}</td>
+                                        </tr>
+                                        @endif
+                                        @if($sale->couponCodeDiscountAmount > 0)
+                                        <tr>
+                                            <th>Coupon Discount</th>
+                                            <td class="text-right">{{ number_format((float) $sale->couponCodeDiscountAmount, 2) }}</td>
+                                        </tr>
+                                        @endif
+                                        @if($sale->membership_discount_amount > 0)
+                                            <tr>
+                                                <th>Membership Discount</th>
+                                                <td class="text-right">{{ number_format((float) $sale->membership_discount_amount, 2) }}</td>
+                                            </tr>
+                                        @endif
                                         @if($sale->couponCode)
                                             <tr>
                                                 <th>Coupon ({{ $sale->couponCode }})</th>

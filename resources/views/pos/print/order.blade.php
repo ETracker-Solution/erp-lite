@@ -215,12 +215,30 @@
         <td class="tc bl-none br-none"  colspan="2">Discount:</td>
         <td class="tc bl-none br-none tr">{{ $discount }}</td>
     </tr>
-    <tr>
-        <td class="tc bl-none br-none"></td>
-        <td class="tc bl-none br-none"></td>
-        <td class="tc bl-none br-none"  colspan="2">Coupon Discount: ({{ $sale->couponCode }})</td>
-        <td class="tc bl-none br-none tr">{{ $couponDiscount }}</td>
-    </tr>
+    @if($sale->special_discount_amount > 0)
+        <tr>
+            <td class="tc bl-none br-none"></td>
+            <td class="tc bl-none br-none"></td>
+            <td class="tc bl-none br-none"  colspan="2">Special Discount:</td>
+            <td class="tc bl-none br-none tr">{{ $sale->special_discount_amount }}</td>
+        </tr>
+    @endif
+    @if($sale->membership_discount_amount > 0)
+        <tr>
+            <td class="tc bl-none br-none"></td>
+            <td class="tc bl-none br-none"></td>
+            <td class="tc bl-none br-none"  colspan="2">Membership Discount:</td>
+            <td class="tc bl-none br-none tr">{{ $sale->membership_discount_amount }}</td>
+        </tr>
+    @endif
+    @if($sale->couponCodeDiscountAmount > 0)
+        <tr>
+            <td class="tc bl-none br-none"></td>
+            <td class="tc bl-none br-none"></td>
+            <td class="tc bl-none br-none"  colspan="2">Coupon Discount: ({{ $sale->couponCode }})</td>
+            <td class="tc bl-none br-none tr">{{ $sale->couponCodeDiscountAmount }}</td>
+        </tr>
+    @endif
     <tr>
         <td class="tc bl-none br-none bt-none"></td>
         <td class="tc bl-none br-none bt-none"></td>
