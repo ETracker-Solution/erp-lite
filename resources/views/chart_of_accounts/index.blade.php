@@ -436,7 +436,15 @@ Chart Of Accounts
                         success: function (result) {
                             if (result.success) {
                                 toastr.success(result.message);
-                                getAccounts();
+                                
+                                var id = getValue(itemIdInput);
+                                var newName = getValue(itemNameInput);
+                                
+                                var $label = $('#inventoryItems .erp-tree-label[data-id="' + id + '"]');
+                                if ($label.length) {
+                                    $label.find('.erp-tree-name').text(newName);
+                                    $label.closest('.erp-tree-node').data('name', newName.toLowerCase());
+                                }
                             } else {
                                 toastr.error(result.message);
                             }
@@ -524,10 +532,30 @@ Chart Of Accounts
                         success: function (result) {
                             if (result.success) {
                                 toastr.success(result.message);
+                                
+                                var id = getValue(itemIdInput);
+                                var $label = $('#inventoryItems .erp-tree-label[data-id="' + id + '"]');
+                                if ($label.length) {
+                                    $label.closest('.erp-tree-node').remove();
+                                }
+
+                                setValue(newItemNameInput, '');
+                                setValue(newItemTypeInput, '');
+                                setValue(itemIdInput, '');
+                                setValue(itemNameInput, '');
+                                setValue(itemTypeInput, '');
+                                setValue(groupNameInput, '');
+                                setValue(accountTypeInput, '');
+                                itemNameInput.prop('disabled', false);
+
+                                makeHidden(addNewDiv);
+                                makeHidden(addButton);
+                                makeHidden(updateButton);
+                                makeHidden(saveButton);
+                                makeHidden(deleteButton);
                             } else {
                                 toastr.error(result.message);
                             }
-                            getAccounts();
                         }
                     });
                 }
