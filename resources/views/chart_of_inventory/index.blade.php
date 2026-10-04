@@ -364,7 +364,22 @@
                                 return;
                             }
                             toastr.success(result.message);
-                            getInventoryItems();
+                            
+                            var id = getValue(itemIdInput);
+                            var newName = getValue(itemNameInput);
+                            var newStatus = getValue(itemStatusInput);
+                            
+                            var $label = $('#inventoryItems .erp-tree-label[data-id="' + id + '"]');
+                            if ($label.length) {
+                                $label.find('.erp-tree-name').text(newName);
+                                $label.closest('.erp-tree-node').data('name', newName.toLowerCase());
+                                
+                                if (newStatus === 'inactive') {
+                                    $label.addClass('is-inactive');
+                                } else {
+                                    $label.removeClass('is-inactive');
+                                }
+                            }
                         }
                     });
                 }
@@ -447,7 +462,31 @@
                                 return;
                             }
                             toastr.success(result.message);
-                            getInventoryItems();
+                            
+                            var id = getValue(itemIdInput);
+                            var $label = $('#inventoryItems .erp-tree-label[data-id="' + id + '"]');
+                            if ($label.length) {
+                                $label.closest('.erp-tree-node').remove();
+                            }
+
+                            setValue(newItemNameInput, '');
+                            setValue(newItemTypeInput, '');
+                            setValue(itemIdInput, '');
+                            setValue(itemNameInput, '');
+                            setValue(itemTypeInput, '');
+                            setValue(groupNameInput, '');
+                            setValue(accountTypeInput, '');
+                            setValue(itemUnitInput, '');
+                            setValue(itemStatusInput, '');
+                            setValue(itemPriceInput, 0);
+                            itemNameInput.prop('disabled', false);
+
+                            makeHidden(addNewDiv);
+                            makeHidden(additionalInfoDiv);
+                            makeHidden(addButton);
+                            makeHidden(updateButton);
+                            makeHidden(saveButton);
+                            makeHidden(deleteButton);
                         }
                     });
                 }
