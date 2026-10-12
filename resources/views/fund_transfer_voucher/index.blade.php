@@ -25,7 +25,7 @@
                                     <input type="text" id="fp-range"
                                            class="form-control flatpickr-range"
                                            placeholder="Pick day, or same day twice, or from–to" name="date_range"
-                                           value="{{ now()->startOfMonth()->format('Y-m-d') . ' to ' . now()->format('Y-m-d') }}"/>
+                                           value=""/>
                                 </div>
                                 @can('accounts-ft-voucher-filter')
                                     <div class="form-group col-md-3">
@@ -183,17 +183,18 @@
                 $('select[name="to_account_id"]').val(sessionStorage.getItem('to_account_id'));
             }
 
-            const defaultFrom = @json(now()->startOfMonth()->format('Y-m-d'));
-            const defaultTo = @json(now()->format('Y-m-d'));
-            const defaultDateRange = defaultFrom + ' to ' + defaultTo;
-            let lastAppliedRange = defaultDateRange;
-
-            // Always open on current month (ignore old wide sessionStorage ranges).
-            sessionStorage.setItem('date_range', defaultDateRange);
-            $('input[name="date_range"]').val(defaultDateRange);
+            // Full reload: empty date range so table shows default latest data
+            sessionStorage.removeItem('date_range');
+            $('input[name="date_range"]').val('');
+            let lastAppliedRange = '';
 
             function applyFtvDateRange(selectedDates, dateStr, instance) {
                 if (!selectedDates || !selectedDates.length || !instance) {
+                    if (lastAppliedRange !== '') {
+                        lastAppliedRange = '';
+                        $('input[name="date_range"]').val('');
+                        recallDatatable();
+                    }
                     return;
                 }
 
@@ -218,7 +219,6 @@
 
                 lastAppliedRange = dateStr;
                 $('input[name="date_range"]').val(dateStr);
-                sessionStorage.setItem('date_range', dateStr);
                 recallDatatable();
             }
 
@@ -232,28 +232,61 @@
                 flatpickr(rangeInput, {
                     mode: 'range',
                     dateFormat: 'Y-m-d',
-                    defaultDate: [defaultFrom, defaultTo],
                     onChange: function (selectedDates, dateStr, instance) {
-                        // Two clicks (including same day twice) complete the range.
-                        if (selectedDates.length === 2) {
+                        if (!selectedDates || !selectedDates.length) {
+                            applyFtvDateRange(selectedDates, '', instance);
+                        } else if (selectedDates.length === 2) {
                             applyFtvDateRange(selectedDates, dateStr, instance);
                         }
                     },
                     onClose: function (selectedDates, dateStr, instance) {
-                        // One click then close → same-day range.
-                        if (selectedDates.length === 1) {
+                        if (!selectedDates || !selectedDates.length) {
+                            applyFtvDateRange(selectedDates, '', instance);
+                        } else if (selectedDates.length === 1) {
                             applyFtvDateRange(selectedDates, dateStr, instance);
                         }
                     }
                 });
             }
 
+            $('#fp-range').on('input change', function () {
+                if (!$(this).val() && lastAppliedRange !== '') {
+                    lastAppliedRange = '';
+                    recallDatatable();
+                }
+            });
+
             if ($.fn.select2) {
                 $('.select2').select2({width: '100%'});
             }
 
             $('#ftvTable').dataTable({
-                stateSave: false,
+                // stateSave: true,
+                stateSaveParams: function (settings, data) {
+                    data.outlet_id = $('select[name="outlet_id"]').val() || '';
+                    data.account_id = $('select[name="account_id"]').val() || '';
+                    data.to_account_id = $('select[name="to_account_id"]').val() || '';
+                },
+                stateLoadParams: function (settings, data) {
+                    if (data.outlet_id !== undefined && data.outlet_id !== '') {
+                        $('select[name="outlet_id"]').val(data.outlet_id);
+                        if ($.fn.select2) {
+                            $('select[name="outlet_id"]').trigger('change.select2');
+                        }
+                    }
+                    if (data.account_id !== undefined && data.account_id !== '') {
+                        $('select[name="account_id"]').val(data.account_id);
+                        if ($.fn.select2) {
+                            $('select[name="account_id"]').trigger('change.select2');
+                        }
+                    }
+                    if (data.to_account_id !== undefined && data.to_account_id !== '') {
+                        $('select[name="to_account_id"]').val(data.to_account_id);
+                        if ($.fn.select2) {
+                            $('select[name="to_account_id"]').trigger('change.select2');
+                        }
+                    }
+                },
                 responsive: true,
                 serverSide: true,
                 processing: true,
@@ -323,12 +356,52 @@
 
             $(document).on('click', '.receive-ftv-btn', function (event) {
                 event.preventDefault();
-                const element = this;
-                const href = element.getAttribute('href');
-                element.classList.add('disabled');
-                element.style.pointerEvents = "none";
-                element.style.opacity = "0.6";
-                window.location.href = href;
+                const $btn = $(this);
+                const href = $btn.attr('href');
+
+                if ($btn.hasClass('disabled') || $btn.prop('disabled')) {
+                    return;
+                }
+
+                $btn.addClass('disabled').css({
+                    'pointer-events': 'none',
+                    'opacity': '0.6'
+                });
+
+                $.ajax({
+                    url: href,
+                    type: 'GET',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    },
+                    success: function (response) {
+                        if (response && response.success !== false) {
+                            if (typeof toastr !== 'undefined') {
+                                toastr.success(response.message || 'Fund Transfer Voucher Received Successful!');
+                            }
+                            recallDatatable();
+                        } else {
+                            if (typeof toastr !== 'undefined') {
+                                toastr.error((response && response.message) || 'Something went wrong!');
+                            }
+                            $btn.removeClass('disabled').css({
+                                'pointer-events': '',
+                                'opacity': ''
+                            });
+                        }
+                    },
+                    error: function (xhr) {
+                        var msg = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON.message : 'Something went wrong!';
+                        if (typeof toastr !== 'undefined') {
+                            toastr.error(msg);
+                        }
+                        $btn.removeClass('disabled').css({
+                            'pointer-events': '',
+                            'opacity': ''
+                        });
+                    }
+                });
             });
         });
 
@@ -350,7 +423,11 @@
 
         function recallDatatable() {
             if ($.fn.DataTable.isDataTable('#ftvTable')) {
-                $('#ftvTable').DataTable().ajax.reload(null, false);
+                var table = $('#ftvTable').DataTable();
+                if (table.state && table.state.save) {
+                    table.state.save();
+                }
+                table.ajax.reload(null, false);
             }
         }
     </script>

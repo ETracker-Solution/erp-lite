@@ -349,14 +349,27 @@ class FundTransferVoucherController extends Controller
 
             if (!AccountTransaction::where('doc_type', 'FTV')->where('doc_id', $voucher->id)->exists()) {
                 addAccountsTransaction('FTV', $voucher, $voucher->debit_account_id, $voucher->credit_account_id);
-
             }
             DB::commit();
         } catch (\Exception $error) {
             DB::rollBack();
+            if (request()->ajax() || request()->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Something went wrong!',
+                ], 500);
+            }
             Toastr::info('Something went wrong!.', '', ["progressBar" => true]);
             return back();
         }
+
+        if (request()->ajax() || request()->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Fund Transfer Voucher Received Successful!',
+            ]);
+        }
+
         Toastr::success('Fund Transfer Voucher Received Successful!.', '', ["progressBar" => true]);
         return redirect()->route('fund-transfer-vouchers.index');
     }
@@ -437,17 +450,7 @@ class FundTransferVoucherController extends Controller
                     [$from, $to] = [$to, $from];
                 }
                 $fundTransferVoucher->whereBetween('date', [$from, $to]);
-            } else {
-                $fundTransferVoucher->whereBetween('date', [
-                    now()->startOfMonth()->toDateString(),
-                    now()->toDateString(),
-                ]);
             }
-        } else {
-            $fundTransferVoucher->whereBetween('date', [
-                now()->startOfMonth()->toDateString(),
-                now()->toDateString(),
-            ]);
         }
 
         return $fundTransferVoucher->latest('id');
