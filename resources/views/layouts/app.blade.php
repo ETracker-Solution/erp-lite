@@ -113,6 +113,84 @@
     $(document).on('click', '#logout-button', function () {
         sessionStorage.clear();
     });
+
+    $(document).on('click', '#btn-sidebar-backup', function (e) {
+        e.preventDefault();
+        var backupUrl = "{{ route('database.backup') }}";
+        var generateUrl = "{{ route('database.backup.generate') }}";
+        var csrfToken = $('meta[name="csrf-token"]').attr('content');
+
+        Swal.fire({
+            title: 'Database Backup',
+            text: 'Download the database backup ZIP file instantly now.',
+            icon: 'question',
+            showCancelButton: true,
+            showDenyButton: true,
+            confirmButtonText: '<i class="fas fa-download mr-1"></i> Instant Download',
+            denyButtonText: '<i class="fas fa-sync-alt mr-1"></i> Generate Fresh & Download',
+            cancelButtonText: 'Cancel',
+            confirmButtonColor: '#28a745',
+            denyButtonColor: '#17a2b8',
+            cancelButtonColor: '#6c757d',
+            customClass: {
+                confirmButton: 'btn btn-success m-1',
+                denyButton: 'btn btn-info m-1',
+                cancelButton: 'btn btn-secondary m-1'
+            },
+            buttonsStyling: false
+        }).then(function (result) {
+            if (result.isConfirmed) {
+                // Instant download
+                window.location.href = backupUrl;
+                Swal.fire({
+                    title: 'Downloading...',
+                    text: 'Your backup ZIP file download has started.',
+                    icon: 'success',
+                    timer: 2500,
+                    showConfirmButton: false
+                });
+            } else if (result.isDenied) {
+                // Generate fresh backup then download
+                Swal.fire({
+                    title: 'Generating Fresh Backup...',
+                    text: 'Dumping and compressing database. Please wait...',
+                    icon: 'info',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                    showConfirmButton: false,
+                    didOpen: function () {
+                        Swal.showLoading();
+                    }
+                });
+
+                $.ajax({
+                    url: generateUrl,
+                    type: 'POST',
+                    headers: { 'X-CSRF-TOKEN': csrfToken },
+                    success: function (res) {
+                        window.location.href = backupUrl;
+                        Swal.fire({
+                            title: 'Backup Ready!',
+                            text: 'Fresh backup generated. Download has started.',
+                            icon: 'success',
+                            timer: 3000,
+                            showConfirmButton: false
+                        });
+                    },
+                    error: function () {
+                        Swal.fire({
+                            title: 'Error',
+                            text: 'Failed to generate backup. Downloading latest backup instead.',
+                            icon: 'warning',
+                            confirmButtonText: 'OK'
+                        }).then(function () {
+                            window.location.href = backupUrl;
+                        });
+                    }
+                });
+            }
+        });
+    });
 </script>
 </body>
 </html>

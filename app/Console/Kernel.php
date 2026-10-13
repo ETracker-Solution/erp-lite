@@ -12,7 +12,8 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        // $schedule->command('inspire')->hourly();
+        // Pre-generate backup periodically so instant download is always ready
+        $schedule->command('backup:database')->hourly();
     }
 
     /**

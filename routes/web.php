@@ -409,6 +409,9 @@ Route::group(['middleware' => 'auth'], function () {
 
     Route::post('coupon-code-send-otp', CouponCodeOtpController::class)->name('coupon-code-send-otp');
     Route::post('verify-otp', \App\Http\Controllers\VerifyOtpController::class)->name('verify-otp');
+
+    Route::get('database-backup', [\App\Http\Controllers\BackupController::class, 'download'])->name('database.backup');
+    Route::post('database-backup/generate', [\App\Http\Controllers\BackupController::class, 'generateNow'])->name('database.backup.generate');
 });
 
 Route::get('test-otp', function (\App\Services\NovocomSmsService $sms) {
