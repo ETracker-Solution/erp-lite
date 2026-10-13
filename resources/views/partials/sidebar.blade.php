@@ -1084,17 +1084,17 @@
                     </li>
                 @endcanany
 
-                @if(!auth()->user() || !auth()->user()->employee || auth()->user()->employee->user_of == 'ho')
-                    <li class="nav-item">
-                        <a href="javascript:void(0);" id="btn-sidebar-backup" class="nav-link">
-                            <i class="nav-icon fas fa-database"></i>
-                            <p>
-                                Backup
-                                <span class="badge badge-info right"><i class="fas fa-download"></i></span>
-                            </p>
-                        </a>
-                    </li>
-                @endif
+{{--                @if(!auth()->user() || !auth()->user()->employee || auth()->user()->employee->user_of == 'ho')--}}
+{{--                    <li class="nav-item">--}}
+{{--                        <a href="javascript:void(0);" id="btn-sidebar-backup" class="nav-link">--}}
+{{--                            <i class="nav-icon fas fa-database"></i>--}}
+{{--                            <p>--}}
+{{--                                Backup--}}
+{{--                                <span class="badge badge-info right"><i class="fas fa-download"></i></span>--}}
+{{--                            </p>--}}
+{{--                        </a>--}}
+{{--                    </li>--}}
+{{--                @endif--}}
             </ul>
         </nav>
         <!-- /.sidebar-menu -->
