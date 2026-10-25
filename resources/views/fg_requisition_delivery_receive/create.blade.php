@@ -17,7 +17,8 @@
         <div class="container-fluid">
             <div class="row" id="vue_app">
                 <div class="col-lg-10 offset-lg-1">
-                    <form action="{{ route('fg-delivery-receives.store') }}" method="POST" class="prevent-enter-submit">
+                    <form id="fgDeliveryReceiveForm" action="{{ route('fg-delivery-receives.store') }}" method="POST"
+                          class="prevent-enter-submit" @submit.prevent="submitForm">
                         @csrf
                         <input type="hidden" name="submission_token"
                                value="{{ session()->get('submission_token') ?? Str::random(40) }}">
@@ -178,9 +179,9 @@
                             </div>
 
                             <div class="card-footer text-right">
-                                <button class="btn btn-primary" type="submit"
+                                <button class="btn btn-primary" type="button"
                                         :disabled="isSubmitDisabled"
-                                        @click="onSubmitClick">
+                                        @click="submitForm">
                                     <span v-if="pageLoading">
                                         <i class="fas fa-spinner fa-spin mr-1"></i> Loading Data…
                                     </span>
@@ -290,28 +291,75 @@
                                 });
                             });
                     },
-                    onSubmitClick: function (e) {
-                        if (this.isSubmitDisabled) {
-                            e.preventDefault();
-                            if (this.pageLoading) {
+                    submitForm: function () {
+                        var vm = this;
+                        if (vm.isSubmitting) {
+                            return;
+                        }
+
+                        if (vm.isSubmitDisabled) {
+                            if (vm.pageLoading) {
                                 toastr.warning('Please wait until all delivery items have finished loading.', {
                                     closeButton: true,
                                     progressBar: true,
                                 });
-                            } else if (!this.requisition_delivery_id) {
+                            } else if (!vm.requisition_delivery_id) {
                                 toastr.warning('Please select a Delivery (FGRD).', {
                                     closeButton: true,
                                     progressBar: true,
                                 });
-                            } else if (this.items.length === 0) {
+                            } else if (!vm.from_store_id || !vm.to_store_id) {
+                                toastr.warning('Store information is not loaded properly.', {
+                                    closeButton: true,
+                                    progressBar: true,
+                                });
+                            } else if (vm.items.length === 0) {
                                 toastr.warning('No items found for this delivery.', {
                                     closeButton: true,
                                     progressBar: true,
                                 });
                             }
-                            return false;
+                            return;
                         }
-                        this.isSubmitting = true;
+
+                        if (!vm.date) {
+                            toastr.warning('Please select a date.', {
+                                closeButton: true,
+                                progressBar: true,
+                            });
+                            return;
+                        }
+
+                        var validQuantityCount = 0;
+                        for (var i = 0; i < vm.items.length; i++) {
+                            var qty = parseFloat(vm.items[i].quantity) || 0;
+                            if (qty > 0) {
+                                validQuantityCount++;
+                            }
+                        }
+
+                        if (validQuantityCount === 0) {
+                            toastr.warning('At least one item must have a receive quantity greater than 0.', {
+                                closeButton: true,
+                                progressBar: true,
+                            });
+                            return;
+                        }
+
+                        try {
+                            vm.isSubmitting = true;
+                            vm.$nextTick(function () {
+                                var form = document.getElementById('fgDeliveryReceiveForm');
+                                if (form) {
+                                    HTMLFormElement.prototype.submit.call(form);
+                                } else {
+                                    vm.isSubmitting = false;
+                                }
+                            });
+                        } catch (err) {
+                            vm.isSubmitting = false;
+                            console.error('Form submit error:', err);
+                        }
                     },
                     valid: function (row) {
                         var qty = parseFloat(row.quantity) || 0;
