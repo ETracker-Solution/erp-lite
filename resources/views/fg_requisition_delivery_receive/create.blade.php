@@ -108,7 +108,9 @@
 
                                 <div class="d-flex align-items-center justify-content-between mb-2">
                                     <h6 class="mb-0 font-weight-bold">Receive Items</h6>
-                                    <span class="text-muted small" v-if="pageLoading">Loading…</span>
+                                    <span class="text-primary small font-weight-bold" v-if="pageLoading">
+                                        <i class="fas fa-spinner fa-spin mr-1"></i> Loading delivery items…
+                                    </span>
                                 </div>
 
                                 <div class="table-responsive">
@@ -124,7 +126,13 @@
                                         </tr>
                                         </thead>
                                         <tbody>
-                                        <tr v-if="!pageLoading && items.length === 0">
+                                        <tr v-if="pageLoading">
+                                            <td colspan="6" class="text-center py-4">
+                                                <div class="spinner-border text-primary spinner-border-sm mr-2" role="status"></div>
+                                                <span class="text-muted font-weight-bold">Loading delivery details and items, please wait…</span>
+                                            </td>
+                                        </tr>
+                                        <tr v-else-if="items.length === 0">
                                             <td colspan="6" class="text-center text-muted py-4">
                                                 Select a completed delivery to load lines.
                                             </td>
@@ -155,7 +163,7 @@
                                             </td>
                                         </tr>
                                         </tbody>
-                                        <tfoot v-if="items.length > 0">
+                                        <tfoot v-if="!pageLoading && items.length > 0">
                                         <tr class="bg-light">
                                             <th colspan="5" class="text-right">Total Receive Qty</th>
                                             <th class="text-right">
@@ -169,9 +177,19 @@
                                 </div>
                             </div>
 
-                            <div class="card-footer text-right" v-show="items.length > 0">
-                                <button class="btn btn-primary" type="submit">
-                                    <i class="fa fa-check-circle"></i> Submit
+                            <div class="card-footer text-right">
+                                <button class="btn btn-primary" type="submit"
+                                        :disabled="isSubmitDisabled"
+                                        @click="onSubmitClick">
+                                    <span v-if="pageLoading">
+                                        <i class="fas fa-spinner fa-spin mr-1"></i> Loading Data…
+                                    </span>
+                                    <span v-else-if="isSubmitting">
+                                        <i class="fas fa-spinner fa-spin mr-1"></i> Submitting…
+                                    </span>
+                                    <span v-else>
+                                        <i class="fa fa-check-circle mr-1"></i> Submit
+                                    </span>
                                 </button>
                             </div>
                         </div>
@@ -206,12 +224,22 @@
                     to_store_id: '',
                     items: [],
                     pageLoading: false,
+                    isSubmitting: false,
                 },
                 computed: {
                     total_quantity: function () {
                         return this.items.reduce(function (total, item) {
                             return total + (parseFloat(item.quantity) || 0);
                         }, 0);
+                    },
+                    isSubmitDisabled: function () {
+                        // Submit disabled if loading data, already submitting, no delivery selected, or no items loaded
+                        return this.pageLoading ||
+                               this.isSubmitting ||
+                               !this.requisition_delivery_id ||
+                               !this.from_store_id ||
+                               !this.to_store_id ||
+                               this.items.length === 0;
                     },
                 },
                 mounted: function () {
@@ -225,8 +253,13 @@
                 methods: {
                     onDeliveryChange: function () {
                         var vm = this;
+                        vm.items = [];
+                        vm.from_store_id = '';
+                        vm.to_store_id = '';
+                        vm.reference_no = '';
+                        vm.remark = '';
+
                         if (!vm.requisition_delivery_id) {
-                            vm.items = [];
                             return;
                         }
                         vm.pageLoading = true;
@@ -251,11 +284,34 @@
                             })
                             .catch(function () {
                                 vm.pageLoading = false;
-                                toastr.error('Failed to load delivery', {
+                                toastr.error('Failed to load delivery details and items', {
                                     closeButton: true,
                                     progressBar: true,
                                 });
                             });
+                    },
+                    onSubmitClick: function (e) {
+                        if (this.isSubmitDisabled) {
+                            e.preventDefault();
+                            if (this.pageLoading) {
+                                toastr.warning('Please wait until all delivery items have finished loading.', {
+                                    closeButton: true,
+                                    progressBar: true,
+                                });
+                            } else if (!this.requisition_delivery_id) {
+                                toastr.warning('Please select a Delivery (FGRD).', {
+                                    closeButton: true,
+                                    progressBar: true,
+                                });
+                            } else if (this.items.length === 0) {
+                                toastr.warning('No items found for this delivery.', {
+                                    closeButton: true,
+                                    progressBar: true,
+                                });
+                            }
+                            return false;
+                        }
+                        this.isSubmitting = true;
                     },
                     valid: function (row) {
                         var qty = parseFloat(row.quantity) || 0;
