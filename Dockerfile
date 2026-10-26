@@ -1,5 +1,5 @@
 # Set the base image for subsequent instructions
-FROM php:8.1-fpm
+FROM php:8.5-fpm
 
 # Install dependencies
 RUN apt-get update && apt-get install -y \
@@ -7,16 +7,18 @@ RUN apt-get update && apt-get install -y \
     libpng-dev \
     libonig-dev \
     libxml2-dev \
+    libicu-dev \
     zip \
     curl \
     unzip \
     git \
+    default-mysql-client \
     libzip-dev \
     libfreetype6-dev \
     libjpeg62-turbo-dev \
     libpng-dev && \
-    docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip intl \
-    && docker-php-ext-configure intl
+    docker-php-ext-configure gd --with-freetype --with-jpeg && \
+    docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip intl
 
 # Clear cache
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
@@ -29,9 +31,6 @@ WORKDIR /var/www
 
 # Remove default server definition
 RUN rm -rf /var/www/html
-
-# Copy existing application directory contents
-COPY . /var/www
 
 # Copy existing application directory permissions
 COPY --chown=www-data:www-data . /var/www

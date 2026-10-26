@@ -18,7 +18,7 @@ class CreatePaymentsTable extends Migration
             $table->foreignId('sale_id')->references('id')->on('sales')->onDelete('cascade');
             $table->foreignId('customer_id')->nullable()->constrained('customers')->onDelete('cascade');
             $table->string('payment_method');
-            $table->unsignedFloat('amount');
+            $table->float('amount')->unsigned();
             $table->timestamps();
         });
     }

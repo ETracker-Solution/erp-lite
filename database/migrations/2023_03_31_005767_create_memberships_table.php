@@ -18,7 +18,7 @@ class CreateMembershipsTable extends Migration
             $table->string('membership_number', 100)->nullable();
             $table->foreignId('member_type_id')->nullable()->constrained('member_types')->onDelete('cascade');
             $table->foreignId('customer_id')->nullable()->constrained('customers')->onDelete('cascade');
-            $table->unsignedDouble('point',16,2)->default(0);
+            $table->double('point')->unsigned()->default(0);
             $table->timestamps();
         });
     }

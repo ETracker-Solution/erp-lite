@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -28,10 +28,8 @@ return new class extends Migration
             return;
         }
 
-        $quotedTable = str_replace('`', '``', $table);
-        $quotedColumn = str_replace('`', '``', $column);
-        $length = (int) $length;
-
-        DB::statement("ALTER TABLE `{$quotedTable}` MODIFY `{$quotedColumn}` VARCHAR({$length}) NOT NULL");
+        Schema::table($table, function (Blueprint $blueprint) use ($column, $length): void {
+            $blueprint->string($column, $length)->change();
+        });
     }
 };

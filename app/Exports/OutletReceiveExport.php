@@ -9,6 +9,7 @@ use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Events\AfterSheet;
+use Illuminate\Support\Collection;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
@@ -31,7 +32,7 @@ class OutletReceiveExport implements FromCollection, WithHeadings, WithMapping, 
             $this->dateRange = (request()->date_range);
         }
     }
-    public function collection()
+    public function collection(): Collection
     {
         return $this->receiveRequisition;
     }
@@ -67,7 +68,7 @@ class OutletReceiveExport implements FromCollection, WithHeadings, WithMapping, 
         ];
     }
 
-    public function styles(Worksheet $sheet)
+    public function styles(Worksheet $sheet): array
     {
         return [
             1 => ['font' => ['bold' => true, 'size' => 12]],

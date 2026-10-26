@@ -20,7 +20,7 @@ class CreatePromoCodesTable extends Migration
             $table->date('end_date');
             $table->string('discount_type');
             $table->string('discount_value');
-            $table->unsignedFloat('minimum_purchase')->default(0);
+            $table->float('minimum_purchase')->unsigned()->default(0);
             $table->enum('status',['active','inactive','expired'])->default('active');
             $table->string('discount_for')->nullable();
             $table->string('member_types')->nullable();

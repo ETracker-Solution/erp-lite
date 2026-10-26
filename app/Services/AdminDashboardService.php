@@ -47,20 +47,27 @@ class AdminDashboardService
             ->get()
             ->keyBy('outlet_id');
 
-        $activeOutlets = Cache::remember('admin_dashboard:active_outlets', 300, function () {
-            return Outlet::where('status', 'active')->orderBy('name')->get(['id', 'name']);
-        });
+        $activeOutlets = collect(Cache::remember('admin_dashboard:active_outlets', 300, function () {
+            return Outlet::where('status', 'active')
+                ->orderBy('name')
+                ->get(['id', 'name'])
+                ->map(fn (Outlet $outlet) => [
+                    'id' => $outlet->id,
+                    'name' => $outlet->name,
+                ])
+                ->all();
+        }));
 
         $totalSales = (float) $outletSales->sum('total_sales');
         $todayInvoice = (int) $outletSales->sum('invoice_count');
         $todayDiscount = (float) $outletSales->sum('total_discount');
 
         $todaySalesByOutlet = $activeOutlets->map(function ($outlet) use ($outletSales, $totalSales) {
-            $row = $outletSales->get($outlet->id);
+            $row = $outletSales->get($outlet['id']);
             $total = (float) ($row->total_sales ?? 0);
 
             return [
-                'name' => $outlet->name,
+                'name' => $outlet['name'],
                 'total' => $total,
                 'invoices' => (int) ($row->invoice_count ?? 0),
                 'discount' => (float) ($row->total_discount ?? 0),

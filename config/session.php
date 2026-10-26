@@ -49,6 +49,12 @@ return [
     'encrypt' => false,
 
     /*
+    | Keep the Laravel 12 serialization format so existing database sessions
+    | remain valid during the framework upgrade.
+    */
+    'serialization' => 'php',
+
+    /*
     |--------------------------------------------------------------------------
     | Session File Location
     |--------------------------------------------------------------------------

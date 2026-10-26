@@ -11,6 +11,10 @@ return new class extends Migration {
      */
     public function up(): void
     {
+        if (DB::getDriverName() !== 'mysql') {
+            return;
+        }
+
         $procedure = "DROP PROCEDURE IF EXISTS `get_all_groups`;
       CREATE PROCEDURE `get_all_groups`( IN `as_on_date` varchar(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci, IN `ac_type` varchar(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci)
       BEGIN
@@ -244,6 +248,10 @@ FROM (
      */
     public function down(): void
     {
+        if (DB::getDriverName() !== 'mysql') {
+            return;
+        }
+
         DB::unprepared(
             'DROP PROCEDURE IF EXISTS get_all_groups;'
         );

@@ -3,27 +3,17 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
+use Symfony\Component\Process\ExecutableFinder;
+use Symfony\Component\Process\Process;
+use ZipArchive;
 
 class GenerateDatabaseBackup extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
     protected $signature = 'backup:database {--keep=5 : Number of backup files to keep}';
 
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
     protected $description = 'Generate and pre-compress database backup into storage/app/backups';
 
-    /**
-     * Execute the console command.
-     */
-    public function handle()
+    public function handle(): int
     {
         $this->info('Starting database backup generation...');
 
@@ -35,84 +25,140 @@ class GenerateDatabaseBackup extends Command
         $port = $config['port'] ?? env('DB_PORT', '3306');
 
         $backupDir = storage_path('app/backups');
-        if (!file_exists($backupDir)) {
-            @mkdir($backupDir, 0755, true);
+        if (! is_dir($backupDir) && ! mkdir($backupDir, 0755, true) && ! is_dir($backupDir)) {
+            $this->error('Unable to create the backup directory.');
+
+            return self::FAILURE;
+        }
+
+        $mysqldump = $this->findMysqldump();
+        if ($mysqldump === null) {
+            $this->error('mysqldump was not found. Set MYSQLDUMP_PATH in .env when using a custom installation.');
+
+            return self::FAILURE;
+        }
+
+        if (! class_exists(ZipArchive::class)) {
+            $this->error('The PHP zip extension is required to create compressed backups.');
+
+            return self::FAILURE;
         }
 
         $timestamp = date('Y-m-d_H-i-s');
         $baseName = "{$database}_{$timestamp}";
         $sqlFileName = "{$baseName}.sql";
         $zipFileName = "{$baseName}.zip";
-
-        $tempSqlPath = $backupDir . '/' . $sqlFileName;
-        $finalZipPath = $backupDir . '/' . $zipFileName;
-
-        // Temporary credentials file
+        $tempSqlPath = $backupDir.DIRECTORY_SEPARATOR.$sqlFileName;
+        $finalZipPath = $backupDir.DIRECTORY_SEPARATOR.$zipFileName;
         $tempCnf = tempnam(sys_get_temp_dir(), 'my_dump_');
-        $cnfContent = "[client]\nuser=\"{$username}\"\npassword=\"{$password}\"\nhost=\"{$host}\"\nport=\"{$port}\"\n";
-        file_put_contents($tempCnf, $cnfContent);
+
+        if ($tempCnf === false) {
+            $this->error('Unable to create a temporary MySQL credentials file.');
+
+            return self::FAILURE;
+        }
+
+        $escape = static fn (string $value): string => str_replace(['\\', '"'], ['\\\\', '\\"'], $value);
+        $cnfContent = sprintf(
+            "[client]\nuser=\"%s\"\npassword=\"%s\"\nhost=\"%s\"\nport=\"%s\"\n",
+            $escape((string) $username),
+            $escape((string) $password),
+            $escape((string) $host),
+            $escape((string) $port),
+        );
+        file_put_contents($tempCnf, $cnfContent, LOCK_EX);
 
         try {
-            // 1. Dump database
-            $dumpCommand = 'mysqldump --defaults-extra-file=' . escapeshellarg($tempCnf)
-                . ' --single-transaction --quick --skip-lock-tables '
-                . escapeshellarg($database)
-                . ' > ' . escapeshellarg($tempSqlPath);
+            $process = new Process([
+                $mysqldump,
+                "--defaults-extra-file={$tempCnf}",
+                '--single-transaction',
+                '--quick',
+                '--skip-lock-tables',
+                '--routines',
+                '--triggers',
+                '--events',
+                '--hex-blob',
+                '--default-character-set=utf8mb4',
+                "--result-file={$tempSqlPath}",
+                (string) $database,
+            ]);
+            $process->setTimeout(null);
+            $process->run();
 
-            exec($dumpCommand, $dumpOutput, $dumpReturnCode);
-
-            if (file_exists($tempCnf)) {
-                @unlink($tempCnf);
-            }
-
-            if ($dumpReturnCode !== 0 || !file_exists($tempSqlPath) || filesize($tempSqlPath) === 0) {
+            if (! $process->isSuccessful() || ! is_file($tempSqlPath) || filesize($tempSqlPath) === 0) {
                 @unlink($tempSqlPath);
-                $this->error('Failed to dump database.');
-                return 1;
+                $this->error('Failed to dump database: '.trim($process->getErrorOutput()));
+
+                return self::FAILURE;
             }
 
-            // 2. Fast ZIP compression (-1 level)
-            $zipCommand = 'zip -j -1 ' . escapeshellarg($finalZipPath) . ' ' . escapeshellarg($tempSqlPath);
-            exec($zipCommand, $zipOutput, $zipReturnCode);
+            $zip = new ZipArchive;
+            if ($zip->open($finalZipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== true) {
+                @unlink($tempSqlPath);
+                $this->error('Failed to create zip archive.');
+
+                return self::FAILURE;
+            }
+
+            $zip->addFile($tempSqlPath, $sqlFileName);
+            $zip->setCompressionName($sqlFileName, ZipArchive::CM_DEFLATE, 1);
+
+            if (! $zip->close() || ! is_file($finalZipPath) || filesize($finalZipPath) === 0) {
+                @unlink($tempSqlPath);
+                @unlink($finalZipPath);
+                $this->error('Failed to finalize zip archive.');
+
+                return self::FAILURE;
+            }
 
             @unlink($tempSqlPath);
-
-            if ($zipReturnCode !== 0 || !file_exists($finalZipPath) || filesize($finalZipPath) === 0) {
-                @unlink($finalZipPath);
-                $this->error('Failed to create zip archive.');
-                return 1;
-            }
-
-            // 3. Keep latest symlink or pointer
-            $latestPointer = $backupDir . '/latest_backup.txt';
-            file_put_contents($latestPointer, $finalZipPath);
-
-            // 4. Prune old backups
-            $keep = (int) $this->option('keep');
-            $files = glob($backupDir . '/*.zip');
-            if ($files && count($files) > $keep) {
-                usort($files, function ($a, $b) {
-                    return filemtime($b) - filemtime($a);
-                });
-                $toDelete = array_slice($files, $keep);
-                foreach ($toDelete as $f) {
-                    @unlink($f);
-                }
-            }
+            file_put_contents($backupDir.DIRECTORY_SEPARATOR.'latest_backup.txt', $finalZipPath, LOCK_EX);
+            $this->pruneBackups($backupDir, max(1, (int) $this->option('keep')));
 
             $sizeMb = round(filesize($finalZipPath) / 1024 / 1024, 2);
             $this->info("Backup created successfully: {$zipFileName} ({$sizeMb} MB)");
-            return 0;
 
-        } catch (\Throwable $e) {
-            if (file_exists($tempCnf)) {
-                @unlink($tempCnf);
-            }
-            if (file_exists($tempSqlPath)) {
-                @unlink($tempSqlPath);
-            }
-            $this->error('Exception: ' . $e->getMessage());
-            return 1;
+            return self::SUCCESS;
+        } catch (\Throwable $exception) {
+            @unlink($tempSqlPath);
+            @unlink($finalZipPath);
+            $this->error('Exception: '.$exception->getMessage());
+
+            return self::FAILURE;
+        } finally {
+            @unlink($tempCnf);
+        }
+    }
+
+    private function findMysqldump(): ?string
+    {
+        $configured = env('MYSQLDUMP_PATH');
+        if (is_string($configured) && $configured !== '' && is_file($configured)) {
+            return $configured;
+        }
+
+        $found = (new ExecutableFinder)->find('mysqldump');
+        if ($found !== null) {
+            return $found;
+        }
+
+        if (PHP_OS_FAMILY === 'Windows') {
+            $xampp = 'C:\\xampp\\mysql\\bin\\mysqldump.exe';
+
+            return is_file($xampp) ? $xampp : null;
+        }
+
+        return null;
+    }
+
+    private function pruneBackups(string $backupDir, int $keep): void
+    {
+        $files = glob($backupDir.DIRECTORY_SEPARATOR.'*.zip') ?: [];
+        usort($files, static fn (string $left, string $right): int => filemtime($right) <=> filemtime($left));
+
+        foreach (array_slice($files, $keep) as $file) {
+            @unlink($file);
         }
     }
 }
